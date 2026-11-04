@@ -6,6 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 publish = false
 [dependencies]
+aphel-contract.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 uuid.workspace = true

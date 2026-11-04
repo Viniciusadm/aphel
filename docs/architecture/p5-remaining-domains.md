@@ -236,6 +236,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Review scoring's remaining runtime target prerequisites and party SQL; shared identifiers do not resolve those policies.
 - [ ] Manual acceptance: public event envelopes/schema resources, scoring and sequence event subscriptions, owner registration, enrichment and capability combinations.
 
+## Deal metadata and signing references
+
+- [x] Publish deal identity in its pure contract and native public resource metadata in the SDK. Event consumers use shared lifecycle identifiers.
+- [x] Remove metadata-only implementation dependencies from insights/messaging and sequences' deal event subscription.
+- [x] Signing validates quote/deal association through the guarded owner record handler and its masked snapshot, with no direct quotes implementation. Missing, unreadable, disabled or hidden associations are rejected.
+- [x] Signing, insights and messaging have no peer implementation dependencies; messaging's runtime people prerequisite and foreign SQL/FKs remain pending.
+- [ ] Manual acceptance: signing with quotes and hidden associations, disabled owners, public event envelopes, insight widgets, messaging channel composition and sequence deal exits.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

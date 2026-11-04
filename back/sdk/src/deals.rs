@@ -106,3 +106,6 @@ pub async fn credited_won_total(
         .await
         .map(Some)
 }
+
+pub const RESOURCE: aphel_kernel::application::public_events::PublicResource =
+    aphel_kernel::application::public_events::PublicResource::new(RECORD_TYPE, "DealResponse");

@@ -47,52 +47,52 @@ pub(crate) const SIGNED_FILE_ATTACHED: &str = "esign.signed_file_attached";
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         QUEUED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signature request was queued for delivery",
     ),
     event(
         CANCEL_QUEUED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signature cancellation was queued",
     ),
     event(
         FAILED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signature delivery could not be confirmed",
     ),
     event(
         SENT,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A document of the deal was sent for electronic signature",
     ),
     event(
         SIGNED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signer signed a document of the deal",
     ),
     event(
         REFUSED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signer refused a document of the deal",
     ),
     event(
         CANCELLED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signature request of the deal was cancelled",
     ),
     event(
         COMPLETED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "Every signer signed a document of the deal",
     ),
     event(
         EXPIRED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "A signature request of the deal expired",
     ),
     event(
         SIGNED_FILE_ATTACHED,
-        deals::DEAL_RESOURCE,
+        aphel_sdk::deals::RESOURCE,
         "The signed file was attached to the deal",
     ),
 ];
@@ -169,8 +169,8 @@ impl Module for EsignModule {
             .description(
                 "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks. It has no legal validity of its own: validity comes from the provider",
             )
-            .optional(deals::KEY)
-            .optional(tasks::KEY)
+            .optional(aphel_sdk::deals::KEY)
+            .optional("tasks")
             .setting(
                 SettingField::new(
                     ENVIRONMENT_SETTING,

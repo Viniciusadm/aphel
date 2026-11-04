@@ -313,6 +313,7 @@ name = "aphel-contract-crm"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
+ "aphel-contract-deals",
  "aphel-contract-organizations",
  "aphel-contract-people",
  "aphel-kernel",
@@ -322,6 +323,7 @@ dependencies = [
 name = "aphel-contract-deals"
 version = "0.1.0"
 dependencies = [
+ "aphel-contract",
  "chrono",
  "rust_decimal",
  "uuid",
@@ -958,9 +960,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-deals",
- "aphel-mod-quotes",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1171,8 +1170,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-deals",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "chrono",
@@ -1263,9 +1260,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-deals",
- "aphel-mod-people",
- "aphel-mod-tasks",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1769,7 +1763,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-deals",
  "aphel-mod-email",
  "aphel-mod-people",
  "aphel-mod-tasks",

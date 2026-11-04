@@ -14,7 +14,6 @@ use aphel_kernel::application::shared::{
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::records::RecordCtx;
 
 use crate::clicksign::Clicksign;
 use crate::provider::{NoticeKind, SignatureProvider, WebhookNotice};
@@ -97,12 +96,15 @@ pub(crate) async fn ensure_quote(
     deal_id: Uuid,
 ) -> Result<(), AppError> {
     let not_found = || AppError::not_found_code("quote_not_found", "quote not found for this deal");
-    let quote = match quotes::service::get(&ctx.with_scope(scope), &quote_id.to_string()).await {
-        Ok(quote) => quote,
-        Err(error) if is_missing(&error) => return Err(not_found()),
-        Err(error) => return Err(error),
-    };
-    if quote.quote.deal_id == deal_id {
+    let quote = load_record(ctx, scope, "quotes.quote", quote_id)
+        .await?
+        .ok_or_else(not_found)?;
+    if quote
+        .get("deal_id")
+        .and_then(Value::as_str)
+        .and_then(|id| Uuid::parse_str(id).ok())
+        == Some(deal_id)
+    {
         Ok(())
     } else {
         Err(not_found())
@@ -156,12 +158,9 @@ async fn load_record(
     record_type: &str,
     record_id: Uuid,
 ) -> Result<Option<Value>, AppError> {
-    let Ok(handler) = ctx.registry().handler(record_type) else {
-        return Ok(None);
-    };
-    let state = ctx.state();
-    match handler
-        .load(&RecordCtx::new(scope, &state), record_id)
+    match ctx
+        .with_scope(scope)
+        .load_record(record_type, record_id)
         .await
     {
         Ok(value) => Ok(value),

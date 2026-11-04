@@ -32,3 +32,14 @@ pub const DEAL_REOPENED: &str = "deal.reopened";
 pub const DEAL_WON: &str = "deal.won";
 pub const DEAL_LOST: &str = "deal.lost";
 pub const DEAL_DELETED: &str = "deal.deleted";
+
+pub const KEY: &str = "deals";
+pub const RECORD_TYPE: &str = "deals.deal";
+pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::ContractDescriptor {
+    contract: aphel_contract::contract!("deals", "1.0.0"),
+    entries: &[aphel_contract::KeyEntry::new(
+        RECORD_TYPE,
+        aphel_contract::KeyKind::Reference,
+        "A deal record",
+    )],
+};

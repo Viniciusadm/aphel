@@ -36,7 +36,7 @@ use aphel_kernel::modules::Migration;
 use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
 use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, RecordRelation};
 use aphel_kernel::application::public_events::{
-    PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
+    PreviousValues, PublicEventDefinition, changed, deleted, event,
 };
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::access::{Permission, PermissionDefinition};
@@ -53,9 +53,9 @@ pub use hooks::{
     ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon, StageChange,
 };
 
-pub const DEAL_RESOURCE: PublicResource = PublicResource::new("deals.deal", "DealResponse");
+pub use aphel_sdk::deals::RESOURCE as DEAL_RESOURCE;
 
-pub const KEY: &str = "deals";
+pub use aphel_sdk::deals::KEY;
 
 const DEAL_BULK_FIELDS: &[&str] = &[
     "title",
@@ -361,6 +361,7 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_sdk::deals::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::record_context::RecordListSource>(std::sync::Arc::new(
             context_source::ContextSource,
         ));

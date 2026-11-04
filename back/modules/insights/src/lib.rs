@@ -26,8 +26,8 @@ impl Module for InsightsModule {
                 "Additional dashboard widgets: deals by source, team activity ranking and birthdays of the month",
             )
             .requires_aphel("0.1.0")
-            .optional(deals::KEY)
-            .optional(tasks::KEY)
+            .optional(aphel_sdk::deals::KEY)
+            .optional("tasks")
             .setting(
                 SettingField::new(
                     BIRTHDAY_FIELD_SETTING,
