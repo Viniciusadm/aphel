@@ -4,6 +4,11 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: contract!("sso", "1.0.0"),
     entries: &[
         KeyEntry::new(
+            "sso.identity_flows",
+            KeyKind::ExtensionPoint,
+            "Owner-managed scoped identity login and token exchange flows",
+        ),
+        KeyEntry::new(
             "sso.oauth_protocol",
             KeyKind::ExtensionPoint,
             "Enabled OAuth token and discovery protocol executor",

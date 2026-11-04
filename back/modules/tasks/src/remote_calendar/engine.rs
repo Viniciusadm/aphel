@@ -22,11 +22,11 @@ use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, Reco
 use aphel_kernel::application::shared::{Job, JobQueue, RecordType};
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::sso::errors::{error_code, internal, is_internal, is_not_found};
+use aphel_sdk::sso::login::credentials;
 use aphel_sdk::sso::oauth::{self, INVALID_GRANT};
-use sso::errors::{error_code, internal, is_internal, is_not_found};
-use sso::sso::login::credentials;
-use sso::sso::settings;
-use sso::support;
+use aphel_sdk::sso::settings;
+use aphel_sdk::sso::support;
 
 pub(crate) const PAST_DAYS: i64 = 30;
 pub(crate) const FUTURE_DAYS: i64 = 90;

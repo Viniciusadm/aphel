@@ -385,6 +385,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Keep random state issuance, hashes, expiration, row locks and single-use deletion in SSO; no state SQL or persistence implementation moves to the SDK.
 - [ ] Manual acceptance: login/calendar/mail state creation, unavailable state providers, provider isolation, expiry and replay rejection.
 
+## Shared identity flow interfaces
+
+- [x] Publish native identity provider/query/status models and enabled login/status/credential/exchange interfaces. SSO retains account discovery, allowlist enforcement, redirect validation, rate decisions, token exchange checks, session creation and callbacks.
+- [x] Share generic core integration helpers for settings, secrets, user contexts and rate limiting; shared error/response codecs and configuration metadata contain no plugin table SQL.
+- [x] Keep the SSO login settings policy model in its owner. Microsoft verifies its own preferred-username/domain fallback using shared parsing utilities.
+- [x] Remove SSO implementation dependencies from email, tasks, Google and Microsoft. Email and tasks now have no peer implementation dependencies; vendor providers still consume email/task implementations pending extraction.
+- [ ] Manual acceptance: account discovery, login domains, required SSO, provider-specific claims, state/purpose callbacks, session cookies, credential lookup, revoked access and disabled flow providers.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

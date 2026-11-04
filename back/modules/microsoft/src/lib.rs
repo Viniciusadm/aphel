@@ -13,9 +13,9 @@ use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, SettingField, SettingKind};
 use aphel_sdk::calendar::CalendarAvailability;
+use aphel_sdk::sso::IdentityLogin;
+use aphel_sdk::sso::settings::{self, login_setting_fields, validate_login_settings};
 use email::MailboxProvider;
-use sso::IdentityLogin;
-use sso::sso::settings::{self, login_setting_fields, validate_login_settings};
 use tasks::remote_calendar::availability::CalendarBusy;
 use tasks::remote_calendar::jobs;
 use tasks::remote_calendar::model::calendar_setting_fields;
@@ -38,7 +38,7 @@ impl Module for MicrosoftModule {
         let mut manifest = Manifest::new(KEY, "Microsoft", env!("CARGO_PKG_VERSION"))
             .description("Sign-in with a Microsoft account (Entra ID), meeting sync with Outlook and Outlook mailboxes")
             .requires_aphel("0.1.0")
-            .depends_on(sso::KEY, "*")
+            .depends_on(aphel_sdk::sso::KEY, "*")
             .setting(
                 SettingField::new(TENANT, "Tenant (locatário)", SettingKind::Text)
                     .default_value(json!(DEFAULT_TENANT))

@@ -5,10 +5,10 @@ use super::{MAIL_AUTHORIZATION_REVOKED, MAIL_NOT_AUTHORIZED, MAIL_TOKEN_REJECTED
 use crate::{MailboxAccount, MailboxCredentials};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::sso::errors::error_code;
+use aphel_sdk::sso::login::credentials as client_credentials;
 use aphel_sdk::sso::oauth::{self, INVALID_GRANT, TokenResponse};
-use sso::errors::error_code;
-use sso::sso::login::credentials as client_credentials;
-use sso::support;
+use aphel_sdk::sso::support;
 
 pub(crate) const ACCESS_TOKEN: &str = "access_token";
 pub(crate) const REFRESH_TOKEN: &str = "refresh_token";

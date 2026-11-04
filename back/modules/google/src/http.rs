@@ -14,9 +14,9 @@ use aphel_kernel::api::error::{ApiError, app_error};
 use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::domain::access::AccessScope;
+use aphel_sdk::sso::status::{SsoLoginStatus, login_status};
+use aphel_sdk::sso::{CallbackQuery, ClientContext, StartQuery, handle_callback, start_login};
 use email::oauth::connect as mail_connect;
-use sso::sso::status::{SsoLoginStatus, login_status};
-use sso::sso::{CallbackQuery, ClientContext, StartQuery, handle_callback, start_login};
 use tasks::remote_calendar::connect;
 use tasks::remote_calendar::{CalendarConnectUrl, CalendarStatus};
 

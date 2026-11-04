@@ -2,7 +2,7 @@ use serde_json::Value;
 
 use super::model::{CALENDAR_API_FAILED, CURSOR_EXPIRED, REMOTE_NOT_FOUND};
 use aphel_kernel::errors::AppError;
-use sso::errors::unavailable;
+use aphel_sdk::sso::errors::unavailable;
 
 pub fn encode_segment(value: &str) -> String {
     value

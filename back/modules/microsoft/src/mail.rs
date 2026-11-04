@@ -12,6 +12,7 @@ use tasks::remote_calendar::http::encode_segment;
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::sso::errors::error_code;
 use email::oauth::{provider_ctx, provider_error, provider_state};
 use email::{
     ConnectedMailbox, FetchedEmail, MailProviderError, MailboxAccount, MailboxConnectRequest,
@@ -19,7 +20,6 @@ use email::{
     SyncBatch, SyncRequest,
 };
 use serde_json::{Map, Value, json};
-use sso::errors::error_code;
 
 use crate::KEY;
 use crate::provider::{GRAPH_URL, MicrosoftProvider};

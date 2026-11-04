@@ -3,11 +3,9 @@ use serde_json::Value;
 
 use crate::sso::login::{EMAIL_NOT_VERIFIED, NOT_CONFIGURED, failure};
 use crate::sso::oauth::{self, IdTokenClaims, ProviderEndpoints};
-use crate::sso::{IdentityProvider, discover_options, settings};
+use crate::sso::{IdentityProvider, settings};
 use crate::{BUTTON_LABEL, DEFAULT_LABEL, DISCOVERY_URL, KEY};
-use aphel_kernel::api::sso::{LoginOption, LoginProvider};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::AppState;
 
 pub struct OidcProvider;
 
@@ -46,15 +44,4 @@ impl IdentityProvider for OidcProvider {
     }
 }
 
-pub struct IdentityLogin<P: IdentityProvider>(pub P);
-
-#[async_trait]
-impl<P: IdentityProvider + 'static> LoginProvider for IdentityLogin<P> {
-    fn key(&self) -> &'static str {
-        self.0.key()
-    }
-
-    async fn discover(&self, state: &AppState, email: &str) -> Result<Vec<LoginOption>, AppError> {
-        discover_options(state, &self.0, email).await
-    }
-}
+pub use aphel_sdk::sso::IdentityLogin;

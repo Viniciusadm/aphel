@@ -16,7 +16,7 @@ use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
-use sso::errors::{error_code, is_internal, is_unavailable};
+use aphel_sdk::sso::errors::{error_code, is_internal, is_unavailable};
 
 pub(crate) const SYNC_ALL_KIND: &str = "calendar_sync_all";
 pub(crate) const SYNC_KIND: &str = "calendar_sync";

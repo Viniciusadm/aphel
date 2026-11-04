@@ -4,7 +4,7 @@ use super::{
     MAIL_ACCESS_DENIED, MAIL_API_FAILED, MAIL_CURSOR_EXPIRED, MAIL_NOT_FOUND, MAIL_TOKEN_REJECTED,
 };
 use aphel_kernel::errors::AppError;
-use sso::errors::unavailable;
+use aphel_sdk::sso::errors::unavailable;
 
 pub(crate) const MAX_MESSAGE_BYTES: usize = 40 * 1024 * 1024;
 

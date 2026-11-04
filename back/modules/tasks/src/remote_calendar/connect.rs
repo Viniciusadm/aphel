@@ -10,17 +10,17 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_kernel::errors::AppError;
-use aphel_sdk::sso::oauth::{self, AuthorizationRequest};
-use aphel_sdk::sso::states::{self, StoredState};
-use sso::errors::error_code;
-use sso::sso::IdTokenClaims;
-use sso::sso::login::{
+use aphel_sdk::sso::IdTokenClaims;
+use aphel_sdk::sso::errors::error_code;
+use aphel_sdk::sso::login::{
     ACCESS_DENIED, INVALID_STATE, NOT_CONFIGURED, callback_url, credentials, exchange,
     failure_code, redirect_to,
 };
-use sso::sso::settings;
+use aphel_sdk::sso::oauth::{self, AuthorizationRequest};
+use aphel_sdk::sso::settings;
+use aphel_sdk::sso::states::{self, StoredState};
 const PURPOSE_CALENDAR: &str = "calendar";
-use sso::support;
+use aphel_sdk::sso::support;
 
 pub(crate) const NOT_CONNECTED_CODE: &str = "calendar_not_connected";
 pub(crate) const PERMISSION_DENIED: &str = "permission_denied";

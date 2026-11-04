@@ -57,3 +57,57 @@ impl aphel_sdk::sso::states::OAuthStates for Protocol {
         crate::sso::states::consume(ctx, key, state).await
     }
 }
+
+#[async_trait::async_trait]
+impl aphel_sdk::sso::login::IdentityFlows for Protocol {
+    async fn credentials(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        key: &str,
+        settings: &serde_json::Value,
+    ) -> Result<ClientCredentials, AppError> {
+        crate::sso::login::credentials(ctx, key, settings).await
+    }
+    async fn exchange(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        provider: &dyn aphel_sdk::sso::IdentityProvider,
+        state: &aphel_sdk::sso::StoredState,
+        code: &str,
+    ) -> Result<aphel_sdk::sso::login::Exchanged, AppError> {
+        crate::sso::login::exchange(ctx, provider, state, code).await
+    }
+    async fn discover(
+        &self,
+        state: &aphel_kernel::state::AppState,
+        provider: &dyn aphel_sdk::sso::IdentityProvider,
+        email: &str,
+    ) -> Result<Vec<aphel_kernel::api::sso::LoginOption>, AppError> {
+        crate::sso::login::discover_options(state, provider, email).await
+    }
+    async fn start(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        provider: &dyn aphel_sdk::sso::IdentityProvider,
+        query: aphel_sdk::sso::StartQuery,
+        context: aphel_sdk::sso::ClientContext,
+    ) -> axum::response::Response {
+        crate::sso::login::start_login(ctx, provider, query, context).await
+    }
+    async fn callback(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        provider: &dyn aphel_sdk::sso::IdentityProvider,
+        query: aphel_sdk::sso::CallbackQuery,
+        context: aphel_sdk::sso::ClientContext,
+    ) -> axum::response::Response {
+        crate::sso::login::handle_callback(ctx, provider, query, context).await
+    }
+    async fn status(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        provider: &dyn aphel_sdk::sso::IdentityProvider,
+    ) -> Result<aphel_sdk::sso::status::SsoLoginStatus, AppError> {
+        crate::sso::status::login_status(ctx, provider).await
+    }
+}

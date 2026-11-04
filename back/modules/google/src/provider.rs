@@ -1,11 +1,11 @@
+use aphel_sdk::sso::errors::internal;
+use aphel_sdk::sso::login::{EMAIL_NOT_VERIFIED, failure};
 use aphel_sdk::sso::oauth::http_client;
+use aphel_sdk::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
 use async_trait::async_trait;
 use axum::response::Response;
 use chrono::{DateTime, NaiveDate, SecondsFormat, Utc};
 use email::oauth::connect::PURPOSE_MAIL;
-use sso::errors::internal;
-use sso::sso::login::{EMAIL_NOT_VERIFIED, failure};
-use sso::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
 use tasks::remote_calendar::connect::complete_connection;
 use tasks::remote_calendar::engine::parse_instant;
 use tasks::remote_calendar::http::{encode_segment, send};

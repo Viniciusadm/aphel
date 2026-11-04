@@ -10,8 +10,10 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::{AppState, runtime_state};
-use sso::errors::{is_authentication, is_internal, is_too_many_requests, is_unavailable};
-use sso::sso::IdentityProvider;
+use aphel_sdk::sso::IdentityProvider;
+use aphel_sdk::sso::errors::{
+    is_authentication, is_internal, is_too_many_requests, is_unavailable,
+};
 
 pub const MAIL_API_FAILED: &str = "mail_api_failed";
 pub(crate) const MAIL_TOKEN_REJECTED: &str = "mail_token_rejected";

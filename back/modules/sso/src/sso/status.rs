@@ -1,22 +1,10 @@
-use serde::Serialize;
-use utoipa::ToSchema;
-
 use super::login::{IdentityProvider, callback_url};
 use super::settings::{self, LoginSettings};
 use crate::support;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
-pub struct SsoLoginStatus {
-    pub(crate) provider: String,
-    pub(crate) label: String,
-    #[schema(example = "https://crm.example.com/api/v1/public/google/callback")]
-    pub(crate) callback_url: String,
-    pub(crate) configured: bool,
-    pub(crate) domains: Vec<String>,
-    pub(crate) require_sso: bool,
-}
+pub use aphel_sdk::sso::status::SsoLoginStatus;
 
 pub async fn login_status(
     ctx: &Ctx<'_>,

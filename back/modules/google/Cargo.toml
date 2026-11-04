@@ -11,7 +11,6 @@ aphel-sdk.workspace = true
 tasks = { package = "aphel-mod-tasks", path = "../tasks" }
 aphel-kernel.workspace = true
 email = { package = "aphel-mod-email", path = "../email" }
-sso = { package = "aphel-mod-sso", path = "../sso" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

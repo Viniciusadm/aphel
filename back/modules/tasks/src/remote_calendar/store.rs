@@ -6,7 +6,7 @@ use uuid::Uuid;
 use super::model::{CalendarConnectionStatus, STATUS_ACTIVE, STATUS_REVOKED};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use sso::errors::internal;
+use aphel_sdk::sso::errors::internal;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Connection {

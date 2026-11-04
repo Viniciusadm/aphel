@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+axum.workspace = true
 aphel-contract-sso.workspace = true
 reqwest.workspace = true
 form_urlencoded.workspace = true

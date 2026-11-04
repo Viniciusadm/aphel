@@ -1,12 +1,12 @@
+use aphel_sdk::sso::errors::internal;
+use aphel_sdk::sso::login::{EMAIL_NOT_VERIFIED, failure};
 use aphel_sdk::sso::oauth::http_client;
+use aphel_sdk::sso::settings;
+use aphel_sdk::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
 use async_trait::async_trait;
 use axum::response::Response;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use email::oauth::connect::PURPOSE_MAIL;
-use sso::errors::internal;
-use sso::sso::login::{EMAIL_NOT_VERIFIED, failure};
-use sso::sso::settings::{self, LoginSettings};
-use sso::sso::{IdTokenClaims, IdentityProvider, ProviderEndpoints, StoredState};
 use tasks::remote_calendar::connect::complete_connection;
 use tasks::remote_calendar::engine::parse_instant;
 use tasks::remote_calendar::http::{encode_segment, send};
@@ -113,10 +113,12 @@ impl IdentityProvider for MicrosoftProvider {
         {
             return Ok(email.to_owned());
         }
-        let login = LoginSettings::from_value(settings);
+        let domains = settings::text(settings, settings::DOMAINS)
+            .map(|value| settings::parse_domains(&value))
+            .unwrap_or_default();
         claims
             .text("preferred_username")
-            .filter(|username| !login.domains.is_empty() && login.matches_email(username))
+            .filter(|username| !domains.is_empty() && settings::email_domain(username).is_some_and(|domain| domains.contains(&domain)))
             .map(str::to_owned)
             .ok_or_else(|| {
                 failure(

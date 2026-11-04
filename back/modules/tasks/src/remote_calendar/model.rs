@@ -8,7 +8,7 @@ use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{SettingField, SettingKind, SettingOption};
 use aphel_sdk::calendar::BusyInterval;
-use sso::sso::IdentityProvider;
+use aphel_sdk::sso::IdentityProvider;
 
 pub(crate) const CURSOR_EXPIRED: &str = "calendar_cursor_expired";
 pub(crate) const REMOTE_NOT_FOUND: &str = "calendar_event_not_found";
