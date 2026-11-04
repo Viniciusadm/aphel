@@ -1,5 +1,5 @@
 use chrono::{Duration, NaiveDateTime, Utc};
-use sqlx::{AssertSqlSafe, Row};
+use sqlx::Row;
 use uuid::Uuid;
 
 use super::oauth::{random_token, sha256_hex};
@@ -8,7 +8,6 @@ use aphel_kernel::errors::AppError;
 
 pub const STATE_TTL_MINUTES: i64 = 10;
 pub const PURPOSE_LOGIN: &str = "login";
-pub const PURPOSE_CALENDAR: &str = "calendar";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NewState {
@@ -24,10 +23,6 @@ pub struct StoredState {
     pub code_verifier: String,
     pub user_id: Option<Uuid>,
     pub redirect_path: Option<String>,
-}
-
-fn table(key: &str) -> String {
-    format!("{key}_oauth_states")
 }
 
 fn now() -> NaiveDateTime {
@@ -47,19 +42,13 @@ pub async fn create(
         code_verifier: random_token(48)?,
     };
     let pool = ctx.pool();
-    sqlx::query(AssertSqlSafe(format!(
-        "DELETE FROM {} WHERE expires_at < ? LIMIT 500",
-        table(key)
-    )))
-    .bind(now())
-    .execute(pool)
-    .await?;
-    sqlx::query(AssertSqlSafe(format!(
-        "INSERT INTO {} (id, purpose, state_hash, nonce, code_verifier, user_id, redirect_path, expires_at) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        table(key)
-    )))
+    sqlx::query("DELETE FROM sso_oauth_states WHERE expires_at < ? LIMIT 500")
+        .bind(now())
+        .execute(pool)
+        .await?;
+    sqlx::query("INSERT INTO sso_oauth_states (id, provider_key, purpose, state_hash, nonce, code_verifier, user_id, redirect_path, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(Uuid::now_v7().to_string())
+    .bind(key)
     .bind(purpose)
     .bind(sha256_hex(&fresh.state))
     .bind(&fresh.nonce)
@@ -82,24 +71,18 @@ pub async fn consume(
     }
     let hash = sha256_hex(state);
     let mut tx = ctx.begin().await?;
-    let row = sqlx::query(AssertSqlSafe(format!(
-        "SELECT purpose, nonce, code_verifier, user_id, redirect_path, expires_at \
-         FROM {} WHERE state_hash = ? FOR UPDATE",
-        table(key)
-    )))
-    .bind(&hash)
+    let row = sqlx::query("SELECT purpose, nonce, code_verifier, user_id, redirect_path, expires_at FROM sso_oauth_states WHERE provider_key = ? AND state_hash = ? FOR UPDATE")
+    .bind(key).bind(&hash)
     .fetch_optional(&mut *tx)
     .await?;
     let Some(row) = row else {
         return Ok(None);
     };
-    sqlx::query(AssertSqlSafe(format!(
-        "DELETE FROM {} WHERE state_hash = ?",
-        table(key)
-    )))
-    .bind(&hash)
-    .execute(&mut *tx)
-    .await?;
+    sqlx::query("DELETE FROM sso_oauth_states WHERE provider_key = ? AND state_hash = ?")
+        .bind(key)
+        .bind(&hash)
+        .execute(&mut *tx)
+        .await?;
     tx.commit().await?;
     let expires_at: NaiveDateTime = row.try_get("expires_at")?;
     if expires_at < now() {

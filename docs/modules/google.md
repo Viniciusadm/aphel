@@ -92,7 +92,7 @@ Same flow as [`sso`](sso.md#flow), with Google's fixed endpoints (`accounts.goog
 ## Events, tables and data
 
 - Events: `google.calendar_connected`, `google.calendar_disconnected` (payload `user_id`, `account_email`; never tokens). Audit with `account_email`.
-- Migration 1: `google_oauth_states`, `google_calendar_connections`, `google_calendar_links` (data export and removal from the modules screen also delete the refresh tokens).
+- Migration 1: `google_calendar_connections`, `google_calendar_links` (data export and removal from the modules screen also delete the refresh tokens).
 - **Sent to Google**: `client_id`/`client_secret` (token endpoint), the user's email as `login_hint`, and from CRM meetings: title, start, end and description. **Received**: id_token (account email), refresh/access tokens (refresh encrypted; access only in memory) and events from the primary calendar (title, description, time, attendees).
 
 ## Limitations
@@ -102,3 +102,5 @@ Same flow as [`sso`](sso.md#flow), with Google's fixed endpoints (`accounts.goog
 - Only the primary calendar (`primary`); all-day events are ignored; attendees are not exported.
 - Recurring CRM tasks are exported occurrence by occurrence (as the occurrences exist in the CRM); recurring Google events are imported per instance.
 - Conflict comparison with second precision.
+
+OAuth nonce/PKCE states are owned by SSO in `sso_oauth_states`, partitioned by provider key. Provider migrations contain only provider-owned calendar data until calendar persistence is extracted.

@@ -363,6 +363,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Manual acceptance: hot board masks/scopes, touch idempotency, cooldown pagination, concurrent touches/deletion, owner notifications and disabled people.
 - [ ] Manual acceptance: qualification veto, conversion enrichment, decorator touch insertion in the same transaction, rollback/pending commits and optional converter owners.
 
+## OAuth state schema ownership
+
+- [x] SSO stores nonce/PKCE state in its own table with a bound provider key and provider/hash uniqueness. Remove dynamic provider-table SQL while retaining expiry and transactional single-use consumption.
+- [x] Remove Google/Microsoft OAuth state table creation from fresh provider schemas. Login, calendar and email use provider-partitioned state; calendar purpose metadata belongs to tasks.
+- [x] Rewrite schemas directly without adoption/backfill or compatibility handling.
+- [ ] Shared OAuth interfaces, provider-owned calendar persistence and removal of remaining peer implementations are pending.
+- [ ] Manual acceptance: provider isolation, expired/replayed state, concurrent callbacks, login/calendar/mail purpose dispatch and fresh installation schemas.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

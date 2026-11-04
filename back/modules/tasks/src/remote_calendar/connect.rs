@@ -18,7 +18,8 @@ use sso::sso::login::{
 };
 use sso::sso::oauth::{self, AuthorizationRequest};
 use sso::sso::settings;
-use sso::sso::states::{self, PURPOSE_CALENDAR, StoredState};
+use sso::sso::states::{self, StoredState};
+const PURPOSE_CALENDAR: &str = "calendar";
 use sso::support;
 
 pub(crate) const NOT_CONNECTED_CODE: &str = "calendar_not_connected";

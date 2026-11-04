@@ -84,7 +84,7 @@ The `outlook` provider is contributed as `dyn email::MailboxProvider` (core key 
 
 ## Tables and data
 
-- Migration 1: `microsoft_oauth_states`, `microsoft_calendar_connections`, `microsoft_calendar_links`.
+- Migration 1: `microsoft_calendar_connections`, `microsoft_calendar_links`.
 - **Sent to Microsoft**: `client_id`/`client_secret` (token endpoint), the user's email as `login_hint`, and from CRM meetings: title, start, end and description. **Received**: id_token, tokens (refresh encrypted; access only in memory) and events from the default calendar.
 - No token or secret goes to logs, audit, events or responses.
 
@@ -94,3 +94,5 @@ The `outlook` provider is contributed as `dyn email::MailboxProvider` (core key 
 - No Graph notification subscriptions (webhooks) in this version: reading every 5 minutes.
 - Only the user's default calendar; no personal accounts unless `tenant = consumers`/`common`.
 - Same recurrence and precision limitations as the [`google`](google.md#limitations) module.
+
+OAuth nonce/PKCE states are owned by SSO in `sso_oauth_states`, partitioned by provider key. Provider migrations contain only provider-owned calendar data until calendar persistence is extracted.
