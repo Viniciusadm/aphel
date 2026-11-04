@@ -18,6 +18,29 @@ impl ConfigurationReferences for References {
     fn kinds(&self) -> &'static [ConfigReferenceKind] {
         &[PIPELINE, STAGE, LOST_REASON]
     }
+    fn package_keys(
+        &self,
+        package: &aphel_sdk::configuration::ConfigPackage,
+        kind: ConfigReferenceKind,
+    ) -> std::collections::BTreeSet<String> {
+        let pipelines = package
+            .section(crate::section::PIPELINES_SECTION)
+            .and_then(|content| crate::section::parse_pipelines(content).ok())
+            .unwrap_or_default();
+        match kind {
+            PIPELINE => pipelines.into_iter().map(|entry| entry.key).collect(),
+            STAGE => pipelines
+                .into_iter()
+                .flat_map(|entry| {
+                    entry
+                        .stages
+                        .into_iter()
+                        .map(move |stage| format!("{}/{}", entry.key, stage.key))
+                })
+                .collect(),
+            _ => std::collections::BTreeSet::new(),
+        }
+    }
     async fn keys(
         &self,
         pool: &MySqlPool,

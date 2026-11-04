@@ -187,6 +187,13 @@ pub fn configuration_packages(
 #[async_trait]
 pub trait ConfigurationReferences: Send + Sync {
     fn kinds(&self) -> &'static [ConfigReferenceKind];
+    fn package_keys(
+        &self,
+        _package: &ConfigPackage,
+        _kind: ConfigReferenceKind,
+    ) -> std::collections::BTreeSet<String> {
+        std::collections::BTreeSet::new()
+    }
     async fn keys(
         &self,
         pool: &MySqlPool,
@@ -240,4 +247,16 @@ async fn reference_keys_from(
         )));
     }
     source.keys(pool, kind).await
+}
+
+pub fn package_reference_keys(
+    package: &ConfigPackage,
+    kind: ConfigReferenceKind,
+) -> std::collections::BTreeSet<String> {
+    aphel_kernel::modules::app()
+        .contributions::<dyn ConfigurationReferences>()
+        .into_iter()
+        .filter(|source| source.kinds().contains(&kind))
+        .flat_map(|source| source.package_keys(package, kind))
+        .collect()
 }

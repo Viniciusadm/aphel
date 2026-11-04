@@ -8,14 +8,11 @@ publish = false
 
 [dependencies]
 aphel-contract-webhooks.workspace = true
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 aphel-contract-automation.workspace = true
 record_layouts = { package = "aphel-mod-record-layouts", path = "../record_layouts" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
-tasks = { package = "aphel-mod-tasks", path = "../tasks" }
-tagging = { package = "aphel-mod-tagging", path = "../tagging" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

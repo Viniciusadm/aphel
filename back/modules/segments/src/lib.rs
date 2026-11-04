@@ -1,3 +1,4 @@
+mod config_references;
 pub(crate) mod domain;
 pub(crate) mod dto;
 pub(crate) mod hooks;
@@ -35,6 +36,9 @@ impl Module for SegmentsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
+            std::sync::Arc::new(config_references::References),
+        );
         app.contribute(std::sync::Arc::new(
             aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("segments"),
         ));

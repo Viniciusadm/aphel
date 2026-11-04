@@ -244,29 +244,6 @@ impl AutomationStore {
         rows.iter().map(automation_from_row).collect()
     }
 
-    pub(crate) async fn sequence_keys(&self) -> Result<Vec<(Uuid, String)>, AppError> {
-        self.reference_keys("SELECT id, `key` AS reference FROM sequences")
-            .await
-    }
-
-    pub(crate) async fn segment_keys(&self) -> Result<Vec<(Uuid, String)>, AppError> {
-        self.reference_keys("SELECT id, CONCAT(record_type, '/', name) AS reference FROM segments")
-            .await
-    }
-
-    async fn reference_keys(&self, sql: &'static str) -> Result<Vec<(Uuid, String)>, AppError> {
-        let rows = match sqlx::query(sql).fetch_all(&self.pool).await {
-            Ok(rows) => rows,
-            Err(sqlx::Error::Database(error)) if error.code().as_deref() == Some("42S02") => {
-                return Ok(Vec::new());
-            }
-            Err(error) => return Err(error.into()),
-        };
-        rows.iter()
-            .map(|row| Ok((uuid_column(row, "id")?, row.try_get("reference")?)))
-            .collect()
-    }
-
     pub(crate) async fn count(&self) -> Result<u64, AppError> {
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM automations")
             .fetch_one(&self.pool)

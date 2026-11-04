@@ -1,3 +1,4 @@
+mod config_references;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -84,6 +85,9 @@ impl Module for SequencesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
+            std::sync::Arc::new(config_references::References),
+        );
         app.declare_hook(crate::hooks::StepRunning, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a sequence step runs; a definitive error removes the contact from the sequence, a transient one retries the job",
         );

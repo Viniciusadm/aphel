@@ -609,9 +609,6 @@ dependencies = [
  "aphel-contract-webhooks",
  "aphel-kernel",
  "aphel-mod-record-layouts",
- "aphel-mod-tagging",
- "aphel-mod-tasks",
- "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1729,6 +1726,7 @@ name = "aphel-mod-segments"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "chrono",

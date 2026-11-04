@@ -23,15 +23,11 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::diff;
 use aphel_sdk::configuration::sections::custom_objects::package_registry;
 use aphel_sdk::configuration::{
-    ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
-    PlanChange, PlanItem, assign_keys, parse_section,
+    ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
+    parse_section,
 };
-use tagging::TagStore;
-use tagging::section::{PackageTag, TAGS_SECTION};
-use tasks::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
-use tasks::store::ActivityTypeStore;
-use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
-use workflow::store::PipelineStore;
+use aphel_sdk::configuration::{package_reference_keys, reference_keys};
+use sqlx::MySqlPool;
 
 pub(crate) const AUTOMATIONS_SECTION: &str = "automations";
 const AUTOMATION_KIND: &str = "automation";
@@ -77,7 +73,6 @@ const TRIGGER_REFERENCES: [(&str, &str, ReferenceKind); 3] = [
     ("segment_id", "segment", ReferenceKind::Segment),
 ];
 
-const SEQUENCES_SECTION: &str = "sequences";
 const IN_SEGMENT_OPERATOR: &str = "in_saved_filter";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -182,102 +177,59 @@ struct AutomationPlan {
     current: Option<Automation>,
 }
 
-pub(crate) struct AutomationsSection<K> {
+pub(crate) struct AutomationsSection {
     registry: Arc<RecordTypeRegistry>,
     automations: AutomationStore,
-    tags: TagStore,
-    workflow: PipelineStore,
-    keys: K,
-    task_types: ActivityTypeStore,
+    pool: MySqlPool,
     triggers: TriggerRegistry,
     actions: ActionRegistry,
 }
 
-impl<K> AutomationsSection<K>
-where
-    K: ConfigKeyRepository,
-{
+impl AutomationsSection {
     pub(crate) fn new(
         registry: Arc<RecordTypeRegistry>,
         automations: AutomationStore,
-        tags: TagStore,
-        workflow: PipelineStore,
-        keys: K,
-        task_types: ActivityTypeStore,
+        pool: MySqlPool,
     ) -> Self {
         Self {
             registry,
             automations,
-            tags,
-            workflow,
-            keys,
-            task_types,
+            pool,
             triggers: TriggerRegistry::builtin(),
             actions: ActionRegistry::builtin(),
         }
     }
 
     async fn organization_index(&self) -> Result<KeyIndex, AppError> {
-        let mut tags = self.tags.list().await?;
-        tags.sort_by(|left, right| {
-            left.created_at
-                .cmp(&right.created_at)
-                .then(left.id.cmp(&right.id))
-        });
-        let stored_tags = self
-            .keys
-            .keys(ConfigReferenceKind::new("tagging.tag"))
-            .await?;
-        let tags = assign_keys(
-            tags.iter().map(|tag| (tag.id, tag.name.as_str())),
-            &stored_tags,
-        )
-        .into_iter()
-        .map(|keyed| (keyed.id, keyed.key))
-        .collect();
-        let task_types = self
-            .task_types
-            .list(true)
-            .await?
-            .into_iter()
-            .map(|activity_type| (activity_type.id, activity_type.key))
-            .collect();
-        let stored_stages = self
-            .keys
-            .keys(ConfigReferenceKind::new("workflow.stage"))
-            .await?;
-        let mut workflow = Vec::new();
+        let keys =
+            |kind| async move { reference_keys(&self.pool, ConfigReferenceKind::new(kind)).await };
+        let workflow: Vec<_> = keys("workflow.pipeline").await?.into_iter().collect();
         let mut stages = Vec::new();
-        for (pipeline, keyed) in keyed_pipelines(&self.workflow, &self.keys).await? {
-            let workflow_stages = self.workflow.list_stages(pipeline.id).await?;
-            let ids: BTreeSet<Uuid> = workflow_stages.iter().map(|stage| stage.id).collect();
-            let stored: HashMap<Uuid, String> = stored_stages
+        for (id, key) in keys("workflow.stage").await? {
+            let (pipeline_key, stage_key) = key
+                .split_once('/')
+                .ok_or_else(|| AppError::Configuration("invalid portable stage key".into()))?;
+            let pipeline_id = workflow
                 .iter()
-                .filter(|(id, _)| ids.contains(id))
-                .map(|(id, key)| (*id, key.clone()))
-                .collect();
-            for stage in assign_keys(
-                workflow_stages
-                    .iter()
-                    .map(|stage| (stage.id, stage.name.as_str())),
-                &stored,
-            ) {
-                stages.push(StageEntry {
-                    id: stage.id,
-                    pipeline_id: pipeline.id,
-                    pipeline_key: keyed.key.clone(),
-                    key: stage.key,
-                });
-            }
-            workflow.push((pipeline.id, keyed.key));
+                .find(|(_, key)| key == pipeline_key)
+                .map(|(id, _)| *id)
+                .ok_or_else(|| {
+                    AppError::Configuration("portable stage pipeline is missing".into())
+                })?;
+            stages.push(StageEntry {
+                id,
+                pipeline_id,
+                pipeline_key: pipeline_key.to_owned(),
+                key: stage_key.to_owned(),
+            });
         }
         Ok(KeyIndex {
-            tags,
-            task_types,
+            tags: keys("tagging.tag").await?.into_iter().collect(),
+            task_types: keys("tasks.activity_type").await?.into_iter().collect(),
             workflow,
             stages,
-            sequences: self.automations.sequence_keys().await?,
-            segments: self.automations.segment_keys().await?,
+            sequences: keys("sequences.sequence").await?.into_iter().collect(),
+            segments: keys("segments.segment").await?.into_iter().collect(),
         })
     }
 
@@ -400,7 +352,7 @@ where
             let stage_id = context
                 .resolved(
                     ConfigReferenceKind::new("workflow.stage"),
-                    &stage_item_key(pipeline_key, stage_key),
+                    &format!("{pipeline_key}/{stage_key}"),
                 )
                 .or_else(|| {
                     context
@@ -896,52 +848,32 @@ fn parse(content: &Value) -> Result<Vec<PackageAutomation>, AppError> {
 }
 
 fn package_available(package: &ConfigPackage) -> BTreeMap<ReferenceKind, BTreeSet<String>> {
-    let mut available: BTreeMap<ReferenceKind, BTreeSet<String>> = BTreeMap::new();
-    if let Some(Ok(tags)) = package
-        .section(TAGS_SECTION)
-        .map(parse_section::<Vec<PackageTag>>)
-    {
-        available
-            .entry(ReferenceKind::Tag)
-            .or_default()
-            .extend(tags.into_iter().map(|tag| tag.key));
-    }
-    if let Some(Ok(types)) = package
-        .section(ACTIVITY_TYPES_SECTION)
-        .map(parse_section::<Vec<PackageActivityType>>)
-    {
-        available
-            .entry(ReferenceKind::ActivityType)
-            .or_default()
-            .extend(types.into_iter().map(|activity_type| activity_type.key));
-    }
-    if let Some(Value::Array(sequences)) = package.section(SEQUENCES_SECTION) {
-        available
-            .entry(ReferenceKind::Sequence)
-            .or_default()
-            .extend(
-                sequences
-                    .iter()
-                    .filter_map(|sequence| sequence.get("key").and_then(Value::as_str))
-                    .map(str::to_owned),
-            );
-    }
-    if let Some(Ok(workflow)) = package.section(PIPELINES_SECTION).map(parse_pipelines) {
-        let stages = available.entry(ReferenceKind::Stage).or_default();
-        for pipeline in workflow {
-            for stage in pipeline.stages {
-                stages.insert(format!("{}.{}", pipeline.key, stage.key));
-            }
-        }
+    let mut available = BTreeMap::new();
+    for (kind, reference) in [
+        (ReferenceKind::Tag, "tagging.tag"),
+        (ReferenceKind::ActivityType, "tasks.activity_type"),
+        (ReferenceKind::Sequence, "sequences.sequence"),
+        (ReferenceKind::Stage, "workflow.stage"),
+    ] {
+        let keys = package_reference_keys(package, ConfigReferenceKind::new(reference));
+        available.insert(
+            kind,
+            keys.into_iter()
+                .map(|key| {
+                    if kind == ReferenceKind::Stage {
+                        key.replacen('/', ".", 1)
+                    } else {
+                        key
+                    }
+                })
+                .collect(),
+        );
     }
     available
 }
 
 #[async_trait]
-impl<K> ConfigSection<MySqlTx> for AutomationsSection<K>
-where
-    K: ConfigKeyRepository,
-{
+impl ConfigSection<MySqlTx> for AutomationsSection {
     fn key(&self) -> &'static str {
         AUTOMATIONS_SECTION
     }

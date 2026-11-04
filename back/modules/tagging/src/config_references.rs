@@ -15,6 +15,22 @@ impl ConfigurationReferences for References {
     fn kinds(&self) -> &'static [ConfigReferenceKind] {
         KINDS
     }
+    fn package_keys(
+        &self,
+        package: &aphel_sdk::configuration::ConfigPackage,
+        _kind: ConfigReferenceKind,
+    ) -> std::collections::BTreeSet<String> {
+        package
+            .section(crate::section::TAGS_SECTION)
+            .and_then(|content| {
+                aphel_sdk::configuration::parse_section::<Vec<crate::section::PackageTag>>(content)
+                    .ok()
+            })
+            .unwrap_or_default()
+            .into_iter()
+            .map(|entry| entry.key)
+            .collect()
+    }
     async fn keys(
         &self,
         pool: &MySqlPool,

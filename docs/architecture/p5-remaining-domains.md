@@ -177,6 +177,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Adopt these sources in remaining configuration consumers and review disabled reference owners during export/restore.
 - [ ] Manual acceptance: stable keys, duplicate normalized names, compound stage keys, custom stored keys and export/restore matching with owner combinations.
 
+## Automation reference consumers
+
+- [x] Owners publish package reference keys alongside stored keys. Sequences and segments provide their own metadata queries.
+- [x] Automation package planning/export uses contributed tag, task-type, workflow, sequence and segment keys. Owners parse their package sections; automations retains trigger/action rewrites and conflict policy.
+- [x] Remove automation's workflow/task/tagging implementation dependencies and foreign sequence/segment SQL, including the old missing-table fallback.
+- [ ] Remove the remaining record-layout condition implementation dependency.
+- [ ] Manual acceptance: automation package references, compound stage rewrites, sequence enrollment, segment conditions, absent owners and invalid package sections.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
