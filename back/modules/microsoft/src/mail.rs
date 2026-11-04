@@ -12,13 +12,13 @@ use email::oauth::{
 
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::sso::errors::error_code;
-use email::oauth::{provider_ctx, provider_error, provider_state};
-use email::{
+use aphel_sdk::email::mailbox::{
     ConnectedMailbox, FetchedEmail, MailProviderError, MailboxAccount, MailboxConnectRequest,
     MailboxConnectionKind, MailboxCredentials, MailboxProvider, ProviderEmail, SentEmail,
     SyncBatch, SyncRequest,
 };
+use aphel_sdk::sso::errors::error_code;
+use email::oauth::{provider_ctx, provider_error, provider_state};
 use serde_json::{Map, Value, json};
 
 use crate::KEY;

@@ -45,6 +45,11 @@ pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::Contr
     contract: aphel_contract::contract!("email", "1.0.0"),
     entries: &[
         aphel_contract::KeyEntry::new(
+            "email.mailbox_provider",
+            aphel_contract::KeyKind::ExtensionPoint,
+            "Native mailbox provider operations and credential persistence callbacks",
+        ),
+        aphel_contract::KeyEntry::new(
             "email.sender",
             aphel_contract::KeyKind::ExtensionPoint,
             "Transactional scoped email enqueue",

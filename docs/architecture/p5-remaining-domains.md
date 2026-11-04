@@ -412,6 +412,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Manual acceptance: both providers, job dispatch/deduplication/retries, disabled owners/adapters before queued work, new provider activation, callback purposes and event fanout failures.
 - [ ] Manual acceptance: calendar adapter payloads, settings metadata, timestamp/segment codecs, event windows and public response schemas.
 
+## Shared mailbox provider models
+
+- [x] Publish mailbox provider interfaces, account/credential callbacks, message/attachment/sync snapshots and provider error codecs through the native email SDK.
+- [x] Keep provider selection, mailbox storage, vault writes and best-effort refreshed-credential persistence policy in email. Shared persistence handles only forward to the owner's callback.
+- [x] Google/Microsoft consume shared provider models without importing email implementation types.
+- [ ] Extract remaining MIME/OAuth protocol helpers and owner token/connection execution interfaces; vendor email implementation dependencies remain pending.
+- [ ] Manual acceptance: IMAP/vendor providers, callback persistence, redacted debug output, provider errors and message/sync codecs.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

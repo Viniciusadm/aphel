@@ -13,11 +13,11 @@ use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, SettingField, SettingKind};
 use aphel_sdk::calendar::CalendarAvailability;
+use aphel_sdk::email::mailbox::MailboxProvider;
 use aphel_sdk::sso::IdentityLogin;
 use aphel_sdk::sso::settings::{self, login_setting_fields, validate_login_settings};
 use aphel_sdk::tasks::remote_calendar::CalendarBusy;
 use aphel_sdk::tasks::remote_calendar::calendar_setting_fields;
-use email::MailboxProvider;
 
 pub(crate) use mail::OutlookProvider;
 pub(crate) use provider::MicrosoftProvider;

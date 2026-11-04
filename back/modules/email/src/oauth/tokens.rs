@@ -159,8 +159,13 @@ async fn refresh_and_persist(
     account: Option<&MailboxAccount>,
 ) -> Result<MailboxCredentials, AppError> {
     let fresh = refresh(ctx, provider, credentials).await?;
-    if let Some(account) = account {
-        account.persist_refreshed(&fresh).await;
+    if let Some(account) = account
+        && let Err(error) = account
+            .persistence
+            .persist(account.mailbox_id, &fresh)
+            .await
+    {
+        tracing::warn!(mailbox_id = %account.mailbox_id, "could not persist refreshed mailbox credentials: {error}");
     }
     Ok(fresh)
 }

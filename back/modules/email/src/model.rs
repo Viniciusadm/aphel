@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_json::Value;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -9,216 +9,18 @@ use crate::domain::{
 };
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::{Secret, UserId};
+use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 
 pub(crate) const MAILBOX_SECRET_OWNER: &str = "mailbox";
 pub(crate) const MAILBOX_CREDENTIALS_SECRET: &str = "credentials";
 pub const IMAP_PROVIDER: &str = "imap";
 
-#[derive(Clone, PartialEq, Default)]
-pub struct MailboxCredentials(pub Map<String, Value>);
-
-impl MailboxCredentials {
-    pub fn get(&self, key: &str) -> Option<&str> {
-        self.0.get(key).and_then(Value::as_str)
-    }
-
-    pub(crate) fn to_secret(&self) -> Secret {
-        Secret::new(Value::Object(self.0.clone()).to_string())
-    }
-
-    pub(crate) fn from_secret(secret: &Secret) -> Result<Self, AppError> {
-        match serde_json::from_str::<Value>(secret.expose()) {
-            Ok(Value::Object(values)) => Ok(Self(values)),
-            _ => Err(AppError::Internal(
-                "stored mailbox credentials are not a JSON object".to_owned(),
-            )),
-        }
-    }
-}
-
-impl std::fmt::Debug for MailboxCredentials {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MailboxCredentials").finish_non_exhaustive()
-    }
-}
-
-#[async_trait::async_trait]
-pub(crate) trait CredentialSink: Send + Sync {
-    async fn persist(
-        &self,
-        mailbox_id: Uuid,
-        credentials: &MailboxCredentials,
-    ) -> Result<(), AppError>;
-}
-
-#[derive(Clone, Default)]
-pub struct CredentialPersistence(Option<std::sync::Arc<dyn CredentialSink>>);
-
-impl CredentialPersistence {
-    pub(crate) fn new(sink: std::sync::Arc<dyn CredentialSink>) -> Self {
-        Self(Some(sink))
-    }
-}
-
-impl std::fmt::Debug for CredentialPersistence {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("CredentialPersistence")
-            .field(&self.0.is_some())
-            .finish()
-    }
-}
-
-impl PartialEq for CredentialPersistence {
-    fn eq(&self, _: &Self) -> bool {
-        true
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct MailboxAccount {
-    pub mailbox_id: Uuid,
-    pub user_id: Uuid,
-    pub address: String,
-    pub settings: Value,
-    pub credentials: MailboxCredentials,
-    pub persistence: CredentialPersistence,
-}
-
-impl MailboxAccount {
-    pub async fn persist_refreshed(&self, credentials: &MailboxCredentials) {
-        let Some(sink) = &self.persistence.0 else {
-            return;
-        };
-        if let Err(error) = sink.persist(self.mailbox_id, credentials).await {
-            tracing::warn!(
-                mailbox_id = %self.mailbox_id,
-                "could not persist refreshed mailbox credentials: {error}"
-            );
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum MailboxConnectionKind {
-    Credentials,
-    OAuth { start_path: String },
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct MailboxConnectRequest {
-    pub(crate) user_id: Uuid,
-    pub(crate) settings: Value,
-    pub credentials: MailboxCredentials,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct ConnectedMailbox {
-    pub address: String,
-    pub display_name: Option<String>,
-    pub settings: Value,
-    pub credentials: MailboxCredentials,
-}
-
-pub use aphel_sdk::email::EmailAddress;
-
-#[derive(Clone, PartialEq, Eq)]
-pub struct EmailAttachmentContent {
-    pub name: String,
-    pub mime_type: String,
-    pub content: Vec<u8>,
-    pub content_id: Option<String>,
-    pub inline: bool,
-}
-
-impl std::fmt::Debug for EmailAttachmentContent {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("EmailAttachmentContent")
-            .field("name", &self.name)
-            .field("mime_type", &self.mime_type)
-            .field("size", &self.content.len())
-            .finish_non_exhaustive()
-    }
-}
-
-#[derive(Clone, PartialEq, Default)]
-pub struct FetchedEmail {
-    pub provider_message_id: Option<String>,
-    pub message_id: Option<String>,
-    pub in_reply_to: Option<String>,
-    pub references: Vec<String>,
-    pub subject: String,
-    pub from: Option<EmailAddress>,
-    pub to: Vec<EmailAddress>,
-    pub cc: Vec<EmailAddress>,
-    pub bcc: Vec<EmailAddress>,
-    pub reply_to: Vec<EmailAddress>,
-    pub date: Option<DateTime<Utc>>,
-    pub text: Option<String>,
-    pub html: Option<String>,
-    pub attachments: Vec<EmailAttachmentContent>,
-    pub content_type: Option<String>,
-    pub auto_submitted: Option<String>,
-    pub report_for_message_id: Option<String>,
-    pub sent_by_account: bool,
-}
-
-impl std::fmt::Debug for FetchedEmail {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("FetchedEmail")
-            .field("provider_message_id", &self.provider_message_id)
-            .field("message_id", &self.message_id)
-            .finish_non_exhaustive()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct SyncRequest {
-    pub cursor: Option<Value>,
-    pub since: DateTime<Utc>,
-    pub limit: usize,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct SyncBatch {
-    pub messages: Vec<FetchedEmail>,
-    pub cursor: Value,
-    pub has_more: bool,
-    pub credentials: Option<MailboxCredentials>,
-}
-
-#[derive(Clone, PartialEq)]
-pub struct ProviderEmail {
-    pub message_id: String,
-    pub from: EmailAddress,
-    pub to: Vec<EmailAddress>,
-    pub cc: Vec<EmailAddress>,
-    pub bcc: Vec<EmailAddress>,
-    pub reply_to: Option<EmailAddress>,
-    pub subject: String,
-    pub text: String,
-    pub html: Option<String>,
-    pub in_reply_to: Option<String>,
-    pub references: Vec<String>,
-    pub attachments: Vec<EmailAttachmentContent>,
-    pub headers: Vec<(String, String)>,
-}
-
-impl std::fmt::Debug for ProviderEmail {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ProviderEmail")
-            .field("message_id", &self.message_id)
-            .finish_non_exhaustive()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct SentEmail {
-    pub message_id: String,
-    pub provider_message_id: Option<String>,
-    pub credentials: Option<MailboxCredentials>,
-}
+pub use aphel_sdk::email::mailbox::{
+    ConnectedMailbox, CredentialPersistence, CredentialSink, EmailAddress, EmailAttachmentContent,
+    FetchedEmail, MailboxAccount, MailboxConnectRequest, MailboxConnectionKind, MailboxCredentials,
+    ProviderEmail, SentEmail, SyncBatch, SyncRequest,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub(crate) struct EmailBody {
