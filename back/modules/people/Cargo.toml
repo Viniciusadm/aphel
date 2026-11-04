@@ -11,7 +11,7 @@ aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 organizations = { package = "aphel-mod-organizations", path = "../organizations" }
-tags = { package = "aphel-mod-tags", path = "../tags" }
+tagging = { package = "aphel-mod-tagging", path = "../tagging" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

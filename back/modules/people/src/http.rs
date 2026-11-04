@@ -39,8 +39,8 @@ use aphel_kernel::records::{
     AddressInput, merge_survivor, possible_duplicates, serialize_nested_records,
 };
 use aphel_kernel::records::{PendingCommit, RecordCtx, values_request};
-use tags::dto::TagSummary;
-use tags::http::{RECORD_INCLUDES, record_tag_map};
+use tagging::dto::TagSummary;
+use tagging::http::{RECORD_INCLUDES, record_tag_map};
 
 pub(crate) const TAG: &str = "people";
 

@@ -16,7 +16,7 @@ deals = { package = "aphel-mod-deals", path = "../deals" }
 leads = { package = "aphel-mod-leads", path = "../leads" }
 assignment = { package = "aphel-mod-assignment", path = "../assignment" }
 workflow = { package = "aphel-mod-workflow", path = "../workflow" }
-tags = { package = "aphel-mod-tags", path = "../tags" }
+tagging = { package = "aphel-mod-tagging", path = "../tagging" }
 form_urlencoded.workspace = true
 axum.workspace = true
 chrono.workspace = true

@@ -32,8 +32,8 @@ use aphel_kernel::records::{AddressInput, merge_survivor, possible_duplicates};
 use aphel_kernel::records::{
     PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
 };
-use tags::dto::TagSummary;
-use tags::http::{RECORD_INCLUDES, record_tag_map};
+use tagging::dto::TagSummary;
+use tagging::http::{RECORD_INCLUDES, record_tag_map};
 
 pub(crate) const TAG: &str = "organizations";
 

@@ -6,7 +6,7 @@ pub const REQUIRED: &[&str] = &[
     "organizations",
     "deals",
     "notes",
-    "tags",
+    "tagging",
     "integrations",
     "plugins",
     "exports",
@@ -83,7 +83,7 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_assignment::AssignmentModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_tags::TagsModule),
+        Box::new(module_tagging::TaggingModule),
         #[cfg(feature = "plugins")]
         Box::new(module_segments::SegmentsModule),
         #[cfg(feature = "plugins")]

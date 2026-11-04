@@ -109,10 +109,10 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `sequences.list` | sequences | read | — | Sequences with their steps and enrollment counts: { active?, search?, page?, per_page? } -> { data, total } |
 | `sequences.pause` | sequences | write | yes | Pause an active enrollment: { id } |
 | `sequences.resume` | sequences | write | yes | Resume a paused enrollment: { id } |
-| `tagging.apply` | tags | write | yes | Tag a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
-| `tagging.get` | tags | read | — | One tag by id: { id } -> tag |
-| `tagging.list` | tags | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
-| `tagging.remove` | tags | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
+| `tagging.apply` | tagging | write | yes | Tag a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
+| `tagging.get` | tagging | read | — | One tag by id: { id } -> tag |
+| `tagging.list` | tagging | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
+| `tagging.remove` | tagging | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
 | `tasks.complete` | tasks | write | yes | Mark an open activity as done now: { id } |
 | `timeline.kinds` | timeline | read | — | Available timeline kinds and localized labels: { record_type, record_id } |
 | `timeline.page` | timeline | read | — | Owner-authorized record timeline, newest first: { record_type, record_id, cursor?, kinds?: comma-separated contributed keys, per_page? } -> { data, meta: { next_cursor } } |

@@ -386,7 +386,7 @@ pub(crate) async fn validate_request(
     let tag_id = clean(definition.tag_id);
     if let (Some(tag_id), Some(actor)) = (&tag_id, &actor) {
         let valid = Uuid::parse_str(tag_id).is_ok()
-            && tags::service::get(&ctx.with_scope(actor), tag_id)
+            && tagging::service::get(&ctx.with_scope(actor), tag_id)
                 .await
                 .is_ok();
         if !valid {

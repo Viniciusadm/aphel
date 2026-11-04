@@ -18,7 +18,7 @@ export interface RecordTagsControlProps {
 }
 
 export function RecordTagsControl({ recordType, recordId, readOnly = false, className }: RecordTagsControlProps) {
-  const { t } = useTranslation('tags')
+  const { t } = useTranslation('tagging')
   const { hasPermission } = useSession()
   const permission = tagUpdatePermission(recordType)
   const canEdit = !readOnly && Boolean(permission && hasPermission(permission))
@@ -76,7 +76,7 @@ interface TagPickerProps {
 }
 
 function TagPicker({ recordType, selectedIds, disabled, onToggle }: TagPickerProps) {
-  const { t } = useTranslation('tags')
+  const { t } = useTranslation('tagging')
   const available = useTags(recordType)
   const [search, setSearch] = useState('')
   const term = search.trim().toLocaleLowerCase()

@@ -208,7 +208,7 @@ dependencies = [
  "aphel-mod-segments",
  "aphel-mod-sequences",
  "aphel-mod-sso",
- "aphel-mod-tags",
+ "aphel-mod-tagging",
  "aphel-mod-tasks",
  "aphel-mod-themes",
  "aphel-mod-timeline",
@@ -594,7 +594,7 @@ dependencies = [
  "aphel-contract-webhooks",
  "aphel-kernel",
  "aphel-mod-record-layouts",
- "aphel-mod-tags",
+ "aphel-mod-tagging",
  "aphel-mod-tasks",
  "aphel-mod-workflow",
  "aphel-sdk",
@@ -1025,7 +1025,7 @@ dependencies = [
  "aphel-mod-deals",
  "aphel-mod-leads",
  "aphel-mod-people",
- "aphel-mod-tags",
+ "aphel-mod-tagging",
  "aphel-mod-tasks",
  "aphel-mod-workflow",
  "axum",
@@ -1432,7 +1432,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-tags",
+ "aphel-mod-tagging",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1453,7 +1453,7 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-organizations",
- "aphel-mod-tags",
+ "aphel-mod-tagging",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1838,7 +1838,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "aphel-mod-tags"
+name = "aphel-mod-tagging"
 version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",

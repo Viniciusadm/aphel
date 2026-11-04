@@ -24,20 +24,20 @@ export { RecordTagsControl, type RecordTagsControlProps } from './RecordTagsCont
 export { TagChip, TagChipList, type TagChipListProps, type TagChipProps } from './TagChip'
 
 const tagsModule = defineModule({
-  key: 'tags',
+  key: 'tagging',
   required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.settings('organization', {
       group: 'records',
-      path: 'tags',
+      path: 'tagging',
       label: 'settings:tabs.tags',
       description: 'settings:items.tags.description',
       icon: Tag,
       permission: SETTINGS_MANAGE,
       routes: [tagsSettingsRoute],
     })
-    app.slot('record.detail.actions', { key: 'tags', render: RecordTagsAction })
+    app.slot('record.detail.actions', { key: 'tagging', render: RecordTagsAction })
     app.recordList(TAGS_LIST_EXTENSION)
     app.referenceOptions('tag', TAG_REFERENCE_OPTIONS)
   },

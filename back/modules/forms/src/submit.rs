@@ -654,7 +654,7 @@ pub(crate) async fn accept(
         }
     };
     if let Some(tag_id) = &form.definition.tag_id
-        && let Err(error) = tags::service::tag_record(
+        && let Err(error) = tagging::service::tag_record(
             &ctx,
             RecordType::CONTACT.as_str(),
             &contact_id.to_string(),

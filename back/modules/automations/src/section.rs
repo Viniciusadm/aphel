@@ -26,8 +26,8 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
-use tags::TagStore;
-use tags::section::{PackageTag, TAGS_SECTION};
+use tagging::TagStore;
+use tagging::section::{PackageTag, TAGS_SECTION};
 use tasks::section::{ACTIVITY_TYPES_SECTION, PackageActivityType};
 use tasks::store::ActivityTypeStore;
 use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};

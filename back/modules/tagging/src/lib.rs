@@ -19,11 +19,11 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 
-pub(crate) const KEY: &str = "tags";
+pub(crate) const KEY: &str = "tagging";
 
-pub struct TagsModule;
+pub struct TaggingModule;
 
-impl Module for TagsModule {
+impl Module for TaggingModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Tags", APHEL_VERSION)
             .description("Tags of the organization and tagging of people, organizations, deals and custom objects")
@@ -35,7 +35,6 @@ impl Module for TagsModule {
                 "create tags and taggings",
                 include_str!("../migrations/0001_create_tags.sql"),
             ))
-            .migration(Migration::new(2, "namespace_config_references", include_str!("../migrations/0002_namespace_config_references.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

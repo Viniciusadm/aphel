@@ -21,7 +21,7 @@ use aphel_kernel::api::state::AppState;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 
-pub(crate) const TAG: &str = "tags";
+pub(crate) const TAG: &str = "tagging";
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -56,7 +56,7 @@ pub async fn record_tag_map(
 
 #[utoipa::path(
     get,
-    path = "/tags",
+    path = "/tagging",
     tag = TAG,
     operation_id = "tags_list",
     security(("session_cookie" = [])),
@@ -92,7 +92,7 @@ async fn list_tags(
 
 #[utoipa::path(
     post,
-    path = "/tags",
+    path = "/tagging",
     tag = TAG,
     operation_id = "tags_create",
     security(("session_cookie" = [])),
@@ -121,7 +121,7 @@ async fn create_tag(
 
 #[utoipa::path(
     get,
-    path = "/tags/{tag_id}",
+    path = "/tagging/{tag_id}",
     tag = TAG,
     operation_id = "tags_get",
     security(("session_cookie" = [])),
@@ -143,7 +143,7 @@ async fn get_tag(
 
 #[utoipa::path(
     patch,
-    path = "/tags/{tag_id}",
+    path = "/tagging/{tag_id}",
     tag = TAG,
     operation_id = "tags_update",
     security(("session_cookie" = [])),
@@ -180,7 +180,7 @@ async fn update_tag(
 
 #[utoipa::path(
     delete,
-    path = "/tags/{tag_id}",
+    path = "/tagging/{tag_id}",
     tag = TAG,
     operation_id = "tags_delete",
     security(("session_cookie" = [])),
@@ -209,7 +209,7 @@ async fn delete_tag(
 
 #[utoipa::path(
     get,
-    path = "/record-tags",
+    path = "/tagging/records",
     tag = TAG,
     operation_id = "record_tags_lookup",
     security(("session_cookie" = [])),
@@ -246,7 +246,7 @@ async fn lookup_record_tags(
 
 #[utoipa::path(
     get,
-    path = "/record-tags/{record_type}/{record_id}",
+    path = "/tagging/records/{record_type}/{record_id}",
     tag = TAG,
     operation_id = "record_tags_list",
     security(("session_cookie" = [])),
@@ -277,7 +277,7 @@ async fn list_record_tags(
 
 #[utoipa::path(
     post,
-    path = "/record-tags/{record_type}/{record_id}",
+    path = "/tagging/records/{record_type}/{record_id}",
     tag = TAG,
     operation_id = "record_tags_add",
     security(("session_cookie" = [])),
@@ -313,7 +313,7 @@ async fn tag_record(
 
 #[utoipa::path(
     delete,
-    path = "/record-tags/{record_type}/{record_id}/{tag_id}",
+    path = "/tagging/records/{record_type}/{record_id}/{tag_id}",
     tag = TAG,
     operation_id = "record_tags_remove",
     security(("session_cookie" = [])),

@@ -31,7 +31,7 @@ import dashboardModule from '@modules/dashboard'
 import reportsModule from '@modules/reports'
 import onboardingModule from '@modules/onboarding'
 import assignmentModule from '@modules/assignment'
-import tagsModule from '@modules/tags'
+import taggingModule from '@modules/tagging'
 import segmentsModule from '@modules/segments'
 import callsModule from '@modules/calls'
 import emailModule from '@modules/email'
@@ -97,7 +97,7 @@ export const MODULES: WebModule[] = [
   reportsModule,
   onboardingModule,
   assignmentModule,
-  tagsModule,
+  taggingModule,
   segmentsModule,
   callsModule,
   emailModule,

@@ -35,7 +35,7 @@ pub(crate) const TAG_DELETED: &str = "tag.deleted";
 pub(crate) const RECORD_TAGGED: &str = "record.tagged";
 pub(crate) const RECORD_UNTAGGED: &str = "record.untagged";
 
-pub(crate) const TAG_RECORD_TYPE: RecordType = RecordType::from_static("tags.tag");
+pub(crate) const TAG_RECORD_TYPE: RecordType = RecordType::from_static("tagging.tag");
 pub(crate) const TAGGABLE_RECORD_TYPES: [RecordType; 3] =
     [RecordType::CONTACT, RecordType::COMPANY, RecordType::DEAL];
 pub(crate) const MAX_TAGS_PER_ORGANIZATION: usize = 500;

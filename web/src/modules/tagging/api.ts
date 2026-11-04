@@ -46,19 +46,19 @@ export const tagsKeys = {
 }
 
 function recordPath(recordType: string, recordId: string, tagId?: string) {
-  const base = `/v1/record-tags/${encodeURIComponent(recordType)}/${encodeURIComponent(recordId)}`
+  const base = `/v1/tagging/records/${encodeURIComponent(recordType)}/${encodeURIComponent(recordId)}`
   return tagId ? `${base}/${encodeURIComponent(tagId)}` : base
 }
 
 export const tagsApi = {
   list: (recordType?: string) =>
-    api.get<TagsPage>('/v1/tags', { query: { record_type: recordType, per_page: TAGS_PER_PAGE } }),
-  create: (body: CreateTagBody) => api.post<Tag>('/v1/tags', body),
-  update: (id: string, body: UpdateTagBody) => api.patch<Tag>(`/v1/tags/${encodeURIComponent(id)}`, body),
-  remove: (id: string) => api.delete<void>(`/v1/tags/${encodeURIComponent(id)}`),
+    api.get<TagsPage>('/v1/tagging', { query: { record_type: recordType, per_page: TAGS_PER_PAGE } }),
+  create: (body: CreateTagBody) => api.post<Tag>('/v1/tagging', body),
+  update: (id: string, body: UpdateTagBody) => api.patch<Tag>(`/v1/tagging/${encodeURIComponent(id)}`, body),
+  remove: (id: string) => api.delete<void>(`/v1/tagging/${encodeURIComponent(id)}`),
   recordTags: (recordType: string, recordId: string) => api.get<TagSummary[]>(recordPath(recordType, recordId)),
   lookup: (recordType: string, ids: string[]) =>
-    api.get<RecordTagsEntry[]>('/v1/record-tags', { query: { record_type: recordType, ids: ids.join(',') } }),
+    api.get<RecordTagsEntry[]>('/v1/tagging/records', { query: { record_type: recordType, ids: ids.join(',') } }),
   add: (recordType: string, recordId: string, tagId: string) =>
     api.post<TaggingResult>(recordPath(recordType, recordId), { tag_id: tagId }),
   removeFromRecord: (recordType: string, recordId: string, tagId: string) =>

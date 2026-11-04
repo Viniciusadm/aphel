@@ -1,5 +1,5 @@
 [package]
-name = "aphel-mod-tags"
+name = "aphel-mod-tagging"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

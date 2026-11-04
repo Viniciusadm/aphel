@@ -82,7 +82,7 @@ import type setupNamespace from './pt-BR/setup.json'
 import type sharingNamespace from './pt-BR/sharing.json'
 import type ssoNamespace from '../modules/sso/i18n/pt-BR.json'
 import type systemNamespace from './pt-BR/system.json'
-import type tagsNamespace from '../modules/tags/i18n/pt-BR.json'
+import type taggingNamespace from '../modules/tagging/i18n/pt-BR.json'
 import type tasksNamespace from '../modules/tasks/i18n/pt-BR.json'
 import type themesNamespace from '../modules/themes/i18n/pt-BR.json'
 import type timelineNamespace from '../modules/timeline/i18n/pt-BR.json'
@@ -180,7 +180,7 @@ declare module 'i18next' {
       sharing: typeof sharingNamespace
       sso: typeof ssoNamespace
       system: typeof systemNamespace
-      tags: typeof tagsNamespace
+      tagging: typeof taggingNamespace
       tasks: typeof tasksNamespace
       themes: typeof themesNamespace
       timeline: typeof timelineNamespace

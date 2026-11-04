@@ -1,4 +1,4 @@
-key = "tags"
+key = "tagging"
 name = "Tags"
 version = "0.1.0"
 layer = "capability"

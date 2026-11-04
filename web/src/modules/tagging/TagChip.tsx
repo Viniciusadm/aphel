@@ -12,7 +12,7 @@ export interface TagChipProps {
 }
 
 export function TagChip({ name, color, onRemove, disabled, className }: TagChipProps) {
-  const { t } = useTranslation('tags')
+  const { t } = useTranslation('tagging')
   return (
     <Badge
       variant="outline"
@@ -42,7 +42,7 @@ export interface TagChipListProps {
 }
 
 export function TagChipList({ tags, max = 3, className }: TagChipListProps) {
-  const { t } = useTranslation('tags')
+  const { t } = useTranslation('tagging')
   if (tags.length === 0) return null
   const visible = tags.slice(0, max)
   const hidden = tags.length - visible.length

@@ -18,6 +18,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Replace remaining fixed CRM targets and peer implementation imports with owner interfaces and entity metadata.
 - [ ] Manual acceptance: settings/editor, publish/embed/public render, submission validation, spam controls, mapping and downstream actions.
 
+## Tagging identity
+
+- [x] Replace the native module/package/feature, web namespace and settings route with `tagging`; HTTP resources use `/tagging` and `/tagging/records`.
+- [x] Align record identity with the existing `tagging.tag` contract. Preserve the logical `tags` field, package section and explicitly owned `tags`/`taggings` tables.
+- [x] Remove the legacy reference-namespace conversion migration; fresh installs already write current reference keys.
+- [ ] Replace peer consumers with native owner interfaces and remove the fixed CRM tagging target list.
+- [ ] Manual acceptance: tag management, record lookup/includes, assignment/removal, search refresh, saved tag filters and portable tag configuration.
+
 ## Lead Pro fresh schema
 
 - [x] Remove the legacy temperature-copy migration. The initial schema already creates the owned extension directly.

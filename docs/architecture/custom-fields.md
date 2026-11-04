@@ -152,7 +152,7 @@ In the query engine, `tags` is a virtual field (only when there is no real field
 { "field": "tags", "operator": "is_empty" }
 ```
 
-Operators `in`, `not_in`, `is_empty`, `is_not_empty`, compiled as `[NOT] EXISTS` on `taggings` (table of the `tags` module, `back/modules/tags`; the kernel compiler still reads the table directly). There is also the virtual `id` (`eq`, `neq`, `in`, `not_in`), used by bulk actions.
+Operators `in`, `not_in`, `is_empty`, `is_not_empty`, compiled as `[NOT] EXISTS` on `taggings` (table of the `tags` module, `back/modules/tagging`; the kernel compiler still reads the table directly). There is also the virtual `id` (`eq`, `neq`, `in`, `not_in`), used by bulk actions.
 
 ## Segments
 

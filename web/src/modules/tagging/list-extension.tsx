@@ -6,7 +6,7 @@ import { isTaggable, useRecordTagsLookup, useTags, type Tag } from './api'
 import { TagChipList } from './TagChip'
 
 export const TAGS_FIELD_KEY = 'tags'
-const TAGS_MODULE_KEY = 'tags'
+const TAGS_MODULE_KEY = 'tagging'
 const TAG_OPERATORS: FieldDefinition['operators'] = ['in', 'not_in', 'is_empty', 'is_not_empty']
 
 function tagsField(recordType: string, tags: Tag[], label: string): FieldDefinition {

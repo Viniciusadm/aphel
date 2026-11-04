@@ -122,7 +122,7 @@ impl Module for AutomationsModule {
                 std::sync::Arc::new(crate::section::AutomationsSection::new(
                     registry.clone(),
                     crate::store::AutomationStore::new(pool.clone()),
-                    tags::TagStore::new(pool.clone()),
+                    tagging::TagStore::new(pool.clone()),
                     workflow::store::PipelineStore::new(pool.clone()),
                     aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
                     tasks::store::ActivityTypeStore::new(pool.clone()),

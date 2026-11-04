@@ -33,7 +33,7 @@ reports = { path = "modules/reports" }
 onboarding = { path = "modules/onboarding" }
 demo = { path = "modules/demo" }
 assignment = { path = "modules/assignment" }
-tags = { path = "modules/tags", required = true }
+tagging = { path = "modules/tagging", required = true }
 segments = { path = "modules/segments" }
 calls = { path = "modules/calls" }
 email = { path = "modules/email" }

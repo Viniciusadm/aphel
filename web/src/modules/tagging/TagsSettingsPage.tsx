@@ -51,7 +51,7 @@ interface EditorState {
 }
 
 function TagsSection() {
-  const { t } = useTranslation('tags')
+  const { t } = useTranslation('tagging')
   const tags = useTags()
   const invalidate = useInvalidateTags()
   const [editor, setEditor] = useState<EditorState | null>(null)
@@ -162,7 +162,7 @@ interface TagFormProps {
 }
 
 function TagForm({ editing, onClose, onSaved }: TagFormProps) {
-  const { t } = useTranslation('tags')
+  const { t } = useTranslation('tagging')
   const formId = useId()
   const [name, setName] = useState(editing?.name ?? '')
   const [color, setColor] = useState(editing?.color ?? DEFAULT_TAG_COLOR)
