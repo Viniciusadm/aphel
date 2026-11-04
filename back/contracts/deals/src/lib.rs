@@ -37,9 +37,35 @@ pub const KEY: &str = "deals";
 pub const RECORD_TYPE: &str = "deals.deal";
 pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::ContractDescriptor {
     contract: aphel_contract::contract!("deals", "1.0.0"),
-    entries: &[aphel_contract::KeyEntry::new(
-        RECORD_TYPE,
-        aphel_contract::KeyKind::Reference,
-        "A deal record",
-    )],
+    entries: &[
+        aphel_contract::KeyEntry::new(
+            RECORD_TYPE,
+            aphel_contract::KeyKind::Reference,
+            "A deal record",
+        ),
+        aphel_contract::KeyEntry::new(
+            "deals.probability_reader",
+            aphel_contract::KeyKind::ExtensionPoint,
+            "Scoped probability groups and deal snapshots",
+        ),
+        aphel_contract::KeyEntry::new(
+            "deals.credit_reader",
+            aphel_contract::KeyKind::ExtensionPoint,
+            "Scoped split-credit totals and monthly buckets",
+        ),
+    ],
 };
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProbabilitySource {
+    Stage,
+    DealOrStage,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProbabilityGroup {
+    pub month: NaiveDate,
+    pub probability: u8,
+    pub count: u64,
+    pub amount: Decimal,
+}

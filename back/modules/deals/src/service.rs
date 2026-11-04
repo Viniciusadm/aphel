@@ -1739,6 +1739,10 @@ async fn board_pipeline(ctx: &Ctx<'_>, pipeline_id: Option<&str>) -> Result<Pipe
     pipeline.ok_or_else(|| AppError::not_found_code(PIPELINE_NOT_FOUND, "pipeline was not found"))
 }
 
+pub(crate) async fn query_plan(ctx: &Ctx<'_>, query: RecordQuery) -> Result<QueryPlan, AppError> {
+    planner(ctx, query.filter.as_ref()).await?.plan(query)
+}
+
 async fn planner(ctx: &Ctx<'_>, filter: Option<&Filter>) -> Result<Planner, AppError> {
     let scope = ctx.scope;
     let query = ctx.query();

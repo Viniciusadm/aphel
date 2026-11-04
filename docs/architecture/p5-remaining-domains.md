@@ -244,6 +244,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Signing, insights and messaging have no peer implementation dependencies; messaging's runtime people prerequisite and foreign SQL/FKs remain pending.
 - [ ] Manual acceptance: signing with quotes and hidden associations, disabled owners, public event envelopes, insight widgets, messaging channel composition and sequence deal exits.
 
+## Forecast probability ownership
+
+- [x] Share probability source/group data through the pure deals contract and native bounded snapshot/read interfaces through the SDK.
+- [x] Deals plans scoped queries and reads its own probability/credit data. Workflow supplies stage metadata, joined through bound snapshots rather than foreign table SQL.
+- [x] Forecast keeps horizons, categories, weighted prediction and settings. Its store reads only its own settings and core organization currency; it has no peer implementation dependency or foreign SQL.
+- [x] Shared credit readers expose owner-calculated monthly totals. Probability snapshots enforce field visibility, including amount/base amount/date and returned title/currency/owner/stage labels.
+- [ ] Manual acceptance: forecast methods/categories/horizons, probability filters and pagination, split credit, scope and field masks, inactive stages and disabled owner catalogs.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

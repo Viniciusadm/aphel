@@ -35,8 +35,8 @@ use aphel_kernel::application::shared::{
     ensure_version,
 };
 use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
@@ -742,26 +742,7 @@ pub async fn credited_won_total(
         .await
 }
 
-pub fn credited_from_owner_filter(
-    user_id: Option<&str>,
-    team_id: Option<&str>,
-) -> Option<CreditedUsers> {
-    let present = |value: Option<&str>| {
-        value
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-            .and_then(|value| Uuid::parse_str(value).ok())
-    };
-    match (present(user_id), present(team_id)) {
-        (Some(user_id), None) => UserId::new(user_id.to_string())
-            .ok()
-            .map(CreditedUsers::User),
-        (None, Some(team_id)) => TeamId::new(team_id.to_string())
-            .ok()
-            .map(CreditedUsers::Team),
-        _ => None,
-    }
-}
+pub use aphel_sdk::deals::credited_from_owner_filter;
 
 pub async fn credited_won_months(
     ctx: &Ctx<'_>,

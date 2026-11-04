@@ -2,12 +2,9 @@ use std::collections::BTreeMap;
 
 use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
-use uuid::Uuid;
 
-use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::application::shared::RecordType;
-use deals::team::domain::CreditedUsers;
 
 pub(crate) use aphel_kernel::application::shared::is_access_denied as is_unavailable;
 
@@ -112,39 +109,10 @@ impl ForecastSettings {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ProbabilitySource {
-    Stage,
-    DealOrStage,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ForecastGroupRow {
-    pub(crate) month: NaiveDate,
-    pub(crate) probability: u8,
-    pub(crate) count: u64,
-    pub(crate) amount: Decimal,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ForecastDealsRequest {
-    pub(crate) source: ProbabilitySource,
-    pub(crate) probability_range: Option<(u8, u8)>,
-    pub(crate) window: ListWindow,
-    pub(crate) credited: Option<CreditedUsers>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ForecastDeal {
-    pub(crate) id: Uuid,
-    pub(crate) title: String,
-    pub(crate) amount: Option<Decimal>,
-    pub(crate) currency: String,
-    pub(crate) probability: u8,
-    pub(crate) stage_name: String,
-    pub(crate) owner: Option<UserReference>,
-    pub(crate) expected_close_date: Option<NaiveDate>,
-}
+pub(crate) use aphel_sdk::deals::{
+    ProbabilityDeal as ForecastDeal, ProbabilityDealsRequest as ForecastDealsRequest,
+    ProbabilityGroup as ForecastGroupRow, ProbabilitySource,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct UpdateForecastSettingsCommand {

@@ -26,7 +26,7 @@ impl Module for ForecastModule {
             .description(
                 "Revenue forecast per month from open deals, with the organization method, categories and horizon",
             )
-            .depends_on(deals::KEY, "*")
+            .optional(aphel_sdk::deals::KEY)
             .enabled_by_default()
             .migration(Migration::new(
                 1,

@@ -23,8 +23,8 @@ use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::organization_admin::Listing;
 use aphel_kernel::application::query::{
     AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, ArchivedFilter, Filter,
-    FilterOperator, GroupBySpec, MetricSpec, OWNER_TEAM_FIELD, QueryPlan, RecordQuery,
-    RecordQueryExecutor, RecordQueryPorts, ResolveContext, TimeGranularity, resolve_query,
+    FilterOperator, GroupBySpec, MetricSpec, OWNER_TEAM_FIELD, RecordQuery, RecordQueryExecutor,
+    RecordQueryPorts, ResolveContext, TimeGranularity,
 };
 use aphel_kernel::application::shared::{RecordRef, ensure_version};
 use aphel_kernel::database::transaction::MySqlTx;
@@ -32,9 +32,8 @@ use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::dashboard::local_today;
+use aphel_sdk::deals::{CreditedUsers, credited_from_owner_filter, credited_won_months};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
-use deals::team::domain::CreditedUsers;
-use deals::team::service::{credited_from_owner_filter, credited_won_months};
 
 const DEAL: &str = "deals.deal";
 const AMOUNT: &str = "amount";
@@ -215,11 +214,11 @@ pub(crate) async fn report(
     let context = resolve_context(ctx).await?;
     let from = month_start(local_today(context.now, context.timezone));
     let to = month_end(from, u32::from(horizon));
-    let (fields, plan) = open_plan(ctx, &context, owner_conditions.clone(), from, to).await?;
+    let (fields, plan) = open_plan(ctx, owner_conditions.clone(), from, to).await?;
     let source = probability_source(&settings, &fields);
     let store = ForecastStore::of(ctx);
-    let rows = store
-        .groups(ctx.scope, &plan, source, credited.as_ref())
+    let rows = aphel_sdk::deals::probability_reader(ctx)?
+        .groups(ctx, plan, source, credited.as_ref())
         .await?;
     let won = won(ctx, owner_conditions, from, to, credited.as_ref()).await?;
     let mut months: BTreeMap<NaiveDate, ForecastSummary> = BTreeMap::new();
@@ -299,15 +298,13 @@ pub(crate) async fn deals(
     if !violations.is_empty() {
         return Err(AppError::invalid_fields(INVALID_QUERY, violations));
     }
-    let context = resolve_context(ctx).await?;
-    let (fields, plan) =
-        open_plan(ctx, &context, owner_conditions, month, month_end(month, 1)).await?;
+    let (fields, plan) = open_plan(ctx, owner_conditions, month, month_end(month, 1)).await?;
     let source = probability_source(&settings, &fields);
     let store = ForecastStore::of(ctx);
-    let listing = store
+    let listing = aphel_sdk::deals::probability_reader(ctx)?
         .deals(
-            ctx.scope,
-            &plan,
+            ctx,
+            plan,
             &ForecastDealsRequest {
                 source,
                 probability_range: category.map(|category| settings.probability_range(category)),
@@ -366,15 +363,14 @@ async fn resolve_context(ctx: &Ctx<'_>) -> Result<ResolveContext, AppError> {
 
 async fn open_plan(
     ctx: &Ctx<'_>,
-    context: &ResolveContext,
     mut conditions: Vec<Filter>,
     from: NaiveDate,
     to: NaiveDate,
-) -> Result<(FieldSet, QueryPlan), AppError> {
+) -> Result<(FieldSet, RecordQuery), AppError> {
     let scope = ctx.scope;
     let query = ctx.query();
     let definition = query.registry().require(DEAL)?;
-    let visibility = scope.record_filter(&definition.read_permission)?;
+    scope.record_filter(&definition.read_permission)?;
     let fields = FieldSet::for_scope(query.definitions(), definition, scope).await?;
     if fields.is_hidden(AMOUNT) {
         return Err(not_accessible(vec![FieldViolation::new(
@@ -397,21 +393,16 @@ async fn open_plan(
         FilterOperator::Lte,
         date(to),
     ));
-    let plan = resolve_query(
-        &fields,
-        context,
-        visibility,
-        RecordQuery {
-            filter: Some(Filter::and(conditions)),
-            sort: Vec::new(),
-            search: None,
-            archived: ArchivedFilter::Exclude,
-            window: ListWindow {
-                offset: 0,
-                limit: 1,
-            },
+    let plan = RecordQuery {
+        filter: Some(Filter::and(conditions)),
+        sort: Vec::new(),
+        search: None,
+        archived: ArchivedFilter::Exclude,
+        window: ListWindow {
+            offset: 0,
+            limit: 1,
         },
-    )?;
+    };
     Ok((fields, plan))
 }
 
@@ -426,7 +417,7 @@ async fn won(
     let query_ports = ctx.query();
     if let Some(credited) = credited {
         return match credited_won_months(ctx, credited, BASE_AMOUNT_FIELD, from, to).await {
-            Ok(months) => Ok(Some(
+            Ok(Some(months)) => Ok(Some(
                 months
                     .into_iter()
                     .map(|(month, totals)| {
@@ -440,6 +431,7 @@ async fn won(
                     })
                     .collect(),
             )),
+            Ok(None) => Ok(None),
             Err(error) if is_unavailable(&error) => Ok(None),
             Err(error) => Err(error),
         };

@@ -16,4 +16,14 @@ impl DealCreditReader for CreditReader {
     ) -> Result<CreditTotals, AppError> {
         super::service::credited_won_total(ctx, credited, amount_key, from, to).await
     }
+    async fn won_months(
+        &self,
+        ctx: &Ctx<'_>,
+        credited: &CreditedUsers,
+        amount_key: &str,
+        from: NaiveDate,
+        to: NaiveDate,
+    ) -> Result<std::collections::BTreeMap<NaiveDate, CreditTotals>, AppError> {
+        super::service::credited_won_months(ctx, credited, amount_key, from, to).await
+    }
 }
