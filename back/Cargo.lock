@@ -1939,7 +1939,6 @@ dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-objects",
  "aphel-sdk",
  "async-trait",
  "axum",

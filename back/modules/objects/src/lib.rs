@@ -2,6 +2,7 @@ pub mod application;
 mod dto;
 mod http;
 pub mod infrastructure;
+mod managed_writer;
 mod section;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
@@ -18,6 +19,9 @@ impl Module for ObjectsModule {
         .enabled_by_default()
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::objects::ManagedObjectWriter>(std::sync::Arc::new(
+            managed_writer::Writer,
+        ));
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {
                 section: "custom_objects",

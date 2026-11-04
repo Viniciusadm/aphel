@@ -19,7 +19,7 @@ use aphel_kernel::application::shared::{
     AuditLog, EventPublisher, FieldChange, RecordRef, RecordType, TransactionManager,
     ensure_version,
 };
-use aphel_kernel::domain::access::{AccessScope, Permission, RecordScope};
+use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::custom_objects::{
     Cardinality, CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
     MAX_OBJECT_DESCRIPTION_LENGTH, MAX_OBJECT_ICON_LENGTH, MAX_OBJECT_KEY_LENGTH,
@@ -90,25 +90,7 @@ pub fn is_title_field_type(field_type: FieldType) -> bool {
     )
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct CreateObjectCommand {
-    pub key: String,
-    pub label_singular: String,
-    pub label_plural: String,
-    pub description: Option<String>,
-    pub icon: Option<String>,
-    pub color: Option<String>,
-    pub owner_enabled: Option<bool>,
-    pub ip: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ManagedObject {
-    pub entity_definition: Option<Value>,
-    pub module_key: String,
-    pub permission_scope: Option<RecordScope>,
-    pub internal: bool,
-}
+pub use aphel_sdk::objects::{CreateObjectCommand, ManagedObject};
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct UpdateObjectCommand {

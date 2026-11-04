@@ -122,7 +122,8 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Rename the native host to `wasm_runtime`, its crate to `aphel-mod-wasm-runtime` and its HTTP/settings paths to `wasm-runtime`, without legacy transport aliases.
 - [x] Remove the host's required flag. Installer profiles explicitly select it; the generic optional-module Cargo feature remains unchanged.
 - [x] Register runtime management settings through the host's own web module. Keep generic plugin package protocols, owned storage and application routes unchanged.
-- [ ] Replace the remaining objects implementation dependency and review managed entity availability when the host is disabled or absent.
+- [x] Create managed objects through an enabled SDK writer; validation, metadata persistence, audit and events remain in objects. The host has no peer implementation dependency.
+- [ ] Review managed entity availability when the host is disabled or absent.
 - [ ] Manual acceptance: installation, grants, settings, bundles, public routes, change streams, queued effects, module disabling and host-free composition.
 
 ## Telephony provider boundary
@@ -155,6 +156,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Demo and organization export no longer construct the configuration implementation or depend on its crate. Missing package execution returns an explicit unavailable error.
 - [ ] Replace marketplace's direct versioning implementation dependency.
 - [ ] Manual acceptance: demo template setup, full configuration export/restore, conflict decisions, fingerprints, failed writes and disabled configuration packages.
+
+## Managed object creation boundary
+
+- [x] Share managed creation commands and a writer interface in the native SDK. Objects retains administrative validation, transactions and publication.
+- [x] WebAssembly schema apply resolves the enabled writer before changing entity schemas; no object implementation is constructed by the host.
+- [ ] Manual acceptance: managed entity installation, required title fields, permissions, metadata conflicts, schema failures and disabled object administration.
 
 ## Outstanding scope
 

@@ -3,8 +3,6 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
-use ::objects::application::{CreateObjectCommand, CustomObjectAdminUseCases, ManagedObject};
-use ::objects::infrastructure::MySqlCustomObjectAdminPorts;
 use aphel_kernel::application::custom_objects::custom_record_definition;
 use aphel_kernel::application::fields::config_to_json;
 use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
@@ -17,6 +15,7 @@ use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
 use aphel_kernel::infrastructure::fields::unique_values;
 use aphel_kernel::state::AppState;
+use aphel_sdk::objects::{CreateObjectCommand, ManagedObject, managed_object_writer};
 
 const PLUGIN_FIELD_POSITION: i32 = 20_000;
 const FIELD_TAKEN: &str = "plugin_field_conflict";
@@ -191,6 +190,16 @@ pub async fn apply(
 ) -> Result<(), AppError> {
     check(state, manifest).await?;
     let pool = state.db()?;
+    let ctx = aphel_kernel::Ctx::from_parts(
+        scope,
+        pool.clone(),
+        state.registry().await?,
+        state.events.clone(),
+        state.audit.clone(),
+    );
+    if !manifest.entities.is_empty() {
+        managed_object_writer(&ctx)?;
+    }
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
         let storage: Option<Option<sqlx::types::Json<serde_json::Value>>> =
@@ -245,35 +254,30 @@ pub async fn apply(
                 ));
             }
             None => {
-                CustomObjectAdminUseCases::new(MySqlCustomObjectAdminPorts::new(
-                    pool.clone(),
-                    state.registry().await?,
-                    state.events.clone(),
-                    state.audit.clone(),
-                ))
-                .create_managed(
-                    scope,
-                    CreateObjectCommand {
-                        key: object_key.clone(),
-                        label_singular: entity.label.clone(),
-                        label_plural: entity.label_plural.clone(),
-                        description: entity.description.clone(),
-                        icon: entity.icon.clone(),
-                        color: None,
-                        owner_enabled: Some(entity.owner_enabled),
-                        ip: None,
-                    },
-                    ManagedObject {
-                        entity_definition: Some(
-                            serde_json::to_value(entity)
-                                .map_err(|error| AppError::Configuration(error.to_string()))?,
-                        ),
-                        module_key: manifest.key.clone(),
-                        permission_scope: manifest.entity_scope(entity),
-                        internal: entity.internal,
-                    },
-                )
-                .await?;
+                managed_object_writer(&ctx)?
+                    .create(
+                        &ctx,
+                        CreateObjectCommand {
+                            key: object_key.clone(),
+                            label_singular: entity.label.clone(),
+                            label_plural: entity.label_plural.clone(),
+                            description: entity.description.clone(),
+                            icon: entity.icon.clone(),
+                            color: None,
+                            owner_enabled: Some(entity.owner_enabled),
+                            ip: None,
+                        },
+                        ManagedObject {
+                            entity_definition: Some(
+                                serde_json::to_value(entity)
+                                    .map_err(|error| AppError::Configuration(error.to_string()))?,
+                            ),
+                            module_key: manifest.key.clone(),
+                            permission_scope: manifest.entity_scope(entity),
+                            internal: entity.internal,
+                        },
+                    )
+                    .await?;
             }
         }
     }
