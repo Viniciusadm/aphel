@@ -7,7 +7,6 @@ license.workspace = true
 publish = false
 
 [dependencies]
-config_packages = { package = "aphel-mod-config-packages", path = "../config_packages" }
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 async-trait.workspace = true

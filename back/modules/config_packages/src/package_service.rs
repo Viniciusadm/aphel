@@ -34,3 +34,35 @@ impl ConfigurationPackages for Packages {
         packages(ctx).apply(ctx.scope, command).await
     }
 }
+
+#[async_trait::async_trait]
+impl aphel_sdk::configuration::versioning::ConfigurationVersions for Packages {
+    async fn compare(
+        &self,
+        ctx: &Ctx<'_>,
+        package: &serde_json::Value,
+    ) -> Result<aphel_sdk::configuration::versioning::VersionComparison, AppError> {
+        versions(ctx).compare(ctx.scope, package).await
+    }
+    async fn apply(
+        &self,
+        ctx: &Ctx<'_>,
+        command: aphel_sdk::configuration::versioning::ApplyVersionCommand,
+    ) -> Result<aphel_sdk::configuration::versioning::VersionApplyResult, AppError> {
+        versions(ctx).apply(ctx.scope, command).await
+    }
+}
+fn versions(
+    ctx: &Ctx<'_>,
+) -> crate::application::versioning::ConfigVersionUseCases<
+    crate::infrastructure::versioning::MySqlConfigVersionPorts,
+> {
+    crate::application::versioning::ConfigVersionUseCases::new(
+        crate::infrastructure::versioning::MySqlConfigVersionPorts::new(
+            ctx.pool().clone(),
+            ctx.registry().clone(),
+            ctx.events().clone(),
+            ctx.audit().clone(),
+        ),
+    )
+}

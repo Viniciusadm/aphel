@@ -8,7 +8,7 @@ use crate::application::{
     BUILTIN_CATALOG_SCHEME, BUILTIN_CATALOG_SOURCE, CatalogFetchError, CatalogFetcher,
     CatalogPorts, CatalogSettings, is_allowed_url,
 };
-use ::config_packages::application::APHEL_VERSION;
+use aphel_sdk::configuration::APHEL_VERSION;
 
 const MAX_REDIRECTS: usize = 5;
 const BUILTIN_INDEX: &[u8] = include_bytes!("../../../../catalog/index.json");

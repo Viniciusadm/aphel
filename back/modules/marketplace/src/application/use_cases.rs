@@ -7,11 +7,12 @@ use crate::application::{
     CatalogEntry, CatalogEntryKind, CatalogFetchError, CatalogFetcher, CatalogPorts,
     MAX_CATALOG_INDEX_BYTES, RejectedEntry, parse_index, resolve_package_url,
 };
-use ::config_packages::application::versioning::{compare_versions, sha256_hex};
-use ::config_packages::application::{APHEL_VERSION, MAX_PACKAGE_BYTES, parse_version};
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::versioning::compare_versions;
+use aphel_sdk::configuration::{APHEL_VERSION, MAX_PACKAGE_BYTES, parse_version};
+use sha2::{Digest, Sha256};
 
 pub const CATALOG_DISABLED: &str = "catalog_disabled";
 pub const CATALOG_UNAVAILABLE: &str = "catalog_unavailable";
@@ -170,7 +171,10 @@ where
             .fetch(&package_url, self.ports.settings(), package_limit(expected))
             .await
             .map_err(|error| unavailable("could not download the package", &error))?;
-        let checksum = sha256_hex(&bytes);
+        let checksum: String = Sha256::digest(&bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
         if checksum != package_ref.sha256 {
             return Err(AppError::validation_code(
                 CATALOG_CHECKSUM_MISMATCH,

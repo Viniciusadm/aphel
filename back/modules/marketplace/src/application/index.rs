@@ -3,8 +3,8 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use ::config_packages::application::parse_version;
-use ::config_packages::application::versioning::{is_package_id, parse_package_version};
+use aphel_sdk::configuration::parse_version;
+use aphel_sdk::configuration::versioning::{is_package_id, parse_package_version};
 
 pub const CATALOG_FORMAT: &str = "aphel-catalog";
 pub const CATALOG_FORMAT_VERSION: u32 = 1;

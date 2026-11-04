@@ -1,11 +1,8 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use serde::Serialize;
-use serde_json::Value;
 use uuid::Uuid;
 
 use crate::application::{ConfigPackagePorts, ConfigPackagesTx};
-use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -48,20 +45,7 @@ pub struct VersionItem {
     pub resolution: ItemResolution,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct InstalledVersion {
-    pub id: Uuid,
-    pub package_id: String,
-    pub version: String,
-    pub name: String,
-    pub install_id: Uuid,
-    pub origin: Option<String>,
-    pub package_sha256: String,
-    pub applied_package: Value,
-    pub installed_by: Option<UserId>,
-    pub installed_by_name: Option<String>,
-    pub installed_at: DateTime<Utc>,
-}
+pub use aphel_sdk::configuration::versioning::InstalledVersion;
 
 #[async_trait]
 pub trait ConfigVersionRepository: Send + Sync {

@@ -1,7 +1,6 @@
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use serde::Serialize;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -13,7 +12,7 @@ use crate::application::versioning::{
 use crate::application::{
     ApplyContext, ConfigInstallRepository, ConfigPackage, ConfigPackageInstall, ConfigPackagePorts,
     ConflictDecision, Decisions, INVALID_PACKAGE, PLAN_OUTDATED, PackageIssue, PlanAction,
-    PlanChange, PlanItem, PlanSummary,
+    PlanItem, PlanSummary,
 };
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::security::Clock;
@@ -29,122 +28,10 @@ pub const CONFIG_PACKAGE_VERSION_RECORD_TYPE: RecordType =
     RecordType::from_static("config_package_version");
 pub const INVALID_RESOLUTION: &str = "invalid_resolution";
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PackageStatus {
-    Added,
-    Changed,
-    Removed,
-    Unchanged,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum VersionRelation {
-    Install,
-    Upgrade,
-    Reinstall,
-    Downgrade,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Resolution {
-    KeepLocal,
-    AcceptPackage,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct VersionItemComparison {
-    pub id: String,
-    pub section: String,
-    pub kind: String,
-    pub key: String,
-    pub label: String,
-    pub package_status: PackageStatus,
-    pub package_changes: Vec<PlanChange>,
-    pub locally_modified: bool,
-    pub conflict: bool,
-    pub plan: Option<PlanItem>,
-}
-
-impl VersionItemComparison {
-    pub fn plan_conflict(&self) -> bool {
-        self.plan.as_ref().is_some_and(|plan| {
-            plan.action == PlanAction::SkipConflict
-                && plan
-                    .conflict
-                    .as_ref()
-                    .is_some_and(|conflict| conflict.resolvable)
-        })
-    }
-
-    pub fn needs_resolution(&self) -> bool {
-        self.conflict || self.plan_conflict()
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize)]
-pub struct ComparisonSummary {
-    pub added: u64,
-    pub changed: u64,
-    pub removed: u64,
-    pub unchanged: u64,
-    pub locally_modified: u64,
-    pub conflicts: u64,
-}
-
-impl ComparisonSummary {
-    fn of(items: &[VersionItemComparison]) -> Self {
-        let mut summary = Self::default();
-        for item in items {
-            match item.package_status {
-                PackageStatus::Added => summary.added += 1,
-                PackageStatus::Changed => summary.changed += 1,
-                PackageStatus::Removed => summary.removed += 1,
-                PackageStatus::Unchanged => summary.unchanged += 1,
-            }
-            if item.locally_modified {
-                summary.locally_modified += 1;
-            }
-            if item.conflict {
-                summary.conflicts += 1;
-            }
-        }
-        summary
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct VersionComparison {
-    pub package: Option<PackageIdentity>,
-    pub installed: Option<InstalledVersion>,
-    pub relation: Option<VersionRelation>,
-    pub valid: bool,
-    pub issues: Vec<PackageIssue>,
-    pub sections: Vec<String>,
-    pub items: Vec<VersionItemComparison>,
-    pub summary: ComparisonSummary,
-    pub fingerprint: String,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct ApplyVersionCommand {
-    pub package: Value,
-    pub origin: Option<String>,
-    pub checksum: Option<String>,
-    pub resolutions: HashMap<String, Resolution>,
-    pub fingerprint: String,
-    pub ip: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct VersionApplyResult {
-    pub version: InstalledVersion,
-    pub previous_version: Option<String>,
-    pub kept_local: Vec<String>,
-    pub summary: PlanSummary,
-}
+pub use aphel_sdk::configuration::versioning::{
+    ApplyVersionCommand, ComparisonSummary, PackageStatus, Resolution, VersionApplyResult,
+    VersionComparison, VersionItemComparison, VersionRelation,
+};
 
 struct Analysis {
     comparison: VersionComparison,

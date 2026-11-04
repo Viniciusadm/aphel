@@ -310,6 +310,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "chrono",
+ "semver",
  "serde",
  "serde_json",
  "uuid",
@@ -1253,7 +1254,6 @@ name = "aphel-mod-marketplace"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
- "aphel-mod-config-packages",
  "aphel-sdk",
  "async-trait",
  "axum",

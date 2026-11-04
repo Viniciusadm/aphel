@@ -301,7 +301,8 @@ This phase is in progress. Completed entries describe static source validation; 
 
 - [x] Configuration packages exposes settings-authorized installed package/version summaries through its enabled catalog service.
 - [x] Marketplace no longer instantiates or imports the configuration version repository. A missing catalog provider yields no installed template versions while theme and module discovery remain available.
-- [ ] Move remaining version compare/apply execution and shared version metadata behind contracts.
+- [x] Publish pure package identity/version metadata and native version commands, snapshots and transport codecs. Marketplace invokes enabled comparison/application services; configuration retains planning, transactions, conflict policy, storage and audit.
+- [x] Remove marketplace's last peer implementation dependency. Public OpenAPI remains semantically unchanged after codec extraction.
 - [ ] Manual acceptance: catalog installed/update flags, disabled configuration packages, settings authorization and theme discovery.
 
 ## Outstanding scope

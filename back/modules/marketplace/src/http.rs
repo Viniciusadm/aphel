@@ -6,14 +6,14 @@ use utoipa_axum::routes;
 use crate::application::{CatalogEntryKind, CatalogSettings, CatalogUseCases};
 use crate::dto::CatalogResponse;
 use crate::infrastructure::MySqlCatalogPorts;
-use ::config_packages::application::versioning::ApplyVersionCommand;
-use ::config_packages::versions_http::version_use_cases;
+use aphel_kernel::Ctx;
 use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
 use aphel_kernel::api::error::ApiError;
 use aphel_kernel::api::extractors::{AuthContext, ClientInfo, JsonBody};
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::errors::AppError;
-use config_packages::versions_dto::{
+use aphel_sdk::configuration::versioning::{ApplyVersionCommand, configuration_versions};
+use aphel_sdk::configuration::versions_dto::{
     ApplyCatalogVersionRequest, VersionApplyResponse, VersionComparisonResponse, resolutions,
 };
 
@@ -82,9 +82,9 @@ async fn compare_catalog_template(
     let downloaded = catalog_use_cases(&state)?
         .download_template(&tenant.scope, &id)
         .await?;
-    let comparison = version_use_cases(&state)
-        .await?
-        .compare(&tenant.scope, &downloaded.package)
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let comparison = configuration_versions(&ctx)?
+        .compare(&ctx, &downloaded.package)
         .await?;
     Ok(Json(Data::new(comparison.into())))
 }
@@ -116,10 +116,10 @@ async fn apply_catalog_template(
     let downloaded = catalog_use_cases(&state)?
         .download_template(&tenant.scope, &id)
         .await?;
-    let result = version_use_cases(&state)
-        .await?
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let result = configuration_versions(&ctx)?
         .apply(
-            &tenant.scope,
+            &ctx,
             ApplyVersionCommand {
                 package: downloaded.package,
                 origin: Some(downloaded.origin),

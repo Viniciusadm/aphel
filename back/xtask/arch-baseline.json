@@ -10,7 +10,7 @@
   "kernel_sql_on_plugin_tables": 0,
   "layer_direction_violations": 6,
   "plugin_bridge_files": 32,
-  "plugin_crates_depending_on_plugin_crates": 17,
+  "plugin_crates_depending_on_plugin_crates": 16,
   "plugin_kernel_paths": 80,
   "plugin_manifest_problems": 0,
   "plugin_state_escapes": 86,

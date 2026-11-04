@@ -1,7 +1,9 @@
+pub mod dto;
 pub mod keys;
 pub mod section;
 pub mod sections;
 pub mod versioning;
+pub mod versions_dto;
 pub use aphel_contract_configuration::*;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::database::transaction::MySqlTx;

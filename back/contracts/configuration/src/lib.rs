@@ -1,4 +1,5 @@
 mod commands;
+pub mod versioning;
 pub use commands::*;
 pub mod package;
 pub mod planning;
@@ -10,6 +11,11 @@ pub const CONTRACT: Contract = contract!("configuration", "1.0.0");
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
     entries: &[
+        KeyEntry::new(
+            "configuration.versions",
+            KeyKind::ExtensionPoint,
+            "Scoped configuration package version comparison and application",
+        ),
         KeyEntry::new(
             "configuration.references",
             KeyKind::ExtensionPoint,
