@@ -71,3 +71,64 @@ pub fn selector(
     }
     Ok(sources.into_iter().next())
 }
+
+#[derive(Debug, Clone)]
+pub struct HostRuleMember {
+    pub user_id: aphel_kernel::domain::UserId,
+    pub away: bool,
+    pub away_from: Option<chrono::DateTime<chrono::Utc>>,
+    pub away_until: Option<chrono::DateTime<chrono::Utc>>,
+}
+#[derive(Debug, Clone)]
+pub struct HostRule {
+    pub id: uuid::Uuid,
+    pub name: String,
+    pub is_active: bool,
+    pub members: Vec<HostRuleMember>,
+}
+pub enum HostPick {
+    Untracked,
+    Unavailable,
+    Picked(aphel_kernel::domain::UserId),
+}
+pub struct WeightedHost {
+    pub user_id: aphel_kernel::domain::UserId,
+    pub weight: u32,
+}
+pub struct HostPool {
+    pub rule: Option<HostRule>,
+    pub members: Vec<WeightedHost>,
+}
+#[async_trait::async_trait]
+pub trait HostAssignment: Send + Sync {
+    async fn rule_names(
+        &self,
+        pool: &sqlx::MySqlPool,
+        ids: &[uuid::Uuid],
+    ) -> Result<std::collections::HashMap<uuid::Uuid, String>, AppError>;
+
+    async fn find_rule(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        id: uuid::Uuid,
+    ) -> Result<Option<HostRule>, AppError>;
+    async fn active_rules(&self, ctx: &crate::Ctx<'_>) -> Result<Vec<HostRule>, AppError>;
+    async fn rule_pool(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        id: uuid::Uuid,
+        at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<HostPool, AppError>;
+    async fn pick_user(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        id: uuid::Uuid,
+        hosts: &[WeightedHost],
+    ) -> Result<HostPick, AppError>;
+}
+pub fn host_assignment() -> Option<std::sync::Arc<dyn HostAssignment>> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn HostAssignment>()
+}

@@ -1,5 +1,6 @@
 mod associations;
 mod context_source;
+mod creator;
 mod email_engagement;
 mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
@@ -212,6 +213,7 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::people::PersonWriter>(std::sync::Arc::new(creator::Creator));
         app.contribute::<dyn aphel_sdk::email::EmailEngagementProjection>(std::sync::Arc::new(
             email_engagement::Projection,
         ));

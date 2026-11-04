@@ -1,3 +1,4 @@
+mod host_selection;
 mod selector;
 use aphel_contract_automation::AutomationBuilder;
 use aphel_sdk::assignment::AssignmentPermissions;
@@ -42,6 +43,9 @@ impl Module for AssignmentModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::assignment::HostAssignment>(Arc::new(
+            host_selection::HostAssignments,
+        ));
         app.contribute::<dyn aphel_sdk::assignment::AssignmentSelector>(std::sync::Arc::new(
             selector::NativeAssignmentSelector,
         ));

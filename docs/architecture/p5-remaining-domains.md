@@ -517,6 +517,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Scoped deals/sequence compilation passes. Foreign SQL and cleanup policies remain tracked separately.
 - [ ] Manual acceptance: won/lost exits, secondary people, unavailable owners and rejection of non-system maintenance.
 
+## Booking party and assignment interfaces
+
+- [x] Booking consumes scoped person snapshots and transactional person creation through SDK interfaces, preserving savepoint fallback, custom answers, audit IP and post-commit publication.
+- [x] Assignment owns host pool resolution, strategy/workload selection, locked counters and pick recording. Booking receives one coherent rule/pool snapshot; disabled rules cannot be selected.
+- [x] Replace the foreign rule-label join with bounded owner label reads. Booking has no peer implementation dependencies or foreign SQL; scoped compilation passes without warnings.
+- [ ] Manual acceptance: new/existing people, mapped-answer fallback, meeting transactions, weighted/least-loaded selection, away intervals, rule disablement and labels.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

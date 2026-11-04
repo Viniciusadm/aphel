@@ -33,17 +33,17 @@ pub(crate) const KEY: &str = "booking";
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "meeting.booked",
-        people::CONTACT_RESOURCE,
+        aphel_sdk::people::RESOURCE,
         "The contact booked a meeting through a booking link",
     ),
     event(
         "meeting.rescheduled",
-        people::CONTACT_RESOURCE,
+        aphel_sdk::people::RESOURCE,
         "A meeting booked by the contact through a booking link was rescheduled",
     ),
     event(
         "meeting.canceled",
-        people::CONTACT_RESOURCE,
+        aphel_sdk::people::RESOURCE,
         "A meeting booked by the contact through a booking link was canceled",
     ),
 ];
@@ -57,7 +57,7 @@ impl Module for BookingModule {
                 "Booking links: availability, meeting types, team links and the public booking page",
             )
             .depends_on("tasks", "*")
-            .depends_on(people::KEY, "*")
+            .optional("people")
             .optional("assignment")
             .enabled_by_default()
             .owned_tables(&["booking_availability", "meeting_bookings", "meeting_types"])

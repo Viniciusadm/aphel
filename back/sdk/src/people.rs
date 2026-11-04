@@ -30,3 +30,29 @@ pub fn primary_organizations() -> Option<std::sync::Arc<dyn PrimaryOrganizationR
         .services()
         .get::<dyn PrimaryOrganizationReader>()
 }
+
+pub struct PersonCreation {
+    pub values: serde_json::Map<String, serde_json::Value>,
+    pub custom_fields: serde_json::Map<String, serde_json::Value>,
+    pub ip: Option<String>,
+}
+#[async_trait::async_trait]
+pub trait PersonWriter: Send + Sync {
+    async fn create_in_tx(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        creation: PersonCreation,
+    ) -> Result<crate::records::PendingCommit, crate::AppError>;
+}
+pub fn writer() -> Result<std::sync::Arc<dyn PersonWriter>, crate::AppError> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn PersonWriter>()
+        .ok_or_else(|| {
+            crate::AppError::unavailable_code(
+                "person_writer_unavailable",
+                "person creation is not enabled",
+            )
+        })
+}

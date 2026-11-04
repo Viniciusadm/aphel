@@ -56,11 +56,15 @@ pub(crate) async fn find_contact_by_email(
         },
         ..RecordQuery::default()
     };
-    Ok(people::service::list(ctx, query)
-        .await?
-        .items
-        .first()
-        .map(|details| details.view.contact.id))
+    Ok(
+        aphel_sdk::record_context::list(ctx, aphel_sdk::people::RECORD_TYPE, query)
+            .await?
+            .items
+            .first()
+            .and_then(|record| record.get("id"))
+            .and_then(|id| id.as_str())
+            .and_then(|id| Uuid::parse_str(id).ok()),
+    )
 }
 
 pub(crate) async fn meeting_activity_type(

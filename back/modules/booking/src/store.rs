@@ -36,10 +36,9 @@ impl BookingStore {
 
 const MEETING_TYPE_COLUMNS: &str = "SELECT mt.id, mt.owner_id, u.display_name AS owner_name, \
 mt.slug, mt.name, mt.description, mt.duration_minutes, mt.slot_interval_minutes, mt.location_kind, \
-mt.location_value, mt.questions, mt.spam_protection, mt.distribution_rule_id, r.name AS rule_name, \
+mt.location_value, mt.questions, mt.spam_protection, mt.distribution_rule_id, NULL AS rule_name, \
 mt.is_active, mt.created_at, mt.updated_at \
-FROM meeting_types mt JOIN users u ON u.id = mt.owner_id \
-LEFT JOIN assignment_rules r ON r.id = mt.distribution_rule_id ";
+FROM meeting_types mt JOIN users u ON u.id = mt.owner_id ";
 
 const BOOKING_COLUMNS: &str = "SELECT b.id, b.meeting_type_id, mt.name AS meeting_type_name, b.host_user_id, \
 u.display_name AS host_name, b.contact_id, b.activity_id, b.status, b.starts_at, b.ends_at, b.guest_name, \
@@ -442,38 +441,69 @@ impl BookingStore {
             .push(" OFFSET ")
             .push_bind(filter.window.offset);
         let rows = builder.build().fetch_all(&self.pool).await?;
+        let mut items = rows
+            .iter()
+            .map(meeting_type_from)
+            .collect::<Result<Vec<_>, _>>()?;
+        self.hydrate_rule_names(&mut items).await?;
         Ok(Listing {
-            items: rows
-                .iter()
-                .map(meeting_type_from)
-                .collect::<Result<_, _>>()?,
+            items,
             total: u64::try_from(total).unwrap_or_default(),
         })
     }
 
+    async fn hydrate_rule_names(&self, items: &mut [MeetingType]) -> Result<(), AppError> {
+        let ids: Vec<_> = items
+            .iter()
+            .filter_map(|item| item.distribution_rule_id)
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        let mut names = std::collections::HashMap::new();
+        if let Some(source) = aphel_sdk::assignment::host_assignment() {
+            for batch in ids.chunks(1000) {
+                names.extend(source.rule_names(&self.pool, batch).await?);
+            }
+        }
+        for item in items {
+            item.distribution_rule_name = item
+                .distribution_rule_id
+                .and_then(|id| names.get(&id).cloned());
+        }
+        Ok(())
+    }
+
     pub(crate) async fn meeting_type(&self, id: Uuid) -> Result<Option<MeetingType>, AppError> {
-        sqlx::query(sqlx::AssertSqlSafe(format!(
+        let mut item = sqlx::query(sqlx::AssertSqlSafe(format!(
             "{MEETING_TYPE_COLUMNS}WHERE mt.id = ?"
         )))
         .bind(id.to_string())
         .fetch_optional(&self.pool)
         .await?
         .map(|row| meeting_type_from(&row))
-        .transpose()
+        .transpose()?;
+        if let Some(item) = &mut item {
+            self.hydrate_rule_names(std::slice::from_mut(item)).await?;
+        }
+        Ok(item)
     }
 
     pub(crate) async fn meeting_type_by_slug(
         &self,
         slug: &str,
     ) -> Result<Option<MeetingType>, AppError> {
-        sqlx::query(sqlx::AssertSqlSafe(format!(
+        let mut item = sqlx::query(sqlx::AssertSqlSafe(format!(
             "{MEETING_TYPE_COLUMNS}WHERE mt.slug = ?"
         )))
         .bind(slug)
         .fetch_optional(&self.pool)
         .await?
         .map(|row| meeting_type_from(&row))
-        .transpose()
+        .transpose()?;
+        if let Some(item) = &mut item {
+            self.hydrate_rule_names(std::slice::from_mut(item)).await?;
+        }
+        Ok(item)
     }
 
     pub(crate) async fn slug_taken(

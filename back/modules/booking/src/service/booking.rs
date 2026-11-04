@@ -29,11 +29,10 @@ use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleK
 use aphel_kernel::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::{AddressInput, PendingCommit};
+use aphel_kernel::records::PendingCommit;
 use aphel_sdk::email::normalize_address;
+use aphel_sdk::people::PersonCreation;
 use aphel_sdk::tasks::{MeetingActivity, MeetingActivityMove};
-use people::domain::{ContactInput, SaveContactCommand};
-use people::service::CreatedContact;
 
 const BUSY_MARGIN_DAYS: i64 = 1;
 
@@ -200,6 +199,9 @@ pub(crate) async fn meeting_hosts(
         return Ok(Vec::new());
     };
     let pool = distribution::rule_pool(ctx, &rule, ctx.now()).await?;
+    let Some(rule) = pool.rule else {
+        return Ok(Vec::new());
+    };
     let mut hosts = Vec::new();
     for member in pool.members {
         if let Some(mut host) = load_host(ctx, &member.user_id).await? {
@@ -690,7 +692,7 @@ async fn confirm(
 struct BookingRecords {
     contact_id: Uuid,
     activity_id: Uuid,
-    created_contact: Option<CreatedContact>,
+    created_contact: Option<PendingCommit>,
 }
 
 const CONTACT_SAVEPOINT: &str = "booking_contact";
@@ -713,10 +715,12 @@ async fn rollback_to_savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppEr
 async fn create_contact_attempt(
     ctx: &Ctx<'_>,
     tx: &mut MySqlTx,
-    command: SaveContactCommand,
-) -> Result<CreatedContact, AppError> {
+    command: PersonCreation,
+) -> Result<PendingCommit, AppError> {
     savepoint(tx, CONTACT_SAVEPOINT).await?;
-    let created = people::service::create_in_tx(ctx, tx, command).await;
+    let created = aphel_sdk::people::writer()?
+        .create_in_tx(ctx, tx, command)
+        .await;
     if created.is_err() {
         rollback_to_savepoint(tx, CONTACT_SAVEPOINT).await?;
     }
@@ -854,19 +858,25 @@ async fn find_or_create_contact(
     meeting_type: &MeetingType,
     booking: &Booking,
     ip: Option<String>,
-) -> Result<(Uuid, Option<CreatedContact>), AppError> {
+) -> Result<(Uuid, Option<PendingCommit>), AppError> {
     if let Some(contact_id) = crm::find_contact_by_email(ctx, &booking.guest_email).await? {
         return Ok((contact_id, None));
     }
     let (first_name, last_name) = split_name(&booking.guest_name);
-    let mut input = ContactInput {
-        first_name: Some(Some(first_name)),
-        last_name: last_name.map(Some),
-        email: Some(Some(booking.guest_email.clone())),
-        owner_id: Some(Some(host.user_id.as_str().to_owned())),
-        address: AddressInput::default(),
-        ..ContactInput::default()
-    };
+    let mut input = Map::from_iter([
+        ("first_name".to_owned(), Value::String(first_name)),
+        (
+            "email".to_owned(),
+            Value::String(booking.guest_email.clone()),
+        ),
+        (
+            "owner_id".to_owned(),
+            Value::String(host.user_id.as_str().to_owned()),
+        ),
+    ]);
+    if let Some(last_name) = last_name {
+        input.insert("last_name".to_owned(), Value::String(last_name));
+    }
     let base = input.clone();
     let mut custom_fields = Map::new();
     for question in &meeting_type.questions {
@@ -875,44 +885,40 @@ async fn find_or_create_contact(
         else {
             continue;
         };
-        let value = Some(Some(answer.clone()));
+        let value = Value::String(answer.clone());
         match target.as_str() {
-            "phone" => input.phone = value,
-            "mobile" => input.mobile = value,
-            "job_title" => input.job_title = value,
-            "notes" => input.notes = value,
-            "address_city" => input.address.city = value,
-            "address_state" => input.address.state = value,
-            "address_country" => input.address.country = value,
+            "phone" | "mobile" | "job_title" | "notes" | "address_city" | "address_state"
+            | "address_country" => {
+                input.insert(target.clone(), value);
+            }
             custom => {
                 custom_fields.insert(custom.to_owned(), Value::String(answer.clone()));
             }
         }
     }
-    let mapped = SaveContactCommand {
-        input,
+    let mapped = PersonCreation {
+        values: input,
         custom_fields,
         ip: ip.clone(),
-        expected_updated_at: None,
     };
     let created = match create_contact_attempt(ctx, tx, mapped).await {
         Ok(created) => created,
         Err(AppError::InvalidFields { .. } | AppError::CodedFields { .. }) => {
-            people::service::create_in_tx(
-                ctx,
-                tx,
-                SaveContactCommand {
-                    input: base,
-                    custom_fields: Map::new(),
-                    ip,
-                    expected_updated_at: None,
-                },
-            )
-            .await?
+            aphel_sdk::people::writer()?
+                .create_in_tx(
+                    ctx,
+                    tx,
+                    PersonCreation {
+                        values: base,
+                        custom_fields: Map::new(),
+                        ip,
+                    },
+                )
+                .await?
         }
         Err(error) => return Err(error),
     };
-    Ok((created.id(), Some(created)))
+    Ok((created.record.record_id, Some(created)))
 }
 
 async fn create_records(
