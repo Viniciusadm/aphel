@@ -11,6 +11,11 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
     entries: &[
         KeyEntry::new(
+            "configuration.references",
+            KeyKind::ExtensionPoint,
+            "Owner-provided portable reference keys",
+        ),
+        KeyEntry::new(
             "configuration.packages",
             KeyKind::ExtensionPoint,
             "Scoped configuration package execution",

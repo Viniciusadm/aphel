@@ -10,7 +10,6 @@ publish = false
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

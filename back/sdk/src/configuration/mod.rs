@@ -183,3 +183,61 @@ pub fn configuration_packages(
             )
         })
 }
+
+#[async_trait]
+pub trait ConfigurationReferences: Send + Sync {
+    fn kinds(&self) -> &'static [ConfigReferenceKind];
+    async fn keys(
+        &self,
+        pool: &MySqlPool,
+        kind: ConfigReferenceKind,
+    ) -> Result<HashMap<Uuid, String>, AppError>;
+}
+
+pub async fn reference_keys(
+    pool: &MySqlPool,
+    kind: ConfigReferenceKind,
+) -> Result<HashMap<Uuid, String>, AppError> {
+    reference_keys_from(
+        pool,
+        kind,
+        aphel_kernel::modules::app().contributions::<dyn ConfigurationReferences>(),
+    )
+    .await
+}
+
+pub async fn stored_reference_keys(
+    pool: &MySqlPool,
+    kind: ConfigReferenceKind,
+) -> Result<HashMap<Uuid, String>, AppError> {
+    reference_keys_from(
+        pool,
+        kind,
+        aphel_kernel::modules::app()
+            .all_contributions::<dyn ConfigurationReferences>()
+            .into_iter()
+            .map(|(_, source)| source)
+            .collect(),
+    )
+    .await
+}
+
+async fn reference_keys_from(
+    pool: &MySqlPool,
+    kind: ConfigReferenceKind,
+    sources: Vec<Arc<dyn ConfigurationReferences>>,
+) -> Result<HashMap<Uuid, String>, AppError> {
+    let mut matching = sources
+        .iter()
+        .filter(|source| source.kinds().contains(&kind));
+    let Some(source) = matching.next() else {
+        return Ok(HashMap::new());
+    };
+    if matching.next().is_some() {
+        return Err(AppError::Configuration(format!(
+            "multiple configuration reference sources for {}",
+            kind.key()
+        )));
+    }
+    source.keys(pool, kind).await
+}

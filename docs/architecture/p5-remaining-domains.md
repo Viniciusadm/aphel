@@ -169,6 +169,14 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove organization export's search implementation dependency. Restores do not queue unavailable search handlers when the capability is disabled.
 - [ ] Manual acceptance: CLI restore rebuild, installer queued rebuild, disabled search, indexing failure and queue failure after restore.
 
+## Portable configuration reference ownership
+
+- [x] Define owner reference-key sources in the SDK, rejecting ambiguous providers for a kind. Normal consumers use enabled sources; full backups include stored references from disabled compiled owners.
+- [x] Workflow provides pipeline, compound stage and lost-reason keys; tagging provides stable tag keys; tasks provides task-type keys. Their SQL stays in their owners.
+- [x] Organization export reads contributed reference keys, removes workflow's implementation dependency and no longer queries tag/task-type tables, including formatted SQL.
+- [ ] Adopt these sources in remaining configuration consumers and review disabled reference owners during export/restore.
+- [ ] Manual acceptance: stable keys, duplicate normalized names, compound stage keys, custom stored keys and export/restore matching with owner combinations.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

@@ -1,3 +1,4 @@
+mod config_references;
 mod dashboard;
 mod followers;
 pub mod remote_calendar;
@@ -267,6 +268,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
+            std::sync::Arc::new(config_references::References),
+        );
         app.contribute::<dyn aphel_sdk::followers::FollowedEventSource>(std::sync::Arc::new(
             followers::TasksFollowedEvents,
         ));

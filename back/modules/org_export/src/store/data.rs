@@ -20,9 +20,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::quoted;
 use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_kernel::infrastructure::repositories::mysql_organization_profile::insert_registration;
-use aphel_sdk::configuration::ConfigKeyClient;
-use aphel_sdk::configuration::{ConfigKeyRepository, assign_keys};
-use workflow::store::PipelineStore;
+use aphel_sdk::configuration::stored_reference_keys;
 
 pub(crate) type ConfigKeyMap = BTreeMap<ConfigKind, BTreeMap<Uuid, String>>;
 
@@ -330,99 +328,37 @@ impl OrgDataStore {
     }
 
     pub(crate) async fn config_keys(&self) -> Result<ConfigKeyMap, AppError> {
-        let workflow = PipelineStore::new(self.pool.clone());
-        let keys = ConfigKeyClient::new(self.pool.clone());
         let mut map: ConfigKeyMap = BTreeMap::new();
-
-        let all_pipelines = workflow.list_pipelines().await?;
-        let stored = keys
-            .keys(ConfigReferenceKind::new("workflow.pipeline"))
-            .await?;
-        let pipeline_keys = assign_keys(
-            all_pipelines
-                .iter()
-                .map(|pipeline| (pipeline.id, pipeline.name.as_str())),
-            &stored,
-        );
-        let stored_stages = keys
-            .keys(ConfigReferenceKind::new("workflow.stage"))
-            .await?;
-        for (pipeline, keyed) in all_pipelines.iter().zip(&pipeline_keys) {
-            map.entry(ConfigKind::Pipeline)
-                .or_default()
-                .insert(pipeline.id, keyed.key.clone());
-            let stages = workflow.list_stages(pipeline.id).await?;
-            let stored: HashMap<Uuid, String> = stages
-                .iter()
-                .filter_map(|stage| {
-                    stored_stages
-                        .get(&stage.id)
-                        .map(|key| (stage.id, key.clone()))
-                })
-                .collect();
-            for (stage, stage_key) in stages.iter().zip(assign_keys(
-                stages.iter().map(|stage| (stage.id, stage.name.as_str())),
-                &stored,
-            )) {
-                map.entry(ConfigKind::PipelineStage)
-                    .or_default()
-                    .insert(stage.id, format!("{}/{}", keyed.key, stage_key.key));
-            }
-        }
-
-        let reasons = workflow.list_lost_reasons().await?;
-        let stored = keys
-            .keys(ConfigReferenceKind::new("workflow.lost_reason"))
-            .await?;
-        for (reason, keyed) in reasons.iter().zip(assign_keys(
-            reasons
-                .iter()
-                .map(|reason| (reason.id, reason.name.as_str())),
-            &stored,
-        )) {
-            map.entry(ConfigKind::LostReason)
-                .or_default()
-                .insert(reason.id, keyed.key);
-        }
-
-        let tags = self.tags().await?;
-        let stored = keys.keys(ConfigReferenceKind::new("tagging.tag")).await?;
-        for ((id, _), keyed) in tags.iter().zip(assign_keys(
-            tags.iter().map(|(id, name)| (*id, name.as_str())),
-            &stored,
-        )) {
-            map.entry(ConfigKind::Tag)
-                .or_default()
-                .insert(*id, keyed.key);
-        }
-
-        for (kind, table) in [
-            (ConfigKind::ActivityType, "task_types"),
-            (ConfigKind::Relationship, "relationship_definitions"),
+        for (kind, reference) in [
+            (ConfigKind::Pipeline, "workflow.pipeline"),
+            (ConfigKind::PipelineStage, "workflow.stage"),
+            (ConfigKind::LostReason, "workflow.lost_reason"),
+            (ConfigKind::Tag, "tagging.tag"),
+            (ConfigKind::ActivityType, "tasks.activity_type"),
         ] {
-            let rows = sqlx::query(AssertSqlSafe(format!("SELECT id, `key` FROM {table}")))
-                .fetch_all(&self.pool)
-                .await?;
-            for row in rows {
-                let id: String = row.try_get("id")?;
-                let key: String = row.try_get("key")?;
-                map.entry(kind).or_default().insert(uuid_text(id)?, key);
-            }
+            map.insert(
+                kind,
+                stored_reference_keys(&self.pool, ConfigReferenceKind::new(reference))
+                    .await?
+                    .into_iter()
+                    .collect(),
+            );
+        }
+        let rows = sqlx::query("SELECT id, `key` FROM relationship_definitions")
+            .fetch_all(&self.pool)
+            .await?;
+        for row in rows {
+            let id: String = row.try_get("id")?;
+            let key: String = row.try_get("key")?;
+            map.entry(ConfigKind::Relationship)
+                .or_default()
+                .insert(uuid_text(id)?, key);
         }
         Ok(map)
     }
 }
 
 impl OrgDataStore {
-    async fn tags(&self) -> Result<Vec<(Uuid, String)>, AppError> {
-        sqlx::query("SELECT id, name FROM tags ORDER BY created_at, id")
-            .fetch_all(&self.pool)
-            .await?
-            .iter()
-            .map(|row| Ok((uuid_text(row.try_get("id")?)?, row.try_get("name")?)))
-            .collect()
-    }
-
     pub(crate) async fn has_business_data(&self, tables: &[String]) -> Result<bool, AppError> {
         for table in tables {
             if !is_sql_identifier(table) || self.shape(table).await?.columns.is_empty() {

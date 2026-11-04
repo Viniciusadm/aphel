@@ -1,4 +1,5 @@
 mod catalog;
+mod config_references;
 mod dashboard;
 pub mod domain;
 pub(crate) mod guidance;
@@ -58,6 +59,9 @@ impl Module for WorkflowModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
+            std::sync::Arc::new(config_references::References),
+        );
         app.transform_entities("workflow.staged", rotting::extend_staged);
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(
             catalog::StageRefs,
