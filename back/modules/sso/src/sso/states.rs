@@ -9,21 +9,7 @@ use aphel_kernel::errors::AppError;
 pub const STATE_TTL_MINUTES: i64 = 10;
 pub const PURPOSE_LOGIN: &str = "login";
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct NewState {
-    pub state: String,
-    pub nonce: String,
-    pub code_verifier: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct StoredState {
-    pub purpose: String,
-    pub nonce: String,
-    pub code_verifier: String,
-    pub user_id: Option<Uuid>,
-    pub redirect_path: Option<String>,
-}
+pub use aphel_sdk::sso::states::{NewState, StoredState};
 
 fn now() -> NaiveDateTime {
     Utc::now().naive_utc()

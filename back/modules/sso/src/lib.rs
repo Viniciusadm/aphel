@@ -56,6 +56,7 @@ impl Module for SsoModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::sso::DESCRIPTOR);
+        app.provide::<dyn aphel_sdk::sso::states::OAuthStates>(Arc::new(protocol::Protocol));
         app.provide::<dyn aphel_sdk::sso::oauth::OAuthProtocol>(Arc::new(protocol::Protocol));
         app.openapi_tag(
             http::TAG,

@@ -9,12 +9,12 @@ use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::MODULE_DISABLED;
 use aphel_sdk::sso::oauth::{self, AuthorizationRequest};
+use aphel_sdk::sso::states::{self, StoredState};
 use sso::errors::{error_code, is_conflict, is_unavailable};
 use sso::sso::login::{
     ACCESS_DENIED, INVALID_STATE, NOT_CONFIGURED, callback_url, credentials, exchange, redirect_to,
 };
 use sso::sso::settings;
-use sso::sso::states::{self, StoredState};
 use sso::support;
 
 pub const PURPOSE_MAIL: &str = "mail";

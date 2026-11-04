@@ -379,6 +379,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [ ] Extract identity flow/state interfaces and generic integration helpers to remove the remaining SSO implementation dependencies.
 - [ ] Manual acceptance: authorization URLs, PKCE, token exchange/refresh, provider errors, claims, discovery caching and absent/disabled protocol providers.
 
+## OAuth state capability interface
+
+- [x] Share state request/result data and an enabled native state-store interface. Email and task calendar connections create states through the owner service.
+- [x] Keep random state issuance, hashes, expiration, row locks and single-use deletion in SSO; no state SQL or persistence implementation moves to the SDK.
+- [ ] Manual acceptance: login/calendar/mail state creation, unavailable state providers, provider isolation, expiry and replay rejection.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

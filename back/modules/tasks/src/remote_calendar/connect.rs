@@ -11,6 +11,7 @@ use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::sso::oauth::{self, AuthorizationRequest};
+use aphel_sdk::sso::states::{self, StoredState};
 use sso::errors::error_code;
 use sso::sso::IdTokenClaims;
 use sso::sso::login::{
@@ -18,7 +19,6 @@ use sso::sso::login::{
     failure_code, redirect_to,
 };
 use sso::sso::settings;
-use sso::sso::states::{self, StoredState};
 const PURPOSE_CALENDAR: &str = "calendar";
 use sso::support;
 

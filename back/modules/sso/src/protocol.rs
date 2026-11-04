@@ -35,3 +35,25 @@ impl OAuthProtocol for Protocol {
         oauth::discover_cached(url).await
     }
 }
+
+#[async_trait::async_trait]
+impl aphel_sdk::sso::states::OAuthStates for Protocol {
+    async fn create(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        key: &str,
+        purpose: &str,
+        user_id: Option<uuid::Uuid>,
+        redirect_path: Option<&str>,
+    ) -> Result<aphel_sdk::sso::states::NewState, AppError> {
+        crate::sso::states::create(ctx, key, purpose, user_id, redirect_path).await
+    }
+    async fn consume(
+        &self,
+        ctx: &aphel_sdk::Ctx<'_>,
+        key: &str,
+        state: &str,
+    ) -> Result<Option<aphel_sdk::sso::states::StoredState>, AppError> {
+        crate::sso::states::consume(ctx, key, state).await
+    }
+}
