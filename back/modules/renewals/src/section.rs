@@ -21,9 +21,8 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
-use workflow::domain::{Pipeline, StageKind};
-use workflow::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
-use workflow::store::PipelineStore;
+use aphel_sdk::workflow::configuration::{PIPELINES_SECTION, parse_pipelines, stage_item_key};
+use aphel_sdk::workflow::{Pipeline, StageKind, WorkflowReader};
 
 pub(crate) const PIPELINE_RENEWALS_SECTION: &str = "pipeline_renewals";
 const PIPELINE_RENEWAL_KIND: &str = "pipeline_renewal";
@@ -106,14 +105,14 @@ fn parse(content: &Value) -> Result<Vec<PackagePipelineRenewal>, AppError> {
 
 pub(crate) struct PipelineRenewalsSection {
     renewals: RenewalStore,
-    workflow: PipelineStore,
+    pool: MySqlPool,
     keys: ConfigKeyClient,
 }
 
 pub(crate) fn pipeline_renewals_section(pool: &MySqlPool) -> PipelineRenewalsSection {
     PipelineRenewalsSection {
         renewals: RenewalStore::new(pool.clone()),
-        workflow: PipelineStore::new(pool.clone()),
+        pool: pool.clone(),
         keys: ConfigKeyClient::new(pool.clone()),
     }
 }
@@ -124,9 +123,22 @@ impl PipelineRenewalsSection {
             .keys
             .keys(ConfigReferenceKind::new("workflow.stage"))
             .await?;
+        let reader =
+            WorkflowReader::new(self.pool.clone(), aphel_kernel::modules::app().services())?;
+        let pipelines = reader.list_pipelines().await?;
+        let stored = self
+            .keys
+            .keys(ConfigReferenceKind::new("workflow.pipeline"))
+            .await?;
+        let keyed = assign_keys(
+            pipelines
+                .iter()
+                .map(|pipeline| (pipeline.id, pipeline.name.as_str())),
+            &stored,
+        );
         let mut workflow = Vec::new();
-        for (pipeline, keyed) in keyed_pipelines(&self.workflow, &self.keys).await? {
-            let stages = self.workflow.list_stages(pipeline.id).await?;
+        for (pipeline, keyed) in pipelines.into_iter().zip(keyed) {
+            let stages = reader.list_stages(pipeline.id).await?;
             let ids: BTreeSet<Uuid> = stages.iter().map(|stage| stage.id).collect();
             let stored: HashMap<Uuid, String> = stored_stages
                 .iter()

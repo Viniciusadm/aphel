@@ -1631,7 +1631,6 @@ dependencies = [
  "aphel-kernel",
  "aphel-mod-deals",
  "aphel-mod-deals-revenue",
- "aphel-mod-workflow",
  "aphel-sdk",
  "async-trait",
  "axum",

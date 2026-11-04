@@ -23,8 +23,9 @@ use aphel_sdk::line_items::{LineItem, Recurrence};
 use deals::domain::Deal;
 use deals::domain::{DealInput, DealRevenue, MAX_DEAL_TITLE_LENGTH, date};
 
-use workflow::domain::{Pipeline, StageKind, first_active_of_kind, parse_id, pipeline_not_found};
-use workflow::store::PipelineStore;
+use aphel_sdk::workflow::{
+    Pipeline, StageKind, WorkflowReader, first_active_of_kind, parse_id, pipeline_not_found,
+};
 
 use aphel_kernel::application::shared::money_text;
 
@@ -150,7 +151,7 @@ async fn apply_target(
     settings: &mut RenewalSettings,
     violations: &mut Vec<FieldViolation>,
 ) -> Result<(), AppError> {
-    let workflow = PipelineStore::of(ctx);
+    let workflow = WorkflowReader::of(ctx)?;
     if let Some(value) = &command.target_pipeline_id {
         let target = match parse_id(value) {
             Some(id) => workflow.find_pipeline(id).await?,
@@ -204,7 +205,7 @@ async fn apply_target(
 }
 
 async fn defaults(ctx: &Ctx<'_>, pipeline: &Pipeline) -> Result<RenewalSettings, AppError> {
-    let stages = PipelineStore::of(ctx).list_stages(pipeline.id).await?;
+    let stages = WorkflowReader::of(ctx)?.list_stages(pipeline.id).await?;
     let now = ctx.now();
     Ok(RenewalSettings {
         pipeline_id: pipeline.id,
@@ -223,7 +224,7 @@ async fn defaults(ctx: &Ctx<'_>, pipeline: &Pipeline) -> Result<RenewalSettings,
 
 async fn pipeline(ctx: &Ctx<'_>, pipeline_id: &str) -> Result<Pipeline, AppError> {
     let id = parse_id(pipeline_id).ok_or_else(pipeline_not_found)?;
-    PipelineStore::of(ctx)
+    WorkflowReader::of(ctx)?
         .find_pipeline(id)
         .await?
         .ok_or_else(pipeline_not_found)

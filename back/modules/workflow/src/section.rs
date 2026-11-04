@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -21,14 +20,10 @@ use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::sections::fields::{package_fields, projected_field_set};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
-    PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys, parse_section,
+    PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys,
 };
 
-pub fn stage_item_key(pipeline_key: &str, stage_key: &str) -> String {
-    format!("{pipeline_key}/{stage_key}")
-}
-
-pub const PIPELINES_SECTION: &str = "workflow";
+pub use aphel_sdk::workflow::configuration::{PIPELINES_SECTION, stage_item_key};
 const PIPELINE_KIND: &str = "pipeline";
 const STAGE_KIND: &str = "stage";
 pub(crate) const MAX_PACKAGE_PIPELINES: usize = 50;
@@ -36,38 +31,7 @@ pub(crate) const MAX_PACKAGE_STAGES: usize = 50;
 
 pub(crate) const STAGE_KIND_MISMATCH: &str = "stage_kind_mismatch";
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PackagePipeline {
-    pub key: String,
-    pub(crate) name: String,
-    #[serde(default, skip_serializing_if = "is_false")]
-    pub(crate) default: bool,
-    pub stages: Vec<PackageStage>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PackageStage {
-    pub key: String,
-    pub(crate) name: String,
-    pub kind: String,
-    pub(crate) probability: i64,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(crate) rotting_days: Option<i64>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub(crate) entry_required_fields: Vec<String>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub(crate) exit_required_fields: Vec<String>,
-}
-
-fn is_false(value: &bool) -> bool {
-    !*value
-}
-
-pub fn parse_pipelines(content: &Value) -> Result<Vec<PackagePipeline>, PackageIssue> {
-    parse_section(content)
-}
+pub use aphel_sdk::workflow::configuration::{PackagePipeline, PackageStage, parse_pipelines};
 
 pub fn package_pipeline_keys(package: &ConfigPackage) -> Vec<String> {
     package

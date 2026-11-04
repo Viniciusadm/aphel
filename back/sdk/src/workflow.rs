@@ -182,3 +182,8 @@ pub fn views() -> Result<std::sync::Arc<dyn WorkflowViews>, AppError> {
             )
         })
 }
+
+pub mod configuration;
+pub fn pipeline_not_found() -> AppError {
+    AppError::not_found_code(PIPELINE_NOT_FOUND, "pipeline was not found")
+}

@@ -524,6 +524,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Replace the foreign rule-label join with bounded owner label reads. Booking has no peer implementation dependencies or foreign SQL; scoped compilation passes without warnings.
 - [ ] Manual acceptance: new/existing people, mapped-answer fallback, meeting transactions, weighted/least-loaded selection, away intervals, rule disablement and labels.
 
+## Renewal workflow contracts
+
+- [x] Renewals reads pipeline/stage catalogs through the enabled workflow SDK reader. Shared portable package models and key codecs contain no SQL or workflow execution.
+- [x] Remove the workflow implementation dependency; scoped workflow/renewal compilation passes without warnings.
+- [ ] Manual acceptance: renewal pipeline/stage validation, portable keys, package planning and unavailable workflow.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
