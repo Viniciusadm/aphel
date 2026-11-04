@@ -1,4 +1,3 @@
-use aphel_contract_crm::CrmRecordTypes;
 use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
@@ -36,8 +35,6 @@ pub(crate) const RECORD_TAGGED: &str = "record.tagged";
 pub(crate) const RECORD_UNTAGGED: &str = "record.untagged";
 
 pub(crate) const TAG_RECORD_TYPE: RecordType = RecordType::from_static("tagging.tag");
-pub(crate) const TAGGABLE_RECORD_TYPES: [RecordType; 3] =
-    [RecordType::CONTACT, RecordType::COMPANY, RecordType::DEAL];
 pub(crate) const MAX_TAGS_PER_ORGANIZATION: usize = 500;
 
 pub(crate) fn tag_not_found() -> AppError {
@@ -56,16 +53,19 @@ pub(crate) fn taggable_record_type(record_type: &str) -> Result<RecordType, AppE
     if is_custom_record_type(record_type) {
         return RecordType::parse(record_type);
     }
-    TAGGABLE_RECORD_TYPES
-        .iter()
-        .find(|candidate| candidate.as_str() == record_type)
-        .cloned()
-        .ok_or_else(|| {
-            AppError::validation_code(
-                RECORD_TYPE_NOT_TAGGABLE,
-                format!("{record_type} records cannot be tagged"),
-            )
-        })
+    let app = aphel_kernel::modules::app();
+    if app
+        .record_types()
+        .capabilities(record_type)
+        .is_some_and(|capabilities| capabilities.has_trait(aphel_sdk::tagging::TAGGABLE))
+    {
+        RecordType::parse(record_type)
+    } else {
+        Err(AppError::validation_code(
+            RECORD_TYPE_NOT_TAGGABLE,
+            format!("{record_type} records cannot be tagged"),
+        ))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -284,7 +284,7 @@ pub(crate) async fn record_tags(
     record_type: &str,
     record_id: &str,
 ) -> Result<Vec<Tag>, AppError> {
-    let record = record_ref(record_type, record_id)?;
+    let record = record_ref(ctx, record_type, record_id)?;
     if !record_access(ctx).can_read(ctx.scope, &record).await? {
         return Err(record_denied());
     }
@@ -302,6 +302,9 @@ pub(crate) async fn tags_for_records(
     record_ids: &[String],
 ) -> Result<HashMap<Uuid, Vec<Tag>>, AppError> {
     let record_type = taggable_record_type(record_type)?;
+    if !aphel_sdk::records::enabled(ctx, &record_type) {
+        return Err(record_denied());
+    }
     let mut ids: Vec<Uuid> = Vec::new();
     for value in record_ids {
         let id = Uuid::parse_str(value.trim()).map_err(|_| {
@@ -415,7 +418,7 @@ async fn changeable(
     record_id: &str,
     tag_id: &str,
 ) -> Result<(RecordRef, Tag), AppError> {
-    let record = record_ref(record_type, record_id)?;
+    let record = record_ref(ctx, record_type, record_id)?;
     let tag = find(ctx, tag_id).await?;
     if !record_access(ctx).can_update(ctx.scope, &record).await? {
         return Err(record_denied());
@@ -423,8 +426,11 @@ async fn changeable(
     Ok((record, tag))
 }
 
-fn record_ref(record_type: &str, record_id: &str) -> Result<RecordRef, AppError> {
+fn record_ref(ctx: &Ctx<'_>, record_type: &str, record_id: &str) -> Result<RecordRef, AppError> {
     let record_type = taggable_record_type(record_type)?;
+    if !aphel_sdk::records::enabled(ctx, &record_type) {
+        return Err(record_denied());
+    }
     let record_id = Uuid::parse_str(record_id.trim()).map_err(|_| record_denied())?;
     Ok(RecordRef::new(record_type, record_id))
 }

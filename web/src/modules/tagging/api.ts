@@ -1,3 +1,4 @@
+import { useEntities, type EntityDescriptor } from '@/sdk/entities'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isCustomRecordType } from '@/features/custom-records/resources'
 import { api } from '@/api'
@@ -13,28 +14,33 @@ export type UpdateTagBody = Schemas['UpdateTagRequest']
 export type TaggingResult = Schemas['TaggingResponse']
 export type RecordTagsEntry = Schemas['RecordTagsEntry']
 
-export const TAGGABLE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal'] as const
-export type TaggableRecordType = (typeof TAGGABLE_RECORD_TYPES)[number]
+export type TaggableRecordType = string
 export const DEFAULT_TAG_COLOR = '#64748b'
 export const MAX_TAG_NAME_LENGTH = 60
 export const TAGS_PER_PAGE = 100
 export const MAX_LOOKUP_IDS = 100
 
-const UPDATE_PERMISSION: Record<TaggableRecordType, string> = {
-  'people.person': 'people.update',
-  'organizations.organization': 'organizations.update',
-  'deals.deal': 'deals.update',
+function taggableEntity(entity: EntityDescriptor): boolean {
+  return Object.hasOwn(entity.traits, 'tagging.taggable') || isCustomRecordType(entity.record_type)
 }
 
-export function isTaggable(recordType: string): boolean {
-  return (TAGGABLE_RECORD_TYPES as readonly string[]).includes(recordType) || isCustomRecordType(recordType)
+export function isTaggable(recordType: string, entities: readonly EntityDescriptor[]): boolean {
+  return entities.some((entity) => entity.record_type === recordType && entity.access.read && taggableEntity(entity))
 }
 
-export function tagUpdatePermission(recordType: string): string | null {
-  if (isCustomRecordType(recordType)) return `${recordType}.update`
-  return (TAGGABLE_RECORD_TYPES as readonly string[]).includes(recordType)
-    ? UPDATE_PERMISSION[recordType as TaggableRecordType]
-    : null
+export function tagUpdatePermission(recordType: string, entities: readonly EntityDescriptor[]): string | null {
+  const entity = entities.find((entity) => entity.record_type === recordType && entity.access.read && taggableEntity(entity))
+  return entity?.permissions.update ?? null
+}
+
+export function useTaggingEntities() {
+  const entities = useEntities()
+  return { ...entities, data: entities.data?.filter(taggableEntity) }
+}
+
+export function useTaggingEntity(recordType: string) {
+  const entities = useEntities().data ?? []
+  return { taggable: isTaggable(recordType, entities), permission: tagUpdatePermission(recordType, entities) }
 }
 
 export const tagsKeys = {
@@ -75,14 +81,16 @@ export function useTags(recordType?: string, options: { enabled?: boolean } = {}
 }
 
 export function useRecordTags(recordType: string, recordId: string) {
+  const { taggable } = useTaggingEntity(recordType)
   return useQuery({
     queryKey: tagsKeys.record(recordType, recordId),
     queryFn: () => tagsApi.recordTags(recordType, recordId),
-    enabled: isTaggable(recordType) && Boolean(recordId),
+    enabled: taggable && Boolean(recordId),
   })
 }
 
 export function useRecordTagsLookup(recordType: string, ids: string[], options: { enabled?: boolean } = {}) {
+  const { taggable } = useTaggingEntity(recordType)
   const unique = [...new Set(ids)].slice(0, MAX_LOOKUP_IDS).sort()
   return useQuery({
     queryKey: tagsKeys.lookup(recordType, unique),
@@ -90,7 +98,7 @@ export function useRecordTagsLookup(recordType: string, ids: string[], options: 
       const entries = await tagsApi.lookup(recordType, unique)
       return new Map(entries.map((entry) => [entry.record_id, entry.tags]))
     },
-    enabled: (options.enabled ?? true) && isTaggable(recordType) && unique.length > 0,
+    enabled: (options.enabled ?? true) && taggable && unique.length > 0,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   })

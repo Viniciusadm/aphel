@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { RecordListExtension, RecordListExtensionProps, RecordListExtensionResult } from '@/kernel/modules/define'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { FieldDefinition } from '@/features/records/types'
-import { isTaggable, useRecordTagsLookup, useTags, type Tag } from './api'
+import { useTaggingEntity, useRecordTagsLookup, useTags, type Tag } from './api'
 import { TagChipList } from './TagChip'
 
 export const TAGS_FIELD_KEY = 'tags'
@@ -43,7 +43,8 @@ function tagsField(recordType: string, tags: Tag[], label: string): FieldDefinit
 
 function useTagsListExtension({ recordType, records, enabled }: RecordListExtensionProps): RecordListExtensionResult {
   const t = useModuleTranslation(TAGS_MODULE_KEY)
-  const taggable = enabled && isTaggable(recordType)
+  const entity = useTaggingEntity(recordType)
+  const taggable = enabled && entity.taggable
   const tags = useTags(recordType, { enabled: taggable })
   const lookup = useRecordTagsLookup(
     recordType,
@@ -65,6 +66,6 @@ function useTagsListExtension({ recordType, records, enabled }: RecordListExtens
 
 export const TAGS_LIST_EXTENSION: RecordListExtension = {
   key: 'tags',
-  recordTypes: isTaggable,
+  recordTypes: () => true,
   use: useTagsListExtension,
 }

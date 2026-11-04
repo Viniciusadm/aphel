@@ -5265,7 +5265,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lists the organizations visible to the user (permission `organizations.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[industry][eq]=Varejo`, `filter[owner_id][in]=a,b`, `filter[domain]=acme.com.br` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, domain, email and phone; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner is always embedded; `include=tags` also embeds the tags of each company. */
+        /** @description Lists the organizations visible to the user (permission `organizations.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[industry][eq]=Varejo`, `filter[owner_id][in]=a,b`, `filter[domain]=acme.com.br` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, domain, email and phone; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner is always embedded; Enabled `include` contributions can enrich each company. */
         get: operations["companies_list"];
         put?: never;
         /** @description Creates a company (permission `organizations.create`) and publishes `company.created`. Email is lowercased, phone normalized to E.164 and the domain taken from the website when missing; the owner defaults to the current user. Custom fields go in `custom_fields`. `possible_duplicates` (only in this response, empty when none) lists visible organizations that the duplicate rules match (a warning, never an error); those pairs also enter the duplicate queue. */
@@ -5283,7 +5283,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Returns a company with its custom fields and owner (permission `organizations.read`). The id of a company merged into another one answers the company that absorbed it (compare `id`). `include=tags` embeds its tags. */
+        /** @description Returns a company with its custom fields and owner (permission `organizations.read`). The id of a company merged into another one answers the company that absorbed it (compare `id`). Enabled `include` contributions can enrich this response. */
         get: operations["companies_get"];
         put?: never;
         post?: never;
@@ -5383,7 +5383,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; `include=tags` also embeds the tags of each contact. */
+        /** @description Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; Enabled `include` contributions can enrich each contact. */
         get: operations["contacts_list"];
         put?: never;
         /** @description Creates a contact (permission `people.create`) and publishes `contact.created`. Email is lowercased and phones normalized to E.164; `name` is derived from first and last names; the owner defaults to the current user. Custom fields go in `custom_fields`. `possible_duplicates` (only in this response, empty when none) lists visible people that the duplicate rules match (a warning, never an error); those pairs also enter the duplicate queue. */
@@ -5401,7 +5401,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). `include=tags` embeds its tags. */
+        /** @description Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). Enabled `include` contributions can enrich this response. */
         get: operations["contacts_get"];
         put?: never;
         post?: never;
@@ -10152,7 +10152,6 @@ export interface components {
             possible_duplicates?: components["schemas"]["DuplicateMatchResponse"][] | null;
             size_range?: string | null;
             source?: string | null;
-            tags?: components["schemas"]["TagSummary"][] | null;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
             website?: string | null;
@@ -10311,7 +10310,6 @@ export interface components {
             phone?: string | null;
             possible_duplicates?: components["schemas"]["DuplicateMatchResponse"][] | null;
             source?: string | null;
-            tags?: components["schemas"]["TagSummary"][] | null;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
         } & {
@@ -11580,7 +11578,6 @@ export interface components {
                 possible_duplicates?: components["schemas"]["DuplicateMatchResponse"][] | null;
                 size_range?: string | null;
                 source?: string | null;
-                tags?: components["schemas"]["TagSummary"][] | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
                 website?: string | null;
@@ -11671,7 +11668,6 @@ export interface components {
                 phone?: string | null;
                 possible_duplicates?: components["schemas"]["DuplicateMatchResponse"][] | null;
                 source?: string | null;
-                tags?: components["schemas"]["TagSummary"][] | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
             } & {
@@ -18489,7 +18485,6 @@ export interface components {
                 possible_duplicates?: components["schemas"]["DuplicateMatchResponse"][] | null;
                 size_range?: string | null;
                 source?: string | null;
-                tags?: components["schemas"]["TagSummary"][] | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
                 website?: string | null;
@@ -18561,7 +18556,6 @@ export interface components {
                 phone?: string | null;
                 possible_duplicates?: components["schemas"]["DuplicateMatchResponse"][] | null;
                 source?: string | null;
-                tags?: components["schemas"]["TagSummary"][] | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
             } & {
@@ -63056,7 +63050,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Tag created (`tag.created`). Empty `record_types` means the tag can be used on people, organizations and deals */
+            /** @description Tag created (`tag.created`). Empty `record_types` means the tag can be used on all supported record types */
             201: {
                 headers: {
                     [name: string]: unknown;

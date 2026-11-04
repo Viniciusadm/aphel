@@ -63,9 +63,11 @@ pub mod fields {
     };
 }
 
+mod record_includes;
 mod record_labels;
 
 pub mod records {
+    pub use crate::record_includes::{RecordIncludeSource, RecordIncludes, record_includes};
     pub use crate::record_labels::{
         VisibleRecordLabel, visible_record_label, visible_record_labels,
     };
@@ -137,3 +139,5 @@ pub mod exports;
 
 pub mod search;
 pub mod text;
+
+pub use aphel_contract_tagging as tagging;

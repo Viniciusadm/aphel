@@ -1,3 +1,4 @@
+import { entityLabel } from '@/sdk/entities'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -23,12 +24,11 @@ import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   DEFAULT_TAG_COLOR,
   MAX_TAG_NAME_LENGTH,
-  TAGGABLE_RECORD_TYPES,
+  useTaggingEntities,
   tagsApi,
   useInvalidateTags,
   useTags,
   type Tag,
-  type TaggableRecordType,
 } from './api'
 import { TagChip } from './TagChip'
 import { PageHeader } from '@/components/ui/page-header'
@@ -51,7 +51,8 @@ interface EditorState {
 }
 
 function TagsSection() {
-  const { t } = useTranslation('tagging')
+  const { t, i18n } = useTranslation('tagging')
+  const entities = useTaggingEntities()
   const tags = useTags()
   const invalidate = useInvalidateTags()
   const [editor, setEditor] = useState<EditorState | null>(null)
@@ -95,7 +96,7 @@ function TagsSection() {
                 ) : (
                   tag.record_types.map((recordType) => (
                     <Badge key={recordType} variant="outline">
-                      {t(`recordTypes.${recordType as TaggableRecordType}`)}
+                      {entityLabel(entities.data?.find((entity) => entity.record_type === recordType), i18n.language, recordType)}
                     </Badge>
                   ))
                 )}
@@ -162,7 +163,8 @@ interface TagFormProps {
 }
 
 function TagForm({ editing, onClose, onSaved }: TagFormProps) {
-  const { t } = useTranslation('tagging')
+  const { t, i18n } = useTranslation('tagging')
+  const entities = useTaggingEntities()
   const formId = useId()
   const [name, setName] = useState(editing?.name ?? '')
   const [color, setColor] = useState(editing?.color ?? DEFAULT_TAG_COLOR)
@@ -176,6 +178,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
     )
 
   const submit = async () => {
+    if (saving || entities.isPending || entities.isError) return
     const trimmed = name.trim()
     if (!trimmed) {
       setNameError(t('settings.nameRequired'))
@@ -248,10 +251,13 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium">{t('settings.recordTypes')}</legend>
           <p className="text-xs text-muted-foreground">{t('settings.recordTypesHint')}</p>
+          {entities.isPending && <Skeleton className="h-9 w-full" />}
+          {entities.isError && <SharedFieldError>{t('settings.typesLoadFailed')} <Button type="button" variant="link" onClick={() => void entities.refetch()}>{t('settings.retryTypes')}</Button></SharedFieldError>}
           <div className="flex flex-wrap gap-4">
-            {TAGGABLE_RECORD_TYPES.map((recordType) => {
+            {entities.data?.map((entity) => {
+              const recordType = entity.record_type
               return (
-                <ToggleField key={recordType} label={t(`recordTypes.${recordType}`)} checked={recordTypes.includes(recordType)} onCheckedChange={(checked) => toggleType(recordType, checked === true)} />
+                <ToggleField key={recordType} label={entityLabel(entity, i18n.language, recordType)} checked={recordTypes.includes(recordType)} onCheckedChange={(checked) => toggleType(recordType, checked === true)} />
               )
             })}
           </div>
@@ -261,7 +267,7 @@ function TagForm({ editing, onClose, onSaved }: TagFormProps) {
         <Button variant="outline" onClick={onClose} disabled={saving}>
           {t('settings.cancel')}
         </Button>
-        <Button type="submit" form={formId} disabled={saving}>
+        <Button type="submit" form={formId} disabled={saving || entities.isPending || entities.isError}>
           {t('settings.save')}
         </Button>
       </DialogFooter>

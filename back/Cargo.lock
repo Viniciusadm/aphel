@@ -1432,7 +1432,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-tagging",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1453,7 +1452,6 @@ dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
  "aphel-mod-organizations",
- "aphel-mod-tagging",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1841,7 +1839,6 @@ dependencies = [
 name = "aphel-mod-tagging"
 version = "0.1.0"
 dependencies = [
- "aphel-contract-crm",
  "aphel-contract-tagging",
  "aphel-kernel",
  "aphel-sdk",
@@ -2024,6 +2021,7 @@ dependencies = [
  "aphel-contract-party",
  "aphel-contract-pricing",
  "aphel-contract-privacy",
+ "aphel-contract-tagging",
  "aphel-contract-timeline",
  "aphel-contract-workflow",
  "aphel-kernel",

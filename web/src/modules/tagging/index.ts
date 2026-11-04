@@ -8,7 +8,8 @@ import { tagsSettingsRoute } from './routes'
 
 export {
   DEFAULT_TAG_COLOR,
-  TAGGABLE_RECORD_TYPES,
+  useTaggingEntities,
+  useTaggingEntity,
   isTaggable,
   tagUpdatePermission,
   tagsApi,

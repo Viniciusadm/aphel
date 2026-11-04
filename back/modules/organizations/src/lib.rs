@@ -88,6 +88,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn company_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .with_trait(aphel_sdk::tagging::TAGGABLE)
         .with_trait("scoring.subject")
         .relatable()
         .importable()

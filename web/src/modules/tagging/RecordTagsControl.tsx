@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { isTaggable, tagUpdatePermission, useRecordTagMutation, useRecordTags, useTags } from './api'
+import { useTaggingEntity, useRecordTagMutation, useRecordTags, useTags } from './api'
 import { TagChip } from './TagChip'
 
 export interface RecordTagsControlProps {
@@ -20,13 +20,13 @@ export interface RecordTagsControlProps {
 export function RecordTagsControl({ recordType, recordId, readOnly = false, className }: RecordTagsControlProps) {
   const { t } = useTranslation('tagging')
   const { hasPermission } = useSession()
-  const permission = tagUpdatePermission(recordType)
+  const { taggable, permission } = useTaggingEntity(recordType)
   const canEdit = !readOnly && Boolean(permission && hasPermission(permission))
   const assigned = useRecordTags(recordType, recordId)
   const mutation = useRecordTagMutation(recordType, recordId)
   const [open, setOpen] = useState(false)
 
-  if (!isTaggable(recordType)) return null
+  if (!taggable) return null
   const tags = assigned.data ?? []
 
   const toggle = (tagId: string, remove: boolean) => {

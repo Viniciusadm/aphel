@@ -1,18 +1,4 @@
 {
-  "recordTypes": {
-    "contact": "Contacts",
-    "company": "Companies",
-    "deal": "Deals",
-    "people": {
-      "person": "Contacts"
-    },
-    "organizations": {
-      "organization": "Companies"
-    },
-    "deals": {
-      "deal": "Deals"
-    }
-  },
   "chips": {
     "remove": "Remove tag {{name}}",
     "more_one": "+{{count}}",
@@ -28,7 +14,7 @@
   },
   "settings": {
     "title": "Tags",
-    "description": "Tags label people, organizations and deals and can be used in filters, segments and bulk actions.",
+    "description": "Tags label records and can be used in filters, segments and bulk actions.",
     "new": "New tag",
     "newTitle": "New tag",
     "editTitle": "Edit tag",
@@ -56,7 +42,9 @@
     "save": "Save",
     "created": "Tag {{name}} created",
     "updated": "Tag {{name}} updated",
-    "deleted": "Tag {{name}} deleted"
+    "deleted": "Tag {{name}} deleted",
+    "typesLoadFailed": "Could not load the available record types.",
+    "retryTypes": "Retry"
   },
   "list": {
     "field": "Tags"

@@ -46,8 +46,23 @@ pub struct AutomationBinding {
     pub label: &'static str,
     pub config_schema: Value,
     pub reference: Option<ReferenceCheck>,
-    pub excluded_record_types: &'static [&'static str],
+    pub required_entity_trait: Option<&'static str>,
+    pub supports_custom_records: bool,
     pub record_permission: Option<&'static str>,
+}
+
+impl AutomationBinding {
+    pub fn supports_record_type(&self, record_type: &str) -> bool {
+        self.required_entity_trait.is_none_or(|key| {
+            (self.supports_custom_records
+                && crate::domain::custom_objects::is_custom_record_type(record_type))
+                || crate::modules::try_app().is_some_and(|app| {
+                    app.record_types()
+                        .capabilities(record_type)
+                        .is_some_and(|capabilities| capabilities.has_trait(key))
+                })
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

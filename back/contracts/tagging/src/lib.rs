@@ -4,6 +4,8 @@ use aphel_contract::{
 };
 use serde::{Deserialize, Serialize};
 
+pub const TAGGABLE: &str = "tagging.taggable";
+
 pub const CONTRACT: Contract = contract!("tagging", "1.0.0");
 
 pub const APPLY: OperationKey<TagRecord, Tagging> = operation!("tagging.apply");
@@ -16,6 +18,11 @@ pub const TAG: ReferenceKind = reference!("tagging.tag");
 pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: CONTRACT,
     entries: &[
+        KeyEntry::new(
+            TAGGABLE,
+            KeyKind::ExtensionPoint,
+            "Entities that accept tags",
+        ),
         KeyEntry::new(
             "tagging.apply",
             KeyKind::Operation,

@@ -164,6 +164,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
 
 pub(crate) fn deal_capabilities() -> EntityTraits {
     EntityTraits::default()
+        .with_trait(aphel_sdk::tagging::TAGGABLE)
         .retention_mapping(aphel_sdk::privacy::RetentionMapping {
             recency_fields: vec!["last_activity_at".to_owned()],
         })

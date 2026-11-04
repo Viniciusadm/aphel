@@ -39,8 +39,7 @@ use aphel_kernel::records::{
     AddressInput, merge_survivor, possible_duplicates, serialize_nested_records,
 };
 use aphel_kernel::records::{PendingCommit, RecordCtx, values_request};
-use tagging::dto::TagSummary;
-use tagging::http::{RECORD_INCLUDES, record_tag_map};
+use aphel_sdk::records::record_includes;
 
 pub(crate) const TAG: &str = "people";
 
@@ -60,7 +59,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     path = "/people",
     tag = TAG,
     operation_id = "contacts_list",
-    description = "Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; `include=tags` also embeds the tags of each contact.",
+    description = "Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; Enabled `include` contributions can enrich each contact.",
     params(RecordQueryParams, QuickSearchParams, IncludeQuery, PaginationQuery),
     responses(
         (status = 200, description = "Page of people with their custom fields", body = Page<ContactResponse>),
@@ -77,22 +76,14 @@ async fn list_contacts(
     Query(include): Query<IncludeQuery>,
     pagination: Pagination,
 ) -> Result<Json<Page<Value>>, ApiError> {
-    let includes = include.parse(RECORD_INCLUDES)?;
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let includes = record_includes(&ctx, "people.person", include.include.as_deref())?;
     quick.merge_into(&mut query.search);
-    let listing = service::list(&Ctx::from_state(&state, &tenant.scope).await?, query).await?;
-    let mut items: Vec<ContactResponse> = listing.items.into_iter().map(Into::into).collect();
-    if includes.contains("tags") {
-        let ids: Vec<String> = items.iter().map(|item| item.id.clone()).collect();
-        let mut tags = record_tag_map(&state, &tenant.scope, "people.person", &ids).await?;
-        for item in &mut items {
-            item.tags = Some(tags.remove(&item.id).unwrap_or_default());
-        }
-    }
-    Ok(Json(Page::new(
-        redacted_items(&state, &tenant.scope, &RecordType::CONTACT, items).await?,
-        listing.total,
-        pagination,
-    )))
+    let listing = service::list(&ctx, query).await?;
+    let items: Vec<ContactResponse> = listing.items.into_iter().map(Into::into).collect();
+    let mut items = redacted_items(&state, &tenant.scope, &RecordType::CONTACT, items).await?;
+    includes.enrich(&ctx, &mut items).await?;
+    Ok(Json(Page::new(items, listing.total, pagination)))
 }
 
 #[utoipa::path(
@@ -134,7 +125,7 @@ async fn create_contact(
     tag = TAG,
     operation_id = "contacts_get",
     security(("session_cookie" = [])),
-    description = "Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). `include=tags` embeds its tags.",
+    description = "Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). Enabled `include` contributions can enrich this response.",
     params(
         ("contact_id" = String, Path, description = "Contact id"),
         IncludeQuery,
@@ -153,8 +144,8 @@ async fn get_contact(
     Path(contact_id): Path<String>,
     Query(include): Query<IncludeQuery>,
 ) -> Result<Json<Data<Value>>, ApiError> {
-    let includes = include.parse(RECORD_INCLUDES)?;
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let includes = record_includes(&ctx, "people.person", include.include.as_deref())?;
     let contact = match service::get(&ctx, &contact_id).await {
         Err(
             error @ AppError::Coded {
@@ -167,20 +158,10 @@ async fn get_contact(
         },
         result => result?,
     };
-    let mut response: ContactResponse = contact.into();
-    if includes.contains("tags") {
-        let mut tags = record_tag_map(
-            &state,
-            &tenant.scope,
-            "people.person",
-            std::slice::from_ref(&response.id),
-        )
-        .await?;
-        response.tags = Some(tags.remove(&response.id).unwrap_or_default());
-    }
-    Ok(Json(Data::new(
-        redacted(&state, &tenant.scope, &RecordType::CONTACT, response).await?,
-    )))
+    let response: ContactResponse = contact.into();
+    let mut values = [redacted(&state, &tenant.scope, &RecordType::CONTACT, response).await?];
+    includes.enrich(&ctx, &mut values).await?;
+    Ok(Json(Data::new(values[0].take())))
 }
 
 #[utoipa::path(
@@ -711,8 +692,6 @@ pub struct ContactResponse {
     pub(crate) owner: Option<OwnerResponse>,
     pub(crate) company: Option<CompanyReferenceResponse>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) tags: Option<Vec<TagSummary>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) possible_duplicates: Option<Vec<DuplicateMatchResponse>>,
     #[serde(flatten)]
     pub(crate) contributed: Map<String, Value>,
@@ -760,7 +739,6 @@ impl From<ContactDetails> for ContactResponse {
             custom_fields: details.custom_fields,
             owner: details.view.owner.map(Into::into),
             company: details.view.company.map(Into::into),
-            tags: None,
             possible_duplicates: None,
             contributed: details.view.contributed,
         }

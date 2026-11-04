@@ -4,8 +4,6 @@ use axum::http::StatusCode;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-use std::collections::HashMap;
-
 use crate::dto::{
     CreateTagRequest, RecordTagLookupParams, RecordTagsEntry, TagListParams, TagRecordRequest,
     TagResponse, TagSummary, TaggingResponse, UpdateTagRequest,
@@ -18,8 +16,6 @@ use aphel_kernel::api::extractors::{
     AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
 };
 use aphel_kernel::api::state::AppState;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::AppError;
 
 pub(crate) const TAG: &str = "tagging";
 
@@ -30,28 +26,6 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(lookup_record_tags))
         .routes(routes!(list_record_tags, tag_record))
         .routes(routes!(untag_record))
-}
-
-pub const RECORD_INCLUDES: &[&str] = &["tags"];
-
-pub async fn record_tag_map(
-    state: &AppState,
-    scope: &AccessScope,
-    record_type: &str,
-    record_ids: &[String],
-) -> Result<HashMap<String, Vec<TagSummary>>, AppError> {
-    if record_ids.is_empty() {
-        return Ok(HashMap::new());
-    }
-    Ok(service::tags_for_records(
-        &Ctx::from_state(state, scope).await?,
-        record_type,
-        record_ids,
-    )
-    .await?
-    .into_iter()
-    .map(|(id, tags)| (id.to_string(), tags.into_iter().map(Into::into).collect()))
-    .collect())
 }
 
 #[utoipa::path(
@@ -98,7 +72,7 @@ async fn list_tags(
     security(("session_cookie" = [])),
     request_body = CreateTagRequest,
     responses(
-        (status = 201, description = "Tag created (`tag.created`). Empty `record_types` means the tag can be used on people, organizations and deals", body = Data<TagResponse>),
+        (status = 201, description = "Tag created (`tag.created`). Empty `record_types` means the tag can be used on all supported record types", body = Data<TagResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 409, description = "Another tag already has this name (`tag_name_taken`)", body = ErrorEnvelope),

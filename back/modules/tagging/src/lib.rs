@@ -3,6 +3,7 @@ pub(crate) mod domain;
 pub mod dto;
 pub(crate) mod hooks;
 pub mod http;
+mod includes;
 pub(crate) mod search;
 pub mod section;
 pub mod service;
@@ -26,7 +27,7 @@ pub struct TaggingModule;
 impl Module for TaggingModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Tags", APHEL_VERSION)
-            .description("Tags of the organization and tagging of people, organizations, deals and custom objects")
+            .description("Tags of the organization and tagging of opted-in records")
             .required()
             .plugin_toml(include_str!("../plugin.toml"))
             .owned_tables(&["tags", "taggings"])
@@ -58,6 +59,7 @@ impl Module for TaggingModule {
         ));
 
         contract::register(app);
+        app.contribute::<dyn aphel_sdk::records::RecordIncludeSource>(Arc::new(includes::Tags));
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(100, |pool, registry| {
                 let _ = registry;
@@ -69,7 +71,7 @@ impl Module for TaggingModule {
         ));
         app.openapi_tag(
             http::TAG,
-            "Tags of the organization and tagging of people, organizations and deals",
+            "Tags of the organization and tagging of opted-in records",
         )
         .routes(|_| http::router());
         app.on(

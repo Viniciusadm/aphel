@@ -38046,7 +38046,7 @@
         "tags": [
           "organizations"
         ],
-        "description": "Lists the organizations visible to the user (permission `organizations.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[industry][eq]=Varejo`, `filter[owner_id][in]=a,b`, `filter[domain]=acme.com.br` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, domain, email and phone; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner is always embedded; `include=tags` also embeds the tags of each company.",
+        "description": "Lists the organizations visible to the user (permission `organizations.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[industry][eq]=Varejo`, `filter[owner_id][in]=a,b`, `filter[domain]=acme.com.br` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, domain, email and phone; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner is always embedded; Enabled `include` contributions can enrich each company.",
         "operationId": "companies_list",
         "parameters": [
           {
@@ -38274,7 +38274,7 @@
         "tags": [
           "organizations"
         ],
-        "description": "Returns a company with its custom fields and owner (permission `organizations.read`). The id of a company merged into another one answers the company that absorbed it (compare `id`). `include=tags` embeds its tags.",
+        "description": "Returns a company with its custom fields and owner (permission `organizations.read`). The id of a company merged into another one answers the company that absorbed it (compare `id`). Enabled `include` contributions can enrich this response.",
         "operationId": "companies_get",
         "parameters": [
           {
@@ -39053,7 +39053,7 @@
         "tags": [
           "people"
         ],
-        "description": "Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; `include=tags` also embeds the tags of each contact.",
+        "description": "Lists the people visible to the user (permission `people.read`, limited by its record scope). Filters accept the JSON AST in `filter` or simple conditions as `filter[field][operator]=value` (`filter[email][contains]=acme`, `filter[owner_id][in]=a,b`, `filter[company_id]=<id>` means `eq`), combined with `and`. `sort=field,-other` (up to 3); without `sort`, newest first. `search` (or its alias `q`) matches name, email, phone and mobile; phone terms are normalized to E.164. `archived=exclude|include|only` (default `exclude`). The owner and the primary company are always embedded; Enabled `include` contributions can enrich each contact.",
         "operationId": "contacts_list",
         "parameters": [
           {
@@ -39263,7 +39263,7 @@
         "tags": [
           "people"
         ],
-        "description": "Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). `include=tags` embeds its tags.",
+        "description": "Returns a contact with its custom fields, owner and primary company (permission `people.read`). The id of a contact merged into another one answers the contact that absorbed it (compare `id`). Enabled `include` contributions can enrich this response.",
         "operationId": "contacts_get",
         "parameters": [
           {
@@ -56827,7 +56827,7 @@
         },
         "responses": {
           "201": {
-            "description": "Tag created (`tag.created`). Empty `record_types` means the tag can be used on people, organizations and deals",
+            "description": "Tag created (`tag.created`). Empty `record_types` means the tag can be used on all supported record types",
             "content": {
               "application/json": {
                 "schema": {
@@ -70864,15 +70864,6 @@
               "null"
             ]
           },
-          "tags": {
-            "type": [
-              "array",
-              "null"
-            ],
-            "items": {
-              "$ref": "#/components/schemas/TagSummary"
-            }
-          },
           "updated_at": {
             "type": "string",
             "example": "2026-10-20T13:45:00Z"
@@ -71533,15 +71524,6 @@
               "string",
               "null"
             ]
-          },
-          "tags": {
-            "type": [
-              "array",
-              "null"
-            ],
-            "items": {
-              "$ref": "#/components/schemas/TagSummary"
-            }
           },
           "updated_at": {
             "type": "string",
@@ -76515,15 +76497,6 @@
                   "null"
                 ]
               },
-              "tags": {
-                "type": [
-                  "array",
-                  "null"
-                ],
-                "items": {
-                  "$ref": "#/components/schemas/TagSummary"
-                }
-              },
               "updated_at": {
                 "type": "string",
                 "example": "2026-10-20T13:45:00Z"
@@ -76912,15 +76885,6 @@
                   "string",
                   "null"
                 ]
-              },
-              "tags": {
-                "type": [
-                  "array",
-                  "null"
-                ],
-                "items": {
-                  "$ref": "#/components/schemas/TagSummary"
-                }
               },
               "updated_at": {
                 "type": "string",
@@ -103318,15 +103282,6 @@
                     "null"
                   ]
                 },
-                "tags": {
-                  "type": [
-                    "array",
-                    "null"
-                  ],
-                  "items": {
-                    "$ref": "#/components/schemas/TagSummary"
-                  }
-                },
                 "updated_at": {
                   "type": "string",
                   "example": "2026-10-20T13:45:00Z"
@@ -103669,15 +103624,6 @@
                     "string",
                     "null"
                   ]
-                },
-                "tags": {
-                  "type": [
-                    "array",
-                    "null"
-                  ],
-                  "items": {
-                    "$ref": "#/components/schemas/TagSummary"
-                  }
                 },
                 "updated_at": {
                   "type": "string",
@@ -120355,7 +120301,7 @@
     },
     {
       "name": "tagging",
-      "description": "Tags of the organization and tagging of people, organizations and deals"
+      "description": "Tags of the organization and tagging of opted-in records"
     },
     {
       "name": "tasks",

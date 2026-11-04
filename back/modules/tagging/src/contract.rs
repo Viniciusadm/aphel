@@ -8,8 +8,6 @@ use serde_json::json;
 use crate::dto::TagResponse;
 use crate::service;
 
-const NOT_ON_TAGS: &[&str] = &["tasks.task"];
-
 fn config_schema() -> serde_json::Value {
     json!({
         "type": "object",
@@ -28,7 +26,8 @@ fn binding(action_key: &'static str, label: &'static str) -> AutomationBinding {
             field: "tag_id",
             kind: tagging::TAG,
         }),
-        excluded_record_types: NOT_ON_TAGS,
+        required_entity_trait: Some(tagging::TAGGABLE),
+        supports_custom_records: true,
         record_permission: Some("update"),
     }
 }

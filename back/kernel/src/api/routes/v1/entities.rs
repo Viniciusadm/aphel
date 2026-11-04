@@ -32,7 +32,7 @@ async fn entities(
     let app = crate::modules::app();
     let items = registry.definitions().filter(|entity| {
         let enabled = app.record_contributions().iter().find(|entry|entry.registers.as_ref() == Some(&entity.record_type)).is_none_or(|entry|app.is_enabled(entry.module));
-        enabled && (tenant.scope.require(&entity.read_permission).is_ok() || entity.action_permission("create").is_some_and(|permission|tenant.scope.require(&permission).is_ok()))
+        enabled && (tenant.scope.require(&crate::domain::access::Permission::SETTINGS_MANAGE).is_ok() || tenant.scope.require(&entity.read_permission).is_ok() || entity.action_permission("create").is_some_and(|permission|tenant.scope.require(&permission).is_ok()))
     }).map(|entity| {
         let create = entity.action_permission("create");
         let update = entity.action_permission("update");

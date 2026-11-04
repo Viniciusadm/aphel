@@ -66,7 +66,7 @@ impl AutomationAction for OperationAction {
     }
 
     fn supports(&self, record_type: &str) -> bool {
-        is_automatable(record_type) && !self.binding.excluded_record_types.contains(&record_type)
+        is_automatable(record_type) && self.binding.supports_record_type(record_type)
     }
 
     fn required_permissions(&self, record_type: &str, _config: &Value) -> Vec<Permission> {

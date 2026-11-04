@@ -1,18 +1,4 @@
 {
-  "recordTypes": {
-    "contact": "Contatos",
-    "company": "Empresas",
-    "deal": "Oportunidades",
-    "people": {
-      "person": "Contatos"
-    },
-    "organizations": {
-      "organization": "Empresas"
-    },
-    "deals": {
-      "deal": "Oportunidades"
-    }
-  },
   "chips": {
     "remove": "Remover etiqueta {{name}}",
     "more_one": "+{{count}}",
@@ -28,7 +14,7 @@
   },
   "settings": {
     "title": "Etiquetas",
-    "description": "Etiquetas marcam contatos, empresas e oportunidades e podem ser usadas em filtros, segmentos e ações em massa.",
+    "description": "Etiquetas identificam registros e podem ser usadas em filtros, segmentos e ações em massa.",
     "new": "Nova etiqueta",
     "newTitle": "Nova etiqueta",
     "editTitle": "Editar etiqueta",
@@ -56,7 +42,9 @@
     "save": "Salvar",
     "created": "Etiqueta {{name}} criada",
     "updated": "Etiqueta {{name}} atualizada",
-    "deleted": "Etiqueta {{name}} excluída"
+    "deleted": "Etiqueta {{name}} excluída",
+    "typesLoadFailed": "Não foi possível carregar os tipos de registro disponíveis.",
+    "retryTypes": "Tentar novamente"
   },
   "list": {
     "field": "Etiquetas"
