@@ -279,6 +279,12 @@ pub struct ExistingDealRenewal {
 }
 #[async_trait]
 pub trait DealRenewalReader: Send + Sync {
+    async fn notification_target(
+        &self,
+        pool: &sqlx::MySqlPool,
+        id: Uuid,
+    ) -> Result<Option<(String, Option<String>)>, AppError>;
+
     async fn widget_rows(
         &self,
         context: &crate::dashboard::WidgetContext<'_, crate::dashboard::WidgetPorts>,
@@ -306,4 +312,10 @@ pub struct RenewalDealRow {
     pub contract_end: Option<NaiveDate>,
     pub owner_id: Option<String>,
     pub owner_name: Option<String>,
+}
+
+pub fn renewal_reader() -> Option<std::sync::Arc<dyn DealRenewalReader>> {
+    aphel_kernel::modules::app()
+        .services()
+        .get::<dyn DealRenewalReader>()
 }

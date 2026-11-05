@@ -37,6 +37,19 @@ impl RenewalDealWriter for Writer {
 
 #[async_trait::async_trait]
 impl aphel_sdk::deals::DealRenewalReader for Writer {
+    async fn notification_target(
+        &self,
+        pool: &sqlx::MySqlPool,
+        id: Uuid,
+    ) -> Result<Option<(String, Option<String>)>, AppError> {
+        Ok(
+            sqlx::query_as("SELECT title, owner_id FROM deals WHERE id = ? AND deleted_at IS NULL")
+                .bind(id.to_string())
+                .fetch_optional(pool)
+                .await?,
+        )
+    }
+
     async fn widget_rows(
         &self,
         context: &aphel_sdk::dashboard::WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,

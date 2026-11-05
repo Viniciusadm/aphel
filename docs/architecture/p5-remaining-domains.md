@@ -564,6 +564,11 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove all six foreign SQL references; scoped tasks/telephony compilation passes without warnings.
 - [ ] Manual acceptance: report dates/scopes/pagination/totals, soft-deleted provider calls, create-only actors, queue label masks and disabled owners.
 
+## Renewal notification lookup
+
+- [x] Move the remaining notification title/owner lookup into deals through its enabled renewal reader. Renewals now has no literal foreign SQL; scoped compilation passes.
+- [ ] Manual acceptance: notification recipients, deleted deals and disabled deal readers.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

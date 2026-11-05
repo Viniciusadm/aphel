@@ -39,12 +39,12 @@ impl RenewalNotificationConsumer {
     }
 
     async fn renewal(&self, deal_id: &str) -> Result<Option<(String, Option<String>)>, AppError> {
-        Ok(
-            sqlx::query_as("SELECT title, owner_id FROM deals WHERE id = ? AND deleted_at IS NULL")
-                .bind(deal_id)
-                .fetch_optional(&self.pool)
-                .await?,
-        )
+        let Some(source) = aphel_sdk::deals::renewal_reader() else {
+            return Ok(None);
+        };
+        let id = uuid::Uuid::parse_str(deal_id)
+            .map_err(|_| AppError::Internal("invalid renewal notification identity".into()))?;
+        source.notification_target(&self.pool, id).await
     }
 }
 
