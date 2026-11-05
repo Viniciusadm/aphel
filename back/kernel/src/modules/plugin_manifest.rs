@@ -178,6 +178,16 @@ pub struct Uses {
     pub optional: Vec<String>,
 }
 
+impl Uses {
+    pub fn unmet(&self, provided: &[String]) -> Vec<String> {
+        self.required
+            .iter()
+            .filter(|requirement| !provided.contains(requirement))
+            .cloned()
+            .collect()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PluginManifest {

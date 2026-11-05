@@ -303,6 +303,22 @@ fn provided_contributions(failures: &mut Vec<String>) {
     }
 }
 
+fn contract_resolution(failures: &mut Vec<String>) {
+    let uses = aphel_kernel::modules::Uses {
+        required: vec!["party@1".into(), "tasks@1".into()],
+        optional: vec!["assignment@1".into()],
+    };
+    if uses.unmet(&["party@1".into()]) != vec!["tasks@1".to_owned()] {
+        failures.push("contracts: only missing required contracts must be reported".into());
+    }
+    if !uses.unmet(&["party@1".into(), "tasks@1".into()]).is_empty() {
+        failures.push("contracts: provided requirements must resolve".into());
+    }
+    if uses.unmet(&["party@2".into(), "tasks@1".into()]) != vec!["party@1".to_owned()] {
+        failures.push("contracts: a different major must not satisfy a requirement".into());
+    }
+}
+
 fn event_envelope(failures: &mut Vec<String>) {
     let service = scope_with(&[]).acting_as("plugin", "probe");
     match Actor::from_scope(&service) {
@@ -341,6 +357,7 @@ pub(crate) fn run() -> CliResult {
     operations(&mut failures);
     provided_operations(&mut failures);
     provided_contributions(&mut failures);
+    contract_resolution(&mut failures);
     event_envelope(&mut failures);
     if failures.is_empty() {
         return Ok(());

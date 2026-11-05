@@ -48,6 +48,28 @@ pub async fn validate_dependencies(
     manifest: &PluginManifest,
 ) -> Result<(), AppError> {
     let registry = state.registry().await?;
+    let mut provided: Vec<String> = state
+        .app
+        .modules()
+        .iter()
+        .filter(|loaded| state.app.is_enabled(loaded.key()))
+        .flat_map(|loaded| loaded.manifest.provides.contracts.clone())
+        .collect();
+    for other in &crate::registry::current(&state.db()?).await?.plugins {
+        if other.key != manifest.key {
+            provided.extend(other.manifest.provides.contracts.clone());
+        }
+    }
+    let unmet = manifest.uses.unmet(&provided);
+    if !unmet.is_empty() {
+        return Err(AppError::validation_code(
+            "plugin_contract_unavailable",
+            format!(
+                "no enabled provider for the required contracts: {}",
+                unmet.join(", ")
+            ),
+        ));
+    }
     for required in &manifest.requires {
         let permission = aphel_sdk::platform::domain::access::Permission::parse(required.clone())?;
         if let Some(owner) = state.app.catalog().permission_owner(&permission)
