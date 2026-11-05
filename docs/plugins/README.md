@@ -221,6 +221,8 @@ What the declarations become:
 
 Record types in manifests and in `ctx.records()` calls use the canonical names listed by `GET /api/v1/entities` (`people.person`, `organizations.organization`, `deals.deal`, `loyalty.account`). A field `target` with an alias such as `contact` is refused with `record_type_not_found`. In a `list` filter, an entity's own fields are addressed by their key (`contact`), not by `custom_fields.contact`; filtering on an unknown field answers 422 `filter.field is not a known field`.
 
+An entity can opt into platform behaviours with `traits` in its `[[entities]]` table, for example `traits = { "privacy.personal_data" = true, "party.contact_points" = { points = [ { field = "email", kind = "email" }, { field = "phone", kind = "phone" } ] } }`. `party.contact_points` maps the fields that hold e-mail, phone and web addresses; `privacy.personal_data` together with `personal = true` on those fields makes privacy subject searches find the records. The available trait keys are not in `aphel catalog` yet.
+
 Entity field keys cannot reuse the keys every custom object already has: `name`, `title`, `owner_id`, `created_by`, `created_at` and `updated_at`. Any key conflict (an object or field that already exists and is not the plugin's) is refused with 409 `plugin_object_conflict` or `plugin_field_conflict` before anything is written.
 
 ### Menu and replaced modules
