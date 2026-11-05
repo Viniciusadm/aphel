@@ -43,7 +43,7 @@ impl StagedRecordSource for DealStages {
         let mut query = QueryBuilder::<MySql>::new(
             "SELECT r.stage_id, COUNT(*) FROM deals r WHERE r.deleted_at IS NULL AND r.pipeline_id = ",
         );
-        query.push_bind(pipeline_id.to_string()).push(" AND ");
+        query.push_bind(pipeline_id.to_string());
         push_record_scope(&mut query, ctx.scope, definition, &visibility);
         query.push(" GROUP BY r.stage_id");
         let rows = query
