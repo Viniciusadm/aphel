@@ -12,7 +12,7 @@ use crate::infrastructure::MySqlValidationRulePorts;
 
 const RULE: RecordType = RecordType::from_static("validation_rule");
 const RULE_KEY: &str = "demo_large_deal_source";
-const EXPRESSION: &str = "amount > 10000 and is_blank(source)";
+const EXPRESSION: &str = "amount > 10000 and is_empty(source)";
 const DEAL_RECORD_TYPE_VALUE: &str = "deals.record_type";
 
 pub(crate) struct ValidationRulesSeed;

@@ -15,3 +15,6 @@ recommended = [
   "google",
   "ai",
 ]
+
+[configuration]
+packages = ["freelancer"]

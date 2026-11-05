@@ -24,3 +24,6 @@ recommended = [
   "ai",
   "enrichment",
 ]
+
+[configuration]
+packages = ["sales"]

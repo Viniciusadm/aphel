@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "plan",
         "label": "Plan",
         "type": "select",
@@ -37,7 +37,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "billing_cycle",
         "label": "Billing cycle",
         "type": "select",
@@ -55,7 +55,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "seats",
         "label": "Number of seats",
         "type": "number",
@@ -65,19 +65,19 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "trial_ends_on",
         "label": "Trial end date",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "renewal_date",
         "label": "Renewal date",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "trial_engagement",
         "label": "Trial engagement",
         "type": "select",
@@ -100,7 +100,7 @@
         ]
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "customer_stage",
         "label": "Customer stage",
         "type": "select",
@@ -123,13 +123,13 @@
         ]
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "current_tool",
         "label": "Current tool",
         "type": "text"
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "use_case",
         "label": "Primary use case",
         "type": "text"
@@ -247,7 +247,7 @@
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -347,7 +347,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -447,7 +447,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "create",
         "layout": {
           "tabs": [
@@ -510,7 +510,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -576,7 +576,7 @@
     "views": [
       {
         "key": "trials_vencendo",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Trials ending soon",
         "view_type": "table",
         "filter": {
@@ -611,7 +611,7 @@
       },
       {
         "key": "renovacoes_proximas",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Renewals in the next 60 days",
         "view_type": "table",
         "filter": {
@@ -646,7 +646,7 @@
       },
       {
         "key": "clientes_ativos",
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "name": "Active customers",
         "view_type": "table",
         "filter": {

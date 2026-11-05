@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "sector",
         "label": "Setor de atuação",
         "type": "select",
@@ -67,7 +67,7 @@
         ]
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "annual_revenue",
         "label": "Faturamento anual",
         "type": "select",
@@ -100,7 +100,7 @@
         ]
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "account_tier",
         "label": "Classificação da conta",
         "type": "select",
@@ -123,7 +123,7 @@
         ]
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "buying_role",
         "label": "Papel na decisão",
         "type": "select",
@@ -161,7 +161,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "deal_type",
         "label": "Tipo de negócio",
         "type": "select",
@@ -184,25 +184,25 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "decision_maker_confirmed",
         "label": "Decisor identificado",
         "type": "checkbox"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "competitors",
         "label": "Concorrentes na disputa",
         "type": "text"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "next_step",
         "label": "Próximo passo",
         "type": "text"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "demo_date",
         "label": "Data da demonstração",
         "type": "date"
@@ -318,7 +318,7 @@
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -393,7 +393,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -468,7 +468,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "create",
         "layout": {
           "tabs": [
@@ -537,7 +537,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -606,7 +606,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "create",
         "layout": {
           "tabs": [
@@ -671,7 +671,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -739,7 +739,7 @@
     "views": [
       {
         "key": "negocios_em_aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Negócios em aberto",
         "view_type": "table",
         "filter": {
@@ -764,7 +764,7 @@
       },
       {
         "key": "fechamento_este_mes",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Fechamento previsto este mês",
         "view_type": "table",
         "filter": {
@@ -798,7 +798,7 @@
       },
       {
         "key": "contas_estrategicas",
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "name": "Contas estratégicas",
         "view_type": "table",
         "filter": {
@@ -819,7 +819,7 @@
       },
       {
         "key": "decisores",
-        "record_type": "contact",
+        "record_type": "people.person",
         "name": "Decisores",
         "view_type": "table",
         "filter": {

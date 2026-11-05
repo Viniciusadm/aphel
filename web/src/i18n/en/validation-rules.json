@@ -39,7 +39,7 @@
     "timing": "When to apply",
     "active": "Active rule",
     "expression": "Error condition",
-    "expressionHint": "Boolean formula. Example: amount > 10000 and is_blank(source)",
+    "expressionHint": "Boolean formula. Example: amount > 10000 and is_empty(source)",
     "save": "Save",
     "cancel": "Cancel",
     "required": "Fill in this field.",

@@ -365,6 +365,7 @@ impl Module for DealsModule {
         Manifest::new(KEY, "Deals", APHEL_VERSION)
             .description("Deals, stage changes, the Kanban board and the team of each deal")
             .depends_on(aphel_sdk::money::KEY, "*")
+            .depends_on(aphel_sdk::workflow::KEY, "*")
             .owned_tables(&[
                 "deals",
                 "deal_contacts",

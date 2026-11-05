@@ -111,7 +111,7 @@ export interface components {
             /** @example 2026-10-20T13:45:00Z */
             created_at: string;
             created_by?: string | null;
-            /** @example amount > 10000 and is_blank(source) */
+            /** @example amount > 10000 and is_empty(source) */
             expression: string;
             /** @example source */
             field?: string | null;
@@ -148,7 +148,7 @@ export interface components {
             };
         };
         ValidationRulePreviewRequest: {
-            /** @example amount > 10000 and is_blank(source) */
+            /** @example amount > 10000 and is_empty(source) */
             expression: string;
             record_id?: string | null;
             /** @example deals.deal */
@@ -165,7 +165,7 @@ export interface components {
                 /** @example 2026-10-20T13:45:00Z */
                 created_at: string;
                 created_by?: string | null;
-                /** @example amount > 10000 and is_blank(source) */
+                /** @example amount > 10000 and is_empty(source) */
                 expression: string;
                 /** @example source */
                 field?: string | null;
@@ -213,7 +213,7 @@ export interface components {
                 /** @example 2026-10-20T13:45:00Z */
                 created_at: string;
                 created_by?: string | null;
-                /** @example amount > 10000 and is_blank(source) */
+                /** @example amount > 10000 and is_empty(source) */
                 expression: string;
                 /** @example source */
                 field?: string | null;

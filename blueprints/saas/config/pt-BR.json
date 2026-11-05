@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "plan",
         "label": "Plano",
         "type": "select",
@@ -37,7 +37,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "billing_cycle",
         "label": "Ciclo de cobrança",
         "type": "select",
@@ -55,7 +55,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "seats",
         "label": "Número de usuários",
         "type": "number",
@@ -65,19 +65,19 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "trial_ends_on",
         "label": "Fim do trial",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "renewal_date",
         "label": "Data de renovação",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "trial_engagement",
         "label": "Engajamento no trial",
         "type": "select",
@@ -100,7 +100,7 @@
         ]
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "customer_stage",
         "label": "Estágio do cliente",
         "type": "select",
@@ -123,13 +123,13 @@
         ]
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "current_tool",
         "label": "Ferramenta atual",
         "type": "text"
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "use_case",
         "label": "Caso de uso principal",
         "type": "text"
@@ -247,7 +247,7 @@
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -347,7 +347,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -447,7 +447,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "create",
         "layout": {
           "tabs": [
@@ -510,7 +510,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -576,7 +576,7 @@
     "views": [
       {
         "key": "trials_vencendo",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Trials vencendo",
         "view_type": "table",
         "filter": {
@@ -611,7 +611,7 @@
       },
       {
         "key": "renovacoes_proximas",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Renovações nos próximos 60 dias",
         "view_type": "table",
         "filter": {
@@ -646,7 +646,7 @@
       },
       {
         "key": "clientes_ativos",
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "name": "Clientes ativos",
         "view_type": "table",
         "filter": {

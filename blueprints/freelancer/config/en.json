@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "pricing_model",
         "label": "Pricing model",
         "type": "select",
@@ -27,13 +27,13 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "hourly_rate",
         "label": "Hourly rate",
         "type": "currency"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "estimated_hours",
         "label": "Estimated hours",
         "type": "number",
@@ -43,13 +43,13 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "deadline",
         "label": "Delivery deadline",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "payment_terms",
         "label": "Payment terms",
         "type": "select",
@@ -77,13 +77,13 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "deliverables",
         "label": "Deliverables",
         "type": "long_text"
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "portfolio_source",
         "label": "How they found me",
         "type": "select",
@@ -211,7 +211,7 @@
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -311,7 +311,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -411,7 +411,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "create",
         "layout": {
           "tabs": [
@@ -457,7 +457,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -506,7 +506,7 @@
     "views": [
       {
         "key": "orcamentos_em_aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Open quotes",
         "view_type": "table",
         "filter": {
@@ -530,7 +530,7 @@
       },
       {
         "key": "entregas_da_semana",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Deliveries in the next 7 days",
         "view_type": "table",
         "filter": {
@@ -563,7 +563,7 @@
       },
       {
         "key": "projetos_fechados_no_mes",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Won this month",
         "view_type": "table",
         "filter": {
@@ -624,7 +624,7 @@
         "key": "follow_up_semanal",
         "name": "Weekly follow-up on open quotes",
         "description": "Every Monday at 9 AM, creates a follow-up task for each open quote",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "trigger": {
           "type": "time.schedule",
           "cron": "0 0 9 * * Mon",

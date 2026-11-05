@@ -28,7 +28,7 @@ pub struct ValidationRuleResponse {
     pub record_type: String,
     #[schema(example = "Discount requires justification")]
     pub name: String,
-    #[schema(example = "amount > 10000 and is_blank(source)")]
+    #[schema(example = "amount > 10000 and is_empty(source)")]
     pub expression: String,
     #[schema(example = "Provide the source for deals above 10k.")]
     pub message: String,
@@ -157,7 +157,7 @@ impl ReorderValidationRulesRequest {
 pub struct ValidationRulePreviewRequest {
     #[schema(example = "deals.deal")]
     pub record_type: String,
-    #[schema(example = "amount > 10000 and is_blank(source)")]
+    #[schema(example = "amount > 10000 and is_empty(source)")]
     pub expression: String,
     pub record_id: Option<String>,
 }

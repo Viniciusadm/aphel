@@ -25,3 +25,6 @@ recommended = [
   "enrichment",
   "esign",
 ]
+
+[configuration]
+packages = ["agency"]

@@ -9,6 +9,8 @@ use crate::fields::EntityTraits;
 use crate::shared::RecordType;
 use crate::{AppError, Ctx};
 pub use aphel_contract_workflow::*;
+
+pub const KEY: &str = "workflow";
 use aphel_kernel::database::transaction::MySqlTx;
 use async_trait::async_trait;
 use sqlx::MySqlPool;

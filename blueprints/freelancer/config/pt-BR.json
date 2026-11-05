@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "pricing_model",
         "label": "Forma de cobrança",
         "type": "select",
@@ -27,7 +27,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "hourly_rate",
         "label": "Valor/hora",
         "type": "currency",
@@ -36,7 +36,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "estimated_hours",
         "label": "Horas estimadas",
         "type": "number",
@@ -46,13 +46,13 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "deadline",
         "label": "Prazo de entrega",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "payment_terms",
         "label": "Condição de pagamento",
         "type": "select",
@@ -80,13 +80,13 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "deliverables",
         "label": "Entregáveis",
         "type": "long_text"
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "portfolio_source",
         "label": "Como me conheceu",
         "type": "select",
@@ -214,7 +214,7 @@
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -314,7 +314,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -414,7 +414,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "create",
         "layout": {
           "tabs": [
@@ -460,7 +460,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -509,7 +509,7 @@
     "views": [
       {
         "key": "orcamentos_em_aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Orçamentos em aberto",
         "view_type": "table",
         "filter": {
@@ -533,7 +533,7 @@
       },
       {
         "key": "entregas_da_semana",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Entregas dos próximos 7 dias",
         "view_type": "table",
         "filter": {
@@ -566,7 +566,7 @@
       },
       {
         "key": "projetos_fechados_no_mes",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Fechados este mês",
         "view_type": "table",
         "filter": {
@@ -627,7 +627,7 @@
         "key": "follow_up_semanal",
         "name": "Follow-up semanal de orçamentos em aberto",
         "description": "Toda segunda-feira às 9h cria uma tarefa de acompanhamento para cada orçamento em aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "trigger": {
           "type": "time.schedule",
           "cron": "0 0 9 * * Mon",

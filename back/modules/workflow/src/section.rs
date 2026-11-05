@@ -163,10 +163,13 @@ where
                     .iter()
                     .filter(|plan: &&PipelinePlan| plan.is_new)
                     .count();
+                let becomes_default = entry.default
+                    && !existing.iter().any(|(pipeline, _)| pipeline.is_default)
+                    && !plans.iter().any(|plan| plan.pipeline.is_default);
                 let pipeline = Pipeline {
                     id: Uuid::now_v7(),
                     name,
-                    is_default: false,
+                    is_default: becomes_default,
                     position: last_position + 1 + created_before as i32,
                     is_active: true,
                     team_ids: Vec::new(),

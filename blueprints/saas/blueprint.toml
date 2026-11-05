@@ -23,3 +23,6 @@ recommended = [
   "sso",
   "ai",
 ]
+
+[configuration]
+packages = ["saas"]

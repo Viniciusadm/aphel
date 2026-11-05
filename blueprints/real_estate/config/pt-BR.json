@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "business_type",
         "label": "Tipo de negócio",
         "type": "select",
@@ -27,7 +27,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "property_type",
         "label": "Tipo de imóvel",
         "type": "select",
@@ -65,20 +65,20 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "property_code",
         "label": "Código do imóvel",
         "type": "text",
         "searchable": true
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "neighborhood",
         "label": "Bairro",
         "type": "text"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "payment_method",
         "label": "Forma de pagamento",
         "type": "select",
@@ -111,13 +111,13 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "financing_approved",
         "label": "Crédito aprovado",
         "type": "checkbox"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "rent_amount",
         "label": "Valor do aluguel",
         "type": "currency",
@@ -126,7 +126,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "condo_fee",
         "label": "Condomínio + IPTU (mensal)",
         "type": "currency",
@@ -135,7 +135,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "rental_guarantee",
         "label": "Garantia locatícia",
         "type": "select",
@@ -168,7 +168,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "contract_months",
         "label": "Prazo do contrato (meses)",
         "type": "number",
@@ -178,13 +178,13 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "move_in_date",
         "label": "Data de entrada no imóvel",
         "type": "date"
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "client_profile",
         "label": "Perfil do cliente",
         "type": "select",
@@ -207,7 +207,7 @@
         ]
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "max_budget",
         "label": "Orçamento máximo",
         "type": "currency",
@@ -216,13 +216,13 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "desired_neighborhoods",
         "label": "Bairros de interesse",
         "type": "text"
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "key": "bedrooms",
         "label": "Dormitórios desejados",
         "type": "number",
@@ -403,8 +403,8 @@
         "name": "Investidor",
         "color": "#f59e0b",
         "record_types": [
-          "contact",
-          "deal"
+          "people.person",
+          "deals.deal"
         ]
       },
       {
@@ -412,8 +412,8 @@
         "name": "Primeira compra",
         "color": "#16a34a",
         "record_types": [
-          "contact",
-          "deal"
+          "people.person",
+          "deals.deal"
         ]
       },
       {
@@ -421,14 +421,14 @@
         "name": "Aceita permuta",
         "color": "#8250df",
         "record_types": [
-          "contact",
-          "deal"
+          "people.person",
+          "deals.deal"
         ]
       }
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -586,7 +586,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -744,7 +744,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "create",
         "layout": {
           "tabs": [
@@ -816,7 +816,7 @@
         }
       },
       {
-        "record_type": "contact",
+        "record_type": "people.person",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -891,7 +891,7 @@
     "views": [
       {
         "key": "vendas_em_aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Vendas em aberto",
         "view_type": "table",
         "filter": {
@@ -926,7 +926,7 @@
       },
       {
         "key": "locacoes_em_aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Locações em aberto",
         "view_type": "table",
         "filter": {
@@ -962,7 +962,7 @@
       },
       {
         "key": "entradas_proximas",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Entradas nos próximos 30 dias",
         "view_type": "table",
         "filter": {
@@ -996,7 +996,7 @@
       },
       {
         "key": "proprietarios",
-        "record_type": "contact",
+        "record_type": "people.person",
         "name": "Proprietários",
         "view_type": "table",
         "filter": {

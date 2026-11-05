@@ -76,8 +76,15 @@ impl aphel_sdk::platform::application::installer::BlueprintConfigurator for Temp
         let use_cases = packages(ctx);
         let plan = use_cases.plan(ctx.scope, source.clone()).await?;
         if !plan.valid {
+            let issues = plan
+                .issues
+                .iter()
+                .take(5)
+                .map(|issue| format!("{}: {}", issue.path, issue.message))
+                .collect::<Vec<_>>()
+                .join("; ");
             return Err(AppError::Configuration(format!(
-                "blueprint template {template} is not valid"
+                "blueprint template {template} is not valid ({issues})"
             )));
         }
         use_cases

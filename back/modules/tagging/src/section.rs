@@ -243,7 +243,7 @@ where
                     issues.push(PackageIssue::new(
                         format!("{index}.record_types.{type_index}"),
                         "invalid_record_type",
-                        "must be contact, company or deal",
+                        "must be a taggable record type",
                     ));
                 }
             }

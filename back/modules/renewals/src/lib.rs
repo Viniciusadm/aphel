@@ -37,6 +37,7 @@ impl Module for RenewalsModule {
             .description(
                 "Automatic renewal of won deals whose contract is ending, configured per pipeline",
             )
+            .depends_on(aphel_sdk::workflow::KEY, "*")
             .enabled_by_default()
             .optional("deals")
             .optional("workflow")

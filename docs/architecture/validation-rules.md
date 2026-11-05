@@ -25,7 +25,7 @@ A rule has:
 | `is_active` | Deactivating keeps the rule stored without applying it. |
 | `position` | Evaluation and display order within the record type. |
 
-Example: `amount > 10000 and is_blank(source)` with the message "Provide the source for deals above 10 thousand" and `field = source`.
+Example: `amount > 10000 and is_empty(source)` with the message "Provide the source for deals above 10 thousand" and `field = source`.
 
 ### Error
 

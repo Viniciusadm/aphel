@@ -9,7 +9,7 @@
   "sections": {
     "fields": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "services",
         "label": "Services",
         "type": "multi_select",
@@ -57,7 +57,7 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "billing_model",
         "label": "Engagement model",
         "type": "select",
@@ -80,13 +80,13 @@
         ]
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "monthly_fee",
         "label": "Monthly fee",
         "type": "currency"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "contract_months",
         "label": "Contract length (months)",
         "type": "number",
@@ -96,43 +96,43 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "scope",
         "label": "Scope",
         "type": "long_text"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "briefing_url",
         "label": "Brief link",
         "type": "url"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "delivery_date",
         "label": "Delivery date",
         "type": "date"
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "key": "contract_end_date",
         "label": "Contract end date",
         "type": "date"
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "client_since",
         "label": "Client since",
         "type": "date"
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "account_manager",
         "label": "Account manager",
         "type": "user"
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "key": "channels",
         "label": "Active channels",
         "type": "multi_select",
@@ -324,7 +324,7 @@
     ],
     "layouts": [
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "create",
         "layout": {
           "tabs": [
@@ -433,7 +433,7 @@
         }
       },
       {
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -542,7 +542,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "create",
         "layout": {
           "tabs": [
@@ -611,7 +611,7 @@
         }
       },
       {
-        "record_type": "company",
+        "record_type": "organizations.organization",
         "context": "edit",
         "layout": {
           "tabs": [
@@ -683,7 +683,7 @@
     "views": [
       {
         "key": "projetos_em_aberto",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Projects in negotiation",
         "view_type": "table",
         "filter": {
@@ -708,7 +708,7 @@
       },
       {
         "key": "contratos_vencendo",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Contracts expiring in 60 days",
         "view_type": "table",
         "filter": {
@@ -742,7 +742,7 @@
       },
       {
         "key": "entregas_proximas",
-        "record_type": "deal",
+        "record_type": "deals.deal",
         "name": "Deliveries in the next 15 days",
         "view_type": "table",
         "filter": {

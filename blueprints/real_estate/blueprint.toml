@@ -19,3 +19,6 @@ recommended = [
   "enrichment",
   "esign",
 ]
+
+[configuration]
+packages = ["real_estate"]

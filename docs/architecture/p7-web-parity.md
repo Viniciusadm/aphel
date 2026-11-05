@@ -15,12 +15,12 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 - [ ] Disable the modules that use `sales`: the group disappears.
 
 ## Locales (P7.4)
-- [ ] Language menu in the user menu and in the navigation settings lists pt-BR and en with the same names as before; switching still works and persists.
+- [x] Language menu in the user menu and in the navigation settings lists pt-BR and en with the same names as before; switching still works and persists.
 - [ ] Add a module with a third locale: it appears in both menus (preference saving is limited by the backend's `pt-BR`/`en` enum).
 
 ## Contract components (P7.5)
 - [ ] Deals reports show the period selector and compare toggle with the dashboard enabled; with the dashboard disabled the controls are absent and nothing crashes.
-- [ ] The rotting badge shows in the deals list with workflow enabled and is absent without it.
+- [x] The rotting badge shows in the deals list with workflow enabled. Workflow cannot be disabled while `deals`, `quotes` or `renewals` are enabled (they now declare the dependency), so "absent without it" no longer applies.
 - [ ] Deal links in renewals, forecast, leads conversion and deal revenue open the deal; with deals disabled the link is inert.
 
 ## Record types, sidebar, tabs (P7.6 to P7.8)
@@ -34,7 +34,7 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 
 ## Trait-aware UI (P7.10)
 - [ ] The related deals tab appears on contacts and companies only if the entity catalog reports `party.contact_points` in `traits` (not verified against the backend response).
-- [ ] A custom object whose entity carries `workflow.staged` shows a Stages view next to List: columns are the active pipeline's stages, a pipeline picker appears with more than one pipeline, dragging a card changes the stage field (needs a staged custom entity to exercise; not verified against the backend).
+- [ ] (not exercisable: custom objects cannot carry the `workflow.staged` trait yet) A custom object whose entity carries `workflow.staged` shows a Stages view next to List: columns are the active pipeline's stages, a pipeline picker appears with more than one pipeline, dragging a card changes the stage field (needs a staged custom entity to exercise; not verified against the backend).
 - [ ] The Files tab still appears for every entity (attachments are a kernel capability for any readable record, so no trait gates it); the deals page keeps its own board.
 
 ## Build without plugins
@@ -42,7 +42,7 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 
 ## Shell words to zero (P7.6 to P7.8 follow-up)
 - [ ] `G` + c/e/d/p/t/i/a/r shortcuts work and show in the shortcuts help only for enabled modules.
-- [ ] Mobile bottom bar shows the pinned entry (deals) only when that module is enabled.
+- [x] Mobile bottom bar shows the pinned entry (deals) only when that module is enabled.
 - [ ] Audit filters and rows, and command palette result groups, show entity labels (plural) from the catalog.
 - [ ] Installer first step is labelled as before (key renamed from company to organization) in pt-BR and en; roles matrix shows the module labels and the assignment permission label.
-- [ ] A stage checklist error and a validation rule error still show their messages.
+- [x] A stage checklist error and a validation rule error still show their messages.

@@ -87241,7 +87241,7 @@
               },
               "expression": {
                 "type": "string",
-                "example": "amount > 10000 and is_blank(source)"
+                "example": "amount > 10000 and is_empty(source)"
               },
               "field": {
                 "type": [
@@ -90794,7 +90794,7 @@
                 },
                 "expression": {
                   "type": "string",
-                  "example": "amount > 10000 and is_blank(source)"
+                  "example": "amount > 10000 and is_empty(source)"
                 },
                 "field": {
                   "type": [
@@ -120197,7 +120197,7 @@
         "properties": {
           "expression": {
             "type": "string",
-            "example": "amount > 10000 and is_blank(source)"
+            "example": "amount > 10000 and is_empty(source)"
           },
           "record_id": {
             "type": [
@@ -120259,7 +120259,7 @@
           },
           "expression": {
             "type": "string",
-            "example": "amount > 10000 and is_blank(source)"
+            "example": "amount > 10000 and is_empty(source)"
           },
           "field": {
             "type": [

@@ -39,7 +39,7 @@
     "timing": "Quando aplicar",
     "active": "Regra ativa",
     "expression": "Condição de erro",
-    "expressionHint": "Fórmula booleana. Exemplo: amount > 10000 and is_blank(source)",
+    "expressionHint": "Fórmula booleana. Exemplo: amount > 10000 and is_empty(source)",
     "save": "Salvar",
     "cancel": "Cancelar",
     "required": "Preencha este campo.",
