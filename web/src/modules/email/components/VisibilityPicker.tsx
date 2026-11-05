@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import { EMAIL_VISIBILITIES, type EmailVisibility } from '../types'
+import {EMAIL_VISIBILITIES, type EmailVisibility} from '@/sdk'
 
 interface VisibilityPickerProps {
   name: string

@@ -8,9 +8,9 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
-import { useEmailTemplates, useRemoveTemplate } from '../api'
-import { useRecordTypeLabel } from '../lib/record-types'
-import type { EmailTemplate, TemplateScope } from '../types'
+import {useEmailTemplates, useRemoveTemplate} from '@/sdk'
+import {useRecordTypeLabel} from '@/sdk'
+import type {EmailTemplate, TemplateScope} from '@/sdk'
 import { TemplateEditorDialog } from './TemplateEditorDialog'
 
 export function TemplatesPanel({ scope }: { scope: TemplateScope }) {

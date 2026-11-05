@@ -2,8 +2,8 @@ import { FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { RECORD_TAB_PARAM, type TimelineItem } from '@/sdk'
-import { EMAILS_TAB_KEY, EMAIL_EVENT_TYPES, EMAIL_THREAD_PARAM, type EmailEventType } from '../constants'
-import { participantName } from '../lib/format'
+import {EMAILS_TAB_KEY, EMAIL_EVENT_TYPES, EMAIL_THREAD_PARAM, type EmailEventType} from '@/sdk'
+import {participantName} from '@/sdk'
 import { timelineEmail } from '../lib/timeline'
 
 function eventTypeOf(item: TimelineItem): EmailEventType {

@@ -1,5 +1,5 @@
 import { type TimelineItem } from '@/sdk'
-import type { EmailAccess, EmailDirection, Participant, TimelineEmail } from '../types'
+import type {EmailAccess, EmailDirection, Participant, TimelineEmail} from '@/sdk'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)

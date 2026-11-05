@@ -1,23 +1,11 @@
 import { Mail, MailCheck } from 'lucide-react'
 import { CUSTOM_RECORD_TYPE_PREFIX, SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
-import { CORE_EMAIL_RECORD_TYPES } from './lib/record-types'
-import { EMAILS_RECORD_TAB, withEmailsTabPlacement } from './record-tab'
+import {CORE_EMAIL_RECORD_TYPES} from '@/sdk'
+import {EMAILS_RECORD_TAB, withEmailsTabPlacement} from '@/sdk'
 import { emailSettingsRoute, mailboxesSettingsRoute } from './routes'
 import { EMAIL_TIMELINE_RENDERERS } from './timeline/renderers'
 
-export { placeTabAfter } from './record-tab'
-export { EmailsTab } from './record-tab'
-export type { EmailsTabProps } from './record/EmailsTab'
-export {
-  EMAILS_READ_PERMISSION,
-  EMAILS_SEND_PERMISSION,
-  EMAILS_TAB_KEY,
-  EMAIL_EVENT_TYPES,
-  MAILBOXES_PATH,
-} from './constants'
-export { emailApi, emailKeys } from './api'
-export type * from './types'
 
 const emailModule = defineModule({
   key: 'email',

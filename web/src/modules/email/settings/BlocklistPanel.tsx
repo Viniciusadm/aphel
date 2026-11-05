@@ -11,9 +11,9 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, NativeSelect, useRecordFormatting } from '@/sdk'
-import { emailApi, emailKeys, useBlocklist } from '../api'
-import { isValidAddress } from '../lib/format'
-import { BLOCKLIST_KINDS, type BlocklistEntry, type BlocklistKind } from '../types'
+import {emailApi, emailKeys, useBlocklist} from '@/sdk'
+import {isValidAddress} from '@/sdk'
+import {BLOCKLIST_KINDS, type BlocklistEntry, type BlocklistKind} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 const DOMAIN_PATTERN = /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/i

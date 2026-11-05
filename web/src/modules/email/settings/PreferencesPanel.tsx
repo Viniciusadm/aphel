@@ -8,9 +8,9 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { emailApi, emailKeys, useCaptureSettings, useTrackingSettings } from '../api'
+import {emailApi, emailKeys, useCaptureSettings, useTrackingSettings} from '@/sdk'
 import { MAX_HISTORY_DAYS, validHistoryDays } from '../lib/mailbox-form'
-import type { CaptureSettings, TrackingSettings } from '../types'
+import type {CaptureSettings, TrackingSettings} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export function PreferencesPanel() {

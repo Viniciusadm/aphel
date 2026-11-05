@@ -15,7 +15,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { useEmailTemplates } from '@/modules/email/api'
+import {useEmailTemplates} from '@/sdk'
 import { NativeSelect } from '@/sdk'
 import { sequencesApi, useSequence, useSequenceMutation } from './api'
 import {

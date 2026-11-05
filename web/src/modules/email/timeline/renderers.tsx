@@ -1,6 +1,6 @@
 import { Mail, MailCheck, MailOpen, MailWarning, MousePointerClick, type LucideIcon } from 'lucide-react'
 import { type TimelineRenderer } from '@/sdk'
-import type { EmailEventType } from '../constants'
+import type {EmailEventType} from '@/sdk'
 import { EmailEventContent } from './EmailEventContent'
 
 const ICONS: Record<EmailEventType, LucideIcon> = {

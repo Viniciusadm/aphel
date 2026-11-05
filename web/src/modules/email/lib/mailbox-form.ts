@@ -1,4 +1,4 @@
-import { IMAP_PROVIDER, type ImapSettings, type MailSecurity, type Mailbox, type EmailVisibility } from '../types'
+import {IMAP_PROVIDER, type ImapSettings, type MailSecurity, type Mailbox, type EmailVisibility} from '@/sdk'
 
 export const DEFAULT_HISTORY_DAYS = 90
 export const MAX_HISTORY_DAYS = 3650

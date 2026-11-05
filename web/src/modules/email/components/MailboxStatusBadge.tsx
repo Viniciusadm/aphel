@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge, type BadgeTone } from '@/components/ui/badge'
-import type { MailboxStatus } from '../types'
+import type {MailboxStatus} from '@/sdk'
 
 const VARIANTS: Record<MailboxStatus, BadgeTone> = {
   active: 'success',

@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/sdk'
-import { emailApi, useInvalidateMailboxes } from '../api'
+import {emailApi, useInvalidateMailboxes} from '@/sdk'
 import { VisibilityPicker } from '../components/VisibilityPicker'
-import { notifyEmailError } from '../lib/errors'
+import {notifyEmailError} from '@/sdk'
 import {
   MAX_HISTORY_DAYS,
   emptyMailboxForm,
@@ -29,7 +29,7 @@ import {
   portFor,
   type MailboxFormValues,
 } from '../lib/mailbox-form'
-import { MAIL_SECURITIES, type MailSecurity, type Mailbox, type UpdateMailboxRequest } from '../types'
+import {MAIL_SECURITIES, type MailSecurity, type Mailbox, type UpdateMailboxRequest} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export type MailboxDialogMode = { kind: 'create'; provider: string; providerLabel: string } | { kind: 'edit'; mailbox: Mailbox }
