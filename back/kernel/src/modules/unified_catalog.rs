@@ -100,6 +100,24 @@ pub struct ReferenceKindEntry {
 }
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
+pub struct ContributorInfo {
+    pub module: &'static str,
+    pub count: usize,
+}
+
+#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
+pub struct ContributionPointInfo {
+    pub name: String,
+    pub contributors: Vec<ContributorInfo>,
+}
+
+#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
+pub struct TraitInfo {
+    pub key: String,
+    pub entities: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
 pub struct CatalogDocument {
     pub version: &'static str,
     pub field_types: Vec<FieldTypeEntry>,
@@ -110,6 +128,8 @@ pub struct CatalogDocument {
     pub hooks: Vec<HookEntry>,
     pub events: Vec<EventEntry>,
     pub permissions: Vec<PermissionEntry>,
+    pub contribution_points: Vec<ContributionPointInfo>,
+    pub entity_traits: Vec<TraitInfo>,
     #[serde(flatten)]
     pub extensions: std::collections::BTreeMap<String, serde_json::Value>,
 }
@@ -148,12 +168,65 @@ pub fn build(app: &App) -> CatalogDocument {
         hooks: hooks(app),
         events: events(),
         permissions: permissions(),
+        contribution_points: contribution_points(app),
+        entity_traits: entity_traits(app),
         extensions: app
             .contributions::<dyn CatalogExtension>()
             .into_iter()
             .map(|source| source.project(app))
             .collect(),
     }
+}
+
+fn short_type_name(name: &str) -> String {
+    let mut short = String::new();
+    let mut run = String::new();
+    for character in name.chars().chain(std::iter::once(' ')) {
+        if character.is_alphanumeric() || character == '_' || character == ':' {
+            run.push(character);
+            continue;
+        }
+        if !run.is_empty() {
+            short.push_str(run.rsplit("::").next().unwrap_or(&run));
+            run.clear();
+        }
+        short.push(character);
+    }
+    short.pop();
+    short
+}
+
+fn contribution_points(app: &App) -> Vec<ContributionPointInfo> {
+    app.contribution_points()
+        .into_iter()
+        .map(|(name, contributors)| ContributionPointInfo {
+            name: short_type_name(name),
+            contributors: contributors
+                .into_iter()
+                .map(|(module, count)| ContributorInfo { module, count })
+                .collect(),
+        })
+        .collect()
+}
+
+fn entity_traits(app: &App) -> Vec<TraitInfo> {
+    let mut by_trait: std::collections::BTreeMap<String, Vec<String>> =
+        std::collections::BTreeMap::new();
+    for definition in app.record_types().definitions() {
+        for key in definition.capabilities.traits.keys() {
+            by_trait
+                .entry(key.clone())
+                .or_default()
+                .push(definition.record_type.as_str().to_owned());
+        }
+    }
+    by_trait
+        .into_iter()
+        .map(|(key, mut entities)| {
+            entities.sort();
+            TraitInfo { key, entities }
+        })
+        .collect()
 }
 
 fn contracts(app: &App) -> Vec<ContractInfo> {

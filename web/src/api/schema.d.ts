@@ -9883,6 +9883,8 @@ export interface components {
         CallSessionStatus: "active" | "completed";
         CatalogDocument: {
             contracts: components["schemas"]["ContractInfo"][];
+            contribution_points: components["schemas"]["ContributionPointInfo"][];
+            entity_traits: components["schemas"]["TraitInfo"][];
             events: components["schemas"]["EventEntry"][];
             field_types: components["schemas"]["FieldTypeEntry"][];
             hooks: components["schemas"]["HookEntry"][];
@@ -10371,6 +10373,14 @@ export interface components {
             description: string;
             key: string;
             kind: string;
+        };
+        ContributionPointInfo: {
+            contributors: components["schemas"]["ContributorInfo"][];
+            name: string;
+        };
+        ContributorInfo: {
+            count: number;
+            module: string;
         };
         ConversationChannel: {
             address: string;
@@ -11488,6 +11498,8 @@ export interface components {
         Data_CatalogDocument: {
             data: {
                 contracts: components["schemas"]["ContractInfo"][];
+                contribution_points: components["schemas"]["ContributionPointInfo"][];
+                entity_traits: components["schemas"]["TraitInfo"][];
                 events: components["schemas"]["EventEntry"][];
                 field_types: components["schemas"]["FieldTypeEntry"][];
                 hooks: components["schemas"]["HookEntry"][];
@@ -22096,6 +22108,10 @@ export interface components {
             /** @example m***@c***.com */
             label: string;
             reason?: string | null;
+        };
+        TraitInfo: {
+            entities: string[];
+            key: string;
         };
         TrashItemResponse: {
             deleted_at: string;

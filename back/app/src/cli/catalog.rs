@@ -148,6 +148,26 @@ fn summary(document: &CatalogDocument) {
     for hook in &document.hooks {
         println!("  {:<44} {:<24} {}", hook.key, hook.kind, hook.module);
     }
+    println!(
+        "\nCONTRIBUTION POINTS ({})",
+        document.contribution_points.len()
+    );
+    for point in &document.contribution_points {
+        let contributors: Vec<String> = point
+            .contributors
+            .iter()
+            .map(|contributor| format!("{}×{}", contributor.module, contributor.count))
+            .collect();
+        println!("  {:<48} {}", point.name, contributors.join(", "));
+    }
+    println!("\nENTITY TRAITS ({})", document.entity_traits.len());
+    for entity_trait in &document.entity_traits {
+        println!(
+            "  {:<32} {}",
+            entity_trait.key,
+            entity_trait.entities.join(", ")
+        );
+    }
     println!("\nEVENTS ({})", document.events.len());
     println!("PERMISSIONS ({})", document.permissions.len());
     println!(

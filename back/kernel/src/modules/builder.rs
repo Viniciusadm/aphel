@@ -102,6 +102,7 @@ pub struct AppBuilder {
     entity_transforms: Vec<crate::application::fields::RegistryTransform>,
     custom_record_handler: Option<RecordHandlerFactory>,
     contributions: Contributions,
+    contribution_names: HashMap<TypeId, &'static str>,
     enabled: Arc<EnabledModules>,
 }
 
@@ -156,6 +157,7 @@ impl AppBuilder {
             entity_transforms: Vec::new(),
             custom_record_handler: None,
             contributions: HashMap::new(),
+            contribution_names: HashMap::new(),
             enabled,
         }
     }
@@ -418,6 +420,9 @@ impl AppBuilder {
             DEFAULT_PRIORITY,
             Box::new(item) as Box<dyn Any + Send + Sync>,
         );
+        self.contribution_names
+            .entry(TypeId::of::<Arc<T>>())
+            .or_insert(std::any::type_name::<T>());
         self.contributions
             .entry(TypeId::of::<Arc<T>>())
             .or_default()
@@ -549,6 +554,7 @@ impl AppBuilder {
             workers: self.workers,
 
             contributions: self.contributions,
+            contribution_names: self.contribution_names,
             runtime: RwLock::new(HashMap::new()),
             enabled,
         };
@@ -697,6 +703,7 @@ pub struct App {
     workers: Vec<Contribution<WorkerFactory>>,
 
     contributions: Contributions,
+    contribution_names: HashMap<TypeId, &'static str>,
     runtime: RwLock<HashMap<&'static str, Contributions>>,
     enabled: Arc<EnabledModules>,
 }
@@ -782,6 +789,27 @@ impl App {
 
     pub fn record_types(&self) -> &Arc<RecordTypeRegistry> {
         &self.record_types
+    }
+
+    pub fn contribution_points(&self) -> Vec<(&'static str, Vec<(&'static str, usize)>)> {
+        let mut points: Vec<(&'static str, Vec<(&'static str, usize)>)> = self
+            .contributions
+            .iter()
+            .filter_map(|(type_id, items)| {
+                let name = self.contribution_names.get(type_id)?;
+                let mut counts: Vec<(&'static str, usize)> = Vec::new();
+                for item in items {
+                    match counts.iter_mut().find(|(module, _)| *module == item.module) {
+                        Some((_, count)) => *count += 1,
+                        None => counts.push((item.module, 1)),
+                    }
+                }
+                counts.sort_unstable();
+                Some((*name, counts))
+            })
+            .collect();
+        points.sort_unstable_by_key(|(name, _)| *name);
+        points
     }
 
     pub fn record_contributions(&self) -> &[RecordContributionInfo] {

@@ -70404,13 +70404,27 @@
           "operations",
           "hooks",
           "events",
-          "permissions"
+          "permissions",
+          "contribution_points",
+          "entity_traits"
         ],
         "properties": {
           "contracts": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ContractInfo"
+            }
+          },
+          "contribution_points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContributionPointInfo"
+            }
+          },
+          "entity_traits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraitInfo"
             }
           },
           "events": {
@@ -72461,6 +72475,40 @@
             "type": "string"
           },
           "kind": {
+            "type": "string"
+          }
+        }
+      },
+      "ContributionPointInfo": {
+        "type": "object",
+        "required": [
+          "name",
+          "contributors"
+        ],
+        "properties": {
+          "contributors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContributorInfo"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ContributorInfo": {
+        "type": "object",
+        "required": [
+          "module",
+          "count"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "module": {
             "type": "string"
           }
         }
@@ -76765,13 +76813,27 @@
               "operations",
               "hooks",
               "events",
-              "permissions"
+              "permissions",
+              "contribution_points",
+              "entity_traits"
             ],
             "properties": {
               "contracts": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/ContractInfo"
+                }
+              },
+              "contribution_points": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ContributionPointInfo"
+                }
+              },
+              "entity_traits": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TraitInfo"
                 }
               },
               "events": {
@@ -118187,6 +118249,24 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "TraitInfo": {
+        "type": "object",
+        "required": [
+          "key",
+          "entities"
+        ],
+        "properties": {
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "key": {
+            "type": "string"
           }
         }
       },
