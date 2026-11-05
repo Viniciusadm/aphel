@@ -1,11 +1,16 @@
 import type { RouteObject } from 'react-router'
 import type { WidgetRenderer } from '@/kernel/widgets/types'
 import type { TimelineRenderer } from '@/features/records/timeline/registry'
-import { NAV_ORDER, type ModuleApp, type RecordSectionContribution } from './define'
+import {
+  NAV_ORDER,
+  type ModuleApp,
+  type RecordSectionContribution,
+  type SettingsAreaContribution,
+} from './define'
 import type { RecordTypeSelector } from './record-types'
 import type { FieldTypeRenderers } from './field-types'
 import { contribute } from './registry'
-import type { SettingsEntry } from './settings'
+import type { SettingsEntry, SettingsGroupEntry } from './settings'
 
 export const DEFAULT_FILTER_PRIORITY = 10
 
@@ -26,6 +31,9 @@ export function createModuleApp(key: string): ModuleApp {
     publicRoutes: (routes) => contribute<RouteObject[]>('publicRoutes', key, routes),
     nav: (item) => contribute('nav', key, item, item.order ?? NAV_ORDER.modules),
     settings: (area, item) => contribute<SettingsEntry>('settings', key, { area, item }, item.order),
+    settingsArea: (area) => contribute<SettingsAreaContribution>('settingsAreas', key, area, area.order),
+    settingsGroup: (area, group) =>
+      contribute<SettingsGroupEntry>('settingsGroups', key, { area, group }, group.order),
     recordSection: (recordType, tab) =>
       contribute<RecordTabEntry>('recordTabs', key, { recordTypes: recordType, tab }, tab.order),
     recordTab: (recordType, tab) =>

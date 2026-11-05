@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ACCOUNT_AREA, ADMIN_AREAS, useSettingsGroups, type ResolvedSettingsGroup, type SettingsArea } from '@/kernel/modules/settings'
-
-const ACCOUNT_SCOPE: SettingsArea[] = [ACCOUNT_AREA]
+import { useAdminAreas, useSettingsAreas, useSettingsGroups, type ResolvedSettingsGroup, type SettingsArea } from '@/kernel/modules/settings'
 
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
@@ -9,9 +7,11 @@ function normalize(text: string): string {
 
 export function useSettingsSearch(area: SettingsArea) {
   const [query, setQuery] = useState('')
-  const scope = area.key === ACCOUNT_AREA.key ? ACCOUNT_SCOPE : ADMIN_AREAS
+  const accountAreas = useSettingsAreas('account')
+  const adminAreas = useAdminAreas()
+  const scope = area.scope === 'account' ? accountAreas : adminAreas
   const scoped = useSettingsGroups(scope)
-  const groups = useMemo(() => scoped[scope.indexOf(area)] ?? [], [scoped, scope, area])
+  const groups = useMemo(() => scoped[scope.findIndex((candidate) => candidate.key === area.key)] ?? [], [scoped, scope, area])
 
   const filteredGroups = useMemo<ResolvedSettingsGroup[]>(() => {
     const term = normalize(query.trim())

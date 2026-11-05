@@ -32,6 +32,7 @@ import {
 } from '@/features/settings/lib/permissions'
 import { navigationSettingsRoute } from '@/features/settings/navigation/routes'
 import { systemRoutes } from '@/features/system/routes'
+import { PLATFORM_SETTINGS_AREAS } from '@/kernel/modules/settings'
 import { defineModule, NAV_ORDER, type ModuleApp, type SettingsAreaKey } from '@/kernel/modules/define'
 import { KERNEL_TRANSLATIONS } from './translations'
 
@@ -218,6 +219,7 @@ const kernelModule = defineModule({
       ...customRecordsRoutes,
       ...systemRoutes,
     ])
+    PLATFORM_SETTINGS_AREAS.forEach((area) => app.settingsArea(area))
     registerNavigation(app)
     registerSettings(app)
     registerCustomRecordContributions(app)

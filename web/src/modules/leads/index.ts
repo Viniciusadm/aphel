@@ -12,6 +12,7 @@ const leadsModule = defineModule({
   key: 'leads',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.routes(leadsRoutes)
     app.nav({ to: LEADS_PATH, label: 'nav.leads', icon: UserPlus, permission: ['people.read'], order: 30 })
     app.settings('organization', {

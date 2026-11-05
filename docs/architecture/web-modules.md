@@ -37,6 +37,8 @@ export default leadProModule
 | `publicRoutes(routes)` | Routes without a session (installer, login, public booking, public quote) |
 | `nav(item)` | Item in the sidebar, the palette and the `G` shortcuts. `order` sets the position (custom objects go in `NAV_ORDER.customObjects`, modules without `order` in `NAV_ORDER.modules`, administration in `NAV_ORDER.administration`) |
 | `settings(area, item)` | Settings item (`account`, `organization`, `integrations`, `data`) in the given group, with the page (`lazy`/`element`) and extra routes (`routes`). The area, the search, the card and the menu come from here |
+| `settingsArea(area)` | Declares a settings area (`key`, `basePath`, `titleKey`, `descriptionKey` as `settings` keys or `ns:key`, `icon`, `scope: 'account' \| 'admin'`, `groups`). The shell creates the route, the sidebar and the overview from the registry; `account`, `organization`, `integrations` and `data` are registered by the `kernel` module, and `SettingsAreaKey` is a plain string |
+| `settingsGroup(area, group)` | Adds or reuses a group (`key`, `label`, `order`) inside an area; the first declaration of a key wins, so every module may declare the groups it uses (e.g. `sales`) |
 | `recordTab(type, tab)` | Tab on the record pages of the type, after the page's own tabs. `render` receives `{ recordType, recordId, readOnly }` |
 | `slot(name, contribution)` | Component at a named point (table below), with `recordTypes?` and `permission?` |
 | `filter(name, fn, priority)` | Transforms a value (table below). Lower priority runs first (default 10) |

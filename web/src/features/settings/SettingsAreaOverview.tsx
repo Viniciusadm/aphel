@@ -1,6 +1,7 @@
 import { PageSection } from '@/components/ui/page'
 import { SectionTitle } from '@/components/ui/section-title'
 import { useTranslation } from 'react-i18next'
+import { useLabelTranslator } from '@/kernel/modules/i18n'
 import { SettingsLinkCard } from './components/SettingsLinkCard'
 import { SettingsSearchInput } from './components/SettingsSearchInput'
 import type { SettingsArea } from '@/kernel/modules/settings'
@@ -15,9 +16,10 @@ interface SettingsAreaOverviewProps {
 
 export function SettingsAreaOverview({ area }: SettingsAreaOverviewProps) {
   const { t } = useTranslation('settings')
+  const translate = useLabelTranslator()
   const { query, setQuery, filteredGroups, isSearching } = useSettingsSearch(area)
   const otherAreas = useOtherAreas(area)
-  const showOtherAreas = !isSearching && area.key === 'organization' && otherAreas.length > 0
+  const showOtherAreas = !isSearching && area.primary && otherAreas.length > 0
 
   return (
     <PageSection>
@@ -33,8 +35,8 @@ export function SettingsAreaOverview({ area }: SettingsAreaOverviewProps) {
                 key={other.key}
                 to={other.basePath}
                 icon={other.icon}
-                title={t(other.titleKey)}
-                description={t(other.descriptionKey)}
+                title={translate('settings', other.titleKey)}
+                description={translate('settings', other.descriptionKey)}
               />
             ))}
           </div>

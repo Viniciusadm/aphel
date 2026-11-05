@@ -94,14 +94,15 @@ export { useHasReferenceOptions, useReferenceOptions, useReferenceQueryKeys } fr
 export { gateModuleRoutes, modulePublicRoutes, moduleRoutes } from './routes'
 export {
   ACCOUNT_AREA,
-  ADMIN_AREAS,
   DATA_AREA,
   INTEGRATIONS_AREA,
   ORGANIZATION_AREA,
-  SETTINGS_AREAS,
-  settingsArea,
+  PLATFORM_SETTINGS_AREAS,
+  settingsAreas,
   settingsEntries,
+  useAdminAreas,
   useAllowedSettingsAreas,
+  useSettingsAreas,
   useSettingsGroups,
   type ResolvedSettingsGroup,
   type ResolvedSettingsItem,

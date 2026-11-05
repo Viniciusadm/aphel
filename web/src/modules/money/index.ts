@@ -7,6 +7,7 @@ const currenciesModule = defineModule({
   key: 'money',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.settings('organization', {
       group: 'sales',
       path: 'currencies',

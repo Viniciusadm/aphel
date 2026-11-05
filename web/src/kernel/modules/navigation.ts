@@ -5,7 +5,7 @@ import { NO_FILTER_CONTEXT, useFilters } from './filters'
 import { useLabelTranslator } from './i18n'
 import { pluginMenus, type PluginMenu } from './wasm_runtime'
 import { useActiveContributions, usePermissionCheck } from './registry'
-import { ADMIN_AREAS, ORGANIZATION_AREA, useAllowedSettingsAreas } from './settings'
+import { ORGANIZATION_AREA, useAdminAreas, useAllowedSettingsAreas } from './settings'
 
 export interface NavigationEntry {
   key: string
@@ -66,7 +66,7 @@ export function useNavigationEntries(): NavigationEntry[] {
   const items = useActiveContributions<NavContribution>('nav')
   const allowed = usePermissionCheck()
   const translate = useLabelTranslator()
-  const settingsAccess = useAllowedSettingsAreas(ADMIN_AREAS).length > 0
+  const settingsAccess = useAllowedSettingsAreas(useAdminAreas()).length > 0
   const entries = useMemo<NavigationEntry[]>(() => {
     const modules = items
       .filter(({ value }) => allowed(value.permission))

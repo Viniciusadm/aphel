@@ -7,6 +7,7 @@ const forecastModule = defineModule({
   key: 'forecast',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.routes(forecastRoutes)
     app.nav({ to: '/forecast', label: 'nav.forecast', icon: TrendingUp, permission: ['deals.read'], order: 150 })
     app.settings('organization', {

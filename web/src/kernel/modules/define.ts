@@ -45,7 +45,25 @@ export interface NavContribution {
   group?: NavGroup
 }
 
-export type SettingsAreaKey = 'account' | 'organization' | 'integrations' | 'data'
+export type SettingsAreaKey = string
+
+export interface SettingsGroupContribution {
+  key: string
+  label: string
+  order?: number
+}
+
+export interface SettingsAreaContribution {
+  key: SettingsAreaKey
+  basePath: string
+  titleKey: string
+  descriptionKey: string
+  icon: LucideIcon
+  scope?: 'account' | 'admin'
+  primary?: boolean
+  order?: number
+  groups?: SettingsGroupContribution[]
+}
 
 export interface SettingsContribution {
   group: string
@@ -236,6 +254,8 @@ export interface ModuleApp {
   publicRoutes(routes: RouteObject[]): void
   nav(item: NavContribution): void
   settings(area: SettingsAreaKey, item: SettingsContribution): void
+  settingsArea(area: SettingsAreaContribution): void
+  settingsGroup(area: SettingsAreaKey, group: SettingsGroupContribution): void
   recordSection(recordType: RecordTypeSelector, section: RecordSectionContribution): void
   recordTab(recordType: RecordTypeSelector, tab: RecordTabContribution): void
   recordList(extension: RecordListExtension): void

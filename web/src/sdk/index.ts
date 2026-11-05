@@ -8,7 +8,9 @@ export type {
   RecordSectionContribution,
   RecordTabContribution,
   RecordTabRenderProps,
+  SettingsAreaContribution,
   SettingsContribution,
+  SettingsGroupContribution,
   SlotContribution,
   WebModule,
 } from '@/kernel/modules/define'

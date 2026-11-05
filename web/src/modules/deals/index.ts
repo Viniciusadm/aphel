@@ -46,6 +46,7 @@ const dealsModule = defineModule({
     },
   },
   register(app) {
+    app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('deal.') ? createElement(DealsDashboardEventLabel, { event }) : label)
     app.slot('dashboard.source', { key: 'deals.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'deals.summary' ? createElement(DealsSummary, { data: data as Record<string, unknown> }) : null })
     app.slot('dashboard.source', { key: 'deals.stale', render: ({ collection, source, data }) => collection === 'pending' && source === 'deals.stale' ? createElement(DealPendingSections, { data: data as DealPendingData }) : null })

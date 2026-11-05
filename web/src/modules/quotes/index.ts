@@ -16,6 +16,7 @@ const quotesModule = defineModule({
   key: 'quotes',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.publicRoutes(publicQuoteRoutes)
     app.routes(quotesRoutes)
     app.nav({ to: '/quotes', label: 'nav.quotes', icon: FileText, permission: ['quotes.read'], order: 70 })

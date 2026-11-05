@@ -2,10 +2,7 @@ import type { RouteObject } from 'react-router'
 import { gateModuleRoutes } from '@/kernel/modules/routes'
 import type { Contribution } from '@/kernel/modules/registry'
 import {
-  ACCOUNT_AREA,
-  DATA_AREA,
-  INTEGRATIONS_AREA,
-  ORGANIZATION_AREA,
+  settingsAreas,
   settingsEntries,
   type SettingsArea,
   type SettingsEntry,
@@ -33,10 +30,5 @@ function areaRoute(area: SettingsArea, extra: RouteObject[] = []): RouteObject {
 }
 
 export function buildSettingsRoutes(): RouteObject[] {
-  return [
-    areaRoute(ACCOUNT_AREA),
-    areaRoute(ORGANIZATION_AREA),
-    areaRoute(INTEGRATIONS_AREA),
-    areaRoute(DATA_AREA),
-  ]
+  return settingsAreas().map((area) => areaRoute(area))
 }

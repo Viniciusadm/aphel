@@ -3,6 +3,7 @@ import { ArrowLeft, type LucideIcon } from 'lucide-react'
 import type { ReactElement } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { useLabelTranslator } from '@/kernel/modules/i18n'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import type { SettingsArea } from '@/kernel/modules/settings'
@@ -22,6 +23,7 @@ interface SettingsNavProps {
 export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }: SettingsNavProps) {
   const { t } = useTranslation('settings')
   const { t: tl } = useTranslation('layout')
+  const translate = useLabelTranslator()
   const location = useLocation()
   const { query, setQuery, filteredGroups, isSearching } = useSettingsSearch(area)
   const otherAreas = useOtherAreas(area)
@@ -57,7 +59,7 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
   const areaPath = area.basePath.replace(/\/$/, '')
   const isAreaRoot = location.pathname.replace(/\/$/, '') === areaPath
   const backPath = isAreaRoot ? returnPath : area.basePath
-  const backLabel = isAreaRoot ? tl('sidebar.backToApp') : t(area.titleKey)
+  const backLabel = isAreaRoot ? tl('sidebar.backToApp') : translate('settings', area.titleKey)
 
   return (
     <div className="flex flex-col gap-4 px-2">
@@ -76,10 +78,10 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
             </Link>
           </SidebarLink>,
         )}
-        {!collapsed && <p className="truncate px-3 text-sm font-semibold">{t(area.titleKey)}</p>}
+        {!collapsed && <p className="truncate px-3 text-sm font-semibold">{translate('settings', area.titleKey)}</p>}
         {!collapsed && <SettingsSearchInput value={query} onChange={setQuery} />}
       </div>
-      <nav aria-label={t(area.titleKey)} className={cn('flex flex-col', collapsed ? 'gap-3' : 'gap-5')}>
+      <nav aria-label={translate('settings', area.titleKey)} className={cn('flex flex-col', collapsed ? 'gap-3' : 'gap-5')}>
         {filteredGroups.length === 0 && <p className="px-3 text-sm text-muted-foreground">{t('search.empty')}</p>}
         {filteredGroups.map((group) => (
           <div key={group.key} className="grid gap-1">
@@ -90,7 +92,7 @@ export function SettingsNav({ area, returnPath, collapsed = false, onNavigate }:
         {!isSearching && otherAreas.length > 0 && (
           <div className="grid gap-1 border-t border-sidebar-border pt-4">
             {!collapsed && <h2 className={headingClass}>{t('otherAreas')}</h2>}
-            {otherAreas.map((other) => renderLink(other.basePath, t(other.titleKey), other.icon, true))}
+            {otherAreas.map((other) => renderLink(other.basePath, translate('settings', other.titleKey), other.icon, true))}
           </div>
         )}
       </nav>
