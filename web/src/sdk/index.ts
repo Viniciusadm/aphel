@@ -15,7 +15,7 @@ export type {
 export { useModuleTranslation, type ModuleTranslate } from '@/kernel/modules/i18n'
 export { Slot } from '@/kernel/modules/Slot'
 export { useChangeFeed, type ChangeFeedOptions, type PluginChange } from '@/kernel/modules/change-feed'
-export type { RecordSlotProps, SlotName, SlotProps } from '@/kernel/modules/slots'
+export type { RecordSlotProps, SlotName, SlotProps, SlotPropsMap } from '@/kernel/modules/slots'
 export { api, apiRequest, ApiError, isApiError } from '@/api'
 export { useSession } from '@/app/session/session-context'
 export { ConfirmDialog, ErrorBoundary, PageLoader, errorMessage, notifyError, notifySuccess } from '@/components/feedback'

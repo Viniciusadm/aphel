@@ -75,7 +75,7 @@ Labels (`label`, `description`) are i18n keys in the module's namespace; use `ns
 | `catalog_items.list.header` | Product list header (e.g. link to the price lists) | `{}` |
 | `quotes.editor.sidebar` | Side column of the quote editor (e.g. approvals) | `{ recordType, recordId }` |
 
-Render a new point with `<Slot name="..." props={..} />` (`kernel/modules/Slot.tsx`) or `useSlot`/`useSlotEntries`, and declare the props in `SlotPropsMap` (`kernel/modules/slots.ts`).
+Render a new point with `<Slot name="..." props={..} />` (`kernel/modules/Slot.tsx`) or `useSlot`/`useSlotEntries`, and declare the props by augmenting `SlotPropsMap` from the module that owns the slot (`modules/<key>/slots.ts`, `declare module '@/kernel/modules/slots' { interface SlotPropsMap { 'my.slot': Props } }`). `kernel/modules/slots.ts` only lists the platform slots; domain slots (`reports.library`, `dashboard.source`, `dashboard.top`, `catalog.sections`, `deals.*`, ...) are declared by their owner.
 
 ### Filters
 

@@ -2,7 +2,6 @@ import { useMemo, type ComponentType } from 'react'
 import type { RecordFormMode } from '@/features/records/form/RecordForm'
 import type { BulkActionContext } from '@/features/records/table/RecordListView'
 import type { FilterNode, RecordItem } from '@/features/records/types'
-import type { CatalogEntry } from '@/modules/marketplace/types'
 import type { SlotContribution } from './define'
 import { matchesRecordType } from './record-types'
 import { useActiveContributions, usePermissionCheck } from './registry'
@@ -36,9 +35,6 @@ export interface SlotPropsMap {
   'record.list.rowActions': { recordType: string; record: RecordItem }
   'record.list.bulkActions': BulkActionContext
   'record.form.sections': { recordType?: string; mode: RecordFormMode; record?: RecordItem }
-  'reports.library': Record<string, never>
-  'dashboard.source': { collection: string; source: string; data: unknown }
-  'dashboard.top': Record<string, never>
   'composer.tools': {
     context: ComposerContext
     subject?: ComposerSubject
@@ -50,7 +46,6 @@ export interface SlotPropsMap {
   'modules.settings': Record<string, never>
   'app.shell': Record<string, never>
   'app.sidebar': { collapsed?: boolean; onNavigate?: () => void }
-  'catalog.sections': { entries: CatalogEntry[] }
 }
 
 export type SlotName = keyof SlotPropsMap
