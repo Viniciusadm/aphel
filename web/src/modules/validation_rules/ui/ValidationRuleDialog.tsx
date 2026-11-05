@@ -13,12 +13,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { activeFields, fieldViolations, NativeSelect, useFieldSchema } from '@/sdk'
-import { useFormulaCatalog } from '@/modules/formulas/ui/api'
-import { ExpressionEditor } from '@/modules/formulas/ui/ExpressionEditor'
-import { FormulaCatalogPanel, type FormulaSnippet } from '@/modules/formulas/ui/FormulaCatalogPanel'
-import { FormulaStatus } from '@/modules/formulas/ui/FormulaStatus'
-import { FORMULA_EXPRESSION_MAX_LENGTH, FORMULA_PREVIEW_DEBOUNCE_MS } from '@/modules/formulas/ui/result-types'
-import { useDebounced } from '@/modules/formulas/ui/use-debounced'
+import { useFormulaCatalog } from '@/sdk'
+import { ExpressionEditor } from '@/sdk'
+import { FormulaCatalogPanel, type FormulaSnippet } from '@/sdk'
+import { FormulaStatus } from '@/sdk'
+import { FORMULA_EXPRESSION_MAX_LENGTH, FORMULA_PREVIEW_DEBOUNCE_MS } from '@/sdk'
+import { useDebounced } from '@/sdk'
 import { useValidationRulePreview, validationRulesApi } from '@/modules/validation_rules/ui/api'
 import {
   VALIDATION_RULE_TIMINGS,

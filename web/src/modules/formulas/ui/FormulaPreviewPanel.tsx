@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { RecordFieldInput } from '@/components/fields'
 import { useRecordFormatting } from '@/sdk'
-import type { FormulaPreview } from '@/modules/formulas/ui/api'
+import type { FormulaPreview } from '@/sdk'
 import { formatFormulaValue, type FormulaFormatOptions } from '@/modules/formulas/ui/format'
 import { Field } from '@/components/ui/field'
 

@@ -1,8 +1,8 @@
 import { useRef, type ReactNode, type Ref, type UIEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Textarea } from '@/components/ui/textarea'
-import type { FormulaError } from '@/modules/formulas/ui/api'
-import { FORMULA_EXPRESSION_MAX_LENGTH } from '@/modules/formulas/ui/result-types'
+import type { FormulaError } from './api'
+import { FORMULA_EXPRESSION_MAX_LENGTH } from './result-types'
 
 interface ExpressionEditorProps {
   id: string

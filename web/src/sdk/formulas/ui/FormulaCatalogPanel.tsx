@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { useFormulaCatalog, type FormulaCatalog, type FormulaFunction } from '@/modules/formulas/ui/api'
-import { functionDescription } from '@/modules/formulas/ui/messages'
+import { useFormulaCatalog, type FormulaCatalog, type FormulaFunction } from './api'
+import { functionDescription } from './messages'
 import { SearchInput } from '@/components/ui/search-input'
 
 export interface FormulaSnippet {

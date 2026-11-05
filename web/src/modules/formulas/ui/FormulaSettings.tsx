@@ -4,19 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { Input } from '@/components/ui/input'
 import { ChoiceSelect, describedBy, type FieldFormContext, type FieldFormValues, FormField } from '@/sdk'
-import { useFormulaCatalog, useFormulaPreview, type FormulaPreviewRequest } from '@/modules/formulas/ui/api'
-import { ExpressionEditor } from '@/modules/formulas/ui/ExpressionEditor'
-import { FormulaCatalogPanel, type FormulaSnippet } from '@/modules/formulas/ui/FormulaCatalogPanel'
+import { useFormulaCatalog, useFormulaPreview, type FormulaPreviewRequest } from '@/sdk'
+import { ExpressionEditor } from '@/sdk'
+import { FormulaCatalogPanel, type FormulaSnippet } from '@/sdk'
 import { FormulaPreviewPanel } from '@/modules/formulas/ui/FormulaPreviewPanel'
-import { FormulaStatus } from '@/modules/formulas/ui/FormulaStatus'
+import { FormulaStatus } from '@/sdk'
 import {
   FORMULA_PREVIEW_DEBOUNCE_MS,
   FORMULA_RESULT_TYPES,
   formulaUsesCurrency,
   formulaUsesDecimals,
   parseDecimals,
-} from '@/modules/formulas/ui/result-types'
-import { useDebounced } from '@/modules/formulas/ui/use-debounced'
+} from '@/sdk'
+import { useDebounced } from '@/sdk'
 
 interface FormulaSettingsProps {
   recordType: string
