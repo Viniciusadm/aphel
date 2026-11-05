@@ -527,6 +527,8 @@ The backend is a [WebAssembly component](https://component-model.bytecodeallianc
 
 The standard library of `wasm32-wasip2` imports WASI interfaces. The host provides them with an empty sandbox (no filesystem, no environment, no stdio, no sockets), so only clocks and randomness work; outbound HTTP goes through `http-fetch`.
 
+**Catalog constants.** `aphel_plugin_sdk::operations::NOTES_CREATE` and `aphel_plugin_sdk::domain_hooks::DEAL_WINNING` (JavaScript: `operations.NOTES_CREATE`, `domainHooks.DEAL_WINNING`) are generated from the compiled build's catalog by `make catalog-docs` (`aphel catalog --sdk rust|js|js-types`). They carry keys only; typed inputs and outputs wait for the operation schemas.
+
 ## Backend in JavaScript or TypeScript
 
 `sdk/js/aphel-plugin-sdk` (`@aphel/plugin-sdk`) builds the same component from JavaScript or TypeScript. The bundle is made with esbuild and turned into a component with [`componentize-js`](https://github.com/bytecodealliance/ComponentizeJS), which embeds the SpiderMonkey engine.

@@ -14,6 +14,13 @@ pub(crate) enum MarkdownDocument {
     Host,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub(crate) enum SdkTarget {
+    Rust,
+    Js,
+    JsTypes,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Args)]
 pub(crate) struct CatalogArgs {
     #[arg(long, help = "Print the whole catalog as JSON")]
@@ -24,6 +31,12 @@ pub(crate) struct CatalogArgs {
         help = "Print a generated document: hooks (docs/modules/hooks.md) or host (docs/plugins/host-catalog.md)"
     )]
     pub(crate) markdown: Option<MarkdownDocument>,
+    #[arg(
+        long,
+        value_enum,
+        help = "Print a generated SDK catalog file: operation and domain hook keys for the Rust or JavaScript plugin SDK"
+    )]
+    pub(crate) sdk: Option<SdkTarget>,
 }
 
 pub(crate) fn run(args: CatalogArgs) -> CliResult {
@@ -32,12 +45,80 @@ pub(crate) fn run(args: CatalogArgs) -> CliResult {
         println!("{}", serde_json::to_string_pretty(&document)?);
         return Ok(());
     }
+    if let Some(target) = args.sdk {
+        print!("{}", sdk_catalog(&document, target));
+        return Ok(());
+    }
     match args.markdown {
         Some(MarkdownDocument::Hooks) => print!("{}", hooks_markdown(&document)),
         Some(MarkdownDocument::Host) => print!("{}", host_markdown(&document)),
         None => summary(&document),
     }
     Ok(())
+}
+
+fn sdk_constant(key: &str) -> String {
+    key.replace(['.', '-'], "_").to_uppercase()
+}
+
+fn sdk_catalog(document: &CatalogDocument, target: SdkTarget) -> String {
+    let mut operations: Vec<&str> = document
+        .operations
+        .iter()
+        .map(|operation| operation.key)
+        .collect();
+    operations.sort_unstable();
+    operations.dedup();
+    let mut hooks: Vec<&str> = document
+        .hooks
+        .iter()
+        .filter(|hook| hook.record_type.is_some() && !hook.key.starts_with("record."))
+        .map(|hook| hook.key.as_str())
+        .collect();
+    hooks.sort_unstable();
+    hooks.dedup();
+    let groups = [("operations", operations), ("domain_hooks", hooks)];
+    let mut output = String::new();
+    for (name, keys) in groups {
+        match target {
+            SdkTarget::Rust => {
+                output.push_str(&format!("pub mod {name} {{\n"));
+                for key in keys {
+                    output.push_str(&format!(
+                        "    pub const {}: &str = \"{key}\";\n",
+                        sdk_constant(key)
+                    ));
+                }
+                output.push_str("}\n\n");
+            }
+            SdkTarget::Js => {
+                let name = if name == "operations" {
+                    "operations"
+                } else {
+                    "domainHooks"
+                };
+                output.push_str(&format!("export const {name} = Object.freeze({{\n"));
+                for key in keys {
+                    output.push_str(&format!("  {}: '{key}',\n", sdk_constant(key)));
+                }
+                output.push_str("})\n\n");
+            }
+            SdkTarget::JsTypes => {
+                let name = if name == "operations" {
+                    "operations"
+                } else {
+                    "domainHooks"
+                };
+                output.push_str(&format!("export declare const {name}: {{\n"));
+                for key in keys {
+                    output.push_str(&format!("  readonly {}: '{key}'\n", sdk_constant(key)));
+                }
+                output.push_str("}\n\n");
+            }
+        }
+    }
+    output.truncate(output.trim_end().len() + 1);
+    output
 }
 
 fn summary(document: &CatalogDocument) {

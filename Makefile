@@ -18,7 +18,7 @@ help:
 	@echo "  lint       arch check, cargo fmt --check, clippy -D warnings, oxlint, typecheck"
 	@echo "  fmt        cargo fmt"
 	@echo "  probe      run the phase-gate invariant probe (no database, failures only)"
-	@echo "  catalog-docs  regenerate docs/modules/hooks.md and docs/plugins/host-catalog.md"
+	@echo "  catalog-docs  regenerate docs/modules/hooks.md, docs/plugins/host-catalog.md and the SDK catalog files"
 	@echo "  api-types  generate web/src/api/schema.d.ts from the OpenAPI document"
 	@echo "  build      release build (web + binary)"
 	@echo "  sdk        generate types and build the TypeScript SDK (sdk/typescript)"
@@ -65,6 +65,9 @@ probe:
 catalog-docs:
 	$(CARGO) run -q -p aphel -- catalog --markdown hooks > ../docs/modules/hooks.md
 	$(CARGO) run -q -p aphel -- catalog --markdown host > ../docs/plugins/host-catalog.md
+	$(CARGO) run -q -p aphel -- catalog --sdk rust > ../sdk/rust/aphel-plugin-sdk/src/catalog.rs
+	$(CARGO) run -q -p aphel -- catalog --sdk js > ../sdk/js/aphel-plugin-sdk/src/catalog.js
+	$(CARGO) run -q -p aphel -- catalog --sdk js-types > ../sdk/js/aphel-plugin-sdk/src/catalog.d.ts
 
 api-types: | web/node_modules
 	$(NPM) run api:types

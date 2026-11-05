@@ -5,6 +5,8 @@ pub use execution::{
 
 #[doc(hidden)]
 pub mod adapter;
+mod catalog;
+pub use catalog::{domain_hooks, operations};
 
 #[doc(hidden)]
 #[allow(clippy::too_many_arguments)]

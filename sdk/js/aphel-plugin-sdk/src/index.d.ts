@@ -9,6 +9,8 @@ export interface Actor {
   userId: string | null
 }
 
+export * from './catalog'
+
 export interface RecordRef {
   type: string
   id: string

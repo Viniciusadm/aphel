@@ -1,5 +1,7 @@
 import * as host from 'aphel:plugin/host@1.0.0'
 
+export { domainHooks, operations } from './catalog.js'
+
 export const hooks = Object.freeze({
   SAVING: 'record.saving',
   VALIDATING: 'record.validating',
