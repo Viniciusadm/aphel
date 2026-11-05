@@ -1,6 +1,6 @@
 # Module compatibility
 
-Since session 36 there is no longer a separate extension API (`aphel-extension-api` was removed in session 35): a module or plugin compiles against Aphel's own crates — `aphel-kernel` and the `aphel-mod-<key>` crates it uses. The contract is the public API of those crates plus the rules below.
+There is no separate extension API: a module or plugin compiles against Aphel's own crates — `aphel-kernel` and the `aphel-mod-<key>` crates it uses. The contract is the public API of those crates plus the rules below.
 
 ## Versions
 
@@ -46,9 +46,3 @@ Removing or renaming a stable item, changing a signature, changing when or in wh
 ## Third-party plugins
 
 A plugin is a crate outside the repository (or in `back/plugins/<key>`) referenced in `back/aphel.modules.toml` by `path`, `git` (with `tag`, `branch` or `rev`) or `version`. When upgrading Aphel, check the release notes for changes in the kernel and in the modules the plugin uses, and update the plugin's `tag` to a compatible one.
-
-## History
-
-- **End of extension names:** the `/api/v1/ext/<key>` routes became `/api/v1/<key>` and the public `/api/v1/ext/<key>/public/…` ones became `/api/v1/public/<key>/…`; everything under `/api/v1/public/` is exempt from CSRF (the `CsrfExemptPrefix` contribution was removed); web `/x/<key>` became `/<key>`; `ext_<key>_*` tables became `<key>_*` (the legacy prefix was removed from the purge); `ext.<key>.*` jobs became `<key>.*`; `extension_*` codes became `module_*` (`module.*` events, module secrets with `owner_type = "module"`); the catalog uses `kind: "module"`.
-- **Session 36:** modules become crates (`aphel-kernel`, `aphel-mod-<key>`, `aphel` binary in `back/app`), selection via `aphel.modules.toml`, local plugins in `back/plugins`. New extension points: `Manifest::uninstall_sql`, `AppBuilder::declare_hook` and `require`, the `ConfigSectionFactory`, `CsrfExemptPrefix`, `DefaultsSeed`, `TimeTriggerPlanner`, `ModuleCommand` and `TimelineEventExtension` contributions, the `SearchPlanFilter` hook and automation operation services. The automation gateway lost `distribute`, `send_owner_email`, `enroll_in_sequence` and `request_approval` (each module calls its own service through `gateway.state()`).
-- **Session 35:** end of `aphel-extension-api` (last version `2.0.0`); the former extensions become regular modules.

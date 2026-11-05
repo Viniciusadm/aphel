@@ -1,6 +1,6 @@
 # "Lead forms" module (`forms`)
 
-Public forms, hosted by Aphel or embedded in the customer's website, that create (or reuse) a **contact** and optionally a **deal** on each submission. It is a regular module (former extension, session 35): `back/modules/forms` (crate `aphel-mod-forms`, struct `FormsModule`, depends on `people` and, optionally, on `leads`, `deals`, `tasks` and `assignment`) and `web/src/modules/forms`. Authenticated routes under `/api/v1/forms` and public ones under `/api/v1/public/forms/`.
+Public forms, hosted by Aphel or embedded in the customer's website, that create (or reuse) a **contact** and optionally a **deal** on each submission. It is a regular module (former extension): `back/modules/forms` (crate `aphel-mod-forms`, struct `FormsModule`, depends on `people` and, optionally, on `leads`, `deals`, `tasks` and `assignment`) and `web/src/modules/forms`. Authenticated routes under `/api/v1/forms` and public ones under `/api/v1/public/forms/`.
 
 ## For users
 

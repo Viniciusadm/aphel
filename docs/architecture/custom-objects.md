@@ -21,7 +21,7 @@ The organization can create its own entities (contracts, properties, equipment, 
 ## Tables
 
 - **`custom_objects`** (migration `1600`): `key` (unique, immutable), singular and plural labels, description, icon, color, `title_field_key`, `owner_enabled`, `is_active`, `position`.
-- **`custom_records`** (`1601`): a single table for the records of all objects, with `object_id`, `owner_id`, `title` (denormalized), `archived_at`, `deleted_at` and dates. All other data lives in `custom_field_values`/`custom_field_multi_values`, already typed and indexed (session 04), with `record_type = custom.<key>`.
+- **`custom_records`** (`1601`): a single table for the records of all objects, with `object_id`, `owner_id`, `title` (denormalized), `archived_at`, `deleted_at` and dates. All other data lives in `custom_field_values`/`custom_field_multi_values`, already typed and indexed, with `record_type = custom.<key>`.
 - **`relationship_definitions`** (`1602`): `key`, `inverse_key`, `from_type`, `to_type`, `cardinality`, `from_label`, `to_label`, `is_required`, `on_delete`.
 - **`record_relations`** (`1603`): links `(relationship_id, from_id, to_id)`, indexed in both directions.
 - **`organization_settings.custom_schema_version`**: version of the custom schema, incremented in the same transaction as every object or relationship change.
@@ -90,7 +90,7 @@ Links: `GET /records/{type}/{id}/relations` (the record's relations with the vis
 ## Queries, reports and search
 
 - **Relations in the type registry**: each end becomes a `RecordRelation` with `RelationPath::Relationship { relationship_id, inverse, single }`, compiled as `EXISTS` over `record_relations` with the read scope and the related record's deletion. That is why, with no new code, the following work: `relation.field` filters (`company.industry` on contracts, `contracts.stage` on organizations), the filter node `{ "related": { "relationship": "company", "filter": { … } } }` (a full filter over the related type, including groups), saved views, segments and the type's `in_saved_filter`.
-- **Lists** load the `FieldSet`s of the related types cited in the filter (`load_related_sets`), including in the core lists; before session 16 the `relation.field` filters only worked in aggregations.
+- **Lists** load the `FieldSet`s of the related types cited in the filter (`load_related_sets`), including in the core lists.
 - **Aggregations and reports** group by a field of a **single-record** related type (`single`): contract → company (`company.industry`) does a `LEFT JOIN` on `record_relations` and on the company table (`SingleJoin::Relationship`). Metrics (`sum`, `avg`…) over the object's own numeric and currency fields.
 - **Global search**: `title` and the searchable custom fields go into the index; the `search.index` consumer accepts the `custom.<key>.*` events and `custom_object.updated` reindexes the type. `aphel search reindex --record-type custom.<key>` reindexes only the object.
 

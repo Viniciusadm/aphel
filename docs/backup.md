@@ -98,7 +98,7 @@ tar -C /var/lib/aphel/storage -xzf storage.tar.gz
 
 Restore with the same Aphel version that produced the backup (or a newer one: pending migrations run at boot). An older version refuses to start on a database with migrations it does not know.
 
-After restoring, the sessions open at the time of the backup become valid again (sessions live in the database). If the restore is due to a security incident, ask users to sign out of all devices or change the passwords.
+After restoring, the sessions open at the time of the backup become valid again. If the restore is due to a security incident, ask users to sign out of all devices or change the passwords.
 
 ## Tested restore
 

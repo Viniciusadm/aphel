@@ -8,7 +8,6 @@ In Aphel **everything is a module**: people, deals, automations, the integration
 - Web extension points (slots, filters, overrides, field types): [web.md](web.md).
 - Versions, `requires_aphel` and what counts as a breaking change: [compatibility.md](compatibility.md).
 - Complete example plugin: [`back/plugins/lead_pro`](../../back/plugins/lead_pro) + [`web/src/modules/lead_pro`](../../web/src/modules/lead_pro).
-- Architecture and motivation: [`docs/architecture/modular-architecture.md`](../architecture/modular-architecture.md).
 
 ## Workspace
 

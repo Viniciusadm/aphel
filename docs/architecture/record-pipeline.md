@@ -24,7 +24,7 @@ Custom field uniqueness (`is_unique`): the `CustomFieldWriter` checks it inside 
 Notes:
 
 - The audit diff is computed after `RecordSaving`, so it reflects the values changed by the filters.
-- `validate` sits where the old `RecordWriteGuard` used to be: on updates, before the system write when the guard needs to read the previous state from the database (approval, checklist). `saved` comes after all writes.
+- `validate` runs on updates before the system write when a validator needs to read the previous state from the database (approval, checklist). `saved` comes after all writes.
 - Contacts, organizations, deals and lead transitions reapply the system values changed by `RecordSaving` (`ContactInput::from_values`, `CompanyInput::from_values`, `DealInput::with_record_values`; the deal recomputes stage, currency and revenue with the filtered input). Products reapply everything (`ProductInput::from_values`); tasks reapply `title`, `priority`, `due_at`, `description`, `duration_minutes`, `reminder_minutes_before` and `owner_id`; quotes reapply `title`, `owner_id`, `valid_until`, `terms` and `notes` (the ones that do not affect price); custom objects reapply `owner_id` (when an owner is enabled). Reapplied values go through the same validation as the API input (422 with the field). A change to any other system value of these types (activity status and links, currency, quote price list and discount, derived object title) is rejected with the internal error `record_saving_unsupported` (`saving_unsupported(record, key)`).
 
 ## Generic hooks

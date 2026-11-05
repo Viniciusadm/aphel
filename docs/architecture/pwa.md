@@ -42,9 +42,9 @@ When a new binary is deployed, `sw.js` changes, the browser installs the new ser
 
 ### Subscriptions (`push_subscriptions`)
 
-One row per device/browser: `user_id`, `session_id` (session that subscribed), `endpoint` (unique by SHA-256 `endpoint_hash`), `p256dh`, `auth`, `user_agent`, `created_at`, `updated_at`, `last_used_at`. It is identity data, like `sessions`.
+One row per device/browser: `user_id`, `session_id`, `endpoint` (unique by SHA-256 `endpoint_hash`), `p256dh`, `auth`, `user_agent`, `created_at`, `updated_at`, `last_used_at`. It is identity data, like `sessions`.
 
-| Route (session only: `SessionContext`, rejects API tokens) | What it does |
+| Route | What it does |
 | --- | --- |
 | `GET /api/v1/notifications/push/public-key` | VAPID public key (base64url) for `applicationServerKey` |
 | `POST /api/v1/notifications/push/subscriptions` | `{ endpoint, keys: { p256dh, auth } }` → 204. Resubscribing the same endpoint moves the row to the current user and session |

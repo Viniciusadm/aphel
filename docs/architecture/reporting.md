@@ -1,6 +1,6 @@
 # Aggregation and reporting engine
 
-Reports, goals, forecast and dashboard widgets compute numbers through the same engine: `AggregateEngine` (`back/kernel/src/application/query/aggregate`). It extends the session 04 query engine (`RecordQueryEngine`) and keeps the same guarantees:
+Reports, goals, forecast and dashboard widgets compute numbers through the same engine: `AggregateEngine` (`back/kernel/src/application/query/aggregate`). It extends the query engine (`RecordQueryEngine`) and keeps the same guarantees:
 
 - **Read scope:** the use case calls the type's `scope.record_filter(&read_permission)`; the result (`own`, `team`, `organization`) goes into the `WHERE` exactly as in lists. Related records used in filters, groupings or labels also go through the related type's scope.
 - **Field permissions:** fields come from `FieldSet::for_scope`. A field hidden from the role cannot be grouped, aggregated, filtered or used as the period (422 `field_not_accessible`).
@@ -68,7 +68,7 @@ Each type declares its relations in the `RecordTypeRegistry` (`RecordRelation` w
 | Contact | `deals` | `HasMany` (`deals.contact_id`) |
 | Company | `people`, `deals` | `HasMany` (`company_id`) |
 | Activity | `contact`, `company`, `deal` | `Polymorphic` (main record) or `Linked` (`task_links`) |
-| Any type connected by a configurable relationship (session 16) | `key` on the `from` type, `inverse_key` on the `to` type | `Relationship` (`record_relations`), single-record when the cardinality allows it (`to` in `one_to_many`, both in `one_to_one`) |
+| Any type connected by a configurable relationship | `key` on the `from` type, `inverse_key` on the `to` type | `Relationship` (`record_relations`), single-record when the cardinality allows it (`to` in `one_to_many`, both in `one_to_one`) |
 
 Rules to avoid duplicating totals:
 

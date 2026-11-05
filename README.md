@@ -6,20 +6,7 @@
 
 Fields, workflow, automations and plugins adapt each installation without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
 
-> Current version: **0.1** (first usable version). See what already exists in [Features](#features-in-v01).
-
-## Screenshots
-
-The images will be added to `docs/images/` later. To capture them, use an installation with demo data (`aphel demo seed`), a 1280 × 800 px window, light theme:
-
-| File | Screen | Where to capture |
-| --- | --- | --- |
-| `docs/images/dashboard.png` | Dashboard | `/` |
-| `docs/images/deals-kanban.png` | Deals on the Kanban board | `/deals` |
-| `docs/images/contact-detail.png` | Contact detail with timeline | `/people/<id>` |
-| `docs/images/people-list.png` | Contact list with a filter applied | `/people` |
-| `docs/images/settings-fields.png` | Custom fields | `/settings/fields/contact` |
-| `docs/images/mobile.png` | Kanban on mobile (390 px, dark theme) | `/deals` |
+> Current version: **0.1**. See what exists in [Features](#features-of-the-crm-blueprint-in-v01).
 
 ## Blueprints
 
@@ -32,7 +19,7 @@ The installer offers a blueprint or a blank system. A blueprint (`blueprints/<ke
 - **Audit:** a log of who changed what and when, with diffs and sensitive data hidden.
 - **Contacts and organizations:** complete records, linking people to several organizations, normalized phone numbers (E.164), archiving.
 - **Deals:** pipeline with stages, Kanban with drag and drop (and a keyboard "Move to" menu), won and lost with reason, amounts per stage.
-- **Tasks and tasks:** tasks with due date and assignee, logging of calls and meetings, "My tasks", reminders.
+- **Tasks:** tasks with due date and assignee, logging of calls and meetings, "My tasks", reminders.
 - **Notes and timeline:** Markdown notes with mentions (`@name`), unified timeline per record.
 - **Custom fields and saved views:** 14 field types, advanced filters (AND/OR), sorting, columns and personal, team or organization views.
 - **Files and attachments:** upload with type checking, authenticated download, local disk or S3-compatible storage.

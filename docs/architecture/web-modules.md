@@ -1,6 +1,6 @@
 # Frontend modules
 
-The web app is assembled by the modules (session 32). There are no central lists of routes, menu, settings or translations: each module declares what it contributes, and the kernel gathers it, filters it by what is enabled in the installation and hands it to the generic building blocks.
+The web app is assembled by the modules. There are no central lists of routes, menu, settings or translations: each module declares what it contributes, and the kernel gathers it, filters it by what is enabled in the installation and hands it to the generic building blocks.
 
 - Kernel: [`web/src/kernel/modules`](../../web/src/kernel/modules).
 - Modules: `web/src/modules/<key>/` (pilots `people`, `organizations`, `leads`, `scoring`, the former extensions and `calls`) and the `kernel` module (`web/src/modules/kernel`), which registers the platform that lives in `web/src/features` (auth, installer, core settings, system, audit, search, custom objects, mobile).

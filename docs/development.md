@@ -67,13 +67,13 @@ The binary compiles the modules listed in `back/aphel.modules.toml`. After chang
 
 ## Tests
 
-The project has no test suites: they were removed in session 11 and do not run per commit. The one automated check beyond compilation is the phase-gate probe:
+The project has no test suites and nothing runs per commit. The one automated check beyond compilation is the probe:
 
 ```bash
 make probe
 ```
 
-`aphel probe` needs no database or network and prints failures only (it exits non-zero on any). It checks access-scope filters, hook ordering, the record-validation priorities of the build, entity registry integrity (permissions, title fields, soft references), operation uniqueness and the event actor envelope. Run it at every phase gate and after changes to those areas. Everything else is validated with `make lint` (module registries, `cargo fmt --check`, clippy, oxlint and typecheck) and by hand.
+`aphel probe` needs no database or network and prints failures only (it exits non-zero on any). It checks access-scope filters, hook ordering, the record-validation priorities of the build, entity registry integrity (permissions, title fields, soft references), operation uniqueness and the event actor envelope. Run it after changes to those areas. Everything else is validated with `make lint` (module registries, `cargo fmt --check`, clippy, oxlint and typecheck) and by hand.
 
 ## Quality
 

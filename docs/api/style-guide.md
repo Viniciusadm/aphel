@@ -38,7 +38,7 @@ Rules that every `/api/v1` resource follows. They apply to whoever writes routes
 - `PATCH` is **partial**: only the fields sent change; `null` clears an optional field. `PUT` only to replace entire collections (ordering, layout, preferences).
 - **Concurrency:** every editable resource exposes `updated_at`. `PATCH` accepts `If-Match: <updated_at>` (with or without quotes, ISO-8601); if the record has changed since then, 409 `version_conflict` (reread the resource and reapply the change). Without the header, the write is unconditional.
 - Custom fields live in `custom_fields: { "<key>": value }`, on read and on write.
-- `Idempotency-Key: <up to 255 characters>` is accepted on every `POST`: the same key with the same body, within 24 h, returns the stored response (same status and body, header `Idempotent-Replayed: true`); the same key with a different body → 422 `idempotency_key_reused`; while the first request is still in progress → 409 `idempotency_key_in_progress`. The key is scoped per credential (session or token).
+- `Idempotency-Key: <up to 255 characters>` is accepted on every `POST`: the same key with the same body, within 24 h, returns the stored response (same status and body, header `Idempotent-Replayed: true`); the same key with a different body → 422 `idempotency_key_reused`; while the first request is still in progress → 409 `idempotency_key_in_progress`. The key is scoped per credential.
 
 ## Formats
 

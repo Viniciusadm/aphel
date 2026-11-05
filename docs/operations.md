@@ -89,7 +89,7 @@ Aphel does not need cron to work: cleanups, reminders, digests, retention and re
 
 - **Multiple workers**: run as many `aphel worker` processes as you want, on one or several machines. The queue uses `FOR UPDATE SKIP LOCKED`, so each job is reserved by a single worker. `WORKER_CONCURRENCY` controls the parallel jobs per process.
 - **Scheduler**: each worker also runs the recurring job scheduler. With multiple workers, they compete for the same row with `SKIP LOCKED` and each firing has a unique key, so a recurring job is never enqueued twice. There is no need to elect a scheduler or configure anything else.
-- **Multiple HTTP servers**: `aphel serve` keeps no session state in memory (sessions live in the database), so it can sit behind a load balancer. Exceptions: the rate limits (login, API tokens, public forms) and the `/metrics` response counter are per process.
+- **Multiple HTTP servers**: `aphel serve` keeps no session state in memory, so it can sit behind a load balancer. Exceptions: the rate limits (login, API tokens, public forms) and the `/metrics` response counter are per process.
 - **Database**: one MySQL 8 for everything. The per-process pool has up to 30 connections; add up the processes to size `max_connections`.
 - **Files**: with more than one machine, use S3 in Settings → File storage (the local disk is not shared).
 

@@ -17,7 +17,7 @@ A template is an `aphel-config` package with an `id` and a `version`. Before ope
 
 ## Modules
 
-The catalog only **lists** modules. As a principle (session 19 of the plan), Aphel never downloads or runs third-party code: a plugin is a crate (in `back/plugins/<key>` or in a git repository) that goes into the binary through a line in `back/aphel.modules.toml` and `make build` (see [Modules and plugins](../modules/README.md)).
+The catalog only **lists** modules. As a principle, Aphel never downloads or runs third-party code: a plugin is a crate (in `back/plugins/<key>` or in a git repository) that goes into the binary through a line in `back/aphel.modules.toml` and `make build` (see [Modules and plugins](../modules/README.md)).
 
 - Modules maintained outside the repository enter the catalog with `kind: "module"`, `module.repository` pointing to the code and `install_notes` with the steps (declare it in `back/aphel.modules.toml`, run `make modules`, compile, enable it in Settings > Integrations > Modules).
 - The review checks for a compatible license, a manifest with `min_aphel_version`, tables prefixed with `<key>_` and no shortcuts into the `aphel` crate (the full guide is in [`docs/modules/README.md`](../modules/README.md)).

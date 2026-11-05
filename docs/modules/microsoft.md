@@ -2,7 +2,7 @@
 
 - **Sign in with Microsoft** (PLAN 12.7): a "Continue with Microsoft" button (Microsoft Entra ID, work accounts) for the configured domains, linking to the existing user by email; the administrator can require single sign-on for those domains.
 - **Outlook calendar sync** (PLAN 5.8) via Microsoft Graph (`/me/calendarView/delta` and `/me/events`), in both directions, with "last change wins".
-- **Outlook / Microsoft 365 mailbox** (session 22): the `microsoft.outlook` provider of the core individual email ([email.md](../architecture/email.md)); each user connects their own mailbox in **My account → Email mailboxes**.
+- **Outlook / Microsoft 365 mailbox**: the `microsoft.outlook` provider of the core individual email ([email.md](../architecture/email.md)); each user connects their own mailbox in **My account → Email mailboxes**.
 
 Depends on the `sso` module (crate `aphel-mod-sso`, `depends_on("sso")`, see [sso.md](sso.md)) and uses the same calendar engine as the [`google`](google.md#calendar) module — the sync, mapping, conflict and error behavior is identical; only what differs is described here.
 

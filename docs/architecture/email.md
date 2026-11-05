@@ -63,7 +63,7 @@ Mailboxes publish `mailbox.connected|updated|disconnected` and manual links publ
 
 ### Mailboxes
 
-`/api/v1/mailboxes*` (session or API token; each user only sees and changes their own mailboxes). The use cases are functions over `Ctx` in `modules/email/service/{mailboxes,sync,capture,reading,linking}.rs`, with SQL in the concrete stores of `modules/email/store` (`MailboxStore`, `MessageStore`, `LinkStore`, `SettingsStore`, `DirectoryStore`); the sync jobs and the engagement consumer live in `modules/email/sync/jobs.rs`.
+`/api/v1/mailboxes*`. The use cases are functions over `Ctx` in `modules/email/service/{mailboxes,sync,capture,reading,linking}.rs`, with SQL in the concrete stores of `modules/email/store` (`MailboxStore`, `MessageStore`, `LinkStore`, `SettingsStore`, `DirectoryStore`); the sync jobs and the engagement consumer live in `modules/email/sync/jobs.rs`.
 
 - Creating calls `MailboxProvider::connect`, which validates and returns the normalized address; the returned credentials go to the `SecretVault` (`mailbox`/`<id>`/`credentials`) and the saved `settings` goes through `public_settings` (keys containing `password`, `secret`, `token` or `credential` are never stored or returned). An address already connected by the same user → 409 `mailbox_already_connected`.
 - `PATCH` with `settings` or `credentials` reconnects (the address cannot change: 422 `mailbox_address_mismatch`) and resumes a paused sync.

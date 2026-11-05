@@ -2,7 +2,7 @@
 
 The lifecycle stage (`lifecycle_stage`) is a `select` system field of people and organizations. The options come from the `field_options` table and can be configured on the fields screen; the stored value is the option's `value`. Defaults: `lead`, `qualified`, `opportunity`, `customer`, `former_customer`.
 
-All of this is the `leads` module (`back/modules/leads`, session 31), which depends on `people` and `organizations` and is enabled by default (it can be disabled at `/api/v1/modules`):
+All of this is the `leads` module (`back/modules/leads`), which depends on `people` and `organizations` and is enabled by default (it can be disabled at `/api/v1/modules`):
 
 | File | Contents |
 | --- | --- |
@@ -19,7 +19,7 @@ Web: `web/src/features/leads`.
 
 ## Contributed field
 
-`people` and `organizations` do not own lifecycle data. Leads contributes `lifecycle_stage` through a registry transform and stores it in its own `leads_contact_extension` and `leads_company_extension` tables. The core reads, validates and writes these contributed fields through declared side-table metadata. The same fields are available to owner handlers, imports, bulk actions, automations and incoming webhooks without lifecycle implementation calls in people or organizations. Fresh schemas create these tables directly; there is no legacy-column copy/adoption migration. See [the P5.20 review](p5-leads.md).
+`people` and `organizations` do not own lifecycle data. Leads contributes `lifecycle_stage` through a registry transform and stores it in its own `leads_contact_extension` and `leads_company_extension` tables. The core reads, validates and writes these contributed fields through declared side-table metadata. The same fields are available to owner handlers, imports, bulk actions, automations and incoming webhooks without lifecycle implementation calls in people or organizations.
 
 ## Validation and history (same transaction)
 

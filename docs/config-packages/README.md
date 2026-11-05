@@ -3,8 +3,8 @@
 A configuration package describes **how an organization works**, without any business data: custom fields and their options, workflow with stages and stage rules, loss reasons, activity types, tags, form layouts (with conditional rules), organization views, the default dashboard and automations (as drafts). The same format is used to export an organization's configuration, install it in another one and distribute the business templates embedded in the binary (B2B, agency, freelancer, real estate, SaaS).
 
 - JSON Schema: [`schema.json`](schema.json)
-- Built-in templates: [`blueprints/templates/`](../../blueprints/templates) (one `<key>.json` file per template; the template key is the file name)
-- Code: `back/kernel/src/application/config_packages` (engine and sections), `back/kernel/src/infrastructure/config_packages` (MySQL, built-in templates), `back/kernel/src/api/routes/v1/config_packages.rs`
+- Built-in templates: `blueprints/<key>/config/` (the configuration packages a blueprint applies after install)
+- Code: `back/modules/config_packages/src` (engine, sections, MySQL ports and templates)
 
 ## Format
 
@@ -141,7 +141,7 @@ The `dashboard` section stores the **organization's** default layout (`dashboard
 
 ## Automations
 
-The `automations` section (session 17) is installed last, after `custom_objects`, `fields`, `workflow`, `task_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
+The `automations` section is installed last, after `custom_objects`, `fields`, `workflow`, `task_types` and `tags`. Each item carries `key` (the automation's own key, `^[a-z][a-z0-9_]{0,63}$`), `name`, `description`, `record_type` (`contact`, `company`, `deal`, `activity` or `custom.<key>` from the package or the organization), `trigger` and `definition` (the current draft, in the same format as the automations API):
 
 ```json
 "automations": [
@@ -186,33 +186,33 @@ The `assignment_rules` section (`modules/assignment/section.rs`) reconciles each
 
 ## Sequences
 
-The `sequences` section (session 23) is installed after `email_templates`. Each item carries `key`, `name`, `description`, `is_active`, `window_start`/`window_end` (`HH:MM`, organization time zone), `daily_limit` and `steps` (`kind` = `auto_email`, `manual_email`, `call`, `linkedin`, `task` or `wait`, with `wait_days`, `subject`, `body_html` and `title` depending on the kind). An email step's template is referenced by `template_key` (key of an organization template or of the same package's `email_templates` section); the export replaces the id with the key. Installing creates or updates the sequence by key (steps are replaced in the package's order; a step in the same position and of the same kind keeps its id and metrics) and never deletes sequences or touches enrollments.
+The `sequences` section is installed after `email_templates`. Each item carries `key`, `name`, `description`, `is_active`, `window_start`/`window_end` (`HH:MM`, organization time zone), `daily_limit` and `steps` (`kind` = `auto_email`, `manual_email`, `call`, `linkedin`, `task` or `wait`, with `wait_days`, `subject`, `body_html` and `title` depending on the kind). An email step's template is referenced by `template_key` (key of an organization template or of the same package's `email_templates` section); the export replaces the id with the key. Installing creates or updates the sequence by key (steps are replaced in the package's order; a step in the same position and of the same kind keeps its id and metrics) and never deletes sequences or touches enrollments.
 
 ## Currencies
 
-The `currencies` section (session 24) is the list of currencies enabled besides the base one (ISO 4217 codes, at most 30), for example `"currencies": ["USD", "EUR"]`. Installing only enables the missing ones (it never disables) and ignores the organization's base currency; exchange rates are not part of the package.
+The `currencies` section is the list of currencies enabled besides the base one (ISO 4217 codes, at most 30), for example `"currencies": ["USD", "EUR"]`. Installing only enables the missing ones (it never disables) and ignores the organization's base currency; exchange rates are not part of the package.
 
 The `line_items` section carries the deal items configuration: `{ "amount_mode": "manual" | "items" }` (in `items` mode the deal amount is the sum of the items). Installing only changes the mode when it differs from the current one; omitting the property keeps the value.
 
 ## Price lists and discount limits
 
-The `price_lists` section (session 25) carries the price lists that apply to all organizations (`applies_to = all`; segment or company-specific lists are not exported), by stable key: name, description, currency, validity (`valid_from`/`valid_to`), active, currency default and items referenced by **product code** (`product_code`, `unit_price`, optional `min_quantity`, default 1). Installing creates the missing lists and updates the existing ones by key (the application scope is kept); items are replaced when they change. The currency must be enabled (or come in the same package's `currencies` section), otherwise the item is in conflict; nonexistent product codes generate a resolvable conflict (applying ignores those prices). Products are never created or changed.
+The `price_lists` section carries the price lists that apply to all organizations (`applies_to = all`; segment or company-specific lists are not exported), by stable key: name, description, currency, validity (`valid_from`/`valid_to`), active, currency default and items referenced by **product code** (`product_code`, `unit_price`, optional `min_quantity`, default 1). Installing creates the missing lists and updates the existing ones by key (the application scope is kept); items are replaced when they change. The currency must be enabled (or come in the same package's `currencies` section), otherwise the item is in conflict; nonexistent product codes generate a resolvable conflict (applying ignores those prices). Products are never created or changed.
 
 The `discount_limits` section carries the maximum discount per role (`role` = role key, `max_discount_percent` as text or `null` for no limit). A nonexistent role becomes an unresolvable conflict.
 
 ## Renewals
 
-The `pipeline_renewals` section (session 24) is installed after `workflow` and `lost_reasons`. Each item configures the automatic renewal of a pipeline's won deals: `pipeline` (source pipeline key), `enabled`, `days_before` (0–365), `target_pipeline` and `target_stage` (keys of the pipeline and of an open, active stage where the renewal is created, from the package or the organization), `title_prefix` (up to 60 characters) and `owner` (`original` or `none`). Installing creates or updates the pipeline's configuration, with the installer as the author (the renewal runs with their permissions), and never creates or changes deals.
+The `pipeline_renewals` section is installed after `workflow` and `lost_reasons`. Each item configures the automatic renewal of a pipeline's won deals: `pipeline` (source pipeline key), `enabled`, `days_before` (0–365), `target_pipeline` and `target_stage` (keys of the pipeline and of an open, active stage where the renewal is created, from the package or the organization), `title_prefix` (up to 60 characters) and `owner` (`original` or `none`). Installing creates or updates the pipeline's configuration, with the installer as the author (the renewal runs with their permissions), and never creates or changes deals.
 
 ## New section
 
-The `automations` section (session 17) is the most recent example; a new section is added like this:
+The `automations` section is the most recent example; a new section is added like this:
 
 1. Implement `ConfigSection<Tx>` (`modules/config_packages/src/application/section.rs`): `key()`, `export`, `validate` (returns `PackageIssue` with a path relative to the section), `plan` (one `PlanItem` per item, with `created`/`compared`/`conflicting`) and `apply` (writes with `&mut Tx` only the items for which `decisions.executes(&item)`; plan and apply must come from the same reconciliation function).
 2. If the section references fields, implement `prune` to drop the references listed in `UnavailableFields` (fields of disabled modules) and return them as `field_reference(record_type, key)`.
 3. References to other sections: read their content in the received `ConfigPackage` (e.g. `package_fields`) and what already exists in the organization; ids created in the same transaction are in `ApplyContext::resolve`/`resolved`.
 4. Register the section in `builtin_sections` (`kernel/infrastructure/config_packages/ports.rs`), in the right position of the installation order, and add it to [`schema.json`](schema.json).
-5. Check round trip, conflicts and idempotency on a disposable database (automated tests have been suspended since session 11).
+5. Check round trip, conflicts and idempotency on a disposable database (the project has no automated test suites).
 
 ## Versioning
 

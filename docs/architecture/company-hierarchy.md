@@ -2,7 +2,7 @@
 
 Companies form groups (parent company and subsidiaries) through the `organizations.parent_company_id` column (migration `2600`, FK `ON DELETE SET NULL`). The `parent_company_id` system field is a `record` pointing to `company`, so the form, inline editing, import and the API use the generic record picker. There is no dedicated table or event: changing the parent is an edit of the company and goes out as `company.updated` with `changes`.
 
-Code: `back/modules/organizations/src/hierarchy` (session 31): `mod.rs` (validation and reparenting), `service.rs` (tree and totals over `&Ctx`), `store.rs` (`HierarchyStore`, `WITH RECURSIVE` queries) and `http.rs` (routes). The `parent_company_id` column is in the `organizations` module migration. Web in `web/src/features/organizations/hierarchy`.
+Code: `back/modules/organizations/src/hierarchy`: `mod.rs` (validation and reparenting), `service.rs` (tree and totals over `&Ctx`), `store.rs` (`HierarchyStore`, `WITH RECURSIVE` queries) and `http.rs` (routes). The `parent_company_id` column is in the `organizations` module migration. Web in `web/src/features/organizations/hierarchy`.
 
 ## Write rules
 

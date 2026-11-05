@@ -47,7 +47,7 @@ Aphel **does not store** prompts or responses. The data sent is handled under th
 The AI receives the filter grammar (groups `{ "op": "and"|"or", "conditions": [...] }`, conditions `{ "field", "operator", "value" }`), the fields with their operators and examples, and responds with `{ "filter", "explanation" }`. The backend:
 
 1. Rejects anything that is not the AST: only the keys `op`/`conditions`/`field`/`operator`/`value` (no `related`), depth up to 4, up to 50 conditions, only fields from the list sent, only operators of the field's type and the correct value format (none, single, pair, list up to 100, days 1–3650).
-2. Runs `ctx.query()` with `RecordQuery::new().filter(ast).window(0, 1)` in the user's scope: the query engine from session 04 validates against the field registry and permissions and returns only the total. Nothing other than this filter is executed; there is no SQL coming from the AI.
+2. Runs `ctx.query()` with `RecordQuery::new().filter(ast).window(0, 1)` in the user's scope: the query engine validates against the field registry and permissions and returns only the total. Nothing other than this filter is executed; there is no SQL coming from the AI.
 3. If the filter is invalid, it sends the error back to the AI **once** for correction (it counts as one more call). If it persists, 422 `ai_query_invalid`. If the AI says the question cannot become a filter, 422 `ai_query_unanswerable` with the reason.
 
 The UI shows the filter in readable language (the same labels as the filter chips), the collapsible JSON and the total; **Apply filter** (or **Combine with current filter**) calls the list's `applyFilter`.

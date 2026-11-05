@@ -259,7 +259,7 @@ A plugin never gets more than it declared, and never more than the person behind
 | Entry point | Actor | Scope |
 | --- | --- | --- |
 | Hooks | Whoever writes the record (user, API token, automation) | Their permissions ∩ capabilities |
-| Private routes | The caller (session or API token) | Their permissions ∩ capabilities |
+| Private routes | The caller | Their permissions ∩ capabilities |
 | Automation actions | The automation (`Actor::Automation`) | The permissions of whoever published the automation ∩ capabilities |
 | Widgets | The viewer | Their permissions ∩ capabilities |
 | Events, schedules, public routes | The plugin itself (`Actor::Plugin(key)`, shown as "Plugin <key>" in the audit) | The installer's permissions ∩ capabilities (`through_plugin`) |

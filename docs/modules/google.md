@@ -4,7 +4,7 @@ Three features, independent of each other within the same module:
 
 - **Sign in with Google** (PLAN 12.7): a "Continue with Google" button for the configured Google Workspace domains, linking to the existing user by verified email; the administrator can require single sign-on for those domains.
 - **Google Calendar sync** (PLAN 5.8): each user connects their own calendar; CRM meetings go to the primary calendar and calendar events with CRM people become meetings in the CRM, in both directions, with "the last change wins".
-- **Gmail mailbox** (session 22): `google.gmail` provider for the core's individual email ([email.md](../architecture/email.md)); each user connects their own Gmail in **My account → Email mailboxes**.
+- **Gmail mailbox**: `google.gmail` provider for the core's individual email ([email.md](../architecture/email.md)); each user connects their own Gmail in **My account → Email mailboxes**.
 
 The OAuth/OIDC code and the sync engine come from the `sso` module (crate `aphel-mod-sso`, see [sso.md](sso.md)); `google` declares `depends_on("sso")`, so `sso` must be in the build and enabled.
 
