@@ -32,6 +32,7 @@ Compilation, lint, the arch check and `make probe` do not prove behaviour. Check
 - Blueprint `home = "/tasks"` redirected `/` to `/tasks` after sign-in; a localized section label (`Funil`) showed in pt-BR. Both used a temporary `blueprints/crm`, reverted.
 - Plugin contract hold with a manifest-only package providing `booking@1`: dry run listed `replaces: ["booking"]`, the install disabled `booking` (`held_by` shown), enabling it was refused with `module_held_by_extension`, and uninstalling re-enabled it. This found and fixed a foreign key failure (the hold ran before the plugin row existed).
 - A manifest with `conflicts_with` or `[[menu.rules]]` is rejected with a clear message.
+- Installer selection step for every profile (real web code run in the browser against the live catalog): each locks the eight required plugins plus the kernel, preselects the recommended ones (crm 27, agency 40, consultancy 36, freelancer 33, other 33, real estate 35, SaaS 39, B2B sales 39) and references no unknown module.
 
 ## Known gaps
 - Structural `is_system` seeds (task types, call outcomes, lead disqualification reasons, deal member roles) remain module seeds, run only for enabled modules (decision: hybrid).
