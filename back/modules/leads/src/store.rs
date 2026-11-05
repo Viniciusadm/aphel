@@ -4,14 +4,13 @@ use std::sync::Arc;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use serde_json::{Value, json};
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlConnection, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::domain::{
-    DEFAULT_DISQUALIFICATION_REASONS, DealOutcomes, DealParties, DisqualificationCount,
-    DisqualificationReason, HistorySpan, LIFECYCLE_STAGE_FIELD, LeadDisqualification,
-    LifecycleSettings, ReportWindow, StageChange, StageHistoryEntry, StageOption, TransitionRule,
-    TransitionTrigger,
+    DealOutcomes, DealParties, DisqualificationCount, DisqualificationReason, HistorySpan,
+    LIFECYCLE_STAGE_FIELD, LeadDisqualification, LifecycleSettings, ReportWindow, StageChange,
+    StageHistoryEntry, StageOption, TransitionRule, TransitionTrigger,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
@@ -268,28 +267,6 @@ fn reason_from_row(row: &MySqlRow) -> Result<DisqualificationReason, AppError> {
         created_at: mapper::utc(created_at),
         updated_at: mapper::utc(updated_at),
     })
-}
-
-pub(crate) async fn seed_disqualification_reasons(
-    connection: &mut MySqlConnection,
-) -> Result<(), AppError> {
-    let mut builder = QueryBuilder::new(
-        "INSERT IGNORE INTO lead_disqualification_reasons (id, `key`, name, \
-         is_active, position) ",
-    );
-    builder.push_values(
-        DEFAULT_DISQUALIFICATION_REASONS.iter().enumerate(),
-        |mut values, (position, reason)| {
-            values
-                .push_bind(Uuid::now_v7().to_string())
-                .push_bind(reason.key)
-                .push_bind(reason.name)
-                .push_bind(true)
-                .push_bind(position as i32);
-        },
-    );
-    builder.build().execute(&mut *connection).await?;
-    Ok(())
 }
 
 impl ReasonStore {

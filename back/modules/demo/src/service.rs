@@ -27,6 +27,7 @@ const STAGE_KIND_WON: &str = "won";
 const STAGE_KIND_LOST: &str = "lost";
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
+pub(crate) const DEFAULTS_TEMPLATE: &str = "crm";
 pub(crate) const DEMO_TEMPLATE: &str = "sales";
 pub(crate) const DEMO_RESET: &str = "demo.reset";
 pub(crate) const DEMO_REMOVED: &str = "demo.removed";
@@ -69,6 +70,7 @@ pub(crate) async fn seed(
         Some(visitor) => Some(ensure_visitor(&ctx, &store, visitor).await?),
         None => None,
     };
+    install_template(&ctx, DEFAULTS_TEMPLATE).await?;
     install_template(&ctx, DEMO_TEMPLATE).await?;
     let mut catalog = MaintenanceCatalog::default();
     for seed in ordered_seeds(&ctx) {

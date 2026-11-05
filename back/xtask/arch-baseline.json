@@ -5,7 +5,7 @@
   "cross_plugin_sql_references": 0,
   "kernel_domain_words": 0,
   "kernel_permission_constants_for_plugins": 0,
-  "kernel_public_modules": 127,
+  "kernel_public_modules": 125,
   "kernel_record_type_domain_constants": 0,
   "kernel_sql_on_plugin_tables": 0,
   "layer_direction_violations": 0,

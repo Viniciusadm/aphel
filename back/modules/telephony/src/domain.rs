@@ -34,36 +34,6 @@ pub(crate) const VIEW_SCRIPT_SETTING: &str = "call_script";
 pub(crate) const CALL_ACTIVITY_TYPE_KEY: &str = "call";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct DefaultCallOutcome {
-    pub(crate) key: &'static str,
-    pub(crate) name: &'static str,
-    pub(crate) is_connected: bool,
-}
-
-pub(crate) const DEFAULT_CALL_OUTCOMES: [DefaultCallOutcome; 4] = [
-    DefaultCallOutcome {
-        key: "answered",
-        name: "Atendeu",
-        is_connected: true,
-    },
-    DefaultCallOutcome {
-        key: "voicemail",
-        name: "Caixa postal",
-        is_connected: false,
-    },
-    DefaultCallOutcome {
-        key: "no_answer",
-        name: "Sem resposta",
-        is_connected: false,
-    },
-    DefaultCallOutcome {
-        key: "wrong_number",
-        name: "Número errado",
-        is_connected: false,
-    },
-];
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CallOutcome {
     pub(crate) id: Uuid,
     pub(crate) key: String,

@@ -53,7 +53,6 @@ use aphel_sdk::platform::application::public_events::{
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 use aphel_sdk::platform::domain::fields::FieldType;
-use aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{
@@ -559,9 +558,6 @@ impl Module for DealsModule {
                 ))
             }),
         ));
-        app.contribute(Arc::new(DefaultsSeed(|connection| {
-            Box::pin(team::store::seed_deal_member_roles(connection))
-        })));
         app.filter(SearchPlanFilter, DEFAULT_PRIORITY, |ctx, plan| {
             Box::pin(hooks::restrict_search(ctx, plan))
         });

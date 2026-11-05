@@ -38,31 +38,6 @@ pub(crate) const DEAL_MEMBER_ROLE_DELETED: &str = "deal_member_role.deleted";
 pub(crate) const DEAL_MEMBER_ROLES_REORDERED: &str = "deal_member_role.reordered";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct DefaultDealMemberRole {
-    pub(crate) key: &'static str,
-    pub(crate) name: &'static str,
-}
-
-pub(crate) const DEFAULT_DEAL_MEMBER_ROLES: [DefaultDealMemberRole; 4] = [
-    DefaultDealMemberRole {
-        key: "sales",
-        name: "Vendedor",
-    },
-    DefaultDealMemberRole {
-        key: "pre_sales",
-        name: "Pré-vendas",
-    },
-    DefaultDealMemberRole {
-        key: "specialist",
-        name: "Especialista",
-    },
-    DefaultDealMemberRole {
-        key: "manager",
-        name: "Gestor",
-    },
-];
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DealMemberRole {
     pub id: Uuid,
     pub(crate) key: String,

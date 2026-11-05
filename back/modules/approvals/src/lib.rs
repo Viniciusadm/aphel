@@ -1,5 +1,4 @@
 mod dataset_seed;
-mod defaults;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -102,11 +101,6 @@ impl Module for ApprovalsModule {
             dataset_seed::ApprovalsSeed,
         ));
         app.contract(aphel_sdk::approvals::DESCRIPTOR);
-        app.contribute(std::sync::Arc::new(
-            aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed(|connection| {
-                Box::pin(defaults::seed_templates(connection))
-            }),
-        ));
         app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
             crate::notifications::ApprovalNotificationTexts,
         ));

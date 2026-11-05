@@ -3,7 +3,7 @@
   "format_version": 1,
   "min_aphel_version": "0.1.0",
   "name": "Padrões do CRM",
-  "description": "Funil padrão e motivos de perda instalados com o blueprint CRM.",
+  "description": "Funil, motivos de perda, tipos de tarefa, resultados de chamada, papéis, motivos de desqualificação e política de aprovação de desconto instalados com o blueprint CRM.",
   "author": "Aphel",
   "locale": "pt-BR",
   "sections": {
@@ -76,6 +76,143 @@
       {
         "key": "other",
         "name": "Outro"
+      }
+    ],
+    "task_types": [
+      {
+        "key": "call",
+        "name": "Ligação",
+        "icon": "phone",
+        "color": "#1f6feb",
+        "system": true
+      },
+      {
+        "key": "meeting",
+        "name": "Reunião",
+        "icon": "users",
+        "color": "#8250df",
+        "system": true
+      },
+      {
+        "key": "email",
+        "name": "E-mail",
+        "icon": "mail",
+        "color": "#0969da",
+        "system": true
+      },
+      {
+        "key": "message",
+        "name": "Mensagem",
+        "icon": "message-circle",
+        "color": "#1a7f37",
+        "system": true
+      },
+      {
+        "key": "visit",
+        "name": "Visita",
+        "icon": "map-pin",
+        "color": "#bf8700",
+        "system": true
+      },
+      {
+        "key": "task",
+        "name": "Tarefa",
+        "icon": "check-square",
+        "color": "#6e7781",
+        "system": true
+      }
+    ],
+    "call_outcomes": [
+      {
+        "key": "answered",
+        "name": "Atendeu",
+        "connected": true,
+        "system": true
+      },
+      {
+        "key": "voicemail",
+        "name": "Caixa postal",
+        "connected": false,
+        "system": true
+      },
+      {
+        "key": "no_answer",
+        "name": "Sem resposta",
+        "connected": false,
+        "system": true
+      },
+      {
+        "key": "wrong_number",
+        "name": "Número errado",
+        "connected": false,
+        "system": true
+      }
+    ],
+    "deal_member_roles": [
+      {
+        "key": "sales",
+        "name": "Vendedor"
+      },
+      {
+        "key": "pre_sales",
+        "name": "Pré-vendas"
+      },
+      {
+        "key": "specialist",
+        "name": "Especialista"
+      },
+      {
+        "key": "manager",
+        "name": "Gestor"
+      }
+    ],
+    "lifecycle": {
+      "disqualification_reasons": [
+        {
+          "key": "no_budget",
+          "name": "Sem orçamento"
+        },
+        {
+          "key": "no_fit",
+          "name": "Fora do perfil"
+        },
+        {
+          "key": "unresponsive",
+          "name": "Sem resposta"
+        },
+        {
+          "key": "competitor",
+          "name": "Escolheu um concorrente"
+        },
+        {
+          "key": "invalid_contact",
+          "name": "Dados inválidos"
+        },
+        {
+          "key": "other",
+          "name": "Outro"
+        }
+      ]
+    },
+    "approval_policies": [
+      {
+        "key": "quote_discount_limit",
+        "name": "Desconto acima do limite",
+        "description": "Cotações com desconto acima do limite do papel do responsável precisam de aprovação antes do envio.",
+        "record_type": "quotes.quote",
+        "moment": "quote_send",
+        "condition_kind": "filter",
+        "condition_filter": {
+          "field": "exceeds_discount_limit",
+          "operator": "eq",
+          "value": true
+        },
+        "steps": [
+          {
+            "approver": "owner_team_manager",
+            "rule": "any"
+          }
+        ]
       }
     ]
   }

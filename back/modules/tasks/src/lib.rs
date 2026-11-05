@@ -25,7 +25,6 @@ pub(crate) mod operations;
 mod points;
 pub(crate) mod recurrence;
 pub mod section;
-pub(crate) mod seed;
 pub mod service;
 pub mod store;
 pub mod types;
@@ -50,7 +49,6 @@ use aphel_sdk::platform::application::public_events::{
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 use aphel_sdk::platform::domain::fields::FieldType;
-use aphel_sdk::platform::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
 use aphel_sdk::platform::infrastructure::query::aggregate::LookupTitleSource;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
@@ -401,13 +399,9 @@ impl Module for TasksModule {
                 "Before an activity is completed; values: { activity, previous, type_key }. An error blocks it",
             ),
         );
-        app.contribute(Arc::new(DefaultsSeed(|connection| {
-            Box::pin(seed::seed_task_types(connection))
-        })));
-        app.contribute(Arc::new(DefaultsProbe(seed::SEEDED_TABLE)));
         app.contribute(Arc::new(LookupTitleSource {
             record_type: "tasks.type",
-            table: seed::SEEDED_TABLE,
+            table: "task_types",
             title_column: "name",
         }));
         app.contribute::<dyn aphel_sdk::points::ReferenceProvider>(std::sync::Arc::new(

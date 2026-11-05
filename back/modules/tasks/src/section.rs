@@ -35,6 +35,8 @@ pub struct PackageActivityType {
     pub(crate) icon: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) color: Option<String>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) system: bool,
 }
 
 struct ActivityTypePlan {
@@ -94,7 +96,7 @@ impl ActivityTypesSection {
                         name,
                         icon,
                         color,
-                        is_system: false,
+                        is_system: entry.system,
                         is_active: true,
                         position,
                         created_at: at,
@@ -162,6 +164,7 @@ impl ConfigSection<MySqlTx> for ActivityTypesSection {
                 name: activity_type.name,
                 icon: activity_type.icon,
                 color: activity_type.color,
+                system: activity_type.is_system,
             })
             .collect();
         Ok(Some(json!(types)))

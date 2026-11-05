@@ -146,39 +146,6 @@ impl LifecycleSettings {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct DefaultDisqualificationReason {
-    pub(crate) key: &'static str,
-    pub(crate) name: &'static str,
-}
-
-pub(crate) const DEFAULT_DISQUALIFICATION_REASONS: [DefaultDisqualificationReason; 6] = [
-    DefaultDisqualificationReason {
-        key: "no_budget",
-        name: "Sem orçamento",
-    },
-    DefaultDisqualificationReason {
-        key: "no_fit",
-        name: "Fora do perfil",
-    },
-    DefaultDisqualificationReason {
-        key: "unresponsive",
-        name: "Sem resposta",
-    },
-    DefaultDisqualificationReason {
-        key: "competitor",
-        name: "Escolheu um concorrente",
-    },
-    DefaultDisqualificationReason {
-        key: "invalid_contact",
-        name: "Dados inválidos",
-    },
-    DefaultDisqualificationReason {
-        key: "other",
-        name: "Outro",
-    },
-];
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct DisqualificationReason {
     pub(crate) id: Uuid,
     pub(crate) key: String,

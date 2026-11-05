@@ -318,7 +318,6 @@ impl Module for QuotesModule {
             &[aphel_kernel::modules::HookUsage::Filter],
             "Totals of a quote (items, discounts and taxes) before they are saved",
         );
-        app.contribute(Arc::new(store::discount_policy_template()));
         app.entity(quote_definition()?.handler(Arc::new(http::QuoteHandler)))
             .openapi_tag(
                 http::TAG,

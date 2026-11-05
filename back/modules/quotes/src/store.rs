@@ -693,29 +693,3 @@ impl QuoteStore {
             .collect()
     }
 }
-
-pub(crate) const QUOTE_DISCOUNT_POLICY_KEY: &str = "quote_discount_limit";
-const QUOTE_DISCOUNT_POLICY_NAME: &str = "Desconto acima do limite";
-const QUOTE_DISCOUNT_POLICY_DESCRIPTION: &str = "Cotações com desconto acima do limite do papel do responsável precisam de aprovação antes do envio.";
-const QUOTE_DISCOUNT_POLICY_FILTER: &str =
-    r#"{"field": "exceeds_discount_limit", "operator": "eq", "value": true}"#;
-
-pub(crate) fn discount_policy_template() -> aphel_sdk::approvals::ApprovalPolicyTemplate {
-    aphel_sdk::approvals::ApprovalPolicyTemplate {
-        key: QUOTE_DISCOUNT_POLICY_KEY.into(),
-        name: QUOTE_DISCOUNT_POLICY_NAME.into(),
-        description: Some(QUOTE_DISCOUNT_POLICY_DESCRIPTION.into()),
-        record_type: "quotes.quote".into(),
-        moment: aphel_sdk::approvals::ApprovalMoment::QuoteSend,
-        filter: serde_json::from_str(QUOTE_DISCOUNT_POLICY_FILTER)
-            .expect("quote discount policy filter"),
-        locked_fields: Vec::new(),
-        steps: vec![aphel_sdk::approvals::ApprovalStepTemplate {
-            name: None,
-            approver_kind: "owner_team_manager".into(),
-            approver_user_id: None,
-            approver_role_id: None,
-            rule: "any".into(),
-        }],
-    }
-}

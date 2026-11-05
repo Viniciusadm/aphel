@@ -4,6 +4,7 @@ pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
 mod reference_cleanup;
+pub(crate) mod section;
 pub(crate) mod service;
 pub(crate) mod store;
 pub(crate) mod telephony;
@@ -18,7 +19,6 @@ use aphel_kernel::records::RecordSerializing;
 use aphel_sdk::platform::application::public_events::{
     PreviousValues, PublicEventDefinition, changed, event,
 };
-use aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) use telephony::TelephonyRouter;
@@ -68,9 +68,11 @@ impl Module for TelephonyModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         reference_cleanup::register(app);
         app.contract(aphel_sdk::telephony::DESCRIPTOR);
-        app.contribute(Arc::new(DefaultsSeed(|connection| {
-            Box::pin(store::seed_call_outcomes(connection))
-        })));
+        app.contribute(Arc::new(
+            aphel_sdk::configuration::ConfigSectionFactory::new(95, |pool, _registry| {
+                Arc::new(crate::section::call_outcomes_section(pool.clone()))
+            }),
+        ));
         app.openapi_tag(
             http::TAG,
             "Call logging as tasks, call outcomes, call sessions over saved views and the calls report",

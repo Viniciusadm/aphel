@@ -6,7 +6,6 @@ use aphel_kernel::config::AppConfig;
 use aphel_kernel::database;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::custom_objects::sync_custom_object_fields;
-use aphel_kernel::infrastructure::defaults::sync_defaults;
 use aphel_kernel::infrastructure::fields::sync_system_fields;
 
 pub(crate) async fn run(config: AppConfig) -> CliResult {
@@ -20,7 +19,6 @@ pub(crate) async fn run(config: AppConfig) -> CliResult {
     database::migrations::run(&pool).await?;
     sync_system_fields(&pool, &RecordTypeRegistry::builtin()).await?;
     sync_custom_object_fields(&pool).await?;
-    sync_defaults(&pool).await?;
     info!("database migrations are up to date");
     pool.close().await;
 

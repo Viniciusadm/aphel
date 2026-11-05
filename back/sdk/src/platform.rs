@@ -25,7 +25,7 @@ pub mod domain {
 
 pub mod infrastructure {
     pub use aphel_kernel::infrastructure::{
-        audit, auth, custom_objects, defaults, deferred_authority, events, fields, installer, jobs,
+        audit, auth, custom_objects, deferred_authority, events, fields, installer, jobs,
         organization_profile, outbound_http, platform, query, record_sharing, records,
         repositories, secrets, storage, transactions,
     };

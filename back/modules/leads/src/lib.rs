@@ -21,7 +21,6 @@ use aphel_sdk::platform::application::fields::builtin::field;
 use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
 use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 use aphel_sdk::platform::domain::fields::FieldType;
-use aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{
@@ -192,9 +191,6 @@ impl Module for LeadsModule {
                 std::sync::Arc::new(crate::section::lifecycle_section(pool))
             }),
         ));
-        app.contribute(Arc::new(DefaultsSeed(|connection| {
-            Box::pin(store::seed_disqualification_reasons(connection))
-        })));
         app.transform_entities("leads.lifecycle",extend_lifecycle)
         .on(RecordValidating, LIFECYCLE_STAGE_PRIORITY, |ctx, args| {
             Box::pin(hooks::validate_stage(ctx, args))

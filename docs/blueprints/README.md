@@ -57,7 +57,7 @@ The `aphel-blueprint` crate (`back/blueprint`) parses every `blueprints/*/bluepr
 
 After the installation transaction the installer enables the blueprint's required plugins and applies its `configuration.packages` through the `config_packages` module (`BlueprintConfigurator`), with the administrator's scope. `crm` ships the default pipeline and lost reasons (localized in `config/<locale>.json`); a blank system, or a build without `config_packages`, applies nothing. If applying fails, the message is kept in `organization_settings.settings.installer.configuration_error`, `GET /api/v1/blueprint` returns it and administrators see a banner with a retry button (`POST /api/v1/blueprint/configuration`, `settings.manage`). Other templates in `blueprints/*/config/` stay selectable as packages and are suggested by onboarding.
 
-Enabling a module later (`POST /api/v1/modules/{key}/enable`) runs its default seeds immediately.
+Enabling a module later does not create defaults: they come from the blueprint package (reapply it with `POST /api/v1/blueprint`).
 
 ## Choosing what is compiled
 

@@ -2,14 +2,14 @@ use std::collections::HashMap;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlConnection, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::call::{call_columns_sql, call_from_row};
 use crate::domain::{
     ActivityCallView, CALL_ACTIVITY_TYPE_KEY, CallActivityType, CallDetails, CallOutcome,
     CallReportFilter, CallReportRow, CallSession, CallSessionItem, CallSessionStatus,
-    DEFAULT_CALL_OUTCOMES, SessionCounts, SessionItemStatus,
+    SessionCounts, SessionItemStatus,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
@@ -251,27 +251,6 @@ fn outcome_from_row(row: &MySqlRow) -> Result<CallOutcome, AppError> {
         created_at: mapper::utc(created_at),
         updated_at: mapper::utc(updated_at),
     })
-}
-
-pub(crate) async fn seed_call_outcomes(connection: &mut MySqlConnection) -> Result<(), AppError> {
-    let mut builder = QueryBuilder::new(
-        "INSERT IGNORE INTO call_outcomes (id, `key`, name, is_connected, is_system, is_active, position) ",
-    );
-    builder.push_values(
-        DEFAULT_CALL_OUTCOMES.iter().enumerate(),
-        |mut values, (position, outcome)| {
-            values
-                .push_bind(Uuid::now_v7().to_string())
-                .push_bind(outcome.key)
-                .push_bind(outcome.name)
-                .push_bind(outcome.is_connected)
-                .push_bind(true)
-                .push_bind(true)
-                .push_bind(position as i32);
-        },
-    );
-    builder.build().execute(&mut *connection).await?;
-    Ok(())
 }
 
 impl CallOutcomeStore {

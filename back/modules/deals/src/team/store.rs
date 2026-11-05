@@ -1,12 +1,11 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rust_decimal::Decimal;
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlConnection, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::team::domain::{
-    CreditTotals, CreditedUsers, DEFAULT_DEAL_MEMBER_ROLES, DealMember, DealMemberRole,
-    DealMemberRoleRef, NewDealMember,
+    CreditTotals, CreditedUsers, DealMember, DealMemberRole, DealMemberRoleRef, NewDealMember,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
@@ -74,27 +73,6 @@ fn role_from_row(row: &MySqlRow) -> Result<DealMemberRole, AppError> {
         created_at: mapper::utc(created_at),
         updated_at: mapper::utc(updated_at),
     })
-}
-
-pub(crate) async fn seed_deal_member_roles(
-    connection: &mut MySqlConnection,
-) -> Result<(), AppError> {
-    let mut builder = QueryBuilder::new(
-        "INSERT IGNORE INTO deal_member_roles (id, `key`, name, is_active, position) ",
-    );
-    builder.push_values(
-        DEFAULT_DEAL_MEMBER_ROLES.iter().enumerate(),
-        |mut values, (position, role)| {
-            values
-                .push_bind(Uuid::now_v7().to_string())
-                .push_bind(role.key)
-                .push_bind(role.name)
-                .push_bind(true)
-                .push_bind(position as i32);
-        },
-    );
-    builder.build().execute(&mut *connection).await?;
-    Ok(())
 }
 
 #[derive(Clone)]

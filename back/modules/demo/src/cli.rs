@@ -17,7 +17,6 @@ use aphel_kernel::modules::{CommandResult, ModuleCommand, connect_with_modules};
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
-use aphel_sdk::platform::infrastructure::defaults::sync_defaults;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 use aphel_sdk::platform::infrastructure::fields::sync_system_fields;
 use aphel_sdk::platform::infrastructure::organization_profile::organization_config_catalog;
@@ -100,7 +99,6 @@ pub(crate) async fn run(config: AppConfig, command: DemoCommand) -> CommandResul
         info!("running database migrations");
         database::migrations::run(&pool).await?;
         sync_system_fields(&pool, &registry).await?;
-        sync_defaults(&pool).await?;
     }
     let secrets = build_secret_vault(&pool, &config.encryption)?;
     let configuration = organization_config_catalog(&pool);

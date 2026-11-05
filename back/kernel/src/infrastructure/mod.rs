@@ -2,7 +2,6 @@ pub(crate) mod api_tokens;
 pub mod audit;
 pub mod auth;
 pub mod custom_objects;
-pub mod defaults;
 pub mod events;
 pub mod fields;
 pub(crate) mod idempotency;

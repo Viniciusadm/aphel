@@ -3,7 +3,7 @@
   "format_version": 1,
   "min_aphel_version": "0.1.0",
   "name": "CRM defaults",
-  "description": "Default workflow and lost reasons installed with the CRM blueprint.",
+  "description": "Default workflow, lost reasons, task types, call outcomes, deal roles, disqualification reasons and discount approval policy installed with the CRM blueprint.",
   "author": "Aphel",
   "locale": "en",
   "sections": {
@@ -76,6 +76,143 @@
       {
         "key": "other",
         "name": "Other"
+      }
+    ],
+    "task_types": [
+      {
+        "key": "call",
+        "name": "Call",
+        "icon": "phone",
+        "color": "#1f6feb",
+        "system": true
+      },
+      {
+        "key": "meeting",
+        "name": "Meeting",
+        "icon": "users",
+        "color": "#8250df",
+        "system": true
+      },
+      {
+        "key": "email",
+        "name": "Email",
+        "icon": "mail",
+        "color": "#0969da",
+        "system": true
+      },
+      {
+        "key": "message",
+        "name": "Message",
+        "icon": "message-circle",
+        "color": "#1a7f37",
+        "system": true
+      },
+      {
+        "key": "visit",
+        "name": "Visit",
+        "icon": "map-pin",
+        "color": "#bf8700",
+        "system": true
+      },
+      {
+        "key": "task",
+        "name": "Task",
+        "icon": "check-square",
+        "color": "#6e7781",
+        "system": true
+      }
+    ],
+    "call_outcomes": [
+      {
+        "key": "answered",
+        "name": "Answered",
+        "connected": true,
+        "system": true
+      },
+      {
+        "key": "voicemail",
+        "name": "Voicemail",
+        "connected": false,
+        "system": true
+      },
+      {
+        "key": "no_answer",
+        "name": "No answer",
+        "connected": false,
+        "system": true
+      },
+      {
+        "key": "wrong_number",
+        "name": "Wrong number",
+        "connected": false,
+        "system": true
+      }
+    ],
+    "deal_member_roles": [
+      {
+        "key": "sales",
+        "name": "Salesperson"
+      },
+      {
+        "key": "pre_sales",
+        "name": "Pre-sales"
+      },
+      {
+        "key": "specialist",
+        "name": "Specialist"
+      },
+      {
+        "key": "manager",
+        "name": "Manager"
+      }
+    ],
+    "lifecycle": {
+      "disqualification_reasons": [
+        {
+          "key": "no_budget",
+          "name": "No budget"
+        },
+        {
+          "key": "no_fit",
+          "name": "Not a fit"
+        },
+        {
+          "key": "unresponsive",
+          "name": "Unresponsive"
+        },
+        {
+          "key": "competitor",
+          "name": "Chose a competitor"
+        },
+        {
+          "key": "invalid_contact",
+          "name": "Invalid contact details"
+        },
+        {
+          "key": "other",
+          "name": "Other"
+        }
+      ]
+    },
+    "approval_policies": [
+      {
+        "key": "quote_discount_limit",
+        "name": "Discount above limit",
+        "description": "Quotes with a discount above the owner's role limit need approval before sending.",
+        "record_type": "quotes.quote",
+        "moment": "quote_send",
+        "condition_kind": "filter",
+        "condition_filter": {
+          "field": "exceeds_discount_limit",
+          "operator": "eq",
+          "value": true
+        },
+        "steps": [
+          {
+            "approver": "owner_team_manager",
+            "rule": "any"
+          }
+        ]
       }
     ]
   }

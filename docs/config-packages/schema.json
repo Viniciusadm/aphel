@@ -36,6 +36,7 @@
         "lost_reasons": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/lostReason" } },
         "pipeline_renewals": { "type": "array", "items": { "$ref": "#/$defs/pipelineRenewal" } },
         "task_types": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/activityType" } },
+        "call_outcomes": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/callOutcome" } },
         "deal_member_roles": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/dealMemberRole" } },
         "lifecycle": { "$ref": "#/$defs/lifecycle" },
         "validation_rules": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/validationRule" } },
@@ -577,7 +578,20 @@
         "key": { "$ref": "#/$defs/key" },
         "name": { "type": "string", "minLength": 1, "maxLength": 140 },
         "icon": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
-        "color": { "$ref": "#/$defs/color" }
+        "color": { "$ref": "#/$defs/color" },
+        "system": { "type": "boolean", "description": "Marks the type as a system type that cannot be removed (blueprint packages)" }
+      }
+    },
+    "callOutcome": {
+      "type": "object",
+      "description": "Call outcome reconciled by key; installing creates or updates (and reactivates) and never deletes nor touches logged calls",
+      "additionalProperties": false,
+      "required": ["key", "name"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "connected": { "type": "boolean", "description": "Whether the call reached the person" },
+        "system": { "type": "boolean", "description": "Marks the outcome as a system outcome that cannot be removed (blueprint packages)" }
       }
     },
     "tag": {

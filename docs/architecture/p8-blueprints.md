@@ -10,7 +10,6 @@ Compilation, lint, the arch check and `make probe` do not prove behaviour. Check
 
 ## Modules without `required`
 - [ ] Disable `people`, `deals` or `notes` from Settings → Modules when nothing depends on them; the web and API keep working without them.
-- [ ] Enabling a module later seeds its defaults on the next restart (`sync_defaults`), not immediately.
 
 ## Plugins
 - [ ] A runtime plugin with `provides.contracts = ["<built-in contract>@1"]` holds the built-in module on install and releases it on uninstall; the plugin details show `Replaces modules`.
@@ -38,5 +37,5 @@ Compilation, lint, the arch check and `make probe` do not prove behaviour. Check
 - With `[build] blueprints = ["freelancer"]` the sync selects 43 plugins, the backend compiles, the web typechecks, the server starts, the installer offers only `crm` and `freelancer`, and a freelancer install returns 201 with `Funil padrão`. The shipped file restores the full 67-module build.
 
 ## Known gaps
-- Structural `is_system` seeds (task types, call outcomes, lead disqualification reasons, deal member roles) remain module seeds, run only for enabled modules (decision: hybrid).
+- Structural `is_system` defaults (task types, call outcomes, lead disqualification reasons, deal member roles, quote discount approval policy) live in the `crm` blueprint package; modules no longer seed anything (decision: package only). Enabling a module later does not create them; reapply the blueprint instead.
 
