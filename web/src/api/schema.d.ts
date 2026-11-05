@@ -9095,7 +9095,7 @@ export interface components {
             };
             fingerprint: string;
             package?: Record<string, never> | null;
-            /** @example b2b */
+            /** @example sales */
             template?: string | null;
         };
         ApplyPackageResponse: {
@@ -14589,7 +14589,7 @@ export interface components {
             data: {
                 author?: string | null;
                 description?: string | null;
-                /** @example b2b */
+                /** @example sales */
                 key: string;
                 locale: string;
                 name: string;
@@ -16647,6 +16647,7 @@ export interface components {
         InstallerProfile: {
             key: string;
             modules: string[];
+            required: string[];
         };
         InstallerRestoreForm: {
             /** Format: binary */
@@ -18105,7 +18106,7 @@ export interface components {
         PackageTemplateResponse: {
             author?: string | null;
             description?: string | null;
-            /** @example b2b */
+            /** @example sales */
             key: string;
             locale: string;
             name: string;
@@ -19925,7 +19926,7 @@ export interface components {
         };
         PlanPackageRequest: {
             package?: Record<string, never> | null;
-            /** @example b2b */
+            /** @example sales */
             template?: string | null;
         };
         PlanSummaryResponse: {

@@ -9,20 +9,20 @@ formulas = { path = "modules/formulas" }
 validation_rules = { path = "modules/validation_rules" }
 
 marketplace = { path = "modules/marketplace" }
-people = { path = "modules/people", required = true }
-organizations = { path = "modules/organizations", required = true }
+people = { path = "modules/people" }
+organizations = { path = "modules/organizations" }
 leads = { path = "modules/leads" }
 scoring = { path = "modules/scoring" }
 money = { path = "modules/money" }
 workflow = { path = "modules/workflow" }
-deals = { path = "modules/deals", required = true }
+deals = { path = "modules/deals" }
 line_items = { path = "modules/line_items" }
 deals_revenue = { path = "modules/deals_revenue" }
 renewals = { path = "modules/renewals" }
 goals = { path = "modules/goals" }
 forecast = { path = "modules/forecast" }
 tasks = { path = "modules/tasks" }
-notes = { path = "modules/notes", required = true }
+notes = { path = "modules/notes" }
 reminders = { path = "modules/reminders" }
 timeline = { path = "modules/timeline" }
 favorites = { path = "modules/favorites" }
@@ -33,7 +33,7 @@ reports = { path = "modules/reports" }
 onboarding = { path = "modules/onboarding" }
 demo = { path = "modules/demo" }
 assignment = { path = "modules/assignment" }
-tagging = { path = "modules/tagging", required = true }
+tagging = { path = "modules/tagging" }
 segments = { path = "modules/segments" }
 telephony = { path = "modules/telephony" }
 email = { path = "modules/email" }
@@ -42,15 +42,15 @@ booking = { path = "modules/booking" }
 approvals = { path = "modules/approvals" }
 automations = { path = "modules/automations" }
 webhooks = { path = "modules/webhooks" }
-integrations = { path = "modules/integrations", required = true }
+integrations = { path = "modules/integrations" }
 wasm_runtime = { path = "modules/wasm_runtime" }
 imports = { path = "modules/imports" }
-exports = { path = "modules/exports", required = true }
+exports = { path = "modules/exports" }
 bulk_actions = { path = "modules/bulk_actions" }
 duplicates = { path = "modules/duplicates" }
 trash = { path = "modules/trash" }
 privacy = { path = "modules/privacy" }
-org_export = { path = "modules/org_export", required = true }
+org_export = { path = "modules/org_export" }
 migrations_assistant = { path = "modules/migrations_assistant" }
 catalog_items = { path = "modules/catalog_items" }
 pricing = { path = "modules/pricing" }

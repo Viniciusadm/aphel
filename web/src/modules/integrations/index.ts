@@ -4,7 +4,6 @@ import { defineModule } from '@/kernel/modules/define'
 
 const integrationsModule = defineModule({
   key: 'integrations',
-  required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.settings('integrations', {

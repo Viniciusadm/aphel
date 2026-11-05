@@ -28,6 +28,15 @@ export function needsConfiguration(item: InstallerModule, catalog: InstallerModu
   )
 }
 
+export function withIncluded(catalog: InstallerCatalog, businessType: string | null): InstallerCatalog {
+  const included = new Set(catalog.profiles.find((profile) => profile.key === businessType)?.required ?? [])
+  if (included.size === 0) return catalog
+  return {
+    ...catalog,
+    modules: catalog.modules.map((item) => (included.has(item.key) ? { ...item, required: true } : item)),
+  }
+}
+
 export function recommendedModules(catalog: InstallerCatalog, businessType: string | null): Set<string> {
   return new Set(catalog.profiles.find((profile) => profile.key === businessType)?.modules ?? [])
 }

@@ -26,7 +26,6 @@ export { TagChip, TagChipList, type TagChipListProps, type TagChipProps } from '
 
 const tagsModule = defineModule({
   key: 'tagging',
-  required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.settings('organization', {

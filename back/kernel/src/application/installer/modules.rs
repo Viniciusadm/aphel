@@ -12,6 +12,7 @@ use crate::modules::App;
 #[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
 pub struct InstallerProfile {
     pub key: String,
+    pub required: Vec<String>,
     pub modules: Vec<String>,
 }
 
@@ -29,12 +30,28 @@ pub struct PreparedModule {
     pub secrets: Vec<(String, Secret)>,
 }
 
+pub fn blueprint_required(business: Option<&Value>) -> Vec<String> {
+    let Some(key) = business
+        .and_then(|business| business.get("business_type"))
+        .and_then(Value::as_str)
+    else {
+        return Vec::new();
+    };
+    profiles()
+        .into_iter()
+        .find(|profile| profile.key == key)
+        .map(|profile| profile.required)
+        .unwrap_or_default()
+}
+
 pub fn prepare(
     app: &App,
     selected: &[String],
     settings: &BTreeMap<String, Map<String, Value>>,
+    business: Option<&Value>,
 ) -> Result<Vec<PreparedModule>, AppError> {
     let mut keys: BTreeSet<String> = selected.iter().cloned().collect();
+    keys.extend(blueprint_required(business));
     keys.extend(
         app.modules()
             .iter()

@@ -8,7 +8,6 @@ import { companiesRoutes } from './routes'
 
 const companiesModule = defineModule({
   key: 'organizations',
-  required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('company.') ? createElement(OrganizationsDashboardEventLabel, { event }) : label)

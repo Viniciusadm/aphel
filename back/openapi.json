@@ -67178,7 +67178,7 @@
               "string",
               "null"
             ],
-            "example": "b2b"
+            "example": "sales"
           }
         }
       },
@@ -89057,7 +89057,7 @@
                 },
                 "key": {
                   "type": "string",
-                  "example": "b2b"
+                  "example": "sales"
                 },
                 "locale": {
                   "type": "string"
@@ -96843,6 +96843,7 @@
         "type": "object",
         "required": [
           "key",
+          "required",
           "modules"
         ],
         "properties": {
@@ -96850,6 +96851,12 @@
             "type": "string"
           },
           "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required": {
             "type": "array",
             "items": {
               "type": "string"
@@ -102370,7 +102377,7 @@
           },
           "key": {
             "type": "string",
-            "example": "b2b"
+            "example": "sales"
           },
           "locale": {
             "type": "string"
@@ -109671,7 +109678,7 @@
               "string",
               "null"
             ],
-            "example": "b2b"
+            "example": "sales"
           }
         }
       },

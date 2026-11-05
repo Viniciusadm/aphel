@@ -38,8 +38,6 @@ struct ModuleSpec {
     rev: Option<String>,
     version: Option<String>,
     package: Option<String>,
-    #[serde(default)]
-    required: bool,
 }
 
 struct SelectedModule {
@@ -49,7 +47,6 @@ struct SelectedModule {
 
 struct ResolvedModule {
     key: String,
-    required: bool,
     module_type: String,
     web: Option<PathBuf>,
 }
@@ -124,7 +121,7 @@ fn sync(check: bool) -> Result<bool, Failure> {
     let back = back_dir();
     let selection = read_selection(&back.join(SELECTION))?;
     let blueprint_plugins = blueprint_plugins(&back.join("../blueprints"))?;
-    for module in selection.iter().filter(|module| !module.spec.required) {
+    for module in &selection {
         if !blueprint_plugins.contains(module.key.as_str()) {
             return Err(format!("optional module {} is in no blueprint", module.key).into());
         }
@@ -394,7 +391,6 @@ fn resolve(
         };
         resolved.push(ResolvedModule {
             key: module.key.clone(),
-            required: module.spec.required,
             module_type,
             web,
         });
@@ -549,11 +545,6 @@ fn generated_files(back: &Path, modules: &[ResolvedModule]) -> Result<Vec<Genera
 }
 
 fn rust_registry(modules: &[ResolvedModule]) -> String {
-    let required: Vec<String> = modules
-        .iter()
-        .filter(|module| module.required)
-        .map(|module| format!("    \"{}\",\n", module.key))
-        .collect();
     let compiled: String = modules
         .iter()
         .map(|module| {
@@ -569,12 +560,9 @@ fn rust_registry(modules: &[ResolvedModule]) -> String {
         "use aphel_kernel::errors::AppError;\n\
          use aphel_kernel::modules::{{App, AppBuilder, Module}};\n\
          \n\
-         pub const REQUIRED: &[&str] = &[\n{}];\n\
-         \n\
          pub fn compiled() -> Vec<Box<dyn Module>> {{\n    vec![\n        Box::new(aphel_kernel::KernelModule),\n{}    ]\n}}\n\
          \n\
-         pub fn build() -> Result<App, AppError> {{\n    let builder = AppBuilder::new();\n    #[cfg(feature = \"plugins\")]\n    let builder = {{\n        let mut builder = builder;\n        crate::blueprints::register(&mut builder);\n        builder\n    }};\n    builder\n        .modules(compiled())\n        .require(REQUIRED.iter().copied())\n        .build()\n}}\n",
-        required.concat(),
+         pub fn build() -> Result<App, AppError> {{\n    let builder = AppBuilder::new();\n    #[cfg(feature = \"plugins\")]\n    let builder = {{\n        let mut builder = builder;\n        crate::blueprints::register(&mut builder);\n        builder\n    }};\n    builder\n        .modules(compiled())\n        .build()\n}}\n",
         compiled
     )
 }

@@ -42,8 +42,12 @@ where
 
     pub async fn install(&self, command: InstallCommand) -> Result<Installation, AppError> {
         self.status().await?;
-        let modules =
-            super::modules::prepare(self.ports.app(), &command.modules, &command.module_settings)?;
+        let modules = super::modules::prepare(
+            self.ports.app(),
+            &command.modules,
+            &command.module_settings,
+            command.business.as_ref(),
+        )?;
 
         let mut violations = Vec::new();
         let organization_name = validate_organization_name(

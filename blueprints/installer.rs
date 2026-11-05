@@ -85,17 +85,19 @@ fn catalog() -> &'static aphel_blueprint::Catalog {
     CATALOG.get_or_init(|| aphel_blueprint::embedded().expect("valid embedded blueprints"))
 }
 
-pub fn installer_profiles() -> Vec<aphel_kernel::application::installer::modules::InstallerProfile> {
+pub fn installer_profiles() -> Vec<aphel_kernel::application::installer::modules::InstallerProfile>
+{
     catalog()
         .resolve_all()
         .expect("valid embedded blueprints")
         .into_iter()
-        .map(|blueprint| {
-            aphel_kernel::application::installer::modules::InstallerProfile {
+        .map(
+            |blueprint| aphel_kernel::application::installer::modules::InstallerProfile {
                 key: blueprint.key.clone(),
+                required: blueprint.required.clone(),
                 modules: blueprint.plugins().map(str::to_owned).collect(),
-            }
-        })
+            },
+        )
         .collect()
 }
 

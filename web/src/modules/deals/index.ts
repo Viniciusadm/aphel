@@ -24,7 +24,6 @@ import './slots'
 
 const dealsModule = defineModule({
   key: 'deals',
-  required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   namespaces: {
     notifications: {

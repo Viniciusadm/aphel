@@ -10,7 +10,6 @@ import { contactsRoutes } from './routes'
 
 const contactsModule = defineModule({
   key: 'people',
-  required: true,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('contact.') ? createElement(PeopleDashboardEventLabel, { event }) : label)

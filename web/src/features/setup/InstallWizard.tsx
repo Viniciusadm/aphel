@@ -26,7 +26,7 @@ import { SetupShell } from './components/SetupShell'
 import { EMPTY_BUSINESS, type BusinessAnswers } from './lib/business'
 import { clearDraft, readDraft, writeDraft } from './lib/draft'
 import { ORGANIZATION_FIELDS, SERVER_FIELDS, SERVER_MESSAGES, setupSchema, type SetupValues } from './lib/form'
-import { EMPTY_CHOICE, dependencyClosure, preselect, withoutSecrets, type InstallerCatalog, type ModuleChoice } from './lib/modules'
+import { EMPTY_CHOICE, dependencyClosure, preselect, withIncluded, withoutSecrets, type InstallerCatalog, type ModuleChoice } from './lib/modules'
 import { DRAFT_STEPS, isDraftStep, useStepLabel } from './lib/steps'
 import { organizationSummary } from './lib/summary'
 import { AccountStep } from './steps/AccountStep'
@@ -47,8 +47,8 @@ export function InstallWizard() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const catalogQuery = useInstallerCatalog()
-  const [catalog, setCatalog] = useState<InstallerCatalog | null>(null)
-  if (catalogQuery.data && catalog === null) setCatalog(catalogQuery.data)
+  const [rawCatalog, setCatalog] = useState<InstallerCatalog | null>(null)
+  if (catalogQuery.data && rawCatalog === null) setCatalog(catalogQuery.data)
 
   const [draft] = useState(readDraft)
   const [initialTimezone] = useState(() => {
@@ -70,6 +70,10 @@ export function InstallWizard() {
   })
   const [step, setStep] = useState<string>(isDraftStep(draft?.step) ? draft.step : 'organization')
   const [business, setBusiness] = useState<BusinessAnswers>(draft?.business ?? EMPTY_BUSINESS)
+  const catalog = useMemo(
+    () => (rawCatalog ? withIncluded(rawCatalog, business.business_type) : null),
+    [rawCatalog, business.business_type],
+  )
   const [choice, setChoice] = useState<ModuleChoice>(draft?.choice ?? EMPTY_CHOICE)
   const [preselectedFor, setPreselectedFor] = useState<string | null>(draft?.preselectedFor ?? null)
   const [error, setError] = useState<string | null>(null)
@@ -123,7 +127,7 @@ export function InstallWizard() {
       return
     }
     if (catalog && preselectedFor !== business.business_type) {
-      setChoice(preselect(catalog, business.business_type))
+      setChoice(preselect(withIncluded(catalog, business.business_type), business.business_type))
       setPreselectedFor(business.business_type)
     }
     goTo('features')

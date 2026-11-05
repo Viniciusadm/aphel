@@ -202,6 +202,7 @@ async fn validate_modules(
         &state.app,
         &request.modules,
         &request.module_settings,
+        None,
     )?;
     Ok(StatusCode::NO_CONTENT)
 }

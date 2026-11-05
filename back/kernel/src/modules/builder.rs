@@ -89,7 +89,6 @@ impl LoadedModule {
 
 pub struct AppBuilder {
     pending: Vec<Box<dyn Module>>,
-    required: Vec<&'static str>,
     current: &'static str,
     loaded: Vec<&'static str>,
     pub routes: Vec<Contribution<RouteContribution>>,
@@ -144,7 +143,6 @@ impl AppBuilder {
         let enabled = Arc::new(EnabledModules::new([], []));
         Self {
             pending: Vec::new(),
-            required: Vec::new(),
             current: KERNEL_MODULE,
             loaded: Vec::new(),
             routes: Vec::new(),
@@ -169,11 +167,6 @@ impl AppBuilder {
 
     pub fn modules(mut self, modules: impl IntoIterator<Item = Box<dyn Module>>) -> Self {
         self.pending.extend(modules);
-        self
-    }
-
-    pub fn require(mut self, keys: impl IntoIterator<Item = &'static str>) -> Self {
-        self.required.extend(keys);
         self
     }
 
@@ -471,10 +464,7 @@ impl AppBuilder {
     pub fn build(mut self) -> Result<App, AppError> {
         let mut entries: Vec<(Box<dyn Module>, Manifest)> = Vec::new();
         for module in std::mem::take(&mut self.pending) {
-            let mut manifest = module.manifest();
-            if self.required.contains(&manifest.key()) {
-                manifest = manifest.required();
-            }
+            let manifest = module.manifest();
             if entries
                 .iter()
                 .any(|(_, existing)| existing.key() == manifest.key())

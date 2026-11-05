@@ -1,17 +1,6 @@
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{App, AppBuilder, Module};
 
-pub const REQUIRED: &[&str] = &[
-    "people",
-    "organizations",
-    "deals",
-    "notes",
-    "tagging",
-    "integrations",
-    "exports",
-    "org_export",
-];
-
 pub fn compiled() -> Vec<Box<dyn Module>> {
     vec![
         Box::new(aphel_kernel::KernelModule),
@@ -160,8 +149,5 @@ pub fn build() -> Result<App, AppError> {
         crate::blueprints::register(&mut builder);
         builder
     };
-    builder
-        .modules(compiled())
-        .require(REQUIRED.iter().copied())
-        .build()
+    builder.modules(compiled()).build()
 }
