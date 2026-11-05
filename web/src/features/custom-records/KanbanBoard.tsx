@@ -49,6 +49,7 @@ export interface KanbanBoardProps {
   field: FieldDefinition
   search: string
   canEdit: boolean
+  columnOptions?: { value: string; label: string; color?: string | null }[]
 }
 
 function columnFilter(field: FieldDefinition, value: string | null): FilterNode {
@@ -61,20 +62,22 @@ function columnIdOf(value: unknown): string {
   return typeof value === 'string' && value ? value : EMPTY_COLUMN_ID
 }
 
-export function KanbanBoard({ recordType, field, search, canEdit }: KanbanBoardProps) {
+export function KanbanBoard({ recordType, field, search, canEdit, columnOptions }: KanbanBoardProps) {
   const { t } = useTranslation('objects')
   const resource = requireRecordResource(recordType)
   const queryClient = useQueryClient()
   const [active, setActive] = useState<RecordItem | null>(null)
   const columns = useMemo<KanbanColumnDefinition[]>(
     () => [
-      ...field.options
-        .filter((option) => option.is_active)
-        .sort((left, right) => left.position - right.position)
-        .map((option) => ({ id: option.value, value: option.value, label: option.label, color: option.color })),
+      ...(columnOptions
+        ? columnOptions.map((option) => ({ id: option.value, value: option.value, label: option.label, color: option.color }))
+        : field.options
+            .filter((option) => option.is_active)
+            .sort((left, right) => left.position - right.position)
+            .map((option) => ({ id: option.value, value: option.value, label: option.label, color: option.color }))),
       { id: EMPTY_COLUMN_ID, value: null, label: t('kanban.empty') },
     ],
-    [field.options, t],
+    [field.options, columnOptions, t],
   )
 
   const move = useMutation({

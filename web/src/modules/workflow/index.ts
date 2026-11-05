@@ -6,6 +6,7 @@ import { StageGuidanceRecordTab } from './record-tabs'
 import { PIPELINE_STAGE_REFERENCE_OPTIONS } from './reference-options'
 import { isStagedRecord } from './traits'
 import { RottingBadge } from './rotting/RottingBadge'
+import { StagedBoard } from './StagedBoard'
 import { RottingFilterToggle } from './rotting/RottingFilterToggle'
 import { pipelinesSettingsRoute } from './routes'
 import './slots'
@@ -17,6 +18,7 @@ const pipelinesModule = defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.provideComponent('workflow.RottingBadge', RottingBadge)
+    app.traitListView({ trait: 'workflow.staged', key: 'stages', label: 'stagedBoard.view', icon: Kanban, render: StagedBoard })
     app.ruleError('stage_checklist_incomplete', (messages) =>
       i18n.t('guidance.errors.checklistIncomplete', { ns: 'workflow', items: messages.join(', ') }),
     )

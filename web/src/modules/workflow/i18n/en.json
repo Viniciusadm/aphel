@@ -231,5 +231,10 @@
     "guidance": "Guide the team on this stage",
     "checklistItem": "E.g.: Confirm budget",
     "days": "E.g.: 14"
+  },
+  "stagedBoard": {
+    "view": "Stages",
+    "pipeline": "Pipeline",
+    "unavailable": "This board needs a stage field."
   }
 }

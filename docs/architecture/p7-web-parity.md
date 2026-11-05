@@ -34,7 +34,8 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 
 ## Trait-aware UI (P7.10)
 - [ ] The related deals tab appears on contacts and companies only if the entity catalog reports `party.contact_points` in `traits` (not verified against the backend response).
-- [ ] Not done: kanban board by `workflow.staged`, attachment panel by trait.
+- [ ] A custom object whose entity carries `workflow.staged` shows a Stages view next to List: columns are the active pipeline's stages, a pipeline picker appears with more than one pipeline, dragging a card changes the stage field (needs a staged custom entity to exercise; not verified against the backend).
+- [ ] Not done: attachment panel by trait (no backend trait for it); the deals page keeps its own board.
 
 ## Build without plugins
 - [ ] With `aphel.modules.toml` empty, `make modules` and `npm run typecheck` pass (checked once; restore the generated files afterwards).

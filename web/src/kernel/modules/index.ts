@@ -1,3 +1,4 @@
+export { useTraitListViews, type ResolvedTraitListView } from './trait-views'
 export { useModuleCreateActions, type ModuleCreateAction } from './actions'
 export {
   useContractComponent,

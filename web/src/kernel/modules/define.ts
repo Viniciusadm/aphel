@@ -113,6 +113,21 @@ export interface RecordSectionContribution extends RecordTabContribution {
   summary?: ComponentType<RecordTabRenderProps>
 }
 
+export interface TraitListViewProps {
+  recordType: string
+  traitConfig: unknown
+  search: string
+  canEdit: boolean
+}
+
+export interface TraitListViewContribution {
+  trait: string
+  key: string
+  label: string
+  icon: LucideIcon
+  render: ComponentType<TraitListViewProps>
+}
+
 export interface SlotContribution<P> {
   key?: string
   recordTypes?: RecordTypeSelector
@@ -264,6 +279,7 @@ export interface ModuleApp {
   publicRoutes(routes: RouteObject[]): void
   nav(item: NavContribution): void
   navSection(section: NavSectionContribution): void
+  traitListView(view: TraitListViewContribution): void
   ruleError(code: string, formatter: (messages: string[]) => string): void
   settings(area: SettingsAreaKey, item: SettingsContribution): void
   settingsArea(area: SettingsAreaContribution): void

@@ -231,5 +231,10 @@
     "guidance": "Oriente o time sobre esta etapa",
     "checklistItem": "Ex.: Confirmar orçamento",
     "days": "Ex.: 14"
+  },
+  "stagedBoard": {
+    "view": "Etapas",
+    "pipeline": "Funil",
+    "unavailable": "Este quadro precisa de um campo de etapa."
   }
 }

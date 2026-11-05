@@ -12,6 +12,8 @@ export type {
   SettingsContribution,
   SettingsGroupContribution,
   SlotContribution,
+  TraitListViewContribution,
+  TraitListViewProps,
   WebModule,
 } from '@/kernel/modules/define'
 export { useModuleTranslation, type ModuleTranslate } from '@/kernel/modules/i18n'
@@ -53,5 +55,6 @@ export * from './imports'
 export * from './sso'
 export * from './dashboard'
 export * from './marketplace'
+export { KanbanBoard } from '@/features/custom-records/KanbanBoard'
 export * from './ui'
 export * from './workflow'

@@ -13,6 +13,7 @@ import { RecordFormDialog } from '@/features/records/form'
 import { RecordListView, SearchBox } from '@/features/records/table'
 import type { FieldSchema } from '@/features/records/types'
 import { cn } from '@/lib/utils'
+import { useTraitListViews } from '@/kernel/modules/trait-views'
 import { requiredRelations, useRelationships } from './api'
 import { CustomObjectGate } from './CustomObjectGate'
 import { CustomRecordCreateDialog } from './CustomRecordCreateDialog'
@@ -64,7 +65,10 @@ function CustomRecordsContent({ object }: { object: CustomObject }) {
   )
   const canCreate = hasPermission(objectPermission(object, 'create'))
   const canEdit = hasPermission(objectPermission(object, 'update'))
-  const kanban = searchParams.get(BOARD_PARAM) === KANBAN_MODE && selectFields.length > 0
+  const traitViews = useTraitListViews(recordType)
+  const mode = searchParams.get(BOARD_PARAM)
+  const traitView = traitViews.find((view) => view.key === mode)
+  const kanban = !traitView && mode === KANBAN_MODE && selectFields.length > 0
   const boardField =
     selectFields.find((field) => field.key === searchParams.get(BOARD_FIELD_PARAM)) ?? selectFields[0] ?? null
   const boardSearch = searchParams.get(BOARD_SEARCH_PARAM) ?? ''
@@ -104,21 +108,38 @@ function CustomRecordsContent({ object }: { object: CustomObject }) {
         title={object.label_plural}
         description={<p>{object.description || t('records.description', { label: object.label_plural })}</p>}
         actions={
-          selectFields.length > 0 && (
+          (selectFields.length > 0 || traitViews.length > 0) && (
             <SegmentedControl
               aria-label={t('kanban.modeLabel')}
               size="sm"
-              value={kanban ? 'board' : 'list'}
-              onValueChange={(value) => updateParams({ [BOARD_PARAM]: value === 'board' ? KANBAN_MODE : null })}
+              value={traitView?.key ?? (kanban ? 'board' : 'list')}
+              onValueChange={(value) =>
+                updateParams({ [BOARD_PARAM]: value === 'list' ? null : value === 'board' ? KANBAN_MODE : value })
+              }
               options={[
                 { value: 'list', label: t('kanban.list'), icon: <List aria-hidden /> },
-                { value: 'board', label: t('kanban.board'), icon: <Kanban aria-hidden /> },
+                ...(selectFields.length > 0
+                  ? [{ value: 'board', label: t('kanban.board'), icon: <Kanban aria-hidden /> }]
+                  : []),
+                ...traitViews.map((view) => ({ value: view.key, label: view.label, icon: <view.icon aria-hidden /> })),
               ]}
             />
           )
         }
       />
-      {kanban && boardField ? (
+      {traitView ? (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <SearchBox
+              value={boardSearch}
+              onChange={(value) => updateParams({ [BOARD_SEARCH_PARAM]: value })}
+              className="w-full sm:w-64"
+            />
+            <div className="ml-auto flex flex-wrap items-center gap-2">{newButton}</div>
+          </div>
+          <traitView.render recordType={recordType} traitConfig={traitView.traitConfig} search={boardSearch} canEdit={canEdit} />
+        </div>
+      ) : kanban && boardField ? (
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <SearchBox

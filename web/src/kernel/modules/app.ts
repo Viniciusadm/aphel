@@ -37,6 +37,7 @@ export function createModuleApp(key: string): ModuleApp {
       contribute('nav', key, item, item.order ?? NAV_ORDER.modules)
     },
     ruleError: (code, formatter) => registerRuleError(code, formatter),
+    traitListView: (view) => contribute('traitListViews', key, view),
     navSection: (section) => contribute('navSections', key, section, section.order),
     settings: (area, item) => contribute<SettingsEntry>('settings', key, { area, item }, item.order),
     settingsArea: (area) => contribute<SettingsAreaContribution>('settingsAreas', key, area, area.order),
