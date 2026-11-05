@@ -943,6 +943,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/blueprint/configuration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Applies the installed blueprint's roles and configuration packages again, for example after the first attempt failed. Needs `settings.manage`. Configuration packages reconcile by stable key, so applying twice changes nothing. */
+        post: operations["installed_blueprint_reapply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/booking/availability": {
         parameters: {
             query?: never;
@@ -9503,6 +9520,7 @@ export interface components {
         };
         BlueprintResponse: {
             blueprint?: null | components["schemas"]["InstallerIdentity"];
+            configuration_error?: string | null;
         };
         BoardColumnResponse: {
             /** Format: int64 */
@@ -11330,6 +11348,7 @@ export interface components {
         Data_BlueprintResponse: {
             data: {
                 blueprint?: null | components["schemas"]["InstallerIdentity"];
+                configuration_error?: string | null;
             };
         };
         Data_BoardResponse: {
@@ -16656,6 +16675,7 @@ export interface components {
             home?: string | null;
             key: string;
             name: string;
+            sections: components["schemas"]["InstallerSection"][];
         };
         InstallerModuleResponse: {
             compatible: boolean;
@@ -16685,6 +16705,11 @@ export interface components {
         };
         InstallerRestoreResponse: {
             restored: boolean;
+        };
+        InstallerSection: {
+            items: string[];
+            key: string;
+            label: string;
         };
         InstallerStatusResponse: {
             available: boolean;
@@ -27312,6 +27337,65 @@ export interface operations {
             };
             /** @description Missing or invalid credentials */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    installed_blueprint_reapply: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Applied */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_BlueprintResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

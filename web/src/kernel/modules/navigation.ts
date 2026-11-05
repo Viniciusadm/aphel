@@ -4,6 +4,7 @@ import type { NavContribution, NavSectionContribution } from './define'
 import { NO_FILTER_CONTEXT, useFilters } from './filters'
 import { useLabelTranslator } from './i18n'
 import { pluginMenus, type PluginMenu } from './wasm_runtime'
+import { useInstalledBlueprint, type BlueprintSection } from './blueprint'
 import { sortContributions, useActiveContributions, usePermissionCheck } from './registry'
 import { ORGANIZATION_AREA, useAdminAreas, useAllowedSettingsAreas } from './settings'
 
@@ -34,16 +35,21 @@ export interface ResolvedNavSection {
 export function useNavSections(): ResolvedNavSection[] {
   const items = useActiveContributions<NavSectionContribution>('navSections')
   const translate = useLabelTranslator()
-  return useMemo(
-    () =>
-      sortContributions(items)
-        .filter(({ value }, index, all) => all.findIndex((other) => other.value.key === value.key) === index)
-        .map(({ module, value }) => ({ key: value.key, label: translate(module, value.label) })),
-    [items, translate],
-  )
+  const blueprint = useInstalledBlueprint()
+  return useMemo(() => {
+    const declared = sortContributions(items)
+      .filter(({ value }, index, all) => all.findIndex((other) => other.value.key === value.key) === index)
+      .map(({ module, value }) => ({ key: value.key, label: translate(module, value.label) }))
+    const chosen = (blueprint.data?.sections ?? []).map(({ key, label }) => ({ key, label }))
+    return [...chosen, ...declared.filter((section) => !chosen.some((other) => other.key === section.key))]
+  }, [items, translate, blueprint.data])
 }
 
 export const SETTINGS_ENTRY_KEY = 'settings'
+
+function sectionFor(module: string, declared: string | undefined, sections: BlueprintSection[] | undefined) {
+  return sections?.find((section) => section.items.includes(module))?.key ?? declared
+}
 
 export function navigationKey(to: string): string {
   return to === '/' ? 'home' : to.replace(/^\/+/, '')
@@ -76,6 +82,7 @@ export function useNavigationEntries(): NavigationEntry[] {
   const allowed = usePermissionCheck()
   const translate = useLabelTranslator()
   const settingsAccess = useAllowedSettingsAreas(useAdminAreas()).length > 0
+  const blueprint = useInstalledBlueprint()
   const entries = useMemo<NavigationEntry[]>(() => {
     const modules = items
       .filter(({ value }) => allowed(value.permission))
@@ -88,7 +95,7 @@ export function useNavigationEntries(): NavigationEntry[] {
         order,
         end: value.end,
         badge: value.badge,
-        section: value.section,
+        section: sectionFor(module, value.section, blueprint.data?.sections),
         mobile: value.mobile,
         group: value.group && { ...value.group, label: translate(module, value.group.label) },
       }))
@@ -106,7 +113,7 @@ export function useNavigationEntries(): NavigationEntry[] {
         section: ADMINISTRATION_NAV_SECTION,
       },
     ]
-  }, [items, allowed, translate, settingsAccess])
+  }, [items, allowed, translate, settingsAccess, blueprint.data])
   const arranged = useMemo(() => applyPluginMenus(entries, pluginMenus()), [entries])
   return useFilters('navigation.items', arranged, NO_FILTER_CONTEXT)
 }

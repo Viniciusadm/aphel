@@ -23,7 +23,12 @@ Compilation, lint, the arch check and `make probe` do not prove behaviour. Check
 - Every other business type (freelancer, real estate, consultancy, SaaS, B2B sales, other) installed through the API on a fresh database with the profile's recommended modules (those without required settings): all return 201, the blueprint endpoint returns the chosen key, the blueprint's required plugins are enabled, `Funil padrão` and six lost reasons exist and the server log has no errors. The UI selection step was only exercised for Agency.
 - Not checked: a plugin that provides a built-in contract, manifests with `conflicts_with`.
 
+## Checked in Chrome after the follow-up (2026-11-06)
+- A blueprint whose package does not exist: the install succeeds, `GET /api/v1/blueprint` returns `configuration_error`, admins see the banner, and after fixing the package the retry button applied it (pipeline created, banner gone).
+- A blueprint with `[[roles]]` creates the role with only the valid permissions; a blueprint with `navigation.sections` shows its own sidebar section (`Pipeline` with Empresas and Oportunidades). These two used a temporary change to `blueprints/crm`, reverted afterwards.
+
 ## Known gaps
-- Blueprint navigation sections, roles and theme are parsed and resolved but only `navigation.home` is applied.
+- `configuration.theme` is parsed but not applied.
+- Navigation section labels are literal text, not translated.
 - Structural `is_system` seeds (task types, call outcomes, lead disqualification reasons, deal member roles) remain module seeds, run only for enabled modules.
 - `aphel.modules.toml` still decides what is compiled; build selection by blueprint is deferred.

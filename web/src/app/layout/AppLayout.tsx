@@ -11,6 +11,7 @@ import { readStorage, writeStorage } from '@/lib/storage'
 import { OfflineShell } from '@/pwa/offline/OfflineShell'
 import { PwaShell } from '@/pwa/PwaShell'
 import { ExtensionLoadNotice } from './ExtensionLoadNotice'
+import { BlueprintNotice } from './BlueprintNotice'
 import { HomeRedirect } from './HomeRedirect'
 import { applyStoredLanguage } from './language'
 import { LanguageSync } from './LanguageSync'
@@ -64,6 +65,7 @@ export function AppLayout() {
           <div className="flex min-w-0 flex-1 flex-col">
             <Topbar />
             <main className={cn('flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
+              <BlueprintNotice />
               <Outlet />
             </main>
           </div>

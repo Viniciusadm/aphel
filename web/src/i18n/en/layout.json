@@ -36,5 +36,10 @@
     "openSettings": "Open settings"
   },
   "extensionsFailedTitle": "Part of the system did not load",
-  "extensionsFailed": "{{names}} did not load. Tell your system administrator."
+  "extensionsFailed": "{{names}} did not load. Tell your system administrator.",
+  "blueprint": {
+    "configurationFailed": "The initial configuration of this system did not finish: {{error}}",
+    "retry": "Try again",
+    "retrying": "Applying..."
+  }
 }

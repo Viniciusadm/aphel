@@ -14,6 +14,7 @@ use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, ClientInfo, JsonBody};
 use crate::api::session_cookie;
 use crate::api::state::AppState;
+use crate::application::access::Authorizer;
 use crate::application::auth::LoginCommand;
 use crate::application::installer::{InstallCommand, InstallerUseCases};
 use crate::domain::Secret;
@@ -27,6 +28,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(installer_status, install))
         .routes(routes!(validate_modules))
         .routes(routes!(installed_blueprint))
+        .routes(routes!(reapply_blueprint))
 }
 
 #[utoipa::path(
@@ -152,19 +154,8 @@ async fn install(
         }
     }
     state.organization_config.refresh().await;
-    match crate::Ctx::from_state(&state, &scope).await {
-        Ok(context) => {
-            if let Err(error) = crate::application::installer::apply_blueprint_configuration(
-                &context,
-                business.as_ref(),
-            )
-            .await
-            {
-                tracing::error!("blueprint configuration failed: {error}");
-            }
-        }
-        Err(error) => tracing::error!("blueprint configuration context failed: {error}"),
-    }
+    let outcome = apply_blueprint(&state, &scope, business.as_ref()).await;
+    record_configuration(&state, outcome).await;
     let session = state
         .auth_use_cases()?
         .login(LoginCommand {
@@ -226,6 +217,7 @@ async fn validate_modules(
 #[derive(Debug, serde::Serialize, utoipa::ToSchema)]
 pub struct BlueprintResponse {
     pub blueprint: Option<crate::application::installer::modules::InstallerIdentity>,
+    pub configuration_error: Option<String>,
 }
 
 #[utoipa::path(
@@ -244,14 +236,12 @@ async fn installed_blueprint(
     State(state): State<AppState>,
     _tenant: AuthContext,
 ) -> Result<Json<Data<BlueprintResponse>>, ApiError> {
-    let key: Option<String> = sqlx::query_scalar(
-        "SELECT JSON_UNQUOTE(JSON_EXTRACT(settings, '$.installer.business_type')) \
-         FROM organization_settings WHERE id = 1",
-    )
-    .fetch_optional(&state.db()?)
-    .await
-    .map_err(AppError::from)?
-    .flatten();
+    let installer = installer_settings(&state).await?;
+    let key = installer
+        .as_ref()
+        .and_then(|value| value.get("business_type"))
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_owned);
     let blueprint = key.and_then(|key| {
         state
             .app
@@ -259,5 +249,131 @@ async fn installed_blueprint(
             .into_iter()
             .find_map(|source| source.identity(&key))
     });
-    Ok(Json(Data::new(BlueprintResponse { blueprint })))
+    let configuration_error = installer
+        .as_ref()
+        .and_then(|value| value.get("configuration_error"))
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_owned);
+    Ok(Json(Data::new(BlueprintResponse {
+        blueprint,
+        configuration_error,
+    })))
+}
+
+#[utoipa::path(
+    post,
+    path = "/blueprint/configuration",
+    tag = TAG,
+    operation_id = "installed_blueprint_reapply",
+    security(("session_cookie" = [])),
+    description = "Applies the installed blueprint's roles and configuration packages again, for example after the first attempt failed. Needs `settings.manage`. Configuration packages reconcile by stable key, so applying twice changes nothing.",
+    responses(
+        (status = 200, description = "Applied", body = Data<BlueprintResponse>),
+        (status = 401, description = "Missing or invalid credentials", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+    )
+)]
+async fn reapply_blueprint(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<BlueprintResponse>>, ApiError> {
+    tenant
+        .scope
+        .require(&crate::domain::access::Permission::SETTINGS_MANAGE)?;
+    let business = installer_settings(&state).await?;
+    let outcome = apply_blueprint(&state, &tenant.scope, business.as_ref()).await;
+    record_configuration(&state, outcome).await;
+    installed_blueprint(State(state), tenant).await
+}
+
+async fn installer_settings(state: &AppState) -> Result<Option<serde_json::Value>, AppError> {
+    let document: Option<serde_json::Value> = sqlx::query_scalar(
+        "SELECT JSON_EXTRACT(settings, '$.installer') FROM organization_settings WHERE id = 1",
+    )
+    .fetch_optional(&state.db()?)
+    .await?
+    .flatten();
+    Ok(document)
+}
+
+async fn apply_blueprint(
+    state: &AppState,
+    scope: &crate::domain::access::AccessScope,
+    business: Option<&serde_json::Value>,
+) -> Result<(), AppError> {
+    install_blueprint_roles(state, business).await?;
+    let context = crate::Ctx::from_state(state, scope).await?;
+    crate::application::installer::apply_blueprint_configuration(&context, business).await
+}
+
+async fn install_blueprint_roles(
+    state: &AppState,
+    business: Option<&serde_json::Value>,
+) -> Result<(), AppError> {
+    let pool = state.db()?;
+    let known: std::collections::HashSet<String> =
+        crate::domain::access::permission::permission_catalog()
+            .into_iter()
+            .map(|definition| definition.permission.as_str().to_owned())
+            .collect();
+    for source in state
+        .app
+        .contributions::<dyn crate::application::installer::InstallerBlueprintSource>()
+    {
+        for role in source.roles(business) {
+            sqlx::query(
+                "INSERT IGNORE INTO roles (id, `key`, name, is_system) VALUES (?, ?, ?, FALSE)",
+            )
+            .bind(uuid::Uuid::now_v7().to_string())
+            .bind(&role.key)
+            .bind(&role.label)
+            .execute(&pool)
+            .await?;
+            let id: String = sqlx::query_scalar("SELECT id FROM roles WHERE `key` = ?")
+                .bind(&role.key)
+                .fetch_one(&pool)
+                .await?;
+            for permission in role
+                .permissions
+                .iter()
+                .filter(|permission| known.contains(*permission))
+            {
+                sqlx::query(
+                    "INSERT IGNORE INTO role_permissions (role_id, permission, scope) VALUES (?, ?, 'organization')",
+                )
+                .bind(&id)
+                .bind(permission)
+                .execute(&pool)
+                .await?;
+            }
+        }
+    }
+    Ok(())
+}
+
+async fn record_configuration(state: &AppState, outcome: Result<(), AppError>) {
+    let Ok(pool) = state.db() else {
+        return;
+    };
+    let result = match outcome {
+        Ok(()) => {
+            sqlx::query(
+                "UPDATE organization_settings SET settings = JSON_REMOVE(COALESCE(settings, JSON_OBJECT()), '$.installer.configuration_error') WHERE id = 1",
+            )
+            .execute(&pool)
+            .await
+        }
+        Err(error) => {
+            tracing::error!("blueprint configuration failed: {error}");
+            sqlx::query(
+                "UPDATE organization_settings SET settings = JSON_SET(COALESCE(settings, JSON_OBJECT()), '$.installer.configuration_error', ?) WHERE id = 1",
+            )
+            .bind(error.to_string())
+            .execute(&pool)
+            .await
+        }
+    };
+    if let Err(error) = result {
+        tracing::error!("could not record the blueprint configuration state: {error}");
+    }
 }

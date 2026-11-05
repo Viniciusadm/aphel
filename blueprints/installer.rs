@@ -128,8 +128,47 @@ impl aphel_kernel::application::installer::InstallerBlueprintSource for Blueprin
                 key: blueprint.key,
                 name: blueprint.name,
                 home: blueprint.navigation.home,
+                sections: blueprint
+                    .navigation
+                    .sections
+                    .into_iter()
+                    .map(|section| {
+                        aphel_kernel::application::installer::modules::InstallerSection {
+                            key: section.key,
+                            label: section.label,
+                            items: section.items,
+                        }
+                    })
+                    .collect(),
             },
         )
+    }
+    fn roles(
+        &self,
+        business: Option<&serde_json::Value>,
+    ) -> Vec<aphel_kernel::application::installer::modules::InstallerRole> {
+        let Some(key) = business
+            .and_then(|business| business.get("business_type"))
+            .and_then(serde_json::Value::as_str)
+        else {
+            return Vec::new();
+        };
+        catalog()
+            .resolve(key)
+            .map(|blueprint| {
+                blueprint
+                    .roles
+                    .into_iter()
+                    .map(
+                        |role| aphel_kernel::application::installer::modules::InstallerRole {
+                            key: role.key,
+                            label: role.label,
+                            permissions: role.permissions,
+                        },
+                    )
+                    .collect()
+            })
+            .unwrap_or_default()
     }
     fn validate(
         &self,

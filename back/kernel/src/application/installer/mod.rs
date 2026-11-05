@@ -12,6 +12,7 @@ pub trait InstallerBlueprintSource: Send + Sync {
     fn profiles(&self) -> Vec<modules::InstallerProfile>;
     fn packages(&self, business: Option<&serde_json::Value>) -> Vec<String>;
     fn identity(&self, key: &str) -> Option<modules::InstallerIdentity>;
+    fn roles(&self, business: Option<&serde_json::Value>) -> Vec<modules::InstallerRole>;
     fn validate(
         &self,
         input: Option<serde_json::Value>,

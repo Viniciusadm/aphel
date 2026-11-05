@@ -35,6 +35,21 @@ pub struct InstallerIdentity {
     pub key: String,
     pub name: String,
     pub home: Option<String>,
+    pub sections: Vec<InstallerSection>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
+pub struct InstallerSection {
+    pub key: String,
+    pub label: String,
+    pub items: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
+pub struct InstallerRole {
+    pub key: String,
+    pub label: String,
+    pub permissions: Vec<String>,
 }
 
 pub fn blueprint_required(business: Option<&Value>) -> Vec<String> {

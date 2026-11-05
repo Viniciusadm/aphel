@@ -36,5 +36,10 @@
     "openSettings": "Abrir configurações"
   },
   "extensionsFailedTitle": "Parte do sistema não carregou",
-  "extensionsFailed": "{{names}} não carregou. Avise o administrador do sistema."
+  "extensionsFailed": "{{names}} não carregou. Avise o administrador do sistema.",
+  "blueprint": {
+    "configurationFailed": "A configuração inicial deste sistema não terminou: {{error}}",
+    "retry": "Tentar de novo",
+    "retrying": "Aplicando..."
+  }
 }

@@ -6545,6 +6545,85 @@
         "x-aphel-module": "kernel"
       }
     },
+    "/api/v1/blueprint/configuration": {
+      "post": {
+        "tags": [
+          "installer"
+        ],
+        "description": "Applies the installed blueprint's roles and configuration packages again, for example after the first attempt failed. Needs `settings.manage`. Configuration packages reconcile by stable key, so applying twice changes nothing.",
+        "operationId": "installed_blueprint_reapply",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_BlueprintResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          }
+        ],
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/booking/availability": {
       "get": {
         "tags": [
@@ -68938,6 +69017,12 @@
                 "$ref": "#/components/schemas/InstallerIdentity"
               }
             ]
+          },
+          "configuration_error": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -76125,6 +76210,12 @@
                   {
                     "$ref": "#/components/schemas/InstallerIdentity"
                   }
+                ]
+              },
+              "configuration_error": {
+                "type": [
+                  "string",
+                  "null"
                 ]
               }
             }
@@ -96853,7 +96944,8 @@
         "type": "object",
         "required": [
           "key",
-          "name"
+          "name",
+          "sections"
         ],
         "properties": {
           "home": {
@@ -96867,6 +96959,12 @@
           },
           "name": {
             "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstallerSection"
+            }
           }
         }
       },
@@ -96980,6 +97078,28 @@
         "properties": {
           "restored": {
             "type": "boolean"
+          }
+        }
+      },
+      "InstallerSection": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
           }
         }
       },

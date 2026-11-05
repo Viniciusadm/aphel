@@ -92,6 +92,9 @@ async fn enable_module(
     let view = module_use_cases(&state)?
         .enable(&tenant.scope, &key)
         .await?;
+    if let Err(error) = seed_enabled_module(&state, &key).await {
+        tracing::error!(module = key, "seeding the defaults failed: {error}");
+    }
     Ok(Json(Data::new(view.into())))
 }
 
@@ -205,4 +208,9 @@ async fn purge_module_data(
         .purge_data(&tenant.scope, &key, &request.confirm)
         .await?;
     Ok(Json(Data::new(view.into())))
+}
+
+async fn seed_enabled_module(state: &AppState, key: &str) -> Result<(), crate::errors::AppError> {
+    let mut connection = state.db()?.acquire().await?;
+    crate::infrastructure::defaults::seed_defaults(&mut connection, &[key.to_owned()]).await
 }

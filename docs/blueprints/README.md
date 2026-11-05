@@ -45,6 +45,15 @@ The `aphel-blueprint` crate (`back/blueprint`) parses every `blueprints/*/bluepr
 
 `crm` is today's product: the eight core plugins as `required` plus the shared recommended set. `freelancer`, `agency`, `real_estate`, `consultancy`, `saas`, `sales` (B2B) and `other` extend it with their own recommended plugins. `freelancer`, `agency`, `real_estate`, `saas` and `sales` also carry a configuration package per locale in `config/<locale>.json`; the package templates catalog reads them, with the blueprint key as the template key.
 
+## Applied at install
+
+- `plugins.required` plugins are enabled and locked by the installer.
+- `[[roles]]` are created after the install (only permissions the build knows are granted, organization wide; existing roles with the same key are left alone).
+- `navigation.sections` replace the module-declared sidebar sections: `items` are plugin keys; sections the blueprint does not claim keep their module-declared ones. `navigation.home` is where `/` redirects when that item is enabled; labels are literal text.
+- `configuration.theme` is parsed but not applied yet.
+
 ## Install-time configuration
 
-After the installation transaction the installer enables the blueprint's required plugins and applies its `configuration.packages` through the `config_packages` module (`BlueprintConfigurator`), with the administrator's scope. `crm` ships the default pipeline and lost reasons (localized in `config/<locale>.json`); a blank system, or a build without `config_packages`, applies nothing. Other templates in `blueprints/*/config/` stay selectable as packages and are suggested by onboarding.
+After the installation transaction the installer enables the blueprint's required plugins and applies its `configuration.packages` through the `config_packages` module (`BlueprintConfigurator`), with the administrator's scope. `crm` ships the default pipeline and lost reasons (localized in `config/<locale>.json`); a blank system, or a build without `config_packages`, applies nothing. If applying fails, the message is kept in `organization_settings.settings.installer.configuration_error`, `GET /api/v1/blueprint` returns it and administrators see a banner with a retry button (`POST /api/v1/blueprint/configuration`, `settings.manage`). Other templates in `blueprints/*/config/` stay selectable as packages and are suggested by onboarding.
+
+Enabling a module later (`POST /api/v1/modules/{key}/enable`) runs its default seeds immediately.
