@@ -228,7 +228,7 @@
       "systemManage": "Administrar o sistema (fila de jobs e manutenção)",
       "privacyManage": "Gerenciar privacidade (LGPD) e retenção de dados",
       "automationsManage": "Gerenciar automações",
-      "leadDistributionManage": "Gerenciar regras de distribuição de leads",
+      "assignmentManage": "Gerenciar regras de distribuição de leads",
       "organizationExport": "Exportar todos os dados da organização",
       "sequencesManage": "Gerenciar sequências",
       "recordsShare": "Compartilhar qualquer registro",

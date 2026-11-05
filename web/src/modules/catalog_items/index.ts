@@ -15,7 +15,7 @@ const productsModule = defineModule({
   register(app) {
     app.slot('line_items.catalogPicker', { key: 'catalog', render: ({ currency, disabled, onSelect }) => React.createElement(ProductPicker, { currency, disabled, onSelect: (product) => onSelect(product.id) }) })
     app.routes(productsRoutes)
-    app.nav({ to: '/catalog-items', label: 'nav.products', icon: Package, permission: ['catalog_items.read'], order: 60 })
+    app.nav({ shortcut: 'p', to: '/catalog-items', label: 'nav.products', icon: Package, permission: ['catalog_items.read'], order: 60 })
   },
 })
 

@@ -16,14 +16,14 @@ import { switchInstallerLanguage } from '@/kernel/modules/i18n'
 import { SetupStepFrame } from '@/kernel/setup'
 import type { SetupValues } from '../lib/form'
 
-interface CompanyStepProps {
+interface OrganizationStepProps {
   form: UseFormReturn<SetupValues>
   error: string | null
   onNext: () => void
   onRestore: () => void
 }
 
-export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps) {
+export function OrganizationStep({ form, error, onNext, onRestore }: OrganizationStepProps) {
   const { t, i18n } = useTranslation('setup')
   const {
     register,
@@ -36,8 +36,8 @@ export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps
 
   return (
     <SetupStepFrame
-      title={t('company.title')}
-      description={t('company.description')}
+      title={t('organization.title')}
+      description={t('organization.description')}
       error={error}
       primary={{ label: t('actions.next'), onClick: onNext }}
       aside={
@@ -46,11 +46,11 @@ export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps
           className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           onClick={onRestore}
         >
-          {t('company.restore')}
+          {t('organization.restore')}
         </button>
       }
     >
-      <FormRow id="setup-locale" label={t('company.fields.locale')} hint={t('company.hints.locale')} error={message(errors.locale?.message)}>
+      <FormRow id="setup-locale" label={t('organization.fields.locale')} hint={t('organization.hints.locale')} error={message(errors.locale?.message)}>
         {(describedBy) => (
           <NativeSelect
             id="setup-locale"
@@ -69,7 +69,7 @@ export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps
           </NativeSelect>
         )}
       </FormRow>
-      <FormRow id="setup-organization-name" label={t('company.fields.organizationName')} error={message(errors.organizationName?.message)}>
+      <FormRow id="setup-organization-name" label={t('organization.fields.organizationName')} error={message(errors.organizationName?.message)}>
         {(describedBy) => (
           <Input placeholder={t('placeholders.organizationName')}
             id="setup-organization-name"
@@ -81,7 +81,7 @@ export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps
         )}
       </FormRow>
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormRow id="setup-timezone" label={t('company.fields.timezone')} hint={t('company.hints.timezone')} error={message(errors.timezone?.message)}>
+        <FormRow id="setup-timezone" label={t('organization.fields.timezone')} hint={t('organization.hints.timezone')} error={message(errors.timezone?.message)}>
           {(describedBy) => (
             <NativeSelect id="setup-timezone" aria-describedby={describedBy} {...register('timezone')}>
               {timezones.map((zone) => (
@@ -92,7 +92,7 @@ export function CompanyStep({ form, error, onNext, onRestore }: CompanyStepProps
             </NativeSelect>
           )}
         </FormRow>
-        <FormRow id="setup-currency" label={t('company.fields.currency')} hint={t('company.hints.currency')} error={message(errors.currency?.message)}>
+        <FormRow id="setup-currency" label={t('organization.fields.currency')} hint={t('organization.hints.currency')} error={message(errors.currency?.message)}>
           {(describedBy) => (
             <NativeSelect id="setup-currency" aria-describedby={describedBy} {...register('currency')}>
               {currencies.map((code) => (

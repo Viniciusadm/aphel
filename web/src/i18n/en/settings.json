@@ -228,7 +228,7 @@
       "systemManage": "Administer the system (job queue and maintenance)",
       "privacyManage": "Manage privacy (LGPD) and data retention",
       "automationsManage": "Manage automations",
-      "leadDistributionManage": "Manage lead distribution rules",
+      "assignmentManage": "Manage lead distribution rules",
       "organizationExport": "Export all organization data",
       "sequencesManage": "Manage sequences",
       "recordsShare": "Share any record",

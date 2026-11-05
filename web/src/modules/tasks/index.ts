@@ -28,8 +28,8 @@ const activitiesModule = defineModule({
     app.slot('dashboard.source', { key: 'tasks.pending', render: ({ collection, source, data }) => collection === 'pending' && source === 'tasks.pending' ? createElement(TaskPendingSections, { data: data as TaskPendingData }) : null })
     app.slot('calendar.create', { key: 'tasks', permission: 'tasks.create', render: CalendarCreateDialog })
     app.routes([...activitiesRoutes, ...inboxRoutes])
-    app.nav({ section: 'work', to: '/tasks', label: 'nav.tasks', icon: CheckSquare, permission: TASKS_READ, order: 80 })
-    app.nav({ section: 'work', to: '/inbox', label: 'nav.inbox', icon: Inbox, permission: TASKS_READ, order: 90 })
+    app.nav({ section: 'work', shortcut: 't', to: '/tasks', label: 'nav.tasks', icon: CheckSquare, permission: TASKS_READ, order: 80 })
+    app.nav({ section: 'work', shortcut: 'i', to: '/inbox', label: 'nav.inbox', icon: Inbox, permission: TASKS_READ, order: 90 })
     app.createAction({
       id: 'task',
       label: 'createAction.label',

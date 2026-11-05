@@ -13,7 +13,7 @@ const companiesModule = defineModule({
   register(app) {
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('company.') ? createElement(OrganizationsDashboardEventLabel, { event }) : label)
     app.routes(companiesRoutes)
-    app.nav({ section: 'records', to: COMPANIES_PATH, label: 'nav.organizations', icon: Building2, permission: ['organizations.read'], order: 40 })
+    app.nav({ section: 'records', shortcut: 'e', to: COMPANIES_PATH, label: 'nav.organizations', icon: Building2, permission: ['organizations.read'], order: 40 })
     app.createAction({
       id: 'company',
       label: 'createAction.label',

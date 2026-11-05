@@ -5,7 +5,7 @@ import { withExclusiveLock } from './lock'
 import { isNetworkFailure, isOnline } from './network'
 import { getCurrentOwner, type OfflineOwner } from './owner'
 
-export type OutboxKind = 'activity' | 'note' | 'contact' | 'call'
+export type OutboxKind = string
 
 export interface OutboxSubmission {
   kind: OutboxKind

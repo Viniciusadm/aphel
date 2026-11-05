@@ -29,7 +29,7 @@ export function SetupPage() {
     return (
       <SetupShell>
         <SetupStepFrame
-          title={t('company.title')}
+          title={t('organization.title')}
           error={t('errors.statusFailed')}
           primary={{ label: t('retry'), onClick: () => void installer.refetch() }}
         />
@@ -57,7 +57,7 @@ function ResumeSetup() {
       return (
         <SetupShell>
           <SetupStepFrame
-            title={t('company.title')}
+            title={t('organization.title')}
             error={t('errors.statusFailed')}
             primary={{ label: t('retry'), onClick: () => void session.refetch() }}
           />

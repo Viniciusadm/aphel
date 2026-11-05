@@ -19,6 +19,7 @@ export interface NavigationEntry {
   badge?: ComponentType<{ collapsed?: boolean }>
   group?: { key: string; label: string; icon: LucideIcon }
   section?: string
+  mobile?: boolean
 }
 
 export const DEFAULT_NAV_SECTION = 'operations'
@@ -102,6 +103,7 @@ export function useNavigationEntries(): NavigationEntry[] {
         end: value.end,
         badge: value.badge,
         section: value.section,
+        mobile: value.mobile,
         group: value.group && { ...value.group, label: translate(module, value.group.label) },
       }))
     if (!settingsAccess) return modules

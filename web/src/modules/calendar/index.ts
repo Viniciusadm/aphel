@@ -11,6 +11,6 @@ export default defineModule({
   },
   register(app) {
     app.routes(calendarRoutes)
-    app.nav({ section: 'work', to: '/calendar', label: 'navigation', icon: CalendarDays, permission: ['calendar.read'], order: 110 })
+    app.nav({ section: 'work', shortcut: 'a', to: '/calendar', label: 'navigation', icon: CalendarDays, permission: ['calendar.read'], order: 110 })
   },
 })

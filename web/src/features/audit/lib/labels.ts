@@ -3,11 +3,6 @@ import type { ParseKeys } from 'i18next'
 type AuditKey = ParseKeys<'audit'>
 
 const recordTypeLabels: Record<string, AuditKey> = {
-  contact: 'recordTypes.contact',
-  company: 'recordTypes.company',
-  deal: 'recordTypes.deal',
-  activity: 'recordTypes.activity',
-  note: 'recordTypes.note',
   file: 'recordTypes.file',
   member: 'recordTypes.member',
   role: 'recordTypes.role',

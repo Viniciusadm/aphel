@@ -1,4 +1,5 @@
 import type { ParseKeys } from 'i18next'
+import i18n from '@/i18n'
 
 export const USERS_MANAGE = 'users.manage'
 export const SETTINGS_MANAGE = 'settings.manage'
@@ -15,20 +16,6 @@ export const SEQUENCES_MANAGE = 'sequences.manage'
 export const RECORDS_SHARE = 'records.share'
 
 type SettingsKey = ParseKeys<'settings'>
-
-const moduleLabels: Record<string, SettingsKey> = {
-  people: 'permissions.modules.people',
-  organizations: 'permissions.modules.organizations',
-  deals: 'permissions.modules.deals',
-  tasks: 'permissions.modules.tasks',
-  notes: 'permissions.modules.notes',
-  emails: 'permissions.modules.emails',
-  sequences: 'permissions.modules.sequences',
-  booking: 'permissions.modules.booking',
-  goals: 'permissions.modules.goals',
-  catalog_items: 'permissions.modules.catalog_items',
-  quotes: 'permissions.modules.quotes',
-}
 
 const actionLabels: Record<string, SettingsKey> = {
   read: 'permissions.actions.read',
@@ -49,7 +36,7 @@ const administrativeLabels: Record<string, SettingsKey> = {
   [SYSTEM_MANAGE]: 'permissions.administrative.systemManage',
   [PRIVACY_MANAGE]: 'permissions.administrative.privacyManage',
   [AUTOMATIONS_MANAGE]: 'permissions.administrative.automationsManage',
-  [ASSIGNMENT_MANAGE]: 'permissions.administrative.leadDistributionManage',
+  [ASSIGNMENT_MANAGE]: 'permissions.administrative.assignmentManage',
   [ORGANIZATION_EXPORT]: 'permissions.administrative.organizationExport',
   [SEQUENCES_MANAGE]: 'permissions.administrative.sequencesManage',
   [RECORDS_SHARE]: 'permissions.administrative.recordsShare',
@@ -71,7 +58,8 @@ export function permissionModule(permission: string, recordScoped: boolean): str
 
 export function moduleLabel(module: string): PermissionLabel {
   if (module === ADMINISTRATION_MODULE) return { key: 'permissions.modules.administration', fallback: module }
-  return { key: moduleLabels[module], fallback: module }
+  const key = `permissions.modules.${module}`
+  return { key: i18n.exists(key, { ns: 'settings' }) ? (key as SettingsKey) : undefined, fallback: module }
 }
 
 export function permissionLabel(permission: string, recordScoped: boolean, label?: string | null): PermissionLabel {

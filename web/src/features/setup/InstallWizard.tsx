@@ -25,13 +25,13 @@ import { SetupProgress } from './components/SetupProgress'
 import { SetupShell } from './components/SetupShell'
 import { EMPTY_BUSINESS, type BusinessAnswers } from './lib/business'
 import { clearDraft, readDraft, writeDraft } from './lib/draft'
-import { COMPANY_FIELDS, SERVER_FIELDS, SERVER_MESSAGES, setupSchema, type SetupValues } from './lib/form'
+import { ORGANIZATION_FIELDS, SERVER_FIELDS, SERVER_MESSAGES, setupSchema, type SetupValues } from './lib/form'
 import { EMPTY_CHOICE, dependencyClosure, preselect, withoutSecrets, type InstallerCatalog, type ModuleChoice } from './lib/modules'
 import { DRAFT_STEPS, isDraftStep, useStepLabel } from './lib/steps'
-import { companySummary } from './lib/summary'
+import { organizationSummary } from './lib/summary'
 import { AccountStep } from './steps/AccountStep'
 import { BusinessStep } from './steps/BusinessStep'
-import { CompanyStep } from './steps/CompanyStep'
+import { OrganizationStep } from './steps/OrganizationStep'
 import { EmailStep } from './steps/EmailStep'
 import { FeaturesStep } from './steps/FeaturesStep'
 import { ReadyStep, type ReadyResult } from './steps/ReadyStep'
@@ -68,7 +68,7 @@ export function InstallWizard() {
       adminPassword: '',
     },
   })
-  const [step, setStep] = useState<string>(isDraftStep(draft?.step) ? draft.step : 'company')
+  const [step, setStep] = useState<string>(isDraftStep(draft?.step) ? draft.step : 'organization')
   const [business, setBusiness] = useState<BusinessAnswers>(draft?.business ?? EMPTY_BUSINESS)
   const [choice, setChoice] = useState<ModuleChoice>(draft?.choice ?? EMPTY_CHOICE)
   const [preselectedFor, setPreselectedFor] = useState<string | null>(draft?.preselectedFor ?? null)
@@ -101,7 +101,7 @@ export function InstallWizard() {
   const hasProfiles = Boolean(catalog?.profiles.length)
   const hasModules = Boolean(catalog?.modules.some((module) => !module.required))
   const keys = KEYS.filter((key) => (key !== 'business' || hasProfiles) && (key !== 'features' || hasModules))
-  const steps = keys.map((key) => ({ key, label: t(`steps.${key as 'company'}`) }))
+  const steps = keys.map((key) => ({ key, label: t(`steps.${key as 'organization'}`) }))
   const index = Math.max(0, keys.indexOf(step))
 
   const goTo = (next: string) => {
@@ -113,8 +113,8 @@ export function InstallWizard() {
 
   const businessLabel = business.business_type ? t(`business.types.${business.business_type}.label`) : ''
 
-  const nextFromCompany = async () => {
-    if (await form.trigger([...COMPANY_FIELDS])) goTo(hasProfiles ? 'business' : hasModules ? 'features' : 'account')
+  const nextFromOrganization = async () => {
+    if (await form.trigger([...ORGANIZATION_FIELDS])) goTo(hasProfiles ? 'business' : hasModules ? 'features' : 'account')
   }
 
   const nextFromBusiness = () => {
@@ -148,7 +148,7 @@ export function InstallWizard() {
       const field = SERVER_FIELDS[violation.field]
       if (field) {
         form.setError(field, { message: SERVER_MESSAGES[field] })
-        targets.push({ step: (COMPANY_FIELDS as readonly string[]).includes(field) ? 'company' : 'account', message: null })
+        targets.push({ step: (ORGANIZATION_FIELDS as readonly string[]).includes(field) ? 'organization' : 'account', message: null })
       } else if (violation.field.startsWith('business')) {
         targets.push({ step: 'business', message: t('errors.business') })
       } else if (violation.field === 'modules' || violation.field.startsWith('module_settings')) {
@@ -167,7 +167,7 @@ export function InstallWizard() {
   const createWorkspace = async () => {
     if (!catalog) return
     if (!(await form.trigger())) {
-      if (COMPANY_FIELDS.some((field) => form.getFieldState(field).invalid)) goTo('company')
+      if (ORGANIZATION_FIELDS.some((field) => form.getFieldState(field).invalid)) goTo('organization')
       return
     }
     const values = form.getValues()
@@ -218,10 +218,10 @@ export function InstallWizard() {
     const count = optional.filter((item) => enabledBeforeInstall.has(item.key)).length
     return [
       {
-        key: 'company',
-        label: t('account.summaryCompany'),
-        value: companySummary(values, i18n.language, t(`locales.${values.locale as 'en'}`)),
-        onEdit: () => goTo('company'),
+        key: 'organization',
+        label: t('account.summaryOrganization'),
+        value: organizationSummary(values, i18n.language, t(`locales.${values.locale as 'en'}`)),
+        onEdit: () => goTo('organization'),
       },
       {
         key: 'business',
@@ -252,8 +252,8 @@ export function InstallWizard() {
 
   const renderStep = () => {
     if (restoring) return <RestoreStep />
-    if (step === 'company') {
-      return <CompanyStep form={form} error={error} onNext={() => void nextFromCompany()} onRestore={() => setRestoring(true)} />
+    if (step === 'organization') {
+      return <OrganizationStep form={form} error={error} onNext={() => void nextFromOrganization()} onRestore={() => setRestoring(true)} />
     }
     if (step === 'business') return <BusinessStep value={business} onChange={setBusiness} error={error} onNext={nextFromBusiness} />
     if (step === 'features') {

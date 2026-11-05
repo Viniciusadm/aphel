@@ -361,7 +361,7 @@ function SecretView({ token, onClose }: { token: CreatedApiToken; onClose: () =>
           {copied ? t('secret.copied') : t('secret.copy')}
         </Button>
         <pre className="overflow-x-auto rounded-md border p-3 text-xs">
-          {`curl -H "Authorization: Bearer ${token.token_prefix}_…" \\\n  ${window.location.origin}/api/v1/people`}
+          {`curl -H "Authorization: Bearer ${token.token_prefix}_…" \\\n  ${window.location.origin}/api/v1/entities`}
         </pre>
       </div>
       <DialogFooter>

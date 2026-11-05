@@ -45,6 +45,8 @@ export interface NavContribution {
   order?: number
   group?: NavGroup
   section?: string
+  shortcut?: string
+  mobile?: boolean
 }
 
 export interface NavSectionContribution {
@@ -262,6 +264,7 @@ export interface ModuleApp {
   publicRoutes(routes: RouteObject[]): void
   nav(item: NavContribution): void
   navSection(section: NavSectionContribution): void
+  ruleError(code: string, formatter: (messages: string[]) => string): void
   settings(area: SettingsAreaKey, item: SettingsContribution): void
   settingsArea(area: SettingsAreaContribution): void
   settingsGroup(area: SettingsAreaKey, group: SettingsGroupContribution): void

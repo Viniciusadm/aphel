@@ -11,6 +11,7 @@ import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useModuleCommands } from '@/kernel/modules/contributions'
 import { qualifiedLabel, useNavigationEntries } from '@/kernel/modules/navigation'
 import { cn } from '@/lib/utils'
+import { useRecordTypeOptions } from '@/features/settings/fields/lib/record-types'
 import { useCommandPalette } from './context'
 import type { CreateAction } from './create-actions'
 import { matchesQuery } from './matching'
@@ -120,26 +121,10 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
     window.setTimeout(run, 0)
   }
 
+  const entityOptions = useRecordTypeOptions()
   const recordTypeLabel = useCallback(
-    (recordType: string) => {
-    switch (recordType) {
-      case 'people.person':
-        return t('recordTypes.contact')
-      case 'organizations.organization':
-        return t('recordTypes.company')
-      case 'deals.deal':
-        return t('recordTypes.deal')
-      case 'tasks.task':
-        return t('recordTypes.activity')
-      case 'catalog_items.item':
-        return t('recordTypes.product')
-      case 'notes.note':
-        return t('recordTypes.note')
-      default:
-        return recordType
-    }
-    },
-    [t],
+    (recordType: string) => entityOptions.find((option) => option.value === recordType)?.label ?? recordType,
+    [entityOptions],
   )
 
   const baseCommands = useMemo<PaletteCommand[]>(() => {

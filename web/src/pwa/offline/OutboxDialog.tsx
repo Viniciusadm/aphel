@@ -54,7 +54,7 @@ function PendingItem({ item }: { item: OutboxItem }) {
     <li className="flex flex-col gap-0.5 rounded-md border p-3">
       <span className="text-sm font-medium">{item.label}</span>
       <span className="text-xs text-muted-foreground">
-        {t(`kinds.${item.kind}`)} · {t('pending.createdAt', { date: format(item.createdAt) })}
+        {t(`kinds.${item.kind}` as "kinds.note", { defaultValue: item.kind })} · {t('pending.createdAt', { date: format(item.createdAt) })}
       </span>
       {item.attempts > 0 && (
         <span className="text-xs text-muted-foreground">
@@ -98,7 +98,7 @@ function ConflictItem({ item }: { item: OutboxItem }) {
       <div className="flex flex-col gap-0.5">
         <span className="text-sm font-medium">{item.label}</span>
         <span className="text-xs text-muted-foreground">
-          {t(`kinds.${item.kind}`)} · {t('pending.createdAt', { date: format(item.createdAt) })}
+          {t(`kinds.${item.kind}` as "kinds.note", { defaultValue: item.kind })} · {t('pending.createdAt', { date: format(item.createdAt) })}
         </span>
         <span className="text-sm text-destructive">{t(`conflicts.reasons.${reason}`)}</span>
         {reason === 'validation' && item.error?.message && (

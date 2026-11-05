@@ -9,6 +9,8 @@ import {
 } from './define'
 import type { RecordTypeSelector } from './record-types'
 import type { FieldTypeRenderers } from './field-types'
+import { registerGoShortcut } from '@/app/shortcuts'
+import { registerRuleError } from '@/components/feedback/rule-errors'
 import { contractBucket } from './contract-components'
 import { contribute } from './registry'
 import type { SettingsEntry, SettingsGroupEntry } from './settings'
@@ -30,7 +32,11 @@ export function createModuleApp(key: string): ModuleApp {
     key,
     routes: (routes, options) => contribute<RouteEntry>('routes', key, { routes, layout: options?.layout ?? 'app' }),
     publicRoutes: (routes) => contribute<RouteObject[]>('publicRoutes', key, routes),
-    nav: (item) => contribute('nav', key, item, item.order ?? NAV_ORDER.modules),
+    nav: (item) => {
+      if (item.shortcut) registerGoShortcut({ key: item.shortcut, to: item.to })
+      contribute('nav', key, item, item.order ?? NAV_ORDER.modules)
+    },
+    ruleError: (code, formatter) => registerRuleError(code, formatter),
     navSection: (section) => contribute('navSections', key, section, section.order),
     settings: (area, item) => contribute<SettingsEntry>('settings', key, { area, item }, item.order),
     settingsArea: (area) => contribute<SettingsAreaContribution>('settingsAreas', key, area, area.order),

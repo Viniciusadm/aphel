@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useRecordTypeOptions } from '@/features/settings/fields/lib/record-types'
 import { recordTypeLabel, KNOWN_RECORD_TYPES } from './lib/labels'
 import { EMPTY_FILTERS, hasFilters, type AuditFilters } from './lib/filters'
 import { Field } from '@/components/ui/field'
@@ -14,6 +15,7 @@ interface AuditFiltersFormProps {
 export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
   const { t } = useTranslation('audit')
   const id = useId()
+  const entityOptions = useRecordTypeOptions()
   const [draft, setDraft] = useState(filters)
 
   const update = (field: keyof AuditFilters) => (event: { target: { value: string } }) =>
@@ -46,6 +48,11 @@ export function AuditFiltersForm({ filters, onApply }: AuditFiltersFormProps) {
           autoComplete="off"
         />
         <datalist id={`${id}-record-types`}>
+          {entityOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
           {KNOWN_RECORD_TYPES.map((recordType) => {
             const labelKey = recordTypeLabel(recordType)
             return (

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { SetupStepContribution } from '@/kernel/modules/define'
 import type { Contribution } from '@/kernel/modules/registry'
 
-export const DRAFT_STEPS = ['company', 'business', 'features', 'account'] as const
+export const DRAFT_STEPS = ['organization', 'business', 'features', 'account'] as const
 export type DraftStep = (typeof DRAFT_STEPS)[number]
 
 export function isDraftStep(value: unknown): value is DraftStep {

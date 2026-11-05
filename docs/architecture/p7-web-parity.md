@@ -38,3 +38,10 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 
 ## Build without plugins
 - [ ] With `aphel.modules.toml` empty, `make modules` and `npm run typecheck` pass (checked once; restore the generated files afterwards).
+
+## Shell words to zero (P7.6 to P7.8 follow-up)
+- [ ] `G` + c/e/d/p/t/i/a/r shortcuts work and show in the shortcuts help only for enabled modules.
+- [ ] Mobile bottom bar shows the pinned entry (deals) only when that module is enabled.
+- [ ] Audit filters and rows, and command palette result groups, show entity labels (plural) from the catalog.
+- [ ] Installer first step is labelled as before (key renamed from company to organization) in pt-BR and en; roles matrix shows the module labels and the assignment permission label.
+- [ ] A stage checklist error and a validation rule error still show their messages.

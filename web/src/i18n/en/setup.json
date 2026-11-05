@@ -8,7 +8,7 @@
     "current": "current step"
   },
   "steps": {
-    "company": "Company",
+    "organization": "Company",
     "business": "Business",
     "features": "Features",
     "account": "Account",
@@ -26,7 +26,7 @@
     "pt-BR": "Português (Brasil)",
     "en": "English"
   },
-  "company": {
+  "organization": {
     "title": "Let's set up your workspace",
     "description": "Start with the basics about your company. It takes a couple of minutes and everything can be changed later.",
     "fields": {
@@ -140,7 +140,7 @@
       "password": "Use 8 to 128 characters."
     },
     "summary": "Your workspace",
-    "summaryCompany": "Company",
+    "summaryOrganization": "Company",
     "summaryBusiness": "Business",
     "summaryFeatures": "Features",
     "submit": "Create workspace",

@@ -2,6 +2,7 @@ import type { ParseKeys } from 'i18next'
 import { NETWORK_ERROR_CODE, isApiError } from '@/api'
 import { toast } from '@/components/ui/toast-store'
 import i18n from '@/i18n'
+import { formatRuleError } from './rule-errors'
 
 export type FeedbackMessageKey = ParseKeys<'records-detail'>
 
@@ -44,14 +45,7 @@ export function ruleErrorMessage(error: unknown): string | null {
   if (!isApiError(error)) return null
   const messages = violationMessages(error.details)
   if (messages.length === 0) return null
-  switch (error.code) {
-    case 'validation_rule_failed':
-      return messages.join(' ')
-    case 'stage_checklist_incomplete':
-      return i18n.t('guidance.errors.checklistIncomplete', { ns: 'workflow', items: messages.join(', ') })
-    default:
-      return null
-  }
+  return formatRuleError(error.code, messages)
 }
 
 const translateLoose = i18n.t.bind(i18n) as unknown as (key: string, options: object) => string

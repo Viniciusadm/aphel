@@ -12,7 +12,7 @@ export const setupSchema = z.object({
 
 export type SetupValues = z.infer<typeof setupSchema>
 
-export const COMPANY_FIELDS = ['locale', 'organizationName', 'timezone', 'currency'] as const satisfies (keyof SetupValues)[]
+export const ORGANIZATION_FIELDS = ['locale', 'organizationName', 'timezone', 'currency'] as const satisfies (keyof SetupValues)[]
 
 export const SERVER_FIELDS: Record<string, keyof SetupValues> = {
   organization_name: 'organizationName',

@@ -8,7 +8,7 @@
     "current": "etapa atual"
   },
   "steps": {
-    "company": "Empresa",
+    "organization": "Empresa",
     "business": "Negócio",
     "features": "Recursos",
     "account": "Conta",
@@ -26,7 +26,7 @@
     "pt-BR": "Português (Brasil)",
     "en": "English"
   },
-  "company": {
+  "organization": {
     "title": "Vamos preparar seu espaço de trabalho",
     "description": "Comece pelo básico da sua empresa. Leva poucos minutos e tudo pode ser alterado depois.",
     "fields": {
@@ -140,7 +140,7 @@
       "password": "Use de 8 a 128 caracteres."
     },
     "summary": "Seu espaço de trabalho",
-    "summaryCompany": "Empresa",
+    "summaryOrganization": "Empresa",
     "summaryBusiness": "Negócio",
     "summaryFeatures": "Recursos",
     "submit": "Criar espaço de trabalho",

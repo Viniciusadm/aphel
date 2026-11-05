@@ -17,6 +17,7 @@ import { AuditFiltersForm } from './AuditFiltersForm'
 import { ChangeList } from './ChangeList'
 import { filtersFromSearch, hasFilters, pageFromSearch, toSearch, type AuditFilters } from './lib/filters'
 import { recordTypeLabel } from './lib/labels'
+import { useRecordTypeOptions } from '@/features/settings/fields/lib/record-types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
@@ -112,6 +113,8 @@ function AuditRow({ log, onFilterActor }: { log: AuditLog; onFilterActor: (actor
   const { t } = useTranslation('audit')
   const format = useDateTimeFormat()
   const recordLabelKey = log.record_type ? recordTypeLabel(log.record_type) : undefined
+  const entityOptions = useRecordTypeOptions()
+  const entityLabel = entityOptions.find((option) => option.value === log.record_type)?.label
 
   return (
     <tr className="border-t align-top">
@@ -127,7 +130,7 @@ function AuditRow({ log, onFilterActor }: { log: AuditLog; onFilterActor: (actor
       <td className="hidden px-4 py-3 md:table-cell">
         {log.record_type ? (
           <div className="grid gap-0.5">
-            <span>{recordLabelKey ? t(recordLabelKey) : log.record_type}</span>
+            <span>{recordLabelKey ? t(recordLabelKey) : (entityLabel ?? log.record_type)}</span>
             {log.record_id && (
               <span className="font-mono text-xs break-all text-muted-foreground">{log.record_id}</span>
             )}

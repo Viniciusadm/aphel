@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 export const SEQUENCE_TIMEOUT_MS = 1200
 
-export type GoShortcutKey = 'h' | 'c' | 'e' | 'd' | 'p' | 't' | 'i' | 'a' | 'r' | 's'
+export type GoShortcutKey = string
 
 export interface GoShortcut {
   key: GoShortcutKey
@@ -11,16 +11,14 @@ export interface GoShortcut {
 
 export const GO_SHORTCUTS: GoShortcut[] = [
   { key: 'h', to: '/' },
-  { key: 'c', to: '/people' },
-  { key: 'e', to: '/organizations' },
-  { key: 'd', to: '/deals' },
-  { key: 'p', to: '/catalog-items' },
-  { key: 't', to: '/tasks' },
-  { key: 'i', to: '/inbox' },
-  { key: 'a', to: '/calendar' },
-  { key: 'r', to: '/reports' },
   { key: 's', to: '/settings' },
 ]
+
+export function registerGoShortcut(shortcut: GoShortcut) {
+  if (!GO_SHORTCUTS.some((candidate) => candidate.key === shortcut.key || candidate.to === shortcut.to)) {
+    GO_SHORTCUTS.push(shortcut)
+  }
+}
 
 export interface ShortcutHandlers {
   enabled: boolean

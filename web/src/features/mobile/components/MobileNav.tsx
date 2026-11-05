@@ -1,4 +1,4 @@
-import { CalendarDays, Handshake, Menu, Search, type LucideIcon } from 'lucide-react'
+import { CalendarDays, Menu, Search, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
 import { cn } from '@/lib/utils'
@@ -6,7 +6,7 @@ import { useAvailableSidebarEntries } from '@/app/layout/sidebar-entries'
 import { TODAY_PATH } from '../routes'
 
 interface NavTarget {
-  key: 'today' | 'search' | 'deals'
+  key: 'today' | 'search'
   to: string
   icon: LucideIcon
 }
@@ -14,7 +14,6 @@ interface NavTarget {
 const LINKS: NavTarget[] = [
   { key: 'today', to: TODAY_PATH, icon: CalendarDays },
   { key: 'search', to: '/search', icon: Search },
-  { key: 'deals', to: '/deals', icon: Handshake },
 ]
 
 const ITEM_CLASS =
@@ -37,9 +36,8 @@ export interface MobileNavProps {
 
 export function MobileNav({ onOpenMenu }: MobileNavProps) {
   const { t } = useTranslation('mobile')
-  const [today, search, deals] = LINKS
-  const entries = useAvailableSidebarEntries()
-  const canOpenDeals = entries.some((entry) => entry.to === deals.to)
+  const [today, search] = LINKS
+  const pinned = useAvailableSidebarEntries().find((entry) => entry.mobile)
   return (
     <nav
       aria-label={t('nav.label')}
@@ -47,7 +45,12 @@ export function MobileNav({ onOpenMenu }: MobileNavProps) {
     >
       <div className="mx-auto flex max-w-lg items-stretch px-1">
         <NavItem target={today} />
-        {canOpenDeals && <NavItem target={deals} />}
+        {pinned && (
+          <NavLink to={pinned.to} className={({ isActive }) => cn(ITEM_CLASS, isActive && 'text-primary')}>
+            {pinned.icon}
+            {pinned.label}
+          </NavLink>
+        )}
         <NavItem target={search} />
         <button type="button" onClick={onOpenMenu} className={ITEM_CLASS} aria-haspopup="dialog">
           <Menu className="size-5" aria-hidden="true" />
