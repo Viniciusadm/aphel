@@ -206,8 +206,8 @@ What the declarations become:
 | `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
 | `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
 | `widgets` | Dashboard widgets `<key>_<name>` whose data comes from `on-widget` (see Dashboard widgets) |
-| `provides.operations` | Operations the plugin offers. While the plugin is enabled each one is in the operation registry (`ctx.call`, `invoke`, the platform catalog, `aphel catalog`); the host runs `on-operation(key, input-json)` with the caller's scope intersected with the plugin's capabilities. A key owned by a native module is refused on install and upgrade; a read operation runs read-only. Disabling or uninstalling the plugin removes them |
-| `contribute` | Typed contributions to an extension point. They are validated on install and upgrade; behaviour is routed to `on-contribution(point, name, input-json)` with the same restricted scope |
+| `provides.operations` | Operations the plugin offers. While the plugin is enabled each one is in the operation registry (`ctx.call`, `invoke`, the platform catalog, `aphel catalog`); the host runs `on-operation(key, input-json)` with the caller's scope intersected with the plugin's capabilities. A key owned by a native module or by another installed plugin is refused on install and upgrade; a read operation runs read-only. Disabling or uninstalling the plugin removes them |
+| `contribute` | Contributions to an extension point. They are validated on install and upgrade and, while the plugin is enabled, registered as `RuntimeContribution` entries that the point's owner reads with `App::runtime_contributions(point)`; calling one routes to `on-contribution(point, name, input-json)` with the restricted scope. The point's own schema is not checked yet |
 | `privacy.subject_data` | The plugin holds personal data outside its record fields and takes part in privacy requests (see Data subject requests) |
 | `web.public` | Folder under `web/` served as a public single-page app at `/p/<key>/` (see Public web app) |
 

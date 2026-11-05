@@ -875,6 +875,23 @@ impl PluginManifest {
                 ));
             }
         }
+        let other_plugins = crate::registry::cached();
+        for (index, operation) in self.provides.operations.iter().enumerate() {
+            if other_plugins.plugins.iter().any(|other| {
+                other.key != self.key
+                    && other
+                        .manifest
+                        .provides
+                        .operations
+                        .iter()
+                        .any(|provided| provided.key == operation.key)
+            }) {
+                violations.push(FieldViolation::new(
+                    format!("provides.operations[{index}].key"),
+                    "is already provided by another installed plugin",
+                ));
+            }
+        }
         if self.operations.len() > MAX_OPERATIONS {
             violations.push(FieldViolation::new(
                 "operations",

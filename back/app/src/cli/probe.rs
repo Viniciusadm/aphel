@@ -270,6 +270,39 @@ fn provided_operations(failures: &mut Vec<String>) {
     }
 }
 
+fn provided_contributions(failures: &mut Vec<String>) {
+    const OWNER: &str = "probe_contribution";
+    const POINT: &str = "probe.point";
+    let app = aphel_kernel::modules::app();
+    let present = || {
+        app.all_contributions::<aphel_kernel::modules::RuntimeContribution>()
+            .iter()
+            .any(|(owner, contribution)| *owner == OWNER && contribution.point == POINT)
+    };
+    let run: aphel_kernel::modules::plugin_bridge::OperationFn = probe_operation;
+    let mut batch = aphel_kernel::modules::RuntimeBatch::new();
+    batch.add(Arc::new(aphel_kernel::modules::RuntimeContribution::new(
+        OWNER,
+        POINT,
+        "item",
+        None,
+        serde_json::Value::Null,
+        Arc::new(run),
+    )));
+    app.replace_runtime(OWNER, batch);
+    if !present() {
+        failures.push(
+            "contributions: a runtime contribution must be visible after replace_runtime".into(),
+        );
+    }
+    app.replace_runtime(OWNER, aphel_kernel::modules::RuntimeBatch::new());
+    if present() {
+        failures.push(
+            "contributions: a runtime contribution must disappear after an empty batch".into(),
+        );
+    }
+}
+
 fn event_envelope(failures: &mut Vec<String>) {
     let service = scope_with(&[]).acting_as("plugin", "probe");
     match Actor::from_scope(&service) {
@@ -307,6 +340,7 @@ pub(crate) fn run() -> CliResult {
     registry_integrity(&mut failures);
     operations(&mut failures);
     provided_operations(&mut failures);
+    provided_contributions(&mut failures);
     event_envelope(&mut failures);
     if failures.is_empty() {
         return Ok(());

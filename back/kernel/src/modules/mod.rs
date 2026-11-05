@@ -14,6 +14,7 @@ pub(crate) mod plugin_manifest;
 pub(crate) mod points;
 pub(crate) mod routes;
 pub mod runtime;
+mod runtime_contribution;
 pub(crate) mod services;
 pub(crate) mod settings;
 pub mod unified_catalog;
@@ -48,6 +49,7 @@ pub use points::{
     lookup_exists,
 };
 pub use routes::{MODULE_DISABLED, module_disabled};
+pub use runtime_contribution::RuntimeContribution;
 pub use services::Services;
 pub use settings::{module_secret_key, module_settings};
 pub use worker::{WorkerEnv, WorkerParts};

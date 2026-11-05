@@ -809,6 +809,16 @@ impl App {
         found
     }
 
+    pub fn runtime_contributions(
+        &self,
+        point: &str,
+    ) -> Vec<Arc<crate::modules::runtime_contribution::RuntimeContribution>> {
+        self.contributions::<crate::modules::runtime_contribution::RuntimeContribution>()
+            .into_iter()
+            .filter(|contribution| contribution.point == point)
+            .collect()
+    }
+
     pub fn has_native_operation(&self, key: &str) -> bool {
         self.contributions
             .get(&TypeId::of::<Arc<crate::modules::operations::OperationEntry>>())

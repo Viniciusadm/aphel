@@ -335,6 +335,11 @@ fn publish_extensions(snapshot: &Snapshot) {
             }
         }
     }
+    for plugin in &snapshot.plugins {
+        for contribution in crate::bridge::provided_contributions(plugin) {
+            batch.add(std::sync::Arc::new(contribution));
+        }
+    }
     for kind in kinds {
         batch.add(std::sync::Arc::new(kind));
     }

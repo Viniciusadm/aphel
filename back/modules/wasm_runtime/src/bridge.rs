@@ -13,7 +13,8 @@ use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     Effect, HookCtx, OperationEntry, OperationFuture, OperationHandler, OperationSpec, PluginHook,
-    PluginHookCall, PluginHookDispatcher, PluginOperation, ProvidedEffect, app, operation_input,
+    PluginHookCall, PluginHookDispatcher, PluginOperation, ProvidedEffect, RuntimeContribution,
+    app, operation_input,
 };
 use aphel_kernel::records::RecordCtx;
 use aphel_sdk::notifications::intern;
@@ -93,6 +94,42 @@ pub fn provided_operations(plugin: &Arc<LoadedPlugin>) -> Result<Vec<OperationEn
                     permission,
                 }),
             ))
+        })
+        .collect()
+}
+
+struct ContributionHandler {
+    plugin: Arc<LoadedPlugin>,
+    point: String,
+    name: String,
+}
+
+impl OperationHandler for ContributionHandler {
+    fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
+        Box::pin(async move {
+            call_contribution(&self.plugin, ctx, &self.point, &self.name, &input).await
+        })
+    }
+}
+
+pub fn provided_contributions(plugin: &Arc<LoadedPlugin>) -> Vec<RuntimeContribution> {
+    plugin
+        .manifest
+        .contribute
+        .iter()
+        .map(|contribution| {
+            RuntimeContribution::new(
+                crate::KEY,
+                intern(&contribution.point),
+                intern(&contribution.name),
+                contribution.title.clone(),
+                contribution.data.clone(),
+                Arc::new(ContributionHandler {
+                    plugin: plugin.clone(),
+                    point: contribution.point.clone(),
+                    name: contribution.name.clone(),
+                }),
+            )
         })
         .collect()
 }
