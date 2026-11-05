@@ -2,11 +2,11 @@ import { ArrowRight } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge, type BadgeProps } from '@/components/ui/badge'
-import type { PlanChange } from '@/modules/config_packages/ui/api'
-import { useValueDescriber } from '@/modules/config_packages/ui/lib/describe-value'
-import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
-import { ActionBadge } from '@/modules/config_packages/ui/PlanItemCard'
-import type { PackageStatus, Resolution, VersionItem } from '@/modules/config_packages/ui/versioning/types'
+import type { PlanChange } from '../api'
+import { useValueDescriber } from '../lib/describe-value'
+import { usePackageLabels } from '../lib/labels'
+import { ActionBadge } from '../PlanItemCard'
+import type { PackageStatus, Resolution, VersionItem } from './types'
 
 const STATUS_VARIANT: Record<PackageStatus, BadgeProps['variant']> = {
   added: 'success',

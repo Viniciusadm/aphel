@@ -5,18 +5,9 @@ import { isApiError } from '@/api'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  PLAN_OUTDATED_CODE,
-  useApplyPackage,
-  type ConflictDecision,
-  type Decisions,
-  type PackagePlan,
-  type PackageSource,
-  type PlanItem,
-  type PlanSummary,
-} from '@/modules/config_packages/ui/api'
-import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
-import { PlanItemCard } from '@/modules/config_packages/ui/PlanItemCard'
+import {PLAN_OUTDATED_CODE, useApplyPackage, type ConflictDecision, type Decisions, type PackagePlan, type PackageSource, type PlanItem, type PlanSummary} from '@/sdk'
+import {usePackageLabels} from '@/sdk'
+import {PlanItemCard} from '@/sdk'
 
 const SUMMARY_ORDER = ['create', 'update', 'unchanged', 'skip_conflict'] as const
 

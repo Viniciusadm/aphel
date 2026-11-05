@@ -1,4 +1,4 @@
-import type { PlanChange, PlanItem } from '@/modules/config_packages/ui/api'
+import type { PlanChange, PlanItem } from '../api'
 
 function hasMeaningfulValue(value: unknown): boolean {
   if (value === null || value === undefined || value === false || value === '') return false

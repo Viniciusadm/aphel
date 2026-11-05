@@ -17,9 +17,9 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ListSkeleton } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
-import { INSTALLS_PER_PAGE, usePackageInstall, usePackageInstalls, type PackageInstall } from '@/modules/config_packages/ui/api'
+import {INSTALLS_PER_PAGE, usePackageInstall, usePackageInstalls, type PackageInstall} from '@/sdk'
 import { downloadJson, packageFileName } from '@/modules/config_packages/ui/lib/download'
-import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
+import {usePackageLabels} from '@/sdk'
 
 function useDateFormatter() {
   const { i18n } = useTranslation()

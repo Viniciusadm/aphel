@@ -1,4 +1,4 @@
-import type { PackageJson } from '@/modules/config_packages/ui/api'
+import type {PackageJson} from '@/sdk'
 
 export const MAX_PACKAGE_BYTES = 2 * 1024 * 1024
 

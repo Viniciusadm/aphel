@@ -6,11 +6,11 @@ import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { PLAN_OUTDATED_CODE } from '@/modules/config_packages/ui/api'
-import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
-import { useDateFormatter } from '@/modules/config_packages/ui/versioning/format'
-import type { ComparisonSummary, Resolution, Resolutions, VersionApplyResult, VersionComparison, VersionItem } from '@/modules/config_packages/ui/versioning/types'
-import { VersionItemCard } from '@/modules/config_packages/ui/versioning/VersionItemCard'
+import { PLAN_OUTDATED_CODE } from '../api'
+import { usePackageLabels } from '../lib/labels'
+import { useDateFormatter } from './format'
+import type { ComparisonSummary, Resolution, Resolutions, VersionApplyResult, VersionComparison, VersionItem } from './types'
+import { VersionItemCard } from './VersionItemCard'
 
 const SUMMARY_ORDER = ['added', 'changed', 'removed', 'unchanged', 'locally_modified', 'conflicts'] as const
 

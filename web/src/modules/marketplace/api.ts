@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
-import type { Resolutions, VersionApplyResult, VersionComparison } from '@/modules/config_packages/ui/versioning/types'
+import type {Resolutions, VersionApplyResult, VersionComparison} from '@/sdk'
 import type { Catalog } from './types'
 
 export const catalogKeys = {

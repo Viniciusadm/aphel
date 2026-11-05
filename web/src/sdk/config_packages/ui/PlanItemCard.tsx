@@ -2,10 +2,10 @@ import { ArrowRight } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge, type BadgeProps } from '@/components/ui/badge'
-import type { ConflictDecision, PlanAction, PlanChange, PlanItem } from '@/modules/config_packages/ui/api'
-import { isStructured, useValueDescriber } from '@/modules/config_packages/ui/lib/describe-value'
-import { visibleChanges } from '@/modules/config_packages/ui/lib/plan-changes'
-import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
+import type { ConflictDecision, PlanAction, PlanChange, PlanItem } from './api'
+import { isStructured, useValueDescriber } from './lib/describe-value'
+import { visibleChanges } from './lib/plan-changes'
+import { usePackageLabels } from './lib/labels'
 
 const ACTION_VARIANT: Record<PlanAction, BadgeProps['variant']> = {
   create: 'success',

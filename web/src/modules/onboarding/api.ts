@@ -1,15 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
-import { configPackagesApi, configPackagesKeys } from '@/modules/config_packages/ui/api'
+import {configPackagesApi, configPackagesKeys} from '@/sdk'
 import type { CompleteBody, OnboardingState, SaveAnswersBody } from './types'
 
-export {
-  PLAN_OUTDATED_CODE,
-  type ApplyResult,
-  type PackagePlan,
-  type PackageTemplate,
-  type PlanItem,
-} from '@/modules/config_packages/ui/api'
+export {PLAN_OUTDATED_CODE, type ApplyResult, type PackagePlan, type PackageTemplate, type PlanItem} from '@/sdk'
 
 export const onboardingKeys = {
   all: ['onboarding'] as const,

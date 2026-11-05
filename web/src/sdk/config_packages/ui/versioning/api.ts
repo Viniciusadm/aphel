@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import { configPackagesKeys, type PackageJson } from '@/modules/config_packages/ui/api'
-import type { InstalledVersion, Resolutions, VersionApplyResult, VersionComparison } from '@/modules/config_packages/ui/versioning/types'
+import { configPackagesKeys, type PackageJson } from '../api'
+import type { InstalledVersion, Resolutions, VersionApplyResult, VersionComparison } from './types'
 
 export const versioningKeys = {
   all: ['config-package-versions'] as const,

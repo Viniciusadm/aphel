@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
-import { configPackagesApi, type PackagePlan, type PackageSource } from '@/modules/config_packages/ui/api'
+import {configPackagesApi, type PackagePlan, type PackageSource} from '@/sdk'
 import { PlanView } from '@/modules/config_packages/ui/PlanView'
 import { SourcePicker } from '@/modules/config_packages/ui/SourcePicker'
 

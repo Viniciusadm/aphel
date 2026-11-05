@@ -9,8 +9,8 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { usePackageTemplates, type PackageSource } from '@/modules/config_packages/ui/api'
-import { usePackageLabels } from '@/modules/config_packages/ui/lib/labels'
+import {usePackageTemplates, type PackageSource} from '@/sdk'
+import {usePackageLabels} from '@/sdk'
 import { readPackageFile, type PackageFileError } from '@/modules/config_packages/ui/lib/package-file'
 
 interface SourcePickerProps {

@@ -10,12 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { ListSkeleton } from '@/sdk'
-import type { PackageJson } from '@/modules/config_packages/ui/api'
+import type {PackageJson} from '@/sdk'
 import { readPackageFile, type PackageFileError } from '@/modules/config_packages/ui/lib/package-file'
-import { groupByPackage, useInstalledVersions, useInvalidateVersions, versioningApi } from '@/modules/config_packages/ui/versioning/api'
-import { ComparisonView } from '@/modules/config_packages/ui/versioning/ComparisonView'
-import { useDateFormatter } from '@/modules/config_packages/ui/versioning/format'
-import type { VersionComparison } from '@/modules/config_packages/ui/versioning/types'
+import {groupByPackage, useInstalledVersions, useInvalidateVersions, versioningApi} from '@/sdk'
+import {ComparisonView} from '@/sdk'
+import {useDateFormatter} from '@/sdk'
+import type {VersionComparison} from '@/sdk'
 
 interface ComparedPackage {
   pkg: PackageJson
