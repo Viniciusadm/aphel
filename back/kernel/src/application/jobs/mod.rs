@@ -1,7 +1,7 @@
-pub mod consumers;
-pub mod registry;
-pub mod retry;
-pub mod schedule;
+pub(crate) mod consumers;
+pub(crate) mod registry;
+pub(crate) mod retry;
+pub(crate) mod schedule;
 
 pub use consumers::EventConsumerRegistry;
 pub use registry::JobRegistry;

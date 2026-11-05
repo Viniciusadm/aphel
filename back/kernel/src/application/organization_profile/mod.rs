@@ -1,9 +1,9 @@
-pub mod commands;
-pub mod ports;
-pub mod preferences;
-pub mod registration;
-pub mod settings;
-pub mod use_cases;
+pub(crate) mod commands;
+pub(crate) mod ports;
+pub(crate) mod preferences;
+pub(crate) mod registration;
+pub(crate) mod settings;
+pub(crate) mod use_cases;
 
 pub use commands::*;
 pub use ports::*;

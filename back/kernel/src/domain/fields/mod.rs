@@ -1,8 +1,8 @@
-pub mod definition;
-pub mod field_type;
-pub mod formula;
-pub mod key;
-pub mod value;
+pub(crate) mod definition;
+pub(crate) mod field_type;
+pub(crate) mod formula;
+pub(crate) mod key;
+pub(crate) mod value;
 
 pub use definition::*;
 pub use field_type::*;

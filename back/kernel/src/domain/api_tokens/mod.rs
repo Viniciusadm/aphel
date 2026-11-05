@@ -1,3 +1,3 @@
-pub mod scope;
+pub(crate) mod scope;
 
 pub use scope::*;

@@ -1,7 +1,7 @@
-pub mod commands;
-pub mod ports;
-pub mod two_factor;
-pub mod use_cases;
+pub(crate) mod commands;
+pub(crate) mod ports;
+pub(crate) mod two_factor;
+pub(crate) mod use_cases;
 
 pub use commands::*;
 pub use ports::*;

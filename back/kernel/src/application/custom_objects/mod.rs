@@ -1,9 +1,9 @@
-pub mod catalog;
-pub mod definition;
-pub mod ports;
-pub mod records;
-pub mod relations;
-pub mod runtime;
+pub(crate) mod catalog;
+pub(crate) mod definition;
+pub(crate) mod ports;
+pub(crate) mod records;
+pub(crate) mod relations;
+pub(crate) mod runtime;
 
 pub use catalog::*;
 pub use definition::*;
@@ -12,5 +12,5 @@ pub use records::*;
 pub use relations::*;
 pub use runtime::*;
 
-pub mod mutation;
+pub(crate) mod mutation;
 pub use mutation::*;

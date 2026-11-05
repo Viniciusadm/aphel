@@ -1,6 +1,6 @@
-pub mod objects;
-pub mod records;
-pub mod relationships;
+pub(crate) mod objects;
+pub(crate) mod records;
+pub(crate) mod relationships;
 
 pub use objects::*;
 pub use records::*;

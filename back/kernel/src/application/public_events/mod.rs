@@ -1,6 +1,6 @@
-pub mod catalog;
-pub mod envelope;
-pub mod loader;
+pub(crate) mod catalog;
+pub(crate) mod envelope;
+pub(crate) mod loader;
 
 pub use catalog::*;
 pub use envelope::*;

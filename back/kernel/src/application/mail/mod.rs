@@ -1,6 +1,6 @@
-pub mod capture;
-pub mod locale;
-pub mod ports;
+pub(crate) mod capture;
+pub(crate) mod locale;
+pub(crate) mod ports;
 pub mod templates;
 
 pub use capture::{MAIL_NOT_CONFIGURED, UndeliveredMailCapture, find_link, is_mail_not_configured};
@@ -18,7 +18,7 @@ pub fn delivery_override() -> Option<SharedMailer> {
         .find_map(|policy| policy.replacement())
 }
 
-pub mod resolver;
+pub(crate) mod resolver;
 pub use resolver::*;
 
 #[async_trait::async_trait]

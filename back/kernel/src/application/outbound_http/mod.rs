@@ -1,4 +1,4 @@
-pub mod transport;
+pub(crate) mod transport;
 
 pub use transport::*;
 

@@ -1,9 +1,9 @@
-pub mod account;
-pub mod devices;
-pub mod events;
-pub mod lockout;
-pub mod login;
-pub mod notices;
+pub(crate) mod account;
+pub(crate) mod devices;
+pub(crate) mod events;
+pub(crate) mod lockout;
+pub(crate) mod login;
+pub(crate) mod notices;
 
 pub use account::*;
 pub use devices::*;
@@ -47,7 +47,7 @@ pub fn password_violation(password: &str) -> Option<String> {
     })
 }
 
-pub mod revocation;
+pub(crate) mod revocation;
 pub use revocation::*;
 
 pub mod signature;

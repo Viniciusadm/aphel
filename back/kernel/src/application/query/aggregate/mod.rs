@@ -1,8 +1,8 @@
-pub mod engine;
-pub mod input;
-pub mod plan;
-pub mod result;
-pub mod time;
+pub(crate) mod engine;
+pub(crate) mod input;
+pub(crate) mod plan;
+pub(crate) mod result;
+pub(crate) mod time;
 
 pub use engine::*;
 pub use input::*;

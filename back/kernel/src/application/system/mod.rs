@@ -1,9 +1,9 @@
-pub mod admin;
+pub(crate) mod admin;
 pub mod doctor;
 pub mod health;
-pub mod metrics;
-pub mod model;
-pub mod ports;
+pub(crate) mod metrics;
+pub(crate) mod model;
+pub(crate) mod ports;
 pub mod upgrade;
 
 pub use admin::{SystemActor, SystemAdminUseCases};

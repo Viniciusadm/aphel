@@ -1,6 +1,6 @@
-pub mod model;
-pub mod ports;
-pub mod use_cases;
+pub(crate) mod model;
+pub(crate) mod ports;
+pub(crate) mod use_cases;
 
 pub use model::*;
 pub use ports::*;

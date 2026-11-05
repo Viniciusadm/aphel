@@ -1,14 +1,14 @@
-pub mod contributed;
-pub mod duplicates;
-pub mod handler;
-pub mod hooks;
-pub mod input;
-pub mod mutation;
-pub mod pipeline;
-pub mod purge;
-pub mod runtime;
-pub mod types;
-pub mod version;
+pub(crate) mod contributed;
+pub(crate) mod duplicates;
+pub(crate) mod handler;
+pub(crate) mod hooks;
+pub(crate) mod input;
+pub(crate) mod mutation;
+pub(crate) mod pipeline;
+pub(crate) mod purge;
+pub(crate) mod runtime;
+pub(crate) mod types;
+pub(crate) mod version;
 
 pub use contributed::*;
 pub use duplicates::{DuplicateDetector, PossibleDuplicate, merge_survivor, possible_duplicates};

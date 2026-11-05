@@ -7,7 +7,7 @@ pub mod database;
 pub mod domain;
 pub mod errors;
 pub mod infrastructure;
-pub mod kernel_module;
+pub(crate) mod kernel_module;
 pub mod modules;
 pub mod records;
 pub mod state;

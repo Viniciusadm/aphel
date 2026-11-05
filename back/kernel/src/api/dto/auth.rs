@@ -176,6 +176,7 @@ impl From<PendingTwoFactor> for TwoFactorRequiredResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 #[serde(untagged)]
+#[allow(dead_code)]
 pub enum LoginResponse {
     Session(Box<MeResponse>),
     TwoFactorRequired(TwoFactorRequiredResponse),

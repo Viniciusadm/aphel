@@ -1,6 +1,6 @@
-pub mod diff;
-pub mod ports;
-pub mod use_cases;
+pub(crate) mod diff;
+pub(crate) mod ports;
+pub(crate) mod use_cases;
 
 pub use diff::{DEFAULT_SENSITIVE_FIELDS, DiffOptions, diff_changes, diff_values};
 pub use ports::{AuditLogFilter, AuditLogView, AuditRepository};

@@ -16,6 +16,7 @@ use crate::domain::fields::FieldOption;
 #[derive(Deserialize, ToSchema)]
 #[serde(transparent)]
 #[schema(as = FieldType)]
+#[allow(dead_code)]
 pub struct FieldTypeSchema(pub String);
 
 #[derive(Debug, Deserialize, ToSchema)]

@@ -1,5 +1,5 @@
-pub mod purge;
-pub mod use_cases;
+pub(crate) mod purge;
+pub(crate) mod use_cases;
 
 pub use purge::{IdempotencyPurgeHandler, idempotency_purge_schedule};
 pub use use_cases::{

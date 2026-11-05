@@ -1,6 +1,6 @@
-pub mod authorizer;
-pub mod ports;
-pub mod token_scope;
+pub(crate) mod authorizer;
+pub(crate) mod ports;
+pub(crate) mod token_scope;
 
 pub use authorizer::*;
 pub use ports::*;

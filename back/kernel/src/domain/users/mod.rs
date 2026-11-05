@@ -1,3 +1,3 @@
-pub mod entities;
+pub(crate) mod entities;
 
 pub use entities::*;

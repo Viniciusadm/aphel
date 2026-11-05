@@ -1,7 +1,7 @@
-pub mod access_scope;
-pub mod permission;
-pub mod record_scope;
-pub mod role;
+pub(crate) mod access_scope;
+pub(crate) mod permission;
+pub(crate) mod record_scope;
+pub(crate) mod role;
 
 pub use access_scope::*;
 pub use permission::*;

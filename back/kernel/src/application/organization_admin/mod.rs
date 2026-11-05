@@ -1,9 +1,9 @@
-pub mod commands;
-pub mod members;
-pub mod ports;
-pub mod roles;
-pub mod teams;
-pub mod use_cases;
+pub(crate) mod commands;
+pub(crate) mod members;
+pub(crate) mod ports;
+pub(crate) mod roles;
+pub(crate) mod teams;
+pub(crate) mod use_cases;
 
 pub use commands::*;
 pub use ports::*;

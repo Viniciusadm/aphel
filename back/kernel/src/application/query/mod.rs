@@ -1,11 +1,11 @@
-pub mod aggregate;
-pub mod engine;
-pub mod filter;
-pub mod operators;
-pub mod plan;
-pub mod ports;
-pub mod predicate_sources;
-pub mod resolve;
+pub(crate) mod aggregate;
+pub(crate) mod engine;
+pub(crate) mod filter;
+pub(crate) mod operators;
+pub(crate) mod plan;
+pub(crate) mod ports;
+pub(crate) mod predicate_sources;
+pub(crate) mod resolve;
 
 pub use aggregate::*;
 pub use engine::*;

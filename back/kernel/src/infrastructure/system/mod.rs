@@ -1,4 +1,4 @@
-pub mod audit;
+pub(crate) mod audit;
 pub(crate) mod config;
 pub mod disk;
 pub(crate) mod heartbeat;

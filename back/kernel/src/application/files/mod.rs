@@ -1,9 +1,9 @@
-pub mod access;
-pub mod commands;
-pub mod content;
-pub mod ports;
-pub mod references;
-pub mod use_cases;
+pub(crate) mod access;
+pub(crate) mod commands;
+pub(crate) mod content;
+pub(crate) mod ports;
+pub(crate) mod references;
+pub(crate) mod use_cases;
 
 pub use access::*;
 pub use commands::*;
