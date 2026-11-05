@@ -14,7 +14,7 @@ const leadsModule = defineModule({
   register(app) {
     app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.routes(leadsRoutes)
-    app.nav({ to: LEADS_PATH, label: 'nav.leads', icon: UserPlus, permission: ['people.read'], order: 30 })
+    app.nav({ section: 'records', to: LEADS_PATH, label: 'nav.leads', icon: UserPlus, permission: ['people.read'], order: 30 })
     app.settings('organization', {
       group: 'sales',
       path: 'lifecycle',

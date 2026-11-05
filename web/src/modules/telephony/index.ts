@@ -11,7 +11,7 @@ export default defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.routes(callsRoutes)
-    app.nav({ to: '/telephony/report', label: 'page.report', icon: BarChart3, permission: 'tasks.read', order: 185 })
+    app.nav({ section: 'analysis', to: '/telephony/report', label: 'page.report', icon: BarChart3, permission: 'tasks.read', order: 185 })
     app.settings('organization', {
       group: 'records', path: 'call-outcomes', label: 'page.outcomes', description: 'page.description', icon: PhoneCall,
       permission: 'settings.manage',

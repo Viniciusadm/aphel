@@ -14,7 +14,7 @@ const ssoModule = defineModule({
         children: [{ index: true, lazy: async () => ({ Component: (await import('./SsoPage')).SsoPage }) }],
       },
     ])
-    app.nav({ to: '/sso', label: 'nav', icon: KeyRound, permission: ['settings.manage'] })
+    app.nav({ section: 'administration', to: '/sso', label: 'nav', icon: KeyRound, permission: ['settings.manage'] })
   },
 })
 

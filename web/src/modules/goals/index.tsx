@@ -8,7 +8,7 @@ const goalsModule = defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.routes(goalsRoutes)
-    app.nav({
+    app.nav({ section: 'analysis',
       to: '/goals',
       label: 'nav.goals',
       icon: Target,

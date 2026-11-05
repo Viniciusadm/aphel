@@ -3,7 +3,7 @@ import { ObjectIcon, customObjectPath, objectColor, useCustomObjects } from '@/f
 import type { NavigationPreferences } from '@/features/settings/navigation/types'
 import { NAV_ORDER } from '@/kernel/modules/define'
 import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
-import { useNavigationEntries, type NavigationEntry } from '@/kernel/modules/navigation'
+import { RECORDS_NAV_SECTION, useNavigationEntries, type NavigationEntry } from '@/kernel/modules/navigation'
 import { pluginMenus } from '@/kernel/modules/wasm_runtime'
 
 export interface SidebarEntry {
@@ -14,6 +14,7 @@ export interface SidebarEntry {
   end?: boolean
   locked?: boolean
   badge?: ComponentType<{ collapsed?: boolean }>
+  section?: string
   group?: { key: string; label: string; icon: ReactNode }
 }
 
@@ -28,6 +29,7 @@ function sidebarEntry(entry: NavigationEntry): SidebarEntry {
     end: entry.end,
     locked: entry.locked,
     badge: entry.badge,
+    section: entry.section,
     group: entry.group && { key: entry.group.key, label: entry.group.label, icon: <entry.group.icon className={ICON_CLASS} aria-hidden /> },
   }
 }
@@ -48,6 +50,7 @@ export function useAvailableSidebarEntries(): SidebarEntry[] {
   const customObjects = visibleObjects.map(
     (object): SidebarEntry => ({
       key: `object:${object.key}`,
+      section: RECORDS_NAV_SECTION,
       to: customObjectPath(object.key),
       label: object.label_plural,
       icon: (

@@ -16,7 +16,7 @@ const microsoftModule = defineModule({
         children: [{ index: true, lazy: async () => ({ Component: (await import('./MicrosoftPage')).MicrosoftPage }) }],
       },
     ])
-    app.nav({
+    app.nav({ section: 'administration',
       to: '/microsoft',
       label: 'nav',
       icon: CalendarDays,

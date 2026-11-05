@@ -34,13 +34,13 @@ const messagingModule = defineModule({
         ],
       },
     ])
-    app.nav({
+    app.nav({ section: 'work',
       to: BASE_PATH,
       label: 'nav.inbox',
       icon: Inbox,
       permission: [VIEW_PERMISSION],
     })
-    app.nav({
+    app.nav({ section: 'work',
       to: `${BASE_PATH}/channels`,
       label: 'nav.channels',
       icon: RadioTower,

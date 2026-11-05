@@ -44,6 +44,13 @@ export interface NavContribution {
   badge?: ComponentType<{ collapsed?: boolean }>
   order?: number
   group?: NavGroup
+  section?: string
+}
+
+export interface NavSectionContribution {
+  key: string
+  label: string
+  order?: number
 }
 
 export type SettingsAreaKey = string
@@ -254,6 +261,7 @@ export interface ModuleApp {
   routes(routes: RouteObject[], options?: RouteOptions): void
   publicRoutes(routes: RouteObject[]): void
   nav(item: NavContribution): void
+  navSection(section: NavSectionContribution): void
   settings(area: SettingsAreaKey, item: SettingsContribution): void
   settingsArea(area: SettingsAreaContribution): void
   settingsGroup(area: SettingsAreaKey, group: SettingsGroupContribution): void

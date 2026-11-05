@@ -16,7 +16,7 @@ const dashboardModule = defineModule({
     ])
     app.provideComponent('dashboard.PeriodSelector', PeriodSelector)
     app.provideComponent('dashboard.CompareToggle', CompareToggle)
-    app.nav({ to: '/', label: 'nav.home', icon: House, end: true, order: 10 })
+    app.nav({ section: 'work', to: '/', label: 'nav.home', icon: House, end: true, order: 10 })
     for (const [key, renderer] of Object.entries(DASHBOARD_WIDGETS)) app.widget(key, renderer)
   },
 })

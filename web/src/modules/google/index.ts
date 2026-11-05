@@ -16,7 +16,7 @@ const googleModule = defineModule({
         children: [{ index: true, lazy: async () => ({ Component: (await import('./GooglePage')).GooglePage }) }],
       },
     ])
-    app.nav({
+    app.nav({ section: 'administration',
       to: '/google',
       label: 'nav',
       icon: CalendarDays,

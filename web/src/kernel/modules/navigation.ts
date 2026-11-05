@@ -1,10 +1,10 @@
 import type { LucideIcon } from 'lucide-react'
 import { useMemo, type ComponentType } from 'react'
-import type { NavContribution } from './define'
+import type { NavContribution, NavSectionContribution } from './define'
 import { NO_FILTER_CONTEXT, useFilters } from './filters'
 import { useLabelTranslator } from './i18n'
 import { pluginMenus, type PluginMenu } from './wasm_runtime'
-import { useActiveContributions, usePermissionCheck } from './registry'
+import { sortContributions, useActiveContributions, usePermissionCheck } from './registry'
 import { ORGANIZATION_AREA, useAdminAreas, useAllowedSettingsAreas } from './settings'
 
 export interface NavigationEntry {
@@ -18,6 +18,28 @@ export interface NavigationEntry {
   locked?: boolean
   badge?: ComponentType<{ collapsed?: boolean }>
   group?: { key: string; label: string; icon: LucideIcon }
+  section?: string
+}
+
+export const DEFAULT_NAV_SECTION = 'operations'
+export const RECORDS_NAV_SECTION = 'records'
+export const ADMINISTRATION_NAV_SECTION = 'administration'
+
+export interface ResolvedNavSection {
+  key: string
+  label: string
+}
+
+export function useNavSections(): ResolvedNavSection[] {
+  const items = useActiveContributions<NavSectionContribution>('navSections')
+  const translate = useLabelTranslator()
+  return useMemo(
+    () =>
+      sortContributions(items)
+        .filter(({ value }, index, all) => all.findIndex((other) => other.value.key === value.key) === index)
+        .map(({ module, value }) => ({ key: value.key, label: translate(module, value.label) })),
+    [items, translate],
+  )
 }
 
 export const SETTINGS_ENTRY_KEY = 'settings'
@@ -79,6 +101,7 @@ export function useNavigationEntries(): NavigationEntry[] {
         order,
         end: value.end,
         badge: value.badge,
+        section: value.section,
         group: value.group && { ...value.group, label: translate(module, value.group.label) },
       }))
     if (!settingsAccess) return modules
@@ -92,6 +115,7 @@ export function useNavigationEntries(): NavigationEntry[] {
         icon: ORGANIZATION_AREA.icon,
         order: Number.MAX_SAFE_INTEGER,
         locked: true,
+        section: ADMINISTRATION_NAV_SECTION,
       },
     ]
   }, [items, allowed, translate, settingsAccess])

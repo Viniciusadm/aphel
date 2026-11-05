@@ -11,7 +11,7 @@ const reportsModule = defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.routes(reportsRoutes)
-    app.nav({
+    app.nav({ section: 'analysis',
       to: '/reports',
       label: 'nav.reports',
       icon: BarChart3,

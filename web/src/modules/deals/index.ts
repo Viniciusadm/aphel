@@ -57,7 +57,7 @@ const dealsModule = defineModule({
     app.routes(dealReportRoutes)
     app.slot('reports.library', { key: 'sales', permission: 'deals.read', render: DealReportLibraryCards })
     app.routes(dealsRoutes)
-    app.nav({ to: DEALS_PATH, label: 'nav.deals', icon: Briefcase, permission: ['deals.read'], order: 50 })
+    app.nav({ section: 'records', to: DEALS_PATH, label: 'nav.deals', icon: Briefcase, permission: ['deals.read'], order: 50 })
     app.createAction({
       id: 'deal',
       label: 'createAction.label',

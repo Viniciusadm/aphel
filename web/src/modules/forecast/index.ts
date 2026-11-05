@@ -9,7 +9,7 @@ const forecastModule = defineModule({
   register(app) {
     app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.routes(forecastRoutes)
-    app.nav({ to: '/forecast', label: 'nav.forecast', icon: TrendingUp, permission: ['deals.read'], order: 150 })
+    app.nav({ section: 'analysis', to: '/forecast', label: 'nav.forecast', icon: TrendingUp, permission: ['deals.read'], order: 150 })
     app.settings('organization', {
       group: 'sales',
       path: 'forecast',

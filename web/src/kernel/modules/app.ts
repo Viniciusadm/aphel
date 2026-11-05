@@ -31,6 +31,7 @@ export function createModuleApp(key: string): ModuleApp {
     routes: (routes, options) => contribute<RouteEntry>('routes', key, { routes, layout: options?.layout ?? 'app' }),
     publicRoutes: (routes) => contribute<RouteObject[]>('publicRoutes', key, routes),
     nav: (item) => contribute('nav', key, item, item.order ?? NAV_ORDER.modules),
+    navSection: (section) => contribute('navSections', key, section, section.order),
     settings: (area, item) => contribute<SettingsEntry>('settings', key, { area, item }, item.order),
     settingsArea: (area) => contribute<SettingsAreaContribution>('settingsAreas', key, area, area.order),
     settingsGroup: (area, group) =>

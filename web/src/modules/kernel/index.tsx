@@ -61,7 +61,13 @@ function settings(app: ModuleApp, area: SettingsAreaKey, items: SettingsItem[]) 
 }
 
 function registerNavigation(app: ModuleApp) {
+  app.navSection({ key: 'work', label: 'layout:nav.groups.work', order: 10 })
+  app.navSection({ key: 'records', label: 'layout:nav.groups.crm', order: 20 })
+  app.navSection({ key: 'operations', label: 'layout:nav.groups.operations', order: 30 })
+  app.navSection({ key: 'analysis', label: 'layout:nav.groups.analysis', order: 40 })
+  app.navSection({ key: 'administration', label: 'layout:nav.groups.administration', order: 50 })
   app.nav({
+    section: 'administration',
     to: '/system',
     label: 'layout:nav.system',
     icon: Server,

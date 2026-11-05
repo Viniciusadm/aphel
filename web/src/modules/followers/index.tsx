@@ -8,7 +8,7 @@ const followersModule = defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
     app.routes(followingRoutes)
-    app.nav({ to: '/following', label: 'followers:nav.following', icon: BellRing, order: 100 })
+    app.nav({ section: 'work', to: '/following', label: 'followers:nav.following', icon: BellRing, order: 100 })
     app.slot('record.detail.actions', {
       key: 'follow',
       order: 10,
