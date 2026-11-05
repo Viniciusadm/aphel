@@ -1,4 +1,4 @@
-import type { components } from '@/api'
+import type { components } from '@/modules/deals_revenue/api-types'
 
 type Schemas = components['schemas']
 

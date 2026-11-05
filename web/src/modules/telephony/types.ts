@@ -1,4 +1,4 @@
-import type { components } from '@/api'
+import type { components } from '@/modules/telephony/api-types'
 import type {Activity} from '@/sdk'
 
 type Schemas = components['schemas']

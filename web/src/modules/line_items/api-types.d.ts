@@ -90,6 +90,59 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        LineItemResponse: {
+            /** @example 13500.00 */
+            amount_base?: string | null;
+            /** @example 2026-10-20T13:45:00Z */
+            created_at: string;
+            created_by?: string | null;
+            /** @example 300.00 */
+            discount_amount: string;
+            discount_type: components["schemas"]["DiscountType"];
+            /** @example 10.00 */
+            discount_value: string;
+            /** @example 5.4 */
+            exchange_rate?: string | null;
+            /** @example 3000.00 */
+            gross: string;
+            id: string;
+            /** @example 225.00 */
+            monthly_amount?: string | null;
+            name: string;
+            /** Format: int32 */
+            position: number;
+            product_id?: string | null;
+            /** @example 2 */
+            quantity: string;
+            record_id: string;
+            record_type: string;
+            recurrence: components["schemas"]["Recurrence"];
+            tax: string;
+            tax_percent: string;
+            /**
+             * Format: int32
+             * @example 12
+             */
+            term_months?: number | null;
+            /** @example 2700.00 */
+            total: string;
+            unit?: string | null;
+            /** @example 1500.00 */
+            unit_price: string;
+            /** @example 2026-10-20T13:45:00Z */
+            updated_at: string;
+        };
+        /** @enum {string} */
+        Recurrence: "none" | "monthly" | "quarterly" | "yearly";
+        /** @enum {string} */
+        DiscountType: "none" | "percent" | "amount";
+        LineItemSettingsResponse: {
+            amount_mode: components["schemas"]["AmountMode"];
+            /** @example 2026-10-20T13:45:00Z */
+            updated_at?: string | null;
+        };
+        /** @enum {string} */
+        AmountMode: "manual" | "items";
         ReorderLineItemsRequest: {
             item_ids: string[];
         };
@@ -137,10 +190,6 @@ export interface components {
                 updated_at: string;
             };
         };
-        /** @enum {string} */
-        Recurrence: "none" | "monthly" | "quarterly" | "yearly";
-        /** @enum {string} */
-        DiscountType: "none" | "percent" | "amount";
         LineItemRequest: {
             discount_type?: null | components["schemas"]["DiscountType"];
             discount_value?: unknown;
@@ -179,50 +228,24 @@ export interface components {
                 total: string;
             };
         };
-        LineItemResponse: {
-            /** @example 13500.00 */
-            amount_base?: string | null;
-            /** @example 2026-10-20T13:45:00Z */
-            created_at: string;
-            created_by?: string | null;
+        LineItemsResponse: {
+            amount_managed: boolean;
+            amount_mode: components["schemas"]["AmountMode"];
+            can_apply_total: boolean;
+            /** @example BRL */
+            currency: string;
             /** @example 300.00 */
-            discount_amount: string;
-            discount_type: components["schemas"]["DiscountType"];
-            /** @example 10.00 */
-            discount_value: string;
-            /** @example 5.4 */
-            exchange_rate?: string | null;
-            /** @example 3000.00 */
-            gross: string;
-            id: string;
-            /** @example 225.00 */
-            monthly_amount?: string | null;
-            name: string;
-            /** Format: int32 */
-            position: number;
-            product_id?: string | null;
-            /** @example 2 */
-            quantity: string;
+            discount_total: string;
+            items: components["schemas"]["LineItemResponse"][];
+            /** @example 2700.00 */
+            record_amount?: string | null;
             record_id: string;
             record_type: string;
-            recurrence: components["schemas"]["Recurrence"];
-            tax: string;
-            tax_percent: string;
-            /**
-             * Format: int32
-             * @example 12
-             */
-            term_months?: number | null;
+            /** @example 3000.00 */
+            subtotal: string;
             /** @example 2700.00 */
             total: string;
-            unit?: string | null;
-            /** @example 1500.00 */
-            unit_price: string;
-            /** @example 2026-10-20T13:45:00Z */
-            updated_at: string;
         };
-        /** @enum {string} */
-        AmountMode: "manual" | "items";
         UpdateLineItemSettingsRequest: {
             amount_mode?: null | components["schemas"]["AmountMode"];
         };

@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { API_BASE_URL, api, type components } from '@/api'
+import { API_BASE_URL, api } from '@/api'
+import type { components } from '@/modules/privacy/api-types'
 
 type Schemas = components['schemas']
 

@@ -113,7 +113,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       },
       "post": {
         "tags": [
@@ -211,7 +212,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/activity-types/order": {
@@ -289,7 +291,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/activity-types/{activity_type_id}": {
@@ -368,7 +371,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       },
       "patch": {
         "tags": [
@@ -487,7 +491,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/activity-types/{activity_type_id}/activate": {
@@ -596,7 +601,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/activity-types/{activity_type_id}/deactivate": {
@@ -705,7 +711,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/aggregates": {
@@ -816,7 +823,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/aggregates/{record_type}/schema": {
@@ -896,7 +904,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/ai/calls": {
@@ -996,7 +1005,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "ai"
       }
     },
     "/api/v1/ai/compose": {
@@ -1106,7 +1116,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "ai"
       }
     },
     "/api/v1/ai/next-actions": {
@@ -1216,7 +1227,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "ai"
       }
     },
     "/api/v1/ai/query": {
@@ -1316,7 +1328,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "ai"
       }
     },
     "/api/v1/ai/status": {
@@ -1374,7 +1387,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "ai"
       }
     },
     "/api/v1/ai/summary": {
@@ -1484,7 +1498,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "ai"
       }
     },
     "/api/v1/api-tokens": {
@@ -1573,7 +1588,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -1658,7 +1674,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/api-tokens/scopes": {
@@ -1703,7 +1720,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/api-tokens/{token_id}/revoke": {
@@ -1799,7 +1817,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/approval-policies": {
@@ -1900,7 +1919,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       },
       "post": {
         "tags": [
@@ -1999,7 +2019,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-policies/order": {
@@ -2078,7 +2099,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-policies/{policy_id}": {
@@ -2158,7 +2180,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       },
       "delete": {
         "tags": [
@@ -2251,7 +2274,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       },
       "patch": {
         "tags": [
@@ -2371,7 +2395,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-requests": {
@@ -2508,7 +2533,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       },
       "post": {
         "tags": [
@@ -2617,7 +2643,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-requests/pending-count": {
@@ -2666,7 +2693,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-requests/{request_id}": {
@@ -2736,7 +2764,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-requests/{request_id}/approve": {
@@ -2856,7 +2885,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-requests/{request_id}/cancel": {
@@ -2976,7 +3006,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/approval-requests/{request_id}/reject": {
@@ -3096,7 +3127,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "approvals"
       }
     },
     "/api/v1/assignment/assignments": {
@@ -3222,7 +3254,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       }
     },
     "/api/v1/assignment/rules": {
@@ -3332,7 +3365,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       },
       "post": {
         "tags": [
@@ -3430,7 +3464,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       }
     },
     "/api/v1/assignment/rules/{rule_id}": {
@@ -3509,7 +3544,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       },
       "delete": {
         "tags": [
@@ -3579,7 +3615,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       },
       "patch": {
         "tags": [
@@ -3698,7 +3735,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       }
     },
     "/api/v1/assignment/rules/{rule_id}/simulate": {
@@ -3817,7 +3855,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       }
     },
     "/api/v1/assignment/targets": {
@@ -3855,7 +3894,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "assignment"
       }
     },
     "/api/v1/attachments": {
@@ -3966,7 +4006,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -4074,7 +4115,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/attachments/{attachment_id}": {
@@ -4146,7 +4188,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/audit-logs": {
@@ -4283,7 +4326,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/accept-invitation": {
@@ -4354,7 +4398,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/forgot-password": {
@@ -4418,7 +4463,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/invitation": {
@@ -4479,7 +4525,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/login": {
@@ -4570,7 +4617,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/logout": {
@@ -4619,7 +4667,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/logout-all": {
@@ -4668,7 +4717,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/me": {
@@ -4724,7 +4774,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/resend-verification": {
@@ -4773,7 +4824,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/reset-password": {
@@ -4827,7 +4879,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/sso/discover": {
@@ -4888,7 +4941,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/two-factor/challenge": {
@@ -4964,7 +5018,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/auth/verify-email": {
@@ -5018,7 +5073,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/automations": {
@@ -5135,7 +5191,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       },
       "post": {
         "tags": [
@@ -5234,7 +5291,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/catalog": {
@@ -5292,7 +5350,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}": {
@@ -5371,7 +5430,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       },
       "delete": {
         "tags": [
@@ -5441,7 +5501,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       },
       "patch": {
         "tags": [
@@ -5560,7 +5621,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/activate": {
@@ -5669,7 +5731,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/dry-run": {
@@ -5789,7 +5852,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/pause": {
@@ -5898,7 +5962,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/publish": {
@@ -6020,7 +6085,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/run": {
@@ -6140,7 +6206,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/runs": {
@@ -6268,7 +6335,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/runs/{run_id}": {
@@ -6356,7 +6424,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/automations/{automation_id}/versions": {
@@ -6435,7 +6504,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "automations"
       }
     },
     "/api/v1/booking/availability": {
@@ -6503,7 +6573,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       },
       "put": {
         "tags": [
@@ -6611,7 +6682,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/booking/bookings": {
@@ -6728,7 +6800,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/booking/bookings/{booking_id}/cancel": {
@@ -6847,7 +6920,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/booking/contact-fields": {
@@ -6905,7 +6979,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/booking/distribution-rules": {
@@ -6963,7 +7038,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/booking/meeting-types": {
@@ -7056,7 +7132,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       },
       "post": {
         "tags": [
@@ -7154,7 +7231,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/booking/meeting-types/{meeting_type_id}": {
@@ -7233,7 +7311,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       },
       "delete": {
         "tags": [
@@ -7303,7 +7382,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       },
       "patch": {
         "tags": [
@@ -7422,7 +7502,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/bulk-operations": {
@@ -7505,7 +7586,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "bulk_actions"
       },
       "post": {
         "tags": [
@@ -7613,7 +7695,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "bulk_actions"
       }
     },
     "/api/v1/bulk-operations/export": {
@@ -7713,7 +7796,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "bulk_actions"
       }
     },
     "/api/v1/bulk-operations/{operation_id}": {
@@ -7782,7 +7866,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "bulk_actions"
       }
     },
     "/api/v1/bulk-operations/{operation_id}/items": {
@@ -7893,7 +7978,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "bulk_actions"
       }
     },
     "/api/v1/calendar": {
@@ -7999,7 +8085,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "calendar"
       }
     },
     "/api/v1/calendar/{source}/{id}": {
@@ -8068,7 +8155,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "calendar"
       }
     },
     "/api/v1/catalog": {
@@ -8136,7 +8224,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "marketplace"
       }
     },
     "/api/v1/catalog-items": {
@@ -8274,7 +8363,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "catalog_items"
       },
       "post": {
         "tags": [
@@ -8373,7 +8463,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "catalog_items"
       }
     },
     "/api/v1/catalog-items/{product_id}": {
@@ -8453,7 +8544,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "catalog_items"
       },
       "delete": {
         "tags": [
@@ -8523,7 +8615,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "catalog_items"
       },
       "patch": {
         "tags": [
@@ -8643,7 +8736,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "catalog_items"
       }
     },
     "/api/v1/catalog/templates/{id}/apply": {
@@ -8762,7 +8856,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "marketplace"
       }
     },
     "/api/v1/catalog/templates/{id}/compare": {
@@ -8871,7 +8966,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "marketplace"
       }
     },
     "/api/v1/catalog/themes/{id}/download": {
@@ -8978,7 +9074,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "marketplace"
       }
     },
     "/api/v1/communication/opt-outs": {
@@ -9060,7 +9157,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       },
       "post": {
         "tags": [
@@ -9149,7 +9247,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/communication/opt-outs/{id}": {
@@ -9212,7 +9311,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/config-package-versions": {
@@ -9270,7 +9370,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-package-versions/apply": {
@@ -9370,7 +9471,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-package-versions/compare": {
@@ -9470,7 +9572,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/apply": {
@@ -9580,7 +9683,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/export": {
@@ -9680,7 +9784,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/installs": {
@@ -9773,7 +9878,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/installs/{id}": {
@@ -9852,7 +9958,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/plan": {
@@ -9962,7 +10069,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/sections": {
@@ -10020,7 +10128,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/templates": {
@@ -10078,7 +10187,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/config-packages/templates/{key}": {
@@ -10157,7 +10267,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "config_packages"
       }
     },
     "/api/v1/custom-objects": {
@@ -10216,7 +10327,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       },
       "post": {
         "tags": [
@@ -10315,7 +10427,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       }
     },
     "/api/v1/custom-objects/order": {
@@ -10394,7 +10507,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       }
     },
     "/api/v1/custom-objects/{key}": {
@@ -10473,7 +10587,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       },
       "delete": {
         "tags": [
@@ -10554,7 +10669,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       },
       "patch": {
         "tags": [
@@ -10674,7 +10790,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       }
     },
     "/api/v1/dashboard/layout": {
@@ -10722,7 +10839,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "dashboard"
       },
       "put": {
         "tags": [
@@ -10788,7 +10906,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "dashboard"
       },
       "delete": {
         "tags": [
@@ -10834,7 +10953,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "dashboard"
       }
     },
     "/api/v1/dashboard/subjects": {
@@ -10883,7 +11003,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "dashboard"
       }
     },
     "/api/v1/dashboard/widgets": {
@@ -10966,7 +11087,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "dashboard"
       }
     },
     "/api/v1/dashboard/widgets/{key}/data": {
@@ -11117,7 +11239,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "dashboard"
       }
     },
     "/api/v1/deal-member-roles": {
@@ -11185,7 +11308,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "post": {
         "tags": [
@@ -11283,7 +11407,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deal-member-roles/order": {
@@ -11361,7 +11486,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deal-member-roles/{role_id}": {
@@ -11433,7 +11559,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "patch": {
         "tags": [
@@ -11552,7 +11679,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals": {
@@ -11689,7 +11817,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "post": {
         "tags": [
@@ -11787,7 +11916,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/board": {
@@ -11941,7 +12071,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/reports/conversion": {
@@ -12066,7 +12197,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/reports/performance": {
@@ -12200,7 +12332,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}": {
@@ -12298,7 +12431,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "delete": {
         "tags": [
@@ -12368,7 +12502,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "patch": {
         "tags": [
@@ -12487,7 +12622,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/archive": {
@@ -12596,7 +12732,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/lost": {
@@ -12715,7 +12852,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/members": {
@@ -12795,7 +12933,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "post": {
         "tags": [
@@ -12913,7 +13052,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/members/{member_id}": {
@@ -12995,7 +13135,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       },
       "patch": {
         "tags": [
@@ -13124,7 +13265,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/move": {
@@ -13243,7 +13385,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/move-pipeline": {
@@ -13362,7 +13505,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/quotes": {
@@ -13442,7 +13586,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/deals/{deal_id}/reopen": {
@@ -13561,7 +13706,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/unarchive": {
@@ -13670,7 +13816,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/deals/{deal_id}/won": {
@@ -13779,7 +13926,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "deals"
       }
     },
     "/api/v1/demo": {
@@ -13800,7 +13948,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "demo"
       }
     },
     "/api/v1/duplicates": {
@@ -13911,7 +14060,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/check": {
@@ -14011,7 +14161,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/merge": {
@@ -14133,7 +14284,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/rules": {
@@ -14212,7 +14364,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       },
       "put": {
         "tags": [
@@ -14288,7 +14441,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/scan": {
@@ -14371,7 +14525,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/types": {
@@ -14419,7 +14574,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/{candidate_id}": {
@@ -14498,7 +14654,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/duplicates/{candidate_id}/dismiss": {
@@ -14607,7 +14764,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "duplicates"
       }
     },
     "/api/v1/e/c/{token}": {
@@ -14642,7 +14800,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/e/o/{token}": {
@@ -14670,7 +14829,8 @@
               "image/gif": {}
             }
           }
-        }
+        },
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-blocklist": {
@@ -14728,7 +14888,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "post": {
         "tags": [
@@ -14826,7 +14987,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-blocklist/{entry_id}": {
@@ -14898,7 +15060,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-messages/{message_id}/attachments/{attachment_id}": {
@@ -14972,7 +15135,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-settings/capture": {
@@ -15030,7 +15194,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "put": {
         "tags": [
@@ -15106,7 +15271,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-settings/tracking": {
@@ -15164,7 +15330,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "put": {
         "tags": [
@@ -15240,7 +15407,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-settings/tracking/objections": {
@@ -15298,7 +15466,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "post": {
         "tags": [
@@ -15397,7 +15566,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-settings/tracking/objections/{objection_id}": {
@@ -15469,7 +15639,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-templates": {
@@ -15557,7 +15728,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "post": {
         "tags": [
@@ -15656,7 +15828,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-templates/variables": {
@@ -15735,7 +15908,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-templates/{template_id}": {
@@ -15814,7 +15988,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "delete": {
         "tags": [
@@ -15884,7 +16059,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "patch": {
         "tags": [
@@ -15991,7 +16167,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-threads": {
@@ -16101,7 +16278,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-threads/mine": {
@@ -16202,7 +16380,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-threads/{thread_id}": {
@@ -16281,7 +16460,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "patch": {
         "tags": [
@@ -16378,7 +16558,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-threads/{thread_id}/links": {
@@ -16497,7 +16678,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/email-threads/{thread_id}/links/{record_type}/{record_id}": {
@@ -16587,7 +16769,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/emails": {
@@ -16698,7 +16881,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/emails/preview": {
@@ -16809,7 +16993,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/emails/{email_id}/cancel": {
@@ -16919,7 +17104,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/enrichment/lookups": {
@@ -17030,7 +17216,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "enrichment"
       }
     },
     "/api/v1/enrichment/lookups/{lookup_id}/apply": {
@@ -17140,7 +17327,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "enrichment"
       }
     },
     "/api/v1/enrichment/organizations/{company_id}": {
@@ -17210,7 +17398,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "enrichment"
       }
     },
     "/api/v1/entities": {
@@ -17258,7 +17447,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/entities/{entity}/records": {
@@ -17316,7 +17506,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -17400,7 +17591,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/entities/{entity}/records/{id}": {
@@ -17466,7 +17658,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "delete": {
         "tags": [
@@ -17523,7 +17716,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -17595,7 +17789,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/esign/requests": {
@@ -17674,7 +17869,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "esign"
       },
       "post": {
         "tags": [
@@ -17783,7 +17979,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "esign"
       }
     },
     "/api/v1/esign/requests/{request_id}": {
@@ -17852,7 +18049,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "esign"
       }
     },
     "/api/v1/esign/requests/{request_id}/cancel": {
@@ -17962,7 +18160,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "esign"
       }
     },
     "/api/v1/esign/status": {
@@ -18021,7 +18220,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "esign"
       }
     },
     "/api/v1/events/catalog": {
@@ -18070,7 +18270,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/exports": {
@@ -18153,7 +18354,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "exports"
       },
       "post": {
         "tags": [
@@ -18251,7 +18453,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "exports"
       }
     },
     "/api/v1/exports/{export_id}": {
@@ -18320,7 +18523,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "exports"
       }
     },
     "/api/v1/favorites": {
@@ -18403,7 +18607,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "favorites"
       },
       "post": {
         "tags": [
@@ -18511,7 +18716,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "favorites"
       }
     },
     "/api/v1/favorites/order": {
@@ -18579,7 +18785,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "favorites"
       }
     },
     "/api/v1/favorites/{favorite_id}": {
@@ -18641,7 +18848,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "favorites"
       }
     },
     "/api/v1/field-permissions/{record_type}": {
@@ -18721,7 +18929,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "put": {
         "tags": [
@@ -18841,7 +19050,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/formula/catalog": {
@@ -18919,7 +19129,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "formulas"
       }
     },
     "/api/v1/fields/formula/preview": {
@@ -19029,7 +19240,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "formulas"
       }
     },
     "/api/v1/fields/{record_type}": {
@@ -19149,7 +19361,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -19266,7 +19479,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/order": {
@@ -19365,7 +19579,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/schema": {
@@ -19444,7 +19659,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/{field_id}": {
@@ -19574,7 +19790,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/{field_id}/activate": {
@@ -19692,7 +19909,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/{field_id}/deactivate": {
@@ -19810,7 +20028,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/{field_id}/options": {
@@ -19938,7 +20157,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/{field_id}/options/order": {
@@ -20046,7 +20266,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/fields/{record_type}/{field_id}/options/{option_id}": {
@@ -20185,7 +20406,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/files": {
@@ -20295,7 +20517,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/files/{file_id}": {
@@ -20360,7 +20583,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/forecast": {
@@ -20456,7 +20680,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forecast"
       }
     },
     "/api/v1/forecast/deals": {
@@ -20582,7 +20807,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forecast"
       }
     },
     "/api/v1/forecast/settings": {
@@ -20630,7 +20856,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forecast"
       },
       "patch": {
         "tags": [
@@ -20730,7 +20957,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forecast"
       }
     },
     "/api/v1/forms/forms": {
@@ -20788,7 +21016,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       },
       "post": {
         "tags": [
@@ -20876,7 +21105,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/forms/forms/{form_id}": {
@@ -20945,7 +21175,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       },
       "put": {
         "tags": [
@@ -21032,7 +21263,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       },
       "delete": {
         "tags": [
@@ -21092,7 +21324,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/forms/forms/{form_id}/rotate-public-id": {
@@ -21191,7 +21424,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/forms/forms/{form_id}/submissions": {
@@ -21301,7 +21535,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/forms/options": {
@@ -21349,7 +21584,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/goals": {
@@ -21497,7 +21733,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "goals"
       },
       "post": {
         "tags": [
@@ -21595,7 +21832,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "goals"
       }
     },
     "/api/v1/goals/owners": {
@@ -21643,7 +21881,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "goals"
       }
     },
     "/api/v1/goals/{goal_id}": {
@@ -21712,7 +21951,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "goals"
       },
       "delete": {
         "tags": [
@@ -21782,7 +22022,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "goals"
       },
       "patch": {
         "tags": [
@@ -21901,7 +22142,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "goals"
       }
     },
     "/api/v1/google/calendar/connect": {
@@ -21991,7 +22233,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/google/calendar/connection": {
@@ -22032,7 +22275,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/google/calendar/sync": {
@@ -22115,7 +22359,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/google/mail/connect": {
@@ -22146,7 +22391,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/google/status": {
@@ -22194,7 +22440,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/hooks/{token}": {
@@ -22307,7 +22554,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/imports": {
@@ -22399,7 +22647,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       },
       "post": {
         "tags": [
@@ -22517,7 +22766,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/imports/{import_id}": {
@@ -22586,7 +22836,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/imports/{import_id}/mapping": {
@@ -22695,7 +22946,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/imports/{import_id}/retry-failed": {
@@ -22804,7 +23056,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/imports/{import_id}/rows": {
@@ -22915,7 +23168,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/imports/{import_id}/start": {
@@ -23024,7 +23278,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/imports/{import_id}/validate": {
@@ -23133,7 +23388,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "imports"
       }
     },
     "/api/v1/incoming-webhooks": {
@@ -23226,7 +23482,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "post": {
         "tags": [
@@ -23324,7 +23581,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/incoming-webhooks/targets": {
@@ -23382,7 +23640,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/incoming-webhooks/{webhook_id}": {
@@ -23461,7 +23720,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "delete": {
         "tags": [
@@ -23531,7 +23791,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "patch": {
         "tags": [
@@ -23650,7 +23911,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/incoming-webhooks/{webhook_id}/regenerate-token": {
@@ -23759,7 +24021,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/incoming-webhooks/{webhook_id}/requests": {
@@ -23879,7 +24142,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/incoming-webhooks/{webhook_id}/requests/{request_id}": {
@@ -23967,7 +24231,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/incoming-webhooks/{webhook_id}/signing-secret": {
@@ -24086,7 +24351,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "delete": {
         "tags": [
@@ -24156,7 +24422,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/installer": {
@@ -24197,7 +24464,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -24286,7 +24554,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/installer/modules/validate": {
@@ -24330,7 +24599,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/installer/restore": {
@@ -24421,7 +24691,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "org_export"
       }
     },
     "/api/v1/integrations": {
@@ -24479,7 +24750,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       }
     },
     "/api/v1/integrations/{provider_key}": {
@@ -24558,7 +24830,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       },
       "put": {
         "tags": [
@@ -24687,7 +24960,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       },
       "delete": {
         "tags": [
@@ -24767,7 +25041,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       }
     },
     "/api/v1/integrations/{provider_key}/activate": {
@@ -24876,7 +25151,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       }
     },
     "/api/v1/integrations/{provider_key}/deactivate": {
@@ -24985,7 +25261,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       }
     },
     "/api/v1/integrations/{provider_key}/test": {
@@ -25104,7 +25381,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "integrations"
       }
     },
     "/api/v1/layouts/{record_type}/{context}": {
@@ -25182,7 +25460,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "record_layouts"
       },
       "put": {
         "tags": [
@@ -25288,7 +25567,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "record_layouts"
       },
       "delete": {
         "tags": [
@@ -25367,7 +25647,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "record_layouts"
       }
     },
     "/api/v1/lead-disqualification-reasons": {
@@ -25435,7 +25716,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       },
       "post": {
         "tags": [
@@ -25533,7 +25815,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/lead-disqualification-reasons/order": {
@@ -25611,7 +25894,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/lead-disqualification-reasons/{reason_id}": {
@@ -25683,7 +25967,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       },
       "patch": {
         "tags": [
@@ -25802,7 +26087,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/leads/{contact_id}/convert": {
@@ -25922,7 +26208,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/leads/{contact_id}/disqualify": {
@@ -26042,7 +26329,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/leads/{contact_id}/qualify": {
@@ -26152,7 +26440,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/lifecycle/history/{record_type}/{record_id}": {
@@ -26241,7 +26530,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/lifecycle/report": {
@@ -26339,7 +26629,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/lifecycle/settings": {
@@ -26398,7 +26689,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       },
       "put": {
         "tags": [
@@ -26499,7 +26791,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "leads"
       }
     },
     "/api/v1/line-items/settings": {
@@ -26558,7 +26851,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       },
       "patch": {
         "tags": [
@@ -26659,7 +26953,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       }
     },
     "/api/v1/line-items/{record_type}/{record_id}/items": {
@@ -26758,7 +27053,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       },
       "post": {
         "tags": [
@@ -26885,7 +27181,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       }
     },
     "/api/v1/line-items/{record_type}/{record_id}/items/apply-total": {
@@ -27004,7 +27301,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       }
     },
     "/api/v1/line-items/{record_type}/{record_id}/items/order": {
@@ -27113,7 +27411,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       }
     },
     "/api/v1/line-items/{record_type}/{record_id}/items/{item_id}": {
@@ -27213,7 +27512,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       },
       "patch": {
         "tags": [
@@ -27351,7 +27651,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "line_items"
       }
     },
     "/api/v1/lost-reasons": {
@@ -27460,7 +27761,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "post": {
         "tags": [
@@ -27558,7 +27860,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/lost-reasons/order": {
@@ -27636,7 +27939,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/lost-reasons/{reason_id}": {
@@ -27715,7 +28019,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "patch": {
         "tags": [
@@ -27834,7 +28139,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/mailboxes": {
@@ -27882,7 +28188,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "post": {
         "tags": [
@@ -27970,7 +28277,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/mailboxes/providers": {
@@ -28018,7 +28326,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/mailboxes/{mailbox_id}": {
@@ -28087,7 +28396,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "delete": {
         "tags": [
@@ -28147,7 +28457,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       },
       "patch": {
         "tags": [
@@ -28234,7 +28545,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/mailboxes/{mailbox_id}/sync": {
@@ -28326,7 +28638,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/mailboxes/{mailbox_id}/test": {
@@ -28425,7 +28738,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "email"
       }
     },
     "/api/v1/me/followed-records": {
@@ -28518,7 +28832,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "followers"
       }
     },
     "/api/v1/members": {
@@ -28611,7 +28926,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/invitations": {
@@ -28711,7 +29027,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/{user_id}": {
@@ -28790,7 +29107,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "delete": {
         "tags": [
@@ -28870,7 +29188,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -28989,7 +29308,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/{user_id}/invitation": {
@@ -29071,7 +29391,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/{user_id}/password-reset": {
@@ -29181,7 +29502,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/{user_id}/reactivate": {
@@ -29290,7 +29612,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/{user_id}/resend-invitation": {
@@ -29399,7 +29722,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/members/{user_id}/suspend": {
@@ -29508,7 +29832,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/messaging/channels": {
@@ -29566,7 +29891,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       },
       "post": {
         "tags": [
@@ -29654,7 +29980,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/channels/{id}": {
@@ -29723,7 +30050,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       },
       "put": {
         "tags": [
@@ -29810,7 +30138,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       },
       "delete": {
         "tags": [
@@ -29880,7 +30209,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/channels/{id}/test": {
@@ -29979,7 +30309,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations": {
@@ -30124,7 +30455,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations/{id}": {
@@ -30193,7 +30525,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations/{id}/assignee": {
@@ -30282,7 +30615,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations/{id}/links": {
@@ -30371,7 +30705,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations/{id}/messages": {
@@ -30480,7 +30815,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations/{id}/read": {
@@ -30572,7 +30908,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/conversations/{id}/status": {
@@ -30661,7 +30998,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/messaging/providers": {
@@ -30699,7 +31037,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/microsoft/calendar/connect": {
@@ -30789,7 +31128,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/microsoft/calendar/connection": {
@@ -30830,7 +31170,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/microsoft/calendar/sync": {
@@ -30913,7 +31254,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/microsoft/mail/connect": {
@@ -30944,7 +31286,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/microsoft/status": {
@@ -30992,7 +31335,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/migration-assistant/history": {
@@ -31112,7 +31456,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "migrations_assistant"
       }
     },
     "/api/v1/migration-assistant/imports": {
@@ -31232,7 +31577,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "migrations_assistant"
       }
     },
     "/api/v1/migration-assistant/preview": {
@@ -31352,7 +31698,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "migrations_assistant"
       }
     },
     "/api/v1/migration-assistant/sources": {
@@ -31400,7 +31747,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "migrations_assistant"
       }
     },
     "/api/v1/modules": {
@@ -31449,7 +31797,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/modules/{key}": {
@@ -31518,7 +31867,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/modules/{key}/data-export": {
@@ -31628,7 +31978,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/modules/{key}/data-purge": {
@@ -31748,7 +32099,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/modules/{key}/disable": {
@@ -31858,7 +32210,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/modules/{key}/enable": {
@@ -31968,7 +32321,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/modules/{key}/settings": {
@@ -32068,7 +32422,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/money/currencies": {
@@ -32126,7 +32481,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       },
       "put": {
         "tags": [
@@ -32202,7 +32558,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       }
     },
     "/api/v1/money/currencies/provider": {
@@ -32280,7 +32637,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       }
     },
     "/api/v1/money/currencies/rates": {
@@ -32381,7 +32739,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       },
       "post": {
         "tags": [
@@ -32479,7 +32838,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       }
     },
     "/api/v1/money/currencies/rates/sync": {
@@ -32569,7 +32929,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       }
     },
     "/api/v1/money/currencies/rates/{rate_id}": {
@@ -32648,7 +33009,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       },
       "delete": {
         "tags": [
@@ -32718,7 +33080,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       },
       "patch": {
         "tags": [
@@ -32837,7 +33200,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "money"
       }
     },
     "/api/v1/notes": {
@@ -32947,7 +33311,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       },
       "post": {
         "tags": [
@@ -33045,7 +33410,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       }
     },
     "/api/v1/notes/{note_id}": {
@@ -33124,7 +33490,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       },
       "delete": {
         "tags": [
@@ -33194,7 +33561,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       },
       "patch": {
         "tags": [
@@ -33313,7 +33681,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       }
     },
     "/api/v1/notes/{note_id}/pin": {
@@ -33422,7 +33791,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       }
     },
     "/api/v1/notes/{note_id}/unpin": {
@@ -33531,7 +33901,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notes"
       }
     },
     "/api/v1/notifications": {
@@ -33620,7 +33991,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/preferences": {
@@ -33668,7 +34040,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       },
       "put": {
         "tags": [
@@ -33744,7 +34117,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/push/public-key": {
@@ -33812,7 +34186,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/push/subscriptions": {
@@ -33915,7 +34290,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/push/subscriptions/unsubscribe": {
@@ -34008,7 +34384,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/read-all": {
@@ -34098,7 +34475,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/unread-count": {
@@ -34146,7 +34524,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/notifications/{notification_id}/read": {
@@ -34248,7 +34627,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "notifications"
       }
     },
     "/api/v1/objects": {
@@ -34297,7 +34677,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/objects/{key}/records": {
@@ -34454,7 +34835,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -34572,7 +34954,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/objects/{key}/records/{record_id}": {
@@ -34660,7 +35043,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "delete": {
         "tags": [
@@ -34750,7 +35134,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -34879,7 +35264,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/objects/{key}/records/{record_id}/archive": {
@@ -34998,7 +35384,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/objects/{key}/records/{record_id}/unarchive": {
@@ -35117,7 +35504,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/objects/{key}/schema": {
@@ -35197,7 +35585,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/onboarding": {
@@ -35255,7 +35644,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "onboarding"
       }
     },
     "/api/v1/onboarding/answers": {
@@ -35343,7 +35733,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "onboarding"
       }
     },
     "/api/v1/onboarding/complete": {
@@ -35443,7 +35834,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "onboarding"
       }
     },
     "/api/v1/onboarding/reopen": {
@@ -35533,7 +35925,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "onboarding"
       }
     },
     "/api/v1/onboarding/skip": {
@@ -35623,7 +36016,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "onboarding"
       }
     },
     "/api/v1/organization": {
@@ -35681,7 +36075,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -35758,7 +36153,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/organization-exports": {
@@ -35851,7 +36247,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "org_export"
       },
       "post": {
         "tags": [
@@ -35949,7 +36346,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "org_export"
       }
     },
     "/api/v1/organization-exports/{export_id}": {
@@ -36028,7 +36426,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "org_export"
       }
     },
     "/api/v1/organization-exports/{export_id}/download": {
@@ -36113,7 +36512,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "org_export"
       }
     },
     "/api/v1/organization/logo": {
@@ -36168,7 +36568,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/organization/settings": {
@@ -36227,7 +36628,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -36304,7 +36706,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/organization/settings/storage/test": {
@@ -36405,7 +36808,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/organization/two-factor-policy": {
@@ -36451,7 +36855,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "put": {
         "tags": [
@@ -36525,7 +36930,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/organizations": {
@@ -36654,7 +37060,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "organizations"
       },
       "post": {
         "tags": [
@@ -36753,7 +37160,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       }
     },
     "/api/v1/organizations/{company_id}": {
@@ -36852,7 +37260,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       },
       "delete": {
         "tags": [
@@ -36922,7 +37331,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       },
       "patch": {
         "tags": [
@@ -37042,7 +37452,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       }
     },
     "/api/v1/organizations/{company_id}/archive": {
@@ -37151,7 +37562,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       }
     },
     "/api/v1/organizations/{company_id}/group-totals": {
@@ -37231,7 +37643,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       }
     },
     "/api/v1/organizations/{company_id}/hierarchy": {
@@ -37311,7 +37724,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       }
     },
     "/api/v1/organizations/{company_id}/people": {
@@ -37423,7 +37837,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/organizations/{company_id}/unarchive": {
@@ -37532,7 +37947,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "organizations"
       }
     },
     "/api/v1/people": {
@@ -37661,7 +38077,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "people"
       },
       "post": {
         "tags": [
@@ -37742,7 +38159,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/people/{contact_id}": {
@@ -37841,7 +38259,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       },
       "delete": {
         "tags": [
@@ -37911,7 +38330,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       },
       "patch": {
         "tags": [
@@ -38031,7 +38451,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/people/{contact_id}/archive": {
@@ -38140,7 +38561,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/people/{contact_id}/organizations": {
@@ -38252,7 +38674,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       },
       "post": {
         "tags": [
@@ -38369,7 +38792,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/people/{contact_id}/organizations/{company_id}": {
@@ -38450,7 +38874,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/people/{contact_id}/unarchive": {
@@ -38559,7 +38984,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "people"
       }
     },
     "/api/v1/permissions": {
@@ -38617,7 +39043,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/pipeline-renewals": {
@@ -38676,7 +39103,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "renewals"
       }
     },
     "/api/v1/pipeline-stages": {
@@ -38803,7 +39231,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/pipeline-stages/{stage_id}": {
@@ -38882,7 +39311,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "delete": {
         "tags": [
@@ -38980,7 +39410,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "patch": {
         "tags": [
@@ -39099,7 +39530,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/pipeline-stages/{stage_id}/activate": {
@@ -39208,7 +39640,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/pipeline-stages/{stage_id}/deactivate": {
@@ -39327,7 +39760,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/pipeline-stages/{stage_id}/guidance": {
@@ -39407,7 +39841,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "put": {
         "tags": [
@@ -39527,7 +39962,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/platform/catalog": {
@@ -39586,7 +40022,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/preferences": {
@@ -39634,7 +40071,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -39700,7 +40138,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/pricing": {
@@ -39808,7 +40247,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "post": {
         "tags": [
@@ -39906,7 +40346,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       }
     },
     "/api/v1/pricing/discount-limits": {
@@ -39964,7 +40405,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "put": {
         "tags": [
@@ -40040,7 +40482,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       }
     },
     "/api/v1/pricing/items/{product_id}/bundle": {
@@ -40127,7 +40570,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "put": {
         "tags": [
@@ -40246,7 +40690,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "delete": {
         "tags": [
@@ -40316,7 +40761,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       }
     },
     "/api/v1/pricing/{price_list_id}": {
@@ -40395,7 +40841,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "delete": {
         "tags": [
@@ -40465,7 +40912,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "patch": {
         "tags": [
@@ -40584,7 +41032,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       }
     },
     "/api/v1/pricing/{price_list_id}/items": {
@@ -40663,7 +41112,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       },
       "put": {
         "tags": [
@@ -40782,7 +41232,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "pricing"
       }
     },
     "/api/v1/privacy/catalog": {
@@ -40830,7 +41281,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/requests": {
@@ -40932,7 +41384,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       },
       "post": {
         "tags": [
@@ -41030,7 +41483,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/requests/{request_id}": {
@@ -41109,7 +41563,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/requests/{request_id}/cancel": {
@@ -41218,7 +41673,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/requests/{request_id}/download": {
@@ -41293,7 +41749,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/requests/{request_id}/execute": {
@@ -41402,7 +41859,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-policies": {
@@ -41460,7 +41918,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       },
       "post": {
         "tags": [
@@ -41558,7 +42017,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-policies/{policy_id}": {
@@ -41630,7 +42090,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       },
       "patch": {
         "tags": [
@@ -41727,7 +42188,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-policies/{policy_id}/disable": {
@@ -41836,7 +42298,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-policies/{policy_id}/enable": {
@@ -41945,7 +42408,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-policies/{policy_id}/preview": {
@@ -42054,7 +42518,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-policies/{policy_id}/run": {
@@ -42163,7 +42628,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/retention-runs": {
@@ -42264,7 +42730,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/privacy/subjects/search": {
@@ -42364,7 +42831,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "privacy"
       }
     },
     "/api/v1/proposals/deals/{deal_id}/documents": {
@@ -42444,7 +42912,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       },
       "post": {
         "tags": [
@@ -42572,7 +43041,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       }
     },
     "/api/v1/proposals/preview": {
@@ -42683,7 +43153,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       }
     },
     "/api/v1/proposals/templates": {
@@ -42752,7 +43223,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       },
       "post": {
         "tags": [
@@ -42861,7 +43333,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       }
     },
     "/api/v1/proposals/templates/validate": {
@@ -42972,7 +43445,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       }
     },
     "/api/v1/proposals/templates/{template_id}": {
@@ -43051,7 +43525,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       },
       "delete": {
         "tags": [
@@ -43122,7 +43597,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       },
       "patch": {
         "tags": [
@@ -43220,7 +43696,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       }
     },
     "/api/v1/proposals/variables": {
@@ -43289,7 +43766,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "proposals"
       }
     },
     "/api/v1/public/book/manage/{token}": {
@@ -43341,7 +43819,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/public/book/manage/{token}/cancel": {
@@ -43433,7 +43912,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/public/book/manage/{token}/reschedule": {
@@ -43525,7 +44005,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/public/book/manage/{token}/slots": {
@@ -43615,7 +44096,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/public/book/{slug}": {
@@ -43667,7 +44149,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       },
       "post": {
         "tags": [
@@ -43757,7 +44240,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/public/book/{slug}/slots": {
@@ -43837,7 +44321,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "booking"
       }
     },
     "/api/v1/public/esign/webhook": {
@@ -43941,7 +44426,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "esign"
       }
     },
     "/api/v1/public/forms/forms/{public_id}": {
@@ -44002,7 +44488,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/public/forms/forms/{public_id}/embed.js": {
@@ -44053,7 +44540,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/public/forms/forms/{public_id}/page": {
@@ -44104,7 +44592,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/public/forms/forms/{public_id}/submissions": {
@@ -44224,7 +44713,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "forms"
       }
     },
     "/api/v1/public/google/callback": {
@@ -44263,7 +44753,8 @@
           "302": {
             "description": "OAuth callback for both login and calendar connection (register this URL at Google). Login: validates the single-use `state`, the id token (`iss`, `aud`, `exp`, `nonce`) and `email_verified`, signs in the active member and redirects with the session cookie (or to `/login/two-factor`); failures go to `/login?sso_error=<code>`. Calendar: stores the refresh token encrypted and redirects to `/google?calendar=connected` (or `?calendar_error=<code>`). Mailbox: creates the Gmail mailbox and redirects to `/account/mailboxes?connected=google.gmail` (or `?error=<code>`)"
           }
-        }
+        },
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/public/google/login": {
@@ -44294,7 +44785,8 @@
           "302": {
             "description": "Redirects to Google (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `rate_limited`)"
           }
-        }
+        },
+        "x-aphel-module": "google"
       }
     },
     "/api/v1/public/messaging/whatsapp/{channel_id}": {
@@ -44382,7 +44874,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "messaging"
       },
       "post": {
         "tags": [
@@ -44475,7 +44968,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "messaging"
       }
     },
     "/api/v1/public/microsoft/callback": {
@@ -44514,7 +45008,8 @@
           "302": {
             "description": "OAuth callback for both login and calendar connection (register this URL at Microsoft Entra ID). Login: validates the single-use `state`, the id token (`iss`, `aud`, `exp`, `nonce`) and `email_verified`, signs in the active member and redirects with the session cookie (or to `/login/two-factor`); failures go to `/login?sso_error=<code>`. Calendar: stores the refresh token encrypted and redirects to `/microsoft?calendar=connected` (or `?calendar_error=<code>`). Mailbox: creates the Outlook mailbox and redirects to `/account/mailboxes?connected=microsoft.outlook` (or `?error=<code>`)"
           }
-        }
+        },
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/public/microsoft/login": {
@@ -44545,7 +45040,8 @@
           "302": {
             "description": "Redirects to Microsoft (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `rate_limited`)"
           }
-        }
+        },
+        "x-aphel-module": "microsoft"
       }
     },
     "/api/v1/public/quotes/{token}": {
@@ -44597,7 +45093,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/public/quotes/{token}/accept": {
@@ -44689,7 +45186,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/public/quotes/{token}/reject": {
@@ -44781,7 +45279,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/public/sso/callback": {
@@ -44820,7 +45319,8 @@
           "302": {
             "description": "Validates the single-use `state`, exchanges the code, validates the id token (`iss`, `aud`, `exp`, `nonce`) and requires `email_verified`. Signs in the active member with that e-mail and redirects to the requested path (or `/login/two-factor`) with the session cookie; on failure redirects to `/login?sso_error=<code>` (`no_account`, `invalid_state`, `access_denied`, `email_not_verified`, `domain_not_allowed`, `token_exchange_failed`, `invalid_token`, `sso_failed`)"
           }
-        }
+        },
+        "x-aphel-module": "sso"
       }
     },
     "/api/v1/public/sso/login": {
@@ -44851,7 +45351,8 @@
           "302": {
             "description": "Redirects to the identity provider (authorization code + PKCE). `login_hint` (the e-mail typed on the login screen) is optional and forwarded to the provider; `redirect` is accepted only as a relative path. On failure redirects to `/login?sso_error=<code>` (`no_account`, `sso_disabled`, `sso_not_configured`, `domain_not_allowed`, `invalid_request`, `provider_unavailable`, `rate_limited`)"
           }
-        }
+        },
+        "x-aphel-module": "sso"
       }
     },
     "/api/v1/public/themes/active.css": {
@@ -44875,7 +45376,8 @@
           "304": {
             "description": "The active theme did not change"
           }
-        }
+        },
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/public/themes/fonts/{file}": {
@@ -44922,7 +45424,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/public/wasm-runtime": {
@@ -44943,7 +45446,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/quote-settings": {
@@ -45002,7 +45506,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       },
       "patch": {
         "tags": [
@@ -45103,7 +45608,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes": {
@@ -45249,7 +45755,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       },
       "post": {
         "tags": [
@@ -45358,7 +45865,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}": {
@@ -45438,7 +45946,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       },
       "delete": {
         "tags": [
@@ -45518,7 +46027,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       },
       "patch": {
         "tags": [
@@ -45638,7 +46148,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}/accept": {
@@ -45758,7 +46269,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}/link": {
@@ -45848,7 +46360,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}/pdf": {
@@ -45924,7 +46437,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}/send": {
@@ -46044,7 +46558,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}/submit": {
@@ -46164,7 +46679,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/quotes/{quote_id}/versions": {
@@ -46244,7 +46760,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       },
       "post": {
         "tags": [
@@ -46352,7 +46869,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "quotes"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/follow": {
@@ -46471,7 +46989,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "followers"
       },
       "delete": {
         "tags": [
@@ -46548,7 +47067,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "followers"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/followers": {
@@ -46637,7 +47157,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "followers"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/relations": {
@@ -46726,7 +47247,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/relations/{relation}": {
@@ -46847,7 +47369,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -46983,7 +47506,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/relations/{relation}/{target_id}": {
@@ -47093,7 +47617,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/shares": {
@@ -47182,7 +47707,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -47309,7 +47835,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/records/{record_type}/{record_id}/shares/{share_id}": {
@@ -47400,7 +47927,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -47538,7 +48066,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/relationships": {
@@ -47597,7 +48126,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       },
       "post": {
         "tags": [
@@ -47696,7 +48226,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       }
     },
     "/api/v1/relationships/{key}": {
@@ -47769,7 +48300,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       },
       "patch": {
         "tags": [
@@ -47889,7 +48421,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "objects"
       }
     },
     "/api/v1/reminders": {
@@ -47998,7 +48531,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reminders"
       },
       "post": {
         "tags": [
@@ -48086,7 +48620,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reminders"
       }
     },
     "/api/v1/reminders/{reminder_id}": {
@@ -48155,7 +48690,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reminders"
       },
       "delete": {
         "tags": [
@@ -48215,7 +48751,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reminders"
       },
       "patch": {
         "tags": [
@@ -48324,7 +48861,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reminders"
       }
     },
     "/api/v1/reports": {
@@ -48436,7 +48974,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       },
       "post": {
         "tags": [
@@ -48545,7 +49084,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/entities": {
@@ -48583,7 +49123,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/{report_id}": {
@@ -48662,7 +49203,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       },
       "delete": {
         "tags": [
@@ -48732,7 +49274,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       },
       "patch": {
         "tags": [
@@ -48851,7 +49394,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/{report_id}/export": {
@@ -48981,7 +49525,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/{report_id}/run": {
@@ -49102,7 +49647,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/{report_id}/schedules": {
@@ -49204,7 +49750,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       },
       "post": {
         "tags": [
@@ -49322,7 +49869,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/{report_id}/schedules/{schedule_id}": {
@@ -49403,7 +49951,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       },
       "patch": {
         "tags": [
@@ -49531,7 +50080,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/reports/{report_id}/schedules/{schedule_id}/deliveries": {
@@ -49642,7 +50192,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "reports"
       }
     },
     "/api/v1/roles": {
@@ -49735,7 +50286,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -49833,7 +50385,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/roles/{role_id}": {
@@ -49912,7 +50465,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "delete": {
         "tags": [
@@ -49992,7 +50546,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -50111,7 +50666,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/scoring/models": {
@@ -50180,7 +50736,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       },
       "post": {
         "tags": [
@@ -50289,7 +50846,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       }
     },
     "/api/v1/scoring/models/{model_id}": {
@@ -50368,7 +50926,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       },
       "delete": {
         "tags": [
@@ -50438,7 +50997,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       },
       "patch": {
         "tags": [
@@ -50558,7 +51118,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       }
     },
     "/api/v1/scoring/models/{model_id}/recalculate": {
@@ -50661,7 +51222,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       }
     },
     "/api/v1/scoring/records/{record_type}/{record_id}": {
@@ -50750,7 +51312,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "scoring"
       }
     },
     "/api/v1/search": {
@@ -50842,7 +51405,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "search"
       }
     },
     "/api/v1/security/events": {
@@ -50964,7 +51528,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/security/events/organization": {
@@ -51086,7 +51651,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/security/password": {
@@ -51186,7 +51752,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/security/sessions": {
@@ -51244,7 +51811,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/security/sessions/revoke-others": {
@@ -51334,7 +51902,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/security/sessions/{session_id}": {
@@ -51416,7 +51985,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/segments": {
@@ -51536,7 +52106,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "segments"
       },
       "post": {
         "tags": [
@@ -51634,7 +52205,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "segments"
       }
     },
     "/api/v1/segments/{segment_id}": {
@@ -51703,7 +52275,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "segments"
       },
       "delete": {
         "tags": [
@@ -51773,7 +52346,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "segments"
       },
       "patch": {
         "tags": [
@@ -51892,7 +52466,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "segments"
       }
     },
     "/api/v1/segments/{segment_id}/members": {
@@ -52029,7 +52604,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "segments"
       }
     },
     "/api/v1/sequence-enrollments": {
@@ -52147,7 +52723,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequence-enrollments/{enrollment_id}/exit": {
@@ -52257,7 +52834,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequence-enrollments/{enrollment_id}/pause": {
@@ -52367,7 +52945,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequence-enrollments/{enrollment_id}/resume": {
@@ -52477,7 +53056,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequences": {
@@ -52588,7 +53168,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       },
       "post": {
         "tags": [
@@ -52687,7 +53268,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequences/{sequence_id}": {
@@ -52767,7 +53349,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       },
       "delete": {
         "tags": [
@@ -52838,7 +53421,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       },
       "patch": {
         "tags": [
@@ -52958,7 +53542,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequences/{sequence_id}/enrollments": {
@@ -53079,7 +53664,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       },
       "post": {
         "tags": [
@@ -53197,7 +53783,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sequences/{sequence_id}/metrics": {
@@ -53277,7 +53864,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sequences"
       }
     },
     "/api/v1/sso/status": {
@@ -53325,7 +53913,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "sso"
       }
     },
     "/api/v1/system/failures": {
@@ -53383,7 +53972,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/system/jobs/failed": {
@@ -53485,7 +54075,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/system/jobs/stats": {
@@ -53543,7 +54134,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/system/jobs/{id}": {
@@ -53615,7 +54207,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/system/jobs/{id}/retry": {
@@ -53717,7 +54310,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/system/migrations": {
@@ -53775,7 +54369,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/system/overview": {
@@ -53833,7 +54428,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/tagging": {
@@ -53925,7 +54521,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       },
       "post": {
         "tags": [
@@ -54023,7 +54620,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       }
     },
     "/api/v1/tagging/records": {
@@ -54111,7 +54709,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       }
     },
     "/api/v1/tagging/records/{record_type}/{record_id}": {
@@ -54199,7 +54798,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       },
       "post": {
         "tags": [
@@ -54325,7 +54925,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       }
     },
     "/api/v1/tagging/records/{record_type}/{record_id}/{tag_id}": {
@@ -54415,7 +55016,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       }
     },
     "/api/v1/tagging/{tag_id}": {
@@ -54484,7 +55086,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       },
       "delete": {
         "tags": [
@@ -54554,7 +55157,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       },
       "patch": {
         "tags": [
@@ -54673,7 +55277,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tagging"
       }
     },
     "/api/v1/tasks": {
@@ -54826,7 +55431,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       },
       "post": {
         "tags": [
@@ -54924,7 +55530,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/tasks/inbox": {
@@ -55020,7 +55627,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/tasks/{activity_id}": {
@@ -55099,7 +55707,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       },
       "delete": {
         "tags": [
@@ -55169,7 +55778,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       },
       "patch": {
         "tags": [
@@ -55288,7 +55898,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/tasks/{activity_id}/complete": {
@@ -55397,7 +56008,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/tasks/{activity_id}/reopen": {
@@ -55506,7 +56118,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "tasks"
       }
     },
     "/api/v1/teams": {
@@ -55599,7 +56212,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "post": {
         "tags": [
@@ -55697,7 +56311,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/teams/{team_id}": {
@@ -55776,7 +56391,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "delete": {
         "tags": [
@@ -55846,7 +56462,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       },
       "patch": {
         "tags": [
@@ -55965,7 +56582,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/telephony": {
@@ -56065,7 +56683,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/events": {
@@ -56175,7 +56794,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/outcomes": {
@@ -56243,7 +56863,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       },
       "post": {
         "tags": [
@@ -56341,7 +56962,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/outcomes/order": {
@@ -56419,7 +57041,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/outcomes/{outcome_id}": {
@@ -56540,7 +57163,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/providers": {
@@ -56598,7 +57222,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/report": {
@@ -56695,7 +57320,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions": {
@@ -56786,7 +57412,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       },
       "post": {
         "tags": [
@@ -56894,7 +57521,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions/{session_id}": {
@@ -56973,7 +57601,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions/{session_id}/calls": {
@@ -57092,7 +57721,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions/{session_id}/cursor": {
@@ -57211,7 +57841,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions/{session_id}/finish": {
@@ -57320,7 +57951,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions/{session_id}/items": {
@@ -57422,7 +58054,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/sessions/{session_id}/skip": {
@@ -57541,7 +58174,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/start": {
@@ -57651,7 +58285,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/{activity_id}": {
@@ -57772,7 +58407,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/telephony/{activity_id}/recording": {
@@ -57851,7 +58487,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "telephony"
       }
     },
     "/api/v1/themes": {
@@ -57909,7 +58546,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       },
       "post": {
         "tags": [
@@ -58007,7 +58645,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/themes/activation": {
@@ -58117,7 +58756,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/themes/validate": {
@@ -58217,7 +58857,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/themes/{key}": {
@@ -58316,7 +58957,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       },
       "delete": {
         "tags": [
@@ -58396,7 +59038,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/themes/{key}/package": {
@@ -58475,7 +59118,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "themes"
       }
     },
     "/api/v1/timeline": {
@@ -58591,7 +59235,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "timeline"
       }
     },
     "/api/v1/timeline/kinds": {
@@ -58677,7 +59322,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "timeline"
       }
     },
     "/api/v1/trash": {
@@ -58787,7 +59433,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "trash"
       }
     },
     "/api/v1/trash/settings": {
@@ -58845,7 +59492,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "trash"
       },
       "put": {
         "tags": [
@@ -58921,7 +59569,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "trash"
       }
     },
     "/api/v1/trash/types": {
@@ -58979,7 +59628,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "trash"
       }
     },
     "/api/v1/trash/{record_type}/{record_id}": {
@@ -59070,7 +59720,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "trash"
       }
     },
     "/api/v1/trash/{record_type}/{record_id}/restore": {
@@ -59188,7 +59839,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "trash"
       }
     },
     "/api/v1/two-factor": {
@@ -59233,7 +59885,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/two-factor/confirm": {
@@ -59331,7 +59984,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/two-factor/disable": {
@@ -59422,7 +60076,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/two-factor/recovery-codes": {
@@ -59520,7 +60175,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/two-factor/setup": {
@@ -59608,7 +60264,8 @@
           {
             "session_cookie": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/users": {
@@ -59699,7 +60356,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "kernel"
       }
     },
     "/api/v1/validation-rules": {
@@ -59768,7 +60426,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       },
       "post": {
         "tags": [
@@ -59877,7 +60536,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       }
     },
     "/api/v1/validation-rules/order": {
@@ -59966,7 +60626,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       }
     },
     "/api/v1/validation-rules/preview": {
@@ -60077,7 +60738,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       }
     },
     "/api/v1/validation-rules/{rule_id}": {
@@ -60156,7 +60818,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       },
       "delete": {
         "tags": [
@@ -60226,7 +60889,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       },
       "patch": {
         "tags": [
@@ -60346,7 +61010,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "validation_rules"
       }
     },
     "/api/v1/views/{record_type}": {
@@ -60458,7 +61123,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "saved_views"
       },
       "post": {
         "tags": [
@@ -60575,7 +61241,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "saved_views"
       }
     },
     "/api/v1/views/{record_type}/{view_id}": {
@@ -60656,7 +61323,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "saved_views"
       },
       "patch": {
         "tags": [
@@ -60784,7 +61452,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "saved_views"
       }
     },
     "/api/v1/views/{record_type}/{view_id}/default": {
@@ -60872,7 +61541,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "saved_views"
       },
       "delete": {
         "tags": [
@@ -60951,7 +61621,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "saved_views"
       }
     },
     "/api/v1/wasm-runtime": {
@@ -61010,7 +61681,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       },
       "post": {
         "tags": [
@@ -61131,7 +61803,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/host-catalog": {
@@ -61190,7 +61863,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/readiness": {
@@ -61239,7 +61913,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}": {
@@ -61310,7 +61985,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}/changes": {
@@ -61393,7 +62069,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}/changes/stream": {
@@ -61469,7 +62146,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}/disable": {
@@ -61569,7 +62247,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}/enable": {
@@ -61677,7 +62356,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}/grants": {
@@ -61777,7 +62457,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/wasm-runtime/{key}/settings": {
@@ -61847,7 +62528,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       },
       "put": {
         "tags": [
@@ -61936,7 +62618,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/webhook-endpoints": {
@@ -62029,7 +62712,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "post": {
         "tags": [
@@ -62137,7 +62821,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/webhook-endpoints/{endpoint_id}": {
@@ -62216,7 +62901,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "delete": {
         "tags": [
@@ -62286,7 +62972,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       },
       "patch": {
         "tags": [
@@ -62405,7 +63092,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/webhook-endpoints/{endpoint_id}/deliveries": {
@@ -62526,7 +63214,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/webhook-endpoints/{endpoint_id}/deliveries/{delivery_id}": {
@@ -62614,7 +63303,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/webhook-endpoints/{endpoint_id}/deliveries/{delivery_id}/redeliver": {
@@ -62732,7 +63422,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/webhook-endpoints/{endpoint_id}/rotate-secret": {
@@ -62851,7 +63542,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/webhook-endpoints/{endpoint_id}/test": {
@@ -62970,7 +63662,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "webhooks"
       }
     },
     "/api/v1/workflow": {
@@ -63063,7 +63756,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "post": {
         "tags": [
@@ -63161,7 +63855,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/order": {
@@ -63239,7 +63934,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/records/{record_type}/{record_id}/checklist": {
@@ -63328,7 +64024,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/records/{record_type}/{record_id}/checklist/{item_id}": {
@@ -63436,7 +64133,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/required-fields": {
@@ -63474,7 +64172,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/{pipeline_id}": {
@@ -63553,7 +64252,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "delete": {
         "tags": [
@@ -63653,7 +64353,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       },
       "patch": {
         "tags": [
@@ -63772,7 +64473,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/{pipeline_id}/activate": {
@@ -63881,7 +64583,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/{pipeline_id}/deactivate": {
@@ -63990,7 +64693,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/{pipeline_id}/default": {
@@ -64099,7 +64803,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/{pipeline_id}/renewal": {
@@ -64179,7 +64884,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "renewals"
       },
       "put": {
         "tags": [
@@ -64299,7 +65005,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "renewals"
       }
     },
     "/api/v1/workflow/{pipeline_id}/stages": {
@@ -64418,7 +65125,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/api/v1/workflow/{pipeline_id}/stages/order": {
@@ -64517,7 +65225,8 @@
           {
             "api_token": []
           }
-        ]
+        ],
+        "x-aphel-module": "workflow"
       }
     },
     "/health": {
@@ -64538,7 +65247,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/health/ready": {
@@ -64568,7 +65278,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     },
     "/metrics": {
@@ -64609,7 +65320,8 @@
               }
             }
           }
-        }
+        },
+        "x-aphel-module": "kernel"
       }
     }
   },
@@ -120012,387 +120724,483 @@
   "tags": [
     {
       "name": "health",
-      "description": "Service health"
+      "description": "Service health",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "modules",
-      "description": "Modules compiled into this build: manifest, compatibility, enabling, settings and data removal"
+      "description": "Modules compiled into this build: manifest, compatibility, enabling, settings and data removal",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "objects",
-      "description": "Dynamic entity records"
+      "description": "Dynamic entity records",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "relationships",
-      "description": "Object relationships"
+      "description": "Object relationships",
+      "x-aphel-module": "objects"
     },
     {
       "name": "auth",
-      "description": "Authentication, sessions and invitations"
+      "description": "Authentication, sessions and invitations",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "api-tokens",
-      "description": "Personal API tokens with scopes for integrations (session only)"
+      "description": "Personal API tokens with scopes for integrations (session only)",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "installer",
-      "description": "First-run installation wizard"
+      "description": "First-run installation wizard",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "support-access",
-      "description": "Temporary support access the organization grants to installation administrators"
+      "description": "Temporary support access the organization grants to installation administrators",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "organization",
-      "description": "Active organization settings"
+      "description": "Active organization settings",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "members",
-      "description": "Members and invitations of the active organization"
+      "description": "Members and invitations of the active organization",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "roles",
-      "description": "Roles, permission matrix and permission catalog"
+      "description": "Roles, permission matrix and permission catalog",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "teams",
-      "description": "Teams, managers and team hierarchy"
+      "description": "Teams, managers and team hierarchy",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "system",
-      "description": "System administration: background jobs"
+      "description": "System administration: background jobs",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "audit",
-      "description": "Audit log of the active organization"
+      "description": "Audit log of the active organization",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "files",
-      "description": "File uploads, downloads and record attachments"
+      "description": "File uploads, downloads and record attachments",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "fields",
-      "description": "Formulas"
+      "description": "Formulas",
+      "x-aphel-module": "formulas"
     },
     {
       "name": "directory",
-      "description": "Directory of the active organization's users, readable by every member"
+      "description": "Directory of the active organization's users, readable by every member",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "two-factor",
-      "description": "Two-factor authentication (TOTP): setup, confirmation, recovery codes, login challenge and organization policy"
+      "description": "Two-factor authentication (TOTP): setup, confirmation, recovery codes, login challenge and organization policy",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "security",
-      "description": "Account security: active sessions, personal API tokens, password change and the security event log"
+      "description": "Account security: active sessions, personal API tokens, password change and the security event log",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "field-permissions",
-      "description": "Field permissions per role: hidden, read only or editable"
+      "description": "Field permissions per role: hidden, read only or editable",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "aggregates",
-      "description": "Aggregation engine: grouped counts, sums and averages of records with periods, comparison with the previous period and filters on related records"
+      "description": "Aggregation engine: grouped counts, sums and averages of records with periods, comparison with the previous period and filters on related records",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "preferences",
-      "description": "Personal preferences of the current user, such as keyboard shortcuts"
+      "description": "Personal preferences of the current user, such as keyboard shortcuts",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "record-sharing",
-      "description": "Sharing of any record with users or teams (read or edit access) on top of the role scopes"
+      "description": "Sharing of any record with users or teams (read or edit access) on top of the role scopes",
+      "x-aphel-module": "kernel"
     },
     {
       "name": "approvals",
-      "description": "Approval policies (record type, moment, condition, sequential steps) and approval requests with decisions"
+      "description": "Approval policies (record type, moment, condition, sequential steps) and approval requests with decisions",
+      "x-aphel-module": "approvals"
     },
     {
       "name": "assignment",
-      "description": "Record assignment rules (round robin, weighted, least loaded, routing by field), their simulation and the rotation state used by automations, incoming webhooks and imports"
+      "description": "Record assignment rules (round robin, weighted, least loaded, routing by field), their simulation and the rotation state used by automations, incoming webhooks and imports",
+      "x-aphel-module": "assignment"
     },
     {
       "name": "automations",
-      "description": "No-code automations: triggers, conditions and actions over records, versions, dry runs and run history"
+      "description": "No-code automations: triggers, conditions and actions over records, versions, dry runs and run history",
+      "x-aphel-module": "automations"
     },
     {
       "name": "calendar",
-      "description": "Calendar entries from enabled providers"
+      "description": "Calendar entries from enabled providers",
+      "x-aphel-module": "calendar"
     },
     {
       "name": "catalog-items",
-      "description": "Catalog of products and services"
+      "description": "Catalog of products and services",
+      "x-aphel-module": "catalog_items"
     },
     {
       "name": "config-packages",
-      "description": "Configuration packages"
+      "description": "Configuration packages",
+      "x-aphel-module": "config_packages"
     },
     {
       "name": "dashboard",
-      "description": "Dashboard widgets, their data and the per-user layout"
+      "description": "Dashboard widgets, their data and the per-user layout",
+      "x-aphel-module": "dashboard"
     },
     {
       "name": "mailboxes",
-      "description": "Personal mailboxes (IMAP/SMTP and module providers), connection test and synchronization"
+      "description": "Personal mailboxes (IMAP/SMTP and module providers), connection test and synchronization",
+      "x-aphel-module": "email"
     },
     {
       "name": "email threads",
-      "description": "E-mail conversations linked to records, visibility, manual links and attachments"
+      "description": "E-mail conversations linked to records, visibility, manual links and attachments",
+      "x-aphel-module": "email"
     },
     {
       "name": "email settings",
-      "description": "Organization e-mail settings: relationship capture and blocklist"
+      "description": "Organization e-mail settings: relationship capture and blocklist",
+      "x-aphel-module": "email"
     },
     {
       "name": "emails",
-      "description": "Sending e-mail from records through the user's mailbox, booking, cancellation and rendered previews"
+      "description": "Sending e-mail from records through the user's mailbox, booking, cancellation and rendered previews",
+      "x-aphel-module": "email"
     },
     {
       "name": "email templates",
-      "description": "Organization and personal e-mail templates with record variables"
+      "description": "Organization and personal e-mail templates with record variables",
+      "x-aphel-module": "email"
     },
     {
       "name": "email tracking",
-      "description": "Open and click tracking settings, objections and the public tracking endpoints"
+      "description": "Open and click tracking settings, objections and the public tracking endpoints",
+      "x-aphel-module": "email"
     },
     {
       "name": "exports",
-      "description": "CSV and XLSX exports of filtered records"
+      "description": "CSV and XLSX exports of filtered records",
+      "x-aphel-module": "exports"
     },
     {
       "name": "bulk",
-      "description": "Bulk actions over selected records or every record of a filter, with progress and report"
+      "description": "Bulk actions over selected records or every record of a filter, with progress and report",
+      "x-aphel-module": "bulk_actions"
     },
     {
       "name": "favorites",
-      "description": "Personal favorites: pinned records and saved views shown in the sidebar"
+      "description": "Personal favorites: pinned records and saved views shown in the sidebar",
+      "x-aphel-module": "favorites"
     },
     {
       "name": "followers",
-      "description": "Following registered records and owner-provided events"
+      "description": "Following registered records and owner-provided events",
+      "x-aphel-module": "followers"
     },
     {
       "name": "imports",
-      "description": "CSV and XLSX imports: upload, mapping, dry run, execution and retry of failed rows"
+      "description": "CSV and XLSX imports: upload, mapping, dry run, execution and retry of failed rows",
+      "x-aphel-module": "imports"
     },
     {
       "name": "integrations",
-      "description": "Integration center: providers, configuration, connection test and activation"
+      "description": "Integration center: providers, configuration, connection test and activation",
+      "x-aphel-module": "integrations"
     },
     {
       "name": "lifecycle",
-      "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons"
+      "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons",
+      "x-aphel-module": "leads"
     },
     {
       "name": "line-items",
-      "description": "Scoped record line items and total policy"
+      "description": "Scoped record line items and total policy",
+      "x-aphel-module": "line_items"
     },
     {
       "name": "catalog",
-      "description": "Plugin and configuration marketplace"
+      "description": "Plugin and configuration marketplace",
+      "x-aphel-module": "marketplace"
     },
     {
       "name": "currencies",
-      "description": "Enabled currencies of the organization and dated exchange rates to the base currency"
+      "description": "Enabled currencies of the organization and dated exchange rates to the base currency",
+      "x-aphel-module": "money"
     },
     {
       "name": "deals",
-      "description": "Deals, stage changes and the Kanban board"
+      "description": "Deals, stage changes and the Kanban board",
+      "x-aphel-module": "deals"
     },
     {
       "name": "deals-reports",
-      "description": "Deal conversion and sales performance reports"
+      "description": "Deal conversion and sales performance reports",
+      "x-aphel-module": "deals"
     },
     {
       "name": "deal-members",
-      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles"
+      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles",
+      "x-aphel-module": "deals"
     },
     {
       "name": "forecast",
-      "description": "Revenue forecast: organization settings and the forecast per month"
+      "description": "Revenue forecast: organization settings and the forecast per month",
+      "x-aphel-module": "forecast"
     },
     {
       "name": "goals",
-      "description": "Sales goals per user, team or organization and their progress"
+      "description": "Sales goals per user, team or organization and their progress",
+      "x-aphel-module": "goals"
     },
     {
       "name": "notes",
-      "description": "Notes attached to records"
+      "description": "Notes attached to records",
+      "x-aphel-module": "notes"
     },
     {
       "name": "notifications",
-      "description": "Notifications and delivery preferences"
+      "description": "Notifications and delivery preferences",
+      "x-aphel-module": "notifications"
     },
     {
       "name": "custom-objects",
-      "description": "Object administration"
+      "description": "Object administration",
+      "x-aphel-module": "objects"
     },
     {
       "name": "onboarding",
-      "description": "First-run setup assistant of the organization: questions, template recommendation and state"
+      "description": "First-run setup assistant of the organization: questions, template recommendation and state",
+      "x-aphel-module": "onboarding"
     },
     {
       "name": "organization-exports",
-      "description": "Full export of the organization (zip with records, relationships, files, configuration and manifest) for backup and restoration with `aphel org import`"
+      "description": "Full export of the organization (zip with records, relationships, files, configuration and manifest) for backup and restoration with `aphel org import`",
+      "x-aphel-module": "org_export"
     },
     {
       "name": "organizations",
-      "description": "Companies"
+      "description": "Companies",
+      "x-aphel-module": "organizations"
     },
     {
       "name": "people",
-      "description": "Contacts and their organizations"
+      "description": "Contacts and their organizations",
+      "x-aphel-module": "people"
     },
     {
       "name": "privacy",
-      "description": "Privacy (LGPD): personal data subjects, data subject requests (export, anonymization, deletion) and retention policies"
+      "description": "Privacy (LGPD): personal data subjects, data subject requests (export, anonymization, deletion) and retention policies",
+      "x-aphel-module": "privacy"
     },
     {
       "name": "proposals",
-      "description": "Proposal templates and PDF proposals generated from deals"
+      "description": "Proposal templates and PDF proposals generated from deals",
+      "x-aphel-module": "proposals"
     },
     {
       "name": "quotes",
-      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance"
+      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
+      "x-aphel-module": "quotes"
     },
     {
       "name": "layouts",
-      "description": "RecordLayouts"
+      "description": "RecordLayouts",
+      "x-aphel-module": "record_layouts"
     },
     {
       "name": "reports",
-      "description": "Saved custom reports, their results, exports and e-mail schedules"
+      "description": "Saved custom reports, their results, exports and e-mail schedules",
+      "x-aphel-module": "reports"
     },
     {
       "name": "views",
-      "description": "SavedViews"
+      "description": "SavedViews",
+      "x-aphel-module": "saved_views"
     },
     {
       "name": "scoring",
-      "description": "Lead scoring models (profile and behavior criteria, decay, bands) and the scores of a record with their explanation"
+      "description": "Lead scoring models (profile and behavior criteria, decay, bands) and the scores of a record with their explanation",
+      "x-aphel-module": "scoring"
     },
     {
       "name": "search",
-      "description": "Search"
+      "description": "Search",
+      "x-aphel-module": "search"
     },
     {
       "name": "segments",
-      "description": "Segments: named dynamic filters with member count, usable as the `in_saved_filter` filter condition"
+      "description": "Segments: named dynamic filters with member count, usable as the `in_saved_filter` filter condition",
+      "x-aphel-module": "segments"
     },
     {
       "name": "pricing",
-      "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role"
+      "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role",
+      "x-aphel-module": "pricing"
     },
     {
       "name": "sso",
-      "description": "Single sign-on with any corporate OpenID Connect provider"
+      "description": "Single sign-on with any corporate OpenID Connect provider",
+      "x-aphel-module": "sso"
     },
     {
       "name": "google",
-      "description": "Login with Google, Google Calendar meeting sync and Gmail mailboxes"
+      "description": "Login with Google, Google Calendar meeting sync and Gmail mailboxes",
+      "x-aphel-module": "google"
     },
     {
       "name": "microsoft",
-      "description": "Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes"
+      "description": "Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes",
+      "x-aphel-module": "microsoft"
     },
     {
       "name": "tagging",
-      "description": "Tags of the organization and tagging of opted-in records"
+      "description": "Tags of the organization and tagging of opted-in records",
+      "x-aphel-module": "tagging"
     },
     {
       "name": "tasks",
-      "description": "Tasks and logged tasks"
+      "description": "Tasks and logged tasks",
+      "x-aphel-module": "tasks"
     },
     {
       "name": "task_types",
-      "description": "Activity types of the organization"
+      "description": "Activity types of the organization",
+      "x-aphel-module": "tasks"
     },
     {
       "name": "ai",
-      "description": "AI assistant: record summaries, next actions, writing help and natural language queries"
+      "description": "AI assistant: record summaries, next actions, writing help and natural language queries",
+      "x-aphel-module": "ai"
     },
     {
       "name": "booking",
-      "description": "Booking links: availability, meeting types, team links and the public booking page"
+      "description": "Booking links: availability, meeting types, team links and the public booking page",
+      "x-aphel-module": "booking"
     },
     {
       "name": "enrichment",
-      "description": "Company enrichment by CNPJ from public sources"
+      "description": "Company enrichment by CNPJ from public sources",
+      "x-aphel-module": "enrichment"
     },
     {
       "name": "esign",
-      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks"
+      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks",
+      "x-aphel-module": "esign"
     },
     {
       "name": "forms",
-      "description": "Public forms that create people and deals"
+      "description": "Public forms that create people and deals",
+      "x-aphel-module": "forms"
     },
     {
       "name": "communication",
-      "description": "Communication opt-outs"
+      "description": "Communication opt-outs",
+      "x-aphel-module": "messaging"
     },
     {
       "name": "messaging",
-      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)"
+      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)",
+      "x-aphel-module": "messaging"
     },
     {
       "name": "migration-assistant",
-      "description": "Assisted migration from other CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor): recognized columns, conversion of their CSV exports and pre-filled imports"
+      "description": "Assisted migration from other CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor): recognized columns, conversion of their CSV exports and pre-filled imports",
+      "x-aphel-module": "migrations_assistant"
     },
     {
       "name": "reminders",
-      "description": "Reminders: before a task is due and standalone reminders linked to a record"
+      "description": "Reminders: before a task is due and standalone reminders linked to a record",
+      "x-aphel-module": "reminders"
     },
     {
       "name": "sequences",
-      "description": "Sales sequences (cadences): steps, enrollments, automatic exits, sending limits and per-step metrics"
+      "description": "Sales sequences (cadences): steps, enrollments, automatic exits, sending limits and per-step metrics",
+      "x-aphel-module": "sequences"
     },
     {
       "name": "telephony",
-      "description": "Call logging as tasks, call outcomes, call sessions over saved views and the calls report"
+      "description": "Call logging as tasks, call outcomes, call sessions over saved views and the calls report",
+      "x-aphel-module": "telephony"
     },
     {
       "name": "themes",
-      "description": "Installable visual themes: design tokens and fonts applied to the whole installation"
+      "description": "Installable visual themes: design tokens and fonts applied to the whole installation",
+      "x-aphel-module": "themes"
     },
     {
       "name": "timeline",
-      "description": "Unified timeline of a record"
+      "description": "Unified timeline of a record",
+      "x-aphel-module": "timeline"
     },
     {
       "name": "trash",
-      "description": "Deleted records: restore, permanent deletion and retention"
+      "description": "Deleted records: restore, permanent deletion and retention",
+      "x-aphel-module": "trash"
     },
     {
       "name": "duplicates",
-      "description": "Duplicate detection rules, the duplicate queue and record merging"
+      "description": "Duplicate detection rules, the duplicate queue and record merging",
+      "x-aphel-module": "duplicates"
     },
     {
       "name": "validation-rules",
-      "description": "ValidationRules"
+      "description": "ValidationRules",
+      "x-aphel-module": "validation_rules"
     },
     {
       "name": "plugins",
-      "description": "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes"
+      "description": "Runtime plugins: install, enable, disable, configure and uninstall .aphelplugin packages, and call their routes",
+      "x-aphel-module": "wasm_runtime"
     },
     {
       "name": "events",
-      "description": "Catalog of public event types delivered by outgoing webhooks"
+      "description": "Catalog of public event types delivered by outgoing webhooks",
+      "x-aphel-module": "webhooks"
     },
     {
       "name": "webhooks",
-      "description": "Outgoing webhooks: endpoints, signed deliveries, test events and redelivery"
+      "description": "Outgoing webhooks: endpoints, signed deliveries, test events and redelivery",
+      "x-aphel-module": "webhooks"
     },
     {
       "name": "incoming-webhooks",
-      "description": "Incoming webhooks: secret URLs that create or update records from external systems"
+      "description": "Incoming webhooks: secret URLs that create or update records from external systems",
+      "x-aphel-module": "webhooks"
     },
     {
       "name": "workflow",
-      "description": "Pipelines, stages and lost reasons"
+      "description": "Pipelines, stages and lost reasons",
+      "x-aphel-module": "workflow"
     },
     {
       "name": "demo",
-      "description": "Demonstration environment status"
+      "description": "Demonstration environment status",
+      "x-aphel-module": "demo"
     }
   ]
 }

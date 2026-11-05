@@ -58,10 +58,11 @@ function collectRefs(node, found) {
   }
 }
 
-function pruneSchemas(spec, paths) {
+function pruneSchemas(spec, paths, extraNames = []) {
   const schemas = spec.components?.schemas ?? {}
   const found = new Set()
   collectRefs(paths, found)
+  for (const name of extraNames) found.add(`#/components/schemas/${name}`)
   const kept = {}
   const pending = [...found]
   while (pending.length > 0) {
@@ -69,6 +70,8 @@ function pruneSchemas(spec, paths) {
     const match = /^#\/components\/schemas\/(.+)$/.exec(ref)
     if (!match || kept[match[1]] || !schemas[match[1]]) continue
     kept[match[1]] = schemas[match[1]]
+    const wrapped = /^(?:Data|Page)_(.+)$/.exec(match[1])
+    if (wrapped) pending.push(`#/components/schemas/${wrapped[1]}`)
     const nested = new Set()
     collectRefs(schemas[match[1]], nested)
     pending.push(...nested)
@@ -76,31 +79,41 @@ function pruneSchemas(spec, paths) {
   return kept
 }
 
-async function moduleTags(key) {
-  try {
-    const declared = JSON.parse(await readFile(resolve(modulesDir, key, 'api-tags.json'), 'utf8'))
-    return [key, key.replaceAll('_', '-'), ...declared]
-  } catch {
-    return null
+async function importsOwnTypes(directory, key) {
+  const entries = await readdir(directory, { withFileTypes: true, recursive: true })
+  for (const entry of entries) {
+    if (!entry.isFile() || !/\.tsx?$/.test(entry.name)) continue
+    if ((await readFile(resolve(entry.parentPath, entry.name), 'utf8')).includes(`@/modules/${key}/api-types`)) return true
   }
+  return false
+}
+
+async function usedSchemaNames(directory) {
+  const names = new Set()
+  const entries = await readdir(directory, { withFileTypes: true, recursive: true })
+  for (const entry of entries) {
+    if (!entry.isFile() || !/\.tsx?$/.test(entry.name) || entry.name === 'api-types.d.ts') continue
+    const text = await readFile(resolve(entry.parentPath, entry.name), 'utf8')
+    for (const match of text.matchAll(/[Ss]chemas(?:['"]\])?\[['"](\w+)['"]\]/g)) names.add(match[1])
+  }
+  return [...names]
 }
 
 async function writeModuleTypes(spec, openapiTS, astToString) {
   const keys = (await readdir(modulesDir, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name)
   const written = []
   for (const key of keys) {
-    const declared = await moduleTags(key)
-    if (!declared) continue
-    const tags = new Set(declared)
     const paths = {}
     for (const [path, item] of Object.entries(spec.paths ?? {})) {
       const operations = Object.fromEntries(
-        Object.entries(item).filter(([, operation]) => operation && typeof operation === 'object' && operation.tags?.some((tag) => tags.has(tag))),
+        Object.entries(item).filter(([, operation]) => operation && typeof operation === 'object' && operation['x-aphel-module'] === key),
       )
       if (Object.keys(operations).length > 0) paths[path] = operations
     }
-    if (Object.keys(paths).length === 0) continue
-    const subset = { openapi: spec.openapi, info: spec.info, paths, components: { schemas: pruneSchemas(spec, paths) } }
+    if (!(await importsOwnTypes(resolve(modulesDir, key), key))) continue
+    const used = await usedSchemaNames(resolve(modulesDir, key))
+    if (Object.keys(paths).length === 0 && used.length === 0) continue
+    const subset = { openapi: spec.openapi, info: spec.info, paths, components: { schemas: pruneSchemas(spec, paths, used) } }
     await writeFile(resolve(modulesDir, key, 'api-types.d.ts'), astToString(await openapiTS(subset)))
     written.push(key)
   }

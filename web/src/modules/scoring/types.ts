@@ -1,4 +1,4 @@
-import type { components } from '@/api'
+import type { components } from '@/modules/scoring/api-types'
 import { type FilterNode } from '@/sdk'
 type Schemas = components['schemas']
 

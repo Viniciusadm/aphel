@@ -30,11 +30,17 @@ pub fn base_document(app: &App) -> utoipa::openapi::OpenApi {
     let mut document = ApiDoc::openapi();
     document.tags = Some(
         app.catalog()
-            .tags()
-            .map(|tag| {
+            .tag_contributions()
+            .iter()
+            .map(|contribution| {
                 TagBuilder::new()
-                    .name(tag.name)
-                    .description(Some(tag.description))
+                    .name(contribution.item.name)
+                    .description(Some(contribution.item.description))
+                    .extensions(Some(
+                        utoipa::openapi::extensions::ExtensionsBuilder::new()
+                            .add("x-aphel-module", contribution.module)
+                            .build(),
+                    ))
                     .build()
             })
             .collect(),

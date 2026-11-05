@@ -1,16 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  API_BASE_URL,
-  ApiError,
-  CSRF_HEADER,
-  CSRF_HEADER_VALUE,
-  NETWORK_ERROR_CODE,
-  UNKNOWN_ERROR_CODE,
-  api,
-  parseErrorEnvelope,
-  type components,
-} from '@/api'
+import { API_BASE_URL, ApiError, CSRF_HEADER, CSRF_HEADER_VALUE, NETWORK_ERROR_CODE, UNKNOWN_ERROR_CODE, api, parseErrorEnvelope } from '@/api'
+import type { components } from '@/modules/reports/api-types'
 import { type AggregateResult } from '@/sdk'
 type Schemas = components['schemas']
 

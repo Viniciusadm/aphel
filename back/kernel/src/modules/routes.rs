@@ -34,8 +34,9 @@ impl App {
     pub fn module_router(
         &self,
         module: &'static str,
-        router: OpenApiRouter<AppState>,
+        mut router: OpenApiRouter<AppState>,
     ) -> OpenApiRouter<AppState> {
+        stamp_module(router.get_openapi_mut(), module);
         if self.enabled().is_required(module) {
             return router;
         }
@@ -60,5 +61,30 @@ impl App {
             }
         }
         root.nest(RouteMount::Api.prefix(), api)
+    }
+}
+
+fn stamp_module(document: &mut utoipa::openapi::OpenApi, module: &'static str) {
+    use utoipa::openapi::extensions::ExtensionsBuilder;
+    for item in document.paths.paths.values_mut() {
+        for operation in [
+            &mut item.get,
+            &mut item.put,
+            &mut item.post,
+            &mut item.delete,
+            &mut item.options,
+            &mut item.head,
+            &mut item.patch,
+            &mut item.trace,
+        ]
+        .into_iter()
+        .flatten()
+        {
+            operation.extensions = Some(
+                ExtensionsBuilder::new()
+                    .add("x-aphel-module", module)
+                    .build(),
+            );
+        }
     }
 }
