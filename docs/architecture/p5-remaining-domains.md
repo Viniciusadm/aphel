@@ -1,6 +1,6 @@
 # P5.22 remaining domain plugins
 
-This phase is in progress. Completed entries describe static source validation; manual acceptance remains pending. The main P5.22 checkbox stays open until all remaining domain plugins have been reviewed.
+Implementation is complete. Entries describe static source validation; manual acceptance remains pending in the checklists below. The P5.22 implementation gate is closed.
 
 ## Booking identity
 

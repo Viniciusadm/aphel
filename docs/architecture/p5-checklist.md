@@ -52,15 +52,17 @@ Implementation note: P5.1 connects people and organizations as providers and dup
 - [x] **P5.19** ⇄ `deals`. Review and pending manual acceptance: [deal ownership](p5-deals.md).
 - [x] **P5.20** ⇄ `leads`. Review and pending manual acceptance: [lifecycle ownership](p5-leads.md).
 - [x] **P5.21** ⇄ `quotes`, `proposals`. Review and pending manual acceptance: [commerce capability interfaces](p5-quotes-proposals.md).
-- [ ] **P5.22** ⇄ Remaining domain plugins from §4.3. Work in progress: [remaining domains](p5-remaining-domains.md).
-- [ ] **P5.23** Bridge plugins, only where traits and contracts do not cover the need (§5.4).
+- [x] **P5.22** ⇄ Remaining domain plugins from §4.3. Implementation complete; manual acceptance pending: [remaining domains](p5-remaining-domains.md).
+- [x] **P5.23** Bridge plugins, only where traits and contracts do not cover the need (§5.4).
 
 **5.8 Clean schema**
 
-- [ ] **P5.24** Bring the foreign key and SQL ratchets to zero and rewrite migrations per plugin.
+- [x] **P5.24** Bring the foreign key and SQL ratchets to zero and rewrite migrations per plugin.
 
 **Gate**
 
-- [ ] No plugin depends on another plugin crate.
-- [ ] Cross-plugin SQL and foreign keys are zero.
-- [ ] `sso` or its successor has no CRM dependency.
+- [x] No plugin depends on another plugin crate.
+- [x] Cross-plugin SQL and foreign keys are zero.
+- [x] `sso` or its successor has no CRM dependency.
+
+Implementation gates are complete. Per-plugin manual acceptance remains pending in the linked review documents. The legacy `p5-demo-owner` worktree commit is superseded by the owner `DatasetSeed` implementations already on master and must not be applied as a pending P5 change.
