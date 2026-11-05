@@ -1,21 +1,19 @@
-use aphel_contract_crm::CrmRecordTypes;
 use std::collections::{BTreeMap, HashMap};
 
 use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::DEMO_SEED;
-use crate::revenue;
 use crate::store::DemoStore;
 use crate::{
-    DemoCatalog, DemoCleanup, DemoRemovalReport, DemoResetReport, DemoSeedCommand, DemoSeedReport,
-    DemoVisitor, NewDemoVisitor,
+    DemoCleanup, DemoRemovalReport, DemoResetReport, DemoSeedCommand, DemoSeedReport, DemoVisitor,
+    NewDemoVisitor,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::security::{PasswordHasher, password_violation};
 use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FileStorage, RecordRef, RecordType,
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FileStorage,
 };
 use aphel_kernel::domain::access::{AccessScope, Permission, permission_catalog};
 use aphel_kernel::domain::{Email, UserId};
@@ -26,7 +24,9 @@ use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packag
 use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog};
 use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
-use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
+const STAGE_KIND_OPEN: &str = "open";
+const STAGE_KIND_WON: &str = "won";
+const STAGE_KIND_LOST: &str = "lost";
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
 pub(crate) const DEMO_TEMPLATE: &str = "b2b";
@@ -39,7 +39,6 @@ pub(crate) const DEMO_VISITOR_ROLE_NAME: &str = "Visitante da demonstração";
 pub(crate) const DEMO_VISITOR_NAME: &str = "Visitante Demo";
 
 struct SeedState {
-    deals: Vec<Uuid>,
     counts: BTreeMap<String, u64>,
 }
 
@@ -73,46 +72,25 @@ pub(crate) async fn seed(
         None => None,
     };
     install_template(&ctx, DEMO_TEMPLATE).await?;
-    let catalog = store.catalog().await?;
-    let open_stages: Vec<&str> = catalog
-        .stages
-        .iter()
-        .filter(|stage| stage.kind == STAGE_KIND_OPEN)
-        .map(|stage| stage.id.as_str())
-        .collect();
-    if open_stages.is_empty()
-        || !catalog
+    let mut catalog = MaintenanceCatalog::default();
+    for seed in ordered_seeds(&ctx) {
+        seed.catalog(&ctx, &mut catalog).await?;
+    }
+    let has_kind = |kind: &str| {
+        catalog
             .stages
             .iter()
-            .any(|stage| stage.kind == STAGE_KIND_WON)
-        || !catalog
-            .stages
-            .iter()
-            .any(|stage| stage.kind == STAGE_KIND_LOST)
-    {
+            .any(|(_, stage_kind)| stage_kind == kind)
+    };
+    if !has_kind(STAGE_KIND_OPEN) || !has_kind(STAGE_KIND_WON) || !has_kind(STAGE_KIND_LOST) {
         return Err(AppError::Validation(
             "the default pipeline needs open, won and lost stages".to_owned(),
         ));
     }
     let mut state = SeedState {
-        deals: Vec::new(),
         counts: BTreeMap::new(),
     };
-    let foreign_currency = revenue::seed_currency(&ctx).await?;
-    if let Some(currency) = foreign_currency {
-        for id in revenue::seed_rates(&ctx, currency).await? {
-            track(&store, &mut state, revenue::EXCHANGE_RATE_RECORD_TYPE, id).await?;
-        }
-    }
-    let deal_open = run_dataset_seeds(
-        &ctx,
-        &store,
-        &catalog,
-        foreign_currency.map(|(code, _)| code),
-        &mut state,
-    )
-    .await?;
-    seed_revenue(&ctx, &store, &deal_open, &catalog, &open_stages, &mut state).await?;
+    run_dataset_seeds(&ctx, &store, catalog, &mut state).await?;
 
     record_outcome(
         &ctx,
@@ -304,47 +282,20 @@ async fn install_template(ctx: &Ctx<'_>, template_key: &str) -> Result<(), AppEr
     }
 }
 
-async fn track(
-    store: &DemoStore,
-    state: &mut SeedState,
-    record_type: RecordType,
-    id: Uuid,
-) -> Result<RecordRef, AppError> {
-    let record = RecordRef::new(record_type, id);
-    store.track(&record).await?;
-    *state
-        .counts
-        .entry(record.record_type.as_str().to_owned())
-        .or_default() += 1;
-    Ok(record)
+fn ordered_seeds(ctx: &Ctx<'_>) -> Vec<std::sync::Arc<dyn DatasetSeed>> {
+    let mut seeds = ctx.app().contributions::<dyn DatasetSeed>();
+    seeds.sort_by_key(|seed| seed.order());
+    seeds
 }
-
-const DEAL_ENTITY: &str = "deals.deal";
 
 async fn run_dataset_seeds(
     ctx: &Ctx<'_>,
     store: &DemoStore,
-    catalog: &DemoCatalog,
-    foreign_currency: Option<&str>,
+    catalog: MaintenanceCatalog,
     state: &mut SeedState,
-) -> Result<Vec<bool>, AppError> {
-    let mut session = DatasetSession::new(
-        ctx.now(),
-        DEMO_SEED,
-        MaintenanceCatalog {
-            stages: catalog
-                .stages
-                .iter()
-                .map(|stage| (stage.id.clone(), stage.kind.clone()))
-                .collect(),
-            lost_reason_ids: catalog.lost_reason_ids.clone(),
-        },
-    );
-    if let Some(code) = foreign_currency {
-        session.set_value("money.foreign_currency", code.to_owned());
-    }
-    let mut seeds = ctx.app().contributions::<dyn DatasetSeed>();
-    seeds.sort_by_key(|seed| seed.order());
+) -> Result<(), AppError> {
+    let mut session = DatasetSession::new(ctx.now(), DEMO_SEED, catalog);
+    let seeds = ordered_seeds(ctx);
     for seed in &seeds {
         seed.seed(ctx, &mut session).await?;
         for entry in session.take_pending() {
@@ -366,63 +317,9 @@ async fn run_dataset_seeds(
                     .await?;
             }
         }
-    }
-    state.deals = session.ids(DEAL_ENTITY);
-    Ok(session
-        .entries(DEAL_ENTITY)
-        .iter()
-        .map(|entry| {
-            entry
-                .attributes
-                .get("open")
-                .is_some_and(|open| open == "true")
-        })
-        .collect())
-}
-
-async fn seed_revenue(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    deal_open: &[bool],
-    catalog: &DemoCatalog,
-    open_stages: &[&str],
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    revenue::seed_rotting(ctx, open_stages).await?;
-    let products = revenue::seed_products(ctx).await?;
-    for product in &products {
-        track(store, state, RecordType::PRODUCT, product.id).await?;
-    }
-    if let Some(id) = revenue::seed_price_list(ctx, store, &products).await? {
-        track(store, state, revenue::PRICE_LIST_RECORD_TYPE, id).await?;
-    }
-    let open_deals: Vec<Uuid> = state
-        .deals
-        .iter()
-        .zip(deal_open.iter().copied())
-        .filter_map(|(id, open)| open.then_some(*id))
-        .collect();
-    let with_items = revenue::seed_line_items(ctx, &open_deals, &products).await?;
-    if !with_items.is_empty() {
-        *state.counts.entry("line_items".to_owned()).or_default() += with_items.len() as u64;
-    }
-    for id in revenue::seed_quotes(ctx, &with_items).await? {
-        track(store, state, revenue::QUOTE_RECORD_TYPE, id).await?;
-    }
-    let members = revenue::seed_deal_team(ctx, store, &state.deals).await?;
-    if members > 0 {
-        *state.counts.entry("deal_members".to_owned()).or_default() += members;
-    }
-    if let Some(won_stage) = catalog
-        .stages
-        .iter()
-        .find(|stage| stage.kind == STAGE_KIND_WON)
-        && let Some(id) = revenue::seed_approval_policy(ctx, store, &won_stage.id).await?
-    {
-        track(store, state, revenue::APPROVAL_POLICY_RECORD_TYPE, id).await?;
-    }
-    if let Some(id) = revenue::seed_validation_rule(ctx, store).await? {
-        track(store, state, revenue::VALIDATION_RULE_RECORD_TYPE, id).await?;
+        for (key, amount) in session.take_counts() {
+            *state.counts.entry(key).or_default() += amount;
+        }
     }
     Ok(())
 }

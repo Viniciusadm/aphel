@@ -1,6 +1,7 @@
 mod catalog;
 mod config_references;
 mod dashboard;
+mod dataset_seed;
 pub mod domain;
 pub(crate) mod guidance;
 pub(crate) mod hooks;
@@ -59,6 +60,9 @@ impl Module for WorkflowModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::WorkflowSeed,
+        ));
         app.provide::<dyn aphel_sdk::workflow::WorkflowViews>(std::sync::Arc::new(
             catalog::NativeWorkflowCatalog,
         ));

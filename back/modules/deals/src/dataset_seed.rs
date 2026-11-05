@@ -13,12 +13,15 @@ use chrono::Duration;
 use serde_json::{Map, Value, json};
 
 use crate::domain::{DealInput, LoseDealCommand, MoveDealCommand};
+use crate::team::domain::AddDealMemberCommand;
+use aphel_kernel::errors::CodedKind;
 
 const ORGANIZATION_ENTITY: &str = "organizations.organization";
 const CONTACT_ENTITY: &str = "people.person";
 const FOREIGN_CURRENCY_VALUE: &str = "money.foreign_currency";
 const FOREIGN_CURRENCY_EVERY: usize = 5;
 const DEAL_COUNT: usize = 40;
+const DEALS_WITH_TEAM: usize = 8;
 const STAGE_OPEN: &str = "open";
 const PRODUCTS: [&str; 8] = [
     "Plano anual",
@@ -98,6 +101,7 @@ impl DatasetSeed for DealsSeed {
         .await?
         .definition
         .id;
+        session.set_value("deals.record_type", RecordType::DEAL.as_str().to_owned());
         let now = session.now();
         session.record(
             RecordRef::new(RecordType::from_static("field"), field_id),
@@ -225,6 +229,9 @@ impl DatasetSeed for DealsSeed {
                 BTreeMap::from([("open".to_owned(), open.to_string())]),
             );
         }
+        let deal_ids = session.ids("deals.deal");
+        let added = seed_team(ctx, &deal_ids).await?;
+        session.add_count("deal_members", added);
         Ok(())
     }
 
@@ -268,4 +275,50 @@ fn custom_fields(values: &[(&str, Value)]) -> Map<String, Value> {
         .iter()
         .map(|(key, value)| ((*key).to_owned(), value.clone()))
         .collect()
+}
+
+fn is_conflict(error: &AppError) -> bool {
+    matches!(
+        error,
+        AppError::Conflict(_)
+            | AppError::Coded {
+                kind: CodedKind::Conflict,
+                ..
+            }
+    )
+}
+
+async fn seed_team(ctx: &Ctx<'_>, deals: &[uuid::Uuid]) -> Result<u64, AppError> {
+    let members: Vec<String> = sqlx::query_scalar(
+        "SELECT u.id FROM users u JOIN roles r ON r.id = u.role_id WHERE u.status = 'active' \
+         ORDER BY r.`key` = 'admin' DESC, u.joined_at, u.id",
+    )
+    .fetch_all(ctx.pool())
+    .await?;
+    if members.len() < 2 {
+        return Ok(0);
+    }
+    let roles = crate::team::service::list_roles(ctx, false).await?;
+    let mut added = 0;
+    for (index, deal_id) in deals.iter().take(DEALS_WITH_TEAM).enumerate() {
+        let member = &members[1 + index % (members.len() - 1)];
+        let role = roles.get(index % roles.len().max(1));
+        match crate::team::service::add_member(
+            ctx,
+            &deal_id.to_string(),
+            AddDealMemberCommand {
+                user_id: member.clone(),
+                role_id: role.map(|role| role.id.to_string()),
+                credit_percent: Some("30".to_owned()),
+                ip: None,
+            },
+        )
+        .await
+        {
+            Ok(_) => added += 1,
+            Err(error) if is_conflict(&error) => {}
+            Err(error) => return Err(error),
+        }
+    }
+    Ok(added)
 }

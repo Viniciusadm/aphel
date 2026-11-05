@@ -1,4 +1,5 @@
 pub(crate) mod bundles;
+mod dataset_seed;
 pub mod domain;
 pub(crate) mod hooks;
 pub(crate) mod http;
@@ -86,6 +87,9 @@ impl Module for PricingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::PricingSeed,
+        ));
         app.contract(aphel_sdk::pricing::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(60, |pool, registry| {

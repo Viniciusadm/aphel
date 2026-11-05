@@ -38,18 +38,6 @@ pub(crate) struct DemoRemovalReport {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct DemoStage {
-    pub(crate) id: String,
-    pub(crate) kind: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub(crate) struct DemoCatalog {
-    pub(crate) stages: Vec<DemoStage>,
-    pub(crate) lost_reason_ids: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NewDemoVisitor {
     pub(crate) user_id: UserId,
     pub(crate) email: Email,

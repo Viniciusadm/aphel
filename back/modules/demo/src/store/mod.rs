@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use chrono::{DateTime, Utc};
 use sqlx::{AssertSqlSafe, MySqlPool, Row};
 
-use crate::{DemoCatalog, DemoCleanup, DemoStage, NewDemoVisitor};
+use crate::{DemoCleanup, NewDemoVisitor};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::fields::is_sql_identifier;
 use aphel_kernel::application::shared::{RecordRef, RecordType};
@@ -115,50 +115,6 @@ async fn tracked_counts(tx: &mut MySqlTx) -> Result<BTreeMap<String, u64>, AppEr
         .collect()
 }
 
-const TRACKED_RECORDS: &str = "*";
-const MODULE_CLEANUP_BEFORE_RECORDS: [(&str, &str); 6] = [
-    ("approval_requests", TRACKED_RECORDS),
-    ("approval_policies", "approval_policy"),
-    ("validation_rules", "validation_rule"),
-    ("quotes", "quotes.quote"),
-    ("price_lists", "price_list"),
-    ("money_exchange_rates", "exchange_rate"),
-];
-const MODULE_CLEANUP_AFTER_RECORDS: [(&str, &str); 1] = [("products", "catalog_items.item")];
-
-async fn table_exists(tx: &mut MySqlTx, table: &str) -> Result<bool, AppError> {
-    let found: Option<i64> = sqlx::query_scalar(
-        "SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",
-    )
-    .bind(table)
-    .fetch_optional(&mut **tx)
-    .await?;
-    Ok(found.is_some())
-}
-
-async fn remove_module_rows(tx: &mut MySqlTx, targets: &[(&str, &str)]) -> Result<(), AppError> {
-    for (table, record_type) in targets {
-        if !is_sql_identifier(table) || !table_exists(tx, table).await? {
-            continue;
-        }
-        if *record_type == TRACKED_RECORDS {
-            sqlx::query(AssertSqlSafe(format!(
-                "DELETE FROM {table} WHERE (record_type, record_id) IN ({TRACKED_SELECT})"
-            )))
-            .execute(&mut **tx)
-            .await?;
-        } else {
-            sqlx::query(AssertSqlSafe(format!(
-                "DELETE FROM {table} WHERE id IN (SELECT record_id FROM demo_records WHERE record_type = ?)"
-            )))
-            .bind(*record_type)
-            .execute(&mut **tx)
-            .await?;
-        }
-    }
-    Ok(())
-}
-
 async fn remove_seeded_records(
     tx: &mut MySqlTx,
     records: Option<&[RecordRef]>,
@@ -189,36 +145,6 @@ async fn remove_seeded_records(
 }
 
 impl DemoStore {
-    pub(crate) async fn key_exists(&self, table: &str, key: &str) -> Result<bool, AppError> {
-        if !is_sql_identifier(table) {
-            return Err(AppError::Internal(format!("invalid table name {table:?}")));
-        }
-        let found: Option<i64> = sqlx::query_scalar(AssertSqlSafe(format!(
-            "SELECT 1 FROM {table} WHERE `key` = ? LIMIT 1"
-        )))
-        .bind(key)
-        .fetch_optional(&self.pool)
-        .await?;
-        Ok(found.is_some())
-    }
-
-    pub(crate) async fn admin_role_id(&self) -> Result<Option<String>, AppError> {
-        Ok(
-            sqlx::query_scalar("SELECT id FROM roles WHERE `key` = 'admin' LIMIT 1")
-                .fetch_optional(&self.pool)
-                .await?,
-        )
-    }
-
-    pub(crate) async fn active_users(&self) -> Result<Vec<String>, AppError> {
-        Ok(sqlx::query_scalar(
-            "SELECT u.id FROM users u JOIN roles r ON r.id = u.role_id WHERE u.status = 'active' \
-             ORDER BY r.`key` = 'admin' DESC, u.joined_at, u.id",
-        )
-        .fetch_all(&self.pool)
-        .await?)
-    }
-
     pub(crate) async fn admin_user(&self) -> Result<Option<UserId>, AppError> {
         let user_id: Option<String> = sqlx::query_scalar(
             "SELECT u.id FROM users u JOIN roles r ON r.id = u.role_id \
@@ -235,34 +161,6 @@ impl DemoStore {
     pub(crate) async fn has_business_records(&self) -> Result<bool, AppError> {
         let mut tx = MySqlTx::from(self.pool.begin().await?);
         Ok(!seed_counts(&mut tx).await?.is_empty())
-    }
-
-    pub(crate) async fn catalog(&self) -> Result<DemoCatalog, AppError> {
-        let stages = sqlx::query(
-            "SELECT s.id, s.kind FROM workflow_stages s \
-             JOIN workflow p ON p.id = s.pipeline_id \
-             WHERE p.is_default = TRUE AND s.is_active = TRUE \
-             ORDER BY s.position, s.id",
-        )
-        .fetch_all(&self.pool)
-        .await?
-        .into_iter()
-        .map(|row| {
-            Ok(DemoStage {
-                id: row.try_get("id")?,
-                kind: row.try_get("kind")?,
-            })
-        })
-        .collect::<Result<Vec<_>, AppError>>()?;
-        let lost_reason_ids: Vec<String> = sqlx::query_scalar(
-            "SELECT id FROM lost_reasons WHERE is_active = TRUE ORDER BY position, id",
-        )
-        .fetch_all(&self.pool)
-        .await?;
-        Ok(DemoCatalog {
-            stages,
-            lost_reason_ids,
-        })
     }
 
     pub(crate) async fn tracked_count(&self) -> Result<u64, AppError> {
@@ -336,7 +234,6 @@ impl DemoStore {
         .fetch_all(&mut **tx)
         .await?;
 
-        remove_module_rows(tx, &MODULE_CLEANUP_BEFORE_RECORDS).await?;
         let statements = [
             format!("DELETE FROM attachments WHERE (record_type, record_id) IN {tracked}"),
             format!("DELETE FROM notifications WHERE (record_type, record_id) IN {tracked}"),
@@ -364,7 +261,6 @@ impl DemoStore {
         )))
         .execute(&mut **tx)
         .await?;
-        remove_module_rows(tx, &MODULE_CLEANUP_AFTER_RECORDS).await?;
         sqlx::query("DELETE FROM demo_records")
             .execute(&mut **tx)
             .await?;

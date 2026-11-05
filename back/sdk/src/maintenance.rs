@@ -110,6 +110,7 @@ pub struct DatasetSession {
     entries: BTreeMap<String, Vec<DatasetEntry>>,
     pending: Vec<DatasetEntry>,
     values: BTreeMap<String, String>,
+    counts: BTreeMap<String, u64>,
 }
 
 impl DatasetSession {
@@ -121,6 +122,7 @@ impl DatasetSession {
             entries: BTreeMap::new(),
             pending: Vec::new(),
             values: BTreeMap::new(),
+            counts: BTreeMap::new(),
         }
     }
 
@@ -178,6 +180,16 @@ impl DatasetSession {
         self.values.get(key).map(String::as_str)
     }
 
+    pub fn add_count(&mut self, key: &str, amount: u64) {
+        if amount > 0 {
+            *self.counts.entry(key.to_owned()).or_default() += amount;
+        }
+    }
+
+    pub fn take_counts(&mut self) -> BTreeMap<String, u64> {
+        std::mem::take(&mut self.counts)
+    }
+
     pub fn take_pending(&mut self) -> Vec<DatasetEntry> {
         std::mem::take(&mut self.pending)
     }
@@ -187,6 +199,13 @@ impl DatasetSession {
 pub trait DatasetSeed: Send + Sync {
     fn order(&self) -> i32;
     fn entities(&self) -> Vec<crate::shared::RecordType>;
+    async fn catalog(
+        &self,
+        _ctx: &Ctx<'_>,
+        _catalog: &mut MaintenanceCatalog,
+    ) -> Result<(), AppError> {
+        Ok(())
+    }
     async fn seed(&self, ctx: &Ctx<'_>, session: &mut DatasetSession) -> Result<(), AppError>;
     async fn backdate(&self, _ctx: &Ctx<'_>, _entry: &DatasetEntry) -> Result<bool, AppError> {
         Ok(false)

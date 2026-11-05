@@ -8,16 +8,8 @@ publish = false
 
 [dependencies]
 aphel-sdk.workspace = true
-validation_rules = { package = "aphel-mod-validation-rules", path = "../validation_rules" }
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-approvals = { package = "aphel-mod-approvals", path = "../approvals" }
-money = { package = "aphel-mod-money", path = "../money" }
-workflow = { package = "aphel-mod-workflow", path = "../workflow" }
-pricing = { package = "aphel-mod-pricing", path = "../pricing" }
-catalog_items = { package = "aphel-mod-catalog-items", path = "../catalog_items" }
-quotes = { package = "aphel-mod-quotes", path = "../quotes" }
-deals = { package = "aphel-mod-deals", path = "../deals" }
 onboarding = { package = "aphel-mod-onboarding", path = "../onboarding" }
 privacy = { package = "aphel-mod-privacy", path = "../privacy" }
 axum.workspace = true

@@ -2,7 +2,6 @@ pub(crate) mod cli;
 pub(crate) mod dataset;
 pub(crate) mod domain;
 mod policy;
-pub(crate) mod revenue;
 pub(crate) mod service;
 pub mod settings;
 mod status;
@@ -29,12 +28,12 @@ impl Module for DemoModule {
             )
             .depends_on(onboarding::KEY, "*")
             .optional(aphel_sdk::money::KEY)
-            .optional(workflow::KEY)
-            .optional(catalog_items::KEY)
-            .optional(pricing::KEY)
+            .optional("workflow")
+            .optional(aphel_sdk::catalog_items::KEY)
+            .optional("pricing")
             .optional(aphel_sdk::line_items::KEY)
-            .optional(quotes::KEY)
-            .optional(approvals::KEY)
+            .optional("quotes")
+            .optional("approvals")
             .enabled_by_default()
             .migration(Migration::new(
                 1,
