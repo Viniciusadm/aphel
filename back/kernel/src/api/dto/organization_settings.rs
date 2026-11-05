@@ -113,7 +113,7 @@ impl From<ApiTokenLimitsDto> for ApiTokenLimits {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct OrganizationSettingsResponse {
-    #[schema(example = "https://crm.example.com")]
+    #[schema(example = "https://app.example.com")]
     pub public_base_url: Option<String>,
     pub effective_public_base_url: String,
     pub secure_cookies: bool,

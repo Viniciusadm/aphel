@@ -24,7 +24,7 @@ pub struct InstallRequest {
     pub admin_email: String,
     #[schema(min_length = 8, max_length = 128)]
     pub admin_password: String,
-    #[schema(example = "https://crm.example.com")]
+    #[schema(example = "https://app.example.com")]
     pub public_base_url: Option<String>,
     pub business: Option<serde_json::Value>,
     #[serde(default)]

@@ -2,9 +2,9 @@
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-**Aphel** is an open source CRM that is modular, configurable and extensible, ready to be used by freelancers, agencies, real estate agencies, consultancies, SaaS organizations and sales teams.
+**Aphel** is an open source platform for composing business systems from plugins. A small core (identity, records, events, jobs and the plugin runtime) knows no business domain; everything else is a plugin, and a **blueprint** chooses which plugins, configuration and navigation make up a system. The `crm` blueprint, with variants for freelancers, agencies, real estate agencies, consultancies, SaaS organizations and sales teams, is the system Aphel ships today; a blank system is also possible.
 
-The core (people, organizations, deals, tasks and history) is the same for everyone; fields, workflow, automations and modules adapt to each company without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
+Fields, workflow, automations and plugins adapt each installation without changing the code. It runs as **a single binary** (Rust) with the web interface (React) embedded, on top of MySQL. Each installation serves **one company** (the organization): to serve another company, spin up another installation with its own database.
 
 > Current version: **0.1** (first usable version). See what already exists in [Features](#features-in-v01).
 
@@ -21,7 +21,11 @@ The images will be added to `docs/images/` later. To capture them, use an instal
 | `docs/images/settings-fields.png` | Custom fields | `/settings/fields/contact` |
 | `docs/images/mobile.png` | Kanban on mobile (390 px, dark theme) | `/deals` |
 
-## Features in v0.1
+## Blueprints
+
+The installer offers a blueprint or a blank system. A blueprint (`blueprints/<key>/blueprint.toml`) lists required and recommended plugins, navigation, roles and configuration packages, and can extend another one. See [`docs/blueprints`](docs/blueprints/README.md).
+
+## Features of the `crm` blueprint in v0.1
 
 - **Accounts and access:** first administrator created by the installer, other users by invitation, session sign-in, email verification, forgot password and 2FA.
 - **Permissions:** roles (administrator, manager, member and custom), per-module permissions with scope (own, team, organization), teams and sub-teams.

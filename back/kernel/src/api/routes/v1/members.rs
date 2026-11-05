@@ -51,7 +51,7 @@ pub fn admin_use_cases(
 pub struct InvitationResponse {
     #[serde(flatten)]
     pub member: MemberResponse,
-    #[schema(example = "https://crm.example.com/accept-invitation?token=...")]
+    #[schema(example = "https://app.example.com/accept-invitation?token=...")]
     pub invitation_link: Option<String>,
 }
 

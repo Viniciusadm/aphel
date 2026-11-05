@@ -12466,7 +12466,7 @@ export interface components {
         };
         Data_InvitationResponse: {
             data: components["schemas"]["MemberResponse"] & {
-                /** @example https://crm.example.com/accept-invitation?token=... */
+                /** @example https://app.example.com/accept-invitation?token=... */
                 invitation_link?: string | null;
             };
         };
@@ -13047,7 +13047,7 @@ export interface components {
                 mail_secret_configured: boolean;
                 /** Format: int64 */
                 max_upload_mb: number;
-                /** @example https://crm.example.com */
+                /** @example https://app.example.com */
                 public_base_url?: string | null;
                 secure_cookies: boolean;
                 storage: components["schemas"]["StorageSettingsDto"];
@@ -16608,7 +16608,7 @@ export interface components {
             modules?: string[];
             /** @example Acme Realty */
             organization_name: string;
-            /** @example https://crm.example.com */
+            /** @example https://app.example.com */
             public_base_url?: string | null;
             /** @example America/Sao_Paulo */
             timezone: string;
@@ -18069,7 +18069,7 @@ export interface components {
             mail_secret_configured: boolean;
             /** Format: int64 */
             max_upload_mb: number;
-            /** @example https://crm.example.com */
+            /** @example https://app.example.com */
             public_base_url?: string | null;
             secure_cookies: boolean;
             storage: components["schemas"]["StorageSettingsDto"];

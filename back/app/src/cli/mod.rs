@@ -41,7 +41,7 @@ impl std::fmt::Display for AlreadyReported {
 impl Error for AlreadyReported {}
 
 #[derive(Debug, Parser)]
-#[command(name = "aphel", version, about = "Aphel CRM backend")]
+#[command(name = "aphel", version, about = "Aphel backend")]
 pub(crate) struct Cli {
     #[command(subcommand)]
     pub(crate) command: Option<Command>,

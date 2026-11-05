@@ -25,7 +25,7 @@ The units from [Manual installation](installation.md#5-systemd-services) separat
 ```ini
 # /etc/systemd/system/aphel.service
 [Unit]
-Description=Aphel CRM (HTTP)
+Description=Aphel (HTTP)
 After=network-online.target mysql.service
 Wants=network-online.target
 
@@ -46,7 +46,7 @@ WantedBy=multi-user.target
 ```ini
 # /etc/systemd/system/aphel-worker.service
 [Unit]
-Description=Aphel CRM (worker)
+Description=Aphel (worker)
 After=network-online.target mysql.service
 Wants=network-online.target
 
@@ -176,7 +176,7 @@ scrape_configs:
       type: Bearer
       credentials_file: /etc/prometheus/aphel-token
     static_configs:
-      - targets: ['crm.example.com:443']
+      - targets: ['app.example.com:443']
     scheme: https
 ```
 

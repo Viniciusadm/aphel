@@ -562,7 +562,7 @@ fn rust_registry(modules: &[ResolvedModule]) -> String {
          \n\
          pub fn compiled() -> Vec<Box<dyn Module>> {{\n    vec![\n        Box::new(aphel_kernel::KernelModule),\n{}    ]\n}}\n\
          \n\
-         pub fn build() -> Result<App, AppError> {{\n    let builder = AppBuilder::new();\n    #[cfg(feature = \"plugins\")]\n    let builder = {{\n        let mut builder = builder;\n        crate::blueprints::register(&mut builder);\n        builder\n    }};\n    builder\n        .modules(compiled())\n        .build()\n}}\n",
+         pub fn build() -> Result<App, AppError> {{\n    let builder = AppBuilder::new();\n    #[cfg(feature = \"plugins\")]\n    let builder = {{\n        let mut builder = builder;\n        crate::blueprints::register(&mut builder);\n        builder\n    }};\n    builder.modules(compiled()).build()\n}}\n",
         compiled
     )
 }

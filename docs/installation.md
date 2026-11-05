@@ -70,7 +70,7 @@ To avoid typing `-f docker-compose.prod.yml` every time, export `COMPOSE_FILE=do
 ### Production with Docker
 
 - Put a [reverse proxy](#reverse-proxy-and-https) with HTTPS in front and publish the port only on the local interface: `APP_PORT=127.0.0.1:3001` in `.env`.
-- Run the installation from the public address already (e.g. `https://crm.yourcompany.com`): the installer saves the browser origin as the public address. It can be edited in **Settings → General**; with `https`, the session cookie automatically becomes `Secure`.
+- Run the installation from the public address already (e.g. `https://app.yourcompany.com`): the installer saves the browser origin as the public address. It can be edited in **Settings → General**; with `https`, the session cookie automatically becomes `Secure`.
 - Configure SMTP in **Settings → Outgoing email** (or in the installer's optional step) and, if you want files off the disk, S3 in **Settings → File storage**. See [Configuration](configuration.md#organization-settings).
 - Schedule the [backup](backup.md).
 
@@ -141,7 +141,7 @@ sudo -u aphel sh -c 'set -a; . /etc/aphel/aphel.env; exec aphel migrate'
 
 ```ini
 [Unit]
-Description=Aphel CRM (HTTP)
+Description=Aphel (HTTP)
 After=network-online.target mysql.service
 Wants=network-online.target
 
@@ -159,7 +159,7 @@ TimeoutStopSec=60
 WantedBy=multi-user.target
 ```
 
-`/etc/systemd/system/aphel-worker.service`: the same, with `Description=Aphel CRM (worker)` and `ExecStart=/usr/local/bin/aphel worker`. The worker waits for running jobs to finish when it receives SIGTERM; if your jobs are long (large imports), increase `TimeoutStopSec`.
+`/etc/systemd/system/aphel-worker.service`: the same, with `Description=Aphel (worker)` and `ExecStart=/usr/local/bin/aphel worker`. The worker waits for running jobs to finish when it receives SIGTERM; if your jobs are long (large imports), increase `TimeoutStopSec`.
 
 ```bash
 sudo systemctl daemon-reload
@@ -176,7 +176,7 @@ Aphel does not terminate TLS. In production, put a reverse proxy with HTTPS in f
 Caddy (automatic certificate):
 
 ```
-crm.yourcompany.com {
+app.yourcompany.com {
     request_body {
         max_size 30MB
     }
@@ -190,10 +190,10 @@ Nginx:
 server {
     listen 443 ssl;
     http2 on;
-    server_name crm.yourcompany.com;
+    server_name app.yourcompany.com;
 
-    ssl_certificate     /etc/letsencrypt/live/crm.yourcompany.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/crm.yourcompany.com/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/app.yourcompany.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app.yourcompany.com/privkey.pem;
 
     client_max_body_size 30m;
 
