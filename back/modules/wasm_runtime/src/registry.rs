@@ -340,6 +340,21 @@ fn publish_extensions(snapshot: &Snapshot) {
             batch.add(std::sync::Arc::new(contribution));
         }
     }
+    for plugin in &snapshot.plugins {
+        for declaration in &plugin.manifest.hooks.declare {
+            let kind = match declaration.kind.as_str() {
+                "veto" => aphel_kernel::modules::PluginHookKind::Veto,
+                "filter" => aphel_kernel::modules::PluginHookKind::Filter,
+                _ => aphel_kernel::modules::PluginHookKind::Action,
+            };
+            batch.add(std::sync::Arc::new(aphel_kernel::modules::PluginHook::new(
+                intern::intern(&declaration.key),
+                intern::intern(&declaration.record_type),
+                kind,
+                intern::intern(&declaration.description),
+            )));
+        }
+    }
     for kind in kinds {
         batch.add(std::sync::Arc::new(kind));
     }

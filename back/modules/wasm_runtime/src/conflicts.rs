@@ -54,6 +54,7 @@ pub fn detect(candidate: &PluginManifest, others: &[InstalledPlugin]) -> Vec<Plu
         }
         for hook in candidate
             .hooks
+            .subscribe
             .iter()
             .filter(|hook| CONTESTED_HOOKS.contains(&hook.hook.as_str()))
         {
@@ -64,7 +65,7 @@ pub fn detect(candidate: &PluginManifest, others: &[InstalledPlugin]) -> Vec<Plu
                 if own(candidate) || own(manifest) {
                     continue;
                 }
-                let overlaps = manifest.hooks.iter().any(|existing| {
+                let overlaps = manifest.hooks.subscribe.iter().any(|existing| {
                     existing.hook == hook.hook && existing.record_types.contains(record_type)
                 });
                 if overlaps {

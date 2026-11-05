@@ -72,10 +72,16 @@ label = "Cavalo negociado"
 type = "record"
 target = "equine.horse"
 
-[[hooks]]                      # record.* or a domain hook such as deal.winning (see the host catalog)
+[[hooks.subscribe]]                      # record.* or a domain hook such as deal.winning (see the host catalog)
 hook = "record.validating"
 record_types = ["deal", "equine.horse"]
 priority = 25                  # order among plugins (lower first)
+
+[[hooks.declare]]              # a hook this plugin offers to others (key starts with "<plugin key>.")
+key = "equine.horse_sold"
+kind = "action"                # veto | filter | action, default action
+description = "A horse was sold"
+record_type = "equine.horse"   # optional, default "*"
 
 operations = ["notes.create", "tagging.apply"]   # module operations called with invoke
 
@@ -206,6 +212,7 @@ What the declarations become:
 | `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
 | `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
 | `widgets` | Dashboard widgets `<key>_<name>` whose data comes from `on-widget` (see Dashboard widgets) |
+| `hooks.declare` | Hooks the plugin offers. While enabled they are in the host catalog, so other plugins subscribe with `[[hooks.subscribe]]`. Firing a declared hook from the backend is not available yet |
 | `provides.operations` | Operations the plugin offers. While the plugin is enabled each one is in the operation registry (`ctx.call`, `invoke`, the platform catalog, `aphel catalog`); the host runs `on-operation(key, input-json)` with the caller's scope intersected with the plugin's capabilities. A key owned by a native module or by another installed plugin is refused on install and upgrade; a read operation runs read-only. Disabling or uninstalling the plugin removes them |
 | `contribute` | Contributions to an extension point. They are validated on install and upgrade and, while the plugin is enabled, registered as `RuntimeContribution` entries that the point's owner reads with `App::runtime_contributions(point)`; calling one routes to `on-contribution(point, name, input-json)` with the restricted scope. The point's own schema is not checked yet |
 | `privacy.subject_data` | The plugin holds personal data outside its record fields and takes part in privacy requests (see Data subject requests) |
@@ -301,7 +308,7 @@ Besides records, a plugin reaches the modules through two generic channels. Both
 
 Operations that act on the user's own data (favorites, reminders, following) need a user actor: they work from hooks and private routes and are refused from events and schedules, where the actor is the plugin.
 
-**Domain hooks.** Besides the `record.*` hooks, modules offer hooks for their own moments (`deal.winning`, `deal.won`, `lead.converting`, `quote.accepting`, `activity.completing`, `email.outgoing`, …). The plugin subscribes to them in `[[hooks]]` like the record hooks (`record_types` is the type in the catalog, or `*`). The `HookCall` carries the hook key, the record and the domain data in `values`:
+**Domain hooks.** Besides the `record.*` hooks, modules offer hooks for their own moments (`deal.winning`, `deal.won`, `lead.converting`, `quote.accepting`, `activity.completing`, `email.outgoing`, …). The plugin subscribes to them in `[[hooks.subscribe]]` like the record hooks (`record_types` is the type in the catalog, or `*`). The `HookCall` carries the hook key, the record and the domain data in `values`:
 
 | Kind | Behaviour |
 | --- | --- |

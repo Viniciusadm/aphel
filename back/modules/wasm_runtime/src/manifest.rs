@@ -77,7 +77,7 @@ pub struct PluginManifest {
     #[serde(default)]
     pub fields: Vec<ExtensionField>,
     #[serde(default)]
-    pub hooks: Vec<HookSubscription>,
+    pub hooks: HooksSpec,
     #[serde(default)]
     pub events: Vec<String>,
     #[serde(default)]
@@ -283,6 +283,34 @@ pub struct ExtensionField {
     pub field: FieldDef,
 }
 
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HooksSpec {
+    #[serde(default)]
+    pub subscribe: Vec<HookSubscription>,
+    #[serde(default)]
+    pub declare: Vec<HookDeclarationSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HookDeclarationSpec {
+    pub key: String,
+    pub description: String,
+    #[serde(default = "default_hook_kind")]
+    pub kind: String,
+    #[serde(default = "default_hook_record_type")]
+    pub record_type: String,
+}
+
+fn default_hook_kind() -> String {
+    "action".to_owned()
+}
+
+fn default_hook_record_type() -> String {
+    "*".to_owned()
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HookSubscription {
     pub hook: String,
@@ -397,7 +425,7 @@ fn is_key(value: &str, max: usize) -> bool {
 
 impl PluginManifest {
     pub fn needs_backend(&self) -> bool {
-        !self.hooks.is_empty()
+        !self.hooks.subscribe.is_empty()
             || !self.events.is_empty()
             || !self.routes.is_empty()
             || !self.schedules.is_empty()
@@ -528,6 +556,7 @@ impl PluginManifest {
 
     pub fn subscribes(&self, hook: &str, record_type: &str) -> Option<i32> {
         self.hooks
+            .subscribe
             .iter()
             .find(|subscription| {
                 subscription.hook == hook
@@ -641,16 +670,51 @@ impl PluginManifest {
             }
             self.validate_field(&path, &extension.field, &mut violations);
         }
-        for (index, hook) in self.hooks.iter().enumerate() {
-            if !catalog.hooks.contains(&hook.hook.as_str()) {
+        for (index, declaration) in self.hooks.declare.iter().enumerate() {
+            let path = format!("hooks.declare[{index}]");
+            if !declaration.key.starts_with(&format!("{}.", self.key))
+                || !declaration
+                    .key
+                    .split('.')
+                    .all(|segment| is_key(segment, MAX_KEY_LENGTH))
+                || self.hooks.declare[..index]
+                    .iter()
+                    .any(|previous| previous.key == declaration.key)
+            {
                 violations.push(FieldViolation::new(
-                    format!("hooks[{index}].hook"),
+                    format!("{path}.key"),
+                    "must be a unique dotted key starting with `<plugin key>.`",
+                ));
+            }
+            if !["veto", "filter", "action"].contains(&declaration.kind.as_str()) {
+                violations.push(FieldViolation::new(
+                    format!("{path}.kind"),
+                    "must be veto, filter or action",
+                ));
+            }
+            if declaration.description.trim().is_empty() || declaration.description.len() > 240 {
+                violations.push(FieldViolation::new(
+                    format!("{path}.description"),
+                    "must have between 1 and 240 characters",
+                ));
+            }
+        }
+        for (index, hook) in self.hooks.subscribe.iter().enumerate() {
+            if !catalog.hooks.contains(&hook.hook.as_str())
+                && !self
+                    .hooks
+                    .declare
+                    .iter()
+                    .any(|declared| declared.key == hook.hook)
+            {
+                violations.push(FieldViolation::new(
+                    format!("hooks.subscribe[{index}].hook"),
                     "must be a hook offered by this Aphel (see GET /api/v1/wasm-runtime/host-catalog)",
                 ));
             }
             if hook.record_types.is_empty() {
                 violations.push(FieldViolation::new(
-                    format!("hooks[{index}].record_types"),
+                    format!("hooks.subscribe[{index}].record_types"),
                     "must list at least one record type",
                 ));
             }

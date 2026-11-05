@@ -259,6 +259,7 @@ impl From<&PluginManifest> for PluginDeclarations {
             extended_types: extended,
             hooks: manifest
                 .hooks
+                .subscribe
                 .iter()
                 .map(|hook| format!("{} ({})", hook.hook, hook.record_types.join(", ")))
                 .collect(),
