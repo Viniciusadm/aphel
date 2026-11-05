@@ -3,8 +3,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ProductPicker } from '@/modules/catalog_items/ProductPicker'
-import { formatCurrency, useRecordFormatting } from '@/sdk'
+import { Slot, formatCurrency, useRecordFormatting } from '@/sdk'
 import { DISCOUNT_TYPES, type EditableItem } from './items'
 import type { QuoteDiscountType } from './types'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -47,7 +46,7 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
         <h2 className="text-base font-semibold">{t('editor.items.title')}</h2>
         {editable && (
           <div className="flex flex-wrap gap-2">
-            <ProductPicker currency={currency} onSelect={(product) => onAddProduct(product.id)} />
+            <Slot name="line_items.catalogPicker" props={{ currency, disabled: false, onSelect: onAddProduct }} />
             <Button size="sm" variant="outline" onClick={addFree}>
               <Plus aria-hidden="true" />
               {t('editor.items.addFree')}
