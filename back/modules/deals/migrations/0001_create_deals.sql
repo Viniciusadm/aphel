@@ -49,11 +49,6 @@ CREATE TABLE deals (
   UNIQUE KEY deals_renewal_of_unique (renewal_of_deal_id),
   KEY deals_currency_index (status, currency),
   CONSTRAINT deals_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT deals_pipeline_fk FOREIGN KEY (pipeline_id) REFERENCES workflow (id),
-  CONSTRAINT deals_stage_fk FOREIGN KEY (stage_id) REFERENCES workflow_stages (id),
-  CONSTRAINT deals_lost_reason_fk FOREIGN KEY (lost_reason_id) REFERENCES lost_reasons (id) ON DELETE SET NULL,
-  CONSTRAINT deals_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE SET NULL,
-  CONSTRAINT deals_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE SET NULL,
   CONSTRAINT deals_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL,
   CONSTRAINT deals_renewal_of_fk FOREIGN KEY (renewal_of_deal_id) REFERENCES deals (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -67,8 +62,7 @@ CREATE TABLE deal_contacts (
   PRIMARY KEY (id),
   UNIQUE KEY deal_contacts_unique (deal_id, contact_id),
   KEY deal_contacts_contact_fk_index (contact_id),
-  CONSTRAINT deal_contacts_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE CASCADE,
-  CONSTRAINT deal_contacts_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE CASCADE
+  CONSTRAINT deal_contacts_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE deal_stage_history (

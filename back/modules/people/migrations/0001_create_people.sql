@@ -42,7 +42,6 @@ CREATE TABLE people (
   KEY people_last_contacted_index (last_contacted_at),
   KEY people_last_contacted_by_fk_index (last_contacted_by),
   CONSTRAINT people_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT people_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE SET NULL,
   CONSTRAINT people_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL,
   CONSTRAINT people_last_contacted_by_fk FOREIGN KEY (last_contacted_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -56,6 +55,5 @@ CREATE TABLE people_organizations (
   PRIMARY KEY (id),
   UNIQUE KEY people_organizations_unique (contact_id, company_id),
   KEY people_organizations_company_fk_index (company_id),
-  CONSTRAINT people_organizations_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE CASCADE,
-  CONSTRAINT people_organizations_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE CASCADE
+  CONSTRAINT people_organizations_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

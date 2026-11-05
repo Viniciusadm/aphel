@@ -595,3 +595,10 @@ The remaining identity changes, shared capability interfaces, owner-only SQL, de
 - `demo` depends on no plugin crate. Template completion uses `aphel_sdk::maintenance::TemplateOnboarding`, provided by `onboarding`; attached and wiped files use the core `cleanup_dataset_files`; `notifications` cleans its own rows through a no-op `DatasetSeed` with cleanup (order 1000).
 - [ ] Manual acceptance: seed, remove and full reset with every seeding plugin enabled and with each optional one disabled; confirm files, notifications and revenue rows are removed, and onboarding completes with the template.
 - [ ] Manual acceptance: seed, remove and full reset with organizations and people enabled and with organizations disabled; confirm tracked fields and records are removed in people-then-organizations order.
+
+## Soft references for people and deals
+
+- `people.company_id`, `deals.contact_id` and `deals.company_id` are `SoftReference`s with `clear` on delete, replacing the foreign keys to `organizations` and `people`. Writes now require the actor to see the referenced record, and trashing the target clears the link (the former key only cleared on purge).
+- `people_organizations.company_id` and `deal_contacts.contact_id` were cascade keys on join tables; owners delete those rows from a `RecordPurged` hook.
+- `deals.pipeline_id`, `stage_id` and `lost_reason_id` lose their keys without a soft reference: `workflow` guards pipeline and stage removal with its own usage checks and record moves, and never deletes lost reasons. A reference there would require `workflow.read` on every deal writer.
+- [ ] Manual acceptance: set and clear a contact's company; trash an organization and confirm linked contacts and deals clear; purge a contact and confirm its `deal_contacts` and deal links disappear; a user without access to an organization cannot link it; delete a stage with deals and confirm `workflow` still moves them.

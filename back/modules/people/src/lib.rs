@@ -130,6 +130,13 @@ pub(crate) fn contact_definition() -> Result<EntityDefinition, AppError> {
     let definition =
         EntityDefinition::new(RecordType::CONTACT, "people", Permission::CONTACTS_READ)
             .capabilities(contact_capabilities())
+            .reference(aphel_sdk::fields::SoftReference {
+                field: "company_id".to_owned(),
+                target: aphel_sdk::fields::ReferenceTarget::Entity {
+                    entity: RecordType::COMPANY.as_str().to_owned(),
+                },
+                on_delete: aphel_sdk::fields::DeletePolicy::Clear,
+            })
             .update_permission(Permission::CONTACTS_UPDATE)
             .title_field("name")
             .owner_column("owner_id")
@@ -216,6 +223,17 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.on(aphel_kernel::records::RecordPurged, 10, |ctx, args| {
+            Box::pin(async move {
+                if args.record_type == RecordType::COMPANY {
+                    sqlx::query("DELETE FROM people_organizations WHERE company_id = ?")
+                        .bind(args.record.record_id.to_string())
+                        .execute(&mut **ctx.tx)
+                        .await?;
+                }
+                Ok(())
+            })
+        });
         app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
             merge_references::References,
         ));

@@ -231,6 +231,20 @@ pub(crate) fn deal_capabilities() -> EntityTraits {
 pub(crate) fn deal_definition() -> Result<EntityDefinition, AppError> {
     let definition = EntityDefinition::new(RecordType::DEAL, "deals", Permission::DEALS_READ)
         .capabilities(deal_capabilities())
+        .reference(aphel_sdk::fields::SoftReference {
+            field: "contact_id".to_owned(),
+            target: aphel_sdk::fields::ReferenceTarget::Entity {
+                entity: RecordType::CONTACT.as_str().to_owned(),
+            },
+            on_delete: aphel_sdk::fields::DeletePolicy::Clear,
+        })
+        .reference(aphel_sdk::fields::SoftReference {
+            field: "company_id".to_owned(),
+            target: aphel_sdk::fields::ReferenceTarget::Entity {
+                entity: RecordType::COMPANY.as_str().to_owned(),
+            },
+            on_delete: aphel_sdk::fields::DeletePolicy::Clear,
+        })
         .update_permission(Permission::DEALS_UPDATE)
         .title_field("title")
         .system_field(field("mrr", crate::labels("MRR"), FieldType::Currency)?)
@@ -366,6 +380,17 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.on(aphel_kernel::records::RecordPurged, 10, |ctx, args| {
+            Box::pin(async move {
+                if args.record_type == RecordType::CONTACT {
+                    sqlx::query("DELETE FROM deal_contacts WHERE contact_id = ?")
+                        .bind(args.record.record_id.to_string())
+                        .execute(&mut **ctx.tx)
+                        .await?;
+                }
+                Ok(())
+            })
+        });
         app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
             dataset_seed::DealsSeed,
         ));
