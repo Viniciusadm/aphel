@@ -48,6 +48,10 @@ fn event_record(event: &DomainEvent, record_type: &RecordType) -> Option<Uuid> {
         .map(|record| record.record_id)
 }
 
+fn event_record_any(event: &DomainEvent) -> Option<Uuid> {
+    event.record.as_ref().map(|record| record.record_id)
+}
+
 pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), AppError> {
     let now = ctx.now();
     let enrollments = EnrollmentStore::of(ctx);
@@ -67,9 +71,7 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
                         .await?,
                 );
             }
-            let people: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
-                .into_iter()
-                .collect();
+            let people: Vec<Uuid> = event_record_any(event).into_iter().collect();
             live_enrollments.extend(live(&enrollments, &people).await?);
             exit_all(ctx, live_enrollments, ExitReason::Replied, now).await
         }
@@ -88,15 +90,13 @@ pub(crate) async fn handle(ctx: &Ctx<'_>, event: &DomainEvent) -> Result<(), App
                         .await?,
                 );
             }
-            let people: Vec<Uuid> = event_record(event, &RecordType::CONTACT)
-                .into_iter()
-                .collect();
+            let people: Vec<Uuid> = event_record_any(event).into_iter().collect();
             live_enrollments.extend(live(&enrollments, &people).await?);
             exit_all(ctx, live_enrollments, ExitReason::Bounced, now).await
         }
         MEETING_BOOKED => {
             let people: Vec<Uuid> = uuid_field(payload, "contact_id")
-                .or_else(|| event_record(event, &RecordType::CONTACT))
+                .or_else(|| event_record_any(event))
                 .into_iter()
                 .collect();
             let live_enrollments = live(&enrollments, &people).await?;

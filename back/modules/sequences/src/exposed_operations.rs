@@ -50,6 +50,7 @@ fn enroll<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
             EnrollCommand {
                 sequence_id: input.sequence_id,
                 contact_id: input.request.contact_id,
+                record_type: input.request.record_type,
                 mailbox_id: input.request.mailbox_id,
                 source: EnrollmentSource::Manual,
                 enroll_as: None,

@@ -41,6 +41,7 @@ CREATE TABLE sequence_steps (
 CREATE TABLE sequence_enrollments (
   id CHAR(36) NOT NULL,
   sequence_id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL DEFAULT 'people.person',
   contact_id CHAR(36) NOT NULL,
   enrolled_by CHAR(36) NOT NULL,
   mailbox_id CHAR(36) NULL,

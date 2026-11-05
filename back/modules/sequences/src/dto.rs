@@ -365,6 +365,7 @@ impl From<SequenceMetrics> for SequenceMetricsResponse {
 #[serde(deny_unknown_fields)]
 pub(crate) struct EnrollContactRequest {
     pub(crate) contact_id: String,
+    pub(crate) record_type: Option<String>,
     pub(crate) mailbox_id: Option<String>,
 }
 

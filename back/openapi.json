@@ -93382,6 +93382,12 @@
               "string",
               "null"
             ]
+          },
+          "record_type": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "additionalProperties": false

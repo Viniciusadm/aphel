@@ -174,6 +174,7 @@ pub(crate) async fn apply(
                 EnrollCommand {
                     sequence_id: sequence_id.clone(),
                     contact_id: id,
+                    record_type: Some(record_type.to_owned()),
                     mailbox_id: None,
                     source: EnrollmentSource::Bulk,
                     enroll_as: None,

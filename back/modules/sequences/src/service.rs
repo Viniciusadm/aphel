@@ -64,8 +64,34 @@ pub(crate) fn require_sequence_reader(scope: &AccessScope) -> Result<RecordScope
     scope.record_filter(&Permission::SEQUENCES_READ)
 }
 
-pub(crate) fn contact_ref(contact_id: Uuid) -> RecordRef {
-    RecordRef::new(RecordType::CONTACT, contact_id)
+pub(crate) fn contact_ref(record_type: &str, contact_id: Uuid) -> RecordRef {
+    RecordRef::new(
+        RecordType::parse(record_type).unwrap_or(RecordType::CONTACT),
+        contact_id,
+    )
+}
+
+fn enrollment_record_type(ctx: &Ctx<'_>, requested: Option<&str>) -> Result<String, AppError> {
+    use aphel_sdk::party::PartyTraits;
+    let record_type = requested
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .unwrap_or(aphel_contract_crm::keys::CONTACT);
+    let definition = ctx.registry().require(record_type).map_err(|_| {
+        AppError::validation_code(
+            "sequence_record_type_unsupported",
+            "the record type cannot be enrolled in a sequence",
+        )
+    })?;
+    if definition.record_type != RecordType::CONTACT
+        && definition.capabilities.contact_points().is_none()
+    {
+        return Err(AppError::validation_code(
+            "sequence_record_type_unsupported",
+            "the record type has no contact points to send to",
+        ));
+    }
+    Ok(definition.record_type.as_str().to_owned())
 }
 
 pub(crate) fn enrollment_ref(enrollment_id: Uuid) -> RecordRef {
@@ -84,7 +110,7 @@ pub(crate) fn enrollment_payload(enrollment: &EnrollmentView) -> Value {
         "status": enrollment.status.as_str(),
         "position": enrollment.current_position,
         "exit_reason": enrollment.exit_reason.map(|reason| reason.as_str()),
-        "records": [{ "record_type": aphel_contract_crm::keys::CONTACT, "record_id": enrollment.contact_id }],
+        "records": [{ "record_type": enrollment.record_type, "record_id": enrollment.contact_id }],
     })
 }
 
@@ -668,8 +694,9 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
         ));
     }
     let contact_id = parse_id(&command.contact_id).ok_or_else(contact_not_found)?;
+    let record_type = enrollment_record_type(ctx, command.record_type.as_deref())?;
     if !record_access(ctx)
-        .can_read(scope, &contact_ref(contact_id))
+        .can_read(scope, &contact_ref(&record_type, contact_id))
         .await?
     {
         return Err(AppError::forbidden_code(
@@ -679,7 +706,7 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
     }
     let directory = DirectoryStore::of(ctx);
     let contact = directory
-        .contact(ctx, contact_id)
+        .contact(ctx, &record_type, contact_id)
         .await?
         .filter(|contact| !contact.deleted)
         .ok_or_else(contact_not_found)?;
@@ -737,6 +764,7 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
     let enrollment = NewEnrollment {
         id: Uuid::now_v7(),
         sequence_id: sequence.id,
+        record_type: record_type.clone(),
         contact_id: contact.id,
         enrolled_by: enroller,
         mailbox_id,
@@ -757,6 +785,7 @@ pub async fn enroll(ctx: &Ctx<'_>, command: EnrollCommand) -> Result<EnrollmentV
         sequence_id: sequence.id,
         sequence_key: sequence.key.clone(),
         sequence_name: sequence.name.clone(),
+        record_type: record_type.clone(),
         contact_id: contact.id,
         contact_name: contact.name.clone(),
         contact_email: contact.email.clone(),
@@ -817,6 +846,7 @@ pub(crate) async fn enroll_for_automation(
         EnrollCommand {
             sequence_id: request.sequence_id,
             contact_id: request.contact_id.to_string(),
+            record_type: None,
             mailbox_id: None,
             source: EnrollmentSource::Automation,
             enroll_as,
@@ -835,7 +865,10 @@ pub(crate) async fn list_enrollments(
     let visibility = require_sequence_reader(ctx.scope)?;
     if let Some(contact_id) = filter.contact_id
         && !record_access(ctx)
-            .can_read(ctx.scope, &contact_ref(contact_id))
+            .can_read(
+                ctx.scope,
+                &contact_ref(RecordType::CONTACT.as_str(), contact_id),
+            )
             .await?
     {
         return Err(AppError::forbidden_code(
@@ -1015,7 +1048,10 @@ pub(crate) async fn publish_enrollment_event(
         .publish(
             tx,
             DomainEvent::new(mutation.actor.clone(), mutation.event_type, mutation.now)
-                .with_record(contact_ref(mutation.enrollment.contact_id))
+                .with_record(contact_ref(
+                    &mutation.enrollment.record_type,
+                    mutation.enrollment.contact_id,
+                ))
                 .with_payload(enrollment_payload(mutation.enrollment)),
         )
         .await?;

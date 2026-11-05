@@ -7,6 +7,7 @@ use uuid::Uuid;
 pub struct EnrollCommand {
     pub sequence_id: String,
     pub contact_id: String,
+    pub record_type: Option<String>,
     pub mailbox_id: Option<String>,
     pub source: EnrollmentSource,
     pub enroll_as: Option<UserId>,

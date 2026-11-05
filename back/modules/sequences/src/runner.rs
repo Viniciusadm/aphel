@@ -136,7 +136,7 @@ pub(crate) async fn process(
     };
     let member_ctx = ctx.with_scope(&member);
     let Some(contact) = directory
-        .contact(&member_ctx, enrollment.contact_id)
+        .contact(&member_ctx, &enrollment.record_type, enrollment.contact_id)
         .await?
         .filter(|contact| !contact.deleted)
     else {
@@ -163,6 +163,7 @@ pub(crate) async fn process(
         return exit(ctx, &enrollment, ExitReason::Removed, now).await;
     }
     let email = SequenceEmail {
+        record_type: enrollment.record_type.clone(),
         contact_id: contact.id,
         to: contact.email.clone().unwrap_or_default(),
         mailbox_id: enrollment.mailbox_id,
@@ -282,7 +283,7 @@ async fn send_email(ctx: &Ctx<'_>, email: SequenceEmail) -> Result<SentSequenceE
                 body_html: email.body_html,
                 template_id: email.template_id.map(|id| id.to_string()),
                 record: Some(RecordInput {
-                    record_type: aphel_contract_crm::keys::CONTACT.to_owned(),
+                    record_type: email.record_type.clone(),
                     record_id: email.contact_id.to_string(),
                 }),
                 reply_to_message_id: email.reply_to_email_id.map(|id| id.to_string()),
@@ -305,7 +306,7 @@ async fn render_draft(ctx: &Ctx<'_>, email: &SequenceEmail) -> Result<RenderedDr
                 template_id: email.template_id.map(|id| id.to_string()),
                 subject: Some(email.subject.clone()).filter(|subject| !subject.is_empty()),
                 body_html: email.body_html.clone(),
-                record_type: Some(aphel_contract_crm::keys::CONTACT.to_owned()),
+                record_type: Some(email.record_type.clone()),
                 record_id: Some(email.contact_id.to_string()),
             },
         )
@@ -350,7 +351,7 @@ async fn create_activity(ctx: &Ctx<'_>, task: SequenceTask) -> Result<Uuid, AppE
                         .to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
                 ),
                 owner_id: Some(task.owner_id.into_inner()),
-                record_type: Some(aphel_contract_crm::keys::CONTACT.to_owned()),
+                record_type: Some(task.record_type.clone()),
                 record_id: Some(task.contact_id.to_string()),
                 description: task.description,
                 ..CreateActivityCommand::default()
@@ -405,6 +406,7 @@ async fn create_task(
             title: truncate(&title, MAX_TITLE_LENGTH),
             description,
             owner_id: enrollment.enrolled_by.clone(),
+            record_type: enrollment.record_type.clone(),
             contact_id: enrollment.contact_id,
             due_at: now,
         },
@@ -575,13 +577,13 @@ async fn advance(
             "status": run.status.as_str(),
             "email_id": run.email_id,
             "activity_id": run.activity_id,
-            "records": [{ "record_type": aphel_contract_crm::keys::CONTACT, "record_id": current.contact_id }],
+            "records": [{ "record_type": current.record_type, "record_id": current.contact_id }],
         });
         ctx.events()
             .publish(
                 &mut tx,
                 DomainEvent::new(Actor::System, SEQUENCE_STEP_EXECUTED, now)
-                    .with_record(contact_ref(current.contact_id))
+                    .with_record(contact_ref(&current.record_type, current.contact_id))
                     .with_payload(payload),
             )
             .await?;

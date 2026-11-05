@@ -293,6 +293,7 @@ async fn enroll_contact(
         EnrollCommand {
             sequence_id,
             contact_id: request.contact_id,
+            record_type: request.record_type,
             mailbox_id: request.mailbox_id,
             source: EnrollmentSource::Manual,
             enroll_as: None,

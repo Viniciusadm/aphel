@@ -378,7 +378,7 @@ impl SequenceStore {
 }
 
 const ENROLLMENT_SELECT: &str = "SELECT e.id, e.sequence_id, s.name AS sequence_name, s.`key` AS sequence_key, \
-     e.contact_id, e.enrolled_by, \
+     e.record_type, e.contact_id, e.enrolled_by, \
      u.display_name AS enrolled_by_name, e.mailbox_id, e.source, e.status, e.current_position, \
      e.next_run_at, e.last_email_id, e.exit_reason, e.exit_position, e.paused_at, \
      e.completed_at, e.exited_at, e.created_at, e.updated_at \
@@ -398,6 +398,7 @@ fn enrollment_from_row(row: &MySqlRow) -> Result<EnrollmentView, AppError> {
         sequence_id: uuid(row.try_get("sequence_id")?, "sequence_id")?,
         sequence_key: row.try_get("sequence_key")?,
         sequence_name: row.try_get("sequence_name")?,
+        record_type: row.try_get("record_type")?,
         contact_id: uuid(row.try_get("contact_id")?, "contact_id")?,
         contact_name: String::new(),
         contact_email: None,
@@ -518,12 +519,13 @@ impl EnrollmentStore {
     ) -> Result<bool, AppError> {
         let now = mapper::naive(enrollment.next_run_at);
         let result = sqlx::query(
-            "INSERT INTO sequence_enrollments (id, sequence_id, contact_id, \
+            "INSERT INTO sequence_enrollments (id, sequence_id, record_type, contact_id, \
              enrolled_by, mailbox_id, source, status, current_position, next_run_at, created_at, \
-             updated_at) VALUES (?, ?, ?, ?, ?, ?, 'active', 0, ?, ?, ?)",
+             updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', 0, ?, ?, ?)",
         )
         .bind(enrollment.id.to_string())
         .bind(enrollment.sequence_id.to_string())
+        .bind(&enrollment.record_type)
         .bind(enrollment.contact_id.to_string())
         .bind(enrollment.enrolled_by.as_str())
         .bind(enrollment.mailbox_id.map(|id| id.to_string()))
@@ -662,20 +664,29 @@ impl EnrollmentStore {
         &self,
         ctx: &Ctx<'_>,
     ) -> Result<Vec<(Uuid, String)>, AppError> {
-        let ids: Vec<String> = sqlx::query_scalar("SELECT DISTINCT contact_id FROM sequence_enrollments WHERE status IN ('active', 'paused')").fetch_all(&self.pool).await?;
-        let ids = ids
-            .into_iter()
-            .map(|id| uuid(id, "contact_id"))
-            .collect::<Result<Vec<_>, _>>()?;
-        Ok(crate::contacts::list(
-            ctx,
-            &ids,
-            aphel_sdk::platform::application::query::ArchivedFilter::Include,
-        )
-        .await?
-        .into_values()
-        .filter_map(|contact| contact.email.map(|email| (contact.id, email)))
-        .collect())
+        let rows: Vec<(String, String)> = sqlx::query_as("SELECT DISTINCT record_type, contact_id FROM sequence_enrollments WHERE status IN ('active', 'paused')").fetch_all(&self.pool).await?;
+        let mut by_type: HashMap<String, Vec<Uuid>> = HashMap::new();
+        for (record_type, id) in rows {
+            by_type
+                .entry(record_type)
+                .or_default()
+                .push(uuid(id, "contact_id")?);
+        }
+        let mut emails = Vec::new();
+        for (record_type, ids) in by_type {
+            emails.extend(
+                crate::contacts::list(
+                    ctx,
+                    &record_type,
+                    &ids,
+                    aphel_sdk::platform::application::query::ArchivedFilter::Include,
+                )
+                .await?
+                .into_values()
+                .filter_map(|contact| contact.email.map(|email| (contact.id, email))),
+            );
+        }
+        Ok(emails)
     }
 
     pub(crate) async fn counts(
@@ -974,10 +985,12 @@ impl DirectoryStore {
     pub(crate) async fn contact(
         &self,
         ctx: &Ctx<'_>,
+        record_type: &str,
         contact_id: Uuid,
     ) -> Result<Option<ContactTarget>, AppError> {
         Ok(crate::contacts::list(
             ctx,
+            record_type,
             &[contact_id],
             aphel_sdk::platform::application::query::ArchivedFilter::Exclude,
         )

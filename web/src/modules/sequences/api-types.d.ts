@@ -267,6 +267,7 @@ export interface components {
         EnrollContactRequest: {
             contact_id: string;
             mailbox_id?: string | null;
+            record_type?: string | null;
         };
         Data_SequenceResponse: {
             data: {

@@ -122,6 +122,7 @@ pub struct EnrollmentView {
     pub(crate) sequence_id: Uuid,
     pub(crate) sequence_key: String,
     pub(crate) sequence_name: String,
+    pub(crate) record_type: String,
     pub(crate) contact_id: Uuid,
     pub(crate) contact_name: String,
     pub(crate) contact_email: Option<String>,
@@ -146,6 +147,7 @@ pub struct EnrollmentView {
 pub(crate) struct NewEnrollment {
     pub(crate) id: Uuid,
     pub(crate) sequence_id: Uuid,
+    pub(crate) record_type: String,
     pub(crate) contact_id: Uuid,
     pub(crate) enrolled_by: UserId,
     pub(crate) mailbox_id: Option<Uuid>,
@@ -217,6 +219,7 @@ pub(crate) struct ContactTarget {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SequenceEmail {
+    pub(crate) record_type: String,
     pub(crate) contact_id: Uuid,
     pub(crate) to: String,
     pub(crate) mailbox_id: Option<Uuid>,
@@ -245,6 +248,7 @@ pub(crate) struct SequenceTask {
     pub(crate) title: String,
     pub(crate) description: Option<String>,
     pub(crate) owner_id: UserId,
+    pub(crate) record_type: String,
     pub(crate) contact_id: Uuid,
     pub(crate) due_at: DateTime<Utc>,
 }

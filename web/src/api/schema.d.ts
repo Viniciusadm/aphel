@@ -15722,6 +15722,7 @@ export interface components {
         EnrollContactRequest: {
             contact_id: string;
             mailbox_id?: string | null;
+            record_type?: string | null;
         };
         ErrorBody: {
             /** @example validation_error */
