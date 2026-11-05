@@ -4,7 +4,7 @@ use rust_decimal::Decimal;
 
 use crate::QUOTE;
 use crate::domain::{PublicQuote, PublicQuoteState, QuoteItem, QuoteStatus};
-use crate::pdf::{self, Block, Header, ItemsTable, TableRow};
+use crate::pdf::{self, Block, Header, ItemsTable, Labels, TableRow};
 use crate::public::public_quote;
 use crate::service::{now, timezone, visible};
 use aphel_kernel::Ctx;
@@ -74,7 +74,18 @@ fn date_text(day: NaiveDate) -> String {
     day.format("%d/%m/%Y").to_string()
 }
 
-fn status_text(status: QuoteStatus) -> &'static str {
+fn status_text(status: QuoteStatus, english: bool) -> &'static str {
+    if english {
+        return match status {
+            QuoteStatus::Draft => "Draft",
+            QuoteStatus::PendingApproval => "Pending approval",
+            QuoteStatus::Approved => "Approved",
+            QuoteStatus::Sent => "Sent",
+            QuoteStatus::Accepted => "Accepted",
+            QuoteStatus::Rejected => "Rejected",
+            QuoteStatus::Expired => "Expired",
+        };
+    }
     match status {
         QuoteStatus::Draft => "Rascunho",
         QuoteStatus::PendingApproval => "Em aprovação",
@@ -158,6 +169,10 @@ fn item_row(item: &QuoteItem, currency: &str, visibility: &Visibility) -> TableR
 
 fn blocks(document: &PublicQuote, visibility: &Visibility) -> Vec<Block> {
     let quote = &document.quote;
+    let english = document.organization.locale.starts_with("en");
+    let text = |portuguese: &'static str, translated: &'static str| {
+        if english { translated } else { portuguese }
+    };
     let currency = quote.currency.as_str();
     let mut blocks = vec![Block::Heading(quote.title.clone())];
     let mut field = |label: &str, value: Option<String>| {
@@ -168,18 +183,24 @@ fn blocks(document: &PublicQuote, visibility: &Visibility) -> Vec<Block> {
             });
         }
     };
-    field("Situação", Some(status_text(quote.status).to_owned()));
-    field("Empresa", document.company_name.clone());
-    field("Contato", document.contact_name.clone());
     field(
-        "Responsável",
+        text("Situação", "Status"),
+        Some(status_text(quote.status, english).to_owned()),
+    );
+    field(text("Empresa", "Company"), document.company_name.clone());
+    field(text("Contato", "Contact"), document.contact_name.clone());
+    field(
+        text("Responsável", "Owner"),
         match (&document.owner_name, &document.owner_email) {
             (Some(name), Some(email)) => Some(format!("{name} <{email}>")),
             (Some(name), None) => Some(name.clone()),
             (None, email) => email.clone(),
         },
     );
-    field("Válida até", quote.valid_until.map(date_text));
+    field(
+        text("Válida até", "Valid until"),
+        quote.valid_until.map(date_text),
+    );
     if let Some(acceptance) = &quote.acceptance {
         let when = quote
             .accepted_at
@@ -191,7 +212,7 @@ fn blocks(document: &PublicQuote, visibility: &Visibility) -> Vec<Block> {
             })
             .unwrap_or_default();
         field(
-            "Aceita por",
+            text("Aceita por", "Accepted by"),
             Some(format!("{} {when}", acceptance.name).trim().to_owned()),
         );
     }
@@ -212,7 +233,7 @@ fn blocks(document: &PublicQuote, visibility: &Visibility) -> Vec<Block> {
         .as_ref()
         .filter(|terms| !terms.trim().is_empty())
     {
-        blocks.push(Block::Heading("Condições".to_owned()));
+        blocks.push(Block::Heading(text("Condições", "Terms").to_owned()));
         blocks.push(Block::Paragraph(terms.clone()));
     }
     if let Some(notes) = quote
@@ -220,7 +241,7 @@ fn blocks(document: &PublicQuote, visibility: &Visibility) -> Vec<Block> {
         .as_ref()
         .filter(|notes| !notes.trim().is_empty())
     {
-        blocks.push(Block::Heading("Observações".to_owned()));
+        blocks.push(Block::Heading(text("Observações", "Notes").to_owned()));
         blocks.push(Block::Paragraph(notes.clone()));
     }
     blocks
@@ -238,10 +259,18 @@ pub(crate) async fn render(ctx: &Ctx<'_>, quote_id: &str) -> Result<QuotePdf, Ap
         .date_naive();
     let header = Header {
         organization: document.organization.name.clone(),
-        title: format!("Cotação nº {} (v{})", quote.number, quote.version),
+        title: if document.organization.locale.starts_with("en") {
+            format!("Quote no. {} (v{})", quote.number, quote.version)
+        } else {
+            format!("Cotação nº {} (v{})", quote.number, quote.version)
+        },
         subtitle: date_text(today),
     };
-    let content = pdf::document(header, &blocks(&document, &visibility))?;
+    let content = pdf::document(
+        header,
+        &blocks(&document, &visibility),
+        &Labels::for_locale(&document.organization.locale),
+    )?;
     Ok(QuotePdf {
         file_name: file_name(quote.number, quote.version, &quote.title),
         content,

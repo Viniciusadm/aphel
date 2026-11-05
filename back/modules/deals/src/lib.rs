@@ -360,6 +360,7 @@ pub(crate) fn deal_definition() -> Result<EntityDefinition, AppError> {
 
 pub struct DealsModule;
 
+#[async_trait::async_trait]
 impl Module for DealsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Deals", APHEL_VERSION)
@@ -378,6 +379,20 @@ impl Module for DealsModule {
                 "create deals",
                 include_str!("../migrations/0001_create_deals.sql"),
             ))
+    }
+
+    async fn on_enable(
+        &self,
+        _ctx: &mut aphel_kernel::modules::ModuleCtx<'_>,
+    ) -> Result<(), AppError> {
+        let state = aphel_sdk::runtime()?;
+        let job = aphel_sdk::platform::application::shared::Job::new(
+            aphel_sdk::money::RECALCULATE_JOB,
+            serde_json::json!({ "currency": null }),
+        )
+        .with_max_attempts(3);
+        aphel_sdk::platform::application::shared::JobQueue::enqueue_now(state.jobs(), job).await?;
+        Ok(())
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

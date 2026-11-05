@@ -523,6 +523,7 @@ pub(crate) struct QuoteOrganization {
     pub(crate) name: String,
     pub(crate) timezone: String,
     pub(crate) currency: String,
+    pub(crate) locale: String,
     pub(crate) logo_file_id: Option<Uuid>,
     pub(crate) primary_color: Option<String>,
 }

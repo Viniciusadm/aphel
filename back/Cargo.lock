@@ -1550,6 +1550,7 @@ dependencies = [
  "bytes",
  "chrono",
  "chrono-tz",
+ "rust_decimal",
  "serde",
  "serde_json",
  "sqlx",

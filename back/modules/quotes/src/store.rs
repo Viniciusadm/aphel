@@ -563,7 +563,7 @@ impl QuoteStore {
 
     pub(crate) async fn organization(&self) -> Result<QuoteOrganization, AppError> {
         let row = sqlx::query(
-            "SELECT name, timezone, currency, logo_file_id, primary_color FROM organization_settings \
+            "SELECT name, timezone, currency, locale, logo_file_id, primary_color FROM organization_settings \
              WHERE id = 1",
         )
         .fetch_one(&self.pool)
@@ -572,6 +572,7 @@ impl QuoteStore {
             name: row.try_get("name")?,
             timezone: row.try_get("timezone")?,
             currency: row.try_get("currency")?,
+            locale: row.try_get("locale")?,
             logo_file_id: optional_uuid(&row, "logo_file_id")?,
             primary_color: row.try_get("primary_color")?,
         })

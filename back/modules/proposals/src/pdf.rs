@@ -69,6 +69,7 @@ pub(crate) fn document(header: Header, blocks: &[RenderedBlock]) -> Result<Vec<u
                     summary: [
                         (text.subtotal, &table.subtotal, false),
                         (text.discounts, &table.discount_total, false),
+                        (text.taxes, &table.tax_total, false),
                         (text.total, &table.total, true),
                     ]
                     .into_iter()

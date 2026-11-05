@@ -529,7 +529,12 @@ async fn resolve_input(
         data.unit = validator.text("unit", value, MAX_UNIT_LENGTH);
     }
     if let Some(value) = input.quantity {
-        match value.as_deref().and_then(parse_decimal).and_then(normalize_quantity) {
+        match value
+            .as_deref()
+            .filter(|text| within_scale(text, QUANTITY_DECIMALS))
+            .and_then(parse_decimal)
+            .and_then(normalize_quantity)
+        {
             Some(quantity) => data.quantity = quantity,
             None => validator.violation(
                 "quantity",
@@ -542,7 +547,10 @@ async fn resolve_input(
     if let Some(value) = input.unit_price {
         match value.as_deref().map(str::trim) {
             None | Some("") => data.unit_price = Decimal::ZERO,
-            Some(text) => match parse_money(text) {
+            Some(text) => match Some(text)
+                .filter(|text| within_scale(text, MONEY_DECIMALS))
+                .and_then(parse_money)
+            {
                 Some(price) => data.unit_price = price,
                 None => validator.violation(
                     "unit_price",
@@ -565,7 +573,10 @@ async fn resolve_input(
     if let Some(value) = input.discount_value {
         match value.as_deref().map(str::trim) {
             None | Some("") => data.discount_value = Decimal::ZERO,
-            Some(text) => match parse_money(text) {
+            Some(text) => match Some(text)
+                .filter(|text| within_scale(text, MONEY_DECIMALS))
+                .and_then(parse_money)
+            {
                 Some(discount) => data.discount_value = discount,
                 None => validator.violation(
                     "discount_value",
@@ -829,4 +840,8 @@ async fn summary_locked(
         AmountMode::Manual
     };
     Ok(build_summary(&parent, items, mode))
+}
+
+fn within_scale(text: &str, decimals: u32) -> bool {
+    parse_decimal(text).is_some_and(|value| value.normalize().scale() <= decimals)
 }

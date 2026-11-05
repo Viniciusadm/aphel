@@ -68,6 +68,7 @@ fn parse_rate(value: &str, violations: &mut Vec<FieldViolation>) -> Option<Decim
     let rate = Decimal::from_str(text)
         .ok()
         .or_else(|| Decimal::from_scientific(text).ok())
+        .filter(|rate| rate.normalize().scale() <= RATE_DECIMALS)
         .and_then(normalize_rate);
     if rate.is_none() {
         violations.push(FieldViolation::new(

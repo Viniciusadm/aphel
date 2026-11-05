@@ -29,9 +29,50 @@ pub(crate) enum Block {
     Items(ItemsTable),
 }
 
-pub(crate) fn document(header: Header, blocks: &[Block]) -> Result<Vec<u8>, AppError> {
+pub(crate) struct Labels {
+    pub(crate) columns: [&'static str; 5],
+    pub(crate) subtotal: &'static str,
+    pub(crate) discounts: &'static str,
+    pub(crate) taxes: &'static str,
+    pub(crate) total: &'static str,
+    pub(crate) page: &'static str,
+    pub(crate) page_of: &'static str,
+}
+
+impl Labels {
+    pub(crate) fn for_locale(locale: &str) -> Self {
+        if locale.starts_with("en") {
+            Self {
+                columns: ["Item", "Qty.", "Unit price", "Discount", "Total"],
+                subtotal: "Subtotal",
+                discounts: "Discounts",
+                taxes: "Taxes",
+                total: "Total",
+                page: "Page",
+                page_of: "of",
+            }
+        } else {
+            Self {
+                columns: ["Item", "Qtd.", "Preço unit.", "Desconto", "Total"],
+                subtotal: "Subtotal",
+                discounts: "Descontos",
+                taxes: "Impostos",
+                total: "Total",
+                page: "Página",
+                page_of: "de",
+            }
+        }
+    }
+}
+
+pub(crate) fn document(
+    header: Header,
+    blocks: &[Block],
+    labels: &Labels,
+) -> Result<Vec<u8>, AppError> {
     let columns = || {
-        ["Item", "Qtd.", "Preço unit.", "Desconto", "Total"]
+        labels
+            .columns
             .into_iter()
             .zip([203.28, 44.0, 82.0, 68.0, 86.0])
             .enumerate()
@@ -85,10 +126,10 @@ pub(crate) fn document(header: Header, blocks: &[Block]) -> Result<Vec<u8>, AppE
                         })
                         .collect(),
                     summary: [
-                        ("Subtotal", &table.subtotal, false),
-                        ("Descontos", &table.discount_total, false),
-                        ("Impostos", &table.tax_total, false),
-                        ("Total", &table.total, true),
+                        (labels.subtotal, &table.subtotal, false),
+                        (labels.discounts, &table.discount_total, false),
+                        (labels.taxes, &table.tax_total, false),
+                        (labels.total, &table.total, true),
                     ]
                     .into_iter()
                     .map(|(label, value, bold)| doc::SummaryLine {
@@ -107,8 +148,8 @@ pub(crate) fn document(header: Header, blocks: &[Block]) -> Result<Vec<u8>, AppE
             issuer: header.organization,
             title: header.title,
             subtitle: header.subtitle,
-            page_label: "Página".into(),
-            page_of_label: "de".into(),
+            page_label: labels.page.into(),
+            page_of_label: labels.page_of.into(),
         },
         blocks,
     })

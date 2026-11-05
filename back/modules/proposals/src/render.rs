@@ -31,6 +31,7 @@ pub(crate) struct ItemsTable {
     pub(crate) rows: Vec<TableRow>,
     pub(crate) subtotal: String,
     pub(crate) discount_total: String,
+    pub(crate) tax_total: String,
     pub(crate) total: String,
 }
 
@@ -63,6 +64,14 @@ fn spans(line: &Line, data: &RenderData, catalog: &Catalog) -> Vec<Span> {
         .collect()
 }
 
+fn tax_total(items: &crate::variables::Items) -> String {
+    use rust_decimal::Decimal;
+    use std::str::FromStr;
+    let amount = |raw: &str| Decimal::from_str(raw).unwrap_or_default();
+    let taxes = amount(&items.total) - (amount(&items.subtotal) - amount(&items.discount_total));
+    taxes.max(Decimal::ZERO).to_string()
+}
+
 fn items_table(data: &RenderData) -> ItemsTable {
     let currency = data.currency();
     let locale = data.locale;
@@ -93,6 +102,7 @@ fn items_table(data: &RenderData) -> ItemsTable {
                 .collect(),
             subtotal: money(&items.subtotal),
             discount_total: money(&items.discount_total),
+            tax_total: money(&tax_total(items)),
             total: money(&items.total),
         },
         None => ItemsTable {
@@ -101,6 +111,7 @@ fn items_table(data: &RenderData) -> ItemsTable {
             rows: Vec::new(),
             subtotal: money("0"),
             discount_total: money("0"),
+            tax_total: money("0"),
             total: money("0"),
         },
     }
