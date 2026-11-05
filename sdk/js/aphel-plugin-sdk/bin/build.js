@@ -23,7 +23,7 @@ if (!entry) {
 const workDir = await mkdtemp(join(tmpdir(), 'aphel-plugin-'))
 try {
   const bundle = join(workDir, 'plugin.js')
-  const exportsList = ['onHook', 'onEvent', 'onRoute', 'onSchedule', 'onAction', 'onWidget']
+  const exportsList = ['onHook', 'onEvent', 'onRoute', 'onSchedule', 'onAction', 'onWidget', 'onOperation', 'onContribution']
   await build({
     stdin: {
       contents: [

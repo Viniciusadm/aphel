@@ -768,6 +768,26 @@ pub trait Plugin {
             format!("no widget {}", request.name),
         ))
     }
+
+    fn on_operation(&self, _ctx: &Ctx, key: &str, _input: Value) -> Result<Value> {
+        Err(PluginError::not_found(
+            "operation_not_found",
+            format!("no operation {key}"),
+        ))
+    }
+
+    fn on_contribution(
+        &self,
+        _ctx: &Ctx,
+        point: &str,
+        name: &str,
+        _input: Value,
+    ) -> Result<Value> {
+        Err(PluginError::not_found(
+            "contribution_not_found",
+            format!("no contribution {name} for {point}"),
+        ))
+    }
 }
 
 #[macro_export]
@@ -812,6 +832,21 @@ macro_rules! export_plugin {
                 request: $crate::bindings::WidgetRequest,
             ) -> ::std::result::Result<::std::string::String, $crate::bindings::PluginError> {
                 $crate::adapter::on_widget(&$plugin, name, request)
+            }
+
+            fn on_operation(
+                key: ::std::string::String,
+                input_json: ::std::string::String,
+            ) -> ::std::result::Result<::std::string::String, $crate::bindings::PluginError> {
+                $crate::adapter::on_operation(&$plugin, &key, &input_json)
+            }
+
+            fn on_contribution(
+                point: ::std::string::String,
+                name: ::std::string::String,
+                input_json: ::std::string::String,
+            ) -> ::std::result::Result<::std::string::String, $crate::bindings::PluginError> {
+                $crate::adapter::on_contribution(&$plugin, &point, &name, &input_json)
             }
         }
 

@@ -205,7 +205,7 @@ fn new(args: &[String]) -> Result<(), Failure> {
         )?;
         fs::write(
             dir.join("src").join("plugin.js"),
-            "import { definePlugin, ok } from '@aphel/plugin-sdk'\n\nexport const { onHook, onEvent, onRoute, onSchedule, onAction, onWidget } = definePlugin({\n  onRoute(ctx, request) {\n    if (request.is('GET', '/ping')) return ok({ pong: request.path })\n  },\n})\n",
+            "import { definePlugin, ok } from '@aphel/plugin-sdk'\n\nexport const { onHook, onEvent, onRoute, onSchedule, onAction, onWidget, onOperation, onContribution } = definePlugin({\n  onRoute(ctx, request) {\n    if (request.is('GET', '/ping')) return ok({ pong: request.path })\n  },\n})\n",
         )?;
     } else {
         fs::write(

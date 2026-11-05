@@ -276,6 +276,8 @@ export interface PluginDefinition {
   onSchedule?(ctx: Ctx, name: string, slot: string): void
   onAction?(ctx: Ctx, call: ActionCall): Json | void
   onWidget?(ctx: Ctx, request: WidgetRequest): Json | void
+  onOperation?(ctx: Ctx, key: string, input: Json): Json | void
+  onContribution?(ctx: Ctx, point: string, name: string, input: Json): Json | void
 }
 
 export interface PluginExports {
@@ -285,6 +287,8 @@ export interface PluginExports {
   onSchedule: unknown
   onAction: unknown
   onWidget: unknown
+  onOperation: unknown
+  onContribution: unknown
 }
 
 export declare function definePlugin(plugin: PluginDefinition): PluginExports

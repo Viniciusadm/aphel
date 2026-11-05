@@ -401,6 +401,27 @@ pub fn on_widget<P: Plugin>(
     Ok(plugin.on_widget(&Ctx::new(), &request)?.to_string())
 }
 
+pub fn on_operation<P: Plugin>(
+    plugin: &P,
+    key: &str,
+    input_json: &str,
+) -> Result<String, wit::PluginError> {
+    Ok(plugin
+        .on_operation(&Ctx::new(), key, value(input_json))?
+        .to_string())
+}
+
+pub fn on_contribution<P: Plugin>(
+    plugin: &P,
+    point: &str,
+    name: &str,
+    input_json: &str,
+) -> Result<String, wit::PluginError> {
+    Ok(plugin
+        .on_contribution(&Ctx::new(), point, name, value(input_json))?
+        .to_string())
+}
+
 pub fn on_route<P: Plugin>(
     plugin: &P,
     request: wit::Request,

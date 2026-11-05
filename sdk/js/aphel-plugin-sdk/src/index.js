@@ -416,5 +416,17 @@ export function definePlugin(plugin) {
         return JSON.stringify(data ?? null)
       })
     },
+    onOperation(key, inputJson) {
+      return guard(() => {
+        const output = plugin.onOperation?.(ctx, key, parse(inputJson))
+        return JSON.stringify(output ?? null)
+      })
+    },
+    onContribution(point, name, inputJson) {
+      return guard(() => {
+        const output = plugin.onContribution?.(ctx, point, name, parse(inputJson))
+        return JSON.stringify(output ?? null)
+      })
+    },
   }
 }
