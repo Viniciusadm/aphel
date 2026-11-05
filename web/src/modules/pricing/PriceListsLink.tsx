@@ -2,7 +2,7 @@ import { Tags } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { PRICE_LISTS_PATH } from './api'
+import {PRICE_LISTS_PATH} from '@/sdk'
 
 export function PriceListsLink() {
   const { t } = useTranslation('pricing')

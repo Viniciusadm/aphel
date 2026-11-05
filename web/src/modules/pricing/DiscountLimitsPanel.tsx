@@ -7,9 +7,9 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
-import { priceListsApi, useDiscountLimits, useInvalidatePriceLists } from './api'
+import {priceListsApi, useDiscountLimits, useInvalidatePriceLists} from '@/sdk'
 import { priceListErrorKey } from './errors'
-import type { DiscountLimit } from './types'
+import type {DiscountLimit} from '@/sdk'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const PERCENT_PATTERN = /^\d{1,3}([.,]\d{1,2})?$/

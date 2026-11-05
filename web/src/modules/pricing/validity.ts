@@ -1,4 +1,4 @@
-import type { PriceList } from './types'
+import type {PriceList} from '@/sdk'
 
 function today(): string {
   const now = new Date()

@@ -4,8 +4,6 @@ import { BundleRecordTab } from './bundles/BundleRecordTab'
 import { PriceListsLink } from './PriceListsLink'
 import { priceListRoutes } from './routes'
 
-export { PRICE_LISTS_PATH, priceListPath, priceListsApi, priceListsKeys, useActivePriceLists } from './api'
-export type { DiscountLimit, PriceList, PriceListAppliesTo, PriceListItem } from './types'
 
 const PRODUCT_RECORD_TYPE = 'catalog_items.item'
 const BUNDLE_TAB_KEY = 'bundle'
