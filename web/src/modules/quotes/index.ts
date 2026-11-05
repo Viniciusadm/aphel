@@ -31,6 +31,7 @@ const quotesModule = defineModule({
     })
     app.recordSection(DEAL_RECORD_TYPE, {
       key: QUOTES_TAB_KEY,
+      group: 'relationships',
       label: 'deal.tab',
       icon: FileText,
       permission: 'quotes.read',

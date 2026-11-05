@@ -29,7 +29,6 @@ import { RecordTabs } from './RecordTabs'
 import { DEFAULT_READ_ONLY_FIELD_KEYS, resolveRecordTabs, type RecordTab, type RecordTabsConfig } from './types'
 
 const MOBILE_QUERY = '(max-width: 767px)'
-const SUMMARY_KEYS = ['stage_id', 'status', 'amount', 'currency', 'close_date', 'due_at', 'email', 'phone', 'company_id', 'owner_id', 'website', 'lifecycle_stage']
 
 export interface RecordPageLayoutProps {
   recordType: string
@@ -109,9 +108,9 @@ export function RecordPageLayout({
   const resolvedLayout = viewLayout ? resolveLayout(viewLayout, fields) : null
   const states = layoutRuleStates(resolvedLayout, recordRuleValues(fields, record), conditions)
   const visibleSummaryFields = resolvedLayout ? resolvedFields(resolvedLayout).map((item) => item.field).filter((field) => states[field.key]?.visible !== false) : fields
-  const priorityKeys = resource.summaryFields ?? SUMMARY_KEYS
+  const priorityKeys = resource.summaryFields ?? []
   const summaryFields = visibleSummaryFields
-    .filter((field) => priorityKeys.includes(field.key) || field.is_required)
+    .filter((field) => priorityKeys.length === 0 || priorityKeys.includes(field.key) || field.is_required)
     .sort((left, right) => {
       const priority = (field: FieldDefinition) => {
         const index = priorityKeys.indexOf(field.key)

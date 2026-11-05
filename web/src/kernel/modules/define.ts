@@ -102,12 +102,12 @@ export interface RecordTabContribution {
   icon?: LucideIcon
   permission?: PermissionRequirement
   order?: number
+  group?: string
   useVisible?: (props: RecordTabVisibilityProps) => boolean
   render: ComponentType<RecordTabRenderProps>
 }
 
 export interface RecordSectionContribution extends RecordTabContribution {
-  group?: 'activity' | 'relationships' | 'communication' | 'insights' | 'more'
   summary?: ComponentType<RecordTabRenderProps>
 }
 

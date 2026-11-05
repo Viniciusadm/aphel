@@ -48,6 +48,7 @@ const messagingModule = defineModule({
     })
     app.recordSection(['people.person', 'deals.deal'], {
       key: `${MESSAGING_KEY}.conversations`,
+      group: 'communication',
       label: 'tab.label',
       icon: MessagesSquare,
       permission: [VIEW_PERMISSION],

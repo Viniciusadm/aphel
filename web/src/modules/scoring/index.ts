@@ -21,6 +21,7 @@ const scoringModule = defineModule({
     })
     app.recordSection(SCORED_RECORD_TYPES, {
       key: 'scoring',
+      group: 'insights',
       label: 'record.tab',
       icon: Gauge,
       order: 20,

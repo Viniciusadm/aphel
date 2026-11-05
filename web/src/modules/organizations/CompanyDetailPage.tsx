@@ -24,6 +24,7 @@ export function CompanyDetailPage() {
     (defaults: RecordTab[]): RecordTab[] => {
       const people: RecordTab = {
         key: 'related',
+        group: 'relationships',
         label: tContacts('profile.tabs.people'),
         icon: Users,
         content: <CompanyContactsTab companyId={id} />,

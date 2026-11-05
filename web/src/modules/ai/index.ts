@@ -27,6 +27,7 @@ const aiModule = defineModule({
     })
     app.recordSection(AI_RECORD_TYPES, {
       key: `${AI_KEY}.assistant`,
+      group: 'insights',
       label: 'tab.label',
       icon: Sparkles,
       permission: [USE_PERMISSION],

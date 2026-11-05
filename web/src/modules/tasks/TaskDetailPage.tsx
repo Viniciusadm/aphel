@@ -90,12 +90,14 @@ export function TaskDetailPage() {
       tabs={[
         {
           key: 'notes',
+          group: 'activity',
           label: t('detail.notesTab'),
           icon: NotebookPen,
           content: null,
         },
         {
           key: 'files',
+          group: 'activity',
           label: t('detail.filesTab'),
           icon: Paperclip,
           content: <AttachmentsPanel recordType={ACTIVITY_RECORD_TYPE} recordId={id} />,

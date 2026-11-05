@@ -21,6 +21,7 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
     () => [
       {
         key: 'timeline',
+        group: 'activity',
         summary: timeline ? createElement(Timeline, { queryKey: recordsKeys.detail(recordType, recordId), fetchPage: timeline.fetchPage, autoLoad: false, limit: 5 }) : undefined,
         label: t('tabs.timeline'),
         icon: History,
@@ -35,24 +36,28 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
       },
       {
         key: 'tasks',
+        group: 'activity',
         label: t('tabs.tasks'),
         icon: CheckSquare,
         content: createElement(RecordTabPlaceholder, { icon: CheckSquare, description: t('placeholders.tasks') }),
       },
       {
         key: 'notes',
+        group: 'activity',
         label: t('tabs.notes'),
         icon: NotebookPen,
         content: createElement(RecordTabPlaceholder, { icon: NotebookPen, description: t('placeholders.notes') }),
       },
       {
         key: 'files',
+        group: 'activity',
         label: t('tabs.files'),
         icon: Paperclip,
         content: createElement(AttachmentsPanel, { recordType, recordId, readOnly }),
       },
       {
         key: 'related',
+        group: 'relationships',
         label: t('tabs.related'),
         icon: Link2,
         content: createElement(RecordTabPlaceholder, { icon: Link2, description: t('placeholders.related') }),

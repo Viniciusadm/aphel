@@ -10,6 +10,7 @@ const TABS_BEFORE_EMAILS = ['notes', 'tasks', 'timeline']
 
 export const EMAILS_RECORD_TAB: RecordTabContribution = {
   key: EMAILS_TAB_KEY,
+  group: 'communication',
   label: 'tab.label',
   icon: Mail,
   permission: EMAILS_READ_PERMISSION,

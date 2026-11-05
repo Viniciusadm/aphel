@@ -14,6 +14,7 @@ function SequencesRecordTab({ recordId, readOnly }: RecordTabRenderProps) {
 
 export const SEQUENCES_RECORD_TAB: RecordTabContribution = {
   key: SEQUENCES_TAB_KEY,
+  group: 'communication',
   label: 'record.tab',
   icon: ListOrdered,
   permission: [SEQUENCES_READ_PERMISSION, SEQUENCES_MANAGE_PERMISSION],

@@ -22,6 +22,7 @@ export function ContactDetailPage() {
     (defaults: RecordTab[]): RecordTab[] => {
       const organizations: RecordTab = {
         key: 'related',
+        group: 'relationships',
         label: t('profile.tabs.organizations'),
         icon: Building2,
         content: <ContactCompaniesTab contactId={id} readOnly={readOnly} />,

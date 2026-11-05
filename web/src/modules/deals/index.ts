@@ -79,6 +79,7 @@ const dealsModule = defineModule({
     })
     app.recordSection(['people.person', 'organizations.organization'], {
       key: 'deals',
+      group: 'relationships',
       label: 'related.tab',
       icon: Briefcase,
       order: 5,

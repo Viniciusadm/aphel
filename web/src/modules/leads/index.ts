@@ -26,6 +26,7 @@ const leadsModule = defineModule({
     })
     app.recordSection(LIFECYCLE_RECORD_TYPES, {
       key: LIFECYCLE_TAB_KEY,
+      group: 'insights',
       label: 'history.tab',
       icon: History,
       order: 10,
