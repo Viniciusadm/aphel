@@ -1,4 +1,4 @@
-import type { CatalogEntry } from './types'
+import type {CatalogEntry} from '@/sdk'
 
 declare module '@/kernel/modules/slots' {
   interface SlotPropsMap {

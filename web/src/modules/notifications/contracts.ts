@@ -8,5 +8,3 @@ declare module '@/kernel/modules/contract-components' {
     }
   }
 }
-
-export {}

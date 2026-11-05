@@ -83,10 +83,10 @@ Render a new point with `<Slot name="..." props={..} />` (`kernel/modules/Slot.t
 
 ### Cross-module contracts
 
-A module never imports another module's package (`@/modules/<other>`; the arch check counts it). Three mechanisms replace those imports:
+A module never imports another module's package (`@/modules/<other>`, side-effect imports included; the arch check counts it, now at 0). Three mechanisms replace those imports:
 
 1. **Contract components.** The provider declares the key and props by augmenting `ContractComponentMap` (`modules/<key>/contracts.ts`, props written with types the provider owns or primitives) and registers `app.provideComponent('workflow.RottingBadge', RottingBadge)`. The consumer renders `<ContractComponent name="workflow.RottingBadge" record={deal} fallback={Plain} />` (or `useContractComponent(key, Fallback)` when it needs the component value). With no enabled provider it renders the fallback, or nothing. The first enabled provider by order wins.
-2. **SDK contracts.** Pure helpers, hooks and API types that several modules share live in `web/src/sdk` (`workflow.ts`, `rotting.ts`, `period.ts`, `timeline/`), next to the backend `aphel_contract_*` crates. The owner module imports them from `@/sdk` too, so there is one definition.
+2. **SDK contracts.** Pure helpers, hooks and API types that several modules share live in `web/src/sdk` (`workflow.ts`, `rotting.ts`, `period.ts`, and one folder per hoisted surface: `timeline/`, `formulas/`, `approvals/`, `money/`, `email/`, `saved_views/`, `tasks/`, `config_packages/`, `people/`, `dashboard/`, ...), next to the backend `aphel_contract_*` crates. A hoisted folder holds clients, hooks, constants, types and shared components, never a `registerRecordResource` call or a module registration (those stay in the owner so a disabled module registers nothing); the owner module imports its own folder from `@/sdk` too. The owner module imports them from `@/sdk` too, so there is one definition.
 3. **Registries.** Navigation to another module's record goes through the record resource registry (`recordDetailHref(recordType, id)`), which returns `undefined` when the owner is disabled, never through the owner's resource file.
 
 ### Per-module API types
