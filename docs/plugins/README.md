@@ -191,7 +191,7 @@ What the declarations become:
 
 | Declaration | Effect |
 | --- | --- |
-| `entities` | A custom object `custom.<key>_<entity>` with `module_key = <key>`. It appears in the menu, lists, detail pages, forms, filters, search, import/export, automations and webhooks like any custom object. Administrators cannot edit or delete it by hand (409 `custom_object_managed_by_module`). Its permissions are `custom.<key>_<entity>.read\|create\|update\|delete\|archive\|export` |
+| `entities` | A custom object `custom.<key>_<entity>` with `module_key = <key>`. It appears in the menu, lists, detail pages, forms, filters, search, import/export, automations and webhooks like any custom object. Administrators cannot edit or delete it by hand (409 `custom_object_managed_by_module`). Its permissions are `<key>.<entity>.read\|create\|update\|delete\|archive\|export` (for example `equine.horse.read`); they belong to the plugin's capabilities without being listed in `requires` |
 | `fields` | Custom fields with `module_key = <key>` on existing types (`deal`, `contact`, …), locked like any managed field (409 `field_managed_by_module`) and written by every record API through `custom_fields` |
 | `requires` | Core permissions (or `custom.*` permissions) the plugin may use. Unknown permissions make the manifest invalid |
 | `permissions` | Entries in the permission catalog and the role editor (grouped by plugin key), granted with `organization` scope to the `grant_to` roles that exist on install, upgrade and "reapply grants", toggled with enable/disable and removed with their grants on uninstall. A key already used gives 409 `permission_already_registered` |
@@ -218,6 +218,8 @@ What the declarations become:
 | `contribute` | Contributions to an extension point. They are validated on install and upgrade and, while the plugin is enabled, registered as `RuntimeContribution` entries that the point's owner reads with `App::runtime_contributions(point)`; calling one routes to `on-contribution(point, name, input-json)` with the restricted scope. The point's own schema is not checked yet |
 | `privacy.subject_data` | The plugin holds personal data outside its record fields and takes part in privacy requests (see Data subject requests) |
 | `web.public` | Folder under `web/` served as a public single-page app at `/p/<key>/` (see Public web app) |
+
+Record types in manifests and in `ctx.records()` calls use the canonical names listed by `GET /api/v1/entities` (`people.person`, `organizations.organization`, `deals.deal`, `loyalty.account`). A field `target` with an alias such as `contact` is refused with `record_type_not_found`. In a `list` filter, an entity's own fields are addressed by their key (`contact`), not by `custom_fields.contact`; filtering on an unknown field answers 422 `filter.field is not a known field`.
 
 Entity field keys cannot reuse the keys every custom object already has: `name`, `title`, `owner_id`, `created_by`, `created_at` and `updated_at`. Any key conflict (an object or field that already exists and is not the plugin's) is refused with 409 `plugin_object_conflict` or `plugin_field_conflict` before anything is written.
 
@@ -248,7 +250,7 @@ Conflicts between plugins are detected on install, upgrade and enable: hooks on 
 Every call the plugin makes runs with **the actor's scope ∩ the plugin's capabilities**. The capabilities are:
 - `requires`,
 - the declared `permissions`,
-- the permissions of the plugin's own entities (`custom.<key>_*`).
+- the permissions of the plugin's own entities (`<key>.<entity>.*`).
 
 A plugin never gets more than it declared, and never more than the person behind the action.
 
