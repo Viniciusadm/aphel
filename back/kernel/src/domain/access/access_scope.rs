@@ -58,19 +58,10 @@ impl PermissionSet {
     }
 
     pub fn restricted(&self, allows: impl Fn(&Permission) -> bool) -> Self {
-        self.restricted_with(Vec::new(), allows)
-    }
-
-    pub fn restricted_with(
-        &self,
-        extra: Vec<Permission>,
-        allows: impl Fn(&Permission) -> bool,
-    ) -> Self {
         let grants: Vec<PermissionGrant> = if self.grants_everything {
             permission_catalog()
                 .into_iter()
                 .map(|definition| definition.permission)
-                .chain(extra)
                 .chain(
                     self.catalog_extension
                         .iter()
@@ -223,15 +214,6 @@ impl AccessScope {
 
     pub fn restricted(mut self, allows: impl Fn(&Permission) -> bool) -> Self {
         self.permissions = self.permissions.restricted(allows);
-        self
-    }
-
-    pub fn restricted_with(
-        mut self,
-        extra: Vec<Permission>,
-        allows: impl Fn(&Permission) -> bool,
-    ) -> Self {
-        self.permissions = self.permissions.restricted_with(extra, allows);
         self
     }
 

@@ -57,6 +57,6 @@ Gate verified on a sales installation with `aphel-loyalty` (WebAssembly provider
 - Refusals: required `loyalty@2` (422 `plugin_contract_unavailable`), an operation not listed in `operations` (403 `plugin_operation_not_declared`), a provided key owned by a native module (manifest invalid), disable and uninstall of the provider with an enabled dependent (409 `plugin_has_dependents`).
 - Catalog follows enable and disable.
 
-Found and fixed: for an administrator scope the plugin capability intersection dropped dynamic permissions (its own entities and other plugins' permissions listed in `requires`); `capability_scope` now passes them to `restricted_with`.
+Found and fixed (see `p9-second-identity.md`): the access catalog listed legacy `custom.<key>_<entity>` permissions for plugin entities, so an administrator lost them when the plugin's capabilities were intersected.
 
 Not exercised: permission refusal of a caller without the declared permission, cycles, contributions and declared hooks, the moved hook forwarding list, and the build without `wasm_runtime`.

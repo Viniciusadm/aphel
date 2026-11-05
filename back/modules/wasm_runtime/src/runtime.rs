@@ -253,17 +253,9 @@ fn failure(plugin: &LoadedPlugin, error: wasmtime::Error) -> AppError {
 }
 
 pub fn capability_scope(plugin: &LoadedPlugin, scope: &AccessScope) -> AccessScope {
-    let manifest = &plugin.manifest;
-    let declared = manifest
-        .entity_permissions()
-        .into_iter()
-        .chain(manifest.requires.iter().cloned())
-        .chain(manifest.optional_requires.iter().cloned())
-        .filter_map(|key| aphel_sdk::platform::domain::access::Permission::parse(key).ok())
-        .collect();
     scope
         .clone()
-        .restricted_with(declared, |permission| manifest.allows(permission))
+        .restricted(|permission| plugin.manifest.allows(permission))
 }
 
 pub async fn plugin_scope(plugin: &LoadedPlugin) -> Result<AccessScope, AppError> {

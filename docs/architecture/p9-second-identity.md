@@ -18,12 +18,13 @@ Not exercised: C6 needs two consumers of `loyalty@1`; only the provider side was
 
 ## P9.4 Core changes required
 
-One. The plugin's own entity permissions were lost for administrators.
+One, with two visible symptoms. The permissions that the access catalog derived for plugin entities used the legacy name `custom.<key>_<entity>.<action>`, while the record handlers check `<plugin>.<entity>.<action>`.
 
 | Change | Where | Why |
-| --- | --- | --- |
-| `PermissionSet::restricted_with(extra, allows)` and `AccessScope::restricted_with` | `kernel/src/domain/access/access_scope.rs` | For a scope that grants everything, restriction started from the static permission catalog only, so the dynamic permissions of the plugin's entities (`loyalty.account.read`) were dropped and every call of the plugin on its own entity failed with `permission_denied` |
-| `capability_scope` passes the manifest's entity permissions | `back/modules/wasm_runtime/src/runtime.rs` | Uses the new method; roles with explicit grants were unaffected |
+| --- | --- |
+| `custom_object_permissions` builds the permission of a module-managed object from its canonical record type (`<owner>.<entity>`) | `kernel/src/infrastructure/repositories/mysql_access.rs` | An administrator (everything scope) lacked `loyalty.account.read` in the capability intersection, so every call of the plugin on its own entity failed with `permission_denied`; `GET /auth/me` also listed the legacy names, so the web hid navigation items guarded by the real permission |
+
+An earlier workaround (`restricted_with`) was removed once this was fixed at the source.
 
 The expected number was zero; the gate "the restaurant needed no core change" must count this one.
 

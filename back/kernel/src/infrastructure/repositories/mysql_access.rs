@@ -141,15 +141,21 @@ pub async fn enabled_modules(pool: &MySqlPool) -> Result<Vec<String>, AppError> 
 pub(crate) async fn custom_object_permissions(
     pool: &MySqlPool,
 ) -> Result<Vec<Permission>, AppError> {
-    let keys: Vec<String> = sqlx::query_scalar(
-        "SELECT `key` FROM custom_objects WHERE is_active ORDER BY position, `key`",
+    let objects: Vec<(String, Option<String>)> = sqlx::query_as(
+        "SELECT `key`, module_key FROM custom_objects WHERE is_active ORDER BY position, `key`",
     )
     .fetch_all(pool)
     .await?;
-    Ok(keys
+    Ok(objects
         .iter()
-        .flat_map(|key| {
-            let record_type = object_record_type(key);
+        .flat_map(|(key, module_key)| {
+            let record_type = match module_key {
+                Some(owner) => format!(
+                    "{owner}.{}",
+                    key.strip_prefix(&format!("{owner}_")).unwrap_or(key)
+                ),
+                None => object_record_type(key),
+            };
             OBJECT_ACTIONS
                 .iter()
                 .filter_map(move |action| object_permission(&record_type, action))
