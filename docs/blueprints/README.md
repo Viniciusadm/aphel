@@ -39,7 +39,7 @@ The `aphel-blueprint` crate (`back/blueprint`) parses every `blueprints/*/bluepr
 
 ## Installer
 
-`aphel_kernel::application::installer::modules::profiles()` is fed by the blueprints (`blueprints/installer.rs`): each blueprint becomes a profile whose modules are its `required` and `recommended` plugins. `cargo run -p xtask -- modules sync` fails when an optional compiled module appears in no blueprint. `aphel.modules.toml` still decides what is compiled.
+`aphel_kernel::application::installer::modules::profiles()` is fed by the blueprints (`blueprints/installer.rs`): each blueprint becomes a profile whose modules are its `required` and `recommended` plugins. `cargo run -p xtask -- modules sync` fails when an optional compiled module appears in no blueprint. `aphel.modules.toml` lists where each plugin comes from and its `[build] blueprints = [...]` chooses what is compiled (see below).
 
 ## Shipped blueprints
 
@@ -58,3 +58,14 @@ The `aphel-blueprint` crate (`back/blueprint`) parses every `blueprints/*/bluepr
 After the installation transaction the installer enables the blueprint's required plugins and applies its `configuration.packages` through the `config_packages` module (`BlueprintConfigurator`), with the administrator's scope. `crm` ships the default pipeline and lost reasons (localized in `config/<locale>.json`); a blank system, or a build without `config_packages`, applies nothing. If applying fails, the message is kept in `organization_settings.settings.installer.configuration_error`, `GET /api/v1/blueprint` returns it and administrators see a banner with a retry button (`POST /api/v1/blueprint/configuration`, `settings.manage`). Other templates in `blueprints/*/config/` stay selectable as packages and are suggested by onboarding.
 
 Enabling a module later (`POST /api/v1/modules/{key}/enable`) runs its default seeds immediately.
+
+## Choosing what is compiled
+
+`back/aphel.modules.toml` keeps one source entry per plugin (`path`, `git` or `version`) and a `[build]` table:
+
+```toml
+[build]
+blueprints = ["freelancer"]
+```
+
+`make modules` (`cargo run -p xtask -- modules sync`) compiles the union of the resolved `required` and `recommended` plugins of the listed blueprints (the shipped file lists every blueprint, which is today's full build); without `[build]` every entry is compiled and each must appear in some blueprint. A listed plugin without a source entry fails the sync. The installer only offers blueprints whose plugins are all compiled, so a small build never shows a blueprint it cannot install. Plugin lists must be closed under dependencies: the kernel refuses to start otherwise, naming the missing module.

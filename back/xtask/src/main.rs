@@ -119,11 +119,14 @@ fn blueprint_plugins(directory: &Path) -> Result<std::collections::BTreeSet<Stri
 
 fn sync(check: bool) -> Result<bool, Failure> {
     let back = back_dir();
-    let selection = read_selection(&back.join(SELECTION))?;
-    let blueprint_plugins = blueprint_plugins(&back.join("../blueprints"))?;
-    for module in &selection {
-        if !blueprint_plugins.contains(module.key.as_str()) {
-            return Err(format!("optional module {} is in no blueprint", module.key).into());
+    let (selection, chosen_by_build) =
+        read_selection(&back.join(SELECTION), &back.join("../blueprints"))?;
+    if !chosen_by_build {
+        let blueprint_plugins = blueprint_plugins(&back.join("../blueprints"))?;
+        for module in &selection {
+            if !blueprint_plugins.contains(module.key.as_str()) {
+                return Err(format!("optional module {} is in no blueprint", module.key).into());
+            }
         }
     }
     let manifest_path = back.join(APP_MANIFEST);
@@ -168,7 +171,32 @@ fn sync(check: bool) -> Result<bool, Failure> {
     Ok(true)
 }
 
-fn read_selection(path: &Path) -> Result<Vec<SelectedModule>, Failure> {
+fn blueprint_plugin_set(
+    directory: &Path,
+    names: &[String],
+) -> Result<std::collections::BTreeSet<String>, Failure> {
+    let mut sources = Vec::new();
+    for entry in fs::read_dir(directory)? {
+        let path = entry?.path().join("blueprint.toml");
+        if path.is_file() {
+            sources.push((path.display().to_string(), fs::read_to_string(&path)?));
+        }
+    }
+    let catalog = aphel_blueprint::Catalog::parse(
+        sources
+            .iter()
+            .map(|(path, text)| (path.as_str(), text.as_str())),
+    )
+    .map_err(|error| error.to_string())?;
+    let mut plugins = std::collections::BTreeSet::new();
+    for name in names {
+        let resolved = catalog.resolve(name).map_err(|error| error.to_string())?;
+        plugins.extend(resolved.plugins().map(str::to_owned));
+    }
+    Ok(plugins)
+}
+
+fn read_selection(path: &Path, blueprints: &Path) -> Result<(Vec<SelectedModule>, bool), Failure> {
     let text = fs::read_to_string(path)
         .map_err(|error| format!("cannot read {}: {error}", path.display()))?;
     let document: toml::Table = text.parse()?;
@@ -210,7 +238,32 @@ fn read_selection(path: &Path) -> Result<Vec<SelectedModule>, Failure> {
             spec,
         });
     }
-    Ok(selected)
+    let names: Option<Vec<String>> = document
+        .get("build")
+        .and_then(|build| build.get("blueprints"))
+        .and_then(toml::Value::as_array)
+        .map(|list| {
+            list.iter()
+                .filter_map(toml::Value::as_str)
+                .map(str::to_owned)
+                .collect()
+        });
+    let Some(names) = names else {
+        return Ok((selected, false));
+    };
+    let wanted = blueprint_plugin_set(blueprints, &names)?;
+    if let Some(missing) = wanted
+        .iter()
+        .find(|plugin| !selected.iter().any(|module| &module.key == *plugin))
+    {
+        return Err(format!(
+            "the build blueprints need plugin `{missing}` but {} has no source for it",
+            path.display()
+        )
+        .into());
+    }
+    selected.retain(|module| wanted.contains(&module.key));
+    Ok((selected, true))
 }
 
 fn valid_key(key: &str) -> bool {

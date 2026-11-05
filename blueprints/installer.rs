@@ -87,10 +87,18 @@ fn catalog() -> &'static aphel_blueprint::Catalog {
 
 pub fn installer_profiles() -> Vec<aphel_kernel::application::installer::modules::InstallerProfile>
 {
+    let app = aphel_kernel::modules::app();
+    let compiled = |key: &String| app.module(key).is_some();
     catalog()
         .resolve_all()
         .expect("valid embedded blueprints")
         .into_iter()
+        .filter(|blueprint| {
+            blueprint
+                .plugins()
+                .map(str::to_owned)
+                .all(|key| compiled(&key))
+        })
         .map(
             |blueprint| aphel_kernel::application::installer::modules::InstallerProfile {
                 key: blueprint.key.clone(),
