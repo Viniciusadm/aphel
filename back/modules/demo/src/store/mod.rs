@@ -18,7 +18,7 @@ use aphel_sdk::maintenance::DatasetSeed;
 use privacy::mysql::sql::{file_reference_columns, unreferenced_file_predicate};
 
 const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
-const LEADING_BUSINESS_TABLES: [&str; 2] = ["tasks", "deals"];
+const LEADING_BUSINESS_TABLES: [&str; 1] = ["tasks"];
 const TRAILING_BUSINESS_TABLES: [&str; 3] = ["products", "custom_records", "notes"];
 
 fn seeded_record_tables() -> Vec<String> {
@@ -280,17 +280,11 @@ impl DemoStore {
         let last_change_at = last_change_at.max(created_at);
         let mut transaction = self.pool.begin().await?;
         if let Some(table) = record_table(&record.record_type) {
-            let statement = if table == "deals" {
-                "UPDATE deals SET created_at = ?, stage_entered_at = ?, closed_at = IF(closed_at IS NULL, NULL, ?) WHERE id = ?".to_owned()
-            } else {
-                format!("UPDATE {table} SET created_at = ?, updated_at = ? WHERE id = ?")
-            };
-            let mut query = sqlx::query(AssertSqlSafe(statement))
+            let statement =
+                format!("UPDATE {table} SET created_at = ?, updated_at = ? WHERE id = ?");
+            let query = sqlx::query(AssertSqlSafe(statement))
                 .bind(mapper::naive(created_at))
                 .bind(mapper::naive(last_change_at));
-            if table == "deals" {
-                query = query.bind(mapper::naive(last_change_at));
-            }
             query.bind(&record_id).execute(&mut *transaction).await?;
         }
         for table in ["domain_events", "audit_logs"] {
@@ -354,7 +348,6 @@ impl DemoStore {
                 "UPDATE tasks SET record_type = NULL, record_id = NULL WHERE (record_type, record_id) IN {tracked}"
             ),
             format!("DELETE FROM tasks WHERE id IN {}", tracked_of("tasks.task")),
-            format!("DELETE FROM deals WHERE id IN {}", tracked_of("deals.deal")),
             format!(
                 "DELETE FROM field_definitions WHERE id IN {}",
                 tracked_of("field")

@@ -1,21 +1,20 @@
 use aphel_contract_crm::CrmRecordTypes;
 use std::collections::{BTreeMap, HashMap};
 
-use chrono::{DateTime, Duration, Utc};
-use serde_json::{Map, Value, json};
+use chrono::{DateTime, Utc};
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::DEMO_SEED;
 use crate::revenue;
 use crate::store::DemoStore;
 use crate::{
-    DemoAnchors, DemoCatalog, DemoCleanup, DemoDataset, DemoDealOutcome, DemoRemovalReport,
+    DemoAnchors, DemoCatalog, DemoCleanup, DemoDataset, DemoDealAnchor, DemoRemovalReport,
     DemoResetReport, DemoSeedCommand, DemoSeedReport, DemoTarget, DemoVisitor, NewDemoVisitor,
     generate,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::fields::{CreateFieldCommand, FieldOptionInput, FieldUseCases};
 use aphel_kernel::application::security::{PasswordHasher, password_violation};
 use aphel_kernel::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FileStorage, RecordRef, RecordType,
@@ -24,13 +23,11 @@ use aphel_kernel::domain::access::{AccessScope, Permission, permission_catalog};
 use aphel_kernel::domain::{Email, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
-use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
 use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog};
 use aphel_sdk::notes::CreateNoteCommand;
 use aphel_sdk::tasks::CreateActivityCommand;
-use deals::domain::{DealInput, LoseDealCommand, MoveDealCommand};
 use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
 use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
@@ -44,8 +41,6 @@ pub(crate) const DEMO_NOT_INSTALLED: &str = "demo_not_installed";
 pub(crate) const DEMO_VISITOR_ROLE: &str = "demo_visitor";
 pub(crate) const DEMO_VISITOR_ROLE_NAME: &str = "Visitante da demonstração";
 pub(crate) const DEMO_VISITOR_NAME: &str = "Visitante Demo";
-pub(crate) const DEMO_FIELD_RECORD_TYPE: RecordType = RecordType::from_static("field");
-const FOREIGN_CURRENCY_EVERY: usize = 5;
 
 struct SeedState {
     organizations: Vec<Uuid>,
@@ -122,30 +117,21 @@ pub(crate) async fn seed(
         deals: Vec::new(),
         counts: BTreeMap::new(),
     };
-    let anchors = run_dataset_seeds(&ctx, &store, &catalog, &mut state).await?;
-    let dataset = generate(
-        now,
-        open_stages.len(),
-        catalog.lost_reason_ids.len(),
-        &anchors,
-    );
-    seed_fields(&ctx, &store, &mut state).await?;
     let foreign_currency = revenue::seed_currency(&ctx).await?;
     if let Some(currency) = foreign_currency {
         for id in revenue::seed_rates(&ctx, currency).await? {
             track(&store, &mut state, revenue::EXCHANGE_RATE_RECORD_TYPE, id).await?;
         }
     }
-    seed_deals(
+    let anchors = run_dataset_seeds(
         &ctx,
         &store,
-        &dataset,
         &catalog,
-        &open_stages,
         foreign_currency.map(|(code, _)| code),
         &mut state,
     )
     .await?;
+    let dataset = generate(now, &anchors);
     seed_activities(&ctx, &store, &dataset, &catalog, &mut state).await?;
     seed_notes(&ctx, &store, &dataset, &mut state).await?;
     seed_revenue(&ctx, &store, &dataset, &catalog, &open_stages, &mut state).await?;
@@ -357,11 +343,13 @@ async fn track(
 
 const ORGANIZATION_ENTITY: &str = "organizations.organization";
 const CONTACT_ENTITY: &str = "people.person";
+const DEAL_ENTITY: &str = "deals.deal";
 
 async fn run_dataset_seeds(
     ctx: &Ctx<'_>,
     store: &DemoStore,
     catalog: &DemoCatalog,
+    foreign_currency: Option<&str>,
     state: &mut SeedState,
 ) -> Result<DemoAnchors, AppError> {
     let mut session = DatasetSession::new(
@@ -377,9 +365,12 @@ async fn run_dataset_seeds(
             task_types: catalog.task_types.clone(),
         },
     );
+    if let Some(code) = foreign_currency {
+        session.set_value("money.foreign_currency", code.to_owned());
+    }
     let mut seeds = ctx.app().contributions::<dyn DatasetSeed>();
     seeds.sort_by_key(|seed| seed.order());
-    for seed in seeds {
+    for seed in &seeds {
         seed.seed(ctx, &mut session).await?;
         for entry in session.take_pending() {
             store.track(&entry.record).await?;
@@ -387,23 +378,23 @@ async fn run_dataset_seeds(
                 .counts
                 .entry(entry.record.record_type.as_str().to_owned())
                 .or_default() += 1;
-            store
-                .backdate(&entry.record, entry.created_at, entry.changed_at)
-                .await?;
+            let mut handled = false;
+            for owner in &seeds {
+                if owner.backdate(ctx, &entry).await? {
+                    handled = true;
+                    break;
+                }
+            }
+            if !handled {
+                store
+                    .backdate(&entry.record, entry.created_at, entry.changed_at)
+                    .await?;
+            }
         }
     }
     state.organizations = session.ids(ORGANIZATION_ENTITY);
     state.people = session.ids(CONTACT_ENTITY);
-    let mut contacts_by_company = vec![Vec::new(); state.organizations.len()];
-    for (position, entry) in session.entries(CONTACT_ENTITY).iter().enumerate() {
-        let company_index = entry
-            .attributes
-            .get("company_index")
-            .and_then(|value| value.parse::<usize>().ok());
-        if let Some(bucket) = company_index.and_then(|index| contacts_by_company.get_mut(index)) {
-            bucket.push(position);
-        }
-    }
+    state.deals = session.ids(DEAL_ENTITY);
     Ok(DemoAnchors {
         company_names: session
             .entries(ORGANIZATION_ENTITY)
@@ -420,111 +411,19 @@ async fn run_dataset_seeds(
             .iter()
             .map(|entry| entry.created_at)
             .collect(),
-        contacts_by_company,
+        deals: session
+            .entries(DEAL_ENTITY)
+            .iter()
+            .map(|entry| DemoDealAnchor {
+                open: entry
+                    .attributes
+                    .get("open")
+                    .is_some_and(|open| open == "true"),
+                created_at: entry.created_at,
+                last_change_at: entry.changed_at,
+            })
+            .collect(),
     })
-}
-
-async fn seed_fields(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    let fields = FieldUseCases::new(MySqlFieldPorts::new(
-        ctx.pool().clone(),
-        ctx.registry().clone(),
-        ctx.events().clone(),
-        ctx.audit().clone(),
-    ));
-    for (record_type, command) in demo_fields() {
-        let id = fields
-            .create_field(ctx.scope, record_type, command)
-            .await?
-            .definition
-            .id;
-        track(store, state, DEMO_FIELD_RECORD_TYPE, id).await?;
-    }
-    Ok(())
-}
-
-async fn seed_deals(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    dataset: &DemoDataset,
-    catalog: &DemoCatalog,
-    open_stages: &[&str],
-    foreign_currency: Option<&str>,
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    let today = ctx.now().date_naive();
-    for (index, deal) in dataset.deals.iter().enumerate() {
-        let currency = foreign_currency
-            .filter(|_| index % FOREIGN_CURRENCY_EVERY == FOREIGN_CURRENCY_EVERY - 1)
-            .map(str::to_owned);
-        let id = deals::service::create(
-            ctx,
-            DealInput {
-                title: Some(deal.title.clone()),
-                amount: Some(Some(format!("{}.00", deal.amount))),
-                stage_id: Some(open_stages[0].to_owned()),
-                expected_close_date: Some(Some(
-                    (today + Duration::days(deal.expected_close_in_days))
-                        .format("%Y-%m-%d")
-                        .to_string(),
-                )),
-                contact_id: Some(Some(state.people[deal.contact_index].to_string())),
-                company_id: Some(Some(state.organizations[deal.company_index].to_string())),
-                source: Some(Some("Demonstração".to_owned())),
-                currency,
-                custom_fields: custom(&[("contract_months", json!(deal.contract_months))]),
-                ..DealInput::default()
-            },
-        )
-        .await?
-        .record
-        .deal
-        .id;
-        let record = track(store, state, RecordType::DEAL, id).await?;
-        let deal_id = id.to_string();
-        let reached = match deal.outcome {
-            DemoDealOutcome::Open { stage_index } => stage_index,
-            DemoDealOutcome::Won { reached_stage }
-            | DemoDealOutcome::Lost { reached_stage, .. } => reached_stage,
-        };
-        for stage_id in open_stages.iter().take(reached + 1).skip(1) {
-            deals::service::move_to_stage(
-                ctx,
-                &deal_id,
-                MoveDealCommand {
-                    stage_id: (*stage_id).to_owned(),
-                    ..MoveDealCommand::default()
-                },
-            )
-            .await?;
-        }
-        match deal.outcome {
-            DemoDealOutcome::Won { .. } => {
-                deals::service::win(ctx, &deal_id, None).await?;
-            }
-            DemoDealOutcome::Lost { reason_index, .. } => {
-                deals::service::lose(
-                    ctx,
-                    &deal_id,
-                    LoseDealCommand {
-                        lost_reason_id: catalog.lost_reason_ids.get(reason_index).cloned(),
-                        lost_reason_note: Some("Registrado pelos dados de demonstração".to_owned()),
-                        ip: None,
-                    },
-                )
-                .await?;
-            }
-            DemoDealOutcome::Open { .. } => {}
-        }
-        store
-            .backdate(&record, deal.created_at, deal.last_change_at)
-            .await?;
-        state.deals.push(id);
-    }
-    Ok(())
 }
 
 async fn seed_activities(
@@ -624,12 +523,11 @@ async fn seed_revenue(
     if let Some(id) = revenue::seed_price_list(ctx, store, &products).await? {
         track(store, state, revenue::PRICE_LIST_RECORD_TYPE, id).await?;
     }
-    let open_deals: Vec<Uuid> = dataset
+    let open_deals: Vec<Uuid> = state
         .deals
         .iter()
-        .zip(&state.deals)
-        .filter(|(deal, _)| matches!(deal.outcome, DemoDealOutcome::Open { .. }))
-        .map(|(_, id)| *id)
+        .zip(dataset.deal_open.iter().copied())
+        .filter_map(|(id, open)| open.then_some(*id))
         .collect();
     let with_items = revenue::seed_line_items(ctx, &open_deals, &products).await?;
     if !with_items.is_empty() {
@@ -654,48 +552,6 @@ async fn seed_revenue(
         track(store, state, revenue::VALIDATION_RULE_RECORD_TYPE, id).await?;
     }
     Ok(())
-}
-
-fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
-    let field = |key: &str,
-                 label: aphel_kernel::application::fields::LocalizedLabels,
-                 field_type: &str,
-                 options: &[(&str, &str)]| CreateFieldCommand {
-        key: key.to_owned(),
-        label: label.default_text().to_owned(),
-        field_type: field_type.to_owned(),
-        is_required: false,
-        is_unique: false,
-        is_searchable: false,
-        is_personal: false,
-        is_sensitive: false,
-        config: Value::Null,
-        options: options
-            .iter()
-            .map(|(value, label)| FieldOptionInput {
-                value: Some((*value).to_owned()),
-                label: (*label).to_owned(),
-                color: None,
-            })
-            .collect(),
-        ip: None,
-    };
-    vec![(
-        "deals.deal",
-        field(
-            "contract_months",
-            crate::labels("Contract duration (months)"),
-            "number",
-            &[],
-        ),
-    )]
-}
-
-fn custom(values: &[(&str, Value)]) -> Map<String, Value> {
-    values
-        .iter()
-        .map(|(key, value)| ((*key).to_owned(), value.clone()))
-        .collect()
 }
 
 fn rfc3339(value: DateTime<Utc>) -> String {

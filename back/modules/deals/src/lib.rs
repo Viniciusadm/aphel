@@ -1,5 +1,6 @@
 mod associations;
 mod context_source;
+mod dataset_seed;
 mod lifecycle;
 mod merge_references;
 mod probability;
@@ -365,6 +366,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::DealsSeed,
+        ));
         app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
             merge_references::References,
         ));

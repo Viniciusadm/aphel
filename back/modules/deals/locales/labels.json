@@ -122,5 +122,9 @@
   "Tax": {
     "en": "Tax",
     "pt-BR": "Imposto"
+  },
+  "Contract duration (months)": {
+    "pt-BR": "Duração do contrato (meses)",
+    "en": "Contract duration (months)"
   }
 }

@@ -110,6 +110,7 @@ pub struct DatasetSession {
     catalog: MaintenanceCatalog,
     entries: BTreeMap<String, Vec<DatasetEntry>>,
     pending: Vec<DatasetEntry>,
+    values: BTreeMap<String, String>,
 }
 
 impl DatasetSession {
@@ -120,6 +121,7 @@ impl DatasetSession {
             catalog,
             entries: BTreeMap::new(),
             pending: Vec::new(),
+            values: BTreeMap::new(),
         }
     }
 
@@ -169,6 +171,14 @@ impl DatasetSession {
         });
     }
 
+    pub fn set_value(&mut self, key: &str, value: String) {
+        self.values.insert(key.to_owned(), value);
+    }
+
+    pub fn value(&self, key: &str) -> Option<&str> {
+        self.values.get(key).map(String::as_str)
+    }
+
     pub fn take_pending(&mut self) -> Vec<DatasetEntry> {
         std::mem::take(&mut self.pending)
     }
@@ -179,4 +189,7 @@ pub trait DatasetSeed: Send + Sync {
     fn order(&self) -> i32;
     fn entities(&self) -> Vec<crate::shared::RecordType>;
     async fn seed(&self, ctx: &Ctx<'_>, session: &mut DatasetSession) -> Result<(), AppError>;
+    async fn backdate(&self, _ctx: &Ctx<'_>, _entry: &DatasetEntry) -> Result<bool, AppError> {
+        Ok(false)
+    }
 }
