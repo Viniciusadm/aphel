@@ -65,8 +65,8 @@ pub(crate) async fn distribute_owner(
     entity: &str,
     values: &Map<String, Value>,
 ) -> Result<Option<String>, AppError> {
-    let provider = selector(ctx)?
-        .ok_or_else(|| AppError::Configuration("assignment is unavailable".into()))?;
+    let provider =
+        selector(ctx)?.ok_or_else(|| AppError::Validation("assignment is unavailable".into()))?;
     if !provider.usable(ctx, rule, entity).await? {
         return Err(AppError::Validation(
             "assignment rule is unavailable".into(),
