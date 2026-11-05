@@ -1,6 +1,7 @@
 mod associations;
 mod context_source;
 mod lifecycle;
+mod merge_references;
 mod probability;
 mod renewal_writer;
 use aphel_sdk::imports::ImportTraits;
@@ -364,6 +365,9 @@ impl Module for DealsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
+            merge_references::References,
+        ));
         app.provide::<dyn aphel_sdk::deals::DealRenewalReader>(std::sync::Arc::new(
             renewal_writer::Writer,
         ));

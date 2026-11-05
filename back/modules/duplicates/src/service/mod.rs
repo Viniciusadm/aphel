@@ -45,7 +45,7 @@ pub(crate) async fn types(ctx: &Ctx<'_>) -> Result<Vec<DuplicateTypeInfo>, AppEr
         }
         let stored = store.rule_settings(kind.as_str()).await?;
         let fields = field_set(ctx, &kind).await?;
-        let merge_fields = merge::system_merge_keys(&kind)
+        let merge_fields = merge::system_merge_keys(ctx, &kind)
             .into_iter()
             .filter(|key| !fields.is_hidden(key))
             .filter(|key| fields.find(key).is_none_or(|field| field.is_editable()))

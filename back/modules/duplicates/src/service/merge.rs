@@ -1,4 +1,3 @@
-use aphel_contract_crm::CrmPermissions;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use chrono::{DateTime, Utc};
@@ -10,10 +9,8 @@ use crate::service::{field_set, visible_ids};
 use crate::store::merges::RecordVersions;
 use crate::store::{DuplicateStore, MergeStore};
 use crate::{
-    COMPANY_MERGE_KEYS, CONTACT_MERGE_KEYS, CandidateResolution, DuplicateType, MERGE_SAME_RECORD,
-    MergeCommand, MergeOutcome, company_field_is_empty, contact_field_is_empty, copy_company_field,
-    copy_contact_field, deleted_event, merged_event, parse_duplicate_type, record_not_found,
-    updated_event,
+    CandidateResolution, DuplicateType, MERGE_SAME_RECORD, MergeCommand, MergeOutcome,
+    deleted_event, merged_event, parse_duplicate_type, record_not_found, updated_event,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
@@ -30,38 +27,21 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{changes_payload, permission_denied};
-use organizations::domain::{CompanyView, company_not_found, company_snapshot};
-use organizations::hierarchy::{HierarchyStore, Reparent, blocked_parents, reparent_children};
-use organizations::store::CompanyStore;
-use people::domain::{ContactView, NewContactCompanyLink, contact_not_found, contact_snapshot};
-use people::store::ContactStore;
-
 const STAGE_FIELD: &str = "lifecycle_stage";
 
-pub(crate) fn system_merge_keys(kind: &DuplicateType) -> Vec<String> {
-    match kind.family {
-        DuplicateFamily::Contact => CONTACT_MERGE_KEYS
-            .iter()
-            .map(|key| (*key).to_owned())
-            .collect(),
-        DuplicateFamily::Company => COMPANY_MERGE_KEYS
-            .iter()
-            .map(|key| (*key).to_owned())
-            .collect(),
-        DuplicateFamily::Generic => kind
-            .generic_merge_fields()
-            .into_iter()
-            .map(|field| field.key.as_str().to_owned())
-            .collect(),
+pub(crate) fn system_merge_keys(ctx: &Ctx<'_>, kind: &DuplicateType) -> Vec<String> {
+    if let Some(owner) = aphel_sdk::merges::owner(ctx, kind.as_str()) {
+        return owner.fields().iter().map(|key| (*key).to_owned()).collect();
     }
+    kind.generic_merge_fields()
+        .into_iter()
+        .map(|field| field.key.as_str().to_owned())
+        .collect()
 }
 
-fn not_found(kind: &DuplicateType) -> AppError {
-    match kind.family {
-        DuplicateFamily::Contact => contact_not_found(),
-        DuplicateFamily::Company => company_not_found(),
-        DuplicateFamily::Generic => record_not_found(),
-    }
+fn not_found(ctx: &Ctx<'_>, kind: &DuplicateType) -> AppError {
+    aphel_sdk::merges::owner(ctx, kind.as_str())
+        .map_or_else(record_not_found, |owner| owner.not_found())
 }
 
 fn tracks_lifecycle(ctx: &Ctx<'_>, kind: &DuplicateType) -> bool {
@@ -229,9 +209,10 @@ pub(crate) async fn merge(ctx: &Ctx<'_>, command: MergeCommand) -> Result<MergeO
     let kind = parse_duplicate_type(ctx.registry(), &command.record_type)?;
     scope.require(&kind.update)?;
     scope.require(&kind.delete)?;
-    let primary_id = Uuid::parse_str(command.primary_id.trim()).map_err(|_| not_found(&kind))?;
+    let primary_id =
+        Uuid::parse_str(command.primary_id.trim()).map_err(|_| not_found(ctx, &kind))?;
     let duplicate_id =
-        Uuid::parse_str(command.duplicate_id.trim()).map_err(|_| not_found(&kind))?;
+        Uuid::parse_str(command.duplicate_id.trim()).map_err(|_| not_found(ctx, &kind))?;
     if primary_id == duplicate_id {
         return Err(AppError::validation_code(
             MERGE_SAME_RECORD,
@@ -251,10 +232,14 @@ pub(crate) async fn merge(ctx: &Ctx<'_>, command: MergeCommand) -> Result<MergeO
         versions: &versions,
         expected: command.expected_version,
     };
-    match kind.family {
-        DuplicateFamily::Contact => merge_contacts(ctx, kind, ids, read, command).await,
-        DuplicateFamily::Company => merge_companies(ctx, kind, ids, read, command).await,
-        DuplicateFamily::Generic => merge_generic(ctx, kind, ids, read, command).await,
+    if aphel_sdk::merges::owner(ctx, kind.as_str()).is_some() {
+        merge_owned(ctx, kind, ids, read, command).await
+    } else if kind.definition.is_custom() {
+        merge_generic(ctx, kind, ids, read, command).await
+    } else {
+        Err(AppError::Validation(
+            "this record owner does not support merging".into(),
+        ))
     }
 }
 
@@ -277,7 +262,7 @@ async fn lock_pair(
         .await?;
     for id in [primary_id, duplicate_id] {
         let (Some(before), Some(now)) = (read.versions.get(&id), current.get(&id)) else {
-            return Err(not_found(kind));
+            return Err(not_found(ctx, kind));
         };
         if let (Some(before), Some(now)) = (before, now) {
             ensure_version(Some(before.and_utc()), now.and_utc())?;
@@ -303,48 +288,6 @@ async fn load_custom(
         values.remove(&primary_id).unwrap_or_default(),
         values.remove(&duplicate_id).unwrap_or_default(),
     ))
-}
-
-async fn contact_for(
-    ctx: &Ctx<'_>,
-    people: &ContactStore<'_>,
-    id: Uuid,
-    permission: &Permission,
-) -> Result<ContactView, AppError> {
-    let scope = ctx.scope;
-    let read = scope.record_filter(&Permission::CONTACTS_READ)?;
-    let view = people
-        .find(scope, &read, id)
-        .await?
-        .ok_or_else(contact_not_found)?;
-    let allowed = scope.record_filter(permission)?;
-    if allowed != RecordScopeFilter::Organization
-        && people.find(scope, &allowed, id).await?.is_none()
-    {
-        return Err(permission_denied());
-    }
-    Ok(view)
-}
-
-async fn company_for(
-    ctx: &Ctx<'_>,
-    organizations: &CompanyStore,
-    id: Uuid,
-    permission: &Permission,
-) -> Result<CompanyView, AppError> {
-    let scope = ctx.scope;
-    let read = scope.record_filter(&Permission::COMPANIES_READ)?;
-    let view = organizations
-        .find(scope, &read, id)
-        .await?
-        .ok_or_else(company_not_found)?;
-    let allowed = scope.record_filter(permission)?;
-    if allowed != RecordScopeFilter::Organization
-        && organizations.find(scope, &allowed, id).await?.is_none()
-    {
-        return Err(permission_denied());
-    }
-    Ok(view)
 }
 
 async fn apply_custom(
@@ -404,7 +347,7 @@ async fn retire_duplicate(
     let pipeline = ctx.pipeline();
     let merges = MergeStore::of(ctx);
     let moved = merges
-        .move_links(tx, kind, ctx.registry(), duplicate_id, primary_id)
+        .move_links(ctx, tx, kind, duplicate_id, primary_id)
         .await?;
     merges
         .record_merge(tx, scope, kind.as_str(), duplicate_id, primary_id, now)
@@ -422,18 +365,10 @@ async fn retire_duplicate(
         )
         .await?;
     pipeline.deleting(tx, scope, &merged).await?;
-    match kind.family {
-        DuplicateFamily::Contact => {
-            ContactStore::of(ctx)
-                .soft_delete(tx, duplicate_id, now)
-                .await?
-        }
-        DuplicateFamily::Company => {
-            CompanyStore::of(ctx)
-                .soft_delete(tx, duplicate_id, now)
-                .await?
-        }
-        DuplicateFamily::Generic => merges.soft_delete(tx, kind, duplicate_id, now).await?,
+    if let Some(owner) = aphel_sdk::merges::owner(ctx, kind.as_str()) {
+        owner.retire(ctx, tx, duplicate_id, now).await?;
+    } else {
+        aphel_kernel::records::retire_custom(tx, &kind.definition, duplicate_id, now).await?;
     }
     pipeline.deleted(tx, scope, &merged).await?;
     Ok(moved)
@@ -599,81 +534,46 @@ async fn publish(ctx: &Ctx<'_>, tx: &mut MySqlTx, published: Published) -> Resul
         .await
 }
 
-async fn merge_contacts(
+async fn merge_owned(
     ctx: &Ctx<'_>,
     kind: DuplicateType,
     (primary_id, duplicate_id): (Uuid, Uuid),
     read: Read<'_>,
     command: MergeCommand,
 ) -> Result<MergeOutcome, AppError> {
+    let owner = aphel_sdk::merges::owner(ctx, kind.as_str()).ok_or_else(record_not_found)?;
     let fields = read.fields;
-    let people = ContactStore::of(ctx);
-    let primary = contact_for(ctx, &people, primary_id, &Permission::CONTACTS_UPDATE).await?;
-    let duplicate = contact_for(ctx, &people, duplicate_id, &Permission::CONTACTS_DELETE).await?;
     let (primary_custom, duplicate_custom) =
         load_custom(ctx, &kind, primary_id, duplicate_id).await?;
     let plan = plan_merge(
         &command.fields,
-        &system_merge_keys(&kind),
+        &system_merge_keys(ctx, &kind),
         fields,
         &primary_custom,
         &duplicate_custom,
     )?;
-
-    let old = &primary.contact.data;
-    let source = &duplicate.contact.data;
-    let mut merged = old.clone();
-    for key in CONTACT_MERGE_KEYS {
-        let side = side_for(
-            &plan.choices,
-            key,
-            contact_field_is_empty(old, key),
-            contact_field_is_empty(source, key),
-        );
-        if side == MergeSide::Duplicate {
-            copy_contact_field(&mut merged, source, key);
-        }
-    }
-    if merged.first_name.trim().is_empty() {
-        merged.first_name = old.first_name.clone();
-    }
-
-    let mut extra_companies = Vec::new();
-    for company_id in [old.company_id, source.company_id].into_iter().flatten() {
-        if merged.company_id != Some(company_id)
-            && !extra_companies.contains(&company_id)
-            && people.find_link(primary_id, company_id).await?.is_none()
-        {
-            extra_companies.push(company_id);
-        }
-    }
-
+    let choices = plan
+        .choices
+        .iter()
+        .map(|(key, side)| (key.clone(), *side == MergeSide::Duplicate))
+        .collect();
+    let mut prepared = owner
+        .prepare(ctx, primary_id, duplicate_id, &choices)
+        .await?;
+    let before = prepared.before();
+    let duplicate_name = prepared.duplicate_name();
     let now = ctx.now();
-    let snapshot = contact_snapshot(&merged);
     let mut tx = ctx.begin().await?;
     lock_pair(ctx, &mut tx, &kind, (primary_id, duplicate_id), read).await?;
     let primary_stage = lifecycle_stage(ctx, &mut tx, &kind, primary_id).await?;
+    let snapshot = prepared
+        .apply(ctx, &mut tx, now, command.ip.clone())
+        .await?;
     let moved = retire_duplicate(ctx, &mut tx, &kind, (primary_id, duplicate_id), now).await?;
     let custom = apply_custom(ctx, &mut tx, &kind, primary_id, &snapshot, &plan).await?;
-    if &merged != old {
-        people.update(&mut tx, primary_id, &merged, now).await?;
-    }
-    for company_id in extra_companies {
-        people
-            .insert_link(
-                &mut tx,
-                &NewContactCompanyLink {
-                    id: Uuid::now_v7(),
-                    contact_id: primary_id,
-                    company_id,
-                    role: None,
-                    created_at: now,
-                },
-            )
-            .await?;
-    }
+    prepared.persist(ctx, &mut tx, now).await?;
     let mut changes = redact_hidden(
-        diff_values(&contact_snapshot(old), &snapshot, &DiffOptions::default())?,
+        diff_values(&before, &snapshot, &DiffOptions::default())?,
         fields,
     );
     changes.extend(custom);
@@ -684,120 +584,7 @@ async fn merge_contacts(
             kind,
             primary_id,
             duplicate_id,
-            duplicate_name: duplicate.contact.full_name(),
-            values: snapshot,
-            changes,
-            now,
-            ip: command.ip,
-            primary_stage,
-            moved,
-        },
-    )
-    .await
-}
-
-async fn merge_companies(
-    ctx: &Ctx<'_>,
-    kind: DuplicateType,
-    (primary_id, duplicate_id): (Uuid, Uuid),
-    read: Read<'_>,
-    command: MergeCommand,
-) -> Result<MergeOutcome, AppError> {
-    let fields = read.fields;
-    let scope = ctx.scope;
-    let organizations = CompanyStore::of(ctx);
-    let hierarchy = HierarchyStore::of(ctx);
-    let primary = company_for(
-        ctx,
-        &organizations,
-        primary_id,
-        &Permission::COMPANIES_UPDATE,
-    )
-    .await?;
-    let duplicate = company_for(
-        ctx,
-        &organizations,
-        duplicate_id,
-        &Permission::COMPANIES_DELETE,
-    )
-    .await?;
-    let (primary_custom, duplicate_custom) =
-        load_custom(ctx, &kind, primary_id, duplicate_id).await?;
-    let plan = plan_merge(
-        &command.fields,
-        &system_merge_keys(&kind),
-        fields,
-        &primary_custom,
-        &duplicate_custom,
-    )?;
-
-    let old = &primary.company.data;
-    let source = &duplicate.company.data;
-    let mut merged = old.clone();
-    for key in COMPANY_MERGE_KEYS {
-        let side = side_for(
-            &plan.choices,
-            key,
-            company_field_is_empty(old, key),
-            company_field_is_empty(source, key),
-        );
-        if side == MergeSide::Duplicate {
-            copy_company_field(&mut merged, source, key);
-        }
-    }
-    if merged.name.trim().is_empty() {
-        merged.name = old.name.clone();
-    }
-
-    let now = ctx.now();
-    let mut tx = ctx.begin().await?;
-    lock_pair(ctx, &mut tx, &kind, (primary_id, duplicate_id), read).await?;
-    let primary_stage = lifecycle_stage(ctx, &mut tx, &kind, primary_id).await?;
-    let blocked = blocked_parents(&hierarchy, &mut tx, &[primary_id, duplicate_id]).await?;
-    merged.parent_company_id = [
-        merged.parent_company_id,
-        old.parent_company_id,
-        source.parent_company_id,
-    ]
-    .into_iter()
-    .find(|candidate| candidate.is_none_or(|id| !blocked.contains(&id)))
-    .flatten();
-    let snapshot = company_snapshot(&merged);
-    reparent_children(
-        &hierarchy,
-        ctx.events(),
-        ctx.audit(),
-        &mut tx,
-        scope,
-        Reparent {
-            from_parent: duplicate_id,
-            to_parent: Some(primary_id),
-            except: Some(primary_id),
-            now,
-            ip: command.ip.clone(),
-        },
-    )
-    .await?;
-    let moved = retire_duplicate(ctx, &mut tx, &kind, (primary_id, duplicate_id), now).await?;
-    let custom = apply_custom(ctx, &mut tx, &kind, primary_id, &snapshot, &plan).await?;
-    if &merged != old {
-        organizations
-            .update(&mut tx, primary_id, &merged, now)
-            .await?;
-    }
-    let mut changes = redact_hidden(
-        diff_values(&company_snapshot(old), &snapshot, &DiffOptions::default())?,
-        fields,
-    );
-    changes.extend(custom);
-    finish_merge(
-        ctx,
-        tx,
-        CompletedMerge {
-            kind,
-            primary_id,
-            duplicate_id,
-            duplicate_name: duplicate.company.data.name.clone(),
+            duplicate_name,
             values: snapshot,
             changes,
             now,
@@ -817,7 +604,7 @@ async fn ensure_allowed(
 ) -> Result<(), AppError> {
     let read = ctx.scope.record_filter(&kind.read)?;
     if visible_ids(ctx, kind, &read, &[id]).await?.is_empty() {
-        return Err(not_found(kind));
+        return Err(not_found(ctx, kind));
     }
     let allowed = ctx.scope.record_filter(permission)?;
     if allowed != RecordScopeFilter::Organization
@@ -840,15 +627,15 @@ async fn merge_generic(
     ensure_allowed(ctx, &kind, duplicate_id, &kind.delete).await?;
     let merges = MergeStore::of(ctx);
     let system_fields = kind.generic_merge_fields();
-    let system_keys = system_merge_keys(&kind);
+    let system_keys = system_merge_keys(ctx, &kind);
     let primary = merges
         .system_values(&kind, &system_fields, primary_id)
         .await?
-        .ok_or_else(|| not_found(&kind))?;
+        .ok_or_else(|| not_found(ctx, &kind))?;
     let duplicate = merges
         .system_values(&kind, &system_fields, duplicate_id)
         .await?
-        .ok_or_else(|| not_found(&kind))?;
+        .ok_or_else(|| not_found(ctx, &kind))?;
     let (primary_custom, duplicate_custom) =
         load_custom(ctx, &kind, primary_id, duplicate_id).await?;
     let plan = plan_merge(
@@ -890,9 +677,15 @@ async fn merge_generic(
     let mut tx = ctx.begin().await?;
     lock_pair(ctx, &mut tx, &kind, (primary_id, duplicate_id), read).await?;
     let primary_stage = lifecycle_stage(ctx, &mut tx, &kind, primary_id).await?;
-    merges
-        .copy_columns(&mut tx, &kind, duplicate_id, primary_id, &copied, now)
-        .await?;
+    aphel_kernel::records::copy_custom_columns(
+        &mut tx,
+        &kind.definition,
+        duplicate_id,
+        primary_id,
+        &copied,
+        now,
+    )
+    .await?;
     let moved = retire_duplicate(ctx, &mut tx, &kind, (primary_id, duplicate_id), now).await?;
     let custom = apply_custom(ctx, &mut tx, &kind, primary_id, &snapshot, &plan).await?;
     let mut changes = redact_hidden(

@@ -2,6 +2,8 @@ mod associations;
 mod context_source;
 mod creator;
 mod email_engagement;
+mod merge_references;
+mod merges;
 mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
@@ -213,6 +215,10 @@ impl Module for PeopleModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
+            merge_references::References,
+        ));
+        app.contribute::<dyn aphel_sdk::merges::MergeOwner>(std::sync::Arc::new(merges::Owner));
         app.provide::<dyn aphel_sdk::people::PersonWriter>(std::sync::Arc::new(creator::Creator));
         app.contribute::<dyn aphel_sdk::email::EmailEngagementProjection>(std::sync::Arc::new(
             email_engagement::Projection,

@@ -1,3 +1,4 @@
+mod merges;
 mod references;
 use aphel_sdk::imports::ImportTraits;
 pub mod domain;
@@ -141,6 +142,7 @@ impl Module for CatalogItemsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::merges::MergeOwner>(Arc::new(merges::Owner));
         app.provide::<dyn aphel_sdk::catalog_items::CatalogReferences>(Arc::new(
             references::ReferenceReader,
         ));

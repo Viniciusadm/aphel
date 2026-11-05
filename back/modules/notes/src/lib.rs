@@ -1,6 +1,7 @@
 mod context_source;
 mod dashboard;
 mod followers;
+mod merge_references;
 mod privacy;
 mod timeline;
 mod writer;
@@ -62,6 +63,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
+            merge_references::References,
+        ));
         app.provide::<dyn aphel_sdk::notes::NoteWriter>(std::sync::Arc::new(writer::Writer));
         app.contribute::<dyn aphel_sdk::record_context::RelatedRecordSource>(std::sync::Arc::new(
             context_source::ContextSource,

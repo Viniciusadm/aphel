@@ -1,7 +1,6 @@
 pub(crate) mod detection;
 pub(crate) mod domain;
 pub(crate) mod dto;
-pub(crate) mod fields;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod kinds;
@@ -23,7 +22,6 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
 use aphel_kernel::records::DuplicateDetector;
 
 pub(crate) use detection::*;
-pub(crate) use fields::*;
 pub(crate) use kinds::*;
 pub(crate) use model::*;
 pub(crate) use scan::*;

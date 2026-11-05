@@ -5,6 +5,7 @@ pub mod dto;
 pub(crate) mod hooks;
 pub mod http;
 mod includes;
+mod merge_references;
 pub(crate) mod search;
 pub mod section;
 pub mod service;
@@ -40,6 +41,9 @@ impl Module for TaggingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
+            merge_references::References,
+        ));
         app.contribute::<dyn aphel_sdk::configuration::ConfigurationReferences>(
             std::sync::Arc::new(config_references::References),
         );

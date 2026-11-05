@@ -2,6 +2,7 @@ mod config_references;
 mod context_source;
 mod dashboard;
 mod followers;
+mod merge_references;
 mod reminders;
 pub mod remote_calendar;
 mod report_subjects;
@@ -285,6 +286,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
+            merge_references::References,
+        ));
         app.provide::<dyn aphel_sdk::tasks::TaskReportSubjects>(Arc::new(
             report_subjects::Subjects,
         ));

@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::DuplicateType;
 use crate::domain::DuplicateFamily;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{RecordTypeRegistry, RelationPath, SystemField};
+use aphel_kernel::application::fields::SystemField;
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
@@ -51,94 +51,6 @@ fn versions_from_rows(rows: &[sqlx::mysql::MySqlRow]) -> Result<RecordVersions, 
         .collect()
 }
 
-struct Move<'a> {
-    record_type: &'a str,
-    from: String,
-    to: String,
-}
-
-impl Move<'_> {
-    async fn update(&self, tx: &mut MySqlTx, sql: &str) -> Result<u64, AppError> {
-        let result = sqlx::query(sqlx::AssertSqlSafe(sql.to_owned()))
-            .bind(self.to.as_str())
-            .bind(self.from.as_str())
-            .execute(&mut **tx)
-            .await?;
-        Ok(result.rows_affected())
-    }
-
-    async fn record_rows(&self, tx: &mut MySqlTx, table: &str) -> Result<u64, AppError> {
-        let result = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE {table} SET record_id = ? WHERE record_type = ? AND record_id = ?"
-        )))
-        .bind(self.to.as_str())
-        .bind(self.record_type)
-        .bind(self.from.as_str())
-        .execute(&mut **tx)
-        .await?;
-        Ok(result.rows_affected())
-    }
-
-    async fn unique_record_rows(&self, tx: &mut MySqlTx, table: &str) -> Result<u64, AppError> {
-        let moved = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE IGNORE {table} SET record_id = ? WHERE record_type = ? AND record_id = ?"
-        )))
-        .bind(self.to.as_str())
-        .bind(self.record_type)
-        .bind(self.from.as_str())
-        .execute(&mut **tx)
-        .await?
-        .rows_affected();
-        let left = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "DELETE FROM {table} WHERE record_type = ? AND record_id = ?"
-        )))
-        .bind(self.record_type)
-        .bind(self.from.as_str())
-        .execute(&mut **tx)
-        .await?
-        .rows_affected();
-        Ok(moved.saturating_sub(left))
-    }
-
-    async fn unique_column_rows(
-        &self,
-        tx: &mut MySqlTx,
-        table: &str,
-        column: &str,
-    ) -> Result<u64, AppError> {
-        let moved = self
-            .update(
-                tx,
-                &format!("UPDATE IGNORE {table} SET {column} = ? WHERE {column} = ?"),
-            )
-            .await?;
-        let left = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "DELETE FROM {table} WHERE {column} = ?"
-        )))
-        .bind(self.from.as_str())
-        .execute(&mut **tx)
-        .await?
-        .rows_affected();
-        Ok(moved.saturating_sub(left))
-    }
-
-    async fn custom_references(&self, tx: &mut MySqlTx) -> Result<u64, AppError> {
-        let result = sqlx::query(
-            "UPDATE custom_field_values v JOIN field_definitions f ON f.id = v.field_id \
-             SET v.value_text = ? \
-             WHERE f.field_type = 'record' \
-             AND JSON_UNQUOTE(JSON_EXTRACT(f.config, '$.target_record_type')) = ? \
-             AND v.value_text = ?",
-        )
-        .bind(self.to.as_str())
-        .bind(self.record_type)
-        .bind(self.from.as_str())
-        .execute(&mut **tx)
-        .await?;
-        Ok(result.rows_affected())
-    }
-}
-
 #[derive(Clone)]
 pub(crate) struct MergeStore {
     pool: MySqlPool,
@@ -155,110 +67,23 @@ impl MergeStore {
 
     pub(crate) async fn move_links(
         &self,
+        ctx: &Ctx<'_>,
         tx: &mut MySqlTx,
         kind: &DuplicateType,
-        registry: &RecordTypeRegistry,
         from: Uuid,
         to: Uuid,
     ) -> Result<BTreeMap<String, u64>, AppError> {
-        let step = Move {
-            record_type: kind.as_str(),
-            from: from.to_string(),
-            to: to.to_string(),
-        };
-        let mut moved = BTreeMap::new();
-        moved.insert(
-            "tasks".to_owned(),
-            step.record_rows(tx, "tasks").await?
-                + step.unique_record_rows(tx, "task_links").await?,
-        );
-        moved.insert("notes".to_owned(), step.record_rows(tx, "notes").await?);
-        moved.insert(
-            "attachments".to_owned(),
-            step.unique_record_rows(tx, "attachments").await?,
-        );
-        moved.insert(
-            "tags".to_owned(),
-            step.unique_record_rows(tx, "taggings").await?,
-        );
-        moved.insert("references".to_owned(), step.custom_references(tx).await?);
-        moved.insert(
-            "relationships".to_owned(),
-            step.unique_column_rows(tx, "record_relations", "from_id")
+        let mut moved =
+            aphel_kernel::records::move_core_references(tx, kind.as_str(), from, to).await?;
+        for (_, owner) in ctx
+            .app()
+            .all_contributions::<dyn aphel_sdk::merges::MergeReferences>()
+        {
+            for (key, count) in owner
+                .move_references(ctx, tx, kind.as_str(), from, to)
                 .await?
-                + step
-                    .unique_column_rows(tx, "record_relations", "to_id")
-                    .await?,
-        );
-        match kind.family {
-            DuplicateFamily::Contact => {
-                moved.insert(
-                    "deals".to_owned(),
-                    step.update(tx, "UPDATE deals SET contact_id = ? WHERE contact_id = ?")
-                        .await?
-                        + step
-                            .unique_column_rows(tx, "deal_contacts", "contact_id")
-                            .await?,
-                );
-                moved.insert(
-                    "organizations".to_owned(),
-                    step.unique_column_rows(tx, "people_organizations", "contact_id")
-                        .await?,
-                );
-                sqlx::query(
-                    "DELETE l FROM people_organizations l JOIN people c ON c.id = l.contact_id \
-                     WHERE l.contact_id = ? AND l.company_id = c.company_id",
-                )
-                .bind(step.to.as_str())
-                .execute(&mut **tx)
-                .await?;
-            }
-            DuplicateFamily::Company => {
-                moved.insert(
-                    "people".to_owned(),
-                    step.update(tx, "UPDATE people SET company_id = ? WHERE company_id = ?")
-                        .await?
-                        + step
-                            .unique_column_rows(tx, "people_organizations", "company_id")
-                            .await?,
-                );
-                moved.insert(
-                    "deals".to_owned(),
-                    step.update(tx, "UPDATE deals SET company_id = ? WHERE company_id = ?")
-                        .await?,
-                );
-                sqlx::query(
-                    "DELETE l FROM people_organizations l JOIN people c ON c.id = l.contact_id \
-                     WHERE l.company_id = ? AND c.company_id = l.company_id",
-                )
-                .bind(step.to.as_str())
-                .execute(&mut **tx)
-                .await?;
-            }
-            DuplicateFamily::Generic => {
-                let mut total = 0;
-                for definition in registry.definitions() {
-                    for relation in definition
-                        .relations
-                        .iter()
-                        .filter(|relation| relation.target == *kind.record_type())
-                    {
-                        for path in &relation.paths {
-                            if let RelationPath::BelongsTo { column } = path {
-                                total += step
-                                    .update(
-                                        tx,
-                                        &format!(
-                                            "UPDATE {table} SET {column} = ? WHERE {column} = ?",
-                                            table = definition.table,
-                                        ),
-                                    )
-                                    .await?;
-                            }
-                        }
-                    }
-                }
-                moved.insert("related".to_owned(), total);
+            {
+                *moved.entry(key).or_default() += count;
             }
         }
         Ok(moved)
@@ -318,61 +143,6 @@ impl MergeStore {
             Value::Object(map) => map,
             _ => Map::new(),
         }))
-    }
-
-    pub(crate) async fn soft_delete(
-        &self,
-        tx: &mut MySqlTx,
-        kind: &DuplicateType,
-        id: Uuid,
-        now: DateTime<Utc>,
-    ) -> Result<(), AppError> {
-        let deleted = aliased("r", kind.deleted_column());
-        let mut builder =
-            QueryBuilder::<MySql>::new(format!("UPDATE {} r SET {deleted} = ", kind.table()));
-        builder
-            .push_bind(mapper::naive(now))
-            .push(" WHERE r.id = ")
-            .push_bind(id.to_string())
-            .push(format!(" AND {deleted} IS NULL"));
-        push_partition(&mut builder, &kind.definition, "r");
-        builder.build().execute(&mut **tx).await?;
-        Ok(())
-    }
-
-    pub(crate) async fn copy_columns(
-        &self,
-        tx: &mut MySqlTx,
-        kind: &DuplicateType,
-        from: Uuid,
-        to: Uuid,
-        columns: &[String],
-        now: DateTime<Utc>,
-    ) -> Result<(), AppError> {
-        if columns.is_empty() {
-            return Ok(());
-        }
-        let assignments = columns
-            .iter()
-            .map(|column| format!("{} = {}", aliased("p", column), aliased("d", column)))
-            .collect::<Vec<_>>()
-            .join(", ");
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "UPDATE {table} p JOIN {table} d ON d.id = ",
-            table = kind.table()
-        ));
-        builder
-            .push_bind(from.to_string())
-            .push(format!(" SET {assignments}"));
-        if kind.definition.system_field_by_key("updated_at").is_some() {
-            builder
-                .push(", p.updated_at = ")
-                .push_bind(mapper::naive(now));
-        }
-        builder.push(" WHERE p.id = ").push_bind(to.to_string());
-        push_partition(&mut builder, &kind.definition, "p");
-        builder.build().execute(&mut **tx).await?;
-        Ok(())
     }
 
     pub(crate) async fn record_merge(
