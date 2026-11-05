@@ -74,7 +74,7 @@ impl MergeStore {
         to: Uuid,
     ) -> Result<BTreeMap<String, u64>, AppError> {
         let mut moved =
-            aphel_kernel::records::move_core_references(tx, kind.as_str(), from, to).await?;
+            aphel_sdk::records::move_core_references(tx, kind.as_str(), from, to).await?;
         for (_, owner) in ctx
             .app()
             .all_contributions::<dyn aphel_sdk::merges::MergeReferences>()

@@ -91,9 +91,10 @@ pub mod records {
     };
     pub use aphel_kernel::records::{
         EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx, RecordTypeHandler,
-        StoredTextField, TextAssignment, TextComparison, archive_entity, existing_entity_ids,
-        inspect_entity, lock_entity_version, mark_entity_deleted, matching_entity_text_ids,
-        optional_record, purge_entity, update_entity_text,
+        StoredTextField, TextAssignment, TextComparison, archive_entity, copy_custom_columns,
+        existing_entity_ids, existing_tables, inspect_entity, lock_entity_version,
+        mark_entity_deleted, matching_entity_text_ids, move_core_references, optional_record,
+        purge_entity, retire_custom, update_entity_text,
     };
     pub fn enabled(
         ctx: &aphel_kernel::Ctx<'_>,

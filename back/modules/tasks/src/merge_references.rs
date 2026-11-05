@@ -15,7 +15,7 @@ impl aphel_sdk::merges::MergeReferences for References {
     ) -> Result<BTreeMap<String, u64>, AppError> {
         let mut moved = BTreeMap::new();
         let tables = &["tasks", "task_links"];
-        let present = aphel_kernel::records::existing_tables(tx, tables).await?;
+        let present = aphel_sdk::records::existing_tables(tx, tables).await?;
         if present.is_empty() {
             return Ok(moved);
         }

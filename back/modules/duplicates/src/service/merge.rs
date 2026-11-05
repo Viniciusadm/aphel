@@ -368,7 +368,7 @@ async fn retire_duplicate(
     if let Some(owner) = aphel_sdk::merges::owner(ctx, kind.as_str()) {
         owner.retire(ctx, tx, duplicate_id, now).await?;
     } else {
-        aphel_kernel::records::retire_custom(tx, &kind.definition, duplicate_id, now).await?;
+        aphel_sdk::records::retire_custom(tx, &kind.definition, duplicate_id, now).await?;
     }
     pipeline.deleted(tx, scope, &merged).await?;
     Ok(moved)
@@ -409,12 +409,11 @@ async fn finish_merge(
     if let Some(before) = primary_stage
         && write.changed(STAGE_FIELD).is_none()
         && let Some(after) = lifecycle_stage(ctx, &mut tx, &kind, primary_id).await?
+        && let Some(source) = aphel_sdk::leads::merge_history(ctx)
     {
-        if let Some(source) = aphel_sdk::leads::merge_history(ctx) {
-            source
-                .changed(ctx, &mut tx, &survivor, before, after)
-                .await?;
-        }
+        source
+            .changed(ctx, &mut tx, &survivor, before, after)
+            .await?;
     }
     let actor = Actor::from_scope(scope);
     if !changes.is_empty() {
@@ -677,7 +676,7 @@ async fn merge_generic(
     let mut tx = ctx.begin().await?;
     lock_pair(ctx, &mut tx, &kind, (primary_id, duplicate_id), read).await?;
     let primary_stage = lifecycle_stage(ctx, &mut tx, &kind, primary_id).await?;
-    aphel_kernel::records::copy_custom_columns(
+    aphel_sdk::records::copy_custom_columns(
         &mut tx,
         &kind.definition,
         duplicate_id,
