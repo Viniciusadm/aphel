@@ -49,6 +49,22 @@ impl PreparedTask for Draft {
 }
 #[async_trait::async_trait]
 impl TaskTransactions for Transactions {
+    async fn type_for_creation(
+        &self,
+        ctx: &Ctx<'_>,
+        key: &str,
+    ) -> Result<Option<aphel_sdk::tasks::ActivityTypeView>, AppError> {
+        use aphel_contract_crm::CrmPermissions;
+        use aphel_kernel::application::access::Authorizer;
+        ctx.scope
+            .require(&aphel_kernel::domain::access::Permission::TASKS_CREATE)?;
+        Ok(crate::store::ActivityTypeStore::of(ctx)
+            .list(false)
+            .await?
+            .into_iter()
+            .find(|view| view.key == key && view.is_active))
+    }
+
     async fn prepare_completed(
         &self,
         ctx: &Ctx<'_>,

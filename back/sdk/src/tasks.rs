@@ -212,6 +212,12 @@ pub trait PreparedTask: Send + Sync {
 }
 #[async_trait::async_trait]
 pub trait TaskTransactions: Send + Sync {
+    async fn type_for_creation(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        key: &str,
+    ) -> Result<Option<ActivityTypeView>, AppError>;
+
     async fn prepare_completed(
         &self,
         ctx: &crate::Ctx<'_>,
@@ -229,4 +235,28 @@ pub fn transactions() -> Result<std::sync::Arc<dyn TaskTransactions>, AppError> 
                 "task transactions are not enabled",
             )
         })
+}
+
+pub struct TaskReportQuery {
+    pub from: DateTime<Utc>,
+    pub to: DateTime<Utc>,
+    pub owner_id: Option<UserId>,
+    pub after: Option<Uuid>,
+}
+pub struct TaskReportSubject {
+    pub id: Uuid,
+    pub user: Option<aphel_kernel::application::files::UserReference>,
+}
+pub struct TaskReportPage {
+    pub rows: Vec<TaskReportSubject>,
+    pub after: Option<Uuid>,
+    pub more: bool,
+}
+#[async_trait::async_trait]
+pub trait TaskReportSubjects: Send + Sync {
+    async fn page(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        query: TaskReportQuery,
+    ) -> Result<TaskReportPage, AppError>;
 }

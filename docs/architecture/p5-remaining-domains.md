@@ -557,6 +557,13 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Remove telephony's tasks implementation dependency. Scoped tasks/telephony compilation passes without warnings; SQL/FK cleanup remains pending.
 - [ ] Manual acceptance: call logging/update/provider events, session calls, task hooks, rollback atomicity, audit IP, recurrence DTOs, scopes and disabled tasks.
 
+## Telephony data ownership
+
+- [x] Call details query only owned tables. Tasks owns creation-type lookup and bounded, scoped report subjects; telephony aggregates owned calls. Preserve completion/creation date semantics, owner filtering and missing owner masks.
+- [x] Session person names use scoped record labels. Administrators can manage owned outcomes without tasks; task-only create permission remains sufficient to resolve creation types.
+- [x] Remove all six foreign SQL references; scoped tasks/telephony compilation passes without warnings.
+- [ ] Manual acceptance: report dates/scopes/pagination/totals, soft-deleted provider calls, create-only actors, queue label masks and disabled owners.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.

@@ -389,7 +389,7 @@ pub(crate) async fn recording(
 }
 
 pub(crate) async fn report(ctx: &Ctx<'_>, query: CallReportQuery) -> Result<CallReport, AppError> {
-    let visibility = ctx.scope.record_filter(&Permission::TASKS_READ)?;
+    ctx.scope.record_filter(&Permission::TASKS_READ)?;
     let timezone = ctx.query().executor().timezone().await?;
     let now = ctx.now();
     let mut violations = Vec::new();
@@ -443,14 +443,8 @@ pub(crate) async fn report(ctx: &Ctx<'_>, query: CallReportQuery) -> Result<Call
             violations,
         ));
     };
-    let definition = ctx.registry().require(RecordType::ACTIVITY.as_str())?;
     let rows = CallStore::of(ctx)
-        .report(
-            ctx.scope,
-            definition,
-            &visibility,
-            &CallReportFilter { from, to, owner_id },
-        )
+        .report(ctx, &CallReportFilter { from, to, owner_id })
         .await?;
     let outcomes = CallOutcomeStore::of(ctx).list(true).await?;
     let connected_keys: Vec<&str> = outcomes
@@ -601,7 +595,7 @@ pub(crate) async fn prepare_call(
         return Err(invalid(violations));
     };
     let activity_type = CallOutcomeStore::of(ctx)
-        .call_activity_type()
+        .call_activity_type(ctx)
         .await?
         .ok_or_else(|| {
             AppError::validation_code(
@@ -842,7 +836,9 @@ pub(crate) async fn list_outcomes(
     ctx: &Ctx<'_>,
     include_inactive: bool,
 ) -> Result<Vec<CallOutcome>, AppError> {
-    aphel_sdk::tasks::types()?.require_reader(ctx.scope)?;
+    if ctx.scope.require(&Permission::SETTINGS_MANAGE).is_err() {
+        aphel_sdk::tasks::types()?.require_reader(ctx.scope)?;
+    }
     CallOutcomeStore::of(ctx).list(include_inactive).await
 }
 
@@ -1244,7 +1240,9 @@ pub(crate) async fn session_items(
 ) -> Result<Listing<CallSessionItem>, AppError> {
     ctx.scope.require(&Permission::TASKS_READ)?;
     let session = owned_session(ctx, id).await?;
-    CallSessionStore::of(ctx).items(session.id, window).await
+    let mut listing = CallSessionStore::of(ctx).items(session.id, window).await?;
+    hydrate_session_people(ctx, &mut listing.items).await?;
+    Ok(listing)
 }
 
 pub(crate) async fn log_in_session(
@@ -1439,13 +1437,16 @@ async fn lock_active(ctx: &Ctx<'_>, tx: &mut MySqlTx, id: Uuid) -> Result<CallSe
 
 async fn session_view(ctx: &Ctx<'_>, session: CallSession) -> Result<CallSessionView, AppError> {
     let counts = CallSessionStore::of(ctx).counts(session.id).await?;
-    let current = if session.position < session.total {
+    let mut current = if session.position < session.total {
         CallSessionStore::of(ctx)
             .item(session.id, session.position)
             .await?
     } else {
         None
     };
+    if let Some(item) = &mut current {
+        hydrate_session_people(ctx, std::slice::from_mut(item)).await?;
+    }
     Ok(CallSessionView {
         session,
         counts,
@@ -1496,4 +1497,48 @@ async fn publish_session(
                 .with_ip(ip),
         )
         .await
+}
+
+async fn hydrate_session_people(
+    ctx: &Ctx<'_>,
+    items: &mut [CallSessionItem],
+) -> Result<(), AppError> {
+    for item in items.iter_mut() {
+        item.contact_name = None;
+    }
+    let Ok(definition) = ctx.registry().require(aphel_sdk::people::RECORD_TYPE) else {
+        return Ok(());
+    };
+    if ctx.scope.scope_for(&definition.read_permission).is_none() {
+        return Ok(());
+    }
+    let ids: Vec<_> = items
+        .iter()
+        .map(|item| item.contact_id)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let definitions = aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+        ctx.pool().clone(),
+    );
+    let mut labels = std::collections::HashMap::new();
+    for batch in ids.chunks(1000) {
+        labels.extend(
+            aphel_sdk::records::visible_record_labels(
+                ctx.pool(),
+                ctx.registry(),
+                &definitions,
+                ctx.scope,
+                &definition.record_type,
+                batch,
+            )
+            .await?,
+        );
+    }
+    for item in items {
+        item.contact_name = labels
+            .get(&item.contact_id)
+            .and_then(|label| label.title.clone());
+    }
+    Ok(())
 }

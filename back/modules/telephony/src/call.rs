@@ -88,13 +88,6 @@ pub(crate) fn call_columns_sql(alias: &str) -> String {
     )
 }
 
-pub(crate) fn call_joins_sql(alias: &str) -> String {
-    format!(
-        "LEFT JOIN activity_calls {alias}_call ON {alias}_call.activity_id = {alias}.id \
-         LEFT JOIN call_outcomes {alias}_outcome ON {alias}_outcome.`key` = {alias}_call.outcome_key "
-    )
-}
-
 pub(crate) fn call_from_row(row: &MySqlRow) -> Result<Option<ActivityCallView>, AppError> {
     let direction: Option<String> = row.try_get("call_direction")?;
     let Some(direction) = direction else {

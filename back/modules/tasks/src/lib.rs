@@ -4,6 +4,7 @@ mod dashboard;
 mod followers;
 mod reminders;
 pub mod remote_calendar;
+mod report_subjects;
 mod transactions;
 mod writer;
 use aphel_sdk::privacy::PrivacyTraits;
@@ -284,6 +285,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::tasks::TaskReportSubjects>(Arc::new(
+            report_subjects::Subjects,
+        ));
         app.provide::<dyn aphel_sdk::tasks::TaskTransactions>(Arc::new(transactions::Transactions));
         app.provide::<dyn aphel_sdk::tasks::TaskWriter>(Arc::new(writer::Writer));
         app.provide::<dyn aphel_sdk::tasks::TaskTypes>(Arc::new(writer::Writer));

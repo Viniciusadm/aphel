@@ -5,22 +5,19 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlConnection, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::call::{call_columns_sql, call_from_row, call_joins_sql};
+use crate::call::{call_columns_sql, call_from_row};
 use crate::domain::{
     ActivityCallView, CALL_ACTIVITY_TYPE_KEY, CallActivityType, CallDetails, CallOutcome,
     CallReportFilter, CallReportRow, CallSession, CallSessionItem, CallSessionStatus,
     DEFAULT_CALL_OUTCOMES, SessionCounts, SessionItemStatus,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope_as;
 use aphel_kernel::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
@@ -96,10 +93,8 @@ impl CallStore {
         activity_id: Uuid,
     ) -> Result<Option<ActivityCallView>, AppError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            "SELECT {columns} FROM tasks a {joins}\
-             WHERE a.id = ? AND a.deleted_at IS NULL AND a_call.activity_id IS NOT NULL",
+            "SELECT {columns} FROM activity_calls a_call LEFT JOIN call_outcomes a_outcome ON a_outcome.`key` = a_call.outcome_key WHERE a_call.activity_id = ?",
             columns = call_columns_sql("a"),
-            joins = call_joins_sql("a"),
         )))
         .bind(activity_id.to_string())
         .fetch_optional(&self.pool)
@@ -118,10 +113,8 @@ impl CallStore {
             return Ok(HashMap::new());
         }
         let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT a.id AS activity_id, {columns} FROM tasks a {joins}\
-             WHERE a_call.activity_id IS NOT NULL AND a.id IN (",
+            "SELECT a_call.activity_id, {columns} FROM activity_calls a_call LEFT JOIN call_outcomes a_outcome ON a_outcome.`key` = a_call.outcome_key WHERE a_call.activity_id IN (",
             columns = call_columns_sql("a"),
-            joins = call_joins_sql("a"),
         ));
         let mut ids = builder.separated(", ");
         for id in activity_ids {
@@ -144,9 +137,7 @@ impl CallStore {
         provider_call_id: &str,
     ) -> Result<Option<Uuid>, AppError> {
         let id: Option<String> = sqlx::query_scalar(
-            "SELECT c.activity_id FROM activity_calls c \
-             JOIN tasks a ON a.id = c.activity_id AND a.deleted_at IS NULL \
-             WHERE c.provider = ? AND c.provider_call_id = ?",
+            "SELECT activity_id FROM activity_calls WHERE provider = ? AND provider_call_id = ?",
         )
         .bind(provider)
         .bind(provider_call_id)
@@ -158,52 +149,73 @@ impl CallStore {
 
     pub(crate) async fn report(
         &self,
-        scope: &AccessScope,
-        tasks: &EntityDefinition,
-        visibility: &RecordScopeFilter,
+        ctx: &Ctx<'_>,
         filter: &CallReportFilter,
     ) -> Result<Vec<CallReportRow>, AppError> {
-        let mut builder = QueryBuilder::<MySql>::new(
-            "SELECT a.owner_id, u.display_name AS owner_name, c.outcome_key, \
-             COUNT(*) AS calls, CAST(COALESCE(SUM(c.duration_seconds), 0) AS UNSIGNED) AS duration_seconds \
-             FROM tasks a \
-             JOIN activity_calls c ON c.activity_id = a.id \
-             LEFT JOIN users u ON u.id = a.owner_id \
-             WHERE a.deleted_at IS NULL AND COALESCE(a.completed_at, a.created_at) >= ",
-        );
-        builder
-            .push_bind(mapper::naive(filter.from))
-            .push(" AND COALESCE(a.completed_at, a.created_at) < ")
-            .push_bind(mapper::naive(filter.to));
-        if let Some(owner) = &filter.owner_id {
-            builder
-                .push(" AND a.owner_id = ")
-                .push_bind(owner.as_str().to_owned());
+        let source = ctx
+            .services()
+            .require::<dyn aphel_sdk::tasks::TaskReportSubjects>()?;
+        let mut after = None;
+        let mut groups = HashMap::<(Option<String>, String), CallReportRow>::new();
+        loop {
+            let page = source
+                .page(
+                    ctx,
+                    aphel_sdk::tasks::TaskReportQuery {
+                        from: filter.from,
+                        to: filter.to,
+                        owner_id: filter.owner_id.clone(),
+                        after,
+                    },
+                )
+                .await?;
+            if !page.rows.is_empty() {
+                let mut subjects: HashMap<Uuid, _> = page
+                    .rows
+                    .into_iter()
+                    .map(|subject| (subject.id, subject.user))
+                    .collect();
+                let mut query = QueryBuilder::<MySql>::new(
+                    "SELECT activity_id, outcome_key, duration_seconds FROM activity_calls WHERE activity_id IN (",
+                );
+                let mut ids = query.separated(", ");
+                for id in subjects.keys() {
+                    ids.push_bind(id.to_string());
+                }
+                query.push(")");
+                for row in query.build().fetch_all(&self.pool).await? {
+                    let id = uuid_column(&row, "activity_id")?;
+                    if let Some(user) = subjects.remove(&id) {
+                        let outcome_key: String = row.try_get("outcome_key")?;
+                        let key = (
+                            user.as_ref().map(|user| user.id.as_str().to_owned()),
+                            outcome_key.clone(),
+                        );
+                        let group = groups.entry(key).or_insert(CallReportRow {
+                            user,
+                            outcome_key,
+                            calls: 0,
+                            duration_seconds: 0,
+                        });
+                        group.calls = group.calls.saturating_add(1);
+                        group.duration_seconds = group.duration_seconds.saturating_add(u64::from(
+                            row.try_get::<Option<u32>, _>("duration_seconds")?
+                                .unwrap_or_default(),
+                        ));
+                    }
+                }
+            }
+            if !page.more {
+                break;
+            }
+            if page.after.is_none() || page.after <= after {
+                return Err(AppError::Configuration(
+                    "task report source did not advance its cursor".into(),
+                ));
+            }
+            after = page.after;
         }
-        push_record_scope_as(&mut builder, scope, tasks, visibility, "a");
-        builder.push(" GROUP BY a.owner_id, u.display_name, c.outcome_key");
-        let rows = builder.build().fetch_all(&self.pool).await?;
-        rows.iter()
-            .map(|row| {
-                let owner_id: Option<String> = row.try_get("owner_id")?;
-                let owner_name: Option<String> = row.try_get("owner_name")?;
-                let calls: i64 = row.try_get("calls")?;
-                let duration: u64 = row.try_get("duration_seconds")?;
-                Ok(CallReportRow {
-                    user: owner_id
-                        .map(|id| {
-                            Ok::<_, AppError>(UserReference {
-                                id: mapper::typed_id(id, UserId::new)?,
-                                display_name: owner_name.unwrap_or_default(),
-                            })
-                        })
-                        .transpose()?,
-                    outcome_key: row.try_get("outcome_key")?,
-                    calls: calls.max(0) as u64,
-                    duration_seconds: duration,
-                })
-            })
-            .collect()
+        Ok(groups.into_values().collect())
     }
 }
 
@@ -364,29 +376,26 @@ impl CallOutcomeStore {
         Ok(())
     }
 
-    pub(crate) async fn call_activity_type(&self) -> Result<Option<CallActivityType>, AppError> {
-        let row =
-            sqlx::query("SELECT id, name FROM task_types WHERE `key` = ? AND is_active = TRUE")
-                .bind(CALL_ACTIVITY_TYPE_KEY)
-                .fetch_optional(&self.pool)
-                .await?;
-        row.map(|row| {
-            Ok(CallActivityType {
-                id: uuid_column(&row, "id")?,
-                name: row.try_get("name")?,
-            })
-        })
-        .transpose()
+    pub(crate) async fn call_activity_type(
+        &self,
+        ctx: &Ctx<'_>,
+    ) -> Result<Option<CallActivityType>, AppError> {
+        Ok(aphel_sdk::tasks::transactions()?
+            .type_for_creation(ctx, CALL_ACTIVITY_TYPE_KEY)
+            .await?
+            .map(|view| CallActivityType {
+                id: view.id,
+                name: view.name,
+            }))
     }
 }
 
 const SESSION_COLUMNS: &str = "id, user_id, view_id, name, script, status, position, total, \
      completed_at, created_at, updated_at";
 
-const ITEM_SELECT: &str = "SELECT i.position, i.contact_id, c.full_name AS contact_name, i.status, \
+const ITEM_SELECT: &str = "SELECT i.position, i.contact_id, NULL AS contact_name, i.status, \
      i.activity_id, i.outcome_key, i.handled_at FROM call_session_items i \
-     LEFT JOIN people c ON c.id = i.contact_id \
-     AND c.deleted_at IS NULL ";
+";
 
 #[derive(Clone)]
 pub(crate) struct CallSessionStore {
