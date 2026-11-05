@@ -11,7 +11,7 @@ pub(crate) mod exits;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 pub(crate) mod runner;
 pub(crate) mod runtime;
 pub(crate) mod section;
@@ -102,7 +102,7 @@ impl Module for SequencesModule {
         app.on(
             crate::hooks::StepRunning,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, step| Box::pin(plugin_bridge::step_running(ctx, step)),
+            |ctx, step| Box::pin(plugin_hooks::step_running(ctx, step)),
         );
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(160, |pool, registry| {
@@ -130,10 +130,10 @@ impl Module for SequencesModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        plugin_bridge::register(app);
+        plugin_hooks::register(app);
         Ok(())
     }
 }

@@ -15,7 +15,7 @@ pub(crate) mod linking;
 pub mod mailboxes;
 pub(crate) mod model;
 pub(crate) mod payload;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 mod points;
 pub(crate) mod provider;
 pub(crate) mod reading;
@@ -168,12 +168,12 @@ impl Module for EmailModule {
         app.filter(
             crate::hooks::OutgoingEmail,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, message| Box::pin(plugin_bridge::outgoing(ctx, message)),
+            |ctx, message| Box::pin(plugin_hooks::outgoing(ctx, message)),
         );
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        plugin_bridge::register(app);
+        plugin_hooks::register(app);
         Ok(())
     }
 }

@@ -21,7 +21,7 @@ pub(crate) mod hooks;
 pub mod http;
 pub mod notifications;
 pub(crate) mod operations;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 mod points;
 pub(crate) mod recurrence;
 pub mod section;
@@ -395,7 +395,7 @@ impl Module for TasksModule {
         app.on(
             crate::hooks::ActivityCompleting,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, completing| Box::pin(plugin_bridge::completing(ctx, completing)),
+            |ctx, completing| Box::pin(plugin_hooks::completing(ctx, completing)),
         );
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(seed::seed_task_types(connection))
@@ -443,10 +443,10 @@ impl Module for TasksModule {
         for definition in NOTIFICATION_KINDS {
             app.contribute(std::sync::Arc::new(definition));
         }
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        plugin_bridge::register(app);
+        plugin_hooks::register(app);
         Ok(())
     }
 }

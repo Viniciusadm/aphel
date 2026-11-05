@@ -319,6 +319,15 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
         .map(|(key, _)| key.clone())
         .collect::<Vec<_>>();
 
+    let hook_adapter_files = plugin_sources
+        .iter()
+        .filter(|(_, file)| {
+            file.file_name()
+                .is_some_and(|name| name == "plugin_hooks.rs")
+        })
+        .map(|(key, _)| key.clone())
+        .collect::<Vec<_>>();
+
     let mut literal_plugins = Vec::new();
     for plugin in &plugins {
         let mut found = false;
@@ -428,6 +437,11 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
             "plugin_bridge_files",
             "plugin_bridge.rs files",
             bridge_files,
+        ),
+        Metric::new(
+            "plugin_hook_adapters",
+            "plugin_hooks.rs files: native hooks forwarded to WebAssembly plugins by hand",
+            hook_adapter_files,
         ),
         Metric::new(
             "plugins_with_literal_record_types",

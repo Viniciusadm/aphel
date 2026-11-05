@@ -3,7 +3,7 @@ pub mod domain;
 pub mod hooks;
 pub(crate) mod http;
 mod merge_history;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 pub(crate) mod section;
 pub mod service;
 pub mod store;
@@ -162,22 +162,22 @@ impl Module for LeadsModule {
         app.on(
             crate::hooks::LeadQualifying,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, lead| Box::pin(plugin_bridge::qualifying(ctx, lead)),
+            |ctx, lead| Box::pin(plugin_hooks::qualifying(ctx, lead)),
         )
         .on(
             crate::hooks::LeadDisqualifying,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, args| Box::pin(plugin_bridge::disqualifying(ctx, args)),
+            |ctx, args| Box::pin(plugin_hooks::disqualifying(ctx, args)),
         )
         .filter(
             crate::hooks::LeadConverting,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, conversion| Box::pin(plugin_bridge::converting(ctx, conversion)),
+            |ctx, conversion| Box::pin(plugin_hooks::converting(ctx, conversion)),
         )
         .on(
             crate::hooks::LeadConverted,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, converted| Box::pin(plugin_bridge::converted(ctx, converted)),
+            |ctx, converted| Box::pin(plugin_hooks::converted(ctx, converted)),
         );
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(180, |pool, registry| {
@@ -214,10 +214,10 @@ impl Module for LeadsModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        plugin_bridge::register(app);
+        plugin_hooks::register(app);
         Ok(())
     }
 }

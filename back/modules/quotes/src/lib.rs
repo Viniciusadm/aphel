@@ -5,7 +5,7 @@ pub(crate) mod gateway;
 pub(crate) mod hooks;
 pub mod http;
 pub(crate) mod pdf;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 pub(crate) mod pricing;
 pub(crate) mod public;
 mod reference_cleanup;
@@ -307,7 +307,7 @@ impl Module for QuotesModule {
         app.on(
             crate::hooks::QuoteAccepting,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, accepting| Box::pin(plugin_bridge::accepting(ctx, accepting)),
+            |ctx, accepting| Box::pin(plugin_hooks::accepting(ctx, accepting)),
         );
         app.declare_hook(
             crate::hooks::QuoteTotals,
@@ -329,10 +329,10 @@ impl Module for QuotesModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        plugin_bridge::register(app);
+        plugin_hooks::register(app);
         Ok(())
     }
 }

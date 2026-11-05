@@ -27,7 +27,7 @@ pub mod hooks;
 pub mod http;
 pub(crate) mod notifications;
 pub(crate) mod operations;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 pub(crate) mod runtime;
 pub mod service;
 pub mod store;
@@ -525,32 +525,32 @@ impl Module for DealsModule {
         app.on(
             crate::hooks::DealStageChanging,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, change| Box::pin(plugin_bridge::stage_changing(ctx, change)),
+            |ctx, change| Box::pin(plugin_hooks::stage_changing(ctx, change)),
         )
         .on(
             crate::hooks::DealWinning,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WINNING, deal)),
+            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::WINNING, deal)),
         )
         .on(
             crate::hooks::DealLosing,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::LOSING, deal)),
+            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::LOSING, deal)),
         )
         .on(
             crate::hooks::DealWon,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::WON, deal)),
+            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::WON, deal)),
         )
         .on(
             crate::hooks::DealLost,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_bridge::closing(ctx, plugin_bridge::LOST, deal)),
+            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::LOST, deal)),
         );
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        plugin_bridge::register(app);
+        plugin_hooks::register(app);
 
         app.provide::<dyn aphel_contract_automation::application::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),

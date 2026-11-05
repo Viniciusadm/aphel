@@ -33,7 +33,7 @@ pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Res
         .has_actions_except(ActionRunning, Some(KEY))
         && !aphel_sdk::platform::modules::plugin_bridge::plugin_hook_subscribed(
             ctx,
-            crate::plugin_bridge::ACTION_RUNNING,
+            crate::plugin_hooks::ACTION_RUNNING,
             running.record.record_type.as_str(),
         )
     {

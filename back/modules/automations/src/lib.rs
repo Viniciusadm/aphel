@@ -11,7 +11,7 @@ pub(crate) mod engine;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
-pub(crate) mod plugin_bridge;
+pub(crate) mod plugin_hooks;
 mod points;
 pub(crate) mod runtime;
 pub(crate) mod section;
@@ -114,7 +114,7 @@ impl Module for AutomationsModule {
         app.on(
             crate::hooks::ActionRunning,
             aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, running| Box::pin(plugin_bridge::action_running(ctx, running)),
+            |ctx, running| Box::pin(plugin_hooks::action_running(ctx, running)),
         );
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(165, |pool, registry| {
@@ -153,7 +153,7 @@ impl Module for AutomationsModule {
         for definition in NOTIFICATION_KINDS {
             app.contribute(std::sync::Arc::new(*definition));
         }
-        for hook in plugin_bridge::hooks() {
+        for hook in plugin_hooks::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
         app.contribute::<dyn aphel_contract_automation::application::AutomationActionSource>(
