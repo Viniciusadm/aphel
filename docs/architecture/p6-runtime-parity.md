@@ -6,14 +6,14 @@ Not compile-verified and therefore part of this list: the Rust and JavaScript gu
 
 ## Provided operations (P6.1, P6.3)
 
-- [ ] `provider` declares `[[provides.operations]]` (one `read`, one `write` with a `permission`) and implements `on_operation`. Install shows no validation error and the consent dialog lists it.
-- [ ] After enabling, the operations appear in `aphel catalog` and in `GET /api/v1/wasm-runtime/host-catalog` within about 2 seconds.
+- [x] `provider` declares `[[provides.operations]]` (one `read`, one `write` with a `permission`) and implements `on_operation`. Install shows no validation error and the consent dialog lists it.
+- [x] After enabling, the operations appear in `aphel catalog` and in `GET /api/v1/wasm-runtime/host-catalog` within about 2 seconds.
 - [ ] A native plugin reaches a provided operation with `ctx.call`; the output matches what the guest returned.
-- [ ] `consumer` lists the key in `operations` and reaches it with `invoke`; without listing it, `invoke` answers 403 `plugin_operation_not_declared`.
+- [x] `consumer` lists the key in `operations` and reaches it with `invoke`; without listing it, `invoke` answers 403 `plugin_operation_not_declared`.
 - [ ] A caller without the declared `permission` is refused; a `read` operation cannot write records; a `write` operation is refused inside a hook (409 `plugin_write_in_hook`).
 - [ ] A cycle (`provider` operation that invokes `consumer`, which invokes `provider`) fails instead of hanging.
-- [ ] A plugin that provides a key owned by a native module is refused on install and upgrade; a second plugin providing the same key as `provider` is refused on install.
-- [ ] Disabling `provider` makes `ctx.call` answer `contract_unavailable` and removes the key from the catalog; enabling restores it; uninstalling removes it for good.
+- [x] A plugin that provides a key owned by a native module is refused on install and upgrade; a second plugin providing the same key as `provider` is refused on install.
+- [x] Disabling `provider` makes `ctx.call` answer `contract_unavailable` and removes the key from the catalog; enabling restores it; uninstalling removes it for good.
 
 ## Contributions and declared hooks (P6.3)
 
@@ -23,8 +23,8 @@ Not compile-verified and therefore part of this list: the Rust and JavaScript gu
 
 ## Contracts and dependents (P6.4, P6.5)
 
-- [ ] `consumer` with `[uses] required = ["x@1"]` and no provider is refused on install, upgrade and enable with 422 `plugin_contract_unavailable`; with `provider` providing `x@1` it installs; `x@2` does not satisfy it; an optional contract never blocks.
-- [ ] With both enabled, disabling, uninstalling and upgrading `provider` to a version without `x@1` (or without the operation `consumer` lists) are refused with 409 `plugin_has_dependents` naming `consumer`; after `consumer` is disabled they succeed.
+- [x] `consumer` with `[uses] required = ["x@1"]` and no provider is refused on install, upgrade and enable with 422 `plugin_contract_unavailable`; with `provider` providing `x@1` it installs; `x@2` does not satisfy it; an optional contract never blocks.
+- [x] With both enabled, disabling, uninstalling and upgrading `provider` to a version without `x@1` (or without the operation `consumer` lists) are refused with 409 `plugin_has_dependents` naming `consumer`; after `consumer` is disabled they succeed.
 - [ ] A plugin that was already broken does not block unrelated changes.
 
 ## Module independence (P6.7)
@@ -47,3 +47,16 @@ For each hook, subscribe a test plugin and confirm it is called with the documen
 ## Gate
 
 The P6 gate in the checklist can be ticked when a WebAssembly plugin provides an operation or contract a native plugin consumes **and** a native provider is consumed by a WebAssembly plugin, both from the lists above.
+
+## Verification record (2026-11-05)
+
+Gate verified on a sales installation with `aphel-loyalty` (WebAssembly provider of `loyalty@1`, operations `loyalty.balance` and `loyalty.award`) and `aphel-loyalty-consumer` (WebAssembly consumer):
+
+- WebAssembly consumer to WebAssembly provider and to a native provider (`currencies.convert`) through `invoke`.
+- A native module calling the WebAssembly operation with `ctx.call` (a temporary route in `forms`, reverted); after disabling the provider it answered `contract_unavailable`.
+- Refusals: required `loyalty@2` (422 `plugin_contract_unavailable`), an operation not listed in `operations` (403 `plugin_operation_not_declared`), a provided key owned by a native module (manifest invalid), disable and uninstall of the provider with an enabled dependent (409 `plugin_has_dependents`).
+- Catalog follows enable and disable.
+
+Found and fixed: for an administrator scope the plugin capability intersection dropped dynamic permissions (its own entities and other plugins' permissions listed in `requires`); `capability_scope` now passes them to `restricted_with`.
+
+Not exercised: permission refusal of a caller without the declared permission, cycles, contributions and declared hooks, the moved hook forwarding list, and the build without `wasm_runtime`.
