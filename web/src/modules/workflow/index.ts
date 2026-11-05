@@ -9,6 +9,7 @@ import { RottingBadge } from './rotting/RottingBadge'
 import { StagedBoard } from './StagedBoard'
 import { RottingFilterToggle } from './rotting/RottingFilterToggle'
 import { pipelinesSettingsRoute } from './routes'
+import './resource'
 import './slots'
 
 export const STAGE_GUIDANCE_TAB_KEY = 'stage-guidance'

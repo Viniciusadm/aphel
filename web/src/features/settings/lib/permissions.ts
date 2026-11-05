@@ -63,7 +63,22 @@ export function moduleLabel(module: string): PermissionLabel {
 }
 
 export function permissionLabel(permission: string, recordScoped: boolean, label?: string | null): PermissionLabel {
-  if (!recordScoped) return { key: administrativeLabels[permission], fallback: label?.trim() || permission }
+  if (!recordScoped) {
+    const key = administrativeLabels[permission]
+    if (key || label?.trim()) return { key, fallback: label?.trim() || permission }
+    return { fallback: derivedAdministrativeLabel(permission) }
+  }
   const action = permission.split('.').slice(1).join('.')
   return { key: actionLabels[action], fallback: label?.trim() || action || permission }
+}
+
+function derivedAdministrativeLabel(permission: string): string {
+  const [module = permission, ...rest] = permission.split('.')
+  const action = rest.join('.')
+  if (!action) return permission
+  const actionKey = actionLabels[action]
+  const label = moduleLabel(module)
+  const moduleName = label.key ? i18n.t(label.key, { ns: 'settings' }) : module.replaceAll('_', ' ')
+  const actionName = actionKey ? i18n.t(actionKey, { ns: 'settings' }) : action.replaceAll(/[._]/g, ' ')
+  return `${moduleName}: ${actionName}`
 }
