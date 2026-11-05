@@ -161,6 +161,7 @@ impl MailboxStore {
             .bind(id.to_string())
             .execute(&mut **tx)
             .await?;
+        aphel_sdk::reference_cleanup::removed(tx, "email.mailbox", id).await?;
         Ok(result.rows_affected() == 1)
     }
 

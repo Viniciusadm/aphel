@@ -3,6 +3,7 @@ pub mod domain;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod plugin_bridge;
+mod reference_cleanup;
 pub(crate) mod service;
 pub(crate) mod store;
 pub(crate) mod telephony;
@@ -65,6 +66,7 @@ impl Module for TelephonyModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        reference_cleanup::register(app);
         app.contract(aphel_sdk::telephony::DESCRIPTOR);
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(store::seed_call_outcomes(connection))

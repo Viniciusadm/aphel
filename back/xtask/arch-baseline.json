@@ -1,7 +1,7 @@
 {
   "alter_table_on_foreign_tables": 0,
   "conflict_and_menu_rule_usages": 15,
-  "cross_plugin_foreign_keys": 23,
+  "cross_plugin_foreign_keys": 0,
   "cross_plugin_sql_references": 0,
   "kernel_domain_words": 0,
   "kernel_permission_constants_for_plugins": 0,

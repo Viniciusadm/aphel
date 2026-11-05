@@ -8,6 +8,7 @@ pub(crate) mod pdf;
 pub(crate) mod plugin_bridge;
 pub(crate) mod pricing;
 pub(crate) mod public;
+mod reference_cleanup;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod store;
@@ -293,6 +294,7 @@ impl Module for QuotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        reference_cleanup::register(app);
         app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
             dataset_seed::QuotesSeed,
         ));

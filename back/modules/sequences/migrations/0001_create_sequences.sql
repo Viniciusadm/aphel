@@ -35,8 +35,7 @@ CREATE TABLE sequence_steps (
   PRIMARY KEY (id),
   UNIQUE KEY sequence_steps_position_unique (sequence_id, position),
   KEY sequence_steps_template_fk_index (template_id),
-  CONSTRAINT sequence_steps_sequence_fk FOREIGN KEY (sequence_id) REFERENCES sequences (id) ON DELETE CASCADE,
-  CONSTRAINT sequence_steps_template_fk FOREIGN KEY (template_id) REFERENCES email_templates (id) ON DELETE SET NULL
+  CONSTRAINT sequence_steps_sequence_fk FOREIGN KEY (sequence_id) REFERENCES sequences (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE sequence_enrollments (
@@ -66,9 +65,7 @@ CREATE TABLE sequence_enrollments (
   KEY sequence_enrollments_enrolled_by_fk_index (enrolled_by),
   KEY sequence_enrollments_mailbox_fk_index (mailbox_id),
   CONSTRAINT sequence_enrollments_sequence_fk FOREIGN KEY (sequence_id) REFERENCES sequences (id) ON DELETE CASCADE,
-  CONSTRAINT sequence_enrollments_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE CASCADE,
-  CONSTRAINT sequence_enrollments_enrolled_by_fk FOREIGN KEY (enrolled_by) REFERENCES users (id) ON DELETE CASCADE,
-  CONSTRAINT sequence_enrollments_mailbox_fk FOREIGN KEY (mailbox_id) REFERENCES mailboxes (id) ON DELETE SET NULL
+  CONSTRAINT sequence_enrollments_enrolled_by_fk FOREIGN KEY (enrolled_by) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE sequence_step_runs (

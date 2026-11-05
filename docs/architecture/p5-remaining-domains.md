@@ -602,3 +602,9 @@ The remaining identity changes, shared capability interfaces, owner-only SQL, de
 - `people_organizations.company_id` and `deal_contacts.contact_id` were cascade keys on join tables; owners delete those rows from a `RecordPurged` hook.
 - `deals.pipeline_id`, `stage_id` and `lost_reason_id` lose their keys without a soft reference: `workflow` guards pipeline and stage removal with its own usage checks and record moves, and never deletes lost reasons. A reference there would require `workflow.read` on every deal writer.
 - [ ] Manual acceptance: set and clear a contact's company; trash an organization and confirm linked contacts and deals clear; purge a contact and confirm its `deal_contacts` and deal links disappear; a user without access to an organization cannot link it; delete a stage with deals and confirm `workflow` still moves them.
+
+## Reference cleanup without foreign keys
+
+- `aphel_sdk::reference_cleanup::ReferenceCleanup` lets an owner react when a non-record target (segment, email template, mailbox, saved view, assignment rule, pipeline, stage) is removed: the target's store calls `reference_cleanup::removed(tx, kind, id)` inside its delete transaction, and contributing plugins clear or delete their own rows. Record targets (people, organizations, deals, products, tasks) use `RecordPurged` hooks in the referencing plugin.
+- `pricing`, `quotes`, `renewals`, `sequences`, `telephony`, `messaging` and `booking` dropped their foreign keys and keep the former `ON DELETE` behaviour in their `reference_cleanup.rs`. Writes no longer verify that the target exists at the database level.
+- [ ] Manual acceptance: delete a segment, template, mailbox, saved view, assignment rule, stage and pipeline and confirm the dependent columns clear or the dependent rows go; purge a deal, contact, organization, product and task and confirm quotes, renewals, enrollments, calls and conversations behave as before.

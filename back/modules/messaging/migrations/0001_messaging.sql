@@ -42,8 +42,6 @@ CREATE TABLE messaging_conversations (
   KEY messaging_conversations_deal_index (deal_id),
   KEY messaging_conversations_peer_index (channel_id, peer),
   CONSTRAINT messaging_conversations_channel_fk FOREIGN KEY (channel_id) REFERENCES messaging_channels (id) ON DELETE CASCADE,
-  CONSTRAINT messaging_conversations_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE SET NULL,
-  CONSTRAINT messaging_conversations_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE SET NULL,
   CONSTRAINT messaging_conversations_assignee_fk FOREIGN KEY (assignee_user_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

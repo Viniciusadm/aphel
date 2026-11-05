@@ -13,8 +13,7 @@ CREATE TABLE call_sessions (
   PRIMARY KEY (id),
   KEY call_sessions_user_index (user_id, status, created_at),
   KEY call_sessions_view_fk_index (view_id),
-  CONSTRAINT call_sessions_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-  CONSTRAINT call_sessions_view_fk FOREIGN KEY (view_id) REFERENCES saved_views (id) ON DELETE SET NULL
+  CONSTRAINT call_sessions_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE call_session_items (
@@ -28,6 +27,5 @@ CREATE TABLE call_session_items (
   PRIMARY KEY (session_id, position),
   KEY call_session_items_contact_index (contact_id),
   KEY call_session_items_activity_index (activity_id),
-  CONSTRAINT call_session_items_session_fk FOREIGN KEY (session_id) REFERENCES call_sessions (id) ON DELETE CASCADE,
-  CONSTRAINT call_session_items_activity_fk FOREIGN KEY (activity_id) REFERENCES tasks (id) ON DELETE SET NULL
+  CONSTRAINT call_session_items_session_fk FOREIGN KEY (session_id) REFERENCES call_sessions (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -361,6 +361,7 @@ impl PipelineStore {
             .bind(pipeline_id.to_string())
             .execute(&mut **tx)
             .await?;
+        aphel_sdk::reference_cleanup::removed(tx, "workflow.pipeline", pipeline_id).await?;
         Ok(())
     }
 
@@ -454,6 +455,7 @@ impl PipelineStore {
             .bind(stage_id.to_string())
             .execute(&mut **tx)
             .await?;
+        aphel_sdk::reference_cleanup::removed(tx, "workflow.stage", stage_id).await?;
         Ok(())
     }
 

@@ -217,6 +217,7 @@ impl SavedViewRepository for MySqlSavedViewRepository {
             .bind(view_id.to_string())
             .execute(&mut **tx)
             .await?;
+        aphel_sdk::reference_cleanup::removed(tx, "saved_views.view", view_id).await?;
         Ok(())
     }
 

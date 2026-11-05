@@ -171,6 +171,7 @@ impl SegmentStore {
             .bind(segment_id.to_string())
             .execute(&mut **tx)
             .await?;
+        aphel_sdk::reference_cleanup::removed(tx, "segments.segment", segment_id).await?;
         Ok(())
     }
 

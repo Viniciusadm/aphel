@@ -33,8 +33,7 @@ CREATE TABLE meeting_types (
   UNIQUE KEY meeting_types_slug_unique (slug),
   KEY meeting_types_owner_fk_index (owner_id),
   KEY meeting_types_rule_fk_index (distribution_rule_id),
-  CONSTRAINT meeting_types_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE,
-  CONSTRAINT meeting_types_rule_fk FOREIGN KEY (distribution_rule_id) REFERENCES assignment_rules (id) ON DELETE SET NULL
+  CONSTRAINT meeting_types_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE meeting_bookings (

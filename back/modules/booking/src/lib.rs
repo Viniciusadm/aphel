@@ -1,3 +1,4 @@
+mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub(crate) mod dto;
@@ -69,6 +70,7 @@ impl Module for BookingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        reference_cleanup::register(app);
         app.contract(aphel_sdk::booking::DESCRIPTOR);
         app.openapi_tag(
             http::TAG,

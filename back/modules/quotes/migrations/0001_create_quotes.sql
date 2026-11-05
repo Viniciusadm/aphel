@@ -52,10 +52,7 @@ CREATE TABLE quotes (
   KEY quotes_company_fk_index (company_id),
   KEY quotes_sent_by_fk_index (sent_by),
   KEY quotes_created_by_fk_index (created_by),
-  CONSTRAINT quotes_deal_fk FOREIGN KEY (deal_id) REFERENCES deals (id) ON DELETE CASCADE,
   CONSTRAINT quotes_owner_fk FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT quotes_contact_fk FOREIGN KEY (contact_id) REFERENCES people (id) ON DELETE SET NULL,
-  CONSTRAINT quotes_company_fk FOREIGN KEY (company_id) REFERENCES organizations (id) ON DELETE SET NULL,
   CONSTRAINT quotes_sent_by_fk FOREIGN KEY (sent_by) REFERENCES users (id) ON DELETE SET NULL,
   CONSTRAINT quotes_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -86,8 +83,7 @@ CREATE TABLE quote_items (
   PRIMARY KEY (id),
   KEY quote_items_quote_index (quote_id, position),
   KEY quote_items_product_fk_index (product_id),
-  CONSTRAINT quote_items_quote_fk FOREIGN KEY (quote_id) REFERENCES quotes (id) ON DELETE CASCADE,
-  CONSTRAINT quote_items_product_fk FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL
+  CONSTRAINT quote_items_quote_fk FOREIGN KEY (quote_id) REFERENCES quotes (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE quote_counters (

@@ -1,6 +1,7 @@
 mod opt_out_http;
 mod opt_out_store;
 mod opt_outs;
+mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod actor;
 pub(crate) mod channel_routes;
@@ -168,6 +169,7 @@ impl Module for MessagingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        reference_cleanup::register(app);
         app.contract(aphel_sdk::messaging::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::messaging::MessagingChannel>(std::sync::Arc::new(
             channels::whatsapp::WhatsappChannel,

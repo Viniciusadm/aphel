@@ -1,6 +1,7 @@
 pub(crate) mod domain;
 pub(crate) mod http;
 pub(crate) mod notifications;
+mod reference_cleanup;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub(crate) mod service;
@@ -49,6 +50,7 @@ impl Module for RenewalsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        reference_cleanup::register(app);
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(80, |pool, registry| {
                 let _ = registry;

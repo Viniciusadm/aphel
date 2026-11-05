@@ -471,6 +471,7 @@ impl DistributionStore {
             .bind(rule_id.to_string())
             .execute(&mut **tx)
             .await?;
+        aphel_sdk::reference_cleanup::removed(tx, "assignment.rule", rule_id).await?;
         Ok(())
     }
 

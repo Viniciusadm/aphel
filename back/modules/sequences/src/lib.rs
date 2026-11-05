@@ -1,6 +1,7 @@
 mod config_references;
 mod contacts;
 mod enrollment_service;
+mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -87,6 +88,7 @@ impl Module for SequencesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        reference_cleanup::register(app);
         app.contract(aphel_sdk::sequences::DESCRIPTOR);
         app.provide::<dyn aphel_sdk::sequences::SequenceEnrollment>(std::sync::Arc::new(
             enrollment_service::Enrollment,
