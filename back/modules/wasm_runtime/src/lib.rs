@@ -6,6 +6,7 @@ pub mod committed;
 pub mod compiled;
 pub mod conflicts;
 pub mod data_subject;
+mod dependents;
 pub mod directory;
 pub mod effects;
 pub mod events;

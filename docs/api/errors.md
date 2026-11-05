@@ -353,6 +353,8 @@ Whoever creates a new code adds the row to this table and cites it in the respon
 | `module_held_by_extension` | 409 | modules |
 | `plugin_conflicts_unacknowledged` | 409 | plugins |
 | `plugin_module_conflict_blocked` | 409 | plugins |
+| `plugin_contract_unavailable` | 422 | plugins (a required contract has no enabled provider) |
+| `plugin_has_dependents` | 409 | plugins (an upgrade, disable or uninstall would break enabled plugins that depend on it) |
 | `module_settings_required` | 422 | modules |
 | `module_required` | 409 | modules (disabling a module marked as required in the build) |
 | `module_dependency_cycle` | 409 | modules (the build's modules depend on each other in a cycle; `App` assembly error) |

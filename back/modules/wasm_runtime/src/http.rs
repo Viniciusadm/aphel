@@ -638,6 +638,14 @@ async fn install_plugin(
     let pool = state.db()?;
     let previous = store::find(&pool, &package.manifest.key).await?;
     let presets = grants::selected_presets(&package.manifest, &presets)?;
+    if previous.as_ref().is_some_and(|plugin| plugin.enabled) {
+        crate::dependents::ensure_none_broken(
+            &state,
+            &package.manifest.key,
+            Some(&package.manifest),
+        )
+        .await?;
+    }
     schema::check(&state, &package.manifest).await?;
     let conflicts = crate::conflicts::detect_for(&pool, &package.manifest).await?;
     let module_conflicts = crate::modules::plan(&state, scope, &package.manifest).await?;
@@ -960,6 +968,7 @@ async fn uninstall_plugin(
 ) -> Result<StatusCode, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(&state, &key).await?;
+    crate::dependents::ensure_none_broken(&state, &key, None).await?;
     crate::modules::release(&state, &tenant.scope, &key).await;
     if params.purge {
         schema::purge(&state, &plugin.manifest).await?;
@@ -1008,6 +1017,9 @@ async fn toggle(
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(state, key).await?;
     if plugin.enabled != enabled {
+        if !enabled {
+            crate::dependents::ensure_none_broken(state, key, None).await?;
+        }
         if enabled {
             schema::validate_dependencies(state, &plugin.manifest).await?;
             let conflicts = crate::conflicts::detect_for(&state.db()?, &plugin.manifest).await?;
