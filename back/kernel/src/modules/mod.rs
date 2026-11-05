@@ -36,9 +36,9 @@ pub use operations::{
     ReferenceCheck, TargetSelector,
 };
 pub use plugin_bridge::{
-    OperationFuture, OperationHandler, OperationPage, PLUGIN_HOOK_PRIORITY, PluginHook,
-    PluginHookCall, PluginHookDispatcher, PluginHookKind, PluginOperation, forward_plugin_hook,
-    operation_input, operation_output,
+    HookForwarding, OperationFuture, OperationHandler, OperationPage, PLUGIN_HOOK_PRIORITY,
+    PluginHook, PluginHookArgs, PluginHookCall, PluginHookDispatcher, PluginHookFilter,
+    PluginHookKind, PluginOperation, forward_plugin_hook, operation_input, operation_output,
 };
 pub use plugin_manifest::{
     ContributionSpec, INVALID_PLUGIN_MANIFEST, Layer, PluginManifest, ProvidedEffect,

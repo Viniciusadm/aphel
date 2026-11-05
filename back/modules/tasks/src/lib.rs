@@ -17,11 +17,11 @@ mod calendar_source;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub mod http;
 pub mod notifications;
 pub(crate) mod operations;
-pub(crate) mod plugin_hooks;
 mod points;
 pub(crate) mod recurrence;
 pub mod section;
@@ -392,10 +392,14 @@ impl Module for TasksModule {
             &[aphel_kernel::modules::HookUsage::Veto],
             "Before an activity is completed; an error blocks it",
         );
-        app.on(
+        app.forward_hook(
             crate::hooks::ActivityCompleting,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, completing| Box::pin(plugin_hooks::completing(ctx, completing)),
+            aphel_kernel::modules::PluginHook::new(
+                crate::hooks::COMPLETING,
+                "tasks.task",
+                aphel_kernel::modules::PluginHookKind::Veto,
+                "Before an activity is completed; values: { activity, previous, type_key }. An error blocks it",
+            ),
         );
         app.contribute(Arc::new(DefaultsSeed(|connection| {
             Box::pin(seed::seed_task_types(connection))
@@ -443,10 +447,7 @@ impl Module for TasksModule {
         for definition in NOTIFICATION_KINDS {
             app.contribute(std::sync::Arc::new(definition));
         }
-        for hook in plugin_hooks::hooks() {
-            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
-        }
-        plugin_hooks::register(app);
+        exposed_operations::register(app);
         Ok(())
     }
 }

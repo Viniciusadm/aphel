@@ -1,3 +1,6 @@
+use crate::modules::plugin_bridge::{
+    HookForwarding, PLUGIN_HOOK_PRIORITY, PluginHook, PluginHookArgs, PluginHookFilter,
+};
 use std::any::{Any, TypeId};
 use std::collections::{BTreeSet, HashMap};
 use std::sync::{Arc, RwLock};
@@ -240,6 +243,61 @@ impl AppBuilder {
         let contribution = self.contribution(priority, handler);
         self.hooks.filter(hook, contribution);
         self
+    }
+
+    pub fn forward_hook<K>(&mut self, hook: K, plugin_hook: PluginHook) -> &mut Self
+    where
+        K: HookRef,
+        K::Args: PluginHookArgs,
+    {
+        self.forward_hook_with(hook, plugin_hook, HookForwarding::of())
+    }
+
+    pub fn forward_hook_with<K>(
+        &mut self,
+        hook: K,
+        plugin_hook: PluginHook,
+        forwarding: HookForwarding<K::Args>,
+    ) -> &mut Self
+    where
+        K: HookRef,
+    {
+        self.contribute::<PluginHook>(Arc::new(plugin_hook));
+        self.on(hook, PLUGIN_HOOK_PRIORITY, move |ctx, args| {
+            Box::pin(async move {
+                crate::modules::plugin_bridge::forward_args(ctx, plugin_hook, forwarding, args)
+                    .await
+                    .map(drop)
+            })
+        })
+    }
+
+    pub fn forward_filter_hook<K>(&mut self, hook: K, plugin_hook: PluginHook) -> &mut Self
+    where
+        K: HookRef,
+        K::Args: PluginHookFilter,
+    {
+        self.forward_filter_hook_with(hook, plugin_hook, HookForwarding::filtering())
+    }
+
+    pub fn forward_filter_hook_with<K>(
+        &mut self,
+        hook: K,
+        plugin_hook: PluginHook,
+        forwarding: HookForwarding<K::Args>,
+    ) -> &mut Self
+    where
+        K: HookRef,
+    {
+        self.contribute::<PluginHook>(Arc::new(plugin_hook));
+        self.filter(hook, PLUGIN_HOOK_PRIORITY, move |ctx, args| {
+            Box::pin(crate::modules::plugin_bridge::forward_filtered(
+                ctx,
+                plugin_hook,
+                forwarding,
+                args,
+            ))
+        })
     }
 
     pub fn declare_hook<K: HookRef>(

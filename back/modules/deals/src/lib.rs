@@ -23,11 +23,11 @@ mod rotting;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub mod hooks;
 pub mod http;
 pub(crate) mod notifications;
 pub(crate) mod operations;
-pub(crate) mod plugin_hooks;
 pub(crate) mod runtime;
 pub mod service;
 pub mod store;
@@ -522,35 +522,32 @@ impl Module for DealsModule {
             &[aphel_kernel::modules::HookUsage::Action],
             "After a deal was lost, inside the same transaction",
         );
-        app.on(
+        let deal_hook = |key, kind, description| {
+            aphel_kernel::modules::PluginHook::new(key, "deals.deal", kind, description)
+        };
+        let veto = aphel_kernel::modules::PluginHookKind::Veto;
+        let action = aphel_kernel::modules::PluginHookKind::Action;
+        app.forward_hook(
             crate::hooks::DealStageChanging,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, change| Box::pin(plugin_hooks::stage_changing(ctx, change)),
+            deal_hook(crate::hooks::STAGE_CHANGING, veto, "Before a deal moves to another stage; values: { deal, previous, from, to }. An error blocks the move"),
         )
-        .on(
+        .forward_hook(
             crate::hooks::DealWinning,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::WINNING, deal)),
+            deal_hook(crate::hooks::WINNING, veto, "Before a deal is won; values: { deal, previous, stage, lost_reason }. An error blocks it"),
         )
-        .on(
+        .forward_hook(
             crate::hooks::DealLosing,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::LOSING, deal)),
+            deal_hook(crate::hooks::LOSING, veto, "Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it"),
         )
-        .on(
+        .forward_hook(
             crate::hooks::DealWon,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::WON, deal)),
+            deal_hook(crate::hooks::WON, action, "After a deal is won, inside the transaction; values: { deal, previous, stage }"),
         )
-        .on(
+        .forward_hook(
             crate::hooks::DealLost,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, deal| Box::pin(plugin_hooks::closing(ctx, plugin_hooks::LOST, deal)),
+            deal_hook(crate::hooks::LOST, action, "After a deal is lost, inside the transaction; values: { deal, previous, stage, lost_reason }"),
         );
-        for hook in plugin_hooks::hooks() {
-            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
-        }
-        plugin_hooks::register(app);
+        exposed_operations::register(app);
 
         app.provide::<dyn aphel_contract_automation::application::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),

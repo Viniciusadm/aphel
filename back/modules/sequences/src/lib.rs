@@ -8,10 +8,10 @@ pub mod domain;
 pub(crate) mod dto;
 pub(crate) mod events;
 pub(crate) mod exits;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
-pub(crate) mod plugin_hooks;
 pub(crate) mod runner;
 pub(crate) mod runtime;
 pub(crate) mod section;
@@ -99,10 +99,14 @@ impl Module for SequencesModule {
         app.declare_hook(crate::hooks::StepRunning, &[aphel_kernel::modules::HookUsage::Veto],
             "Before a sequence step runs; a definitive error removes the contact from the sequence, a transient one retries the job",
         );
-        app.on(
+        app.forward_hook(
             crate::hooks::StepRunning,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, step| Box::pin(plugin_hooks::step_running(ctx, step)),
+            aphel_kernel::modules::PluginHook::new(
+                crate::hooks::STEP_RUNNING,
+                aphel_contract_crm::keys::CONTACT,
+                aphel_kernel::modules::PluginHookKind::Veto,
+                "Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step",
+            ),
         );
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(160, |pool, registry| {
@@ -130,10 +134,7 @@ impl Module for SequencesModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for hook in plugin_hooks::hooks() {
-            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
-        }
-        plugin_hooks::register(app);
+        exposed_operations::register(app);
         Ok(())
     }
 }

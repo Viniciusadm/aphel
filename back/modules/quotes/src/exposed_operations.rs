@@ -1,57 +1,15 @@
 use aphel_kernel::modules::OperationSpec;
 use aphel_sdk::{OperationKey, operation};
-use std::sync::Arc;
 
 use serde::Deserialize;
-use serde_json::{Value, json};
+use serde_json::Value;
 
 use crate::domain::QuoteDetails;
-use crate::hooks::AcceptingQuote;
 use crate::http::{AcceptQuoteManuallyRequest, SendQuoteRequest, SubmitQuoteRequest, quote_detail};
 use crate::{service, workflow};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{
-    HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
-};
-
-pub(crate) const ACCEPTING: &str = "quote.accepting";
-
-fn accepting_json(accepting: &AcceptingQuote) -> Value {
-    let mut quote = service::quote_snapshot(&accepting.quote);
-    if let Value::Object(map) = &mut quote {
-        map.insert("id".to_owned(), json!(accepting.quote_id()));
-    }
-    json!({
-        "quote": quote,
-        "deal_id": accepting.deal_id(),
-        "acceptor": {
-            "name": accepting.acceptor_name(),
-            "email": accepting.acceptor_email(),
-        },
-        "manual": accepting.acceptance.recorded_by.is_some(),
-    })
-}
-
-pub(crate) async fn accepting(
-    ctx: &mut HookCtx<'_>,
-    accepting: &AcceptingQuote,
-) -> Result<(), AppError> {
-    forward_plugin_hook(ctx, ACCEPTING, "quotes.quote", accepting.quote_id(), || {
-        accepting_json(accepting)
-    })
-    .await
-    .map(drop)
-}
-
-pub(crate) fn hooks() -> Vec<Arc<PluginHook>> {
-    vec![Arc::new(PluginHook::new(
-        ACCEPTING,
-        "quotes.quote",
-        PluginHookKind::Veto,
-        "Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance",
-    ))]
-}
+use aphel_kernel::modules::{OperationFuture, operation_input};
 
 #[derive(Deserialize)]
 struct QuoteId {

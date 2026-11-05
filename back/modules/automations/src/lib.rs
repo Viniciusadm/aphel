@@ -11,7 +11,6 @@ pub(crate) mod engine;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod model;
-pub(crate) mod plugin_hooks;
 mod points;
 pub(crate) mod runtime;
 pub(crate) mod section;
@@ -111,10 +110,14 @@ impl Module for AutomationsModule {
         app.declare_hook(crate::hooks::ActionRunning, &[aphel_kernel::modules::HookUsage::Veto, aphel_kernel::modules::HookUsage::Filter],
             "Before an automation action runs (dry run and execution; an error skips it) and, as a filter, the result recorded for the step",
         );
-        app.on(
+        app.forward_hook(
             crate::hooks::ActionRunning,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, running| Box::pin(plugin_hooks::action_running(ctx, running)),
+            aphel_kernel::modules::PluginHook::new(
+                crate::hooks::ACTION_RUNNING,
+                "*",
+                aphel_kernel::modules::PluginHookKind::Veto,
+                "Before an automation action runs on a record (dry run and execution), for the record's type; values: { automation_id, run_id, step_id, action, record: { record_type, record_id }, config, dry_run }. An error skips the action",
+            ),
         );
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(165, |pool, registry| {
@@ -152,9 +155,6 @@ impl Module for AutomationsModule {
         .grant_to(["admin"]);
         for definition in NOTIFICATION_KINDS {
             app.contribute(std::sync::Arc::new(*definition));
-        }
-        for hook in plugin_hooks::hooks() {
-            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
         app.contribute::<dyn aphel_contract_automation::application::AutomationActionSource>(
             std::sync::Arc::new(BoundOperations),

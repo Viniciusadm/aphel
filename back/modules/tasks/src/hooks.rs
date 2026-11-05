@@ -1,13 +1,13 @@
 use aphel_contract_crm::CrmRecordTypes;
-use serde_json::Value;
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::domain::ActivityData;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{Hook, HookCtx};
+use aphel_kernel::modules::{Hook, HookCtx, PluginHookArgs};
 use aphel_kernel::records::{RemovedRecord, SerializedRecords};
 use aphel_sdk::platform::application::fields::permissions::{FieldAccessPolicy, is_unrestricted};
-use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 use aphel_sdk::platform::infrastructure::fields::permissions::role_access_rules;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -16,6 +16,49 @@ pub(crate) struct CompletingActivity {
     pub(crate) before: ActivityData,
     pub(crate) data: ActivityData,
     pub(crate) type_key: String,
+}
+
+pub(crate) const COMPLETING: &str = "activity.completing";
+
+fn record_json(record: &RecordRef) -> Value {
+    json!({
+        "record_type": record.record_type.as_str(),
+        "record_id": record.record_id,
+    })
+}
+
+fn activity_json(data: &ActivityData) -> Value {
+    json!({
+        "title": data.title,
+        "activity_type_id": data.activity_type_id,
+        "status": data.status.as_str(),
+        "priority": data.priority.as_str(),
+        "due_at": data.due_at,
+        "completed_at": data.completed_at,
+        "owner_id": data.owner_id.as_ref().map(|owner| owner.as_str()),
+        "record": data.record.as_ref().map(record_json),
+        "links": data.links.iter().map(record_json).collect::<Vec<_>>(),
+        "duration_minutes": data.duration_minutes,
+        "description": data.description,
+    })
+}
+
+impl PluginHookArgs for CompletingActivity {
+    fn plugin_record_id(&self) -> String {
+        self.id.to_string()
+    }
+
+    fn plugin_payload(&self) -> Value {
+        let mut activity = activity_json(&self.data);
+        if let Value::Object(map) = &mut activity {
+            map.insert("id".to_owned(), json!(self.id));
+        }
+        json!({
+            "activity": activity,
+            "previous": activity_json(&self.before),
+            "type_key": self.type_key,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

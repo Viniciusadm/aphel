@@ -9,13 +9,13 @@ pub(crate) mod capture;
 pub mod compose;
 pub mod domain;
 pub mod dto;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod linking;
 pub mod mailboxes;
 pub(crate) mod model;
 pub(crate) mod payload;
-pub(crate) mod plugin_hooks;
 mod points;
 pub(crate) mod provider;
 pub(crate) mod reading;
@@ -165,15 +165,16 @@ impl Module for EmailModule {
             app.permission(PermissionDefinition::record(permission))
                 .grant_to(["admin", "manager", "member"]);
         }
-        app.filter(
+        app.forward_filter_hook(
             crate::hooks::OutgoingEmail,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, message| Box::pin(plugin_hooks::outgoing(ctx, message)),
+            aphel_kernel::modules::PluginHook::new(
+                crate::hooks::OUTGOING,
+                crate::hooks::EMAIL_RECORD_TYPE,
+                aphel_kernel::modules::PluginHookKind::Filter,
+                "Before an e-mail is saved and sent; record_type is the linked record's type (or email when unlinked); values: { mailbox_id, sender_id, from, to, cc, bcc, subject, body: { text, html }, record, thread_id, scheduled, tracking }. Return { subject?, body?: { text?, html? } } to change them (html is sanitized)",
+            ),
         );
-        for hook in plugin_hooks::hooks() {
-            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
-        }
-        plugin_hooks::register(app);
+        exposed_operations::register(app);
         Ok(())
     }
 }

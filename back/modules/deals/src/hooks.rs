@@ -1,14 +1,93 @@
 use aphel_contract_crm::CrmRecordTypes;
+use serde_json::{Value, json};
 
 use crate::domain::{Deal, StageSummary};
 use crate::service::{pipeline_condition, restrict_to_pipelines};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{Hook, HookCtx};
+use aphel_kernel::modules::{Hook, HookCtx, PluginHookArgs};
 use aphel_kernel::records::QueryConstraints;
 use aphel_sdk::platform::application::query::QueryPlan;
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::workflow::WorkflowReader;
 use aphel_sdk::workflow::{LostReason, PipelineStage, pipeline_restriction, sees_every_pipeline};
+
+pub(crate) const STAGE_CHANGING: &str = "deal.stage_changing";
+pub(crate) const WINNING: &str = "deal.winning";
+pub(crate) const LOSING: &str = "deal.losing";
+pub(crate) const WON: &str = "deal.won";
+pub(crate) const LOST: &str = "deal.lost";
+
+fn deal_json(deal: &Deal) -> Value {
+    json!({
+        "id": deal.id,
+        "title": deal.title,
+        "owner_id": deal.owner_id.as_ref().map(|owner| owner.as_str()),
+        "pipeline_id": deal.pipeline_id,
+        "stage_id": deal.stage_id,
+        "amount": deal.amount,
+        "currency": deal.currency,
+        "amount_base": deal.revenue.amount_base,
+        "probability": deal.probability,
+        "expected_close_date": deal.expected_close_date,
+        "status": deal.status.as_str(),
+        "closed_at": deal.closed_at,
+        "lost_reason_id": deal.lost_reason_id,
+        "lost_reason_note": deal.lost_reason_note,
+        "source": deal.source,
+        "contact_id": deal.contact_id,
+        "company_id": deal.company_id,
+        "stage_entered_at": deal.stage_entered_at,
+        "created_at": deal.created_at,
+        "updated_at": deal.updated_at,
+    })
+}
+
+fn stage_json(stage: &PipelineStage) -> Value {
+    json!({
+        "id": stage.id,
+        "pipeline_id": stage.pipeline_id,
+        "name": stage.name,
+        "kind": stage.kind.as_str(),
+        "probability": stage.probability,
+    })
+}
+
+impl PluginHookArgs for StageChange {
+    fn plugin_record_id(&self) -> String {
+        self.deal().id.to_string()
+    }
+
+    fn plugin_payload(&self) -> Value {
+        json!({
+            "deal": deal_json(self.deal()),
+            "previous": self.previous().map(deal_json),
+            "from": self.from().map(|from| json!({
+                "id": from.id,
+                "name": from.name,
+                "kind": from.kind.as_str(),
+            })),
+            "to": stage_json(self.to()),
+        })
+    }
+}
+
+impl PluginHookArgs for ClosingDeal {
+    fn plugin_record_id(&self) -> String {
+        self.deal().id.to_string()
+    }
+
+    fn plugin_payload(&self) -> Value {
+        json!({
+            "deal": deal_json(self.deal()),
+            "previous": self.previous().map(deal_json),
+            "stage": stage_json(self.stage()),
+            "lost_reason": self.lost_reason().map(|reason| json!({
+                "id": reason.id,
+                "name": reason.name,
+            })),
+        })
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct StageChange {

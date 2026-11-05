@@ -1,6 +1,5 @@
 use aphel_kernel::modules::OperationSpec;
 use aphel_sdk::{OperationKey, operation};
-use std::sync::Arc;
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -9,53 +8,10 @@ use crate::domain::EnrollmentSource;
 use crate::dto::{
     EnrollContactRequest, SequenceEnrollmentResponse, SequenceListParams, SequenceResponse,
 };
-use crate::hooks::RunningStep;
 use crate::model::EnrollCommand;
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{
-    HookCtx, OperationFuture, OperationPage, PluginHook, PluginHookKind, forward_plugin_hook,
-    operation_input, operation_output,
-};
-
-pub(crate) const STEP_RUNNING: &str = "sequence.step_running";
-
-fn step_json(step: &RunningStep) -> Value {
-    json!({
-        "enrollment_id": step.enrollment_id,
-        "sequence_id": step.sequence_id,
-        "contact_id": step.contact_id,
-        "enrolled_by": step.enrolled_by.as_str(),
-        "position": step.position,
-        "kind": step.kind.as_str(),
-        "template_id": step.template_id,
-    })
-}
-
-pub(crate) async fn step_running(
-    ctx: &mut HookCtx<'_>,
-    step: &RunningStep,
-) -> Result<(), AppError> {
-    forward_plugin_hook(
-        ctx,
-        STEP_RUNNING,
-        aphel_contract_crm::keys::CONTACT,
-        step.contact_id,
-        || step_json(step),
-    )
-    .await
-    .map(drop)
-}
-
-pub(crate) fn hooks() -> Vec<Arc<PluginHook>> {
-    vec![Arc::new(PluginHook::new(
-        STEP_RUNNING,
-        aphel_contract_crm::keys::CONTACT,
-        PluginHookKind::Veto,
-        "Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step",
-    ))]
-}
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ListInput {

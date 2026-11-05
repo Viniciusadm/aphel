@@ -1,12 +1,38 @@
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::domain::{Quote, QuoteAcceptance, QuoteDiscount, QuoteItemData, TotalsBreakdown};
-use aphel_kernel::modules::Hook;
+use crate::service;
+use aphel_kernel::modules::{Hook, PluginHookArgs};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AcceptingQuote {
     pub(crate) quote: Quote,
     pub(crate) acceptance: QuoteAcceptance,
+}
+
+pub(crate) const ACCEPTING: &str = "quote.accepting";
+
+impl PluginHookArgs for AcceptingQuote {
+    fn plugin_record_id(&self) -> String {
+        self.quote_id().to_string()
+    }
+
+    fn plugin_payload(&self) -> Value {
+        let mut quote = service::quote_snapshot(&self.quote);
+        if let Value::Object(map) = &mut quote {
+            map.insert("id".to_owned(), json!(self.quote_id()));
+        }
+        json!({
+            "quote": quote,
+            "deal_id": self.deal_id(),
+            "acceptor": {
+                "name": self.acceptor_name(),
+                "email": self.acceptor_email(),
+            },
+            "manual": self.acceptance.recorded_by.is_some(),
+        })
+    }
 }
 
 impl AcceptingQuote {

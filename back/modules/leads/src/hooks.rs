@@ -10,7 +10,7 @@ use crate::domain::{
 use crate::store::{HistoryStore, LeadRecords};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{Hook, HookCtx};
+use aphel_kernel::modules::{Hook, HookCtx, HookForwarding, PluginHookArgs};
 use aphel_kernel::records::{ChangedRecord, RemovedRecord};
 use aphel_sdk::platform::application::shared::{Actor, RecordType};
 use aphel_sdk::platform::database::transaction::MySqlTx;
@@ -40,6 +40,88 @@ impl LeadState for Lead {
     }
     fn is_open(&self) -> bool {
         matches!(self.stage(), Some(LEAD_STAGE) | Some(QUALIFIED_STAGE))
+    }
+}
+
+pub(crate) const QUALIFYING: &str = "lead.qualifying";
+pub(crate) const DISQUALIFYING: &str = "lead.disqualifying";
+pub(crate) const CONVERTING: &str = "lead.converting";
+pub(crate) const CONVERTED: &str = "lead.converted";
+
+fn lead_json(lead: &Lead) -> Value {
+    Value::Object(lead.values.clone())
+}
+
+pub(crate) fn qualifying_forwarding() -> HookForwarding<Lead> {
+    HookForwarding {
+        record_id: |lead| lead.id().to_string(),
+        payload: |lead| json!({ "lead": lead_json(lead) }),
+        record_type: |_| None,
+        apply: None,
+    }
+}
+
+fn merge_object(target: &mut Map<String, Value>, patch: &Map<String, Value>) {
+    for (key, value) in patch {
+        target.insert(key.clone(), value.clone());
+    }
+}
+
+pub(crate) fn converting_forwarding() -> HookForwarding<LeadConversion> {
+    HookForwarding {
+        record_id: |conversion| conversion.lead.id().to_string(),
+        payload: |conversion| {
+            json!({
+                "contact_id": conversion.lead.id(),
+                "lead": lead_json(&conversion.lead),
+                "deal": conversion.deal,
+                "company": conversion.company,
+            })
+        },
+        record_type: |_| None,
+        apply: Some(|mut conversion, patches| {
+            for patch in patches {
+                if let Some(Value::Object(deal)) = patch.get("deal") {
+                    merge_object(&mut conversion.deal, deal);
+                }
+                if let Some(Value::Object(company)) = patch.get("company") {
+                    merge_object(conversion.company.get_or_insert_with(Map::new), company);
+                }
+            }
+            Ok(conversion)
+        }),
+    }
+}
+
+impl PluginHookArgs for DisqualifyingLead {
+    fn plugin_record_id(&self) -> String {
+        self.lead().id().to_string()
+    }
+
+    fn plugin_payload(&self) -> Value {
+        json!({
+            "lead": lead_json(self.lead()),
+            "reason": {
+                "id": self.reason_id(),
+                "key": self.reason.key,
+                "name": self.reason.name,
+            },
+            "note": self.note(),
+        })
+    }
+}
+
+impl PluginHookArgs for ConvertedLead {
+    fn plugin_record_id(&self) -> String {
+        self.lead().id().to_string()
+    }
+
+    fn plugin_payload(&self) -> Value {
+        json!({
+            "lead": lead_json(self.lead()),
+            "deal_id": self.deal_id(),
+            "company_id": self.company_id(),
+        })
     }
 }
 

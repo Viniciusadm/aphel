@@ -89,6 +89,7 @@ impl PluginHookKind {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct PluginHook {
     pub key: &'static str,
     pub record_type: &'static str,
@@ -160,6 +161,87 @@ pub async fn forward_plugin_hook(
         values: values(),
     };
     dispatcher.dispatch(ctx, call).await
+}
+
+pub trait PluginHookArgs {
+    fn plugin_record_id(&self) -> String;
+
+    fn plugin_payload(&self) -> Value;
+
+    fn plugin_record_type(&self) -> Option<String> {
+        None
+    }
+}
+
+pub trait PluginHookFilter: PluginHookArgs + Sized {
+    fn apply_plugin_patches(self, patches: &[Value]) -> Result<Self, AppError>;
+}
+
+pub type PatchApplier<A> = fn(A, &[Value]) -> Result<A, AppError>;
+
+pub struct HookForwarding<A> {
+    pub record_id: fn(&A) -> String,
+    pub payload: fn(&A) -> Value,
+    pub record_type: fn(&A) -> Option<String>,
+    pub apply: Option<PatchApplier<A>>,
+}
+
+impl<A> Clone for HookForwarding<A> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<A> Copy for HookForwarding<A> {}
+
+impl<A: PluginHookArgs> HookForwarding<A> {
+    pub fn of() -> Self {
+        Self {
+            record_id: A::plugin_record_id,
+            payload: A::plugin_payload,
+            record_type: A::plugin_record_type,
+            apply: None,
+        }
+    }
+}
+
+impl<A: PluginHookFilter> HookForwarding<A> {
+    pub fn filtering() -> Self {
+        Self {
+            apply: Some(A::apply_plugin_patches),
+            ..Self::of()
+        }
+    }
+}
+
+pub(crate) async fn forward_args<A>(
+    ctx: &mut HookCtx<'_>,
+    hook: PluginHook,
+    forwarding: HookForwarding<A>,
+    args: &A,
+) -> Result<Vec<Value>, AppError> {
+    let record_type = (forwarding.record_type)(args).unwrap_or_else(|| hook.record_type.to_owned());
+    forward_plugin_hook(
+        ctx,
+        hook.key,
+        &record_type,
+        (forwarding.record_id)(args),
+        || (forwarding.payload)(args),
+    )
+    .await
+}
+
+pub(crate) async fn forward_filtered<A>(
+    ctx: &mut HookCtx<'_>,
+    hook: PluginHook,
+    forwarding: HookForwarding<A>,
+    args: A,
+) -> Result<A, AppError> {
+    let patches = forward_args(ctx, hook, forwarding, &args).await?;
+    match forwarding.apply {
+        Some(apply) => apply(args, &patches),
+        None => Ok(args),
+    }
 }
 
 pub fn operation_input<T: DeserializeOwned>(input: Value) -> Result<T, AppError> {

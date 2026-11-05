@@ -11,7 +11,7 @@
   "layer_direction_violations": 0,
   "plugin_bridge_files": 0,
   "plugin_crates_depending_on_plugin_crates": 0,
-  "plugin_hook_adapters": 7,
+  "plugin_hook_adapters": 0,
   "plugin_kernel_paths": 0,
   "plugin_manifest_problems": 0,
   "plugin_state_escapes": 0,

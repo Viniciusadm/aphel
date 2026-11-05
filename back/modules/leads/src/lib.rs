@@ -1,9 +1,9 @@
 mod capture_defaults;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub mod hooks;
 pub(crate) mod http;
 mod merge_history;
-pub(crate) mod plugin_hooks;
 pub(crate) mod section;
 pub mod service;
 pub mod store;
@@ -159,25 +159,32 @@ impl Module for LeadsModule {
             &[aphel_kernel::modules::HookUsage::Action],
             "After a lead was converted, inside the conversion transaction",
         );
-        app.on(
+        let contact_hook = |key, kind, description| {
+            aphel_kernel::modules::PluginHook::new(
+                key,
+                aphel_contract_crm::keys::CONTACT,
+                kind,
+                description,
+            )
+        };
+        let veto = aphel_kernel::modules::PluginHookKind::Veto;
+        app.forward_hook_with(
             crate::hooks::LeadQualifying,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, lead| Box::pin(plugin_hooks::qualifying(ctx, lead)),
+            contact_hook(crate::hooks::QUALIFYING, veto, "Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification"),
+            crate::hooks::qualifying_forwarding(),
         )
-        .on(
+        .forward_hook(
             crate::hooks::LeadDisqualifying,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, args| Box::pin(plugin_hooks::disqualifying(ctx, args)),
+            contact_hook(crate::hooks::DISQUALIFYING, veto, "Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it"),
         )
-        .filter(
+        .forward_filter_hook_with(
             crate::hooks::LeadConverting,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, conversion| Box::pin(plugin_hooks::converting(ctx, conversion)),
+            contact_hook(crate::hooks::CONVERTING, aphel_kernel::modules::PluginHookKind::Filter, "Values of the deal (and optional company) a lead conversion creates; values: { contact_id, lead, deal, company }. Return { deal?: {..}, company?: {..} } to merge field values into them (a company object makes the conversion create a company when the contact has none)"),
+            crate::hooks::converting_forwarding(),
         )
-        .on(
+        .forward_hook(
             crate::hooks::LeadConverted,
-            aphel_kernel::modules::PLUGIN_HOOK_PRIORITY,
-            |ctx, converted| Box::pin(plugin_hooks::converted(ctx, converted)),
+            contact_hook(crate::hooks::CONVERTED, aphel_kernel::modules::PluginHookKind::Action, "After a lead was converted, inside the transaction; values: { lead, deal_id, company_id }"),
         );
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(180, |pool, registry| {
@@ -214,10 +221,7 @@ impl Module for LeadsModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for hook in plugin_hooks::hooks() {
-            app.contribute::<aphel_kernel::modules::PluginHook>(hook);
-        }
-        plugin_hooks::register(app);
+        exposed_operations::register(app);
         Ok(())
     }
 }
