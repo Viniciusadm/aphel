@@ -2,21 +2,10 @@ key = "agency"
 name = "Agency"
 version = "1.0.0"
 description = "For marketing, design and development agencies: new projects and contract renewals in separate workflow, with scope, contracted services, monthly retainer, and briefing and presentation tasks."
+extends = "crm"
 
 [plugins]
 recommended = [
-  "timeline",
-  "dashboard",
-  "reminders",
-  "favorites",
-  "themes",
-  "followers",
-  "onboarding",
-  "imports",
-  "bulk_actions",
-  "duplicates",
-  "trash",
-  "privacy",
   "leads",
   "catalog_items",
   "line_items",
@@ -35,19 +24,7 @@ recommended = [
   "ai",
   "enrichment",
   "esign",
-  "marketplace",
-  "notifications",
-  "objects",
-  "search",
-  "saved_views",
-  "record_layouts",
-  "formulas",
-  "validation_rules",
-  "config_packages",
-  "calendar",
-  "tasks",
-  "workflow",
-  "money",
-  "documents",
-  "wasm_runtime",
 ]
+
+[configuration]
+packages = ["config/{locale}.json"]

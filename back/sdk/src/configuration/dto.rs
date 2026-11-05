@@ -82,7 +82,7 @@ impl From<ExportPackageRequest> for ExportCommand {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct PackageTemplateResponse {
-    #[schema(example = "b2b")]
+    #[schema(example = "sales")]
     pub key: String,
     pub name: String,
     pub description: Option<String>,
@@ -108,7 +108,7 @@ impl From<TemplateSummary> for PackageTemplateResponse {
 pub struct PlanPackageRequest {
     #[schema(value_type = Option<Object>)]
     pub package: Option<Value>,
-    #[schema(example = "b2b")]
+    #[schema(example = "sales")]
     pub template: Option<String>,
 }
 
@@ -327,7 +327,7 @@ impl From<PackagePlan> for PackagePlanResponse {
 pub struct ApplyPackageRequest {
     #[schema(value_type = Option<Object>)]
     pub package: Option<Value>,
-    #[schema(example = "b2b")]
+    #[schema(example = "sales")]
     pub template: Option<String>,
     pub fingerprint: String,
     #[serde(default)]

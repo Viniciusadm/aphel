@@ -1,21 +1,10 @@
 key = "consultancy"
 name = "Consultancy"
 version = "1.0.0"
+extends = "crm"
 
 [plugins]
 recommended = [
-  "timeline",
-  "dashboard",
-  "reminders",
-  "favorites",
-  "themes",
-  "followers",
-  "onboarding",
-  "imports",
-  "bulk_actions",
-  "duplicates",
-  "trash",
-  "privacy",
   "booking",
   "catalog_items",
   "line_items",
@@ -29,19 +18,4 @@ recommended = [
   "microsoft",
   "ai",
   "esign",
-  "marketplace",
-  "notifications",
-  "objects",
-  "search",
-  "saved_views",
-  "record_layouts",
-  "formulas",
-  "validation_rules",
-  "config_packages",
-  "calendar",
-  "tasks",
-  "workflow",
-  "money",
-  "documents",
-  "wasm_runtime",
 ]

@@ -7,7 +7,7 @@ use crate::application::{PackageTemplate, TemplateCatalog};
 use aphel_sdk::platform::application::organization_profile::SUPPORTED_LOCALES;
 
 #[derive(RustEmbed)]
-#[folder = "../../../blueprints/templates/"]
+#[folder = "../../../blueprints/"]
 struct TemplateFiles;
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -15,7 +15,7 @@ pub struct EmbeddedTemplates;
 
 impl EmbeddedTemplates {
     fn load(locale: &str, key: &str) -> Option<PackageTemplate> {
-        let file = TemplateFiles::get(&format!("{locale}/{key}.json"))?;
+        let file = TemplateFiles::get(&format!("{key}/config/{locale}.json"))?;
         let package = serde_json::from_slice::<Value>(&file.data).ok()?;
         Some(PackageTemplate {
             key: key.to_owned(),
@@ -26,8 +26,9 @@ impl EmbeddedTemplates {
     fn keys() -> BTreeSet<String> {
         TemplateFiles::iter()
             .filter_map(|path| {
-                let (_, file) = path.split_once('/')?;
-                file.strip_suffix(".json").map(str::to_owned)
+                let (key, rest) = path.split_once('/')?;
+                rest.strip_prefix("config/")?;
+                Some(key.to_owned())
             })
             .collect()
     }

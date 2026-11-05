@@ -27,7 +27,7 @@ const STAGE_KIND_WON: &str = "won";
 const STAGE_KIND_LOST: &str = "lost";
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
-pub(crate) const DEMO_TEMPLATE: &str = "b2b";
+pub(crate) const DEMO_TEMPLATE: &str = "sales";
 pub(crate) const DEMO_RESET: &str = "demo.reset";
 pub(crate) const DEMO_REMOVED: &str = "demo.removed";
 pub(crate) const DEMO_ALREADY_SEEDED: &str = "demo_already_seeded";

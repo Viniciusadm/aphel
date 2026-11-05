@@ -40,3 +40,7 @@ The `aphel-blueprint` crate (`back/blueprint`) parses every `blueprints/*/bluepr
 ## Installer
 
 `aphel_kernel::application::installer::modules::profiles()` is fed by the blueprints (`blueprints/installer.rs`): each blueprint becomes a profile whose modules are its `required` and `recommended` plugins. `cargo run -p xtask -- modules sync` fails when an optional compiled module appears in no blueprint. `aphel.modules.toml` still decides what is compiled.
+
+## Shipped blueprints
+
+`crm` is today's product: the eight core plugins as `required` plus the shared recommended set. `freelancer`, `agency`, `real_estate`, `consultancy`, `saas`, `sales` (B2B) and `other` extend it with their own recommended plugins. `freelancer`, `agency`, `real_estate`, `saas` and `sales` also carry a configuration package per locale in `config/<locale>.json`; the package templates catalog reads them, with the blueprint key as the template key.

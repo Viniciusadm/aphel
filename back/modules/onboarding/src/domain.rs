@@ -173,7 +173,7 @@ pub struct CompleteOnboardingCommand {
     pub ip: Option<String>,
 }
 
-pub(crate) const B2B_TEMPLATE: &str = "b2b";
+pub(crate) const B2B_TEMPLATE: &str = "sales";
 pub(crate) const AGENCY_TEMPLATE: &str = "agency";
 pub(crate) const SAAS_TEMPLATE: &str = "saas";
 pub(crate) const REAL_ESTATE_TEMPLATE: &str = "real_estate";
