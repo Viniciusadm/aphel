@@ -428,10 +428,14 @@ impl Module for TasksModule {
         );
         app.trigger(Arc::new(crate::automation::ActivityCompleted))
             .action(Arc::new(crate::automation::CreateTask));
-        app.entity(activity_definition()?.handler(Arc::new(http::ActivityHandler)))
-            .openapi_tag(http::TAG, "Tasks and logged tasks")
-            .openapi_tag(http::TYPES_TAG, "Activity types of the organization")
-            .routes(|_| http::router());
+        app.entity(
+            activity_definition()?
+                .events("activity")
+                .handler(Arc::new(http::ActivityHandler)),
+        )
+        .openapi_tag(http::TAG, "Tasks and logged tasks")
+        .openapi_tag(http::TYPES_TAG, "Activity types of the organization")
+        .routes(|_| http::router());
         for permission in RECORD_PERMISSIONS {
             app.permission(PermissionDefinition::record(permission));
         }

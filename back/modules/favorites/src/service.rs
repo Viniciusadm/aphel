@@ -135,27 +135,22 @@ pub(crate) async fn create(
             "this item is already a favorite",
         ));
     }
-    let existing = store.list(ctx.scope).await?;
-    if existing.len() >= MAX_FAVORITES {
+    let mut tx = ctx.begin().await?;
+    let (count, max_position) = store.lock_and_stats(&mut tx, ctx.scope).await?;
+    if count >= MAX_FAVORITES {
         return Err(AppError::conflict_code(
             FAVORITE_LIMIT_REACHED,
             format!("at most {MAX_FAVORITES} favorites are allowed"),
         ));
     }
-    let position = existing
-        .iter()
-        .map(|favorite| favorite.position)
-        .max()
-        .map_or(0, |position| position + 1);
     let favorite = Favorite {
         id: Uuid::now_v7(),
         kind,
         record_type,
         target_id,
-        position,
+        position: max_position + 1,
         created_at: ctx.now(),
     };
-    let mut tx = ctx.begin().await?;
     store.insert(&mut tx, ctx.scope, &favorite).await?;
     tx.commit().await?;
     Ok(FavoriteEntry {

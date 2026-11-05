@@ -229,15 +229,19 @@ impl Module for OrganizationsModule {
             context_source::ContextSource,
         ));
         app.contract(aphel_sdk::party::DESCRIPTOR);
-        app.entity(company_definition()?.handler(Arc::new(http::CompanyHandler)))
-            .openapi_tag(http::TAG, "Companies")
-            .routes(|_| http::router().merge(hierarchy::http::router()))
-            .consumer(|env| {
-                hierarchy::restore::HierarchyRestoreConsumer::shared(
-                    env.pool.clone(),
-                    env.record_types.clone(),
-                )
-            });
+        app.entity(
+            company_definition()?
+                .events("company")
+                .handler(Arc::new(http::CompanyHandler)),
+        )
+        .openapi_tag(http::TAG, "Companies")
+        .routes(|_| http::router().merge(hierarchy::http::router()))
+        .consumer(|env| {
+            hierarchy::restore::HierarchyRestoreConsumer::shared(
+                env.pool.clone(),
+                env.record_types.clone(),
+            )
+        });
         for permission in RECORD_PERMISSIONS {
             let definition = PermissionDefinition::record(permission.clone());
             if permission == Permission::COMPANIES_ARCHIVE {

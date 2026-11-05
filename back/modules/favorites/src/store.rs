@@ -94,6 +94,24 @@ impl FavoriteStore {
         row.as_ref().map(favorite_from_row).transpose()
     }
 
+    pub(crate) async fn lock_and_stats(
+        &self,
+        tx: &mut MySqlTx,
+        scope: &AccessScope,
+    ) -> Result<(usize, i32), AppError> {
+        sqlx::query("SELECT id FROM users WHERE id = ? FOR UPDATE")
+            .bind(scope.user_id().as_str())
+            .fetch_optional(&mut **tx)
+            .await?;
+        let (count, max_position): (i64, i32) = sqlx::query_as(
+            "SELECT COUNT(*), CAST(COALESCE(MAX(position), -1) AS SIGNED) FROM favorites WHERE user_id = ?",
+        )
+        .bind(scope.user_id().as_str())
+        .fetch_one(&mut **tx)
+        .await?;
+        Ok((usize::try_from(count).unwrap_or(usize::MAX), max_position))
+    }
+
     pub(crate) async fn insert(
         &self,
         tx: &mut MySqlTx,

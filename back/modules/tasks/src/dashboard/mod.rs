@@ -142,6 +142,9 @@ async fn activity_bucket<P: DashboardPorts>(
     limit: i64,
     visibility: ActivityFieldVisibility,
 ) -> Result<Value, AppError> {
+    if !visibility.due_at {
+        return Ok(json!({ "count": 0, "items": [] }));
+    }
     let total = count(context, planner, conditions.clone()).await?;
     let items = if total == 0 {
         Vec::new()

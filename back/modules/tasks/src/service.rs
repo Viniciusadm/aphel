@@ -242,7 +242,15 @@ pub async fn list(
         restrictions.push(column_equals("owner_id", ctx.scope.user_id().as_str()));
         restrictions.push(column_equals("status", ActivityStatus::Open.as_str()));
         if query.sort.is_empty() {
-            query.sort = vec![SortSpec::asc("due_at"), SortSpec::asc("created_at")];
+            let due_hidden = ctx
+                .field_set(ctx.scope, RecordType::ACTIVITY.as_str())
+                .await?
+                .is_hidden("due_at");
+            query.sort = if due_hidden {
+                vec![SortSpec::asc("created_at")]
+            } else {
+                vec![SortSpec::asc("due_at"), SortSpec::asc("created_at")]
+            };
         }
     }
     let listing = query_activity_ids(&ctx.query(), ctx.scope, query, restrictions).await?;

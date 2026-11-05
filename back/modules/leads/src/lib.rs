@@ -136,6 +136,13 @@ impl Module for LeadsModule {
                             .execute(&mut **ctx.tx)
                             .await?;
                     }
+                    sqlx::query(
+                        "DELETE FROM lifecycle_stage_history WHERE record_type = ? AND record_id = ?",
+                    )
+                    .bind(args.record_type.as_str())
+                    .bind(args.record.record_id.to_string())
+                    .execute(&mut **ctx.tx)
+                    .await?;
                     Ok(())
                 })
             },

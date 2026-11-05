@@ -568,18 +568,22 @@ impl Module for DealsModule {
         app.trigger(Arc::new(crate::automation::StageChanged))
             .triggers(crate::automation::deal_closed_triggers())
             .action(Arc::new(crate::automation::MoveStage));
-        app.entity(deal_definition()?.handler(Arc::new(http::DealHandler)))
-            .extend("deals.deal", |deal| {
-                deal.member_access(DEAL_MEMBERS_TABLE, "deal_id", "user_id");
-            })
-            .openapi_tag(http::TAG, "Deals, stage changes and the Kanban board")
-            .openapi_tag(
-                reports::http::TAG,
-                "Deal conversion and sales performance reports",
-            )
-            .routes(|_| http::router().merge(reports::http::router()))
-            .consumer(|env| Arc::new(runtime::DealLastActivityConsumer::new(env.pool.clone())))
-            .consumer(|env| Arc::new(runtime::DealStageHistoryConsumer::new(env.pool.clone())));
+        app.entity(
+            deal_definition()?
+                .events("deal")
+                .handler(Arc::new(http::DealHandler)),
+        )
+        .extend("deals.deal", |deal| {
+            deal.member_access(DEAL_MEMBERS_TABLE, "deal_id", "user_id");
+        })
+        .openapi_tag(http::TAG, "Deals, stage changes and the Kanban board")
+        .openapi_tag(
+            reports::http::TAG,
+            "Deal conversion and sales performance reports",
+        )
+        .routes(|_| http::router().merge(reports::http::router()))
+        .consumer(|env| Arc::new(runtime::DealLastActivityConsumer::new(env.pool.clone())))
+        .consumer(|env| Arc::new(runtime::DealStageHistoryConsumer::new(env.pool.clone())));
         app.contribute::<dyn aphel_sdk::money::MoneyRecalculationSource>(Arc::new(
             runtime::DealRecalculation,
         ));

@@ -1037,6 +1037,13 @@ fn resolve_sort(
                 descending: spec.direction == SortDirection::Desc,
             }),
             Some(_) => violations.push(FieldViolation::new(path, "cannot be used to sort")),
+            None if spec.field == "id" => resolved.push(PlanSort {
+                target: FieldTarget::System {
+                    column: "id".to_owned(),
+                },
+                field_type: FieldType::Text,
+                descending: spec.direction == SortDirection::Desc,
+            }),
             None if fields.is_hidden(&spec.field) => {
                 violations.push(FieldViolation::new(path, NOT_ACCESSIBLE_MESSAGE))
             }
