@@ -4,15 +4,6 @@ import { segmentFilterExtensions } from './filter'
 import { SEGMENT_REFERENCE_OPTIONS } from './reference-options'
 import { segmentsRoutes } from './routes'
 
-export {
-  SEGMENT_RECORD_TYPES,
-  segmentCondition,
-  segmentsApi,
-  segmentsKeys,
-  useSegments,
-  type Segment,
-  type SegmentRecordType,
-} from './api'
 export { SegmentDialog, type SegmentDialogProps } from './SegmentDialog'
 
 const segmentsModule = defineModule({

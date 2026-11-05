@@ -1,6 +1,6 @@
 import { type FilterFieldExtension, pseudoFilterField } from '@/sdk'
 import i18n from '@/i18n'
-import { isSegmentRecordType } from './api'
+import {isSegmentRecordType} from '@/sdk'
 import { SegmentSummary, SegmentValueInput } from './SegmentFilterInputs'
 
 export const SEGMENT_FILTER_FIELD = 'segment'

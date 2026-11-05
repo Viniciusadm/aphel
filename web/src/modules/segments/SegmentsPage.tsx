@@ -9,16 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/components/ui/native-select'
-import {
-  SEGMENT_RECORD_TYPES,
-  isSegmentRecordType,
-  segmentReadPermission,
-  segmentsApi,
-  useInvalidateSegments,
-  useSegments,
-  type Segment,
-  type SegmentRecordType,
-} from './api'
+import {SEGMENT_RECORD_TYPES, isSegmentRecordType, segmentReadPermission, segmentsApi, useInvalidateSegments, useSegments, type Segment, type SegmentRecordType} from '@/sdk'
 import { SegmentDialog } from './SegmentDialog'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'

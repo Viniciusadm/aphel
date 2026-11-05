@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { type FilterExtensionSummaryProps, type FilterExtensionValueProps, NativeSelect } from '@/sdk'
-import { useSegmentOptions } from './api'
+import {useSegmentOptions} from '@/sdk'
 
 export function SegmentValueInput({ recordType, value, onChange, label }: FilterExtensionValueProps) {
   const { t } = useTranslation('segments')

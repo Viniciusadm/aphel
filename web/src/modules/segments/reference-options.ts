@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { ReferenceOptionsContext, ReferenceOptionsProvider, ReferenceOptionsResult } from '@/kernel/modules/define'
-import { segmentsKeys, useSegments } from './api'
+import {segmentsKeys, useSegments} from '@/sdk'
 
 function useSegmentReferenceOptions({ recordType, enabled = true }: ReferenceOptionsContext): ReferenceOptionsResult {
   const segments = useSegments(recordType ?? '', { enabled: enabled && Boolean(recordType) })

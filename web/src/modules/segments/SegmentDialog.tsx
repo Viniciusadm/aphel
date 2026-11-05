@@ -17,13 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { type DraftGroup, emptyCondition, type FieldSchema, FilterBuilder, serializeFilter, toDraft, useFieldSchema } from '@/sdk'
-import {
-  MAX_SEGMENT_DESCRIPTION_LENGTH,
-  MAX_SEGMENT_NAME_LENGTH,
-  segmentsApi,
-  type Segment,
-  type SegmentRecordType,
-} from './api'
+import {MAX_SEGMENT_DESCRIPTION_LENGTH, MAX_SEGMENT_NAME_LENGTH, segmentsApi, type Segment, type SegmentRecordType} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface SegmentDialogProps {
