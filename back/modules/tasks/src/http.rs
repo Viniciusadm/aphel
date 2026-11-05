@@ -31,7 +31,9 @@ use crate::recurrence::{
 use crate::{service, types};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use aphel_kernel::records::{
+    PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
+};
 use aphel_sdk::platform::api::dto::common::{
     Data, ErrorEnvelope, Page, double_option, timestamp as instant,
 };
@@ -44,6 +46,7 @@ use aphel_sdk::platform::api::routes::v1::field_permissions::{redacted, redacted
 use aphel_sdk::platform::api::routes::v1::members::window;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -1246,6 +1249,23 @@ impl RecordTypeHandler for ActivityHandler {
             ctx.scope,
             &RecordType::ACTIVITY,
             ActivityResponse::from(activity),
+        )
+        .await
+    }
+
+    async fn update_in_tx(
+        &self,
+        ctx: &RecordCtx<'_>,
+        tx: &mut MySqlTx,
+        id: Uuid,
+        values: Value,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        let command = values_request::<UpdateActivityRequest>(values)?.into_command(None, None);
+        service::update_in_tx(
+            &Ctx::from_state(ctx.state, ctx.scope).await?,
+            tx,
+            &id.to_string(),
+            command,
         )
         .await
     }

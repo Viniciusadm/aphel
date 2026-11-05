@@ -228,6 +228,7 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `two_factor_setup_required` | 403 | auth |
 | `unsupported_record_type` | 422 | files |
 | `version_conflict` | 409 | geral |
+| `concurrent_modification` | 409 | geral (database deadlock or serialization failure; retry) |
 | `view_not_found` | 404 | views |
 | `webhook_delivery_not_found` | 404 | webhooks |
 | `webhook_endpoint_disabled` | 409 | webhooks |

@@ -233,6 +233,16 @@ impl std::error::Error for AppError {}
 
 impl From<sqlx::Error> for AppError {
     fn from(value: sqlx::Error) -> Self {
+        let deadlock = value
+            .as_database_error()
+            .and_then(|error| error.code())
+            .is_some_and(|code| code == "40001");
+        if deadlock {
+            return Self::conflict_code(
+                "concurrent_modification",
+                "the record was changed by another request; retry",
+            );
+        }
         Self::Persistence(value.to_string())
     }
 }

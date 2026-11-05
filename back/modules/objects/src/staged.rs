@@ -12,6 +12,7 @@ use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::domain::custom_objects::CustomObject;
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
 use aphel_sdk::workflow::{
     StageLocation, StageMove, StageUsage, StagedRecordSource, UsageTarget, WorkflowCatalog,
 };
@@ -94,15 +95,41 @@ impl StagedRecordSource for CustomStagedRecords {
         if stages.is_empty() {
             return Ok(HashMap::new());
         }
-        let mut query = staged_query("v.value_text, COUNT(*)", &stages);
-        query.push(" AND r.deleted_at IS NULL GROUP BY v.value_text");
-        let rows: Vec<(String, i64)> = query.build_query_as().fetch_all(ctx.pool()).await?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|(stage, count)| {
-                Some((Uuid::parse_str(&stage).ok()?, u64::try_from(count).ok()?))
-            })
-            .collect())
+        let keys: Vec<(String,)> = sqlx::query_as(
+            "SELECT o.`key` FROM custom_objects o \
+             WHERE o.module_key IS NULL AND JSON_CONTAINS_PATH(o.entity_definition, 'one', '$.traits.\"workflow.staged\"')",
+        )
+        .fetch_all(ctx.pool())
+        .await?;
+        let mut counts: HashMap<Uuid, u64> = HashMap::new();
+        for (key,) in keys {
+            let record_type = format!("custom.{key}");
+            let Ok(definition) = ctx.registry().require(&record_type) else {
+                continue;
+            };
+            let Ok(visibility) = ctx.scope.record_filter(&definition.read_permission) else {
+                continue;
+            };
+            let fields = ctx.field_set(ctx.scope, &record_type).await?;
+            if fields
+                .find_active(STAGE_FIELD_KEY)
+                .is_none_or(|field| field.is_hidden())
+            {
+                continue;
+            }
+            let mut query = staged_query("v.value_text, COUNT(*)", &stages);
+            query.push(" AND r.deleted_at IS NULL AND o.`key` = ");
+            query.push_bind(key);
+            push_record_scope(&mut query, ctx.scope, definition, &visibility);
+            query.push(" GROUP BY v.value_text");
+            let rows: Vec<(String, i64)> = query.build_query_as().fetch_all(ctx.pool()).await?;
+            for (stage, count) in rows {
+                if let (Ok(stage), Ok(count)) = (Uuid::parse_str(&stage), u64::try_from(count)) {
+                    *counts.entry(stage).or_default() += count;
+                }
+            }
+        }
+        Ok(counts)
     }
 
     async fn usage(&self, pool: &MySqlPool, target: UsageTarget) -> Result<StageUsage, AppError> {

@@ -705,14 +705,14 @@ const CONTACT_SAVEPOINT: &str = "booking_contact";
 const ACTIVITY_SAVEPOINT: &str = "booking_activity";
 
 async fn savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppError> {
-    sqlx::query(sqlx::AssertSqlSafe(format!("SAVEPOINT {name}")))
+    sqlx::raw_sql(sqlx::AssertSqlSafe(format!("SAVEPOINT {name}")))
         .execute(&mut **tx)
         .await?;
     Ok(())
 }
 
 async fn rollback_to_savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppError> {
-    sqlx::query(sqlx::AssertSqlSafe(format!("ROLLBACK TO SAVEPOINT {name}")))
+    sqlx::raw_sql(sqlx::AssertSqlSafe(format!("ROLLBACK TO SAVEPOINT {name}")))
         .execute(&mut **tx)
         .await?;
     Ok(())

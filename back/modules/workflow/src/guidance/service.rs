@@ -301,15 +301,17 @@ async fn visible_record(
     if !visible.contains(&id) {
         return Err(record_not_found());
     }
-    let source = aphel_sdk::platform::modules::app()
+    let mut sourced = None;
+    for source in aphel_sdk::platform::modules::app()
         .contributions::<dyn aphel_sdk::workflow::StagedRecordSource>()
-        .into_iter()
-        .find(|source| source.record_type() == definition.record_type);
-    let location = if let Some(source) = source {
-        source
-            .location(ctx.pool(), id)
-            .await?
-            .ok_or_else(record_not_found)?
+    {
+        if let Some(found) = source.location(ctx.pool(), id).await? {
+            sourced = Some(found);
+            break;
+        }
+    }
+    let location = if let Some(found) = sourced {
+        found
     } else {
         use aphel_sdk::workflow::WorkflowTraits;
         let mapping = definition
