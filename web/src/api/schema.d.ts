@@ -1528,7 +1528,7 @@ export interface paths {
         delete: operations["custom_objects_delete"];
         options?: never;
         head?: never;
-        /** @description Updates labels, icon, color, `owner_enabled`, `is_active` (inactive objects disappear from the navigation, the API and every generic feature, keeping their data) or `title_field_key` (an active custom text, e-mail, phone or URL field; existing titles are recomputed). The key never changes. Publishes `custom_object.updated`. */
+        /** @description Updates labels, icon, color, `owner_enabled`, `staged` (adds the `workflow.staged` trait and a `stage` text field so the object gets a Stages board over the workflow pipelines; turning it off keeps the field and the values), `is_active` (inactive objects disappear from the navigation, the API and every generic feature, keeping their data) or `title_field_key` (an active custom text, e-mail, phone or URL field; existing titles are recomputed). The key never changes. Publishes `custom_object.updated`. */
         patch: operations["custom_objects_update"];
         trace?: never;
     };
@@ -22222,6 +22222,8 @@ export interface components {
             label_plural?: string | null;
             label_singular?: string | null;
             owner_enabled?: boolean | null;
+            /** @example true */
+            staged?: boolean | null;
             /** @example contract_number */
             title_field_key?: string | null;
         };

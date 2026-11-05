@@ -86,6 +86,8 @@
     "titleFieldHint": "Text, email, phone or URL field used as the record title.",
     "ownerEnabled": "Records have an owner",
     "ownerEnabledHint": "Enables the Owner field and owner/team permissions.",
+    "staged": "Records move through stages",
+    "stagedHint": "Adds a Stage field and a Stages board that uses the workflow pipelines.",
     "isActive": "Active",
     "isActiveHint": "Inactive objects disappear from the navigation and the API, keeping their data.",
     "cancel": "Cancel",

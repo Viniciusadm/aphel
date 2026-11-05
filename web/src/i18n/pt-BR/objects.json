@@ -86,6 +86,8 @@
     "titleFieldHint": "Campo de texto, e-mail, telefone ou URL usado como título dos registros.",
     "ownerEnabled": "Registros têm responsável",
     "ownerEnabledHint": "Habilita o campo Responsável e as permissões por dono e equipe.",
+    "staged": "Registros passam por etapas",
+    "stagedHint": "Adiciona o campo Etapa e uma visão Etapas que usa os funis do workflow.",
     "isActive": "Ativo",
     "isActiveHint": "Objetos inativos somem da navegação e da API, mas os dados são mantidos.",
     "cancel": "Cancelar",

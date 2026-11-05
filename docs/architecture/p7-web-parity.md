@@ -34,7 +34,7 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 
 ## Trait-aware UI (P7.10)
 - [ ] The related deals tab appears on contacts and companies only if the entity catalog reports `party.contact_points` in `traits` (not verified against the backend response).
-- [ ] (not exercisable: custom objects cannot carry the `workflow.staged` trait yet) A custom object whose entity carries `workflow.staged` shows a Stages view next to List: columns are the active pipeline's stages, a pipeline picker appears with more than one pipeline, dragging a card changes the stage field (needs a staged custom entity to exercise; not verified against the backend).
+- [x] A custom object with `staged: true` (Settings → Custom objects → Edit → "Records move through stages") shows a Stages view next to List: columns are the pipeline stages, the pipeline picker appears with more than one pipeline, stage counts and the "stage has records" block on delete include its records. Verified in Chrome; dragging a card was not exercised (the board component is the generic one).
 - [ ] The Files tab still appears for every entity (attachments are a kernel capability for any readable record, so no trait gates it); the deals page keeps its own board.
 
 ## Build without plugins

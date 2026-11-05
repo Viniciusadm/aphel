@@ -4,6 +4,7 @@ mod http;
 pub mod infrastructure;
 mod managed_writer;
 mod section;
+mod staged;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 pub const KEY: &str = "objects";
@@ -19,6 +20,9 @@ impl Module for ObjectsModule {
         .enabled_by_default()
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::workflow::StagedRecordSource>(std::sync::Arc::new(
+            staged::CustomStagedRecords,
+        ));
         app.provide::<dyn aphel_sdk::objects::ManagedObjectWriter>(std::sync::Arc::new(
             managed_writer::Writer,
         ));

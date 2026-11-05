@@ -70,6 +70,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
   const [color, setColor] = useState(objectColor(object?.color) ?? DEFAULT_OBJECT_COLOR)
   const [ownerEnabled, setOwnerEnabled] = useState(object?.owner_enabled ?? true)
   const [isActive, setIsActive] = useState(object?.is_active ?? true)
+  const [staged, setStaged] = useState(Boolean(object?.traits?.['workflow.staged']))
   const [titleField, setTitleField] = useState(object?.title_field_key ?? 'name')
   const [errors, setErrors] = useState<FormErrors>({})
   const [saving, setSaving] = useState(false)
@@ -109,7 +110,7 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
       const saved = object
         ? await objectsAdminApi.update(
             object.key,
-            { ...common, is_active: isActive, title_field_key: titleField || undefined },
+            { ...common, staged, is_active: isActive, title_field_key: titleField || undefined },
             object.updated_at,
           )
         : await objectsAdminApi.create({ ...common, key })
@@ -285,6 +286,19 @@ function ObjectForm({ object, onClose, onSaved }: ObjectFormProps) {
               <span className="text-xs text-muted-foreground">{t('editor.ownerEnabledHint')}</span>
             </span>
           </label>
+          {editing && !object.module_key && (
+            <label className="flex items-start gap-2 text-sm">
+              <Checkbox
+                className="mt-0.5"
+                checked={staged}
+                onCheckedChange={(checked) => setStaged(checked === true)}
+              />
+              <span className="grid gap-0.5">
+                <span className="font-medium">{t('editor.staged')}</span>
+                <span className="text-xs text-muted-foreground">{t('editor.stagedHint')}</span>
+              </span>
+            </label>
+          )}
           {editing && (
             <label className="flex items-start gap-2 text-sm">
               <Checkbox

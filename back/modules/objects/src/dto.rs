@@ -67,6 +67,8 @@ pub struct UpdateCustomObjectRequest {
     #[schema(example = "contract_number")]
     pub title_field_key: Option<String>,
     pub owner_enabled: Option<bool>,
+    #[schema(example = true)]
+    pub staged: Option<bool>,
     pub is_active: Option<bool>,
 }
 
@@ -84,6 +86,7 @@ impl UpdateCustomObjectRequest {
             color: self.color,
             title_field_key: self.title_field_key,
             owner_enabled: self.owner_enabled,
+            staged: self.staged,
             is_active: self.is_active,
             expected_updated_at,
             ip,

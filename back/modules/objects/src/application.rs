@@ -101,6 +101,7 @@ pub struct UpdateObjectCommand {
     pub color: Patch<String>,
     pub title_field_key: Option<String>,
     pub owner_enabled: Option<bool>,
+    pub staged: Option<bool>,
     pub is_active: Option<bool>,
     pub expected_updated_at: Option<DateTime<Utc>>,
     pub ip: Option<String>,
@@ -216,6 +217,7 @@ fn object_snapshot(object: &CustomObject) -> Value {
         "title_field_key": object.data.title_field_key,
         "owner_enabled": object.data.owner_enabled,
         "is_active": object.data.is_active,
+        "staged": crate::staged::is_staged(object),
     })
 }
 
@@ -528,6 +530,9 @@ where
         if let Some(is_active) = command.is_active {
             object.data.is_active = is_active;
         }
+        if let Some(staged) = command.staged {
+            object.entity_definition = crate::staged::with_staged(&object, staged);
+        }
         let mut title_field = None;
         if let Some(title_key) = &command.title_field_key {
             let title_key = title_key.trim();
@@ -576,6 +581,9 @@ where
         object.updated_at = self.ports.clock().now();
         let mut tx = self.ports.transactions().begin().await?;
         self.ports.objects().update(&mut tx, &object).await?;
+        if crate::staged::is_staged(&object) {
+            self.ensure_stage_field(&mut tx, &object).await?;
+        }
         if let Some(field_id) = title_field {
             self.ports
                 .objects()
@@ -1009,6 +1017,42 @@ where
         )
         .await?;
         self.ports.transactions().commit(tx).await
+    }
+
+    async fn ensure_stage_field(
+        &self,
+        tx: &mut <P::Transactions as TransactionManager>::Tx,
+        object: &CustomObject,
+    ) -> Result<(), AppError> {
+        let record_type = RecordType::parse(object.record_type())?;
+        let fields = self.ports.definitions().list(&record_type).await?;
+        if fields
+            .iter()
+            .any(|field| field.key.as_str() == crate::staged::STAGE_FIELD_KEY)
+        {
+            return Ok(());
+        }
+        let field = FieldDefinition {
+            id: Uuid::now_v7(),
+            record_type: object.record_type(),
+            key: FieldKey::new(crate::staged::STAGE_FIELD_KEY)
+                .map_err(|_| AppError::Internal("invalid stage field key".to_owned()))?,
+            label: crate::staged::STAGE_FIELD_LABEL.to_owned(),
+            field_type: FieldType::Text,
+            is_system: false,
+            column_name: None,
+            is_required: false,
+            is_unique: false,
+            is_searchable: false,
+            is_personal: false,
+            is_sensitive: false,
+            module_key: None,
+            is_active: true,
+            position: i32::try_from(fields.len()).unwrap_or(i32::MAX),
+            config: FieldConfig::default(),
+            options: Vec::new(),
+        };
+        self.ports.definitions().insert(tx, &field).await
     }
 
     async fn existing(&self, key: &str) -> Result<CustomObject, AppError> {

@@ -154,7 +154,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         sqlx::query(
             "UPDATE custom_objects SET label_singular = ?, label_plural = ?, description = ?, \
              icon = ?, color = ?, title_field_key = ?, owner_enabled = ?, is_active = ?, \
-             updated_at = ? WHERE id = ?",
+             entity_definition = ?, updated_at = ? WHERE id = ?",
         )
         .bind(&object.data.label_singular)
         .bind(&object.data.label_plural)
@@ -164,6 +164,7 @@ impl CustomObjectRepository for MySqlCustomObjectRepository {
         .bind(&object.data.title_field_key)
         .bind(object.data.owner_enabled)
         .bind(object.data.is_active)
+        .bind(object.entity_definition.as_ref().map(sqlx::types::Json))
         .bind(mapper::naive(object.updated_at))
         .bind(object.id.to_string())
         .execute(&mut **tx)

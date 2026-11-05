@@ -10792,7 +10792,7 @@
         "tags": [
           "custom-objects"
         ],
-        "description": "Updates labels, icon, color, `owner_enabled`, `is_active` (inactive objects disappear from the navigation, the API and every generic feature, keeping their data) or `title_field_key` (an active custom text, e-mail, phone or URL field; existing titles are recomputed). The key never changes. Publishes `custom_object.updated`.",
+        "description": "Updates labels, icon, color, `owner_enabled`, `staged` (adds the `workflow.staged` trait and a `stage` text field so the object gets a Stages board over the workflow pipelines; turning it off keeps the field and the values), `is_active` (inactive objects disappear from the navigation, the API and every generic feature, keeping their data) or `title_field_key` (an active custom text, e-mail, phone or URL field; existing titles are recomputed). The key never changes. Publishes `custom_object.updated`.",
         "operationId": "custom_objects_update",
         "parameters": [
           {
@@ -118736,6 +118736,13 @@
               "null"
             ]
           },
+          "staged": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "example": true
+          },
           "title_field_key": {
             "type": [
               "string",
@@ -121147,31 +121154,6 @@
       "x-aphel-module": "money"
     },
     {
-      "name": "deals",
-      "description": "Deals, stage changes and the Kanban board",
-      "x-aphel-module": "deals"
-    },
-    {
-      "name": "deals-reports",
-      "description": "Deal conversion and sales performance reports",
-      "x-aphel-module": "deals"
-    },
-    {
-      "name": "deal-members",
-      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles",
-      "x-aphel-module": "deals"
-    },
-    {
-      "name": "forecast",
-      "description": "Revenue forecast: organization settings and the forecast per month",
-      "x-aphel-module": "forecast"
-    },
-    {
-      "name": "goals",
-      "description": "Sales goals per user, team or organization and their progress",
-      "x-aphel-module": "goals"
-    },
-    {
       "name": "notes",
       "description": "Notes attached to records",
       "x-aphel-module": "notes"
@@ -121215,11 +121197,6 @@
       "name": "proposals",
       "description": "Proposal templates and PDF proposals generated from deals",
       "x-aphel-module": "proposals"
-    },
-    {
-      "name": "quotes",
-      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
-      "x-aphel-module": "quotes"
     },
     {
       "name": "layouts",
@@ -121287,39 +121264,9 @@
       "x-aphel-module": "tasks"
     },
     {
-      "name": "ai",
-      "description": "AI assistant: record summaries, next actions, writing help and natural language queries",
-      "x-aphel-module": "ai"
-    },
-    {
       "name": "booking",
       "description": "Booking links: availability, meeting types, team links and the public booking page",
       "x-aphel-module": "booking"
-    },
-    {
-      "name": "enrichment",
-      "description": "Company enrichment by CNPJ from public sources",
-      "x-aphel-module": "enrichment"
-    },
-    {
-      "name": "esign",
-      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks",
-      "x-aphel-module": "esign"
-    },
-    {
-      "name": "forms",
-      "description": "Public forms that create people and deals",
-      "x-aphel-module": "forms"
-    },
-    {
-      "name": "communication",
-      "description": "Communication opt-outs",
-      "x-aphel-module": "messaging"
-    },
-    {
-      "name": "messaging",
-      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)",
-      "x-aphel-module": "messaging"
     },
     {
       "name": "migration-assistant",
@@ -121390,6 +121337,66 @@
       "name": "workflow",
       "description": "Pipelines, stages and lost reasons",
       "x-aphel-module": "workflow"
+    },
+    {
+      "name": "deals",
+      "description": "Deals, stage changes and the Kanban board",
+      "x-aphel-module": "deals"
+    },
+    {
+      "name": "deals-reports",
+      "description": "Deal conversion and sales performance reports",
+      "x-aphel-module": "deals"
+    },
+    {
+      "name": "deal-members",
+      "description": "Team of a deal (members, roles and revenue credit split) and the configurable member roles",
+      "x-aphel-module": "deals"
+    },
+    {
+      "name": "ai",
+      "description": "AI assistant: record summaries, next actions, writing help and natural language queries",
+      "x-aphel-module": "ai"
+    },
+    {
+      "name": "enrichment",
+      "description": "Company enrichment by CNPJ from public sources",
+      "x-aphel-module": "enrichment"
+    },
+    {
+      "name": "esign",
+      "description": "Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks",
+      "x-aphel-module": "esign"
+    },
+    {
+      "name": "forecast",
+      "description": "Revenue forecast: organization settings and the forecast per month",
+      "x-aphel-module": "forecast"
+    },
+    {
+      "name": "forms",
+      "description": "Public forms that create people and deals",
+      "x-aphel-module": "forms"
+    },
+    {
+      "name": "goals",
+      "description": "Sales goals per user, team or organization and their progress",
+      "x-aphel-module": "goals"
+    },
+    {
+      "name": "communication",
+      "description": "Communication opt-outs",
+      "x-aphel-module": "messaging"
+    },
+    {
+      "name": "messaging",
+      "description": "Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP)",
+      "x-aphel-module": "messaging"
+    },
+    {
+      "name": "quotes",
+      "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
+      "x-aphel-module": "quotes"
     },
     {
       "name": "demo",

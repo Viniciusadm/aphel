@@ -57,6 +57,12 @@ The partition is applied by `push_record_scope_as` (and therefore by `push_live_
 - **Deactivating** (`is_active: false`) removes the type from the registry: it disappears from navigation, the API and all generic resources, while keeping the data. **Deleting** is only allowed with no live records and deletes the type's fields, views, layouts, segments, reports, field permissions, role permissions and relationships.
 - **Limits** fixed in code (`kernel/application/custom_objects/ports.rs`): `CUSTOM_OBJECTS_MAX = 50` objects created by users (objects with a `module_key`, created by modules and runtime plugins through `CustomObjectAdminUseCases::create_managed`, are not counted) and `CUSTOM_OBJECT_FIELDS_MAX = 200` custom fields per object.
 
+## Stages (`workflow.staged`)
+
+`PATCH /api/v1/custom-objects/{key}` with `"staged": true` gives an unmanaged object the `workflow.staged` trait (`stage_field = "stage"`, stored in the object's `entity_definition`) and creates the `stage` text field when it does not exist. The web then shows a Stages view next to List: columns are the stages of the chosen workflow pipeline and dragging a card writes the stage id to the `stage` field. `staged: false` removes the trait and keeps the field and its values.
+
+The `objects` module contributes a `StagedRecordSource` for every staged object, so the workflow module counts records per stage, blocks deleting a stage or pipeline in use and moves the records to the target stage when one is chosen. It does not own the pipeline or rotting columns of deals: rotting, entry/exit required fields and stage events are not applied to custom objects yet.
+
 ## Records
 
 `/api/v1/objects/{key}/records` follows the style guide: `{ data }`/`{ data, meta }`, `filter` (AST or `filter[field][op]=value`), `sort`, `search`/`q`, `archived`, `If-Match` on PATCH, events `custom.<key>.created|updated|deleted|archived|unarchived` with audit in the same transaction. Values go in `custom_fields` (validated by the `CustomFieldWriter`, with layout conditional rules and field permissions); the default `owner_id` is the creator. `GET /objects/{key}/schema` documents at run time the fields (as the caller sees them), the relations and the events; the static OpenAPI only documents the generic pattern.

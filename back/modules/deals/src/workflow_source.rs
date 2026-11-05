@@ -70,11 +70,14 @@ impl StagedRecordSource for DealStages {
                 id,
             ),
         };
-        let (total, active): (u64, u64) = sqlx::query_as(sql)
+        let (total, active): (i64, u64) = sqlx::query_as(sql)
             .bind(id.to_string())
             .fetch_one(pool)
             .await?;
-        Ok(StageUsage { total, active })
+        Ok(StageUsage {
+            total: u64::try_from(total).unwrap_or_default(),
+            active,
+        })
     }
     async fn location(
         &self,
