@@ -83,6 +83,67 @@ pub(crate) async fn contacts(
     }
     Ok(matches)
 }
+pub(crate) async fn party_records(
+    ctx: &Ctx<'_>,
+    addresses: &[String],
+) -> Result<Vec<aphel_sdk::platform::application::shared::RecordRef>, AppError> {
+    use aphel_sdk::party::{ContactPointKind, PartyTraits};
+    use aphel_sdk::platform::application::shared::RecordRef;
+    if addresses.is_empty() {
+        return Ok(Vec::new());
+    }
+    let addresses: Vec<String> = addresses
+        .iter()
+        .map(|address| address.to_lowercase())
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let targets: Vec<(RecordType, String)> = ctx
+        .registry()
+        .definitions()
+        .filter(|definition| definition.record_type.as_str() != aphel_sdk::people::RECORD_TYPE)
+        .filter_map(|definition| {
+            let field = definition
+                .capabilities
+                .contact_points()?
+                .fields(ContactPointKind::Email)
+                .next()?
+                .to_owned();
+            Some((definition.record_type.clone(), field))
+        })
+        .collect();
+    let mut records = Vec::new();
+    for (record_type, field) in targets {
+        if !readable(ctx, record_type.as_str(), &field).await? {
+            continue;
+        }
+        for batch in addresses.chunks(100) {
+            let listing = aphel_sdk::record_context::list(
+                ctx,
+                record_type.as_str(),
+                RecordQuery {
+                    filter: Some(Filter::condition(&field, FilterOperator::In, json!(batch))),
+                    window: ListWindow {
+                        offset: 0,
+                        limit: 1000,
+                    },
+                    ..Default::default()
+                },
+            )
+            .await?;
+            for record in listing.items {
+                if let Some(id) = record
+                    .get("id")
+                    .and_then(Value::as_str)
+                    .and_then(|id| Uuid::parse_str(id).ok())
+                {
+                    records.push(RecordRef::new(record_type.clone(), id));
+                }
+            }
+        }
+    }
+    Ok(records)
+}
 pub(crate) async fn company_by_domain(
     ctx: &Ctx<'_>,
     domain: &str,

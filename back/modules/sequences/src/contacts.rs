@@ -52,54 +52,6 @@ pub(crate) async fn list(
         .into_iter()
         .collect();
     let mut contacts = HashMap::new();
-    if definition.record_type.as_str() != aphel_sdk::people::RECORD_TYPE {
-        use aphel_sdk::platform::application::files::RecordAccessChecker;
-        let access = aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker::new(
-            ctx.pool().clone(),
-            ctx.registry().clone(),
-        );
-        for id in ids {
-            let record = aphel_sdk::platform::application::shared::RecordRef::new(
-                definition.record_type.clone(),
-                id,
-            );
-            if !access.can_read(ctx.scope, &record).await? {
-                continue;
-            }
-            let Some(value) =
-                aphel_sdk::records::inspect_entity(ctx.pool(), ctx.registry(), &record).await?
-            else {
-                continue;
-            };
-            let archived_flag = value
-                .get("archived")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            if archived_flag && matches!(archived, ArchivedFilter::Exclude) {
-                continue;
-            }
-            let email = std::iter::once("email".to_owned())
-                .chain(email_fields.iter().cloned())
-                .find_map(|field| text_of(&value, &field));
-            contacts.insert(
-                id,
-                ContactTarget {
-                    id,
-                    name: text_of(&value, "name")
-                        .or_else(|| text_of(&value, "title"))
-                        .unwrap_or_default(),
-                    email: email
-                        .map(|value| value.trim().to_lowercase())
-                        .filter(|value| !value.is_empty()),
-                    deleted: value
-                        .get("deleted")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(false),
-                },
-            );
-        }
-        return Ok(contacts);
-    }
     for batch in ids.chunks(100) {
         let listing = aphel_sdk::record_context::list(
             ctx,

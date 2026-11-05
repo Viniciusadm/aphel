@@ -450,6 +450,7 @@ async fn import(
         .iter()
         .map(|id| RecordRef::new(RecordType::CONTACT, *id))
         .collect();
+    new_links.extend(crate::party_directory::party_records(ctx, &external).await?);
     if !contact_ids.is_empty() {
         new_links.extend(
             crate::party_directory::contact_records(

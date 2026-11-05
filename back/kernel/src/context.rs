@@ -168,6 +168,30 @@ impl<'a> Ctx<'a> {
             .await
     }
 
+    pub async fn list_records(
+        &self,
+        record_type: &str,
+        query: crate::application::query::RecordQuery,
+    ) -> Result<crate::application::organization_admin::Listing<serde_json::Value>, AppError> {
+        let state = self.state();
+        let definition = self.registry.require(record_type)?;
+        let ports = self.query();
+        let listing = crate::application::query::RecordQueryEngine::new(&ports)
+            .query(self.scope, definition.record_type.as_str(), query)
+            .await?;
+        let items = self
+            .record_handler(record_type)?
+            .load_listed(
+                &crate::records::RecordCtx::new(self.scope, &state),
+                &listing.items,
+            )
+            .await?;
+        Ok(crate::application::organization_admin::Listing {
+            items,
+            total: listing.total,
+        })
+    }
+
     pub async fn create_record(
         &self,
         record_type: &str,

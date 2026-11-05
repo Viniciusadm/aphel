@@ -877,6 +877,18 @@ async fn persist_draft_in_tx(
     if let Some(record) = &draft.record {
         linked.push(record.clone());
     }
+    let party_addresses: Vec<String> = draft
+        .to
+        .iter()
+        .chain(&draft.cc)
+        .chain(&draft.bcc)
+        .map(|recipient| recipient.address.clone())
+        .collect();
+    for record in crate::party_directory::party_records(ctx, &party_addresses).await? {
+        if !linked.contains(&record) {
+            linked.push(record);
+        }
+    }
     for contact_id in people.values() {
         let contact = RecordRef::new(RecordType::CONTACT, *contact_id);
         if !linked.contains(&contact) {

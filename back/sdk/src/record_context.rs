@@ -32,10 +32,13 @@ pub async fn list(
         ctx.app().is_enabled(owner) && source.record_type() == record_type
     });
     let Some((_, source)) = matching.next() else {
-        return Ok(Listing {
-            items: Vec::new(),
-            total: 0,
-        });
+        if ctx.registry().require(record_type).is_err() {
+            return Ok(Listing {
+                items: Vec::new(),
+                total: 0,
+            });
+        }
+        return ctx.list_records(record_type, query).await;
     };
     if matching.next().is_some() {
         return Err(AppError::Configuration(format!(
