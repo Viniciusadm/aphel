@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { InboxItem } from '@/modules/tasks/api'
+import type {InboxItem} from '@/sdk'
 import { NativeSelect, useOrganizationUsers } from '@/sdk'
 import { Field } from '@/components/ui/field'
 

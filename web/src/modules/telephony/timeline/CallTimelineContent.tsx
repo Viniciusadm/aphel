@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { activityResource } from '@/modules/tasks/resource'
-import { formatDateTime, getRecordResource, type TimelineItem, useRecordFormatting } from '@/sdk'
+import { formatDateTime, getRecordResource, recordDetailHref, type TimelineItem, useRecordFormatting } from '@/sdk'
 import { CallSummary } from '../components/CallSummary'
 import type { CallDirection } from '../types'
 
@@ -19,7 +18,7 @@ export function CallTimelineContent({ item }: { item: TimelineItem }) {
   const call = asObject(item.metadata.call)
   const outcome = asObject(call.outcome)
   const activityId = asText(item.metadata.activity_id)
-  const href = activityId ? activityResource.detailPath?.(activityId) : undefined
+  const href = activityId ? recordDetailHref('tasks.task', activityId) : undefined
   const completedAt = asText(item.metadata.completed_at)
   const direction: CallDirection = call.direction === 'inbound' ? 'inbound' : 'outbound'
   const recordHref = item.record ? getRecordResource(item.record.record_type)?.detailPath?.(item.record.record_id) : undefined

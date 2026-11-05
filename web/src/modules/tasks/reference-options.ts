@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { ReferenceOptionsContext, ReferenceOptionsProvider, ReferenceOptionsResult } from '@/kernel/modules/define'
-import { activitiesApi, activitiesKeys } from './api'
+import {activitiesApi, activitiesKeys} from '@/sdk'
 
 function useActivityTypeOptions({ includeInactive = false, enabled = true }: ReferenceOptionsContext): ReferenceOptionsResult {
   const types = useQuery({

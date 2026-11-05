@@ -3,7 +3,7 @@ import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/sdk'
-import type { RecurrenceFrequency } from '../api'
+import type {RecurrenceFrequency} from '@/sdk'
 import {
   RECURRENCE_FREQUENCIES,
   RECURRENCE_WEEKDAYS,

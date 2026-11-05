@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { ActivityType, CreateActivityRequest, RecordTarget, RecurrenceRuleRequest } from '../api'
+import type {ActivityType, CreateActivityRequest, RecordTarget, RecurrenceRuleRequest} from '@/sdk'
 import type { RecurrenceFormState } from './recurrence'
 
 export type ActivityFormMode = 'task' | 'log'

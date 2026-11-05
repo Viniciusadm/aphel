@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { ActivityMapLink, type TimelineItem, TimelineLine as Line, TimelineRecordLink as RecordLink, asObject, asText, eventType, formatDateTime, nameOf, payloadOf, timelineLocation, useRecordFormatting } from '@/sdk'
 import { Markdown } from '@/components/markdown'
-import { activityResource } from '../resource'
+import { recordDetailHref } from '../../records'
 import { dealChangeText } from './text'
 
 export function ActivityTimelineContent({ item }: { item: TimelineItem }) {
@@ -12,7 +12,7 @@ export function ActivityTimelineContent({ item }: { item: TimelineItem }) {
   const type = asObject(item.metadata.activity_type)
   const status = asText(item.metadata.status)
   const activityId = asText(item.metadata.activity_id)
-  const href = activityId ? activityResource.detailPath?.(activityId) : undefined
+  const href = activityId ? recordDetailHref('tasks.task', activityId) : undefined
   const completedAt = asText(item.metadata.completed_at)
   const dueAt = asText(item.metadata.due_at)
   return (

@@ -4,10 +4,10 @@ import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ActivityMapLink, formatDateTime, getRecordResource, useRecordFormatting } from '@/sdk'
-import { cn } from '@/lib/utils'
-import type { Activity } from '../api'
-import { dueState } from '../lib/due'
 import { activityResource } from '../resource'
+import { cn } from '@/lib/utils'
+import type {Activity} from '@/sdk'
+import { dueState } from '../lib/due'
 import { ActivityTypeIcon } from './ActivityTypeIcon'
 
 export interface ActivityRowProps {

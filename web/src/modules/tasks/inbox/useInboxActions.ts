@@ -3,16 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { toast } from '@/components/ui/toast-store'
-import {
-  activitiesApi,
-  activitiesKeys,
-  useInvalidateActivities,
-  type Activity,
-  type InboxItem,
-  type InboxQuery,
-  type InboxResponse,
-  type UpdateActivityRequest,
-} from '@/modules/tasks/api'
+import {activitiesApi, activitiesKeys, useInvalidateActivities, type Activity, type InboxItem, type InboxQuery, type InboxResponse, type UpdateActivityRequest} from '@/sdk'
 
 export interface UndoAction {
   id: number

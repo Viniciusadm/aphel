@@ -10,9 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { InboxGroupKey, InboxItem } from '@/modules/tasks/api'
+import type {InboxGroupKey, InboxItem} from '@/sdk'
 import { ActivityTypeIcon } from '@/modules/tasks/components/ActivityTypeIcon'
-import { activityResource } from '@/modules/tasks/resource'
+import { recordDetailHref } from '@/sdk'
 import { formatCurrency, formatDateTime, getRecordResource, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 
@@ -37,7 +37,7 @@ export function InboxItemRow({
 }: InboxItemRowProps) {
   const { t } = useTranslation('tasks', { keyPrefix: 'inbox' })
   const formatting = useRecordFormatting()
-  const detail = activityResource.detailPath?.(item.id)
+  const detail = recordDetailHref('tasks.task', item.id)
   const recordHref = item.record ? getRecordResource(item.record.record_type)?.detailPath?.(item.record.record_id) : undefined
   const deal = item.linked_deal
   const dealHref = deal ? getRecordResource('deal')?.detailPath?.(deal.deal_id) : undefined

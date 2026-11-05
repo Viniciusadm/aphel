@@ -1,15 +1,8 @@
 import { api } from '@/api'
-import type { ActivityPage } from '../api'
+import type {ActivityPage} from '@/sdk'
 import { useMemo } from 'react'
 import { useSession } from '@/app/session/session-context'
-import {
-  activitiesApi,
-  activitiesKeys,
-  type Activity,
-  type ActivityType,
-  type CreateActivityRequest,
-  type InboxQuery,
-} from '../api'
+import {activitiesApi, activitiesKeys, type Activity, type ActivityType, type CreateActivityRequest, type InboxQuery} from '@/sdk'
 import { addDays, todayKey, zonedDayStart } from '@/sdk/calendar/dates'
 import { useRecordFormatting } from '@/sdk'
 import { submitWithOutbox } from '@/pwa/offline/outbox'

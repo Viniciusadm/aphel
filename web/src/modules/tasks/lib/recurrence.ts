@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { ActivityRecurrence, RecurrenceFrequency, RecurrenceRuleRequest, RecurrenceWeekday } from '../api'
+import type {ActivityRecurrence, RecurrenceFrequency, RecurrenceRuleRequest, RecurrenceWeekday} from '@/sdk'
 
 export const RECURRENCE_FREQUENCIES: RecurrenceFrequency[] = ['daily', 'weekly', 'monthly', 'yearly']
 export const RECURRENCE_WEEKDAYS: RecurrenceWeekday[] = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']

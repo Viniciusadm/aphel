@@ -18,14 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect, useOrganizationUsers, useRecordFormatting } from '@/sdk'
-import {
-  ACTIVITY_PRIORITIES,
-  useActivityTypes,
-  useCreateActivity,
-  type Activity,
-  type ActivityPriority,
-  type RecordTarget,
-} from '../api'
+import {ACTIVITY_PRIORITIES, useActivityTypes, useCreateActivity, type Activity, type ActivityPriority, type RecordTarget} from '@/sdk'
 import { activityErrorKey } from '../lib/errors'
 import {
   buildRecurrenceRule,

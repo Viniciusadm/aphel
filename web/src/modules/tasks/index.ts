@@ -13,9 +13,9 @@ import { ActivityQuickForm } from './mobile/ActivityQuickForm'
 import { CheckInQuickForm } from './mobile/CheckInQuickForm'
 import { withActivitiesTab } from './record-tabs'
 import { ACTIVITY_TYPE_REFERENCE_OPTIONS } from './reference-options'
-import { ACTIVITY_RECORD_TYPE } from './resource'
+import {ACTIVITY_RECORD_TYPE} from '@/sdk'
 import { activitiesRoutes, activityTypesSettingsRoute } from './routes'
-import { ACTIVITY_TIMELINE_RENDERERS } from './timeline/renderers'
+import {ACTIVITY_TIMELINE_RENDERERS} from '@/sdk'
 
 const TASKS_READ = ['tasks.read']
 

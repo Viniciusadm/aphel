@@ -7,10 +7,11 @@ import { ConfirmDialog } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
 import { AttachmentsPanel, RecordDetailPage, type RecordItem } from '@/sdk'
-import { useDeleteActivity, useToggleActivity } from './api'
+import { TASK_DETAIL_FIELDS } from './resource'
+import { useDeleteActivity, useToggleActivity } from '@/sdk'
 import { ActivityScheduleDialog, type ScheduledActivity } from './components/ActivityScheduleDialog'
 import { activityErrorKey } from './lib/errors'
-import { ACTIVITY_RECORD_TYPE, TASK_DETAIL_FIELDS, TASKS_PATH } from './resource'
+import { ACTIVITY_RECORD_TYPE, TASKS_PATH } from '@/sdk'
 
 function TaskActions({ record }: { record: RecordItem }) {
   const { t } = useTranslation('tasks')

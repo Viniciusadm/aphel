@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast-store'
 import { useRecordFormatting } from '@/sdk'
-import { useUpdateActivity, type Activity, type RecurrenceApplyTo, type UpdateActivityRequest } from '../api'
+import {useUpdateActivity, type Activity, type RecurrenceApplyTo, type UpdateActivityRequest} from '@/sdk'
 import { activityErrorKey } from '../lib/errors'
 import {
   buildRecurrenceRule,

@@ -1,4 +1,4 @@
-import type { InboxOwner, InboxQuery, InboxSort } from '@/modules/tasks/api'
+import type {InboxOwner, InboxQuery, InboxSort} from '@/sdk'
 
 export const INBOX_OWNERS: InboxOwner[] = ['me', 'team', 'all']
 export const INBOX_SORTS: InboxSort[] = ['due', 'priority', 'value']

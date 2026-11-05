@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import { activitiesKeys } from '@/modules/tasks/api'
+import {activitiesKeys} from '@/sdk'
 import type {
   CallActivity,
   CallOutcome,

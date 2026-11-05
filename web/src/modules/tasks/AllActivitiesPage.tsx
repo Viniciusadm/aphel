@@ -5,8 +5,9 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
 import { RecordListView } from '@/sdk'
-import { activitiesApi, useInvalidateActivities } from './api'
-import { ACTIVITY_RECORD_TYPE, activityResource } from './resource'
+import { activityResource } from './resource'
+import { activitiesApi, useInvalidateActivities } from '@/sdk'
+import { ACTIVITY_RECORD_TYPE } from '@/sdk'
 
 export function AllActivitiesPage() {
   const { t } = useTranslation('tasks')
