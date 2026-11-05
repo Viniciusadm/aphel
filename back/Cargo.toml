@@ -19,6 +19,7 @@ aphel-contract-organizations = { path = "contracts/organizations" }
 aphel-contract-booking = { path = "contracts/booking" }
 aphel-contract-sequences = { path = "contracts/sequences" }
 aphel-contract-tasks = { path = "contracts/tasks" }
+aphel-contract-reminders = { path = "contracts/reminders" }
 aphel-contract-telephony = { path = "contracts/telephony" }
 aphel-contract-views = { path = "contracts/views" }
 aphel-contract-exports = { path = "contracts/exports" }

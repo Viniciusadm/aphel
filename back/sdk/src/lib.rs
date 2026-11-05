@@ -173,6 +173,9 @@ pub mod objects;
 pub mod conditions;
 
 pub mod tasks;
+pub mod reminders {
+    pub use aphel_contract_reminders::*;
+}
 
 pub mod record_context;
 

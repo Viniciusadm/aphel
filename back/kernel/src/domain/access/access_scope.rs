@@ -143,6 +143,7 @@ pub struct AccessScope {
     api_token: Option<ApiTokenGrant>,
     service: Option<(String, String)>,
     enabled_modules: Vec<String>,
+    origin: Option<Box<PermissionSet>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -166,6 +167,7 @@ impl AccessScope {
             api_token: None,
             service: None,
             enabled_modules: Vec::new(),
+            origin: None,
         }
     }
 
@@ -215,6 +217,22 @@ impl AccessScope {
     pub fn restricted(mut self, allows: impl Fn(&Permission) -> bool) -> Self {
         self.permissions = self.permissions.restricted(allows);
         self
+    }
+
+    pub fn restricted_keeping_origin(mut self, allows: impl Fn(&Permission) -> bool) -> Self {
+        if self.origin.is_none() {
+            self.origin = Some(Box::new(self.permissions.clone()));
+        }
+        self.permissions = self.permissions.restricted(allows);
+        self
+    }
+
+    pub fn origin_scope(&self) -> Self {
+        let mut scope = self.clone();
+        if let Some(origin) = scope.origin.take() {
+            scope.permissions = *origin;
+        }
+        scope
     }
 
     pub fn plugin_key(&self) -> Option<&str> {

@@ -255,7 +255,7 @@ fn failure(plugin: &LoadedPlugin, error: wasmtime::Error) -> AppError {
 pub fn capability_scope(plugin: &LoadedPlugin, scope: &AccessScope) -> AccessScope {
     scope
         .clone()
-        .restricted(|permission| plugin.manifest.allows(permission))
+        .restricted_keeping_origin(|permission| plugin.manifest.allows(permission))
 }
 
 pub async fn plugin_scope(plugin: &LoadedPlugin) -> Result<AccessScope, AppError> {

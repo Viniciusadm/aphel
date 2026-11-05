@@ -55,6 +55,14 @@ pub async fn validate_dependencies(
         .filter(|loaded| state.app.is_enabled(loaded.key()))
         .flat_map(|loaded| loaded.manifest.provides.contracts.clone())
         .collect();
+    provided.extend(
+        state
+            .app
+            .all_contributions::<aphel_sdk::ContractDescriptor>()
+            .into_iter()
+            .filter(|(provider, _)| state.app.is_enabled(provider))
+            .map(|(_, descriptor)| descriptor.contract.requirement()),
+    );
     for other in &crate::registry::current(&state.db()?).await?.plugins {
         if other.key != manifest.key {
             provided.extend(other.manifest.provides.contracts.clone());

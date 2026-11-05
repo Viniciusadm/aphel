@@ -467,6 +467,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-contract-reminders"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+]
+
+[[package]]
 name = "aphel-contract-segments"
 version = "0.1.0"
 dependencies = [
@@ -2031,6 +2038,7 @@ dependencies = [
  "aphel-contract-people",
  "aphel-contract-pricing",
  "aphel-contract-privacy",
+ "aphel-contract-reminders",
  "aphel-contract-segments",
  "aphel-contract-sequences",
  "aphel-contract-sso",

@@ -76,6 +76,7 @@ pub enum Command {
         record_type: Option<String>,
         record_id: Option<String>,
         link: Option<String>,
+        #[serde(default = "empty_object")]
         data: Value,
         #[serde(default)]
         dedupe_key: Option<String>,
@@ -639,4 +640,8 @@ async fn execute(
     }
     receipt::finish_noop(pool).await?;
     Ok(())
+}
+
+fn empty_object() -> Value {
+    Value::Object(serde_json::Map::new())
 }

@@ -36,12 +36,13 @@ struct ProvidedOperationHandler {
 impl OperationHandler for ProvidedOperationHandler {
     fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         Box::pin(async move {
+            let origin = ctx.scope.origin_scope();
             if let Some(permission) = &self.permission {
-                ctx.scope.require(permission)?;
+                origin.require(permission)?;
             }
             let output = crate::runtime::on_operation(
                 &self.plugin,
-                ctx.scope,
+                &origin,
                 &self.key,
                 &input.to_string(),
                 self.read_only,

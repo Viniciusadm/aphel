@@ -21,6 +21,7 @@ aphel-contract-organizations.workspace = true
 aphel-contract-booking.workspace = true
 aphel-contract-sequences.workspace = true
 aphel-contract-tasks.workspace = true
+aphel-contract-reminders.workspace = true
 aphel-contract-telephony.workspace = true
 aphel-contract-views.workspace = true
 aphel-contract-tagging.workspace = true

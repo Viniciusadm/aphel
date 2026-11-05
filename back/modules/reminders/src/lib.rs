@@ -57,6 +57,7 @@ impl Module for RemindersModule {
             push_default: true,
         }))
         .worker(worker);
+        app.contract(aphel_sdk::reminders::DESCRIPTOR);
         exposed_operations::register(app);
         Ok(())
     }

@@ -95,7 +95,7 @@ pub async fn plan(
             plugins
                 .iter()
                 .filter(|other| other.enabled && other.key != manifest.key)
-                .filter(|other| depends_on_module(state, &other.manifest, module))
+                .filter(|other| depends_on_module(state, &other.manifest, module, manifest))
                 .map(|other| other.name.clone()),
         );
         plans.push(ModuleConflictPlan {
@@ -108,7 +108,12 @@ pub async fn plan(
     Ok(plans)
 }
 
-fn depends_on_module(state: &AppState, manifest: &PluginManifest, module: &str) -> bool {
+fn depends_on_module(
+    state: &AppState,
+    manifest: &PluginManifest,
+    module: &str,
+    replacement: &PluginManifest,
+) -> bool {
     let owns_permission = manifest.requires.iter().any(|required| {
         Permission::parse(required.clone())
             .ok()
@@ -117,10 +122,14 @@ fn depends_on_module(state: &AppState, manifest: &PluginManifest, module: &str) 
     });
     let prefix = format!("{module}.");
     owns_permission
-        || manifest
-            .operations
-            .iter()
-            .any(|operation| operation.starts_with(&prefix))
+        || manifest.operations.iter().any(|operation| {
+            operation.starts_with(&prefix)
+                && !replacement
+                    .provides
+                    .operations
+                    .iter()
+                    .any(|provided| provided.key == *operation)
+        })
 }
 
 pub fn ensure_unblocked(plans: &[ModuleConflictPlan]) -> Result<(), AppError> {

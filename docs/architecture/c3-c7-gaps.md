@@ -19,10 +19,16 @@ Checked on 2026-11-05 with `aphel-tasks-alt`, a WebAssembly plugin that provides
 
 Not covered: `booking` still depends on the `tasks` module and uses native scheduling traits (`MeetingScheduler`, calendar sources), and `telephony` was not exercised. The native-only extension points of `tasks@1` (`calendar_api`, `reminder_source`, `remote_calendars`) have no plugin implementation.
 
-## C7 and what is still open
+## C7: done for a module without web screens
 
-1. **Consumers of other contracts still depend on the module.** `booking` declares a hard dependency on `tasks`; other modules do the same for their providers.
-2. **Contracts are mostly native traits.** Only the data-shaped part (operations, events, entities) can be implemented by a plugin; each swappable contract needs that part defined, as was done for `tasks@1`.
-3. **Plugin-provided names are prefixed.** Widgets are `<plugin>_<name>`, routes are `/api/v1/p/<plugin>/…`, permissions and entities are `<plugin>.<…>`. Dashboard layouts, web calls and roles that reference the native names do not follow, so rewriting a module that has its own web screens or widgets is not yet transparent to consumers.
+Checked on 2026-11-05 with `reminders`, rewritten as the WebAssembly plugin `aphel-reminders-alt`, and `aphel-reminders-consumer`, a second plugin that calls `reminders.create` and `reminders.list` with `invoke`.
 
-C7 stays open until a module is rewritten end to end.
+- New contract `reminders@1` (crate `contracts/reminders`) lists the three operations the native module already exposes; the module declares it.
+- The same consumer package was used twice. With the native module it created and listed reminders; with `aphel-reminders-alt` installed (module held) the same calls were served by the plugin, stored in `reminders_alt.reminder`, and the schedule delivered the notification (`reminders_alt_due`) and marked the reminder `sent`. Uninstalling the plugin (after disabling its dependent consumer) returned the calls to the native module.
+- Platform fixes found on the way, none specific to reminders:
+  - Native contract providers were invisible to the plugin resolver (`uses.required` of a native contract always failed); the resolver now reads the contract descriptors of enabled modules.
+  - A plugin that lists `reminders.*` in `operations` counted as a dependent of the module it replaces; operations the installing plugin provides no longer count.
+  - A provided operation ran with the consumer's restricted scope, which lacks the provider's own entity permissions. It now runs with the original actor's scope (already limited by an API token, if any) intersected with the provider's capabilities, as documented.
+  - The `notify` effect required `data` although the guide lists it as optional.
+
+What this does not cover: the HTTP routes of the native module (`/api/v1/reminders`) disappear while the plugin holds it, because plugin routes live under `/api/v1/p/<key>/`; the two task-bound deliveries of the native module (reminder before a task is due, tasks due today) are not reimplemented; widget keys and web screens of other modules would still carry the plugin prefix.
