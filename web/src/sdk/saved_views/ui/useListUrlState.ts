@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
-import { buildListSearch, parseListSearch, type ListUrlState } from '@/modules/saved_views/ui/urlState'
+import { buildListSearch, parseListSearch, type ListUrlState } from './urlState'
 
 export type ListUrlStateUpdate = ListUrlState | ((current: ListUrlState) => ListUrlState)
 

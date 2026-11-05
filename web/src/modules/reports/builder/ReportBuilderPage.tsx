@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { dashboardApi, dashboardKeys } from '@/modules/dashboard/api'
 import { type DraftGroup, fieldViolations, NativeSelect, serializeFilter, toDraft, useAggregate, useAggregateSchema, useFieldSchema, useFilterSchema } from '@/sdk'
-import { useViewTeams } from '@/modules/saved_views/ui'
+import {useViewTeams} from '@/sdk'
 import { downloadReport, useReportEntities, useReport, useReportMutations, type ExportFormat, type Report, type ReportEntity } from './api'
 import {
   FiltersSection,

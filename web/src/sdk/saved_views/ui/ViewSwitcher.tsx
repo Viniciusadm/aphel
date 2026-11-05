@@ -25,9 +25,9 @@ import { toast } from '@/components/ui/toast-store'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'
 import { type RecordViewConfig, type SavedView } from '@/sdk'
-import { ALL_RECORDS_VIEW } from '@/modules/saved_views/ui/urlState'
-import { ViewFormDialog, type ViewFormValues } from '@/modules/saved_views/ui/ViewFormDialog'
-import { useViewMutations, viewConfigRequest, type ViewLayoutOptions } from '@/modules/saved_views/ui/viewsApi'
+import { ALL_RECORDS_VIEW } from './urlState'
+import { ViewFormDialog, type ViewFormValues } from './ViewFormDialog'
+import { useViewMutations, viewConfigRequest, type ViewLayoutOptions } from './viewsApi'
 
 export interface ViewSwitcherProps {
   recordType: string

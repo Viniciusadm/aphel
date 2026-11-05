@@ -9,17 +9,9 @@ import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FilterChips, FilterMenu, type FilterNode, type Pipeline, RecordFormDialog, type RecordItem, RecordListActions, RecordListView, type RecordViewConfig, type SavedView, SearchBox, activePipelines, defaultPipeline, useFieldSchema, usePipelines } from '@/sdk'
-import { useSavedViews } from '@/modules/saved_views/api'
-import {
-  ALL_RECORDS_VIEW,
-  DEFAULT_DENSITY,
-  LIST_PARAMS,
-  ViewSwitcher,
-  buildListSearch,
-  pickDefaultView,
-  useListUrlState,
-} from '@/modules/saved_views/ui'
-import { hasExplicitQuery, viewDensity } from '@/modules/saved_views/ui/urlState'
+import {useSavedViews} from '@/sdk'
+import {ALL_RECORDS_VIEW, DEFAULT_DENSITY, LIST_PARAMS, ViewSwitcher, buildListSearch, pickDefaultView, useListUrlState} from '@/sdk'
+import {hasExplicitQuery, viewDensity} from '@/sdk'
 import { applyFilters } from '@/kernel/modules/filters'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'

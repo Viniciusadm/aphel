@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, type SavedView, type ViewVisibility } from '@/sdk'
-import { MAX_VIEW_NAME_LENGTH, SETTINGS_MANAGE, useViewTeams } from '@/modules/saved_views/ui/viewsApi'
+import { MAX_VIEW_NAME_LENGTH, SETTINGS_MANAGE, useViewTeams } from './viewsApi'
 import { Field } from '@/components/ui/field'
 
 export interface ViewFormValues {

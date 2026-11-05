@@ -1,4 +1,4 @@
-import { savedViewsApi } from '@/modules/saved_views/api'
+import { savedViewsApi } from '../api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, type components } from '@/api'
 import { useSession } from '@/app/session/session-context'

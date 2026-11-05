@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { activeFields, defaultColumnKeys, type FieldDefinition, type RecordViewConfig, requireRecordResource, useFieldSchema } from '@/sdk'
-import { useSavedViews } from '@/modules/saved_views/api'
-import { ALL_RECORDS_VIEW, resolveConfig, useListUrlState, viewConfig } from '@/modules/saved_views/ui'
+import {useSavedViews} from '@/sdk'
+import {ALL_RECORDS_VIEW, resolveConfig, useListUrlState, viewConfig} from '@/sdk'
 
 export function useCurrentListConfig(recordType: string): {
   config: RecordViewConfig | null

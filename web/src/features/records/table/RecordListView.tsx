@@ -17,7 +17,7 @@ import { Slot } from '@/kernel/modules/Slot'
 import { useSlot } from '@/kernel/modules/slots'
 import { cn } from '@/lib/utils'
 import { useFieldSchema } from '@/features/records/api'
-import { useSavedViews } from '@/modules/saved_views/api'
+import {useSavedViews} from '@/sdk'
 import {
   CALENDAR_FIELD_SETTING,
   calendarFields,
@@ -31,19 +31,9 @@ import { FilterMenu } from '../filters/FilterMenu'
 import { NativeSelect } from '../filters/NativeSelect'
 import { requireRecordResource } from '../resources'
 import type { ArchivedMode, FieldSchema, FilterNode, RecordItem, SavedView, SortSpec, TableDensity } from '../types'
-import { useListUrlState } from '@/modules/saved_views/ui/useListUrlState'
-import {
-  ALL_RECORDS_VIEW,
-  hasExplicitQuery,
-  pickDefaultView,
-  resolveConfig,
-  sameConfig,
-  viewConfig,
-  type ListUrlState,
-  buildListSearch,
-  parseListSearch,
-} from '@/modules/saved_views/ui/urlState'
-import { ViewSwitcher } from '@/modules/saved_views/ui/ViewSwitcher'
+import {useListUrlState} from '@/sdk'
+import {ALL_RECORDS_VIEW, hasExplicitQuery, pickDefaultView, resolveConfig, sameConfig, viewConfig, type ListUrlState, buildListSearch, parseListSearch} from '@/sdk'
+import {ViewSwitcher} from '@/sdk'
 import { ColumnsMenu } from './ColumnsMenu'
 import { defaultColumnKeys } from './columns'
 import { DensityToggle } from './DensityToggle'
