@@ -1,7 +1,7 @@
 import { CalendarDays } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { MICROSOFT_CALENDAR_PERMISSION, MICROSOFT_KEY } from './api'
-import { SSO_SHARED_KEY } from '@/modules/sso/shared/api'
+import {SSO_SHARED_KEY} from '@/sdk'
 import { MicrosoftSettingsPanel } from './SettingsPanel'
 
 const microsoftModule = defineModule({

@@ -11,13 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import {
-  SSO_SHARED_KEY,
-  useCalendarActions,
-  useProviderStatus,
-  type CalendarStatus,
-  type SsoLoginStatus,
-} from './api'
+import {SSO_SHARED_KEY, useCalendarActions, useProviderStatus, type CalendarStatus, type SsoLoginStatus} from '@/sdk'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Alert } from '@/components/ui/alert'
