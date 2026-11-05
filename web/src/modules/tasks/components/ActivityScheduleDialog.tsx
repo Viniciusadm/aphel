@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast-store'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { useRecordFormatting } from '@/sdk'
 import { useUpdateActivity, type Activity, type RecurrenceApplyTo, type UpdateActivityRequest } from '../api'
 import { activityErrorKey } from '../lib/errors'
 import {

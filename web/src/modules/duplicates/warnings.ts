@@ -1,5 +1,5 @@
 import { toast } from '@/components/ui/toast-store'
-import type { RecordItem } from '@/features/records/types'
+import { type RecordItem } from '@/sdk'
 import i18n from '@/i18n'
 import { navigateApp } from '@/kernel/modules/app-navigation'
 import type { DuplicateMatch } from './api'

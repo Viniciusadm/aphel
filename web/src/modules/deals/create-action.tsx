@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { RecordFormDialog } from '@/features/records/form'
+import { RecordFormDialog } from '@/sdk'
 import type { CreateActionRenderProps } from '@/kernel/modules/define'
 import { dealsKeys } from './api'
 import { DEAL_CREATE_LAYOUT, DEAL_RECORD_TYPE } from './resource'

@@ -1,4 +1,4 @@
-import type { RecordItem } from '@/features/records/types'
+import { type RecordItem } from '@/sdk'
 import type { LeadTarget } from './DisqualifyLeadDialog'
 
 export function leadTarget(record: RecordItem): LeadTarget {

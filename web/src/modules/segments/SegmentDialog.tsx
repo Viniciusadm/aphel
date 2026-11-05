@@ -16,10 +16,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { useFieldSchema } from '@/features/records/api'
-
-import { FilterBuilder, emptyCondition, serializeFilter, toDraft, type DraftGroup } from '@/features/records/filters'
-import type { FieldSchema } from '@/features/records/types'
+import { type DraftGroup, emptyCondition, type FieldSchema, FilterBuilder, serializeFilter, toDraft, useFieldSchema } from '@/sdk'
 import {
   MAX_SEGMENT_DESCRIPTION_LENGTH,
   MAX_SEGMENT_NAME_LENGTH,

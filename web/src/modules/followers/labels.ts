@@ -1,8 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { entityLabel, useEntities } from '@/sdk/entities'
-import { recordDetailHref } from '@/features/records/links'
-
+import { recordDetailHref } from '@/sdk'
 export function useRecordTypeLabel() {
   const { i18n } = useTranslation()
   const entities = useEntities()

@@ -2,17 +2,7 @@ import { savedViewsApi } from '@/modules/saved_views/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, type components } from '@/api'
 import { useSession } from '@/app/session/session-context'
-import { recordsKeys } from '@/features/records/api'
-
-import type {
-  CreateViewRequest,
-  RecordViewConfig,
-  SavedView,
-  TableDensity,
-  UpdateViewRequest,
-  ViewType,
-} from '@/features/records/types'
-
+import { type CreateViewRequest, recordsKeys, type RecordViewConfig, type SavedView, type TableDensity, type UpdateViewRequest, type ViewType } from '@/sdk'
 export const SETTINGS_MANAGE = 'settings.manage'
 export const MAX_VIEW_NAME_LENGTH = 140
 

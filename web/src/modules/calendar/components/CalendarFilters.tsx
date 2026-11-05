@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
-import { useOrganizationUsers } from '@/features/records/api'
-
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { useTeams } from '@/features/settings/api'
+import { NativeSelect, useOrganizationUsers, useTeams } from '@/sdk'
 import type { CalendarRecord } from '../api'
 
 export interface CalendarFiltersProps {

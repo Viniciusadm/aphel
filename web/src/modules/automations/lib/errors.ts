@@ -1,5 +1,5 @@
 import { isApiError } from '@/api'
-import { fieldViolations, type FieldViolation } from '@/features/records/fields'
+import { type FieldViolation, fieldViolations } from '@/sdk'
 import type { AutomationDefinition } from '../types'
 
 export const INVALID_AUTOMATION = 'invalid_automation'

@@ -1,5 +1,5 @@
 import { Mail } from 'lucide-react'
-import type { RecordTab } from '@/features/records/detail/types'
+import { type RecordTab } from '@/sdk'
 import type { RecordTabContribution, RecordTabRenderProps } from '@/kernel/modules/define'
 import { lazyComponent } from '@/lib/lazy-component'
 import { EMAILS_READ_PERMISSION, EMAILS_TAB_KEY } from './constants'

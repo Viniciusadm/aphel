@@ -1,4 +1,4 @@
-import { MIN_TEXT_CONTRAST, contrastRatio } from '@/features/settings/organization/lib/contrast'
+import { contrastRatio, MIN_TEXT_CONTRAST } from '@/sdk'
 import { cssColorToHex } from './color'
 import { TOKENS, resolvedValue, valueToCss } from './tokens'
 import type { TokenSets } from './types'

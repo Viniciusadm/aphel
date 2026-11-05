@@ -18,9 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { notifyApprovalGate } from '@/modules/approvals/components/useApprovalGate'
 import { isApprovalGateError } from '@/modules/approvals/errors'
-import { recordsKeys } from '@/features/records/api'
-
-import type { RecordItem } from '@/features/records/types'
+import { type RecordItem, recordsKeys } from '@/sdk'
 import { activePipelines, usePipelines } from '@/modules/workflow/api'
 import { dealsApi, dealsKeys } from '../api'
 import { LostReasonDialog, type LostReasonChoice } from '../LostReasonDialog'

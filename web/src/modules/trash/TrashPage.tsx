@@ -10,12 +10,8 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
+import { formatDateTime, ListSkeleton, NativeSelect, RequirePermission, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   MAX_RETENTION_DAYS,
   MIN_RETENTION_DAYS,

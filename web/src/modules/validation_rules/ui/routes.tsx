@@ -1,6 +1,5 @@
 import { Navigate, type RouteObject } from 'react-router'
-import { DEFAULT_RECORD_TYPE } from '@/features/settings/fields/lib/field-types'
-
+import { DEFAULT_RECORD_TYPE } from '@/sdk'
 export const VALIDATION_RULES_PATH = '/settings/validation-rules'
 
 export const validationRulesSettingsRoute: RouteObject = {

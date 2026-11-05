@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { isCustomRecordType } from '@/features/custom-records/resources'
+import { isCustomRecordType } from '@/sdk'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
 

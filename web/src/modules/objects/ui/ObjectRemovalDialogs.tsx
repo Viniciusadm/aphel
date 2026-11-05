@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
-import { notifyObjectsError } from '@/features/custom-records'
-import { hasErrorCode } from '@/features/custom-records/errors'
+import { hasErrorCode, notifyObjectsError } from '@/sdk'
 import { objectsAdminApi, type CustomObjectAdmin } from '@/modules/objects/ui/api'
 
 export interface RemovalState {

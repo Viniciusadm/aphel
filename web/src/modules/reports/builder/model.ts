@@ -1,13 +1,4 @@
-import { metricKey } from '@/features/records/aggregates'
-import type { FilterNode } from '@/features/records/types'
-import type {
-  AggregateFunction,
-  AggregateGroupBy,
-  AggregateMetric,
-  AggregateQuery,
-  AggregateSort,
-  TimeGranularity,
-} from '@/features/records/aggregates'
+import { type AggregateFunction, type AggregateGroupBy, type AggregateMetric, type AggregateQuery, type AggregateSort, type FilterNode, metricKey, type TimeGranularity } from '@/sdk'
 import type { PeriodPreset, Report, ReportSettings, ReportVisibility, ReportVisualization } from './api'
 
 export const MAX_GROUPS = 3

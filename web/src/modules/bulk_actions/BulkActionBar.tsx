@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { BulkActionContext } from '@/features/records/table'
+import { type BulkActionContext } from '@/sdk'
 import { useHasReferenceOptions } from '@/kernel/modules/reference-options'
 import { lazyComponent } from '@/lib/lazy-component'
 import { bulkPermission, isBulkRecordType, type BulkRecordType } from './api'

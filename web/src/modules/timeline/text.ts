@@ -1,5 +1,4 @@
-import type { TimelineItem } from '@/features/records/timeline'
-
+import { type TimelineItem } from '@/sdk'
 export type TimelinePayload = Record<string, unknown>
 
 export function asObject(value: unknown): TimelinePayload {

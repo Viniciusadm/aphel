@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { RequirePermission, SETTINGS_MANAGE } from '@/sdk'
 import { TemplatesPanel } from '../components/TemplatesPanel'
 import { BlocklistPanel } from './BlocklistPanel'
 import { PreferencesPanel } from './PreferencesPanel'

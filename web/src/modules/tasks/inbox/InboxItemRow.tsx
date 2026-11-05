@@ -13,8 +13,7 @@ import {
 import type { InboxGroupKey, InboxItem } from '@/modules/tasks/api'
 import { ActivityTypeIcon } from '@/modules/tasks/components/ActivityTypeIcon'
 import { activityResource } from '@/modules/tasks/resource'
-import { formatCurrency, formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { getRecordResource } from '@/features/records/resources'
+import { formatCurrency, formatDateTime, getRecordResource, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 
 export interface InboxItemRowProps {

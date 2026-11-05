@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import {
   DELIVERIES_PER_PAGE,
   DELIVERY_STATUSES,

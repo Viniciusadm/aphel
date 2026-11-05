@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { RecordListExtension, RecordListExtensionProps, RecordListExtensionResult } from '@/kernel/modules/define'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import type { FieldDefinition } from '@/features/records/types'
+import { type FieldDefinition } from '@/sdk'
 import { useTaggingEntity, useRecordTagsLookup, useTags, type Tag } from './api'
 import { TagChipList } from './TagChip'
 

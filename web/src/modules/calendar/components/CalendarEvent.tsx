@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { CalendarRecord } from '../api'
 
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { eventTimeLabel, isFinished } from '../lib/events'
 

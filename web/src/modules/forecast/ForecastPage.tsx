@@ -9,8 +9,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
-import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
+import { formatCurrency, formatNumber, SettingsNativeSelect as NativeSelect, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   FORECAST_CATEGORIES,

@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate, formatNumber, type RecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatDate, formatNumber, type RecordFormatting } from '@/sdk'
 import { DEFAULT_FORMULA_CURRENCY, type FormulaResultType } from '@/modules/formulas/ui/result-types'
 import type { FormulasT } from '@/modules/formulas/ui/messages'
 

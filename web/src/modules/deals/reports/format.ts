@@ -1,6 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { RecordFormatting } from '@/features/records/formatting'
-
+import { type RecordFormatting } from '@/sdk'
 const HOUR = 3600
 const DAY = 86_400
 

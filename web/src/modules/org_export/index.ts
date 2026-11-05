@@ -1,5 +1,5 @@
 import { Download } from 'lucide-react'
-import { ORGANIZATION_EXPORT } from '@/features/settings/lib/permissions'
+import { ORGANIZATION_EXPORT } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 
 const orgExportModule = defineModule({

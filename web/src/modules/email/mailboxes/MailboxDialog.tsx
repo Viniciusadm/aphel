@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { emailApi, useInvalidateMailboxes } from '../api'
 import { VisibilityPicker } from '../components/VisibilityPicker'
 import { notifyEmailError } from '../lib/errors'

@@ -1,7 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import { recordsApi } from '@/features/records/api'
-
+import { recordsApi } from '@/sdk'
 import { APPROVALS_PER_PAGE, PENDING_COUNT_REFETCH_MS, POLICIES_PER_PAGE, QUOTE_RECORD_TYPE } from './constants'
 import type {
   ApprovalBox,

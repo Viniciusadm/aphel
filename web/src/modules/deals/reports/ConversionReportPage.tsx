@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Delta, StatTile } from '@/kernel/widgets/shared'
-import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   type ConversionReport,

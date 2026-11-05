@@ -17,9 +17,8 @@ import {
   YAxis,
 } from 'recharts'
 import { useTheme } from '@/app/theme/theme-context'
-import { useRecordFormatting, type RecordFormatting } from '@/features/records/formatting'
+import { type AggregateResult, decimalValue, type RecordFormatting, useRecordFormatting, variation } from '@/sdk'
 import { cn } from '@/lib/utils'
-import { decimalValue, variation, type AggregateResult } from '@/features/records/aggregates'
 import type { ReportVisualization } from './api'
 import {
   groupValueLabel,

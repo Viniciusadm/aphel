@@ -21,13 +21,8 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { dashboardApi, dashboardKeys } from '@/modules/dashboard/api'
-import { useFieldSchema } from '@/features/records/api'
-
-import { fieldViolations } from '@/features/records/fields'
-import { serializeFilter, toDraft, useFilterSchema, type DraftGroup } from '@/features/records/filters'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { type DraftGroup, fieldViolations, NativeSelect, serializeFilter, toDraft, useAggregate, useAggregateSchema, useFieldSchema, useFilterSchema } from '@/sdk'
 import { useViewTeams } from '@/modules/saved_views/ui'
-import { useAggregate, useAggregateSchema } from '@/features/records/aggregates'
 import { downloadReport, useReportEntities, useReport, useReportMutations, type ExportFormat, type Report, type ReportEntity } from './api'
 import {
   FiltersSection,

@@ -16,6 +16,7 @@ const WEB_SOURCE: &str = "../web/src";
 const WEB_PLUGIN_ROOT: &str = "modules";
 const WEB_SHELL_ROOTS: [&str; 6] = ["app", "features", "kernel", "components", "lib", "pwa"];
 const WEB_KERNEL_PLUGIN: &str = "kernel";
+const WEB_PLATFORM_PLUGINS: [&str; 2] = [WEB_KERNEL_PLUGIN, "wasm_runtime"];
 
 const GENERIC_RECORD_TYPES: [&str; 5] = ["FILE", "MEMBER", "ROLE", "TEAM", "ORGANIZATION"];
 const CORE_PERMISSION_AREAS: [&str; 6] =
@@ -502,7 +503,7 @@ fn web_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
                         cross_imports.push(format!("{}: {specifier}", relative(&web, &file)));
                     }
                 }
-                if specifier.starts_with("@/features") {
+                if specifier.starts_with("@/features") && !WEB_PLATFORM_PLUGINS.contains(&key.as_str()) {
                     feature_imports.push(format!("{}: {specifier}", relative(&web, &file)));
                 }
             }

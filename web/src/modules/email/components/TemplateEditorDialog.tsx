@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { emailApi, useSaveTemplate } from '../api'
 import { insertAt, slugifyKey } from '../lib/format'
 import { useEmailRecordTypes } from '../lib/record-types'

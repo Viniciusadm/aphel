@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useProductPicker, type Product } from './api'
-import { formatCurrency, useRecordFormatting } from '@/features/records/formatting'
-
+import { formatCurrency, useRecordFormatting } from '@/sdk'
 export interface ProductPickerProps {
   currency: string
   disabled?: boolean

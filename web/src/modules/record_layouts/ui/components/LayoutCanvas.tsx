@@ -18,9 +18,7 @@ import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MAX_LAYOUT_COLUMNS, MAX_LAYOUT_LABEL_LENGTH, MAX_LAYOUT_SECTIONS, MAX_LAYOUT_TABS } from '@/features/records/form/lib/layout'
-import type { FormLayout, LayoutContext, LayoutSection } from '@/features/records/form/lib/layout'
-import type { FieldDefinition } from '@/features/records/types'
+import { type FieldDefinition, type FormLayout, type LayoutContext, type LayoutSection, MAX_LAYOUT_COLUMNS, MAX_LAYOUT_LABEL_LENGTH, MAX_LAYOUT_SECTIONS, MAX_LAYOUT_TABS } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   addSection,

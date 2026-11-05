@@ -1,5 +1,5 @@
 import { UserCog, UserMinus, UserPlus, type LucideIcon } from 'lucide-react'
-import type { TimelineRenderer } from '@/features/records/timeline/registry'
+import { type TimelineRenderer } from '@/sdk'
 import { DealMemberEventContent } from './DealMemberEventContent'
 import type { DealMemberEventType } from './types'
 

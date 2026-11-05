@@ -1,10 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { api } from '@/api'
-import { recordsKeys } from '@/features/records/api'
-
-import { getRecordResource, recordPath, recordTitle } from '@/features/records/resources'
-import type { RecordItem } from '@/features/records/types'
+import { getRecordResource, type RecordItem, recordPath, recordsKeys, recordTitle } from '@/sdk'
 import { useRecordThreads } from '../api'
 import { isValidAddress, normalizeAddress, threadCounterparts } from '../lib/format'
 import type { EmailAddress, EmailRecordRef } from '../types'

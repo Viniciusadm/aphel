@@ -22,7 +22,7 @@ import {
   usePipelines,
 } from './api'
 import type { LostReason, Pipeline, PipelineStage } from './types'
-import { NoAccess } from '@/features/settings/components/NoAccess'
+import { NoAccess } from '@/sdk'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'
 import { notifyPipelineError } from './errors'

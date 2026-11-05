@@ -11,8 +11,7 @@ import {
   parseErrorEnvelope,
   type components,
 } from '@/api'
-import type { AggregateResult } from '@/features/records/aggregates'
-
+import { type AggregateResult } from '@/sdk'
 type Schemas = components['schemas']
 
 export type ReportSettings = Record<string, unknown>

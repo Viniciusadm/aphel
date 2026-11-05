@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDate, formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDate, formatDateTime, useRecordFormatting } from '@/sdk'
 import {
   requestDownloadUrl,
   usePrivacyRequest,

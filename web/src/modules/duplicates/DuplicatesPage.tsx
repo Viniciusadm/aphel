@@ -8,11 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
+import { formatDateTime, ListSkeleton, NativeSelect, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
 import {
   CANDIDATE_STATUSES,
   DUPLICATES_PER_PAGE,

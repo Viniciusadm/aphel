@@ -10,9 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import type { InboxItem } from '@/modules/tasks/api'
-import { useOrganizationUsers } from '@/features/records/api'
-
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect, useOrganizationUsers } from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface ReassignDialogProps {

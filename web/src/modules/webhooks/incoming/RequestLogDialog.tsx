@@ -8,8 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { formatDateTime, NativeSelect, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import {
   REQUESTS_PER_PAGE,

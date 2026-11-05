@@ -1,8 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, type components } from '@/api'
-import { recordsKeys } from '@/features/records/api'
-
-
+import { recordsKeys } from '@/sdk'
 type Schemas = components['schemas']
 
 export type DuplicateCandidate = Schemas['DuplicateCandidateResponse']

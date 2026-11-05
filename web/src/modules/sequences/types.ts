@@ -2,7 +2,7 @@ import type { components } from '@/api'
 
 type Schemas = components['schemas']
 
-export type { Page, PageMeta } from '@/features/records/types'
+export type { RecordsPage as Page, PageMeta } from '@/sdk'
 
 export type SequenceStepKind = Schemas['SequenceStepKind']
 export type EnrollmentStatus = Schemas['SequenceEnrollmentStatus']

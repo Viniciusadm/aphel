@@ -2,8 +2,7 @@ import { Repeat } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { formatCurrency, useRecordFormatting } from '@/sdk'
+import { formatCurrency, NativeSelect, useRecordFormatting } from '@/sdk'
 import { MAX_TERM_MONTHS, RECURRENCES, type Recurrence, type RecurringItemFields, type RecurringItemRequest } from './types'
 
 export interface ItemRecurrenceFieldsProps {

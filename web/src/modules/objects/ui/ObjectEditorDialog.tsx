@@ -15,18 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  DEFAULT_OBJECT_COLOR,
-  DEFAULT_OBJECT_ICON,
-  OBJECT_COLORS,
-  OBJECT_ICON_NAMES,
-  notifyObjectsError,
-  objectColor,
-  ObjectIcon,
-} from '@/features/custom-records'
-import { useFieldSchema } from '@/features/records/api'
-
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { DEFAULT_OBJECT_COLOR, DEFAULT_OBJECT_ICON, NativeSelect, notifyObjectsError, OBJECT_COLORS, OBJECT_ICON_NAMES, objectColor, ObjectIcon, useFieldSchema } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { OBJECT_KEY_MAX_LENGTH, OBJECT_KEY_PATTERN, objectsAdminApi, type CustomObjectAdmin } from '@/modules/objects/ui/api'
 import { objectKeyFromLabel } from '@/modules/objects/ui/keys'

@@ -1,4 +1,4 @@
-import type { TimelineItem } from '@/features/records/timeline/types'
+import { type TimelineItem } from '@/sdk'
 import type { EmailAccess, EmailDirection, Participant, TimelineEmail } from '../types'
 
 function isRecord(value: unknown): value is Record<string, unknown> {

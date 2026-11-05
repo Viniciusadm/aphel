@@ -7,14 +7,8 @@ import { notifyError } from '@/components/feedback/notify'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { activitiesKeys, useActivityTypes } from '../api'
-import { recordsKeys } from '@/features/records/api'
-
+import { type CapturedLocation, captureLocation, DictationField, FormActions, FormBody, type LocationFailure, mapUrl, type PickedRecord, type QuickFormProps, RecordPicker, recordsKeys, useOutboxFeedback } from '@/sdk'
 import { CHECK_IN_TYPE_KEYS, pickActivityType, submitActivity } from './api'
-import { captureLocation, mapUrl, type CapturedLocation, type LocationFailure } from '@/features/mobile/lib/geolocation'
-import { DictationField } from '@/features/mobile/components/DictationField'
-import { RecordPicker, type PickedRecord } from '@/features/mobile/components/RecordPicker'
-import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
-import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
 import { Field } from '@/components/ui/field'
 
 type LocationState =

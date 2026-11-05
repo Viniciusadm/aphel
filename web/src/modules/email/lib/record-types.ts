@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCustomObjects } from '@/features/custom-records/api'
-import { isCustomRecordType } from '@/features/custom-records/resources'
-
+import { isCustomRecordType, useCustomObjects } from '@/sdk'
 export const CORE_EMAIL_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal'] as const
 
 export function supportsEmails(recordType: string): boolean {

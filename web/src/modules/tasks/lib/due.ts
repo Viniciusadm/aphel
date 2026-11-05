@@ -1,5 +1,4 @@
-import { dayKey } from '@/features/records/timeline'
-
+import { dayKey } from '@/sdk'
 export type DueState = 'overdue' | 'today' | 'upcoming' | 'none'
 
 export function dueState(dueAt: string | null | undefined, timeZone: string, now: Date = new Date()): DueState {

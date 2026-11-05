@@ -1,5 +1,5 @@
 import { ArrowRightLeft, CircleDollarSign, NotebookPen, SquareCheck } from 'lucide-react'
-import type { TimelineRenderer } from '@/features/records/timeline'
+import { type TimelineRenderer } from '@/sdk'
 import { timelineRenderer as renderer } from '@/modules/timeline'
 import {
   ActivityTimelineContent,

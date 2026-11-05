@@ -1,17 +1,4 @@
-import { parseLayout, type ListLayout } from '@/features/records/calendar/layout'
-import { DEFAULT_PER_PAGE, MAX_PER_PAGE, parseSortParam, sortToParam } from '@/features/records/table/query'
-import {
-  isFilterCondition,
-  isFilterGroup,
-  type FilterCondition,
-  type FilterNode,
-  type FilterOperator,
-  type RecordViewConfig,
-  type SavedView,
-  type SortSpec,
-  type TableDensity,
-} from '@/features/records/types'
-
+import { DEFAULT_PER_PAGE, type FilterCondition, type FilterNode, type FilterOperator, isFilterCondition, isFilterGroup, type ListLayout, MAX_PER_PAGE, parseLayout, parseSortParam, type RecordViewConfig, type SavedView, type SortSpec, sortToParam, type TableDensity } from '@/sdk'
 export const ALL_RECORDS_VIEW = 'all'
 export const DEFAULT_DENSITY: TableDensity = 'comfortable'
 

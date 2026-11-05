@@ -1,4 +1,4 @@
-import type { FilterNode } from '@/features/records/types'
+import { type FilterNode } from '@/sdk'
 import type { TransitionTrigger } from './types'
 
 export const LEADS_PATH = '/leads'

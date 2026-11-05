@@ -1,7 +1,6 @@
 import type { ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FormRow } from '@/features/settings/organization/components/FormRow'
-import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
+import { FormRow, SettingsNativeSelect as NativeSelect } from '@/sdk'
 import { CREDIT_MODES } from './api'
 
 export interface CreditModeFieldProps extends Omit<ComponentProps<'select'>, 'id'> {

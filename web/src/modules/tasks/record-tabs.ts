@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import type { RecordTab } from '@/features/records/detail'
+import { type RecordTab } from '@/sdk'
 import type { FilterContext } from '@/kernel/modules/filters'
 import { ActivitiesTab } from './ActivitiesTab'
 

@@ -2,7 +2,7 @@ import type { components } from '@/api'
 
 type Schemas = components['schemas']
 
-export type { Page } from '@/features/records/types'
+export type { RecordsPage as Page } from '@/sdk'
 
 export type QuoteStatus = Schemas['QuoteStatus']
 export type QuoteDiscountType = Schemas['QuoteDiscountType']

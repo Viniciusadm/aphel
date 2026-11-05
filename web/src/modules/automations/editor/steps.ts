@@ -1,4 +1,4 @@
-import type { FilterNode } from '@/features/records/types'
+import { type FilterNode } from '@/sdk'
 import { parseDuration } from '../lib/durations'
 import { uniqueId } from '../lib/flow'
 import type { ActionCatalogEntry, JsonObject, JsonSchema, StepSpec, StepType } from '../types'

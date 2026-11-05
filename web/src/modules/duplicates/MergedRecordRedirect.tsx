@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { getRecordResource } from '@/features/records/resources'
+import { getRecordResource } from '@/sdk'
 import type { RecordSlotProps } from '@/kernel/modules/slots'
 
 export function MergedRecordRedirect({ recordType, record }: RecordSlotProps) {

@@ -7,16 +7,7 @@ import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import {
-  positiveInteger,
-  useOrganizationConfiguration,
-  useSaveConfiguration,
-  type CatalogSource,
-} from '@/features/settings/general/api'
-import { serverFieldErrors } from '@/features/settings/general/violations'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
-import { FormRow } from '@/features/settings/organization/components/FormRow'
-import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
+import { type CatalogSource, FormRow, positiveInteger, serverFieldErrors, SETTINGS_MANAGE, SettingsNativeSelect as NativeSelect, useOrganizationConfiguration, useSaveConfiguration } from '@/sdk'
 import { ToggleField } from '@/components/ui/toggle-field'
 
 const schema = z

@@ -1,5 +1,4 @@
-import { isFilterCondition, isFilterGroup, type FilterNode } from '@/features/records/types'
-
+import { type FilterNode, isFilterCondition, isFilterGroup } from '@/sdk'
 export const PIPELINE_FIELD = 'pipeline_id'
 
 function isPipelineCondition(node: FilterNode): boolean {

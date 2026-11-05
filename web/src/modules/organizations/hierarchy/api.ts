@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import { recordsKeys } from '@/features/records/api'
-
+import { recordsKeys } from '@/sdk'
 import type { CompanyGroupTotals, CompanyHierarchy } from './types'
 
 const COMPANY_RECORD_TYPE = 'organizations.organization'

@@ -13,8 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import type { SavedView, ViewVisibility } from '@/features/records/types'
+import { NativeSelect, type SavedView, type ViewVisibility } from '@/sdk'
 import { MAX_VIEW_NAME_LENGTH, SETTINGS_MANAGE, useViewTeams } from '@/modules/saved_views/ui/viewsApi'
 import { Field } from '@/components/ui/field'
 

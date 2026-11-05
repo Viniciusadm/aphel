@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import type { Page } from '@/features/records/types'
+import { type RecordsPage as Page } from '@/sdk'
 import type {
   Automation,
   AutomationCatalog,

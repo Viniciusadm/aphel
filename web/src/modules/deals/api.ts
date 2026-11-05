@@ -1,5 +1,5 @@
 import { api } from '@/api'
-import type { FilterNode } from '@/features/records/types'
+import { type FilterNode } from '@/sdk'
 import type { Board, Deal, DealsPage } from './types'
 
 export const BOARD_PER_COLUMN = 25

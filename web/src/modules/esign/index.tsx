@@ -1,5 +1,5 @@
 import { FileSignature } from 'lucide-react'
-import type { TimelineRenderer } from '@/features/records/timeline/registry'
+import { type TimelineRenderer } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { lazyComponent } from '@/lib/lazy-component'
 import { ESIGN_KEY, SEND_PERMISSION, VIEW_PERMISSION } from './api'

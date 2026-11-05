@@ -5,7 +5,7 @@ import { createElement } from 'react'
 import { TasksSummary } from './dashboard/Summary'
 import { CalendarCreateDialog } from "./CalendarCreateDialog"
 import { CalendarCheck, CheckSquare, Inbox, MapPin } from 'lucide-react'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { CreateTaskDialog } from './create-action'
 import { inboxRoutes } from './inbox/routes'

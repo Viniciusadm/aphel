@@ -18,9 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useOrganizationUsers } from '@/features/records/api'
-
-import { useFields } from '@/features/settings/fields/api'
+import { useFields, useOrganizationUsers } from '@/sdk'
 import {
   STRATEGIES,
   leadDistributionApi,

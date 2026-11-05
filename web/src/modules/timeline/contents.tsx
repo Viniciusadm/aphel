@@ -1,9 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router'
-import { useFieldSchema } from '@/features/records/api'
-
-import { getRecordResource } from '@/features/records/resources'
-import { GenericTimelineContent, type TimelineItem, type TimelineRecordReference } from '@/features/records/timeline'
+import { GenericTimelineContent, getRecordResource, type TimelineItem, type TimelineRecordReference, useFieldSchema } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { TIMELINE_MODULE_KEY } from './api'
 import { asObject, asText, eventType, nameOf, payloadOf } from './text'

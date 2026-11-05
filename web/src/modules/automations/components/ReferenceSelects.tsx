@@ -1,12 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/api'
-import { useFieldSchema } from '@/features/records/api'
-
-import { activeFields } from '@/features/records/fields'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import type { FieldDefinition, FieldType } from '@/features/records/types'
-import { useAggregateSchema } from '@/features/records/aggregates'
+import { activeFields, type FieldDefinition, type FieldType, NativeSelect, useAggregateSchema, useFieldSchema } from '@/sdk'
 import type { ReferenceOption, ReferenceOptionsContext } from '@/kernel/modules/define'
 import { ReferenceOptions } from '@/kernel/modules/ReferenceOptions'
 

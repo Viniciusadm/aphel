@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatNumber, useRecordFormatting } from '@/sdk'
 import type { DealsByStageData, StageBar } from './types'
 
 interface TooltipProps {

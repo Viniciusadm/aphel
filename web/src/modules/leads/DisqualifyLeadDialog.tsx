@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { useDisqualificationReasons, useLeadActions } from './api'
 import { MAX_NOTE_LENGTH } from './constants'
 import { lifecycleErrorMessage } from './errors'

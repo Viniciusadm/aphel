@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, formatNumber, useRecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatNumber, useRecordFormatting } from '@/sdk'
 import type { SalesIndicatorsData } from './types'
 import { Delta, StatTile } from '@/kernel/widgets/shared'
 

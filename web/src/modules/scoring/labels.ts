@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useCustomObjects } from '@/features/custom-records'
+import { useCustomObjects } from '@/sdk'
 import { SCORING_CORE_RECORD_TYPES } from './types'
 
 type CoreRecordType = (typeof SCORING_CORE_RECORD_TYPES)[number]

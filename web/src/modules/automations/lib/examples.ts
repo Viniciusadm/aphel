@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { FilterNode } from '@/features/records/types'
+import { type FilterNode } from '@/sdk'
 import type { CreateAutomationPayload, StepSpec } from '../types'
 
 export type ExampleKey = 'follow_up_proposal' | 'stale_deal' | 'wait_then_task' | 'welcome_contact' | 'deal_won'

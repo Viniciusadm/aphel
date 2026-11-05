@@ -1,6 +1,6 @@
 import { Rocket } from 'lucide-react'
 import { Navigate } from 'react-router'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { OnboardingGate } from './OnboardingGate'
 import { applyRecommendedTemplate } from './setup/applyRecommendedTemplate'

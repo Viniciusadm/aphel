@@ -1,5 +1,5 @@
 import { entityLabel, useEntityLabel } from '@/sdk/entities'
-import { recordListPath } from '@/features/records/links'
+import { recordListPath } from '@/sdk'
 import { Field } from '@/components/ui/field'
 import { NativeSelect } from '@/components/ui/native-select'
 import type { ReactNode } from 'react'

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { TimelineSource } from '@/features/records/timeline'
+import { type TimelineSource } from '@/sdk'
 import { recordTimelineSource } from '@/modules/timeline'
 import { DEAL_RECORD_TYPE } from '../resource'
 

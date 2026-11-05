@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
-import { formatDate, useRecordFormatting } from '@/features/records/formatting'
+import { formatDate, useRecordFormatting } from '@/sdk'
 import type { PriceList } from './types'
 import { isInEffect } from './validity'
 

@@ -13,10 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { recordsKeys, useFieldSchema, useOrganizationUsers } from '@/features/records/api'
-
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import type { BulkActionContext } from '@/features/records/table'
+import { type BulkActionContext, NativeSelect, recordsKeys, useFieldSchema, useOrganizationUsers } from '@/sdk'
 import type { ReferenceOption } from '@/kernel/modules/define'
 import { useReferenceQueryKeys } from '@/kernel/modules/reference-options'
 import { ReferenceOptions } from '@/kernel/modules/ReferenceOptions'

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { ReferenceOptionsContext, ReferenceOptionsProvider, ReferenceOptionsResult } from '@/kernel/modules/define'
-import { isCustomRecordType } from '@/features/custom-records/resources'
+import { isCustomRecordType } from '@/sdk'
 import { tagsKeys, useTags } from './api'
 
 function useTagOptions({ recordType, enabled = true }: ReferenceOptionsContext): ReferenceOptionsResult {

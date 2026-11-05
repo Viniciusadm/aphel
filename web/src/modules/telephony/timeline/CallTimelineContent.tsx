@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { activityResource } from '@/modules/tasks/resource'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import { getRecordResource } from '@/features/records/resources'
-import type { TimelineItem } from '@/features/records/timeline'
+import { formatDateTime, getRecordResource, type TimelineItem, useRecordFormatting } from '@/sdk'
 import { CallSummary } from '../components/CallSummary'
 import type { CallDirection } from '../types'
 

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { StatTile } from '@/kernel/widgets/shared'
-import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/sdk'
 import { dealPath } from '@/modules/deals/resource'
 import type { RenewalsDueData } from './types'
 

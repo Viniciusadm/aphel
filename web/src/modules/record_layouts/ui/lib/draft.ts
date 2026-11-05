@@ -1,14 +1,4 @@
-import type { FieldDefinition, FilterNode } from '@/features/records/types'
-import {
-  MAX_LAYOUT_COLUMNS,
-  layoutKeys,
-  type FormLayout,
-  type LayoutContext,
-  type LayoutField,
-  type LayoutSection,
-} from '@/features/records/form/lib/layout'
-import { READ_ONLY_SYSTEM_KEYS, isEditableField } from '@/features/records/form/lib/values'
-
+import { type FieldDefinition, type FilterNode, type FormLayout, isEditableField, type LayoutContext, type LayoutField, layoutKeys, type LayoutSection, MAX_LAYOUT_COLUMNS, READ_ONLY_SYSTEM_KEYS } from '@/sdk'
 export interface FieldLocation {
   tabId: string
   sectionId: string

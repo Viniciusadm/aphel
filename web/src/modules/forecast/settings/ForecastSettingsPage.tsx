@@ -11,9 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { fieldViolations } from '@/features/auth/lib/api-errors'
-import { FormRow } from '@/features/settings/organization/components/FormRow'
-import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
+import { authFieldViolations as fieldViolations, FormRow, SettingsNativeSelect as NativeSelect } from '@/sdk'
 import {
   FORECAST_METHODS,
   MAX_HORIZON_MONTHS,

@@ -1,7 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { VisibilityBadge } from '../components/VisibilityBadge'
 import { joinParticipants, threadCounterparts } from '../lib/format'
 import type { EmailThread } from '../types'

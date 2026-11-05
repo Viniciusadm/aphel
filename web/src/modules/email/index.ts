@@ -1,7 +1,6 @@
 import { Mail, MailCheck } from 'lucide-react'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { CUSTOM_RECORD_TYPE_PREFIX, SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
-import { CUSTOM_RECORD_TYPE_PREFIX } from '@/features/custom-records/resources'
 import { CORE_EMAIL_RECORD_TYPES } from './lib/record-types'
 import { EMAILS_RECORD_TAB, withEmailsTabPlacement } from './record-tab'
 import { emailSettingsRoute, mailboxesSettingsRoute } from './routes'

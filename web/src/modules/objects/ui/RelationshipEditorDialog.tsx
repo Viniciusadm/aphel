@@ -14,14 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import {
-  isCustomRecordType,
-  notifyObjectsError,
-  type Relationship,
-  type RelationshipCardinality,
-  type RelationshipOnDelete,
-} from '@/features/custom-records'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { isCustomRecordType, NativeSelect, notifyObjectsError, type Relationship, type RelationshipCardinality, type RelationshipOnDelete } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { RELATION_KEY_PATTERN, objectsAdminApi } from '@/modules/objects/ui/api'
 import { relationKeyFromLabel } from '@/modules/objects/ui/keys'

@@ -1,4 +1,4 @@
-import { useFieldSchema } from '@/features/records/api'
+import { useFieldSchema } from '@/sdk'
 import { AlarmClock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'

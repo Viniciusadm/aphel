@@ -1,4 +1,4 @@
-import { pseudoFilterField, type FilterFieldExtension } from '@/features/records/filters'
+import { type FilterFieldExtension, pseudoFilterField } from '@/sdk'
 import i18n from '@/i18n'
 import { isSegmentRecordType } from './api'
 import { SegmentSummary, SegmentValueInput } from './SegmentFilterInputs'

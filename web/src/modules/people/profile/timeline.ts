@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 import { api } from '@/api'
 import { recordTimelineSource } from '@/modules/timeline'
-import type { TimelineFetchPage, TimelinePage, TimelineSource } from '@/features/records/timeline'
-
+import { type TimelineFetchPage, type TimelinePage, type TimelineSource } from '@/sdk'
 export type ProfileRecordType = 'people.person' | 'organizations.organization'
 
 export function timelineFetchPage(recordType: ProfileRecordType, recordId: string): TimelineFetchPage {

@@ -1,5 +1,5 @@
 import { Inbox, MessageSquareReply, MessageSquareText, MessageSquareWarning, MessagesSquare, RadioTower } from 'lucide-react'
-import type { TimelineRenderer } from '@/features/records/timeline/registry'
+import { type TimelineRenderer } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { MANAGE_CHANNELS_PERMISSION, MESSAGING_KEY, VIEW_PERMISSION } from './api'
 import { ConversationsTab } from './ConversationsTab'

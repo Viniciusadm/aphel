@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import type { TimelineItem } from '@/features/records/timeline'
+import { type TimelineItem } from '@/sdk'
 import { DEAL_ITEM_EVENT_TYPES, type LineItemEventType } from './events'
 
 type Payload = Record<string, unknown>

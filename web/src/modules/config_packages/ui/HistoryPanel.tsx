@@ -15,7 +15,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
+import { ListSkeleton } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import { INSTALLS_PER_PAGE, usePackageInstall, usePackageInstalls, type PackageInstall } from '@/modules/config_packages/ui/api'
 import { downloadJson, packageFileName } from '@/modules/config_packages/ui/lib/download'

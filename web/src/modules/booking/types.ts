@@ -2,7 +2,7 @@ import type { components } from '@/api'
 
 type Schemas = components['schemas']
 
-export type { Page, PageMeta } from '@/features/records/types'
+export type { RecordsPage as Page, PageMeta } from '@/sdk'
 
 export type BookingWeeklyInterval = Schemas['BookingWeeklyInterval']
 export type BookingAvailabilityRequest = Schemas['BookingAvailabilityRequest']

@@ -1,4 +1,4 @@
-import type { FieldDefinition, FieldSchema } from '@/features/records/types'
+import { type FieldDefinition, type FieldSchema } from '@/sdk'
 import { BULK_SYSTEM_FIELDS, type BulkRecordType } from './api'
 
 function writable(field: FieldDefinition): boolean {

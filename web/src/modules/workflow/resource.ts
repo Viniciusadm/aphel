@@ -1,5 +1,4 @@
-import { registerRecordResource } from '@/features/records/resources'
-
+import { registerRecordResource } from '@/sdk'
 export const pipelineResource = registerRecordResource({
   recordType: 'workflow.pipeline',
   basePath: '/v1/workflow',

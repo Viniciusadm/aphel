@@ -1,12 +1,11 @@
 import { ShoppingCart } from 'lucide-react'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { getRecordResource, SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import './slots'
 const settingsRoute = { path: 'line-items', lazy: async () => ({ Component: (await import('./SettingsPage')).LineItemSettingsPage }) }
 import { LineItemsRecordTab } from './record-tabs'
 import { DEAL_ITEM_TIMELINE_RENDERERS } from './timeline'
 
-import { getRecordResource } from '@/features/records/resources'
 const acceptsItems = (recordType: string) => Boolean(getRecordResource(recordType)?.traits?.['line_items.attachable'])
 
 const dealItemsModule = defineModule({

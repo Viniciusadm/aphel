@@ -1,4 +1,4 @@
-import { registerRecordResource } from '@/features/records/resources'
+import { registerRecordResource } from '@/sdk'
 import { quotePath } from './api'
 
 export const QUOTE_RECORD_TYPE = 'quotes.quote'

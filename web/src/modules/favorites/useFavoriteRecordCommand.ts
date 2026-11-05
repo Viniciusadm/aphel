@@ -1,8 +1,7 @@
 import { Star, StarOff } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRegisterCommands } from '@/features/command-palette/context'
-import type { PaletteCommand } from '@/features/command-palette/types'
+import { type PaletteCommand, useRegisterCommands } from '@/sdk'
 import { useFavoriteToggle, type FavoriteTarget } from './api'
 
 export function useFavoriteRecordCommand(target: FavoriteTarget) {

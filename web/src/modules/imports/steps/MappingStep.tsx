@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { errorMessage } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { Slot } from '@/kernel/modules/Slot'
 import {
   useConfigureImport,

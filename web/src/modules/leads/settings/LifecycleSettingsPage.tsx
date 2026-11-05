@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
+import { RequirePermission } from '@/sdk'
 import { LIFECYCLE_MANAGE_PERMISSION } from '../constants'
 import { DisqualificationReasonsSection } from './DisqualificationReasonsSection'
 import { TransitionRulesSection } from './TransitionRulesSection'

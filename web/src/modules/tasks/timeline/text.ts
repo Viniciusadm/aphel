@@ -1,6 +1,5 @@
 import type { TFunction } from 'i18next'
-import { formatCurrency, formatDate, type RecordFormatting } from '@/features/records/formatting'
-import type { TimelineItem } from '@/features/records/timeline'
+import { formatCurrency, formatDate, type RecordFormatting, type TimelineItem } from '@/sdk'
 import { asText, eventType, nameOf, payloadOf } from '@/modules/timeline'
 
 export function dealChangeText(

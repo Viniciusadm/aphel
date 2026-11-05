@@ -1,8 +1,7 @@
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
-import { recordsKeys } from '@/features/records/api'
-
+import { recordsKeys } from '@/sdk'
 import { ACTIVITY_RECORD_TYPE, ACTIVITY_TYPE_RECORD_TYPE } from './resource'
 
 export type Activity = components['schemas']['ActivityResponse']

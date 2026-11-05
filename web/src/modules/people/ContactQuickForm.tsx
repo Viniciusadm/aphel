@@ -7,12 +7,8 @@ import { notifyError } from '@/components/feedback/notify'
 import { Input } from '@/components/ui/input'
 import { CONTACT_RECORD_TYPE, contactResource } from './resource'
 import { emitModuleEvent } from '@/kernel/modules/events'
-import { recordsKeys } from '@/features/records/api'
-
-import type { RecordItem } from '@/features/records/types'
+import { FormActions, FormBody, type QuickFormProps, type RecordItem, recordsKeys, useOutboxFeedback } from '@/sdk'
 import { submitWithOutbox } from '@/pwa/offline/outbox'
-import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
-import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
 import { Field } from '@/components/ui/field'
 
 function splitName(name: string): { first_name: string; last_name: string | null } {

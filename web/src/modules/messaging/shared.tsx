@@ -1,7 +1,7 @@
 import { Mail, MessageCircle } from 'lucide-react'
 import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
-import { getRecordResource } from '@/features/records/resources'
+import { getRecordResource } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, type ChannelKind, type ConversationStatus, type LinkedRecord } from './api'

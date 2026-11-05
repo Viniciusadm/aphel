@@ -1,7 +1,7 @@
 import { AlarmClock, CalendarClock, CalendarDays } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { RecordLinkText } from '@/kernel/widgets/shared'
 import { BucketSection } from '@/kernel/widgets/BucketSection'
 import type { TaskPendingData, PendingActivityItem } from './types'

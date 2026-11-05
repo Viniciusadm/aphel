@@ -1,4 +1,4 @@
-import { isFilterCondition, isFilterGroup, type FilterNode } from '@/features/records/types'
+import { type FilterNode, isFilterCondition, isFilterGroup } from '@/sdk'
 import { IS_ROTTING_FIELD } from './lib'
 
 const ROTTING_CONDITION: FilterNode = { field: IS_ROTTING_FIELD, operator: 'eq', value: true }

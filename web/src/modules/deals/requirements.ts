@@ -1,5 +1,5 @@
 import { isApiError } from '@/api'
-import { fieldViolations } from '@/features/records/fields'
+import { fieldViolations } from '@/sdk'
 import { requiredStageFields } from '@/modules/workflow/requirements'
 import type { PipelineStage } from '@/modules/workflow/types'
 import type { Deal } from './types'

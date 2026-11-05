@@ -2,7 +2,7 @@ import { applyFilters } from '@/kernel/modules/filters'
 import { useModuleState } from '@/kernel/modules/registry'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui/avatar'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import type { RecentActivityData } from '../types'
 import { RecordLinkText } from '@/kernel/widgets/shared'
 

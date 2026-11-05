@@ -1,6 +1,5 @@
 import { Package } from 'lucide-react'
-import { registerRecordResource } from '@/features/records/resources'
-
+import { registerRecordResource } from '@/sdk'
 export const PRODUCT_RECORD_TYPE = 'catalog_items.item'
 export const PRODUCTS_PATH = '/catalog-items'
 

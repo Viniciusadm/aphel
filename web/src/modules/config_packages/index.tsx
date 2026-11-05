@@ -2,8 +2,7 @@ import { PackageOpen } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { RouteObject } from 'react-router'
 import { defineModule } from '@/kernel/modules/define'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
-
+import { SETTINGS_MANAGE } from '@/sdk'
 function page<M, K extends keyof M>(load: () => Promise<M>, name: K): RouteObject['lazy'] { return async () => ({ Component: (await load())[name] as ComponentType }) }
 const module = defineModule({ key: 'config_packages', register(app) { app.settings('data', {
       group: 'transfer',

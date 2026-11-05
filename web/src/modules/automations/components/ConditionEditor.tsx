@@ -3,12 +3,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useFieldSchema } from '@/features/records/api'
-
-import { FilterBuilder, serializeFilter, toDraft, type DraftGroup } from '@/features/records/filters'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { isFilterGroup, isFilterRelated, type FieldSchema, type FilterNode, type FilterRelated } from '@/features/records/types'
-import { useAggregateSchema } from '@/features/records/aggregates'
+import { type DraftGroup, type FieldSchema, FilterBuilder, type FilterNode, type FilterRelated, isFilterGroup, isFilterRelated, NativeSelect, serializeFilter, toDraft, useAggregateSchema, useFieldSchema } from '@/sdk'
 import { useConditionSchema } from '../lib/condition-schema'
 
 const EMPTY_FILTER: FilterNode = { op: 'and', conditions: [] }

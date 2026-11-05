@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
 import { useIsModuleActive } from '@/kernel/modules/registry'
-import { IDEMPOTENCY_HEADER, newIdempotencyKey, recordsKeys } from '@/features/records/api'
-
-import type { CreateViewRequest, SavedView, SavedViewsPage, UpdateViewRequest } from '@/features/records/types'
+import { type CreateViewRequest, IDEMPOTENCY_HEADER, newIdempotencyKey, recordsKeys, type SavedView, type SavedViewsPage, type UpdateViewRequest } from '@/sdk'
 export const VIEWS_PER_PAGE = 100
 function viewsPath(recordType: string, suffix = '') {
   return `/v1/views/${encodeURIComponent(recordType)}${suffix}`

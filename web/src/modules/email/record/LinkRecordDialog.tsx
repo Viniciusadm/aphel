@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { emailApi, useInvalidateThreads } from '../api'
 import { useEmailRecordTypes } from '../lib/record-types'
 import type { EmailThread } from '../types'

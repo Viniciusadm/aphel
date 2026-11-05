@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { REMINDER_OPTIONS, reminderLabel } from '../lib/recurrence'
 
 export interface ReminderSelectProps {

@@ -34,8 +34,7 @@ import {
   zonedDayStart,
   zonedInstant,
 } from '@/sdk/calendar/dates'
-import { SMALL_SCREEN_QUERY, useMediaQuery } from '@/features/records/calendar/useMediaQuery'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { SMALL_SCREEN_QUERY, useMediaQuery, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { CalendarFilters } from './components/CalendarFilters'
 import { AgendaView, DAY_DROP_PREFIX, MonthView } from './components/MonthView'

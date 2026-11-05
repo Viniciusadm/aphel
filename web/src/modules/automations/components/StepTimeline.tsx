@@ -1,7 +1,6 @@
 import { CheckCircle2, CircleSlash, Clock, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
-import type { FieldSchema } from '@/features/records/types'
+import { type FieldSchema, formatDateTime, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { useStepSummary } from '../editor/summary'
 import { useAutomationLabels } from '../lib/labels'

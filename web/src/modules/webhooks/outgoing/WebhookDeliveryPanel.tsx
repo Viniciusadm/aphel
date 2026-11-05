@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
-import { useOrganizationConfiguration, useSaveConfiguration } from '@/features/settings/general/api'
-import { NumericSettingsPanel } from '@/features/settings/general/NumericSettingsPanel'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
-
+import { NumericSettingsPanel, SETTINGS_MANAGE, useOrganizationConfiguration, useSaveConfiguration } from '@/sdk'
 export function WebhookDeliveryPanel() {
   const { t } = useTranslation('settings')
   const { hasPermission } = useSession()

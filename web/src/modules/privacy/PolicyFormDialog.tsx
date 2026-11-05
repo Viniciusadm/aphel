@@ -8,7 +8,7 @@ import {
   DialogContent,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import {
   MAX_THRESHOLD_DAYS,
   MIN_THRESHOLD_DAYS,

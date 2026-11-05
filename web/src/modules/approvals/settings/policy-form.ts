@@ -1,6 +1,4 @@
-import { fieldViolations } from '@/features/records/fields'
-import { emptyGroup, serializeFilter, toDraft, type DraftGroup } from '@/features/records/filters'
-import type { FieldDefinition, FieldSchema } from '@/features/records/types'
+import { type DraftGroup, emptyGroup, type FieldDefinition, type FieldSchema, fieldViolations, serializeFilter, toDraft } from '@/sdk'
 import { identifierFrom } from './identifier'
 import { MAX_DUE_HOURS, MIN_DUE_HOURS, QUOTE_RECORD_TYPE, STAGE_RECORD_TYPES } from '../constants'
 import type {

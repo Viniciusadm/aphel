@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import type { FieldSchema } from '@/features/records/types'
+import { type FieldSchema, NativeSelect } from '@/sdk'
 import { IssueList } from '../components/IssueList'
 import { SchemaForm } from '../components/SchemaForm'
 import { issuesOutside, issuesUnder, type ValidationIssue } from '../lib/errors'

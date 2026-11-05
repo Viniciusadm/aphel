@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   NOTIFICATIONS_PAGE_SIZE,

@@ -1,10 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
-import { useOrganizationUsers } from '@/features/records/api'
-
-import { activeFields } from '@/features/records/fields'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import type { FieldSchema } from '@/features/records/types'
+import { activeFields, type FieldSchema, NativeSelect, useOrganizationUsers } from '@/sdk'
 import type { JsonObject } from '../types'
 
 export type UserSpecType = 'record_owner' | 'user' | 'field'

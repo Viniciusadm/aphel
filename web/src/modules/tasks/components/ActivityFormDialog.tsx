@@ -17,10 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
-import { useOrganizationUsers } from '@/features/records/api'
-
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { NativeSelect, useOrganizationUsers, useRecordFormatting } from '@/sdk'
 import {
   ACTIVITY_PRIORITIES,
   useActivityTypes,

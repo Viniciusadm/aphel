@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { RecordFormDialog } from '@/features/records/form'
+import { RecordFormDialog } from '@/sdk'
 import type { CreateActionRenderProps } from '@/kernel/modules/define'
 import { COMPANY_CREATE_LAYOUT, COMPANY_RECORD_TYPE } from './resource'
 

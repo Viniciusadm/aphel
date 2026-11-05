@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { useSegments } from '@/modules/segments/api'
 import { useCurrencySettings } from '@/modules/money/api'
 import { priceListsApi, useInvalidatePriceLists } from './api'

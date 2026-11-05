@@ -1,6 +1,5 @@
 import { Building2 } from 'lucide-react'
-import { registerRecordResource } from '@/features/records/resources'
-
+import { registerRecordResource } from '@/sdk'
 export const COMPANY_RECORD_TYPE = 'organizations.organization'
 export const COMPANIES_PATH = '/organizations'
 

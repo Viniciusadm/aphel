@@ -15,8 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ErrorState } from '@/components/ui/error-state'
-import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
+import { ListSkeleton, RequirePermission } from '@/sdk'
 import { themesApi, themesKeys, useThemes } from './api'
 import { ImportDialog } from './ImportDialog'
 import { downloadPackage, readPackageFile, reloadThemeStylesheet } from './lib/package'

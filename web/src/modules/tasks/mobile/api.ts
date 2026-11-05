@@ -11,7 +11,7 @@ import {
   type InboxQuery,
 } from '../api'
 import { addDays, todayKey, zonedDayStart } from '@/sdk/calendar/dates'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { useRecordFormatting } from '@/sdk'
 import { submitWithOutbox } from '@/pwa/offline/outbox'
 
 export const AGENDA_CACHE_KEY = 'agenda:today'

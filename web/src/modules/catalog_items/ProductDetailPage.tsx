@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { recordTimelineSource } from '@/modules/timeline'
-import { RecordDetailPage, type RecordTab } from '@/features/records/detail'
+import { RecordDetailPage, type RecordTab } from '@/sdk'
 import { ProductActions } from './ProductActions'
 import { PRODUCT_READ_ONLY_KEYS, PRODUCT_RECORD_TYPE, PRODUCTS_PATH } from './resource'
 

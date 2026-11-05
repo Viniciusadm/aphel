@@ -1,5 +1,5 @@
 import { Mail, MailCheck, MailOpen, MailWarning, MousePointerClick, type LucideIcon } from 'lucide-react'
-import type { TimelineRenderer } from '@/features/records/timeline/registry'
+import { type TimelineRenderer } from '@/sdk'
 import type { EmailEventType } from '../constants'
 import { EmailEventContent } from './EmailEventContent'
 

@@ -1,7 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api, type components } from '@/api'
-import { fieldsKeys } from '@/features/settings/fields/api'
-
+import { fieldsKeys } from '@/sdk'
 export type FormulaCatalog = components['schemas']['FormulaCatalogResponse']
 export type FormulaCatalogField = components['schemas']['FormulaCatalogFieldResponse']
 export type FormulaCatalogRelation = components['schemas']['FormulaCatalogRelationResponse']

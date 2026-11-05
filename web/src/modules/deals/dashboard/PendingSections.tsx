@@ -2,7 +2,7 @@ import { Hourglass } from 'lucide-react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { BucketSection } from '@/kernel/widgets/BucketSection'
-import { formatCurrency, formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatDateTime, useRecordFormatting } from '@/sdk'
 import type { StaleLineItem } from './types'
 
 export interface DealPendingData { stale_deals: { count: number; stale_days: number; items: StaleLineItem[] } | null }

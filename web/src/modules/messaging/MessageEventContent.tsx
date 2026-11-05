@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import type { TimelineItem } from '@/features/records/timeline/types'
+import { type TimelineItem } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, inboxPath } from './api'
 

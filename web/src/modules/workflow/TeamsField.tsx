@@ -1,7 +1,7 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useTranslation } from 'react-i18next'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useTeams } from '@/features/settings/api'
+import { useTeams } from '@/sdk'
 import { CheckboxList } from './CheckboxList'
 
 export interface TeamsFieldProps {

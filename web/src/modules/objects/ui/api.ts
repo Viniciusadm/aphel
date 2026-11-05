@@ -1,10 +1,8 @@
 import { useIsModuleActive } from '@/kernel/modules/registry'
-import { recordResources } from '@/features/records/resources'
+import { customRecordsKeys, recordResources, type Relationship } from '@/sdk'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
-import { customRecordsKeys, type Relationship } from '@/features/custom-records'
-
 type Schemas = components['schemas']
 
 export type CustomObjectAdmin = Schemas['CustomObjectResponse'] & { record_count: number }

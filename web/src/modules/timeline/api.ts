@@ -1,6 +1,5 @@
 import { api } from '@/api'
-import type { TimelinePage } from '@/features/records/timeline'
-
+import { type TimelinePage } from '@/sdk'
 export const TIMELINE_MODULE_KEY = 'timeline'
 
 export interface TimelineTarget {

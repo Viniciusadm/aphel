@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCustomObjects } from '@/features/custom-records'
+import { useCustomObjects } from '@/sdk'
 import type { ActionCatalogEntry, AutomationCatalog, TriggerCatalogEntry } from '../types'
 
 export const CORE_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task'] as const

@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Pagination } from '@/components/ui/pagination'
-import { NativeSelect } from '@/features/settings/organization/components/NativeSelect'
+import { SettingsNativeSelect as NativeSelect } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   GOAL_OWNER_TYPES,

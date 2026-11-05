@@ -3,7 +3,7 @@ import type { Activity } from '@/modules/tasks/api'
 
 type Schemas = components['schemas']
 
-export type { PageMeta } from '@/features/records/types'
+export type { PageMeta } from '@/sdk'
 
 export type CallDirection = Schemas['CallDirection']
 export type CallSessionStatus = Schemas['CallSessionStatus']

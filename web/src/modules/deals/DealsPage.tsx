@@ -8,12 +8,8 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useFieldSchema } from '@/features/records/api'
+import { FilterChips, FilterMenu, type FilterNode, RecordFormDialog, type RecordItem, RecordListActions, RecordListView, type RecordViewConfig, type SavedView, SearchBox, useFieldSchema } from '@/sdk'
 import { useSavedViews } from '@/modules/saved_views/api'
-import { FilterChips, FilterMenu } from '@/features/records/filters'
-import { RecordFormDialog } from '@/features/records/form'
-import { RecordListView, SearchBox } from '@/features/records/table'
-import type { FilterNode, RecordItem, RecordViewConfig, SavedView } from '@/features/records/types'
 import {
   ALL_RECORDS_VIEW,
   DEFAULT_DENSITY,
@@ -35,7 +31,6 @@ import { DealsBoard } from './board/DealsBoard'
 import { DEAL_CREATE_LAYOUT, DEAL_RECORD_TYPE, dealPath } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
 import { NativeSelect } from '@/components/ui/native-select'
-import { RecordListActions } from '@/features/records/table/RecordListActions'
 import { Page } from '@/components/ui/page'
 import { WorkspaceOptions } from '@/components/ui/workspace-options'
 

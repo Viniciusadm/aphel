@@ -1,7 +1,5 @@
 import type { TFunction } from 'i18next'
-import { formatCurrency, formatNumber, type RecordFormatting } from '@/features/records/formatting'
-import type { AggregateResult } from '@/features/records/aggregates'
-
+import { type AggregateResult, formatCurrency, formatNumber, type RecordFormatting } from '@/sdk'
 type GroupColumn = AggregateResult['groups'][number]
 type MetricColumn = AggregateResult['metrics'][number]
 type GroupValue = AggregateResult['rows'][number]['groups'][number]

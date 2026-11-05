@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { useDistributionRules } from './api'
 import type { DistributionRuleSelectProps } from './slots'
 import { Field } from '@/components/ui/field'

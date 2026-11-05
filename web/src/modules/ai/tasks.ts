@@ -1,9 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { activitiesKeys } from '@/modules/tasks/api'
 import { ACTIVITY_RECORD_TYPE } from '@/modules/tasks/resource'
-import { recordsKeys } from '@/features/records/api'
-
-
+import { recordsKeys } from '@/sdk'
 export function useInvalidateActivitiesForRecord(recordType: string, recordId: string) {
   const queryClient = useQueryClient()
   return () =>

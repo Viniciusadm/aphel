@@ -1,6 +1,5 @@
 import type { components } from '@/api'
-import type { FilterNode } from '@/features/records/types'
-
+import { type FilterNode } from '@/sdk'
 type Schemas = components['schemas']
 
 export type ScoreBand = Schemas['ScoreBand']

@@ -1,6 +1,5 @@
 import { Users } from 'lucide-react'
-import { registerRecordResource } from '@/features/records/resources'
-
+import { registerRecordResource } from '@/sdk'
 export const CONTACT_RECORD_TYPE = 'people.person'
 export const CONTACTS_PATH = '/people'
 

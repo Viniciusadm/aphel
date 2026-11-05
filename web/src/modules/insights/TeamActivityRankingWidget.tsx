@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { formatNumber, useRecordFormatting } from '@/features/records/formatting'
+import { formatNumber, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { RankingRow, TeamActivityRankingData } from './types'
 

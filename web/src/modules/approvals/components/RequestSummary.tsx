@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import type { ApprovalRequest } from '../types'
 
 export function RequestSummary({ request }: { request: ApprovalRequest }) {

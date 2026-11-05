@@ -11,8 +11,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Textarea } from '@/components/ui/textarea'
-import { useOrganizationUsers } from '@/features/records/api'
-
+import { useOrganizationUsers } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { type MentionQuery, findMentionQuery, insertMention } from '@/modules/notifications/ui/lib/mentions'
 

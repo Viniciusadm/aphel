@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCustomObjects } from '@/features/custom-records'
-import { getRecordResource } from '@/features/records/resources'
+import { getRecordResource, useCustomObjects } from '@/sdk'
 import type { SearchHit } from '@/modules/search/ui/api'
 
 export function searchHitPath(hit: Pick<SearchHit, 'id' | 'record_type'>): string | undefined {

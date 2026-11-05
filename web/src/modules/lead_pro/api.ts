@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import { recordsKeys } from '@/features/records/api'
-
-
+import { recordsKeys } from '@/sdk'
 export const LEAD_PRO_KEY = 'lead_pro'
 export const LEAD_PRO_PATH = '/lead-pro'
 export const READ_PERMISSION = 'lead_pro.read'

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCustomObjects } from '@/features/custom-records'
+import { useCustomObjects } from '@/sdk'
 import { CORE_RECORD_TYPES, QUOTE_RECORD_TYPE } from '../constants'
 
 const KNOWN_RECORD_TYPES: readonly string[] = [...CORE_RECORD_TYPES, QUOTE_RECORD_TYPE]

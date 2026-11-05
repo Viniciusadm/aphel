@@ -1,5 +1,5 @@
 import { useSession } from '@/app/session/session-context'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { useOnboardingState } from '../api'
 
 export function useOnboardingPending(): boolean | undefined {

@@ -1,6 +1,6 @@
 import type { ParseKeys, TFunction } from 'i18next'
 import { isApiError } from '@/api'
-import { fieldViolations } from '@/features/settings/lib/errors'
+import { settingsFieldViolations as fieldViolations } from '@/sdk'
 import type { FormulaError } from '@/modules/formulas/ui/api'
 
 export type FormulasT = TFunction<'formulas'>

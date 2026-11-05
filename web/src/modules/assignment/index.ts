@@ -1,5 +1,5 @@
 import { Shuffle } from 'lucide-react'
-import { ASSIGNMENT_MANAGE } from '@/features/settings/lib/permissions'
+import { ASSIGNMENT_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { DistributionRuleSelect } from './DistributionRuleSelect'
 import './slots'

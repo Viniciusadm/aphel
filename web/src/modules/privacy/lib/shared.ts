@@ -2,8 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
 import { toast } from '@/components/ui/toast-store'
-import { getRecordResource } from '@/features/records/resources'
-
+import { getRecordResource } from '@/sdk'
 export const PRIVACY_ERROR_CODES = [
   'invalid_subject_term',
   'privacy_targets_empty',

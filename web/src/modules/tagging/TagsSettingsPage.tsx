@@ -19,8 +19,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { RequirePermission, SETTINGS_MANAGE } from '@/sdk'
 import {
   DEFAULT_TAG_COLOR,
   MAX_TAG_NAME_LENGTH,

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { FORMS_KEY, FIELD_KINDS, formsApi, useLeadFormOptions, type LeadForm, type LeadFormFieldKind } from './api'
 import { FieldEditor } from './FieldEditor'

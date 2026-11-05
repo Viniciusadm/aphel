@@ -1,5 +1,5 @@
 import { ArrowUpDown, PackageMinus, PackagePlus, PackageSearch, type LucideIcon } from 'lucide-react'
-import type { TimelineRenderer } from '@/features/records/timeline/registry'
+import { type TimelineRenderer } from '@/sdk'
 import { LineItemEventContent } from './LineItemEventContent'
 import type { LineItemEventType } from './events'
 

@@ -13,7 +13,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { FORMS_KEY, formsApi, useInvalidateForms, useForms, type LeadForm } from './api'
 import { FormEditorDialog } from './FormEditorDialog'

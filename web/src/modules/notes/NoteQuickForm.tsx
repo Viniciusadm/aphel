@@ -5,14 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback/notify'
 import type { CreateNoteRequest, Note } from './api'
 import { notesKeys } from './api'
-import { recordsKeys } from '@/features/records/api'
-
+import { DictationField, FormActions, FormBody, type PickedRecord, type QuickFormProps, RecordPicker, recordsKeys, useOutboxFeedback } from '@/sdk'
 import { submitWithOutbox } from '@/pwa/offline/outbox'
-import { DictationField } from '@/features/mobile/components/DictationField'
-import { RecordPicker, type PickedRecord } from '@/features/mobile/components/RecordPicker'
-import { useOutboxFeedback } from '@/features/mobile/lib/outbox-feedback'
-import { FormActions, FormBody, type QuickFormProps } from '@/features/mobile/components/QuickForm'
-
 export const NOTE_MAX_LENGTH = 50_000
 
 export interface NoteQuickFormProps extends QuickFormProps {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { useOnboardingState } from './api'
 import { markPrompted, wasPrompted } from './lib/prompt'
 

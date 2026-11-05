@@ -4,17 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { FilterBuilder, type DraftGroup, type FilterFieldExtension } from '@/features/records/filters'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import type { FieldSchema } from '@/features/records/types'
+import { type AggregateField, type AggregateFunction, type AggregateMetric, type DraftGroup, type FieldSchema, FilterBuilder, type FilterFieldExtension, NativeSelect, TIME_GRANULARITIES, type TimeGranularity } from '@/sdk'
 import { cn } from '@/lib/utils'
-import {
-  TIME_GRANULARITIES,
-  type AggregateField,
-  type AggregateFunction,
-  type AggregateMetric,
-  type TimeGranularity,
-} from '@/features/records/aggregates'
 import type { PeriodPreset, ReportVisualization } from './api'
 import { metricName, type GroupOption } from './options'
 import {

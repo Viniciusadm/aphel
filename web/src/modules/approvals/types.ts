@@ -1,9 +1,8 @@
 import type { components } from '@/api'
-import type { FilterNode } from '@/features/records/types'
-
+import { type FilterNode } from '@/sdk'
 type Schemas = components['schemas']
 
-export type { Page, PageMeta } from '@/features/records/types'
+export type { RecordsPage as Page, PageMeta } from '@/sdk'
 
 export type ApprovalMoment = Schemas['ApprovalMoment']
 export type ApprovalStatus = Schemas['ApprovalStatus']

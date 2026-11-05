@@ -9,7 +9,7 @@ import {
   formatMinutes,
   formatWeekdayShort,
 } from '@/sdk/calendar/dates'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { layoutDay } from '../lib/layout'
 import { eventDuration, type CalendarEntry } from '../lib/events'

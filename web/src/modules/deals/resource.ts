@@ -1,7 +1,6 @@
 import { Briefcase } from 'lucide-react'
 import { dealsKeys } from './api'
-import { registerRecordResource } from '@/features/records/resources'
-
+import { registerRecordResource } from '@/sdk'
 export const DEAL_RECORD_TYPE = 'deals.deal'
 export const DEALS_PATH = '/deals'
 

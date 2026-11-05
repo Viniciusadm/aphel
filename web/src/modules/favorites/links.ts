@@ -1,5 +1,5 @@
 import { ListFilter, type LucideIcon } from 'lucide-react'
-import { recordDetailHref, recordTypeIcon, viewHref } from '@/features/records/links'
+import { recordDetailHref, recordTypeIcon, viewHref } from '@/sdk'
 import type { Favorite } from './api'
 
 export function favoriteHref(favorite: Favorite): string | undefined {

@@ -2,7 +2,7 @@ import {
   customObjectKey,
   customRecordPath,
   isCustomRecordType,
-} from "@/features/custom-records";
+} from "@/sdk";
 
 const RECORD_PATHS: Record<string, string> = {
   'people.person': "/people",

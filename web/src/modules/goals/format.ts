@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, formatNumber, useRecordFormatting, type RecordFormatting } from '@/features/records/formatting'
+import { formatCurrency, formatNumber, type RecordFormatting, useRecordFormatting } from '@/sdk'
 import { isCountMetric, type Goal, type GoalMetric } from './api'
 
 export function formatGoalValue(

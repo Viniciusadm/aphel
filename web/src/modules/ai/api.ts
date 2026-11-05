@@ -1,7 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api, isApiError } from '@/api'
-import type { FilterNode } from '@/features/records/types'
-
+import { type FilterNode } from '@/sdk'
 export const AI_KEY = 'ai'
 export const AI_PATH = '/ai'
 export const USE_PERMISSION = 'ai.use'

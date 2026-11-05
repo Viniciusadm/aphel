@@ -4,8 +4,7 @@ import { ArrowDown, ArrowUp, Eye, GripVertical, Lock, SlidersHorizontal, X } fro
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import type { LayoutField } from '@/features/records/form/lib/layout'
-import type { FieldDefinition } from '@/features/records/types'
+import { type FieldDefinition, type LayoutField } from '@/sdk'
 import { cn } from '@/lib/utils'
 
 export interface FieldChipProps {

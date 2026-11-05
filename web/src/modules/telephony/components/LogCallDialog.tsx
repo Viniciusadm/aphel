@@ -13,9 +13,7 @@ import {
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { recordsKeys } from '@/features/records/api'
-
-import type { DisplayRecord } from '@/features/records/display/display-record'
+import { type DisplayRecord, recordsKeys } from '@/sdk'
 import { callsApi, useCallOutcomes, useInvalidateCalls } from '../api'
 import { callErrorKey } from '../lib/errors'
 import { joinDuration } from '../lib/format'

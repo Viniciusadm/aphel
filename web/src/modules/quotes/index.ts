@@ -1,5 +1,5 @@
 import { FileText } from 'lucide-react'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { QUOTES_TAB_KEY } from './DealQuotesTab'
 import { DealQuotesRecordTab } from './DealQuotesRecordTab'

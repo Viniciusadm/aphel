@@ -1,4 +1,4 @@
-import type { TimelineItem } from '@/features/records/timeline/types'
+import { type TimelineItem } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { ENRICHMENT_KEY } from './api'
 

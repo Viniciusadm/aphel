@@ -12,10 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useFieldSchema } from '@/features/records/api'
-
-import { activeFields, fieldViolations } from '@/features/records/fields'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { activeFields, fieldViolations, NativeSelect, useFieldSchema } from '@/sdk'
 import { useFormulaCatalog } from '@/modules/formulas/ui/api'
 import { ExpressionEditor } from '@/modules/formulas/ui/ExpressionEditor'
 import { FormulaCatalogPanel, type FormulaSnippet } from '@/modules/formulas/ui/FormulaCatalogPanel'

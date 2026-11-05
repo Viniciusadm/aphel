@@ -1,6 +1,6 @@
 import { ListOrdered } from 'lucide-react'
 import { createElement } from 'react'
-import type { RecordTab } from '@/features/records/detail/types'
+import { type RecordTab } from '@/sdk'
 import type { RecordTabContribution, RecordTabRenderProps } from '@/kernel/modules/define'
 import { EMAILS_TAB_KEY, placeTabAfter } from '@/modules/email'
 import { SEQUENCES_MANAGE_PERMISSION, SEQUENCES_READ_PERMISSION, SEQUENCES_TAB_KEY } from './constants'

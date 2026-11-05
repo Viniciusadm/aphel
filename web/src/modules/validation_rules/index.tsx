@@ -1,6 +1,6 @@
 import { ListChecks } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { validationRulesSettingsRoute } from './ui/routes'
 const module = defineModule({ key: 'validation_rules', register(app) { app.settings('organization', {
       group: 'records',

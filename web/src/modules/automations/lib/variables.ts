@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { activeFields } from '@/features/records/fields'
-import type { FieldSchema } from '@/features/records/types'
+import { activeFields, type FieldSchema } from '@/sdk'
 import type { AutomationCatalog } from '../types'
 
 export type VariableGroup = 'record' | 'trigger' | 'automation' | 'run' | 'dates'

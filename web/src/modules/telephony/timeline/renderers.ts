@@ -1,7 +1,7 @@
 import { Phone } from 'lucide-react'
 import { createElement } from 'react'
 import { ACTIVITY_TIMELINE_RENDERERS } from '@/modules/tasks/timeline/renderers'
-import type { TimelineRenderer } from '@/features/records/timeline'
+import { type TimelineRenderer } from '@/sdk'
 import { CallTimelineContent } from './CallTimelineContent'
 
 const fallback = ACTIVITY_TIMELINE_RENDERERS.activity

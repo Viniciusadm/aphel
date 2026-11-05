@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import { DURATION_UNITS, formatDuration, parseDuration, type DurationSign, type DurationUnit } from '../lib/durations'
 
 export interface DurationInputProps {

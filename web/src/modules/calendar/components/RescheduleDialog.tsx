@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import type { CalendarRecord } from '../api'
-import { useRecordFormatting } from '@/features/records/formatting'
+import { useRecordFormatting } from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface RescheduleDialogProps {

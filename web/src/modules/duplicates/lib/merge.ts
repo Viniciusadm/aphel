@@ -1,7 +1,4 @@
-import { isEmptyValue } from '@/features/records/display/values'
-import { activeFields, getFieldValue, isReadOnlyField } from '@/features/records/fields'
-import type { FieldDefinition, FieldSchema, RecordItem } from '@/features/records/types'
-
+import { activeFields, type FieldDefinition, type FieldSchema, getFieldValue, isEmptyValue, isReadOnlyField, type RecordItem } from '@/sdk'
 export type MergeSide = 'primary' | 'duplicate'
 
 export function mergeableFields(schema: FieldSchema, mergeFields: readonly string[]): FieldDefinition[] {

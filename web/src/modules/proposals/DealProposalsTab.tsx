@@ -14,8 +14,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { fileDownloadUrl } from '@/features/files'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { fileDownloadUrl, formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
 import {

@@ -1,5 +1,5 @@
 import { Lock } from 'lucide-react'
-import { PRIVACY_MANAGE } from '@/features/settings/lib/permissions'
+import { PRIVACY_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 
 const privacyModule = defineModule({

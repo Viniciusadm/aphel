@@ -3,7 +3,7 @@ import { CheckCircle2, Loader2, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { getRecordResource } from '@/features/records/resources'
+import { getRecordResource } from '@/sdk'
 import { isFinished, useBulkItems, useBulkOperation, type BulkOperation } from './api'
 
 export interface BulkResultProps {

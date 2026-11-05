@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useRegisterCommands } from '@/features/command-palette/context'
-import type { PaletteCommand } from '@/features/command-palette/types'
+import { type PaletteCommand, useRegisterCommands } from '@/sdk'
 import { useFavorites } from './api'
 import { favoriteHref, favoriteIcon } from './links'
 

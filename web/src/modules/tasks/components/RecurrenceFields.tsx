@@ -2,7 +2,7 @@ import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
+import { NativeSelect } from '@/sdk'
 import type { RecurrenceFrequency } from '../api'
 import {
   RECURRENCE_FREQUENCIES,

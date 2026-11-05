@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import type { AggregateResult } from '@/features/records/aggregates'
+import { type AggregateResult } from '@/sdk'
 import type { Report } from './api'
 import { ReportResultView } from './ReportResultView'
 

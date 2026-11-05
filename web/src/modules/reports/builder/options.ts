@@ -1,8 +1,7 @@
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { TFunction } from 'i18next'
-import { aggregatesApi, aggregatesKeys, type AggregateField, type AggregateMetric, type AggregateSchema } from '@/features/records/aggregates'
-
+import { type AggregateField, type AggregateMetric, aggregatesApi, type AggregateSchema, aggregatesKeys } from '@/sdk'
 export interface GroupOption {
   key: string
   label: string

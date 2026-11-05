@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { getRecordResource } from '@/features/records/resources'
+import { getRecordResource } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { AI_KEY, type AiSource } from './api'
 

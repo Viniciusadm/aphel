@@ -8,11 +8,7 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { recordsKeys } from '@/features/records/api'
-
-import { recordPath, recordTitle, requireRecordResource } from '@/features/records/resources'
-import type { RecordItem } from '@/features/records/types'
-
+import { type RecordItem, recordPath, recordsKeys, recordTitle, requireRecordResource } from '@/sdk'
 export interface RecordLifecycleActionsProps {
   recordType: string
   record: RecordItem

@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { FieldSchema, FilterNode } from '@/features/records/types'
+import { type FieldSchema, type FilterNode } from '@/sdk'
 import type { ReferenceOptionsContext } from '@/kernel/modules/define'
 import { useReferenceOptions } from '@/kernel/modules/reference-options'
 import { cn } from '@/lib/utils'

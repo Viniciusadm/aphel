@@ -1,5 +1,5 @@
 import i18n from '@/i18n'
-import type { TimelineKindOption, TimelineSource } from '@/features/records/timeline'
+import { type TimelineKindOption, type TimelineSource } from '@/sdk'
 import { timelineApi, type TimelineTarget } from './api'
 export async function timelineKindOptions(target: TimelineTarget): Promise<TimelineKindOption[]> {
   const kinds = await timelineApi.kinds(target)

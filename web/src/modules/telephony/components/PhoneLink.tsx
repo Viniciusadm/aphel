@@ -2,7 +2,7 @@ import { useContext, useState, type MouseEvent, type SyntheticEvent } from 'reac
 import { useTranslation } from 'react-i18next'
 import { SessionContext } from '@/app/session/session-context'
 import { toast } from '@/components/ui/toast-store'
-import { useDisplayRecord } from '@/features/records/display/display-record'
+import { useDisplayRecord } from '@/sdk'
 import type { FieldDisplayProps } from '@/kernel/modules/field-types'
 import { callsApi, useTelephonyProviders } from '../api'
 import { callErrorKey } from '../lib/errors'

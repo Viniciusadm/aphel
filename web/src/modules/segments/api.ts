@@ -1,8 +1,7 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
-import type { FilterNode } from '@/features/records/types'
-
+import { type FilterNode } from '@/sdk'
 type Schemas = components['schemas']
 
 export type Segment = Schemas['SegmentResponse']

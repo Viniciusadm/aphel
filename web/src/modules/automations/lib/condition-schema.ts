@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { activeFields } from '@/features/records/fields'
-import type { FieldDefinition, FieldOption, FieldSchema, FilterOperator } from '@/features/records/types'
-
+import { activeFields, type FieldDefinition, type FieldOption, type FieldSchema, type FilterOperator } from '@/sdk'
 const ACTOR_TYPES = ['user', 'system', 'api_token', 'automation'] as const
 
 function option(value: string, label: string, position: number): FieldOption {

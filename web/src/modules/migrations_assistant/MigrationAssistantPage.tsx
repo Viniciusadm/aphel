@@ -10,11 +10,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { usePipelines } from '@/modules/workflow/api'
 import { useImportJob } from '@/modules/imports/api'
-import { NativeSelect } from '@/features/records/filters/NativeSelect'
-import { useAllMembers } from '@/features/settings/api'
-import { ListSkeleton } from '@/features/settings/components/ListSkeleton'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { ListSkeleton, NativeSelect, RequirePermission, SETTINGS_MANAGE, useAllMembers } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   emptyMaps,

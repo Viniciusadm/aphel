@@ -1,8 +1,7 @@
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
-import type { BulkActionContext } from '@/features/records/table'
-
+import { type BulkActionContext } from '@/sdk'
 type Schemas = components['schemas']
 
 export type BulkOperation = Schemas['BulkOperationResponse']

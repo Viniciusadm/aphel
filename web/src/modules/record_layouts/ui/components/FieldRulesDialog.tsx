@@ -2,9 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FilterBuilder, serializeFilter, toDraft, type DraftGroup } from '@/features/records/filters'
-import type { LayoutContext, LayoutField } from '@/features/records/form/lib/layout'
-import type { FieldDefinition, FieldSchema } from '@/features/records/types'
+import { type DraftGroup, type FieldDefinition, type FieldSchema, FilterBuilder, type LayoutContext, type LayoutField, serializeFilter, toDraft } from '@/sdk'
 import type { FieldRules } from '@/modules/record_layouts/ui/lib/draft'
 
 export interface FieldRulesDialogProps {

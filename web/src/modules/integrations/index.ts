@@ -1,5 +1,5 @@
 import { Plug } from 'lucide-react'
-import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 
 const integrationsModule = defineModule({

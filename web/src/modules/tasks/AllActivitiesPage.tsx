@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
-import { RecordListView } from '@/features/records/table'
+import { RecordListView } from '@/sdk'
 import { activitiesApi, useInvalidateActivities } from './api'
 import { ACTIVITY_RECORD_TYPE, activityResource } from './resource'
 

@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
-import { recordsKeys } from '@/features/records/api'
-
+import { recordsKeys } from '@/sdk'
 import type {
   AddDealMemberRequest,
   CreateDealMemberRoleRequest,

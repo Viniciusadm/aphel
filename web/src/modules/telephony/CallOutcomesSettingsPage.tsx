@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
-import { RequirePermission } from '@/features/settings/components/RequirePermission'
+import { RequirePermission } from '@/sdk'
 import { OutcomesPage } from './OutcomesPage'
 
 export function CallOutcomesSettingsPage() {
