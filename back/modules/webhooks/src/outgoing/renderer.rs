@@ -5,12 +5,11 @@ use serde_json::Value;
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::api::routes::v1::field_permissions::user_field_redaction;
-use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::public_events::{
     PublicEvent, PublicEventRenderer, PublicResource, SharedPublicEventRenderer,
     deleted_resource_data, find_public_event, payload_resource_data, previous_values,
@@ -21,16 +20,18 @@ use aphel_sdk::platform::domain::access::AccessScope;
 
 #[derive(Clone)]
 pub(crate) struct ApiPublicEventRenderer {
-    state: AppState,
+    state: Runtime,
 }
 
 impl ApiPublicEventRenderer {
-    pub(crate) fn new(state: AppState) -> Self {
+    pub(crate) fn new(state: Runtime) -> Self {
         Self { state }
     }
 
     pub(crate) fn shared(pool: MySqlPool) -> SharedPublicEventRenderer {
-        Arc::new(Self::new(AppState::new(Some(pool)).with_mysql_platform()))
+        Arc::new(Self::new(Runtime::from(
+            aphel_kernel::state::AppState::new(Some(pool)).with_mysql_platform(),
+        )))
     }
 
     async fn resource(
@@ -44,12 +45,12 @@ impl ApiPublicEventRenderer {
         let registry = state.registry().await?;
         if let Ok(handler) = registry.handler(record_type.as_str()) {
             return handler
-                .load(&RecordCtx::new(scope, state), id)
+                .load(&RecordCtx::from_runtime(scope, state), id)
                 .await?
                 .ok_or_else(|| AppError::NotFound(format!("{} {id}", record_type.as_str())));
         }
         match public_resource_loader(resource) {
-            Some(loader) => loader.load(&Ctx::from_state(state, scope).await?, id).await,
+            Some(loader) => loader.load(&state.ctx(scope).await?, id).await,
             None => Ok(serde_json::json!({ "id": id.to_string() })),
         }
     }

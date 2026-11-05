@@ -55,7 +55,7 @@ impl DealsBySourceWidget {
         run(
             context,
             json!({
-                "record_type": "deals.deal",
+                "record_type": aphel_contract_crm::keys::DEAL,
                 "filter": with_subject(context, conditions)?,
                 "group_by": [{ "field": SOURCE_FIELD }],
                 "metrics": metrics,
@@ -107,7 +107,7 @@ where
         settings: &Value,
     ) -> Result<Value, AppError> {
         let (settings, _) = parse(settings).map_err(invalid_settings)?;
-        let fields = visible_fields(context, "deals.deal").await?;
+        let fields = visible_fields(context, aphel_contract_crm::keys::DEAL).await?;
         let currency = context.currency().await?;
         if !has_field(&fields, SOURCE_FIELD) {
             return Ok(json!({

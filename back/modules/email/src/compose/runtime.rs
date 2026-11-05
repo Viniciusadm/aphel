@@ -9,11 +9,10 @@ use crate::EMAIL_RECEIVED;
 use crate::compose::{DeliveryOutcome, SEND_SCHEDULED_JOB};
 use crate::service::{compose, tracking};
 use crate::tracking::tracking_scope;
-use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::WorkerParts;
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler,
@@ -23,7 +22,7 @@ use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccess
 
 pub(crate) const EMAIL_REPLY_CONSUMER: &str = "email.reply_detection";
 
-pub(crate) fn worker(state: AppState) -> WorkerParts {
+pub(crate) fn worker(state: Runtime) -> WorkerParts {
     WorkerParts::default()
         .handler(Arc::new(ScheduledEmailHandler {
             state: state.clone(),
@@ -38,7 +37,7 @@ fn uuid_field(payload: &Value, key: &str) -> Option<Uuid> {
         .and_then(|value| Uuid::parse_str(value).ok())
 }
 
-async fn member_scope(state: &AppState, user_id: &UserId) -> Result<Option<AccessScope>, AppError> {
+async fn member_scope(state: &Runtime, user_id: &UserId) -> Result<Option<AccessScope>, AppError> {
     let access = MySqlAccessRepository::new(state.db()?)
         .load_access(user_id)
         .await?;
@@ -46,7 +45,7 @@ async fn member_scope(state: &AppState, user_id: &UserId) -> Result<Option<Acces
 }
 
 pub(crate) struct ScheduledEmailHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -103,7 +102,7 @@ impl ScheduledEmailHandler {
             scope.module_enabled(crate::KEY) && scope.require(&Permission::EMAILS_SEND).is_ok()
         }) else {
             let scope = tracking_scope();
-            let ctx = Ctx::from_state(&self.state, &scope).await?;
+            let ctx = self.state.ctx(&scope).await?;
             return compose::fail_scheduled(
                 &ctx,
                 email_id,
@@ -111,7 +110,7 @@ impl ScheduledEmailHandler {
             )
             .await;
         };
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         match compose::send_scheduled(&ctx, email_id, context.attempt < context.max_attempts)
             .await?
         {
@@ -130,7 +129,7 @@ impl ScheduledEmailHandler {
 }
 
 pub(crate) struct EmailEngagementConsumer {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -148,7 +147,7 @@ impl EventConsumer for EmailEngagementConsumer {
             return Ok(());
         };
         let scope = tracking_scope();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         tracking::process_received(&ctx, email_id).await
     }
 }

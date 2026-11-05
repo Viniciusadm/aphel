@@ -330,9 +330,15 @@ impl OrgDataStore {
     pub(crate) async fn config_keys(&self) -> Result<ConfigKeyMap, AppError> {
         let mut map: ConfigKeyMap = BTreeMap::new();
         for (kind, reference) in [
-            (ConfigKind::Pipeline, "workflow.pipeline"),
-            (ConfigKind::PipelineStage, "workflow.stage"),
-            (ConfigKind::LostReason, "workflow.lost_reason"),
+            (ConfigKind::Pipeline, aphel_contract_crm::keys::PIPELINE),
+            (
+                ConfigKind::PipelineStage,
+                aphel_contract_crm::keys::PIPELINE_STAGE,
+            ),
+            (
+                ConfigKind::LostReason,
+                aphel_contract_crm::keys::LOST_REASON,
+            ),
             (ConfigKind::Tag, "tagging.tag"),
             (ConfigKind::ActivityType, "tasks.activity_type"),
         ] {

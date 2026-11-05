@@ -12,7 +12,7 @@ fn log<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
         let request: LogCallRequest = operation_input(input)?;
         let record = service::log(ctx, request.into_command(None)).await?;
-        activity_json(&ctx.state(), ctx.scope, record).await
+        activity_json(&ctx.runtime(), ctx.scope, record).await
     })
 }
 

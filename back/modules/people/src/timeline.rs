@@ -25,7 +25,7 @@ impl TimelineEventScope for RelatedEvents {
         builder: &mut QueryBuilder<MySql>,
         subject: &RecordRef,
     ) -> Result<(), AppError> {
-        if subject.record_type.as_str() != "organizations.organization" {
+        if subject.record_type.as_str() != aphel_contract_crm::keys::COMPANY {
             return Ok(());
         }
         let Some(definition) = ctx

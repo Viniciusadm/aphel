@@ -33,7 +33,7 @@ impl Module for InsightsModule {
                     BIRTHDAY_FIELD_SETTING,
                     "Campo de aniversário",
                     SettingKind::Field {
-                        record_type: "people.person",
+                        record_type: aphel_contract_crm::keys::CONTACT,
                         field_types: vec!["date"],
                     },
                 )

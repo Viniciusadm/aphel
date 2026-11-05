@@ -115,7 +115,7 @@ impl Module for LeadPro {
             FieldType::Number,
             TEMPERATURE_FIELD,
         )?;
-        app.extend("people.person", |contact| {
+        app.extend(aphel_contract_crm::keys::CONTACT, |contact| {
             contact
                 .side_table("lead_pro_contact_extension", "record_id")
                 .system_field(field);

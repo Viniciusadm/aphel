@@ -13,8 +13,8 @@ use async_trait::async_trait;
 use chrono::Duration;
 use sqlx::QueryBuilder;
 
-const DEAL_ENTITY: &str = "deals.deal";
-const ORGANIZATION_ENTITY: &str = "organizations.organization";
+const DEAL_ENTITY: &str = aphel_contract_crm::keys::DEAL;
+const ORGANIZATION_ENTITY: &str = aphel_contract_crm::keys::COMPANY;
 const NOTE_BODIES: [&str; 6] = [
     "Reunião produtiva. O cliente quer **reduzir custos operacionais** e pediu uma proposta até o fim do mês.",
     "Pontos levantados:\n\n- prazo de implantação\n- integração com o ERP atual\n- treinamento da equipe",

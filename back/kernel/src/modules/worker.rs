@@ -39,6 +39,10 @@ impl WorkerEnv {
             .with_record_catalog(self.record_types.clone())
     }
 
+    pub fn runtime(&self) -> crate::state::Runtime {
+        self.runtime_state().into()
+    }
+
     pub fn runtime_state(&self) -> AppState {
         self.state().with_auth_settings(AuthSettings {
             app_base_url: self.public_url.clone(),

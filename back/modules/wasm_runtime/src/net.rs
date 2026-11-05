@@ -10,7 +10,6 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::outbound_http::UrlRejection;
 use aphel_sdk::platform::infrastructure::outbound_http::network::parse_webhook_url;
 use aphel_sdk::platform::infrastructure::outbound_http::{GuardedResolver, OutboundNetworkPolicy};
-use aphel_sdk::platform::state::runtime_state;
 
 pub const MAX_RESPONSE_BYTES: usize = 5 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 5 * 1024 * 1024;
@@ -60,10 +59,10 @@ pub async fn fetch(
     deadline: Instant,
     request: wit::HttpRequest,
 ) -> Result<wit::HttpResponse, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let config = state
         .configuration()
-        .outbound_http_config(&state.outbound_http);
+        .outbound_http_config(state.outbound_http_settings());
     let policy = OutboundNetworkPolicy::new(config.allow_private_networks, config.require_https);
     let url = parse_webhook_url(&request.url, &policy).map_err(|rejection| match rejection {
         UrlRejection::Invalid(message) | UrlRejection::NotAllowed(message) => {

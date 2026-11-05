@@ -121,7 +121,9 @@ impl PipelineRenewalsSection {
     async fn index(&self) -> Result<Index, AppError> {
         let stored_stages = self
             .keys
-            .keys(ConfigReferenceKind::new("workflow.stage"))
+            .keys(ConfigReferenceKind::new(
+                aphel_contract_crm::keys::PIPELINE_STAGE,
+            ))
             .await?;
         let reader = WorkflowReader::new(
             self.pool.clone(),
@@ -130,7 +132,7 @@ impl PipelineRenewalsSection {
         let pipelines = reader.list_pipelines().await?;
         let stored = self
             .keys
-            .keys(ConfigReferenceKind::new("workflow.pipeline"))
+            .keys(ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE))
             .await?;
         let keyed = assign_keys(
             pipelines
@@ -380,7 +382,10 @@ impl ConfigSection<MySqlTx> for PipelineRenewalsSection {
         let existing = self.renewals.list().await?;
         let pipeline_id = |key: &str| {
             context
-                .resolved(ConfigReferenceKind::new("workflow.pipeline"), key)
+                .resolved(
+                    ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE),
+                    key,
+                )
                 .or_else(|| index.by_key(key).map(|pipeline| pipeline.pipeline.id))
         };
         for (entry, (item, is_new)) in entries.iter().zip(plans) {
@@ -395,7 +400,7 @@ impl ConfigSection<MySqlTx> for PipelineRenewalsSection {
             };
             let Some(stage_id) = context
                 .resolved(
-                    ConfigReferenceKind::new("workflow.stage"),
+                    ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE_STAGE),
                     &stage_item_key(&entry.target_pipeline, &entry.target_stage),
                 )
                 .or_else(|| {

@@ -10,14 +10,13 @@ use aphel_contract_automation::application::actions::{
 use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context,
 };
-use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::state::{runtime_pool, runtime_state};
 use aphel_sdk::platform::application::shared::DomainEvent;
 use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::state::runtime_pool;
 
 pub(crate) const GENERATE_ACTION: &str = "proposals.generate_proposal";
-const DEAL: &str = "deals.deal";
+const DEAL: &str = aphel_contract_crm::keys::DEAL;
 
 pub(crate) struct ProposalGeneratedTrigger;
 
@@ -149,8 +148,8 @@ impl AutomationAction for GenerateProposalAction {
             Some(key) => TemplateChoice::Key(key.to_owned()),
             None => TemplateChoice::Default,
         };
-        let state = runtime_state()?;
-        let ctx = Ctx::from_state(&state, context.scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(context.scope).await?;
         let document = service::generate(&ctx, context.record.record_id, choice, None).await?;
         Ok(json!({
             "document_id": document.id,

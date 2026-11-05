@@ -63,8 +63,11 @@ pub(crate) async fn load_record(
     let Ok(handler) = ctx.registry().handler(record_type) else {
         return Ok(None);
     };
-    let state = ctx.state();
-    match handler.load(&RecordCtx::new(ctx.scope, &state), id).await {
+    let state = ctx.runtime();
+    match handler
+        .load(&RecordCtx::from_runtime(ctx.scope, &state), id)
+        .await
+    {
         Ok(value) => Ok(value),
         Err(error) if is_missing(&error) => Ok(None),
         Err(error) => Err(error),
@@ -104,10 +107,10 @@ pub(crate) async fn update_record_in_tx(
         body.insert("custom_fields".to_owned(), Value::Object(custom));
     }
     let handler = ctx.registry().handler(record_type)?;
-    let state = ctx.state();
+    let state = ctx.runtime();
     handler
         .update_in_tx(
-            &RecordCtx::new(ctx.scope, &state),
+            &RecordCtx::from_runtime(ctx.scope, &state),
             tx,
             id,
             Value::Object(body),

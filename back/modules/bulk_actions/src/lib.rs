@@ -47,7 +47,7 @@ impl Module for BulkActionsModule {
                 env.record_types.clone(),
             )
         });
-        app.worker(|env| WorkerParts::default().handler(BulkRunHandler::shared(env.state())));
+        app.worker(|env| WorkerParts::default().handler(BulkRunHandler::shared(env.runtime())));
         Ok(())
     }
 }

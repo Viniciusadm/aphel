@@ -15,13 +15,13 @@ use aphel_kernel::database::{
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
-use aphel_kernel::state::{runtime_pool, runtime_state};
 use aphel_sdk::platform::application::shared::{
     ExecutionContext, Job, JobContext, JobHandler, JobQueue,
 };
 use aphel_sdk::platform::domain::access::AccessScope;
 pub use aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority as Authority;
 use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::state::runtime_pool;
 
 pub const RUN_JOB: &str = "plugin.effect";
 
@@ -208,7 +208,10 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
         | Command::Delete { record_type, .. }
         | Command::Archive { record_type, .. }
         | Command::Restore { record_type, .. } => {
-            let handler = runtime_state()?.registry().await?.handler(record_type)?;
+            let handler = aphel_sdk::runtime()?
+                .registry()
+                .await?
+                .handler(record_type)?;
             if !handler.durable_mutations() {
                 return Err(AppError::validation_code(
                     "plugin_effect_not_supported",
@@ -480,7 +483,7 @@ async fn execute(
                     )
                     .await?;
                 let html = html.unwrap_or_else(|| format!("<p>{}</p>", escape_html(&text)));
-                runtime_state()?
+                aphel_sdk::runtime()?
                     .mailer()
                     .send(aphel_sdk::platform::application::mail::EmailMessage {
                         to,
@@ -538,21 +541,23 @@ async fn execute(
             crate::host::delete(scope, &record_type, &id).await?
         }
         Command::Archive { record_type, id } => {
-            let state = runtime_state()?;
+            let state = aphel_sdk::runtime()?;
             let registry = state.registry().await?;
             let handler = registry.handler(&record_type)?;
             let id = Uuid::parse_str(&id)
                 .map_err(|_| AppError::Validation("invalid record id".to_owned()))?;
-            let ctx = RecordCtx::new(scope, &state);
+            let ctx = RecordCtx::from_runtime(scope, &state);
             handler.archive(&ctx, id).await?;
         }
         Command::Restore { record_type, id } => {
-            let state = runtime_state()?;
+            let state = aphel_sdk::runtime()?;
             let registry = state.registry().await?;
             let handler = registry.handler(&record_type)?;
             let id = Uuid::parse_str(&id)
                 .map_err(|_| AppError::Validation("invalid record id".to_owned()))?;
-            handler.restore(&RecordCtx::new(scope, &state), id).await?;
+            handler
+                .restore(&RecordCtx::from_runtime(scope, &state), id)
+                .await?;
         }
         Command::KvSet {
             collection,

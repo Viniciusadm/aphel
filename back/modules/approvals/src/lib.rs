@@ -30,7 +30,8 @@ use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{ApprovalGate, EngineApprovalGate, approval_gate};
 
-const DEAL_RESOURCE: PublicResource = PublicResource::new("deals.deal", "DealResponse");
+const DEAL_RESOURCE: PublicResource =
+    PublicResource::new(aphel_contract_crm::keys::DEAL, "DealResponse");
 
 pub const KEY: &str = "approvals";
 pub(crate) const APPROVAL_PRIORITY: i32 = 10;

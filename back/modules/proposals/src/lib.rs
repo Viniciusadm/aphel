@@ -17,7 +17,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, ModuleCtx};
 use aphel_sdk::configuration::ConfigSection;
@@ -25,7 +24,6 @@ use aphel_sdk::platform::application::files::{FileReferenceColumn, FileReference
 use aphel_sdk::platform::application::public_events::event;
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::domain::access::PermissionDefinition;
-use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) use service::{
     GENERATE, MANAGE, PROPOSAL_GENERATED, TEMPLATE_CREATED, TEMPLATE_DELETED, TEMPLATE_UPDATED,
@@ -85,7 +83,7 @@ impl Module for ProposalsModule {
         app.public_event(event(
             service::PROPOSAL_GENERATED,
             aphel_sdk::platform::application::public_events::PublicResource::new(
-                "deals.deal",
+                aphel_contract_crm::keys::DEAL,
                 "DealDetailResponse",
             ),
             "A proposal PDF was generated and attached to the deal",
@@ -96,8 +94,8 @@ impl Module for ProposalsModule {
     }
 
     async fn on_enable(&self, ctx: &mut ModuleCtx<'_>) -> Result<(), AppError> {
-        let state = runtime_state()?;
-        let module_ctx = Ctx::from_state(&state, ctx.scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let module_ctx = state.ctx(ctx.scope).await?;
         service::seed_starter_template(&module_ctx).await
     }
 }

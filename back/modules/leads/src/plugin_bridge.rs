@@ -20,7 +20,7 @@ pub(crate) const DISQUALIFYING: &str = "lead.disqualifying";
 pub(crate) const CONVERTING: &str = "lead.converting";
 pub(crate) const CONVERTED: &str = "lead.converted";
 
-const CONTACT: &str = "people.person";
+const CONTACT: &str = aphel_contract_crm::keys::CONTACT;
 
 fn lead_json(lead: &Lead) -> Value {
     Value::Object(lead.values.clone())

@@ -195,8 +195,8 @@ pub(crate) async fn create(
     let mut tx = ctx.begin().await?;
     webhooks.insert(&mut tx, &webhook, &token_hash).await?;
     if let Some(secret) = &signing_secret {
-        ctx.state()
-            .secrets
+        ctx.runtime()
+            .secrets()
             .store(&mut tx, scope, &signing_secret_key(webhook.id), secret)
             .await?;
     }
@@ -287,8 +287,8 @@ pub(crate) async fn delete(
     let webhook = find(ctx, webhook_id).await?;
     let now = ctx.now();
     let mut tx = ctx.begin().await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .remove_owner(&mut tx, scope, SECRET_OWNER_TYPE, &webhook.id.to_string())
         .await?;
     store(ctx).delete(&mut tx, webhook.id).await?;
@@ -357,8 +357,8 @@ pub(crate) async fn rotate_signing_secret(
     next.signature_required = true;
     next.updated_at = now;
     let mut tx = ctx.begin().await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .store(&mut tx, scope, &signing_secret_key(webhook.id), &secret)
         .await?;
     store(ctx).update(&mut tx, &next).await?;
@@ -396,8 +396,8 @@ pub(crate) async fn remove_signing_secret(
     next.signature_required = false;
     next.updated_at = now;
     let mut tx = ctx.begin().await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .remove(&mut tx, scope, &signing_secret_key(webhook.id))
         .await?;
     store(ctx).update(&mut tx, &next).await?;
@@ -539,8 +539,8 @@ pub(crate) async fn receive(
         });
     if webhook.signature_required {
         let secret = match ctx
-            .state()
-            .secrets
+            .runtime()
+            .secrets()
             .reveal(&scope, &signing_secret_key(webhook.id))
             .await
         {

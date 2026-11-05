@@ -119,9 +119,9 @@ pub(crate) async fn load_record(
     let Ok(handler) = ctx.registry().handler(record_type) else {
         return Ok(None);
     };
-    let state = ctx.state();
+    let state = ctx.runtime();
     match handler
-        .load(&RecordCtx::new(scope, &state), record_id)
+        .load(&RecordCtx::from_runtime(scope, &state), record_id)
         .await
     {
         Ok(value) => Ok(value),
@@ -210,8 +210,8 @@ impl Module for MessagingModule {
 
     async fn purge_data(&self, ctx: &mut ModuleCtx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
         let channels = store::list_channels(ctx.pool).await?;
-        let state = aphel_sdk::platform::state::runtime_state()?;
-        let ctx = Ctx::from_state(&state, ctx.scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(ctx.scope).await?;
         for channel in channels {
             channels::remove_credentials(&ctx, tx, &channel).await?;
         }

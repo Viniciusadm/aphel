@@ -3,18 +3,17 @@ use serde_json::Value;
 
 use crate::IMPORT_RUN_JOB;
 use crate::service::{self, GENERIC_FAILURE, RunImportRequest, RunProgress};
-use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::exports::system_scope;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 pub(crate) struct ImportRunHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 impl ImportRunHandler {
-    pub(crate) fn new(state: AppState) -> Self {
+    pub(crate) fn new(state: Runtime) -> Self {
         Self { state }
     }
 }
@@ -28,7 +27,7 @@ impl JobHandler for ImportRunHandler {
     async fn handle(&self, context: &JobContext, payload: Value) -> Result<(), AppError> {
         let request = RunImportRequest::from_payload(&payload)?;
         let scope = system_scope(request.requested_by.clone())?;
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         match service::run(&ctx, &request).await {
             Ok(RunProgress::Finished) => Ok(()),
             Ok(RunProgress::Continue { processed }) => {

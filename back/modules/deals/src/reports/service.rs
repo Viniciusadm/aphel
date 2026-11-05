@@ -37,7 +37,7 @@ use aphel_sdk::workflow::pipeline_visible;
 
 const AMOUNT_FIELD: &str = "amount";
 const DEAL: &str = "deals.deal";
-const ACTIVITY: &str = "tasks.task";
+const ACTIVITY: &str = aphel_contract_crm::keys::ACTIVITY;
 
 struct DealPlans {
     fields: FieldSet,

@@ -9,10 +9,9 @@ use crate::outgoing::delivery::{
 };
 use crate::outgoing::renderer::ApiPublicEventRenderer;
 use crate::outgoing::service::WEBHOOK_DELIVER_JOB;
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::public_events::{SharedPublicEventRenderer, is_public_event};
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler,
@@ -20,7 +19,7 @@ use aphel_sdk::platform::application::shared::{
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) fn outgoing_webhook_worker(env: &WorkerEnv) -> WorkerParts {
-    let state = env.state();
+    let state = env.runtime();
     if let Err(error) = state.outbound_http_network() {
         tracing::error!("outgoing webhooks disabled: {error}");
         return WorkerParts::default();
@@ -39,7 +38,7 @@ pub(crate) fn outgoing_webhook_worker(env: &WorkerEnv) -> WorkerParts {
 }
 
 pub(crate) struct WebhookFanOutConsumer {
-    state: AppState,
+    state: Runtime,
     renderer: SharedPublicEventRenderer,
 }
 
@@ -55,13 +54,13 @@ impl EventConsumer for WebhookFanOutConsumer {
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         fan_out(&ctx, &self.renderer, event).await
     }
 }
 
 pub(crate) struct WebhookDeliverHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -72,13 +71,13 @@ impl JobHandler for WebhookDeliverHandler {
 
     async fn handle(&self, _context: &JobContext, payload: Value) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         deliver(&ctx, payload).await
     }
 }
 
 pub(crate) struct WebhooksMaintenanceHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -91,7 +90,7 @@ impl JobHandler for WebhooksMaintenanceHandler {
         let retention_days =
             crate::settings::delivery_settings(&self.state.configuration()).retention_days;
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         run_maintenance(&ctx, retention_days).await
     }
 }

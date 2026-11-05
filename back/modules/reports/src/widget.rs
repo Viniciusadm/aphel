@@ -4,7 +4,6 @@ use serde_json::{Map, Value, json};
 use crate::domain::custom::{ReportEntry, RunOverrides, authorize_edit};
 use crate::http::custom_dto::ReportResponse;
 use crate::service::reports::run_report;
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_sdk::dashboard::ResolvedPeriod;
 use aphel_sdk::dashboard::{
@@ -14,7 +13,6 @@ use aphel_sdk::platform::api::dto::aggregates::AggregateResultResponse;
 use aphel_sdk::platform::application::shared::is_access_denied;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
-use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const SAVED_REPORT_WIDGET: &str = "saved_report";
 pub(crate) const REPORT_ID_SETTING: &str = "report_id";
@@ -119,8 +117,8 @@ where
         let Some(report_id) = report_id else {
             return Ok(data);
         };
-        let state = runtime_state()?;
-        let ctx = Ctx::from_state(&state, context.scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(context.scope).await?;
         let overrides = if use_period {
             dashboard_overrides(&context.period)
         } else {

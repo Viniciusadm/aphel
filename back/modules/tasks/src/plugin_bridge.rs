@@ -85,7 +85,7 @@ fn complete<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         let input: ActivityId = operation_input(input)?;
         let activity = service::complete(ctx, &input.id, None).await?;
         redacted(
-            &ctx.state(),
+            &ctx.runtime(),
             ctx.scope,
             &RecordType::ACTIVITY,
             ActivityResponse::from(activity),

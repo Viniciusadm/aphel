@@ -125,7 +125,7 @@ pub(crate) async fn notes(
 ) -> Result<Vec<Value>, AppError> {
     aphel_sdk::record_context::related(
         ctx,
-        "notes.note",
+        aphel_contract_crm::keys::NOTE,
         &RecordRef::new(RecordType::parse(record_type)?, record_id),
         limit,
     )

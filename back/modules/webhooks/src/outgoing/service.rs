@@ -213,8 +213,8 @@ async fn views(
     let configured = if ids.is_empty() {
         Vec::new()
     } else {
-        ctx.state()
-            .secrets
+        ctx.runtime()
+            .secrets()
             .configured(ctx.scope, SIGNING_SECRET_OWNER, &ids)
             .await?
     };
@@ -311,8 +311,8 @@ pub(crate) async fn create(
 
     let mut tx = ctx.begin().await?;
     endpoints.insert(&mut tx, &endpoint).await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .store(&mut tx, scope, &secret_key(endpoint.id), &secret)
         .await?;
     let changes = diff_values(
@@ -422,8 +422,8 @@ pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str, ip: Option<String>) -> Resul
         &DiffOptions::default(),
     )?;
     let mut tx = ctx.begin().await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .remove_owner(
             &mut tx,
             scope,
@@ -460,8 +460,8 @@ pub(crate) async fn rotate_secret(
     let secret = new_secret()?;
     endpoint.updated_at = now;
     let mut tx = ctx.begin().await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .store(&mut tx, scope, &secret_key(endpoint.id), &secret)
         .await?;
     WebhookEndpointStore::of(ctx)

@@ -103,7 +103,7 @@ pub(crate) const ATTACH_SIGNED_SETTING: &str = "attach_signed_document";
 pub(crate) const PRODUCTION: &str = "production";
 pub(crate) const SANDBOX: &str = "sandbox";
 
-pub(crate) const DEAL: &str = "deals.deal";
+pub(crate) const DEAL: &str = aphel_contract_crm::keys::DEAL;
 
 pub(crate) fn job_kind(kind: &str) -> String {
     format!("{KEY}.{kind}")

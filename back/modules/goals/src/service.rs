@@ -80,25 +80,25 @@ struct MetricSource {
 fn metric_source(metric: GoalMetric) -> MetricSource {
     match metric {
         GoalMetric::WonAmount => MetricSource {
-            record_type: "deals.deal",
+            record_type: aphel_contract_crm::keys::DEAL,
             status: Some("won"),
             period_field: "closed_at",
             metric: MetricSpec::of(AggregateFunction::Sum, BASE_AMOUNT_FIELD),
         },
         GoalMetric::WonCount => MetricSource {
-            record_type: "deals.deal",
+            record_type: aphel_contract_crm::keys::DEAL,
             status: Some("won"),
             period_field: "closed_at",
             metric: MetricSpec::count(),
         },
         GoalMetric::ActivitiesDone => MetricSource {
-            record_type: "tasks.task",
+            record_type: aphel_contract_crm::keys::ACTIVITY,
             status: Some("done"),
             period_field: "completed_at",
             metric: MetricSpec::count(),
         },
         GoalMetric::NewContacts => MetricSource {
-            record_type: "people.person",
+            record_type: aphel_contract_crm::keys::CONTACT,
             status: None,
             period_field: "created_at",
             metric: MetricSpec::count(),

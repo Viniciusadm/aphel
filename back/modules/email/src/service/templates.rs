@@ -344,9 +344,9 @@ pub(crate) async fn variables(
             ));
         }
         None => vec![
-            "people.person".to_owned(),
-            "organizations.organization".to_owned(),
-            "deals.deal".to_owned(),
+            aphel_contract_crm::keys::CONTACT.to_owned(),
+            aphel_contract_crm::keys::COMPANY.to_owned(),
+            aphel_contract_crm::keys::DEAL.to_owned(),
         ],
     };
     let mut variables = Vec::new();

@@ -22,7 +22,10 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(aggregate_schema))
 }
 
-pub async fn aggregate_ports(state: &AppState) -> Result<MySqlRecordQueryPorts, AppError> {
+pub async fn aggregate_ports(
+    state: &impl AsRef<AppState>,
+) -> Result<MySqlRecordQueryPorts, AppError> {
+    let state = state.as_ref();
     Ok(MySqlRecordQueryPorts::new(
         state.db()?,
         state.registry().await?,

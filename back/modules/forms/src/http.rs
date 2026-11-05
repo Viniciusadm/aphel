@@ -480,7 +480,7 @@ async fn options(
         ctx.call(
             aphel_sdk::tagging::LIST,
             aphel_sdk::tagging::ListTags {
-                record_type: Some("people.person".to_owned()),
+                record_type: Some(aphel_contract_crm::keys::CONTACT.to_owned()),
             },
         )
         .await?

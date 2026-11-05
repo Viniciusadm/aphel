@@ -180,7 +180,7 @@ pub(crate) async fn sync_mailbox(
     else {
         return Ok(SyncOutcome::default());
     };
-    let state = ctx.state();
+    let state = ctx.runtime();
     let started_at = ctx.now();
     let provider = match crate::store::mail_providers().require_for(ctx.scope, &mailbox.provider) {
         Ok(provider) => provider,
@@ -238,7 +238,7 @@ pub(crate) async fn sync_mailbox(
             account.credentials = credentials;
         }
         for email in batch.messages {
-            if import(ctx, &state.storage, &mailbox, &context, email).await? {
+            if import(ctx, state.storage(), &mailbox, &context, email).await? {
                 outcome.imported += 1;
             } else {
                 outcome.skipped += 1;

@@ -28,8 +28,8 @@ use aphel_sdk::privacy::mask_email;
 
 pub(crate) async fn existing_tracking_key(ctx: &Ctx<'_>) -> Result<Option<Vec<u8>>, AppError> {
     Ok(ctx
-        .state()
-        .secrets
+        .runtime()
+        .secrets()
         .reveal(ctx.scope, &tracking_key_reference())
         .await?
         .and_then(|secret| decode_key(secret.expose())))

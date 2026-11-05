@@ -10,12 +10,10 @@ use aphel_contract_automation::application::actions::{
 use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context,
 };
-use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::platform::application::shared::DomainEvent;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::modules::module_settings;
-use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const ENRICH_ACTION: &str = "enrichment.enrich_company";
 pub(crate) const AUTOMATIC_DISABLED: &str = "enrichment_automatic_disabled";
@@ -100,7 +98,7 @@ impl AutomationAction for EnrichCompanyAction {
             Value::Null => {}
             _ => violations.push(context.violation("", "must be an object")),
         }
-        let state = runtime_state()?;
+        let state = aphel_sdk::runtime()?;
         if !automatic(&module_settings(&state.db()?, KEY).await?) {
             violations.push(context.violation(
                 "",
@@ -115,8 +113,8 @@ impl AutomationAction for EnrichCompanyAction {
         context: &ActionContext<'_>,
         config: &Value,
     ) -> Result<Value, AppError> {
-        let state = runtime_state()?;
-        let ctx = Ctx::from_state(&state, context.scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(context.scope).await?;
         if !automatic(&service::settings(&ctx).await?) {
             return Err(AppError::validation_code(
                 AUTOMATIC_DISABLED,

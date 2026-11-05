@@ -63,7 +63,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 }
 
 pub async fn quote_detail(
-    state: &AppState,
+    state: &impl AsRef<AppState>,
     scope: &AccessScope,
     details: QuoteDetails,
 ) -> Result<Value, AppError> {

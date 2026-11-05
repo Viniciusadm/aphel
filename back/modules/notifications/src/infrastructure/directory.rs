@@ -39,7 +39,7 @@ impl MySqlNotificationDirectory {
     }
 
     async fn current_registry(&self) -> Arc<RecordTypeRegistry> {
-        match aphel_sdk::platform::state::runtime_state() {
+        match aphel_sdk::runtime() {
             Ok(state) => state
                 .registry()
                 .await

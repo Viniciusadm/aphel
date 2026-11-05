@@ -46,7 +46,7 @@ pub(crate) async fn contact_fields(
     scope: &AccessScope,
 ) -> Result<Vec<LeadFormTargetField>, AppError> {
     Ok(ctx
-        .field_set(scope, "people.person")
+        .field_set(scope, aphel_contract_crm::keys::CONTACT)
         .await?
         .active()
         .map(|field| LeadFormTargetField {

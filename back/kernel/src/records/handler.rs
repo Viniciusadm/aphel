@@ -25,6 +25,13 @@ impl<'a> RecordCtx<'a> {
     pub fn new(scope: &'a AccessScope, state: &'a AppState) -> Self {
         Self { scope, state }
     }
+
+    pub fn from_runtime(scope: &'a AccessScope, runtime: &'a crate::state::Runtime) -> Self {
+        Self {
+            scope,
+            state: runtime.as_ref(),
+        }
+    }
 }
 
 fn is_missing(error: &AppError) -> bool {

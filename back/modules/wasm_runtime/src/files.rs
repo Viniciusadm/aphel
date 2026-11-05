@@ -6,7 +6,6 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::files::UploadFileCommand;
 use aphel_sdk::platform::application::shared::RecordRef;
 use aphel_sdk::platform::domain::access::AccessScope;
-use aphel_sdk::platform::state::runtime_state;
 
 const MAX_READ_BYTES: usize = 10 * 1024 * 1024;
 
@@ -29,7 +28,7 @@ pub async fn upload(
     filename: String,
     body: Vec<u8>,
 ) -> Result<String, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let uploaded = aphel_sdk::platform::api::routes::v1::files::file_use_cases(&state)
         .await?
         .upload(
@@ -46,7 +45,7 @@ pub async fn upload(
 }
 
 pub async fn read(scope: &AccessScope, file_id: &str) -> Result<(String, Vec<u8>), AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let download = aphel_sdk::platform::api::routes::v1::files::file_use_cases(&state)
         .await?
         .download(scope, file_id)

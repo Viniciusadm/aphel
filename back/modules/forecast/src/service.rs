@@ -37,7 +37,7 @@ use aphel_sdk::platform::application::shared::{RecordRef, ensure_version};
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::domain::access::Permission;
 
-const DEAL: &str = "deals.deal";
+const DEAL: &str = aphel_contract_crm::keys::DEAL;
 const AMOUNT: &str = "amount";
 const PROBABILITY: &str = "probability";
 const EXPECTED_CLOSE_DATE: &str = "expected_close_date";

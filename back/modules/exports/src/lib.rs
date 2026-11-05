@@ -82,7 +82,7 @@ impl Module for ExportsModule {
             }));
         }
         app.worker(|env| {
-            WorkerParts::default().handler(Arc::new(ExportRunHandler::new(env.state())))
+            WorkerParts::default().handler(Arc::new(ExportRunHandler::new(env.runtime())))
         });
         exposed_operations::register(app);
         Ok(())

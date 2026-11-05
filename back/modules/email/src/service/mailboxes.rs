@@ -62,7 +62,7 @@ pub async fn create(
     command: ConnectMailboxCommand,
 ) -> Result<MailboxDetails, AppError> {
     let scope = ctx.scope;
-    let state = ctx.state();
+    let state = ctx.runtime();
     let mailboxes = MailboxStore::of(ctx);
     let provider = crate::store::mail_providers().require_for(scope, command.provider.trim())?;
     let mut violations = Vec::new();
@@ -137,7 +137,7 @@ pub async fn create(
     let mut tx = ctx.begin().await?;
     mailboxes.insert(&mut tx, &mailbox, now).await?;
     state
-        .secrets
+        .secrets()
         .store(
             &mut tx,
             scope,
@@ -259,8 +259,8 @@ pub(crate) async fn update(
         .update(&mut tx, current.id, &changes, now)
         .await?;
     if let Some(credentials) = &credentials {
-        ctx.state()
-            .secrets
+        ctx.runtime()
+            .secrets()
             .store(
                 &mut tx,
                 scope,
@@ -336,7 +336,7 @@ pub(crate) async fn request_sync(ctx: &Ctx<'_>, id: &str) -> Result<(), AppError
 
 pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str, ip: Option<String>) -> Result<(), AppError> {
     let scope = ctx.scope;
-    let state = ctx.state();
+    let state = ctx.runtime();
     let directory = DirectoryStore::of(ctx);
     let mailbox = owned(ctx, id).await?;
     let files = directory.mailbox_files(mailbox.id).await?;
@@ -351,7 +351,7 @@ pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str, ip: Option<String>) -> Resul
         return Err(mailbox_not_found());
     }
     state
-        .secrets
+        .secrets()
         .remove_owner(
             &mut tx,
             scope,
@@ -373,7 +373,7 @@ pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str, ip: Option<String>) -> Resul
     .await?;
     tx.commit().await?;
     for file in files {
-        if let Err(error) = state.storage.delete(&file.storage_key).await {
+        if let Err(error) = state.storage().delete(&file.storage_key).await {
             tracing::warn!(file_id = %file.id, "could not delete a mailbox file: {error}");
         }
     }
@@ -427,7 +427,7 @@ impl CredentialSink for VaultCredentialSink {
 pub(crate) fn credential_persistence(ctx: &Ctx<'_>) -> CredentialPersistence {
     CredentialPersistence::new(Arc::new(VaultCredentialSink {
         pool: ctx.pool().clone(),
-        secrets: ctx.state().secrets,
+        secrets: ctx.runtime().secrets().clone(),
         scope: ctx.scope.clone(),
     }))
 }
@@ -438,8 +438,8 @@ pub(crate) async fn persist_credentials(
     credentials: &MailboxCredentials,
 ) -> Result<(), AppError> {
     let mut tx = ctx.begin().await?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .store(
             &mut tx,
             ctx.scope,
@@ -456,8 +456,8 @@ async fn stored_credentials(
     mailbox_id: Uuid,
 ) -> Result<MailboxCredentials, AppError> {
     match ctx
-        .state()
-        .secrets
+        .runtime()
+        .secrets()
         .reveal(ctx.scope, &mailbox_secret_key(mailbox_id))
         .await?
     {
@@ -513,7 +513,7 @@ async fn details(
     ctx: &Ctx<'_>,
     mailboxes: Vec<MailboxView>,
 ) -> Result<Vec<MailboxDetails>, AppError> {
-    let state = ctx.state();
+    let state = ctx.runtime();
     let ids: Vec<String> = mailboxes
         .iter()
         .map(|mailbox| mailbox.id.to_string())
@@ -522,7 +522,7 @@ async fn details(
         Vec::new()
     } else {
         state
-            .secrets
+            .secrets()
             .configured(ctx.scope, MAILBOX_SECRET_OWNER, &ids)
             .await?
     };

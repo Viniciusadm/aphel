@@ -3,17 +3,17 @@ use async_trait::async_trait;
 use crate::store::settings::EngagementReader;
 use crate::{EMAIL_RECEIVED, EMAIL_SENT, EMAIL_THREAD_LINKED, EMAIL_THREAD_UNLINKED};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
 
 pub(crate) const EMAIL_ENGAGEMENT_CONSUMER: &str = "email.engagement";
 
 pub(crate) struct EmailEngagementConsumer {
-    state: AppState,
+    state: Runtime,
 }
 
 impl EmailEngagementConsumer {
-    pub(crate) fn new(state: AppState) -> Self {
+    pub(crate) fn new(state: Runtime) -> Self {
         Self { state }
     }
 }

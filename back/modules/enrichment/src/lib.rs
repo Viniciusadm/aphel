@@ -36,7 +36,7 @@ pub(crate) const SOURCE_SETTING: &str = "source";
 pub(crate) const CNPJ_FIELD_SETTING: &str = "cnpj_field";
 pub(crate) const AUTOMATIC_SETTING: &str = "automatic";
 
-pub(crate) const COMPANY: &str = "organizations.organization";
+pub(crate) const COMPANY: &str = aphel_contract_crm::keys::COMPANY;
 
 pub(crate) struct DataItem {
     pub(crate) key: &'static str,

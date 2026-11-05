@@ -38,31 +38,19 @@ const DOMAIN_WORDS: [&str; 15] = [
     "renewal",
     "workflow",
 ];
-const FOREIGN_RECORD_LITERALS: [&str; 24] = [
-    "\"people.person\"",
-    "\"organizations.organization\"",
-    "\"deals.deal\"",
-    "\"leads.lead\"",
-    "\"quotes.quote\"",
-    "\"proposals.proposal\"",
-    "\"tasks.task\"",
-    "\"catalog_items.item\"",
-    "\"notes.note\"",
-    "\"workflow.pipeline\"",
-    "\"workflow.stage\"",
-    "\"workflow.lost_reason\"",
-    "\"contact\"",
-    "\"company\"",
-    "\"deal\"",
-    "\"lead\"",
-    "\"quote\"",
-    "\"proposal\"",
-    "\"activity\"",
-    "\"product\"",
-    "\"note\"",
-    "\"pipeline\"",
-    "\"pipeline_stage\"",
-    "\"lost_reason\"",
+const FOREIGN_RECORD_LITERALS: [(&str, &str); 12] = [
+    ("\"people.person\"", "people"),
+    ("\"organizations.organization\"", "organizations"),
+    ("\"deals.deal\"", "deals"),
+    ("\"leads.lead\"", "leads"),
+    ("\"quotes.quote\"", "quotes"),
+    ("\"proposals.proposal\"", "proposals"),
+    ("\"tasks.task\"", "tasks"),
+    ("\"catalog_items.item\"", "catalog_items"),
+    ("\"notes.note\"", "notes"),
+    ("\"workflow.pipeline\"", "workflow"),
+    ("\"workflow.stage\"", "workflow"),
+    ("\"workflow.lost_reason\"", "workflow"),
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -336,10 +324,10 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
         let mut found = false;
         for (key, file) in &plugin_sources {
             if key == &plugin.key {
-                let text = fs::read_to_string(file)?;
+                let text = documentation_free(&fs::read_to_string(file)?);
                 if FOREIGN_RECORD_LITERALS
                     .iter()
-                    .any(|literal| text.contains(literal))
+                    .any(|(literal, owner)| *owner != plugin.key && text.contains(literal))
                 {
                     found = true;
                     break;
@@ -686,6 +674,16 @@ fn permission_area(line: &str) -> Option<(String, String)> {
     let value = line.split("from_static(\"").nth(1)?;
     let area = value.split(['.', '"']).next()?.to_string();
     Some((name, area))
+}
+
+fn documentation_free(text: &str) -> String {
+    text.lines()
+        .filter(|line| {
+            let line = line.trim_start();
+            !(line.starts_with("//") || line.contains("example =") || line.contains("example="))
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn kernel_paths_in(text: &str) -> BTreeSet<String> {

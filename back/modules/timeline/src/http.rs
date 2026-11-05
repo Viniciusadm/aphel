@@ -57,7 +57,7 @@ async fn record_timeline(
 }
 
 pub(crate) async fn mask_timeline(
-    state: &AppState,
+    state: &impl AsRef<AppState>,
     scope: &AccessScope,
     entries: &mut [TimelineEntry],
 ) -> Result<(), AppError> {

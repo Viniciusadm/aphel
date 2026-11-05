@@ -18,8 +18,8 @@ use crate::domain::{DealInput, LoseDealCommand, MoveDealCommand};
 use crate::team::domain::AddDealMemberCommand;
 use aphel_kernel::errors::CodedKind;
 
-const ORGANIZATION_ENTITY: &str = "organizations.organization";
-const CONTACT_ENTITY: &str = "people.person";
+const ORGANIZATION_ENTITY: &str = aphel_contract_crm::keys::COMPANY;
+const CONTACT_ENTITY: &str = aphel_contract_crm::keys::CONTACT;
 const FOREIGN_CURRENCY_VALUE: &str = "money.foreign_currency";
 const FOREIGN_CURRENCY_EVERY: usize = 5;
 const DEAL_COUNT: usize = 40;

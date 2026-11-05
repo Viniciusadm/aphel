@@ -80,7 +80,7 @@ struct AcceptInput {
 }
 
 async fn detail(ctx: &Ctx<'_>, details: QuoteDetails) -> Result<Value, AppError> {
-    quote_detail(&ctx.state(), ctx.scope, details).await
+    quote_detail(&ctx.runtime(), ctx.scope, details).await
 }
 
 fn submit<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {

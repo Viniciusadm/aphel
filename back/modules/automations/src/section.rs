@@ -203,9 +203,12 @@ impl AutomationsSection {
     async fn organization_index(&self) -> Result<KeyIndex, AppError> {
         let keys =
             |kind| async move { reference_keys(&self.pool, ConfigReferenceKind::new(kind)).await };
-        let workflow: Vec<_> = keys("workflow.pipeline").await?.into_iter().collect();
+        let workflow: Vec<_> = keys(aphel_contract_crm::keys::PIPELINE)
+            .await?
+            .into_iter()
+            .collect();
         let mut stages = Vec::new();
-        for (id, key) in keys("workflow.stage").await? {
+        for (id, key) in keys(aphel_contract_crm::keys::PIPELINE_STAGE).await? {
             let (pipeline_key, stage_key) = key
                 .split_once('/')
                 .ok_or_else(|| AppError::Configuration("invalid portable stage key".into()))?;
@@ -351,12 +354,15 @@ impl AutomationsSection {
             };
             let stage_id = context
                 .resolved(
-                    ConfigReferenceKind::new("workflow.stage"),
+                    ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE_STAGE),
                     &format!("{pipeline_key}/{stage_key}"),
                 )
                 .or_else(|| {
                     context
-                        .resolved(ConfigReferenceKind::new("workflow.pipeline"), pipeline_key)
+                        .resolved(
+                            ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE),
+                            pipeline_key,
+                        )
                         .or_else(|| index.pipeline_id(pipeline_key))
                         .and_then(|pipeline_id| index.stage_id(pipeline_id, stage_key))
                 });
@@ -853,7 +859,10 @@ fn package_available(package: &ConfigPackage) -> BTreeMap<ReferenceKind, BTreeSe
         (ReferenceKind::Tag, "tagging.tag"),
         (ReferenceKind::ActivityType, "tasks.activity_type"),
         (ReferenceKind::Sequence, "sequences.sequence"),
-        (ReferenceKind::Stage, "workflow.stage"),
+        (
+            ReferenceKind::Stage,
+            aphel_contract_crm::keys::PIPELINE_STAGE,
+        ),
     ] {
         let keys = package_reference_keys(package, ConfigReferenceKind::new(reference));
         available.insert(

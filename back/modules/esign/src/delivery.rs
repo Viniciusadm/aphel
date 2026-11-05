@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{FieldChange, JobContext, JobHandler};
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
@@ -16,7 +16,7 @@ use crate::provider::{EnvelopeRequest, EnvelopeSigner};
 use crate::{service, store};
 
 pub(crate) struct Deliver {
-    pub(crate) state: AppState,
+    pub(crate) state: Runtime,
 }
 
 #[async_trait]
@@ -53,7 +53,7 @@ impl Deliver {
                 AppError::Validation("esign.deliver requires a request id".to_owned())
             })?;
         let system = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &system).await?;
+        let ctx = self.state.ctx(&system).await?;
         let cancel = payload
             .get("cancel")
             .and_then(Value::as_bool)

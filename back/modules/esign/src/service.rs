@@ -96,7 +96,7 @@ pub(crate) async fn ensure_quote(
     deal_id: Uuid,
 ) -> Result<(), AppError> {
     let not_found = || AppError::not_found_code("quote_not_found", "quote not found for this deal");
-    let quote = load_record(ctx, scope, "quotes.quote", quote_id)
+    let quote = load_record(ctx, scope, aphel_contract_crm::keys::QUOTE, quote_id)
         .await?
         .ok_or_else(not_found)?;
     if quote
@@ -400,7 +400,7 @@ pub(crate) async fn send(
     }
     for signer in &signers {
         if let Some(contact_id) = signer.contact_id {
-            load_record(ctx, scope, "people.person", contact_id)
+            load_record(ctx, scope, aphel_contract_crm::keys::CONTACT, contact_id)
                 .await?
                 .ok_or_else(|| {
                     AppError::invalid_fields_code(

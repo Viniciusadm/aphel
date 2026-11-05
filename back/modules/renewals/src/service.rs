@@ -285,7 +285,7 @@ async fn recurring_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Vec<LineItem>, 
         .rows(
             ctx,
             &aphel_sdk::platform::application::shared::RecordRef::parse(
-                "deals.deal",
+                aphel_contract_crm::keys::DEAL,
                 &deal_id.to_string(),
             )?,
         )
@@ -349,7 +349,7 @@ async fn copy_items(
         return Ok(());
     }
     let record = aphel_sdk::platform::application::shared::RecordRef::parse(
-        "deals.deal",
+        aphel_contract_crm::keys::DEAL,
         &renewal_id.to_string(),
     )?;
     let port = ctx

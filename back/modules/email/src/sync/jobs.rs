@@ -9,11 +9,10 @@ use crate::service;
 use crate::sync::{
     EMAIL_SYNC_JOB, EMAIL_SYNC_MAILBOX_JOB, SyncMailboxRequest, SyncSettings, email_sync_schedule,
 };
-use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::WorkerParts;
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 use aphel_sdk::platform::domain::access::AccessScope;
 
@@ -40,7 +39,7 @@ pub(crate) fn sync_settings_from_env() -> SyncSettings {
 }
 
 pub(crate) struct EmailSyncDispatchHandler {
-    state: AppState,
+    state: Runtime,
     settings: SyncSettings,
 }
 
@@ -52,7 +51,7 @@ impl JobHandler for EmailSyncDispatchHandler {
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         let queued = service::sync::dispatch(&ctx, self.settings).await?;
         if queued > 0 {
             tracing::debug!(queued, "queued mailbox synchronizations");
@@ -62,7 +61,7 @@ impl JobHandler for EmailSyncDispatchHandler {
 }
 
 pub(crate) struct EmailSyncMailboxHandler {
-    state: AppState,
+    state: Runtime,
     settings: SyncSettings,
 }
 
@@ -84,7 +83,7 @@ impl JobHandler for EmailSyncMailboxHandler {
             .map_err(|_| AppError::Validation("invalid mailbox id".to_owned()))?;
         let owner = UserId::new(payload_text(&payload, "user_id")?)?;
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         let outcome = service::sync::sync_mailbox(
             &ctx,
             self.settings,
@@ -101,7 +100,7 @@ impl JobHandler for EmailSyncMailboxHandler {
     }
 }
 
-pub(crate) fn worker(state: AppState) -> WorkerParts {
+pub(crate) fn worker(state: Runtime) -> WorkerParts {
     let settings = sync_settings_from_env();
     WorkerParts::default()
         .handler(Arc::new(EmailSyncDispatchHandler {

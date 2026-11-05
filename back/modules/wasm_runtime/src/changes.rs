@@ -12,7 +12,6 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::public_events::custom_event_record_type;
 use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
 use aphel_sdk::platform::domain::access::AccessScope;
-use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const CHANGES_CONSUMER: &str = "wasm_runtime.changes";
 pub(crate) const MAX_PAGE: u32 = 500;
@@ -128,7 +127,7 @@ pub(crate) async fn page(
     since: u64,
     limit: u32,
 ) -> Result<ChangesPage, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let pool = state.db()?;
     let registry = state.registry().await?;
     let oldest: Option<u64> =

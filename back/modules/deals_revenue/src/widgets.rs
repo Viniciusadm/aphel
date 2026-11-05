@@ -88,7 +88,7 @@ pub async fn base_revenue<P: DashboardPorts>(
 ) -> Result<BaseRevenue, AppError> {
     let visible = revenue_visible(context).await?;
     let convertible = visible && field_visible(context, EXCHANGE_RATE_FIELD).await?;
-    let mut query = AggregateQuery::new("deals.deal")
+    let mut query = AggregateQuery::new(aphel_contract_crm::keys::DEAL)
         .filter(Filter::and(context.with_subject(conditions)))
         .metrics(revenue_metrics(visible));
     if let Some(period) = period {

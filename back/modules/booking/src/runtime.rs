@@ -13,9 +13,8 @@ use crate::store::BookingStore;
 use crate::token::ManageToken;
 use crate::validation::parse_timezone;
 use crate::{BOOKING_EMAIL_JOB, BookingStatus};
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::mail::{CalendarInvite, EmailMessage, Mailer, SharedMailer};
 use aphel_sdk::platform::application::organization_profile::PublicBaseUrl;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
@@ -24,13 +23,13 @@ use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 
 pub(crate) struct BookingEmailHandler {
-    state: AppState,
+    state: Runtime,
     mailer: SharedMailer,
     app_base_url: PublicBaseUrl,
 }
 
 pub(crate) fn booking_worker(env: &WorkerEnv) -> WorkerParts {
-    let state = env.state();
+    let state = env.runtime();
     WorkerParts::default().handler(Arc::new(BookingEmailHandler {
         state,
         mailer: env.mailer.clone(),
@@ -54,7 +53,7 @@ impl BookingEmailHandler {
         recipient: Recipient,
     ) -> Result<Option<BookingEmail>, AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         let repository = BookingStore::of(&ctx);
         let Some(booking) = repository.booking(booking_id).await? else {
             return Ok(None);

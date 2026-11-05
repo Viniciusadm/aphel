@@ -7,7 +7,7 @@ use crate::is_importable;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::shared::{EventOrigin, OriginEventPublisher};
 
 pub(crate) const IMPORT_EVENT_ORIGIN: &str = "import";
@@ -69,9 +69,9 @@ fn import_handler(
     registry.handler(record_type)
 }
 
-fn import_state(ctx: &Ctx<'_>, import_id: Uuid) -> AppState {
-    let state = ctx.state();
-    let events = state.events.clone();
+fn import_state(ctx: &Ctx<'_>, import_id: Uuid) -> Runtime {
+    let state = ctx.runtime();
+    let events = state.events().clone();
     state.with_events(Arc::new(OriginEventPublisher::new(
         events,
         EventOrigin::new(IMPORT_EVENT_ORIGIN, Some(import_id.to_string())),
@@ -87,7 +87,10 @@ pub(crate) async fn create_record(
     let handler = import_handler(ctx, record_type)?;
     let state = import_state(ctx, import_id);
     let record = handler
-        .create(&RecordCtx::new(ctx.scope, &state), import_body(values))
+        .create(
+            &RecordCtx::from_runtime(ctx.scope, &state),
+            import_body(values),
+        )
         .await?;
     created_id(&record)
 }
@@ -103,7 +106,7 @@ pub(crate) async fn update_record(
     let state = import_state(ctx, import_id);
     let body = import_body(values);
     handler
-        .update(&RecordCtx::new(ctx.scope, &state), record_id, body)
+        .update(&RecordCtx::from_runtime(ctx.scope, &state), record_id, body)
         .await?;
     Ok(record_id)
 }

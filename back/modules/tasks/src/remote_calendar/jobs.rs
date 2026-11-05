@@ -10,7 +10,7 @@ use super::store;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, Job, JobContext, JobHandler, JobQueue,
@@ -47,10 +47,10 @@ pub(crate) async fn enqueue_sync(ctx: &Ctx<'_>, key: &str, user_id: Uuid) -> Res
 }
 
 struct CalendarWorker {
-    state: AppState,
+    state: Runtime,
 }
 impl CalendarWorker {
-    fn new(state: &AppState) -> Self {
+    fn new(state: &Runtime) -> Self {
         Self {
             state: state.clone(),
         }
@@ -76,7 +76,7 @@ impl JobHandler for SyncAllHandler {
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         for api in super::service::providers(&ctx)? {
             let key = api.spec().key;
             for connection in store::list_connections(ctx.pool(), key).await? {
@@ -100,7 +100,7 @@ impl JobHandler for SyncHandler {
             return Ok(());
         };
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         let Some(api) = payload_provider(&ctx, &payload)? else {
             return Ok(());
         };
@@ -126,7 +126,7 @@ impl JobHandler for PushHandler {
             .and_then(Value::as_bool)
             .unwrap_or(false);
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         let Some(api) = payload_provider(&ctx, &payload)? else {
             return Ok(());
         };
@@ -168,7 +168,7 @@ impl JobHandler for PushHandler {
 }
 
 struct ActivityExportConsumer {
-    state: AppState,
+    state: Runtime,
 }
 #[async_trait]
 impl EventConsumer for ActivityExportConsumer {
@@ -189,7 +189,7 @@ impl EventConsumer for ActivityExportConsumer {
             return Ok(());
         }
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         let mut failure = None;
         for api in super::service::providers(&ctx)? {
             if let Err(error) = export_activity(&ctx, api.as_ref(), event, record.record_id).await {
@@ -241,7 +241,7 @@ pub fn schedule() -> Result<ScheduledJobDefinition, AppError> {
     ScheduledJobDefinition::new(SYNC_ALL_KIND, SYNC_SCHEDULE)
 }
 pub fn worker(env: &WorkerEnv) -> WorkerParts {
-    let state = env.runtime_state();
+    let state = env.runtime();
     WorkerParts::default()
         .handler(Arc::new(SyncAllHandler(CalendarWorker::new(&state))))
         .handler(Arc::new(SyncHandler(CalendarWorker::new(&state))))

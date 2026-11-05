@@ -211,7 +211,7 @@ where
         vec![aphel_sdk::dashboard::WidgetReferenceSetting {
             field: "pipeline_id",
             package_field: Some("pipeline"),
-            kind: aphel_sdk::ReferenceKind::new("workflow.pipeline"),
+            kind: aphel_sdk::ReferenceKind::new(aphel_contract_crm::keys::PIPELINE),
         }]
     }
     fn default_order(&self) -> Option<i32> {

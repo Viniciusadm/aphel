@@ -168,8 +168,8 @@ async fn attempt(
     delivery: &WebhookDelivery,
 ) -> OutboundResponse {
     let secret = match ctx
-        .state()
-        .secrets
+        .runtime()
+        .secrets()
         .reveal(ctx.scope, &secret_key(endpoint.id))
         .await
     {
@@ -252,7 +252,7 @@ async fn finish(
         }
         if counts
             && failures
-                >= crate::settings::delivery_settings(&ctx.state().configuration())
+                >= crate::settings::delivery_settings(&ctx.runtime().configuration())
                     .disable_after_failures
             && endpoints
                 .disable(&mut tx, endpoint.id, DisabledReason::Failures, now)

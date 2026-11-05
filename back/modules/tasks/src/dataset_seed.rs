@@ -10,8 +10,8 @@ use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 use sqlx::{QueryBuilder, Row};
 
-const DEAL_ENTITY: &str = "deals.deal";
-const CONTACT_ENTITY: &str = "people.person";
+const DEAL_ENTITY: &str = aphel_contract_crm::keys::DEAL;
+const CONTACT_ENTITY: &str = aphel_contract_crm::keys::CONTACT;
 const TASK_TITLES: [&str; 8] = [
     "Ligar para alinhar a proposta",
     "Enviar proposta revisada",

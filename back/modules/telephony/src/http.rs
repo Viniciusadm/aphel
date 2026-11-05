@@ -60,7 +60,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 }
 
 pub(crate) async fn activity_json(
-    state: &AppState,
+    state: &impl AsRef<AppState>,
     scope: &AccessScope,
     record: TaskRecord,
 ) -> Result<Value, AppError> {

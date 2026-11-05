@@ -5,10 +5,9 @@ use serde_json::Value;
 
 use crate::domain::{TRASH_PURGE_CRON, TRASH_PURGE_JOB};
 use crate::service;
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 use aphel_sdk::platform::domain::access::AccessScope;
@@ -20,7 +19,7 @@ pub(crate) fn trash_purge_schedule() -> ScheduledJobDefinition {
 }
 
 pub(crate) struct TrashPurgeHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -31,7 +30,7 @@ impl JobHandler for TrashPurgeHandler {
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         let purged = service::purge_expired(&ctx).await?;
         tracing::info!(purged, "trash purge finished");
         Ok(())
@@ -40,6 +39,8 @@ impl JobHandler for TrashPurgeHandler {
 
 pub(crate) fn trash_worker(env: &WorkerEnv) -> WorkerParts {
     WorkerParts::default()
-        .handler(Arc::new(TrashPurgeHandler { state: env.state() }))
+        .handler(Arc::new(TrashPurgeHandler {
+            state: env.runtime(),
+        }))
         .schedule(trash_purge_schedule())
 }

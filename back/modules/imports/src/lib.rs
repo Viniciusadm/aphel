@@ -106,7 +106,7 @@ impl Module for ImportsModule {
             }));
         }
         app.worker(|env| {
-            WorkerParts::default().handler(Arc::new(runtime::ImportRunHandler::new(env.state())))
+            WorkerParts::default().handler(Arc::new(runtime::ImportRunHandler::new(env.runtime())))
         });
         Ok(())
     }

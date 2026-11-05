@@ -114,10 +114,20 @@ async fn summary(
     conversation: StoredConversation,
 ) -> ConversationSummary {
     let contact = cache
-        .resolve(ctx, scope, "people.person", conversation.contact_id)
+        .resolve(
+            ctx,
+            scope,
+            aphel_contract_crm::keys::CONTACT,
+            conversation.contact_id,
+        )
         .await;
     let deal = cache
-        .resolve(ctx, scope, "deals.deal", conversation.deal_id)
+        .resolve(
+            ctx,
+            scope,
+            aphel_contract_crm::keys::DEAL,
+            conversation.deal_id,
+        )
         .await;
     ConversationSummary {
         id: conversation.id,
@@ -627,12 +637,17 @@ async fn link(
     let mut checked = HashSet::new();
     for (record_type, field, old, new) in [
         (
-            "people.person",
+            aphel_contract_crm::keys::CONTACT,
             "contact_id",
             current.contact_id,
             request.contact_id,
         ),
-        ("deals.deal", "deal_id", current.deal_id, request.deal_id),
+        (
+            aphel_contract_crm::keys::DEAL,
+            "deal_id",
+            current.deal_id,
+            request.deal_id,
+        ),
     ] {
         if old == new {
             continue;

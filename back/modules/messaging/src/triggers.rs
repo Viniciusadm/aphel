@@ -25,7 +25,10 @@ impl AutomationTrigger for MessagingTrigger {
     }
 
     fn supports(&self, record_type: &str) -> bool {
-        matches!(record_type, "people.person" | "deals.deal")
+        matches!(
+            record_type,
+            aphel_contract_crm::keys::CONTACT | aphel_contract_crm::keys::DEAL
+        )
     }
 
     fn listens_to(&self, event_type: &str) -> bool {

@@ -39,7 +39,10 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(remove_attachment))
 }
 
-pub async fn file_use_cases(state: &AppState) -> Result<FileUseCases<MySqlFilePorts>, AppError> {
+pub async fn file_use_cases(
+    state: &impl AsRef<AppState>,
+) -> Result<FileUseCases<MySqlFilePorts>, AppError> {
+    let state = state.as_ref();
     Ok(FileUseCases::new(
         MySqlFilePorts::new(
             state.db()?,

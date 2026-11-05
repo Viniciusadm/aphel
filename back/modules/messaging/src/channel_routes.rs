@@ -56,11 +56,7 @@ pub(crate) fn webhook_url(ctx: &Ctx<'_>, channel: &StoredChannel) -> Option<Stri
     (channel.kind == ChannelKind::parse("whatsapp").expect("channel key")).then(|| {
         format!(
             "{}{PUBLIC_WHATSAPP_PATH}/{}",
-            ctx.state()
-                .auth_settings
-                .app_base_url
-                .get()
-                .trim_end_matches('/'),
+            ctx.runtime().public_base_url().get().trim_end_matches('/'),
             channel.id
         )
     })

@@ -223,10 +223,16 @@ impl ApprovalPoliciesSection {
     }
 
     async fn index(&self) -> Result<Index, AppError> {
-        let pipeline_keys =
-            reference_keys(&self.pool, ConfigReferenceKind::new("workflow.pipeline")).await?;
-        let stage_keys =
-            reference_keys(&self.pool, ConfigReferenceKind::new("workflow.stage")).await?;
+        let pipeline_keys = reference_keys(
+            &self.pool,
+            ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE),
+        )
+        .await?;
+        let stage_keys = reference_keys(
+            &self.pool,
+            ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE_STAGE),
+        )
+        .await?;
         let workflow = pipeline_keys
             .into_values()
             .map(|key| {
@@ -370,12 +376,17 @@ impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
                 ),
             ));
         }
-        let mut packaged_stages: HashMap<String, Vec<String>> =
-            package_reference_keys(package, ConfigReferenceKind::new("workflow.pipeline"))
-                .into_iter()
-                .map(|key| (key, Vec::new()))
-                .collect();
-        for key in package_reference_keys(package, ConfigReferenceKind::new("workflow.stage")) {
+        let mut packaged_stages: HashMap<String, Vec<String>> = package_reference_keys(
+            package,
+            ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE),
+        )
+        .into_iter()
+        .map(|key| (key, Vec::new()))
+        .collect();
+        for key in package_reference_keys(
+            package,
+            ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE_STAGE),
+        ) {
             if let Some((pipeline, stage)) = key.split_once('/') {
                 packaged_stages
                     .entry(pipeline.to_owned())
@@ -546,7 +557,7 @@ impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
                 };
                 target_id = context
                     .resolved(
-                        ConfigReferenceKind::new("workflow.stage"),
+                        ConfigReferenceKind::new(aphel_contract_crm::keys::PIPELINE_STAGE),
                         &format!("{pipeline_key}/{stage_key}"),
                     )
                     .or_else(|| {

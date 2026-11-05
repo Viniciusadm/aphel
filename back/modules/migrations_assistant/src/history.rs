@@ -22,9 +22,9 @@ use std::sync::Arc;
 pub(crate) const MAX_HISTORY_ROWS: usize = 5_000;
 pub(crate) const MAX_REPORTED_ERRORS: usize = 100;
 pub(crate) const HISTORY_TOO_MANY_ROWS: &str = "too_many_rows";
-const DEAL_TYPE: &str = "deals.deal";
-const CONTACT_TYPE: &str = "people.person";
-const COMPANY_TYPE: &str = "organizations.organization";
+const DEAL_TYPE: &str = aphel_contract_crm::keys::DEAL;
+const CONTACT_TYPE: &str = aphel_contract_crm::keys::CONTACT;
+const COMPANY_TYPE: &str = aphel_contract_crm::keys::COMPANY;
 const ACTIVITY_TYPE_LOOKUP: &str = "tasks.type";
 const DEFAULT_ACTIVITY_TITLE: &str = "Atividade migrada";
 const NOON: NaiveTime = match NaiveTime::from_hms_opt(12, 0, 0) {

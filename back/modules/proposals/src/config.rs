@@ -3,14 +3,13 @@ use std::collections::BTreeSet;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::{runtime_pool, runtime_state};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
 };
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::state::runtime_pool;
 
 use crate::errors::TEMPLATE_INVALID;
 use crate::markup;
@@ -126,8 +125,8 @@ impl ConfigSection<MySqlTx> for TemplatesSection {
                 "templates must be a list",
             )]);
         };
-        let state = runtime_state()?;
-        let ctx = Ctx::from_state(&state, scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(scope).await?;
         let catalog = variables::catalog(&ctx).await?;
         let mut issues = Vec::new();
         let mut keys = BTreeSet::new();
@@ -205,8 +204,8 @@ impl ConfigSection<MySqlTx> for TemplatesSection {
         _decisions: &Decisions,
         _context: &mut ApplyContext,
     ) -> Result<(), AppError> {
-        let state = runtime_state()?;
-        let ctx = Ctx::from_state(&state, scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(scope).await?;
         for entry in entries(content) {
             let proposed = values(&entry);
             let current = store::find_template_by_key(&mut **tx, &proposed.key).await?;

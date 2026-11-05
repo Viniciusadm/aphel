@@ -15,6 +15,7 @@ pub use aphel_contract::{
 };
 pub use aphel_kernel::Ctx;
 pub use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
+pub use aphel_kernel::state::{Runtime, runtime};
 
 pub mod module {
     pub use aphel_kernel::modules::builder::APHEL_VERSION;

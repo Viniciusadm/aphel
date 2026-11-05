@@ -1037,6 +1037,7 @@ dependencies = [
 name = "aphel-mod-forecast"
 version = "0.1.0"
 dependencies = [
+ "aphel-contract-crm",
  "aphel-kernel",
  "aphel-sdk",
  "async-trait",

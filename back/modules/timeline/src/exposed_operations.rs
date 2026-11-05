@@ -12,7 +12,7 @@ fn page<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
         let params: TimelineParams = operation_input(input)?;
         let mut page = service::page(ctx, params.into()).await?;
-        mask_timeline(&ctx.state(), ctx.scope, &mut page.items).await?;
+        mask_timeline(&ctx.runtime(), ctx.scope, &mut page.items).await?;
         operation_output(TimelinePageResponse::from(page))
     })
 }

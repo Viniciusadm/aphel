@@ -14,11 +14,11 @@ pub(crate) async fn load_record(
     ctx: &Ctx<'_>,
     record: &RecordRef,
 ) -> Result<Option<Value>, AppError> {
-    let state = ctx.state();
+    let state = ctx.runtime();
     ctx.registry()
         .handler(record.record_type.as_str())?
         .load(
-            &aphel_kernel::records::RecordCtx::new(ctx.scope, &state),
+            &aphel_kernel::records::RecordCtx::from_runtime(ctx.scope, &state),
             record.record_id,
         )
         .await
@@ -59,11 +59,11 @@ pub(crate) async fn describe_attachment(
     ctx: &Ctx<'_>,
     file_id: &str,
 ) -> Result<AttachmentFile, AppError> {
-    let state = ctx.state();
+    let state = ctx.runtime();
     let files = FileUseCases::new(
         MySqlFilePorts::new(
             ctx.pool().clone(),
-            state.storage.clone(),
+            state.storage().clone(),
             ctx.events().clone(),
             ctx.audit().clone(),
         )

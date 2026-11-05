@@ -1240,8 +1240,8 @@ fn key_reference() -> SecretKey {
 pub(crate) async fn existing_token_key(ctx: &Ctx<'_>) -> Result<Option<Vec<u8>>, AppError> {
     let scope = ctx.scope;
     Ok(ctx
-        .state()
-        .secrets
+        .runtime()
+        .secrets()
         .reveal(scope, &key_reference())
         .await?
         .and_then(|secret| decode_key(secret.expose())))
@@ -1260,8 +1260,8 @@ pub(crate) async fn token_key(ctx: &Ctx<'_>, tx: &mut MySqlTx) -> Result<Vec<u8>
     let encoded = generate_key()?;
     let key = decode_key(&encoded)
         .ok_or_else(|| AppError::Internal("generated quote link key is invalid".to_owned()))?;
-    ctx.state()
-        .secrets
+    ctx.runtime()
+        .secrets()
         .store(tx, ctx.scope, &key_reference(), &Secret::new(encoded))
         .await?;
     Ok(key)

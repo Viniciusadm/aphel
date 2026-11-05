@@ -36,28 +36,28 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "lead.qualified",
         aphel_sdk::platform::application::public_events::PublicResource::new(
-            "people.person",
+            aphel_contract_crm::keys::CONTACT,
             "ContactResponse",
         )
-        .with_nested(&[("company", "organizations.organization")]),
+        .with_nested(&[("company", aphel_contract_crm::keys::COMPANY)]),
         "A lead was qualified in the lead inbox (the contact moved from `lead` to `qualified`)",
     ),
     event(
         "lead.disqualified",
         aphel_sdk::platform::application::public_events::PublicResource::new(
-            "people.person",
+            aphel_contract_crm::keys::CONTACT,
             "ContactResponse",
         )
-        .with_nested(&[("company", "organizations.organization")]),
+        .with_nested(&[("company", aphel_contract_crm::keys::COMPANY)]),
         "A lead was disqualified in the lead inbox with a reason",
     ),
     event(
         "lead.converted",
         aphel_sdk::platform::application::public_events::PublicResource::new(
-            "people.person",
+            aphel_contract_crm::keys::CONTACT,
             "ContactResponse",
         )
-        .with_nested(&[("company", "organizations.organization")]),
+        .with_nested(&[("company", aphel_contract_crm::keys::COMPANY)]),
         "A lead was converted: a deal was created with the contact and the contact moved to the converted stage",
     ),
 ];
@@ -83,8 +83,8 @@ fn extend_lifecycle(
     definition: &mut aphel_sdk::platform::application::fields::EntityDefinition,
 ) -> Result<(), AppError> {
     let table = match definition.record_type.as_str() {
-        "people.person" => "leads_contact_extension",
-        "organizations.organization" => "leads_company_extension",
+        aphel_contract_crm::keys::CONTACT => "leads_contact_extension",
+        aphel_contract_crm::keys::COMPANY => "leads_company_extension",
         _ => return Ok(()),
     };
     if definition.system_field_by_key("lifecycle_stage").is_some() {
@@ -131,7 +131,7 @@ impl Module for LeadsModule {
             LIFECYCLE_STAGE_PRIORITY,
             |ctx, args| {
                 Box::pin(async move {
-                    if args.record_type.as_str() == "people.person" {
+                    if args.record_type.as_str() == aphel_contract_crm::keys::CONTACT {
                         sqlx::query("DELETE FROM lead_disqualifications WHERE contact_id = ?")
                             .bind(args.record.record_id.to_string())
                             .execute(&mut **ctx.tx)

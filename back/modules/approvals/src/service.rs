@@ -23,7 +23,7 @@ use aphel_sdk::platform::application::query::Filter;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
-pub(crate) const QUOTE_RECORD_TYPE: &str = "quotes.quote";
+pub(crate) const QUOTE_RECORD_TYPE: &str = aphel_contract_crm::keys::QUOTE;
 pub(crate) const STAGE_FIELD: &str = "stage_id";
 const INVALID_POLICY: &str = "invalid approval policy";
 const POLICY_DELETED_REASON: &str = "policy_deleted";

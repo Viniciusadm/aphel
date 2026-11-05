@@ -4,13 +4,11 @@ use serde_json::{Map, Value, json};
 use crate::domain::{DATE_FORMAT, GoalListQuery, GoalOwnerKind};
 use crate::http::GoalResponse;
 use crate::service;
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::dashboard::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::domain::access::Permission;
-use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const GOALS_PROGRESS: &str = "goals_progress";
 
@@ -77,8 +75,8 @@ where
             AppError::invalid_fields("invalid widget settings", violations)
         })?;
         let today = local_today(context.now, context.timezone);
-        let state = runtime_state()?;
-        let ctx = Ctx::from_state(&state, context.scope).await?;
+        let state = aphel_sdk::runtime()?;
+        let ctx = state.ctx(context.scope).await?;
         let user_id = context.scope.user_id().as_str().to_owned();
         let listing = service::list(
             &ctx,

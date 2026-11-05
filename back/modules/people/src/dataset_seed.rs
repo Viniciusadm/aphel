@@ -15,7 +15,7 @@ use serde_json::{Map, Value, json};
 
 use crate::domain::{ContactInput, SaveContactCommand};
 
-const ORGANIZATION_ENTITY: &str = "organizations.organization";
+const ORGANIZATION_ENTITY: &str = aphel_contract_crm::keys::COMPANY;
 const CONTACTS_PER_COMPANY: usize = 3;
 const DEFAULT_DOMAIN: &str = "example.com";
 const FIRST_NAMES: [&str; 20] = [

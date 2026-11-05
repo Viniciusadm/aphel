@@ -559,7 +559,7 @@ impl<'a> ActivityStore<'a> {
             };
             let listing = aphel_sdk::record_context::list(
                 &self.ctx,
-                "deals.deal",
+                aphel_contract_crm::keys::DEAL,
                 RecordQuery {
                     filter: Some(Filter::condition(
                         "id",

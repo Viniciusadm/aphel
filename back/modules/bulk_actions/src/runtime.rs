@@ -4,18 +4,17 @@ use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{BULK_RUN_JOB, GENERIC_FAILURE, RunBulkRequest, service};
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::exports::system_scope;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 pub(crate) struct BulkRunHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 impl BulkRunHandler {
-    pub(crate) fn shared(state: AppState) -> Arc<dyn JobHandler> {
+    pub(crate) fn shared(state: Runtime) -> Arc<dyn JobHandler> {
         Arc::new(Self { state })
     }
 }
@@ -29,7 +28,7 @@ impl JobHandler for BulkRunHandler {
     async fn handle(&self, context: &JobContext, payload: Value) -> Result<(), AppError> {
         let request = RunBulkRequest::from_payload(&payload)?;
         let scope = system_scope(request.requested_by.clone())?;
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         match service::run(&ctx, &request).await {
             Ok(()) => Ok(()),
             Err(error) => {

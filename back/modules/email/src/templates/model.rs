@@ -145,6 +145,8 @@ pub use aphel_sdk::email::{EmailPreviewCommand as PreviewCommand, RenderedEmail}
 pub(crate) fn is_email_record_type(record_type: &str) -> bool {
     matches!(
         record_type,
-        "people.person" | "organizations.organization" | "deals.deal"
+        aphel_contract_crm::keys::CONTACT
+            | aphel_contract_crm::keys::COMPANY
+            | aphel_contract_crm::keys::DEAL
     ) || is_custom_record_type(record_type)
 }

@@ -79,7 +79,7 @@ where
         let ranking = run(
             context,
             json!({
-                "record_type": "tasks.task",
+                "record_type": aphel_contract_crm::keys::ACTIVITY,
                 "filter": with_subject(context, done_conditions())?,
                 "group_by": [{ "field": OWNER_FIELD }],
                 "metrics": [{ "fn": "count" }],
@@ -109,7 +109,7 @@ where
                 run(
                     context,
                     json!({
-                        "record_type": "tasks.task",
+                        "record_type": aphel_contract_crm::keys::ACTIVITY,
                         "filter": with_subject(context, conditions)?,
                         "group_by": [{ "field": OWNER_FIELD }, { "field": TYPE_FIELD }],
                         "metrics": [{ "fn": "count" }],

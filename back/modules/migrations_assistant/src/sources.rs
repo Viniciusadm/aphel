@@ -795,7 +795,7 @@ const fn steps(
         SourceStep {
             key: COMPANIES_STEP,
             kind: StepKind::Import,
-            record_type: "organizations.organization",
+            record_type: aphel_contract_crm::keys::COMPANY,
             file_hint: hints[0],
             duplicate_key: company_key,
             links: COMPANY_LINKS,
@@ -804,7 +804,7 @@ const fn steps(
         SourceStep {
             key: CONTACTS_STEP,
             kind: StepKind::Import,
-            record_type: "people.person",
+            record_type: aphel_contract_crm::keys::CONTACT,
             file_hint: hints[1],
             duplicate_key: DuplicateKey::Email,
             links: CONTACT_LINKS,
@@ -813,7 +813,7 @@ const fn steps(
         SourceStep {
             key: DEALS_STEP,
             kind: StepKind::Import,
-            record_type: "deals.deal",
+            record_type: aphel_contract_crm::keys::DEAL,
             file_hint: hints[2],
             duplicate_key: DuplicateKey::None,
             links: DEAL_LINKS,
@@ -822,7 +822,7 @@ const fn steps(
         SourceStep {
             key: TASKS_STEP,
             kind: StepKind::Activities,
-            record_type: "tasks.task",
+            record_type: aphel_contract_crm::keys::ACTIVITY,
             file_hint: hints[3],
             duplicate_key: DuplicateKey::None,
             links: HISTORY_LINKS,
@@ -831,7 +831,7 @@ const fn steps(
         SourceStep {
             key: NOTES_STEP,
             kind: StepKind::Notes,
-            record_type: "notes.note",
+            record_type: aphel_contract_crm::keys::NOTE,
             file_hint: hints[4],
             duplicate_key: DuplicateKey::None,
             links: HISTORY_LINKS,

@@ -17,7 +17,6 @@ use aphel_kernel::modules::{
 };
 use aphel_kernel::records::RecordCtx;
 use aphel_sdk::platform::domain::access::AccessScope;
-use aphel_sdk::platform::state::runtime_state;
 
 const OPERATION_UNKNOWN: &str = "plugin_operation_unknown";
 const OPERATION_NOT_DECLARED: &str = "plugin_operation_not_declared";
@@ -158,8 +157,8 @@ pub(crate) async fn invoke(
         serde_json::from_str(input_json)
             .map_err(|_| AppError::Validation("the plugin sent invalid JSON".to_owned()))?
     };
-    let state = runtime_state()?;
-    let ctx = Ctx::from_state(&state, scope).await?;
+    let state = aphel_sdk::runtime()?;
+    let ctx = state.ctx(scope).await?;
     let remaining = deadline.saturating_duration_since(Instant::now());
     if found.external_query {
         return external_query(plugin, &ctx, &found, input, remaining).await;
@@ -234,10 +233,10 @@ struct RecordTarget {
 fn archive<'a>(ctx: &'a Ctx<'_>, input: Value) -> aphel_kernel::modules::OperationFuture<'a> {
     Box::pin(async move {
         let target: RecordTarget = operation_input(input)?;
-        let state = runtime_state()?;
+        let state = aphel_sdk::runtime()?;
         let handler = ctx.registry().handler(&target.record_type)?;
         handler
-            .archive(&RecordCtx::new(ctx.scope, &state), target.id)
+            .archive(&RecordCtx::from_runtime(ctx.scope, &state), target.id)
             .await?;
         Ok(json!({ "archived": true }))
     })
@@ -246,10 +245,10 @@ fn archive<'a>(ctx: &'a Ctx<'_>, input: Value) -> aphel_kernel::modules::Operati
 fn restore<'a>(ctx: &'a Ctx<'_>, input: Value) -> aphel_kernel::modules::OperationFuture<'a> {
     Box::pin(async move {
         let target: RecordTarget = operation_input(input)?;
-        let state = runtime_state()?;
+        let state = aphel_sdk::runtime()?;
         let handler = ctx.registry().handler(&target.record_type)?;
         handler
-            .restore(&RecordCtx::new(ctx.scope, &state), target.id)
+            .restore(&RecordCtx::from_runtime(ctx.scope, &state), target.id)
             .await?;
         Ok(json!({ "restored": true }))
     })

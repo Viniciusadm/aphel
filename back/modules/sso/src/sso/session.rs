@@ -47,7 +47,7 @@ pub(crate) async fn sign_in(
         user_id = %request.user_id,
         "external sign-in"
     );
-    let state = ctx.state();
+    let state = ctx.runtime();
     let outcome = state
         .auth_use_cases()?
         .sign_in_external(

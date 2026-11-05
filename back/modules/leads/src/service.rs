@@ -870,7 +870,7 @@ pub(crate) async fn disqualify_lead(
         .is_some_and(|note| note.chars().count() > MAX_DISQUALIFICATION_NOTE_LENGTH)
     {
         violations.push(FieldViolation::new(
-            "notes.note",
+            aphel_contract_crm::keys::NOTE,
             format!("must have at most {MAX_DISQUALIFICATION_NOTE_LENGTH} characters"),
         ));
     }

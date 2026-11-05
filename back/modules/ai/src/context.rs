@@ -239,14 +239,14 @@ impl Collector<'_> {
                 "body".to_owned(),
                 json!(truncate(&text_field(&item, "body"), MAX_NOTE_CHARS)),
             );
-            self.source("notes.note", &item, None);
+            self.source(aphel_contract_crm::keys::NOTE, &item, None);
             notes.push(Value::Object(note));
         }
         notes
     }
 
     async fn tasks(&mut self, record_type: &str, record_id: Uuid) -> Vec<Value> {
-        let Some(policy) = self.policy("tasks.task").await else {
+        let Some(policy) = self.policy(aphel_contract_crm::keys::ACTIVITY).await else {
             return Vec::new();
         };
         let items = records::tasks(self.ctx, record_type, record_id, RELATED_LIMIT)
@@ -275,7 +275,7 @@ impl Collector<'_> {
                 );
             }
             self.source(
-                "tasks.task",
+                aphel_contract_crm::keys::ACTIVITY,
                 &item,
                 item.get("title").and_then(Value::as_str).map(str::to_owned),
             );
@@ -295,8 +295,10 @@ impl Collector<'_> {
             return Vec::new();
         };
         let items = match record_type {
-            "deals.deal" => records::deals(self.ctx, link_field, record_id, RELATED_LIMIT).await,
-            "people.person" => {
+            aphel_contract_crm::keys::DEAL => {
+                records::deals(self.ctx, link_field, record_id, RELATED_LIMIT).await
+            }
+            aphel_contract_crm::keys::CONTACT => {
                 records::people(self.ctx, link_field, record_id, RELATED_LIMIT).await
             }
             _ => return Vec::new(),
@@ -353,23 +355,33 @@ pub(crate) async fn build(
         context.insert("recent_notes".to_owned(), Value::Array(notes));
         context.insert("recent_activities".to_owned(), Value::Array(tasks));
         match record_type {
-            "people.person" => {
+            aphel_contract_crm::keys::CONTACT => {
                 let deals = collector
-                    .related("deals.deal", "contact_id", record_id, &DEAL_KEYS)
+                    .related(
+                        aphel_contract_crm::keys::DEAL,
+                        "contact_id",
+                        record_id,
+                        &DEAL_KEYS,
+                    )
                     .await;
                 context.insert("deals".to_owned(), Value::Array(deals));
             }
-            "organizations.organization" => {
+            aphel_contract_crm::keys::COMPANY => {
                 let people = collector
                     .related(
-                        "people.person",
+                        aphel_contract_crm::keys::CONTACT,
                         "company_id",
                         record_id,
                         &["name", "job_title"],
                     )
                     .await;
                 let deals = collector
-                    .related("deals.deal", "company_id", record_id, &DEAL_KEYS)
+                    .related(
+                        aphel_contract_crm::keys::DEAL,
+                        "company_id",
+                        record_id,
+                        &DEAL_KEYS,
+                    )
                     .await;
                 context.insert("people".to_owned(), Value::Array(people));
                 context.insert("deals".to_owned(), Value::Array(deals));

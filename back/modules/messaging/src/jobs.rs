@@ -12,7 +12,7 @@ use crate::{actor, error_code, inbound, job_kind, job_unique_key, text};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{Job, JobContext, JobHandler};
 use aphel_sdk::platform::domain::access::AccessScope;
@@ -25,7 +25,7 @@ const POLL_BATCH: usize = 25;
 const INBOUND_ATTEMPTS: u32 = 8;
 
 pub(crate) fn messaging_worker(env: &WorkerEnv) -> WorkerParts {
-    let state = env.runtime_state();
+    let state = env.runtime();
     let mut parts = WorkerParts::default()
         .handler(Arc::new(SendHandler::new(state.clone())))
         .handler(Arc::new(PollHandler::new(state.clone())))
@@ -67,12 +67,12 @@ pub(crate) async fn enqueue_inbound(
 }
 
 struct Handler {
-    state: AppState,
+    state: Runtime,
     kind: String,
 }
 
 impl Handler {
-    fn new(state: AppState, kind: &str) -> Self {
+    fn new(state: Runtime, kind: &str) -> Self {
         Self {
             state,
             kind: job_kind(kind),
@@ -83,7 +83,7 @@ impl Handler {
 struct SendHandler(Handler);
 
 impl SendHandler {
-    fn new(state: AppState) -> Self {
+    fn new(state: Runtime) -> Self {
         Self(Handler::new(state, SEND_JOB))
     }
 }
@@ -97,7 +97,7 @@ impl JobHandler for SendHandler {
     async fn handle(&self, context: &JobContext, payload: Value) -> Result<(), AppError> {
         let message_id = payload_uuid(&payload, "message_id")?;
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         sending::deliver(&ctx, context, message_id).await
     }
 }
@@ -105,7 +105,7 @@ impl JobHandler for SendHandler {
 struct PollHandler(Handler);
 
 impl PollHandler {
-    fn new(state: AppState) -> Self {
+    fn new(state: Runtime) -> Self {
         Self(Handler::new(state, POLL_JOB))
     }
 }
@@ -118,7 +118,7 @@ impl JobHandler for PollHandler {
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         for channel in store::polling_channels(ctx.pool()).await? {
             ctx.jobs()
                 .enqueue_now(
@@ -138,7 +138,7 @@ impl JobHandler for PollHandler {
 struct PollChannelHandler(Handler);
 
 impl PollChannelHandler {
-    fn new(state: AppState) -> Self {
+    fn new(state: Runtime) -> Self {
         Self(Handler::new(state, POLL_CHANNEL_JOB))
     }
 }
@@ -196,7 +196,7 @@ impl JobHandler for PollChannelHandler {
     async fn handle(&self, _context: &JobContext, payload: Value) -> Result<(), AppError> {
         let channel_id = payload_uuid(&payload, "channel_id")?;
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         let Some(channel) = store::find_channel(ctx.pool(), channel_id).await? else {
             return Ok(());
         };
@@ -213,7 +213,7 @@ impl JobHandler for PollChannelHandler {
 struct InboundHandler(Handler);
 
 impl InboundHandler {
-    fn new(state: AppState) -> Self {
+    fn new(state: Runtime) -> Self {
         Self(Handler::new(state, INBOUND_JOB))
     }
 }
@@ -230,7 +230,7 @@ impl JobHandler for InboundHandler {
             serde_json::from_value(payload.get("message").cloned().unwrap_or(Value::Null))
                 .map_err(|error| AppError::Internal(error.to_string()))?;
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.0.state, &scope).await?;
+        let ctx = self.0.state.ctx(&scope).await?;
         let Some(channel) = store::find_channel(ctx.pool(), channel_id).await? else {
             return Ok(());
         };

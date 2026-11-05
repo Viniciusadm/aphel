@@ -54,10 +54,11 @@ fn redaction_from(record_type: &RecordType, rules: Vec<FieldAccessRule>) -> Fiel
 }
 
 pub async fn field_redaction(
-    state: &AppState,
+    state: &impl AsRef<AppState>,
     scope: &AccessScope,
     record_type: &RecordType,
 ) -> Result<FieldRedaction, AppError> {
+    let state = state.as_ref();
     if is_unrestricted(scope) {
         return Ok(FieldRedaction::default());
     }
@@ -83,10 +84,11 @@ pub async fn user_field_redaction(
 }
 
 pub async fn field_policies(
-    state: &AppState,
+    state: &impl AsRef<AppState>,
     scope: &AccessScope,
     record_types: impl IntoIterator<Item = RecordType>,
 ) -> Result<HashMap<RecordType, FieldAccessPolicy>, AppError> {
+    let state = state.as_ref();
     let mut policies = HashMap::new();
     if is_unrestricted(scope) {
         return Ok(policies);
@@ -178,11 +180,12 @@ async fn serialized<T: Serialize>(
 }
 
 pub async fn redacted<T: Serialize>(
-    state: &AppState,
+    state: &impl AsRef<AppState>,
     scope: &AccessScope,
     record_type: &RecordType,
     item: T,
 ) -> Result<Value, AppError> {
+    let state = state.as_ref();
     let item = serialized(state, scope, record_type, vec![item])
         .await?
         .pop()

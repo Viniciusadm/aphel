@@ -21,7 +21,7 @@ impl AutomationTrigger for SubmittedTrigger {
     }
 
     fn supports(&self, record_type: &str) -> bool {
-        record_type == "people.person"
+        record_type == aphel_contract_crm::keys::CONTACT
     }
 
     fn listens_to(&self, event_type: &str) -> bool {

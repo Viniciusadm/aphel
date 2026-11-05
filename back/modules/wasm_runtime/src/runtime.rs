@@ -14,11 +14,11 @@ use crate::compiled;
 use crate::registry::LoadedPlugin;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::state::{runtime_pool, runtime_state};
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::shared::{Actor, ExecutionContext};
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::state::runtime_pool;
 use uuid::Uuid;
 
 wasmtime::component::bindgen!({
@@ -220,7 +220,7 @@ pub async fn compile(bytes: Vec<u8>) -> Result<Backend, AppError> {
     if let Some(backend) = cached_backend(&hash) {
         return Ok(backend);
     }
-    let pool = runtime_state().ok().and_then(|state| state.db().ok());
+    let pool = aphel_sdk::runtime().ok().and_then(|state| state.db().ok());
     let stored = match &pool {
         Some(pool) => stored_component(pool, &hash).await,
         None => None,
@@ -391,7 +391,7 @@ pub async fn on_hook(
             &custom,
         );
     }
-    let runtime = runtime_state()?;
+    let runtime = aphel_sdk::runtime()?;
     let record_type =
         aphel_sdk::platform::application::shared::RecordType::parse(&call.record_type)?;
     let redaction = aphel_sdk::platform::api::routes::v1::field_permissions::field_redaction(

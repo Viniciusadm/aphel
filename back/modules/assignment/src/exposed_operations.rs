@@ -15,7 +15,6 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{OperationFuture, operation_input};
 use aphel_kernel::records::{PendingCommit, RecordCtx, RecordTypeHandler};
-use aphel_kernel::state::{AppState, runtime_state};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 use aphel_sdk::platform::database::transaction::MySqlTx;
@@ -70,7 +69,7 @@ async fn rule_for(ctx: &Ctx<'_>, record_type: &str) -> Result<String, AppError> 
 
 struct OwnerUpdate<'a> {
     handler: &'a dyn RecordTypeHandler,
-    state: &'a AppState,
+    state: &'a aphel_sdk::Runtime,
     scope: &'a AccessScope,
     record_id: Uuid,
 }
@@ -84,7 +83,7 @@ impl OwnerWriter for OwnerUpdate<'_> {
     ) -> Result<Option<PendingCommit>, AppError> {
         self.handler
             .update_in_tx(
-                &RecordCtx::new(self.scope, self.state),
+                &RecordCtx::from_runtime(self.scope, self.state),
                 tx,
                 self.record_id,
                 json!({ OWNER_FIELD: user_id.into_inner() }),
@@ -110,10 +109,10 @@ fn assign<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
             None => None,
         };
         let handler = ctx.registry().handler(&record_type)?;
-        let state = runtime_state()?;
+        let state = aphel_sdk::runtime()?;
         let scope = ctx.scope;
         let record = handler
-            .load(&RecordCtx::new(scope, &state), record_id)
+            .load(&RecordCtx::from_runtime(scope, &state), record_id)
             .await?
             .ok_or_else(|| AppError::not_found_code("record_not_found", "record not found"))?;
         let values: Map<String, Value> = flatten_values(&record);

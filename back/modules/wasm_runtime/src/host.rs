@@ -5,10 +5,8 @@ use crate::registry::LoadedPlugin;
 use crate::runtime::aphel::plugin::host::Host;
 use crate::runtime::{CallState, to_plugin_error, wit};
 use crate::{net, store};
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
-use aphel_kernel::state::{runtime_pool, runtime_state};
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::query::{
@@ -17,6 +15,7 @@ use aphel_sdk::platform::application::query::{
 use aphel_sdk::platform::application::secrets::SecretKey;
 use aphel_sdk::platform::application::shared::{Actor, DomainEvent, RecordRef};
 use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::state::runtime_pool;
 
 const MAX_PAGE_SIZE: u64 = 100;
 const MAX_KV_ITEMS: u32 = 500;
@@ -108,12 +107,12 @@ async fn load(
     record_type: &str,
     id: &str,
 ) -> Result<Option<String>, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let registry = state.registry().await?;
     scope.require(&registry.require(record_type)?.read_permission)?;
     let handler = registry.handler(record_type)?;
     let record = handler
-        .load(&RecordCtx::new(scope, &state), record_id(id)?)
+        .load(&RecordCtx::from_runtime(scope, &state), record_id(id)?)
         .await?;
     Ok(record.as_ref().map(encode))
 }
@@ -123,7 +122,7 @@ async fn list(
     record_type: &str,
     query: wit::ListQuery,
 ) -> Result<wit::Page, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let registry = state.registry().await?;
     scope.require(&registry.require(record_type)?.read_permission)?;
     let handler = registry.handler(record_type)?;
@@ -147,11 +146,11 @@ async fn list(
             limit: per_page,
         },
     };
-    let ctx = Ctx::from_state(&state, scope).await?;
+    let ctx = state.ctx(scope).await?;
     let listing = RecordQueryEngine::new(&ctx.query())
         .query(scope, record_type, record_query)
         .await?;
-    let record_ctx = RecordCtx::new(scope, &state);
+    let record_ctx = RecordCtx::from_runtime(scope, &state);
     let records: Vec<_> = handler
         .load_listed(&record_ctx, &listing.items)
         .await?
@@ -170,9 +169,9 @@ pub(crate) async fn write(
     id: Option<&str>,
     values_json: &str,
 ) -> Result<String, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let handler = state.registry().await?.handler(record_type)?;
-    let ctx = RecordCtx::new(scope, &state);
+    let ctx = RecordCtx::from_runtime(scope, &state);
     let values = parse(values_json)?;
     let record = match id {
         None => handler.create(&ctx, values).await?,
@@ -185,7 +184,7 @@ async fn aggregate(scope: &AccessScope, query_json: &str) -> Result<String, AppE
     let request: aphel_sdk::platform::api::dto::aggregates::AggregateQueryRequest =
         serde_json::from_str(query_json)
             .map_err(|error| AppError::Validation(format!("invalid aggregate query: {error}")))?;
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let ports = aphel_sdk::platform::api::routes::v1::aggregates::aggregate_ports(&state).await?;
     let result = aphel_sdk::platform::application::query::AggregateEngine::new(&ports)
         .run(scope, request.into_query())
@@ -214,7 +213,7 @@ async fn iterate(
     if query.sort.is_none() {
         query.sort = Some("created_at".to_owned());
     }
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let registry = state.registry().await?;
     scope.require(&registry.require(record_type)?.read_permission)?;
     let handler = registry.handler(record_type)?;
@@ -236,12 +235,12 @@ async fn iterate(
             limit: per_page,
         },
     };
-    let ctx = Ctx::from_state(&state, scope).await?;
+    let ctx = state.ctx(scope).await?;
     let listing = RecordQueryEngine::new(&ctx.query())
         .query(scope, record_type, record_query)
         .await?;
     let fetched = listing.items.len() as u64;
-    let record_ctx = RecordCtx::new(scope, &state);
+    let record_ctx = RecordCtx::from_runtime(scope, &state);
     let records: Vec<_> = handler
         .load_listed(&record_ctx, &listing.items)
         .await?
@@ -283,11 +282,11 @@ pub(crate) async fn update_if(
     expected_updated_at: &str,
     values_json: &str,
 ) -> Result<String, AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let registry = state.registry().await?;
     let table = registry.require(record_type)?.table.clone();
     let handler = registry.handler(record_type)?;
-    let ctx = RecordCtx::new(scope, &state);
+    let ctx = RecordCtx::from_runtime(scope, &state);
     let id = record_id(id)?;
     let expected = parse_version(expected_updated_at)?;
     let values = parse(values_json)?;
@@ -296,9 +295,7 @@ pub(crate) async fn update_if(
     let pending = handler.update_in_tx(&ctx, &mut tx, id, values).await?;
     tx.commit().await.map_err(AppError::from)?;
     if let Some(pending) = pending {
-        pending
-            .committed(&Ctx::from_state(&state, scope).await?)
-            .await;
+        pending.committed(&state.ctx(scope).await?).await;
     }
     loaded(scope, record_type, id).await
 }
@@ -404,9 +401,9 @@ pub(crate) async fn apply(
             format!("the values of a batch exceed {MAX_BATCH_BYTES} bytes"),
         ));
     }
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let registry = state.registry().await?;
-    let ctx = RecordCtx::new(scope, &state);
+    let ctx = RecordCtx::from_runtime(scope, &state);
     let mut tx = aphel_sdk::platform::database::receipt::begin(&state.db()?).await?;
     let mut ids: Vec<uuid::Uuid> = Vec::with_capacity(mutations.len());
     let mut pending = Vec::with_capacity(mutations.len());
@@ -446,7 +443,7 @@ pub(crate) async fn apply(
         pending.extend(commit);
     }
     tx.commit().await.map_err(AppError::from)?;
-    let after = Ctx::from_state(&state, scope).await?;
+    let after = state.ctx(scope).await?;
     for commit in &pending {
         commit.committed(&after).await;
     }
@@ -462,10 +459,10 @@ pub(crate) async fn delete(
     record_type: &str,
     id: &str,
 ) -> Result<(), AppError> {
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let handler = state.registry().await?.handler(record_type)?;
     handler
-        .delete(&RecordCtx::new(scope, &state), record_id(id)?)
+        .delete(&RecordCtx::from_runtime(scope, &state), record_id(id)?)
         .await
 }
 
@@ -516,7 +513,7 @@ pub(crate) async fn emit(
             ));
         }
     };
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let mut event = DomainEvent::new(
         Actor::from_scope(scope),
         plugin.manifest.event_type(name),
@@ -533,8 +530,8 @@ pub(crate) async fn emit(
         event.occurred_at,
     );
     audit.record = event.record.clone();
-    state.events.publish(&mut tx, event).await?;
-    state.audit.record(&mut tx, audit).await?;
+    state.events().publish(&mut tx, event).await?;
+    state.audit().record(&mut tx, audit).await?;
     tx.commit().await.map_err(AppError::from)?;
     Ok(())
 }
@@ -1022,9 +1019,9 @@ impl Host for CallState {
                         format!("the plugin does not declare a secret setting {key}"),
                     ));
                 }
-                let state = runtime_state()?;
+                let state = aphel_sdk::runtime()?;
                 Ok(state
-                    .secrets
+                    .secrets()
                     .reveal(&AccessScope::system(), &secret_key(&plugin.key, &key))
                     .await?
                     .map(|secret| secret.expose().to_owned()))

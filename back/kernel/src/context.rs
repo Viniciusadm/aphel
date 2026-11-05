@@ -96,6 +96,10 @@ impl<'a> Ctx<'a> {
         }
     }
 
+    pub fn runtime(&self) -> crate::state::Runtime {
+        self.state().into()
+    }
+
     pub fn state(&self) -> AppState {
         self.state.clone().unwrap_or_else(|| {
             let state = AppState::new(Some(self.pool.clone()))

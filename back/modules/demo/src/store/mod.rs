@@ -90,7 +90,7 @@ impl DemoStore {
     }
 }
 
-const NOTE_TYPE: &str = "notes.note";
+const NOTE_TYPE: &str = aphel_contract_crm::keys::NOTE;
 
 fn record_table(record_type: &RecordType) -> Option<String> {
     if record_type.as_str() == NOTE_TYPE {

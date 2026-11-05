@@ -9,3 +9,12 @@
 ## Kernel paths through the SDK
 
 - Plugins no longer name `aphel_kernel::<area>::<module>` paths: `aphel_sdk::platform` re-exports the 80 kernel modules and items plugins use (`platform::application::shared`, `platform::domain::access`, `platform::database::transaction`, ...), and 3,198 references in 767 plugin files were rewritten to it. The facade is a list of module-level re-exports, not a curated item list: narrowing each entry to the items plugins need, and replacing entries with purpose-built SDK modules, is ongoing curation work. Kernel moves now need one edit in `sdk/src/platform.rs`.
+
+## Runtime handle instead of AppState
+
+- Plugins no longer call `ctx.state()`, `runtime_state()` or `env.state()`. `aphel_sdk::Runtime` (from `ctx.runtime()`, `env.runtime()` or `aphel_sdk::runtime()`) exposes only what plugins use: `ctx(scope)`, `db`, `registry`, `record_types`, `app`, `events`, `audit`, `jobs`, `storage`, `secrets`, `configuration`, `public_base_url`, `outbound_http_network`, `max_upload_bytes`, `mailer`, `secure_cookies` and `auth_use_cases`. Kernel helpers that used to take `&AppState` (`field_policies`, `redacted`, `field_redaction`, `file_use_cases`, `aggregate_ports`) accept `&impl AsRef<AppState>`, and `RecordCtx::from_runtime` builds a record context from it. The automation gateway still holds an `AppState` internally (its contract trait signatures take one).
+- Worker handlers, hooks and widgets now hold a `Runtime` and call `runtime.ctx(&scope)`.
+
+## Foreign record types
+
+- The metric `plugins_with_literal_record_types` now counts only dotted record keys (`people.person`, `deals.deal`, ...) of another plugin, outside comments and OpenAPI examples. The old short keys (`contact`, `deal`, ...) were removed in P3.4 and matched JSON field names. Plugins reference peers through `aphel_contract_crm::keys::*` constants (transitional crm contract) instead of string literals; splitting that contract per capability is still open.

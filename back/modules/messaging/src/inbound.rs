@@ -172,11 +172,14 @@ async fn create_contact(
     scope: &AccessScope,
     values: Map<String, Value>,
 ) -> Result<Uuid, AppError> {
-    let state = ctx.state();
+    let state = ctx.runtime();
     let created = ctx
         .registry()
         .handler(RecordType::CONTACT.as_str())?
-        .create(&RecordCtx::new(scope, &state), Value::Object(values))
+        .create(
+            &RecordCtx::from_runtime(scope, &state),
+            Value::Object(values),
+        )
         .await?;
     created
         .get("id")

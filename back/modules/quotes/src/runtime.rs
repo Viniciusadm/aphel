@@ -8,10 +8,9 @@ use crate::domain::{
     QUOTE_APPROVALS_CONSUMER, QUOTE_DEAL_SYNC_JOB, QUOTES_EXPIRE_CRON, QUOTES_EXPIRE_JOB,
 };
 use crate::{sync, workflow};
-use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::approvals::{APPROVAL_APPROVED, APPROVAL_CANCELLED, APPROVAL_REJECTED};
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
@@ -26,7 +25,7 @@ pub(crate) fn quotes_expire_schedule() -> ScheduledJobDefinition {
 }
 
 pub(crate) struct QuoteDealSyncHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -44,13 +43,13 @@ impl JobHandler for QuoteDealSyncHandler {
             return Ok(());
         };
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         sync::sync_deal(&ctx, quote_id).await
     }
 }
 
 pub(crate) struct QuotesExpireHandler {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -61,7 +60,7 @@ impl JobHandler for QuotesExpireHandler {
 
     async fn handle(&self, _context: &JobContext, _payload: Value) -> Result<(), AppError> {
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         let expired = workflow::expire_due(&ctx).await?;
         if expired > 0 {
             tracing::info!(expired, "quotes expired");
@@ -71,7 +70,7 @@ impl JobHandler for QuotesExpireHandler {
 }
 
 pub(crate) struct QuoteApprovalsConsumer {
-    state: AppState,
+    state: Runtime,
 }
 
 #[async_trait]
@@ -96,13 +95,13 @@ impl EventConsumer for QuoteApprovalsConsumer {
             return Ok(());
         }
         let scope = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &scope).await?;
+        let ctx = self.state.ctx(&scope).await?;
         workflow::apply_approval(&ctx, event).await
     }
 }
 
 pub(crate) fn quote_worker(env: &WorkerEnv) -> WorkerParts {
-    let state = env.state();
+    let state = env.runtime();
     WorkerParts::default()
         .handler(Arc::new(QuoteDealSyncHandler {
             state: state.clone(),

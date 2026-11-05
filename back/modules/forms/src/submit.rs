@@ -326,11 +326,11 @@ fn saved_id(record: &Value, record_type: &str) -> Result<Uuid, AppError> {
 }
 
 async fn create_record(ctx: &Ctx<'_>, record_type: &str, body: Value) -> Result<Uuid, AppError> {
-    let state = ctx.state();
+    let state = ctx.runtime();
     let created = ctx
         .registry()
         .handler(record_type)?
-        .create(&RecordCtx::new(ctx.scope, &state), body)
+        .create(&RecordCtx::from_runtime(ctx.scope, &state), body)
         .await?;
     saved_id(&created, record_type)
 }

@@ -128,7 +128,7 @@ pub(crate) async fn user_identity(ctx: &Ctx<'_>) -> (Option<String>, Option<Stri
 }
 
 pub(crate) async fn quote(ctx: &Ctx<'_>, quote_id: Uuid) -> Result<Value, AppError> {
-    ctx.load_record("quotes.quote", quote_id)
+    ctx.load_record(aphel_contract_crm::keys::QUOTE, quote_id)
         .await?
         .ok_or_else(|| AppError::not_found_code("quote_not_found", "quote was not found"))
 }
@@ -142,7 +142,7 @@ pub(crate) async fn line_items(
         .summary(
             ctx,
             &aphel_sdk::platform::application::shared::RecordRef::parse(
-                "deals.deal",
+                aphel_contract_crm::keys::DEAL,
                 &deal_id.to_string(),
             )?,
         )

@@ -27,8 +27,8 @@ Never invent facts that are not in the data; when something is unknown, say so b
 
 fn record_label(record_type: &str) -> &'static str {
     match record_type {
-        "people.person" => "customer contact",
-        "organizations.organization" => "customer company",
+        aphel_contract_crm::keys::CONTACT => "customer contact",
+        aphel_contract_crm::keys::COMPANY => "customer company",
         _ => "sales opportunity (deal)",
     }
 }

@@ -56,8 +56,8 @@ impl DealLifecycle for Lifecycle {
         id: Uuid,
     ) -> Result<DealOutcomes, AppError> {
         let column = match entity.as_str() {
-            "people.person" => "contact_id",
-            "organizations.organization" => "company_id",
+            aphel_contract_crm::keys::CONTACT => "contact_id",
+            aphel_contract_crm::keys::COMPANY => "company_id",
             _ => return Err(AppError::Validation("unsupported deal party entity".into())),
         };
         let rows: Vec<(String,i64)> = sqlx::query_as(sqlx::AssertSqlSafe(format!("SELECT status,COUNT(*) FROM deals WHERE {column} = ? AND deleted_at IS NULL GROUP BY status"))).bind(id.to_string()).fetch_all(pool).await?;

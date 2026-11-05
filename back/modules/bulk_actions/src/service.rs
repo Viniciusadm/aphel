@@ -304,8 +304,8 @@ async fn process(
         ));
     };
     let store = BulkOperationStore::of(ctx);
-    let state = ctx.state();
-    let record_ctx = RecordCtx::new(ctx.scope, &state);
+    let state = ctx.runtime();
+    let record_ctx = RecordCtx::from_runtime(ctx.scope, &state);
     let done = store.processed_ids(operation.id).await?;
     for record_id in ids.iter().filter(|id| !done.contains(id)) {
         let item = match targets::apply(

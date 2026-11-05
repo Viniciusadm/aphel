@@ -14,7 +14,6 @@ use aphel_sdk::notifications::{NotificationIntent, dispatch};
 use aphel_sdk::platform::application::shared::RecordRef;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
-use aphel_sdk::platform::state::runtime_state;
 
 const NOT_DECLARED: &str = "plugin_notification_not_declared";
 const INVALID_RECIPIENT: &str = "plugin_notification_recipient_invalid";
@@ -90,7 +89,7 @@ pub async fn notify(
     let recipient = UserId::new(notification.recipient_user_id.clone()).map_err(|_| {
         AppError::validation_code(INVALID_RECIPIENT, "the recipient must be a user id")
     })?;
-    let state = runtime_state()?;
+    let state = aphel_sdk::runtime()?;
     let ports = NotificationClient::new(
         state.db()?,
         state.registry().await?,

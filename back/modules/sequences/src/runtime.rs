@@ -12,7 +12,7 @@ use crate::{
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler,
@@ -27,16 +27,16 @@ pub(crate) fn sequences_tick_schedule() -> ScheduledJobDefinition {
 
 #[derive(Clone)]
 pub(crate) struct SequenceRuntime {
-    state: AppState,
+    state: Runtime,
 }
 
 impl SequenceRuntime {
-    pub(crate) fn new(state: AppState) -> Self {
+    pub(crate) fn new(state: Runtime) -> Self {
         Self { state }
     }
 
     async fn ctx<'s>(&self, scope: &'s AccessScope) -> Result<Ctx<'s>, AppError> {
-        Ctx::from_state(&self.state, scope).await
+        self.state.ctx(scope).await
     }
 }
 
@@ -101,7 +101,7 @@ impl EventConsumer for SequenceExitConsumer {
 }
 
 pub(crate) fn sequence_worker(env: &WorkerEnv) -> WorkerParts {
-    let runtime = SequenceRuntime::new(env.state());
+    let runtime = SequenceRuntime::new(env.runtime());
     WorkerParts::default()
         .handler(Arc::new(SequenceTickHandler(runtime.clone())))
         .handler(Arc::new(SequenceStepHandler(runtime.clone())))

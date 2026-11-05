@@ -599,7 +599,7 @@ impl OwnerWriter for AutomationOwner<'_> {
             .registry()
             .handler(self.record.record_type.as_str())?
             .update_in_tx(
-                &aphel_kernel::records::RecordCtx::new(self.scope, &self.ctx.state()),
+                &aphel_kernel::records::RecordCtx::from_runtime(self.scope, &self.ctx.runtime()),
                 tx,
                 self.record.record_id,
                 Value::Object(values),

@@ -20,11 +20,10 @@ use aphel_sdk::platform::application::query::{
 };
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::modules::module_settings;
-use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const BIRTHDAY_FIELD_SETTING: &str = "birthday_field";
 
-const CONTACT: &str = "people.person";
+const CONTACT: &str = aphel_contract_crm::keys::CONTACT;
 const DATE_FIELD_TYPE: &str = "date";
 const FIRST_YEAR: i32 = 1900;
 const YEARS_PER_QUERY: i32 = 40;
@@ -216,7 +215,7 @@ where
         let (settings, _) = parse(settings).map_err(invalid_settings)?;
         let today = context.now.with_timezone(&context.timezone).date_naive();
         let (month, today_day) = (today.month(), today.day());
-        let state_handle = runtime_state()?;
+        let state_handle = aphel_sdk::runtime()?;
         let module_settings = module_settings(&state_handle.db()?, KEY).await?;
         let Some(field) = module_settings
             .get(BIRTHDAY_FIELD_SETTING)
@@ -272,7 +271,7 @@ where
         }
         let registry = state_handle.registry().await?;
         let handler = registry.handler(CONTACT)?;
-        let record_ctx = RecordCtx::new(context.scope, &state_handle);
+        let record_ctx = RecordCtx::from_runtime(context.scope, &state_handle);
         let mut items = Vec::new();
         for id in ids {
             let record = match handler.load(&record_ctx, id).await {

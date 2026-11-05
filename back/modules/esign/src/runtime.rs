@@ -9,12 +9,12 @@ use crate::{job_kind, scope_for_user, store};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
-use aphel_kernel::state::AppState;
+use aphel_sdk::Runtime;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) struct AttachSignedDocument {
-    state: AppState,
+    state: Runtime,
     kind: String,
 }
 
@@ -33,7 +33,7 @@ impl JobHandler for AttachSignedDocument {
             return Ok(());
         };
         let system = AccessScope::system();
-        let ctx = Ctx::from_state(&self.state, &system).await?;
+        let ctx = self.state.ctx(&system).await?;
         let Some(request) = store::find_request(ctx.pool(), request_id).await? else {
             return Ok(());
         };
@@ -47,10 +47,10 @@ impl JobHandler for AttachSignedDocument {
 pub(crate) fn esign_worker(env: &WorkerEnv) -> WorkerParts {
     WorkerParts::default()
         .handler(Arc::new(crate::delivery::Deliver {
-            state: env.runtime_state(),
+            state: env.runtime(),
         }))
         .handler(Arc::new(AttachSignedDocument {
-            state: env.runtime_state(),
+            state: env.runtime(),
             kind: job_kind(ATTACH_JOB),
         }))
 }

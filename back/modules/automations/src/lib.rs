@@ -164,8 +164,8 @@ impl Module for AutomationsModule {
 }
 
 fn worker(env: &WorkerEnv) -> WorkerParts {
-    let state = env.state();
-    let runtime = Arc::new(AutomationRuntime::new(state));
+    let state = env.runtime();
+    let runtime = Arc::new(AutomationRuntime::new(state.as_ref().clone()));
     WorkerParts::default()
         .consumer(Arc::new(AutomationTriggerConsumer(runtime.clone())))
         .handler(Arc::new(AutomationRunHandler(runtime.clone())))

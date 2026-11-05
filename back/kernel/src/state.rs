@@ -291,3 +291,113 @@ pub fn runtime_state() -> Result<AppState, AppError> {
         .cloned()
         .ok_or_else(|| AppError::Configuration("the runtime state is not installed".to_owned()))
 }
+
+#[derive(Clone)]
+pub struct Runtime {
+    state: AppState,
+}
+
+impl AsRef<AppState> for AppState {
+    fn as_ref(&self) -> &AppState {
+        self
+    }
+}
+
+impl AsRef<AppState> for Runtime {
+    fn as_ref(&self) -> &AppState {
+        &self.state
+    }
+}
+
+impl From<AppState> for Runtime {
+    fn from(state: AppState) -> Self {
+        Self { state }
+    }
+}
+
+impl Runtime {
+    pub async fn ctx<'s>(
+        &self,
+        scope: &'s crate::domain::access::AccessScope,
+    ) -> Result<crate::Ctx<'s>, AppError> {
+        crate::Ctx::from_state(&self.state, scope).await
+    }
+
+    pub fn db(&self) -> Result<MySqlPool, AppError> {
+        self.state.db()
+    }
+
+    pub async fn registry(&self) -> Result<Arc<RecordTypeRegistry>, AppError> {
+        self.state.registry().await
+    }
+
+    pub fn record_types(&self) -> &Arc<RecordTypeCatalog> {
+        &self.state.record_types
+    }
+
+    pub fn app(&self) -> &Arc<crate::modules::App> {
+        &self.state.app
+    }
+
+    pub fn events(&self) -> &SharedEventPublisher {
+        &self.state.events
+    }
+
+    pub fn audit(&self) -> &SharedAuditLog {
+        &self.state.audit
+    }
+
+    pub fn jobs(&self) -> &SharedJobQueue {
+        &self.state.jobs
+    }
+
+    pub fn storage(&self) -> &SharedFileStorage {
+        &self.state.storage
+    }
+
+    pub fn secrets(&self) -> &SharedSecretVault {
+        &self.state.secrets
+    }
+
+    pub fn configuration(&self) -> Arc<OrganizationConfig> {
+        self.state.configuration()
+    }
+
+    pub fn outbound_http_network(&self) -> Result<Arc<OutboundHttpNetwork>, AppError> {
+        self.state.outbound_http_network()
+    }
+
+    pub fn public_base_url(&self) -> PublicBaseUrl {
+        self.state.public_base_url()
+    }
+
+    pub fn max_upload_bytes(&self) -> u64 {
+        self.state.max_upload_bytes()
+    }
+
+    pub fn mailer(&self) -> SharedMailer {
+        self.state.mailer()
+    }
+
+    pub fn outbound_http_settings(&self) -> &OutboundHttpConfig {
+        &self.state.outbound_http
+    }
+
+    pub fn secure_cookies(&self) -> bool {
+        self.state.secure_cookies()
+    }
+
+    pub fn auth_use_cases(&self) -> Result<AuthUseCases<MySqlAuthPorts>, AppError> {
+        self.state.auth_use_cases()
+    }
+
+    pub fn with_events(self, events: SharedEventPublisher) -> Self {
+        Self {
+            state: self.state.with_events(events),
+        }
+    }
+}
+
+pub fn runtime() -> Result<Runtime, AppError> {
+    runtime_state().map(Runtime::from)
+}

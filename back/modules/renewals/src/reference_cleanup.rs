@@ -28,16 +28,19 @@ async fn execute(
 #[async_trait]
 impl ReferenceCleanup for Cleanup {
     fn kinds(&self) -> &'static [&'static str] {
-        &["workflow.pipeline", "workflow.stage"]
+        &[
+            aphel_contract_crm::keys::PIPELINE,
+            aphel_contract_crm::keys::PIPELINE_STAGE,
+        ]
     }
 
     async fn removed(&self, tx: &mut MySqlTx, kind: &str, id: Uuid) -> Result<(), AppError> {
         let id = id.to_string();
         match kind {
-            "workflow.pipeline" => {
+            aphel_contract_crm::keys::PIPELINE => {
                 execute(tx, "DELETE FROM pipeline_renewal_settings WHERE pipeline_id = ? OR target_pipeline_id = ?", &id, 2).await?;
             }
-            "workflow.stage" => {
+            aphel_contract_crm::keys::PIPELINE_STAGE => {
                 execute(
                     tx,
                     "DELETE FROM pipeline_renewal_settings WHERE target_stage_id = ?",
