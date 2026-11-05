@@ -17,7 +17,7 @@ Checked on 2026-11-05 with `aphel-tasks-alt`, a WebAssembly plugin that provides
 - `sequences` declares `tasks` as optional instead of a hard module dependency, so the held-module check no longer blocks it.
 - Result: with the plugin installed, a sequence `task` step created its task in `tasks_alt.task` and the native table did not grow; uninstalling the plugin returned the step to the native `tasks` module. The `sequences` runner code is unchanged.
 
-Not covered: `booking` still depends on the `tasks` module and uses native scheduling traits (`MeetingScheduler`, calendar sources), and `telephony` was not exercised. The native-only extension points of `tasks@1` (`calendar_api`, `reminder_source`, `remote_calendars`) have no plugin implementation.
+`booking` and `telephony` use the native-only part of `tasks` (a call is a task row written in the call's own transaction; meetings use `MeetingScheduler` and calendar sources), so they declare a hard dependency on the `tasks` module. A plugin that provides `tasks@1` is therefore refused (409 `plugin_module_conflict_blocked`, naming the module) while either is enabled, and accepted once they are disabled. `telephony` previously declared the dependency as optional, which let a replacement through and broke call logging silently. The native-only extension points of `tasks@1` (`calendar_api`, `reminder_source`, `remote_calendars`) have no plugin implementation.
 
 ## C7: done for a module without web screens
 
