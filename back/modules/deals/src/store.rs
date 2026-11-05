@@ -381,6 +381,18 @@ impl DealStore {
         Ok(result.rows_affected())
     }
 
+    pub(crate) async fn completed_ids(&self) -> Result<Vec<Uuid>, AppError> {
+        let ids: Vec<String> = sqlx::query_scalar(
+            "SELECT id FROM deals WHERE status <> ? AND amount_base IS NOT NULL",
+        )
+        .bind(DealStatus::Open.as_str())
+        .fetch_all(&self.pool)
+        .await?;
+        ids.iter()
+            .map(|id| Uuid::parse_str(id).map_err(|error| AppError::Internal(error.to_string())))
+            .collect()
+    }
+
     pub(crate) async fn rebase_completed(&self, factor: Decimal) -> Result<u64, AppError> {
         let result = sqlx::query(
             "UPDATE deals SET amount_base = ROUND(amount_base * ?, 2), \

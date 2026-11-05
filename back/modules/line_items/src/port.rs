@@ -47,6 +47,14 @@ impl LineItemsPort for Port {
     ) -> Result<(), AppError> {
         super::store::sync_record_rate(tx, record, rate).await
     }
+    async fn rebase_amounts(
+        &self,
+        tx: &mut MySqlTx,
+        record: &RecordRef,
+        factor: Decimal,
+    ) -> Result<(), AppError> {
+        super::store::rebase_record_amounts(tx, record, factor).await
+    }
     async fn replace(
         &self,
         ctx: &Ctx<'_>,

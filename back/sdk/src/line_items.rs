@@ -105,6 +105,12 @@ pub trait LineItemsPort: Send + Sync {
         record: &RecordRef,
         rate: Option<Decimal>,
     ) -> Result<(), AppError>;
+    async fn rebase_amounts(
+        &self,
+        tx: &mut MySqlTx,
+        record: &RecordRef,
+        factor: Decimal,
+    ) -> Result<(), AppError>;
     async fn replace(
         &self,
         ctx: &Ctx<'_>,

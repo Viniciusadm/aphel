@@ -260,6 +260,25 @@ impl LineItemStore {
     }
 }
 
+pub(crate) async fn rebase_record_amounts(
+    tx: &mut MySqlTx,
+    record: &RecordRef,
+    factor: Decimal,
+) -> Result<(), AppError> {
+    sqlx::query(
+        "UPDATE line_items SET amount_base = ROUND(amount_base * ?, 2), \
+         exchange_rate = ROUND(exchange_rate * ?, 10) \
+         WHERE record_type = ? AND record_id = ? AND amount_base IS NOT NULL",
+    )
+    .bind(factor)
+    .bind(factor)
+    .bind(record.record_type.as_str())
+    .bind(record.record_id.to_string())
+    .execute(&mut **tx)
+    .await?;
+    Ok(())
+}
+
 pub(crate) async fn sync_record_rate(
     tx: &mut MySqlTx,
     record: &RecordRef,

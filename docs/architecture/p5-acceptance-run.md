@@ -33,13 +33,12 @@ Manual acceptance of the P5 checklists on isolated instances (own database, port
 ## Fixed after the first pass
 
 - Webhook assignment now creates the record inside the assignment transaction (`AssignmentSelector::create_assigned`): a failed create no longer advances the rule counter and the history row carries the record id.
-- Changing the base currency converts the amounts of completed deals (`money.rebase_completed`, at most once); their line items are not converted.
+- Changing the base currency converts the amounts of completed deals (`money.rebase_completed`, at most once); their line items are converted through `LineItemsPort::rebase_amounts`.
 - A quote item with a rejected catalog product no longer reports a second "name is required" violation.
 - Applying a configuration package that creates a custom object publishes `custom_object.created` with audit.
 
 ## Known and deferred
 
 - A deal's `amount_base` is converted from its total and can differ by cents from the sum of its items' `amount_base` (per-line rounding); both are correctly rounded.
-- Line items of completed deals keep the old base amounts after a base currency change.
 - A hidden catalog price on a quote still reports "product was not found" so that the catalog does not leak existence.
 - Open: `p5-remaining-domains`, `p5-bridges`, P6 permission-refusal/cycle/`[[contribute]]` lines, P7 shortcut, palette and installer lines (need the web UI).

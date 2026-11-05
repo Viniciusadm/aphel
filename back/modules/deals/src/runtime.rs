@@ -223,6 +223,27 @@ impl aphel_sdk::money::MoneyRecalculationSource for DealRecalculation {
     }
 
     async fn rebase_completed(&self, pool: &MySqlPool, factor: Decimal) -> Result<u64, AppError> {
-        store(pool.clone()).rebase_completed(factor).await
+        let deals = store(pool.clone());
+        if let Some(items) = aphel_sdk::platform::modules::app()
+            .services()
+            .get::<dyn aphel_sdk::line_items::LineItemsPort>()
+        {
+            let mut tx =
+                aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
+            for id in deals.completed_ids().await? {
+                items
+                    .rebase_amounts(
+                        &mut tx,
+                        &aphel_sdk::platform::application::shared::RecordRef::new(
+                            RecordType::DEAL,
+                            id,
+                        ),
+                        factor,
+                    )
+                    .await?;
+            }
+            tx.commit().await?;
+        }
+        deals.rebase_completed(factor).await
     }
 }
