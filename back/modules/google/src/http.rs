@@ -163,6 +163,17 @@ async fn login(
     client: ClientInfo,
     Query(query): Query<StartQuery>,
 ) -> Response {
+    if let Err(error) = state
+        .rate_limits
+        .sso
+        .check(
+            client.0.ip.as_deref().unwrap_or("unknown"),
+            "too many sign-in attempts",
+        )
+        .await
+    {
+        return app_error(error).into_response();
+    }
     let scope = AccessScope::system();
     match Ctx::from_state(&state, &scope).await {
         Ok(ctx) => start_login(&ctx, &GoogleProvider, query, ClientContext::new(client)).await,
@@ -185,6 +196,17 @@ async fn callback(
     client: ClientInfo,
     Query(query): Query<CallbackQuery>,
 ) -> Response {
+    if let Err(error) = state
+        .rate_limits
+        .sso
+        .check(
+            client.0.ip.as_deref().unwrap_or("unknown"),
+            "too many sign-in attempts",
+        )
+        .await
+    {
+        return app_error(error).into_response();
+    }
     let scope = AccessScope::system();
     match Ctx::from_state(&state, &scope).await {
         Ok(ctx) => handle_callback(&ctx, &GoogleProvider, query, ClientContext::new(client)).await,

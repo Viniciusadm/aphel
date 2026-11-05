@@ -297,6 +297,7 @@ pub struct RateLimits {
     pub password_reset: SharedRateLimiter,
     pub two_factor: SharedRateLimiter,
     pub password_change: SharedRateLimiter,
+    pub sso: SharedRateLimiter,
 }
 
 impl Default for RateLimits {
@@ -309,6 +310,7 @@ impl Default for RateLimits {
                 Duration::from_secs(15 * 60),
             ),
             two_factor: SharedRateLimiter::new("auth.two_factor", 10, Duration::from_secs(15 * 60)),
+            sso: SharedRateLimiter::new("auth.sso", 30, Duration::from_secs(5 * 60)),
             password_change: SharedRateLimiter::new(
                 "auth.password_change",
                 5,
