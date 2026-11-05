@@ -2,7 +2,7 @@ import { FileSignature } from 'lucide-react'
 import { type TimelineRenderer } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { lazyComponent } from '@/lib/lazy-component'
-import { ESIGN_KEY, SEND_PERMISSION, VIEW_PERMISSION } from './api'
+import {ESIGN_KEY, SEND_PERMISSION, VIEW_PERMISSION} from '@/sdk'
 import { EsignEventContent } from './EventContent'
 import { EsignSettingsPanel } from './SettingsPanel'
 

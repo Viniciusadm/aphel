@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { ESIGN_KEY, useEsignStatus } from './api'
+import {ESIGN_KEY, useEsignStatus} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export function EsignSettingsPanel() {

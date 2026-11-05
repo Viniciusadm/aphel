@@ -1,5 +1,5 @@
 import { api } from '@/api'
-import type { EsignRequest } from '@/modules/esign/api'
+import type {EsignRequest} from '@/sdk'
 import type {ProposalDocument} from '@/sdk'
 
 export const PROPOSALS_MODULE = 'proposals'

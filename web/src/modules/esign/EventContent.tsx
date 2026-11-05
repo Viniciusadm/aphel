@@ -1,6 +1,6 @@
 import { type TimelineItem } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { ESIGN_KEY } from './api'
+import {ESIGN_KEY} from '@/sdk'
 
 interface EsignEventPayload {
   file_name?: string

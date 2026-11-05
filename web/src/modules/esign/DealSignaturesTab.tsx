@@ -20,19 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { fileDownloadUrl, formatDateTime, useAttachments, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
-import {
-  ESIGN_KEY,
-  SEND_PERMISSION,
-  esignApi,
-  esignKeys,
-  useEsignRequests,
-  useEsignStatus,
-  useInvalidateEsign,
-  type EsignRequest,
-  type EsignRequestStatus,
-  type EsignSignerInput,
-  type EsignSignerStatus,
-} from './api'
+import {ESIGN_KEY, SEND_PERMISSION, esignApi, esignKeys, useEsignRequests, useEsignStatus, useInvalidateEsign, type EsignRequest, type EsignRequestStatus, type EsignSignerInput, type EsignSignerStatus} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 type Deal = components['schemas']['DealResponse']
