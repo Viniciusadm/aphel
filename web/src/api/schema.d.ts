@@ -17538,16 +17538,9 @@ export interface components {
         };
         /** @enum {string} */
         MemberStatusDto: "invited" | "active" | "deactivated";
-        MenuRule: {
-            action: string;
-            /** Format: int32 */
-            order?: number | null;
-            target: string;
-        };
         MenuSpec: {
             flat?: boolean;
             own_entities?: string | null;
-            rules?: components["schemas"]["MenuRule"][];
         };
         MergeRequest: {
             duplicate_id: string;
@@ -19958,7 +19951,6 @@ export interface components {
         PluginDeclarations: {
             actions: string[];
             allowed_hosts: string[];
-            conflicts_with: string[];
             emits: string[];
             entities: string[];
             entity_scopes: components["schemas"]["PluginEntityScopeResponse"][];
@@ -19972,6 +19964,7 @@ export interface components {
             optional_requires: string[];
             permissions: components["schemas"]["PluginPermissionResponse"][];
             public_routes: string[];
+            replaces: string[];
             requires: string[];
             role_presets: components["schemas"]["PluginRolePresetResponse"][];
             routes: string[];

@@ -42,16 +42,6 @@ pub fn detect(candidate: &PluginManifest, others: &[InstalledPlugin]) -> Vec<Plu
         .filter(|other| other.enabled && other.key != candidate.key)
     {
         let manifest = &other.manifest;
-        for rule in &candidate.menu.rules {
-            if manifest
-                .menu
-                .rules
-                .iter()
-                .any(|existing| existing.target == rule.target)
-            {
-                conflicts.push(PluginConflict::new("menu_target", &rule.target, other));
-            }
-        }
         for hook in candidate
             .hooks
             .subscribe

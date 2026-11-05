@@ -161,8 +161,7 @@
       "entityScopes": "Default visibility",
       "uniqueFields": "Unique fields",
       "optionalRequires": "Optional permissions",
-      "conflictsWith": "Disables modules",
-      "menu": "Changes the menu"
+      "replaces": "Replaces modules"
     },
     "checking": "Checking the package…",
     "settings": "Settings",
@@ -199,7 +198,6 @@
     "consentModuleDisables": "This plugin disables the {{name}} module while it is installed. The module is enabled again when the plugin is uninstalled.",
     "consentModuleBlocked": "The {{name}} module cannot be disabled right now: {{blockedBy}}.",
     "conflictKinds": {
-      "menu_target": "Same menu item: {{target}}",
       "hook_overlap": "Same rule: {{target}}",
       "role_preset_key": "Same suggested role: {{target}}"
     },

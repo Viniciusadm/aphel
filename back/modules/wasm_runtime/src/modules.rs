@@ -51,19 +51,38 @@ pub struct ModuleConflictPlan {
     pub blocked_by: Vec<String>,
 }
 
+pub fn held_modules(manifest: &PluginManifest) -> Vec<String> {
+    let provided: std::collections::HashSet<&str> = manifest
+        .provides
+        .contracts
+        .iter()
+        .map(String::as_str)
+        .collect();
+    let mut held = std::collections::BTreeSet::new();
+    for (module, descriptor) in
+        aphel_sdk::platform::modules::app().all_contributions::<aphel_sdk::ContractDescriptor>()
+    {
+        if module != "kernel" && provided.contains(descriptor.contract.requirement().as_str()) {
+            held.insert(module.to_owned());
+        }
+    }
+    held.into_iter().collect()
+}
+
 pub async fn plan(
     state: &AppState,
     scope: &AccessScope,
     manifest: &PluginManifest,
 ) -> Result<Vec<ModuleConflictPlan>, AppError> {
-    if manifest.conflicts_with.is_empty() {
+    let replaced = held_modules(manifest);
+    if replaced.is_empty() {
         return Ok(Vec::new());
     }
     scope.require(&Permission::SETTINGS_MANAGE)?;
     let views = module_use_cases(state)?.list(scope).await?;
     let plugins = store::list(&state.db()?).await?;
     let mut plans = Vec::new();
-    for module in &manifest.conflicts_with {
+    for module in &replaced {
         let Some(view) = views.iter().find(|view| view.descriptor.key() == module) else {
             continue;
         };
@@ -146,12 +165,9 @@ pub async fn hold(
         .into_iter()
         .map(|(module, _)| module)
         .collect();
+    let replaced = held_modules(manifest);
     let mut newly_held = Vec::new();
-    for module in manifest
-        .conflicts_with
-        .iter()
-        .filter(|module| !existing.contains(module))
-    {
+    for module in replaced.iter().filter(|module| !existing.contains(module)) {
         match hold_module(state, scope, &manifest.key, module).await {
             Ok(()) => newly_held.push(module.clone()),
             Err(error) => {
@@ -162,7 +178,7 @@ pub async fn hold(
     }
     let stale: Vec<String> = existing
         .into_iter()
-        .filter(|module| !manifest.conflicts_with.contains(module))
+        .filter(|module| !replaced.contains(module))
         .collect();
     release_modules(state, scope, &manifest.key, &stale).await;
     Ok(newly_held)

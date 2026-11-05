@@ -50,24 +50,17 @@ export interface PluginDeclarations {
   entity_scopes: PluginEntityScope[]
   unique_fields: string[]
   menu: PluginMenu
-  conflicts_with: string[]
+  replaces: string[]
   has_web: boolean
-}
-
-export interface PluginMenuRule {
-  target: string
-  action: 'hide' | 'move'
-  order?: number | null
 }
 
 export interface PluginMenu {
   flat?: boolean
   own_entities?: 'visible' | 'hidden' | null
-  rules?: PluginMenuRule[]
 }
 
 export interface PluginConflict {
-  kind: 'menu_target' | 'hook_overlap' | 'role_preset_key'
+  kind: 'hook_overlap' | 'role_preset_key'
   target: string
   other_plugin: string
   other_name: string

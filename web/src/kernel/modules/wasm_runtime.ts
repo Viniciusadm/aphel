@@ -1,15 +1,8 @@
 import type { WebModule } from './define'
 
-export interface PluginMenuRule {
-  target: string
-  action: 'hide' | 'move'
-  order?: number | null
-}
-
 export interface PluginMenu {
   flat: boolean
   own_entities?: 'visible' | 'hidden' | null
-  rules: PluginMenuRule[]
 }
 
 interface WebPluginEntry {

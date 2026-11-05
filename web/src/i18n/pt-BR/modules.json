@@ -161,8 +161,7 @@
       "entityScopes": "Visibilidade padrão",
       "uniqueFields": "Campos únicos",
       "optionalRequires": "Permissões opcionais",
-      "conflictsWith": "Desativa os módulos",
-      "menu": "Altera o menu"
+      "replaces": "Substitui os módulos"
     },
     "checking": "Verificando o pacote…",
     "settings": "Configurações",
@@ -199,7 +198,6 @@
     "consentModuleDisables": "Este plugin desativa o módulo {{name}} enquanto estiver instalado. Ele será reativado ao desinstalar o plugin.",
     "consentModuleBlocked": "O módulo {{name}} não pode ser desativado agora: {{blockedBy}}.",
     "conflictKinds": {
-      "menu_target": "Mesmo item de menu: {{target}}",
       "hook_overlap": "Mesma regra: {{target}}",
       "role_preset_key": "Mesmo papel sugerido: {{target}}"
     },

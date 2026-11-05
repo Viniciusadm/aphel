@@ -100290,29 +100290,6 @@
           "deactivated"
         ]
       },
-      "MenuRule": {
-        "type": "object",
-        "required": [
-          "target",
-          "action"
-        ],
-        "properties": {
-          "action": {
-            "type": "string"
-          },
-          "order": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int32"
-          },
-          "target": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
       "MenuSpec": {
         "type": "object",
         "properties": {
@@ -100324,12 +100301,6 @@
               "string",
               "null"
             ]
-          },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MenuRule"
-            }
           }
         },
         "additionalProperties": false
@@ -109819,7 +109790,7 @@
           "entity_scopes",
           "unique_fields",
           "menu",
-          "conflicts_with",
+          "replaces",
           "has_web"
         ],
         "properties": {
@@ -109830,12 +109801,6 @@
             }
           },
           "allowed_hosts": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "conflicts_with": {
             "type": "array",
             "items": {
               "type": "string"
@@ -109908,6 +109873,12 @@
             }
           },
           "public_routes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "replaces": {
             "type": "array",
             "items": {
               "type": "string"

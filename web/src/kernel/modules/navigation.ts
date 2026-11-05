@@ -65,24 +65,10 @@ export function applyPluginMenus(
   menus: ReadonlyMap<string, PluginMenu>,
 ): NavigationEntry[] {
   if (menus.size === 0) return entries
-  let result = entries.map((entry) => {
+  return entries.map((entry) => {
     const menu = menus.get(entry.module)
     return menu?.flat && entry.group ? { ...entry, group: undefined } : entry
   })
-  let moved = false
-  for (const [, menu] of [...menus].sort(([left], [right]) => left.localeCompare(right))) {
-    for (const rule of menu.rules) {
-      if (rule.target === SETTINGS_ENTRY_KEY) continue
-      if (rule.action === 'hide') {
-        result = result.filter((entry) => entry.key !== rule.target)
-      } else if (rule.order != null) {
-        const order = rule.order
-        result = result.map((entry) => (entry.key === rule.target ? { ...entry, order } : entry))
-        moved = true
-      }
-    }
-  }
-  return moved ? result.toSorted((left, right) => left.order - right.order) : result
 }
 
 export function useNavigationEntries(): NavigationEntry[] {

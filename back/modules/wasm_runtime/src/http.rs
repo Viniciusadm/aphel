@@ -233,7 +233,7 @@ pub(crate) struct PluginDeclarations {
     entity_scopes: Vec<PluginEntityScopeResponse>,
     unique_fields: Vec<String>,
     menu: crate::manifest::MenuSpec,
-    conflicts_with: Vec<String>,
+    replaces: Vec<String>,
     has_web: bool,
 }
 
@@ -363,7 +363,7 @@ impl From<&PluginManifest> for PluginDeclarations {
                 )
                 .collect(),
             menu: manifest.menu.clone(),
-            conflicts_with: manifest.conflicts_with.clone(),
+            replaces: crate::modules::held_modules(manifest),
             has_web: manifest.web.is_some(),
         }
     }

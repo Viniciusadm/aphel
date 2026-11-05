@@ -221,37 +221,26 @@ What the declarations become:
 
 Entity field keys cannot reuse the keys every custom object already has: `name`, `title`, `owner_id`, `created_by`, `created_at` and `updated_at`. Any key conflict (an object or field that already exists and is not the plugin's) is refused with 409 `plugin_object_conflict` or `plugin_field_conflict` before anything is written.
 
-### Menu and conflicts
+### Menu and replaced modules
 
-A plugin integrates with the navigation through `[menu]` and can declare modules it replaces:
+A plugin integrates with the navigation through `[menu]` and replaces a built-in module by providing its contract:
 
 ```toml
-conflicts_with = ["proposals"]
+[provides]
+contracts = ["proposals@1"]
 
 [menu]
 flat = true
 own_entities = "hidden"
-
-[[menu.rules]]
-target = "restaurant.orders"
-action = "move"
-order = 120
-
-[[menu.rules]]
-target = "calls"
-action = "hide"
 ```
 
 | Field | Meaning |
 | --- | --- |
 | `menu.flat` | The plugin's `app.nav` items ignore their `group`: they appear as regular items, not as a submenu named after the plugin |
 | `menu.own_entities` | `hidden` removes the plugin's entities (custom objects with its `module_key`) from the sidebar; default `visible` |
-| `menu.rules` | `hide` removes the navigation item with that key (core or another plugin); `move` sets its `order` (see `NAV_ORDER`). The `settings` entry cannot be a target. One rule per target |
-| `conflicts_with` | Built-in modules the plugin replaces. Installing (or enabling) the plugin disables them; uninstalling (or disabling) it enables them again, only if they were enabled before and no other plugin still holds them. While held, enabling the module fails with 409 `module_held_by_extension` and `GET /modules` reports `held_by` |
+| `provides.contracts` | Contracts the plugin provides (`<name>@<major>`). A contract has one provider: when a built-in module declares the same contract, installing (or enabling) the plugin disables that module and uninstalling (or disabling) it enables it again, only if it was enabled before and no other plugin still holds it. While held, enabling the module is refused (409 `module_held_by_extension`). The navigation of a held module disappears with it; blueprints own the order of the remaining sections |
 
-The rules are applied by the web app to the enabled plugins only, before the `navigation.items` filter. Use them only when the plugin really changes how the system is organized; the filter remains available as an escape hatch without consent or conflict detection.
-
-Conflicts between plugins are detected on install, upgrade and enable: two plugins with a `menu.rules` rule on the same `target`, hooks on the same `(hook, record_type)` for `record.saving|validating|deleting|archiving` of a type neither owns, or the same role preset key. The dry run lists them in `conflicts`; installing or enabling then requires `acknowledge_conflicts=true`, otherwise 409 `plugin_conflicts_unacknowledged` with `details.conflicts`. `module_conflicts` in the dry run lists each module to be disabled with `blocked_by` (dependent modules, plugins that require its permissions or operations, or a required module); a non-empty `blocked_by` refuses the install with 409 `plugin_module_conflict_blocked`.
+Conflicts between plugins are detected on install, upgrade and enable: hooks on the same `(hook, record_type)` for `record.saving|validating|deleting|archiving` of a type neither owns, or the same role preset key. They need `acknowledge_conflicts=true` (409 `plugin_conflicts_unacknowledged`).
 
 ## Capabilities and scope
 
@@ -283,7 +272,7 @@ Referencing a record counts as reading it. Writing a `record` field (for example
 - `requires` and declared permissions;
 - role presets, entity visibility (`permission_scope`) and unique fields;
 - allowed hosts, schedules and secrets;
-- `menu` and `conflicts_with`;
+- `menu` and the contracts it provides (`provides.contracts`);
 - `conflicts` with other plugins and `module_conflicts` (modules that will be disabled);
 - the currently installed version;
 - `grants`: for every role the plugin grants to, whether it exists and how many of the expected permissions it already has.

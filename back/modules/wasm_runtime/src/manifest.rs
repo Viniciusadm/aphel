@@ -113,15 +113,10 @@ pub struct PluginManifest {
     #[serde(default)]
     pub menu: MenuSpec,
     #[serde(default)]
-    pub conflicts_with: Vec<String>,
-    #[serde(default)]
     pub settings_permission: Option<String>,
 }
 
-pub const MENU_ACTIONS: &[&str] = &["hide", "move"];
 pub const OWN_ENTITIES_VISIBILITY: &[&str] = &["visible", "hidden"];
-const MAX_MENU_RULES: usize = 50;
-const MAX_CONFLICTS: usize = 20;
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
 #[serde(deny_unknown_fields)]
@@ -130,8 +125,6 @@ pub struct MenuSpec {
     pub flat: bool,
     #[serde(default)]
     pub own_entities: Option<String>,
-    #[serde(default)]
-    pub rules: Vec<MenuRule>,
 }
 
 impl MenuSpec {
@@ -140,17 +133,8 @@ impl MenuSpec {
     }
 
     pub fn is_empty(&self) -> bool {
-        !self.flat && !self.hides_own_entities() && self.rules.is_empty()
+        !self.flat && !self.hides_own_entities()
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
-#[serde(deny_unknown_fields)]
-pub struct MenuRule {
-    pub target: String,
-    pub action: String,
-    #[serde(default)]
-    pub order: Option<i32>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -402,16 +386,6 @@ fn default_input_kind() -> String {
 
 fn default_entry() -> String {
     "web/index.js".to_owned()
-}
-
-fn is_menu_target(value: &str) -> bool {
-    !value.is_empty()
-        && value.len() <= 80
-        && value.chars().all(|character| {
-            character.is_ascii_lowercase()
-                || character.is_ascii_digit()
-                || matches!(character, '_' | '-' | '.' | '/')
-        })
 }
 
 fn is_key(value: &str, max: usize) -> bool {
@@ -1156,7 +1130,6 @@ impl PluginManifest {
             ));
         }
         self.validate_menu(&mut violations);
-        self.validate_conflicts(compiled_modules, &mut violations);
         if violations.is_empty() {
             Ok(())
         } else {
@@ -1176,73 +1149,6 @@ impl PluginManifest {
                 "menu.own_entities",
                 format!("must be one of {}", OWN_ENTITIES_VISIBILITY.join(", ")),
             ));
-        }
-        if self.menu.rules.len() > MAX_MENU_RULES {
-            violations.push(FieldViolation::new(
-                "menu.rules",
-                format!("at most {MAX_MENU_RULES} rules"),
-            ));
-        }
-        let mut seen = std::collections::HashSet::new();
-        for (index, rule) in self.menu.rules.iter().enumerate() {
-            let path = format!("menu.rules[{index}]");
-            if !is_menu_target(&rule.target) {
-                violations.push(FieldViolation::new(
-                    format!("{path}.target"),
-                    "must be a navigation item key",
-                ));
-            } else if rule.target == "settings" {
-                violations.push(FieldViolation::new(
-                    format!("{path}.target"),
-                    "the settings entry cannot be changed",
-                ));
-            } else if !seen.insert(rule.target.as_str()) {
-                violations.push(FieldViolation::new(
-                    format!("{path}.target"),
-                    "is already targeted by another rule",
-                ));
-            }
-            if !MENU_ACTIONS.contains(&rule.action.as_str()) {
-                violations.push(FieldViolation::new(
-                    format!("{path}.action"),
-                    format!("must be one of {}", MENU_ACTIONS.join(", ")),
-                ));
-            }
-            match (rule.action.as_str(), rule.order) {
-                ("move", None) => violations.push(FieldViolation::new(
-                    format!("{path}.order"),
-                    "is required for move",
-                )),
-                ("hide", Some(_)) => violations.push(FieldViolation::new(
-                    format!("{path}.order"),
-                    "is only allowed for move",
-                )),
-                _ => {}
-            }
-        }
-    }
-
-    fn validate_conflicts(
-        &self,
-        compiled_modules: &[String],
-        violations: &mut Vec<FieldViolation>,
-    ) {
-        if self.conflicts_with.len() > MAX_CONFLICTS {
-            violations.push(FieldViolation::new(
-                "conflicts_with",
-                format!("at most {MAX_CONFLICTS} modules"),
-            ));
-        }
-        let mut seen = std::collections::HashSet::new();
-        for (index, module) in self.conflicts_with.iter().enumerate() {
-            let path = format!("conflicts_with[{index}]");
-            if !seen.insert(module.as_str()) {
-                violations.push(FieldViolation::new(path, "is listed twice"));
-            } else if module == &self.key {
-                violations.push(FieldViolation::new(path, "cannot conflict with itself"));
-            } else if !compiled_modules.iter().any(|compiled| compiled == module) {
-                violations.push(FieldViolation::new(path, "is not a built-in module"));
-            }
         }
     }
 
