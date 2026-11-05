@@ -1,7 +1,8 @@
+import { CONTACT_RECORD_TYPE } from './resource'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 import { type RecordsPage as Page, recordsKeys } from '@/sdk'
-import { CONTACT_RECORD_TYPE, type ContactCompanyRole } from './resource'
+import { type ContactCompanyRole } from '@/sdk'
 
 export interface ContactCompanyLink {
   company: { id: string; name: string; domain?: string | null }

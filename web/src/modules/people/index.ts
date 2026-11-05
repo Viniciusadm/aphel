@@ -1,3 +1,4 @@
+import { CONTACTS_PATH, CONTACT_RECORD_TYPE } from './resource'
 import { PeopleDashboardEventLabel } from './dashboard/EventLabel'
 import { createElement } from 'react'
 import { PeopleSummary } from './dashboard/Summary'
@@ -5,7 +6,6 @@ import { UserPlus, Users } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { ContactQuickForm } from './ContactQuickForm'
 import { CreateContactDialog } from './create-action'
-import { CONTACTS_PATH, CONTACT_RECORD_TYPE } from './resource'
 import { contactsRoutes } from './routes'
 
 const contactsModule = defineModule({

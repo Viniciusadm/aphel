@@ -1,3 +1,4 @@
+import { CONTACT_CREATE_LAYOUT, CONTACT_RECORD_TYPE, contactResource } from './resource'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,7 +6,6 @@ import { useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { RecordFormDialog, RecordListView } from '@/sdk'
-import { CONTACT_CREATE_LAYOUT, CONTACT_RECORD_TYPE, contactResource } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 

@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { DEFAULT_READ_ONLY_FIELD_KEYS, RecordDetailPage, type RecordTab } from '@/sdk'
-import { RecordLifecycleActions, useProfileTimeline } from '@/modules/people/profile'
+import {RecordLifecycleActions, useProfileTimeline} from '@/sdk'
 import { CompanyContactsTab } from './CompanyContactsTab'
 import { CompanyGroupTab } from './hierarchy'
 import { COMPANIES_PATH, COMPANY_RECORD_TYPE } from './resource'
-import '@/modules/people/resource'
 
 const READ_ONLY_KEYS = [...DEFAULT_READ_ONLY_FIELD_KEYS, 'created_by']
 

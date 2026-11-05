@@ -6,9 +6,8 @@ import { useSession } from '@/app/session/session-context'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
-import { type RecordItem, RecordListView } from '@/sdk'
+import { type RecordItem, RecordListView, recordDetailHref } from '@/sdk'
 import { Overridable } from '@/kernel/modules/Overridable'
-import { contactResource } from '@/modules/people/resource'
 import { useLeadActions } from './api'
 import { CONTACT_RECORD_TYPE, LEAD_INBOX_FILTER, LEADS_REPORT_PATH } from './constants'
 import { ConvertLeadDialog } from './ConvertLeadDialog'
@@ -105,7 +104,10 @@ export function LeadsPage() {
       <RecordListView
         recordType={CONTACT_RECORD_TYPE}
         baseFilter={LEAD_INBOX_FILTER}
-        onRowClick={(record) => void navigate(contactResource.detailPath!(record.id))}
+        onRowClick={(record) => {
+          const href = recordDetailHref('people.person', record.id)
+          if (href) void navigate(href)
+        }}
         titleAddon={actions}
       />
       <DisqualifyLeadDialog lead={disqualifying} onOpenChange={(open) => !open && setDisqualifying(null)} />

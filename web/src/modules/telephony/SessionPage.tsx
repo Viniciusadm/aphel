@@ -13,8 +13,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
-import { contactResource } from '@/modules/people/resource'
-import { type RecordItem, Timeline, recordPath, recordTimelineSource, recordTitle, recordsKeys } from '@/sdk'
+import { type RecordItem, Timeline, recordDetailHref, recordPath, recordTimelineSource, recordTitle, recordsKeys, requireRecordResource } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { callsApi, callsKeys, useCallOutcomes, useInvalidateCalls, useTelephonyProviders } from './api'
 import { CallForm } from './components/CallForm'
@@ -27,6 +26,10 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
 const CONTACT = 'people.person'
+
+function contactResource() {
+  return requireRecordResource('people.person')
+}
 
 export function SessionPage() {
   const { t } = useTranslation('telephony')
@@ -178,7 +181,7 @@ function CurrentContact({ session, item, busy, onSkip, onBack, onLogged }: Curre
   const providers = useTelephonyProviders()
   const contact = useQuery({
     queryKey: recordsKeys.detail(CONTACT, item.contact_id),
-    queryFn: () => api.get<RecordItem>(recordPath(contactResource, item.contact_id)),
+    queryFn: () => api.get<RecordItem>(recordPath(contactResource(), item.contact_id)),
   })
   const [values, setValues] = useState<CallFormValues>(EMPTY_CALL_FORM)
   const [outcomeError, setOutcomeError] = useState(false)
@@ -188,8 +191,8 @@ function CurrentContact({ session, item, busy, onSkip, onBack, onLogged }: Curre
   const phones = [textValue(contact.data, 'mobile'), textValue(contact.data, 'phone')].filter(
     (phone): phone is string => phone !== null,
   )
-  const title = contact.data ? recordTitle(contactResource, contact.data) : (item.contact_name ?? t('session.unknownContact'))
-  const detailHref = contactResource.detailPath?.(item.contact_id)
+  const title = contact.data ? recordTitle(contactResource(), contact.data) : (item.contact_name ?? t('session.unknownContact'))
+  const detailHref = recordDetailHref('people.person', item.contact_id)
   const provider = providers.data?.[0]
 
   const dial = async (phone: string) => {

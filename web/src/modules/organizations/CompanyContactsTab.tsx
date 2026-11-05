@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { CONTACT_COMPANY_ROLES } from '@/modules/people/resource'
+import {CONTACT_COMPANY_ROLES} from '@/sdk'
 import { useCompanyContacts } from './api'
 
 export interface CompanyContactsTabProps {

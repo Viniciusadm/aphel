@@ -1,3 +1,4 @@
+import { CONTACTS_PATH, CONTACT_RECORD_TYPE } from './resource'
 import { Building2 } from 'lucide-react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,9 +6,7 @@ import { useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { DEFAULT_READ_ONLY_FIELD_KEYS, RecordDetailPage, type RecordTab } from '@/sdk'
 import { ContactCompaniesTab } from './ContactCompaniesTab'
-import { RecordLifecycleActions, useProfileTimeline } from './profile'
-import { CONTACTS_PATH, CONTACT_RECORD_TYPE } from './resource'
-import '@/modules/organizations/resource'
+import { RecordLifecycleActions, useProfileTimeline } from '@/sdk'
 
 const READ_ONLY_KEYS = [...DEFAULT_READ_ONLY_FIELD_KEYS, 'name', 'created_by']
 

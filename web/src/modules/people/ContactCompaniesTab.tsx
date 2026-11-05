@@ -12,7 +12,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/sdk'
 import { useContactCompanies, useContactCompanyMutations, type ContactCompanyLink } from './api'
-import { CONTACT_COMPANY_ROLES } from './resource'
+import { CONTACT_COMPANY_ROLES } from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface ContactCompaniesTabProps {
