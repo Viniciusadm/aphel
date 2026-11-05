@@ -70,7 +70,7 @@ fn versions(
 pub(crate) struct TemplateInstaller;
 
 #[async_trait::async_trait]
-impl aphel_kernel::application::installer::BlueprintConfigurator for TemplateInstaller {
+impl aphel_sdk::platform::application::installer::BlueprintConfigurator for TemplateInstaller {
     async fn apply_template(&self, ctx: &Ctx<'_>, template: &str) -> Result<(), AppError> {
         let source = PackageSource::Template(template.to_owned());
         let use_cases = packages(ctx);

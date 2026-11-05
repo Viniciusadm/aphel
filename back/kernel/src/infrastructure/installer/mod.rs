@@ -72,7 +72,7 @@ impl InstallationRepository for MySqlInstallationRepository {
             }
         }
         let enabled: Vec<String> = modules.iter().map(|module| module.key.clone()).collect();
-        crate::infrastructure::defaults::seed_defaults(&mut **tx, &enabled).await?;
+        crate::infrastructure::defaults::seed_defaults(tx, &enabled).await?;
         Ok(())
     }
 
