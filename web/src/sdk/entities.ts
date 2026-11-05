@@ -31,3 +31,8 @@ export function useEntityLabel(recordType: string): string {
   const entities = useEntities()
   return entityLabel(entities.data?.find((entity) => entity.record_type === recordType), i18n.language, recordType)
 }
+
+export function useEntityHasTrait(recordType: string, trait: string): boolean {
+  const entities = useEntities()
+  return Boolean(entities.data?.find((entity) => entity.record_type === recordType)?.traits[trait])
+}

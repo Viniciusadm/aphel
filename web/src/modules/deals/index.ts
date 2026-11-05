@@ -10,7 +10,9 @@ import { dealReportRoutes } from './reports/routes'
 import { LineItemAmountLock } from './LineItemAmountLock'
 import { RottingDealBadge } from './RottingDealBadge'
 import { Briefcase, Users, UsersRound } from 'lucide-react'
-import { SETTINGS_MANAGE, rottingOf } from '@/sdk'
+import { SETTINGS_MANAGE, rottingOf, useEntityHasTrait } from '@/sdk'
+
+const PARTY_TRAIT = 'party.contact_points'
 import { defineModule } from '@/kernel/modules/define'
 import { CreateDealDialog } from './create-action'
 import { DealTeamRecordTab, RelatedDealsTab } from './record-tabs'
@@ -77,8 +79,9 @@ const dealsModule = defineModule({
       order: 110,
       routes: [dealMemberRolesSettingsRoute],
     })
-    app.recordSection(['people.person', 'organizations.organization'], {
+    app.recordSection(() => true, {
       key: 'deals',
+      useVisible: ({ recordType }) => useEntityHasTrait(recordType, PARTY_TRAIT),
       group: 'relationships',
       label: 'related.tab',
       icon: Briefcase,
