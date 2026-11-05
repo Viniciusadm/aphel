@@ -523,6 +523,24 @@ The standard library of `wasm32-wasip2` imports WASI interfaces. The host provid
 
 **Catalog constants.** `aphel_plugin_sdk::operations::NOTES_CREATE` and `aphel_plugin_sdk::domain_hooks::DEAL_WINNING` (JavaScript: `operations.NOTES_CREATE`, `domainHooks.DEAL_WINNING`) are generated from the compiled build's catalog by `make catalog-docs` (`aphel catalog --sdk rust|js|js-types`). They carry keys only; typed inputs and outputs wait for the operation schemas.
 
+### Taking over the HTTP paths of a replaced module
+
+A plugin that holds a native module through `provides.contracts` can keep that module's HTTP API by declaring `[aliases]`, a map from a native path prefix (under `/api/v1`) to the plugin route prefix that serves it:
+
+```toml
+[provides]
+contracts = ["reminders@1"]
+
+[aliases]
+"/reminders" = "/reminders"      # /api/v1/reminders[/…] → the plugin route /reminders[/…]
+
+[[routes]]
+method = "GET"
+path = "/reminders/{id}"
+```
+
+While the module is disabled by the hold, requests to the native prefix run through the plugin's route table with the caller's session or token (the plugin must answer with the same envelope as the native API, for example `{ "data": … }`). Aliases are refused on plugins that hold no module, and never apply while the native module is enabled.
+
 ### Shapes you will need
 
 - **Record JSON.** `ctx.records().get/list/create/update` return records like `{ "id", "record_type", "title", "owner_id", "created_at", "updated_at", "custom_fields": { … } }`; the values of a plugin entity's declared fields live in `custom_fields.<key>` (a `select` is its option `value`, an empty reference or value is `null`). Writes take the same nesting: `{ "custom_fields": { "status": "on_loan" }, "owner_id": "<user id>" }`.

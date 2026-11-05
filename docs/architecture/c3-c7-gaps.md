@@ -31,4 +31,9 @@ Checked on 2026-11-05 with `reminders`, rewritten as the WebAssembly plugin `aph
   - A provided operation ran with the consumer's restricted scope, which lacks the provider's own entity permissions. It now runs with the original actor's scope (already limited by an API token, if any) intersected with the provider's capabilities, as documented.
   - The `notify` effect required `data` although the guide lists it as optional.
 
-What this does not cover: the HTTP routes of the native module (`/api/v1/reminders`) disappear while the plugin holds it, because plugin routes live under `/api/v1/p/<key>/`; the two task-bound deliveries of the native module (reminder before a task is due, tasks due today) are not reimplemented; widget keys and web screens of other modules would still carry the plugin prefix.
+Follow-up, same day: the two gaps that were left for the reminders case are closed.
+
+- **HTTP paths.** `[aliases]` in `plugin.toml` maps a native path prefix to a plugin route prefix; the module gate hands requests of a held module to the plugin's route table (`RouteTakeover` in the kernel, implemented by `wasm_runtime`). With `aphel-reminders-alt` 0.2.0, `POST/GET/PATCH/DELETE /api/v1/reminders` were served by the plugin with the native envelope, and the native paths worked again after uninstalling it.
+- **Task-bound deliveries.** The plugin reads open tasks through the generic `tasks.task` entity and sends a reminder before each due time and a morning notice (08:00 in the organization time zone) as its own notification kinds (`reminders_alt_task_reminder`, `reminders_alt_task_due_today`). The reminder before due was delivered; the morning notice has the same code path but was not run because it fires at one hour of the day. The plugin's kinds differ from the native `task_due` kind, so users' notification preferences for `task_due` do not apply to them.
+
+What is still not transparent: widget keys and web screens of a replaced module keep the plugin prefix (no alias mechanism for them yet), which does not matter for `reminders` because it has no web screens or widgets.

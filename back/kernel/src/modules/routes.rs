@@ -17,14 +17,32 @@ pub fn module_disabled() -> AppError {
     AppError::not_found_code(MODULE_DISABLED, "this module is disabled")
 }
 
+pub trait RouteTakeover: Send + Sync {
+    fn take<'a>(
+        &'a self,
+        state: &'a AppState,
+        module: &'static str,
+        request: Request,
+    ) -> futures::future::BoxFuture<'a, Result<Response, Request>>;
+}
+
 #[derive(Clone)]
 struct ModuleGate {
     enabled: Arc<EnabledModules>,
     module: &'static str,
+    state: Option<AppState>,
 }
 
-async fn gate(State(gate): State<ModuleGate>, request: Request, next: Next) -> Response {
+async fn gate(State(gate): State<ModuleGate>, mut request: Request, next: Next) -> Response {
     if !gate.enabled.is_enabled(gate.module) {
+        if let Some(state) = &gate.state {
+            for takeover in crate::modules::app().contributions::<dyn RouteTakeover>() {
+                match takeover.take(state, gate.module, request).await {
+                    Ok(response) => return response,
+                    Err(returned) => request = returned,
+                }
+            }
+        }
         return app_error(module_disabled());
     }
     next.run(request).await
@@ -33,6 +51,15 @@ async fn gate(State(gate): State<ModuleGate>, request: Request, next: Next) -> R
 impl App {
     pub fn module_router(
         &self,
+        module: &'static str,
+        router: OpenApiRouter<AppState>,
+    ) -> OpenApiRouter<AppState> {
+        self.module_router_for(None, module, router)
+    }
+
+    pub fn module_router_for(
+        &self,
+        state: Option<&AppState>,
         module: &'static str,
         mut router: OpenApiRouter<AppState>,
     ) -> OpenApiRouter<AppState> {
@@ -44,6 +71,7 @@ impl App {
             ModuleGate {
                 enabled: self.enabled().clone(),
                 module,
+                state: state.cloned(),
             },
             gate,
         ))
@@ -53,8 +81,11 @@ impl App {
         let mut api = OpenApiRouter::new();
         let mut root = OpenApiRouter::new();
         for contribution in self.route_contributions() {
-            let router =
-                self.module_router(contribution.module, (contribution.item.factory)(state));
+            let router = self.module_router_for(
+                Some(state),
+                contribution.module,
+                (contribution.item.factory)(state),
+            );
             match contribution.item.mount {
                 RouteMount::Api | RouteMount::Public => api = api.merge(router),
                 RouteMount::Root => root = root.merge(router),

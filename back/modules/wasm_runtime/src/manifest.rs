@@ -87,6 +87,8 @@ pub struct PluginManifest {
     #[serde(default)]
     pub routes: Vec<RouteSpec>,
     #[serde(default)]
+    pub aliases: std::collections::BTreeMap<String, String>,
+    #[serde(default)]
     pub settings: Vec<SettingSpec>,
     #[serde(default)]
     pub requires: Vec<String>,
@@ -912,6 +914,20 @@ impl PluginManifest {
             violations.push(FieldViolation::new(
                 "emits",
                 format!("can list at most {MAX_EMITS} events"),
+            ));
+        }
+        for (native, plugin_path) in &self.aliases {
+            if !native.starts_with('/') || !plugin_path.starts_with('/') {
+                violations.push(FieldViolation::new(
+                    format!("aliases.{native}"),
+                    "paths must start with /",
+                ));
+            }
+        }
+        if !self.aliases.is_empty() && crate::modules::held_modules(self).is_empty() {
+            violations.push(FieldViolation::new(
+                "aliases",
+                "aliases need `provides.contracts` that holds a native module",
             ));
         }
         for (path, message) in self.provides.violations(&self.contribute) {

@@ -1466,16 +1466,16 @@ async fn serve_public_app(state: &AppState, key: &str, path: &str) -> Result<Res
     Ok(response)
 }
 
-struct RouteCall {
-    method: Method,
-    key: String,
-    path: String,
-    query: Option<String>,
-    headers: HeaderMap,
-    body: Bytes,
+pub(crate) struct RouteCall {
+    pub(crate) method: Method,
+    pub(crate) key: String,
+    pub(crate) path: String,
+    pub(crate) query: Option<String>,
+    pub(crate) headers: HeaderMap,
+    pub(crate) body: Bytes,
 }
 
-async fn serve_route(
+pub(crate) async fn serve_route(
     state: &AppState,
     call: RouteCall,
     caller: Option<&AccessScope>,

@@ -25,6 +25,7 @@ pub mod runtime;
 pub mod schedule;
 pub mod schema;
 pub mod store;
+pub mod takeover;
 pub mod widgets;
 
 use std::sync::Arc;
@@ -70,6 +71,9 @@ impl Module for WasmRuntimeModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::platform::modules::RouteTakeover>(std::sync::Arc::new(
+            takeover::AliasTakeover,
+        ));
         app.provide::<dyn aphel_sdk::platform::infrastructure::deferred_authority::DeferredPluginPolicy>(
             std::sync::Arc::new(registry::DeferredPluginPolicy),
         );

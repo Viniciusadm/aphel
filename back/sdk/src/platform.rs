@@ -32,6 +32,7 @@ pub mod infrastructure {
 }
 
 pub mod modules {
+    pub use aphel_kernel::modules::RouteTakeover;
     pub use aphel_kernel::modules::{
         app, builder, connect_with_modules, module_disabled, module_settings, operations,
         plugin_bridge, runtime, runtime_catalog, toggle_guard, try_app, unified_catalog,

@@ -48,7 +48,7 @@ pub use points::{
     FileReferenceSource, HealthSource, HttpRequestPolicy, ReferenceKeySource, ReferenceProvider,
     lookup_exists,
 };
-pub use routes::{MODULE_DISABLED, module_disabled};
+pub use routes::{MODULE_DISABLED, RouteTakeover, module_disabled};
 pub use runtime_contribution::RuntimeContribution;
 pub use services::Services;
 pub use settings::{module_secret_key, module_settings};
