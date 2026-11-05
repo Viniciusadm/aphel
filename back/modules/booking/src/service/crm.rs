@@ -43,7 +43,8 @@ pub(crate) async fn host_scope(
 pub(crate) async fn find_contact_by_email(
     ctx: &Ctx<'_>,
     email: &str,
-) -> Result<Option<Uuid>, AppError> {
+) -> Result<Option<(String, Uuid)>, AppError> {
+    use aphel_sdk::party::{ContactPointKind, PartyTraits};
     let query = RecordQuery {
         filter: Some(Filter::condition(
             "email",
@@ -56,15 +57,59 @@ pub(crate) async fn find_contact_by_email(
         },
         ..RecordQuery::default()
     };
-    Ok(
-        aphel_sdk::record_context::list(ctx, aphel_sdk::people::RECORD_TYPE, query)
-            .await?
+    if let Some(id) = aphel_sdk::record_context::list(ctx, aphel_sdk::people::RECORD_TYPE, query)
+        .await?
+        .items
+        .first()
+        .and_then(|record| record.get("id"))
+        .and_then(|id| id.as_str())
+        .and_then(|id| Uuid::parse_str(id).ok())
+    {
+        return Ok(Some((aphel_sdk::people::RECORD_TYPE.to_owned(), id)));
+    }
+    let party_types: Vec<(String, String)> = ctx
+        .registry()
+        .definitions()
+        .filter(|definition| definition.record_type.as_str() != aphel_sdk::people::RECORD_TYPE)
+        .filter_map(|definition| {
+            let field = definition
+                .capabilities
+                .contact_points()?
+                .fields(ContactPointKind::Email)
+                .next()?
+                .to_owned();
+            Some((definition.record_type.as_str().to_owned(), field))
+        })
+        .collect();
+    for (record_type, field) in party_types {
+        let listing = aphel_sdk::record_context::list(
+            ctx,
+            &record_type,
+            RecordQuery {
+                filter: Some(Filter::condition(
+                    &field,
+                    FilterOperator::Eq,
+                    json!(email.to_lowercase()),
+                )),
+                window: ListWindow {
+                    offset: 0,
+                    limit: 1,
+                },
+                ..RecordQuery::default()
+            },
+        )
+        .await?;
+        if let Some(id) = listing
             .items
             .first()
             .and_then(|record| record.get("id"))
             .and_then(|id| id.as_str())
-            .and_then(|id| Uuid::parse_str(id).ok()),
-    )
+            .and_then(|id| Uuid::parse_str(id).ok())
+        {
+            return Ok(Some((record_type, id)));
+        }
+    }
+    Ok(None)
 }
 
 pub(crate) async fn meeting_activity_type(

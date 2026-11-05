@@ -41,7 +41,7 @@ mt.is_active, mt.created_at, mt.updated_at \
 FROM meeting_types mt JOIN users u ON u.id = mt.owner_id ";
 
 const BOOKING_COLUMNS: &str = "SELECT b.id, b.meeting_type_id, mt.name AS meeting_type_name, b.host_user_id, \
-u.display_name AS host_name, b.contact_id, b.activity_id, b.status, b.starts_at, b.ends_at, b.guest_name, \
+u.display_name AS host_name, b.record_type, b.contact_id, b.activity_id, b.status, b.starts_at, b.ends_at, b.guest_name, \
 b.guest_email, b.guest_timezone, b.guest_locale, b.answers, b.revision, b.cancel_reason, b.canceled_at, \
 b.created_at, b.updated_at \
 FROM meeting_bookings b JOIN meeting_types mt ON mt.id = b.meeting_type_id \
@@ -201,6 +201,7 @@ fn booking_from(row: &MySqlRow) -> Result<Booking, AppError> {
         meeting_type_name: row.try_get("meeting_type_name")?,
         host_user_id: mapper::typed_id(row.try_get("host_user_id")?, UserId::new)?,
         host_name: row.try_get("host_name")?,
+        record_type: row.try_get("record_type")?,
         contact_id: optional_uuid(row, "contact_id")?,
         activity_id: optional_uuid(row, "activity_id")?,
         status: BookingStatus::parse(&status)
@@ -685,14 +686,15 @@ impl BookingStore {
         booking: &Booking,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO meeting_bookings (id, meeting_type_id, host_user_id, contact_id, \
+            "INSERT INTO meeting_bookings (id, meeting_type_id, host_user_id, record_type, contact_id, \
              activity_id, status, starts_at, ends_at, guest_name, guest_email, guest_timezone, guest_locale, \
              answers, revision, created_at, updated_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(booking.id.to_string())
         .bind(booking.meeting_type_id.to_string())
         .bind(booking.host_user_id.as_str())
+        .bind(&booking.record_type)
         .bind(booking.contact_id.map(|id| id.to_string()))
         .bind(booking.activity_id.map(|id| id.to_string()))
         .bind(booking.status.as_str())

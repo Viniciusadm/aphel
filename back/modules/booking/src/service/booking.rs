@@ -553,7 +553,10 @@ async fn publish_meeting(
         ends_at: booking.ends_at,
     };
     let event = DomainEvent::new(actor.clone(), event_type, now)
-        .with_record(RecordRef::new(RecordType::CONTACT, contact_id))
+        .with_record(RecordRef::new(
+            RecordType::parse(&booking.record_type).unwrap_or(RecordType::CONTACT),
+            contact_id,
+        ))
         .with_payload(payload.to_value());
     let entry = AuditEntry::new(actor, event_type, now)
         .with_record(RecordRef::new(BOOKING_RECORD, booking.id))
@@ -598,6 +601,7 @@ pub(crate) async fn book(
         meeting_type_name: meeting_type.name.clone(),
         host_user_id: host.user_id.clone(),
         host_name: host.name.clone(),
+        record_type: aphel_sdk::people::RECORD_TYPE.to_owned(),
         contact_id: None,
         activity_id: None,
         status: BookingStatus::Confirmed,
@@ -625,6 +629,7 @@ pub(crate) async fn book(
         command.ip.clone(),
     )
     .await?;
+    booking.record_type = records.record_type.clone();
     booking.contact_id = Some(records.contact_id);
     booking.activity_id = Some(records.activity_id);
     BookingStore::of(ctx)
@@ -690,6 +695,7 @@ async fn confirm(
 }
 
 struct BookingRecords {
+    record_type: String,
     contact_id: Uuid,
     activity_id: Uuid,
     created_contact: Option<PendingCommit>,
@@ -858,9 +864,11 @@ async fn find_or_create_contact(
     meeting_type: &MeetingType,
     booking: &Booking,
     ip: Option<String>,
-) -> Result<(Uuid, Option<PendingCommit>), AppError> {
-    if let Some(contact_id) = crm::find_contact_by_email(ctx, &booking.guest_email).await? {
-        return Ok((contact_id, None));
+) -> Result<(String, Uuid, Option<PendingCommit>), AppError> {
+    if let Some((record_type, contact_id)) =
+        crm::find_contact_by_email(ctx, &booking.guest_email).await?
+    {
+        return Ok((record_type, contact_id, None));
     }
     let (first_name, last_name) = split_name(&booking.guest_name);
     let mut input = Map::from_iter([
@@ -918,7 +926,11 @@ async fn find_or_create_contact(
         }
         Err(error) => return Err(error),
     };
-    Ok((created.record.record_id, Some(created)))
+    Ok((
+        aphel_sdk::people::RECORD_TYPE.to_owned(),
+        created.record.record_id,
+        Some(created),
+    ))
 }
 
 async fn create_records(
@@ -929,7 +941,7 @@ async fn create_records(
     booking: &Booking,
     ip: Option<String>,
 ) -> Result<BookingRecords, AppError> {
-    let (contact_id, created_contact) =
+    let (record_type, contact_id, created_contact) =
         find_or_create_contact(ctx, tx, host, meeting_type, booking, ip.clone()).await?;
     let activity_type_id = crm::meeting_activity_type(ctx, ctx.scope)
         .await?
@@ -945,7 +957,10 @@ async fn create_records(
             activity_type_id,
             title: activity_title(meeting_type, booking),
             owner_id: host.user_id.clone(),
-            record: RecordRef::new(RecordType::CONTACT, contact_id),
+            record: RecordRef::new(
+                RecordType::parse(&record_type).unwrap_or(RecordType::CONTACT),
+                contact_id,
+            ),
             starts_at: booking.starts_at,
             duration_minutes: meeting_type.duration_minutes,
             description: Some(activity_description(meeting_type, booking)),
@@ -954,6 +969,7 @@ async fn create_records(
     )
     .await?;
     Ok(BookingRecords {
+        record_type,
         contact_id,
         activity_id,
         created_contact,

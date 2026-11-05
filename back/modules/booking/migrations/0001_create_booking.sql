@@ -40,6 +40,7 @@ CREATE TABLE meeting_bookings (
   id CHAR(36) NOT NULL,
   meeting_type_id CHAR(36) NOT NULL,
   host_user_id CHAR(36) NOT NULL,
+  record_type VARCHAR(64) NOT NULL DEFAULT 'people.person',
   contact_id CHAR(36) NULL,
   activity_id CHAR(36) NULL,
   status VARCHAR(16) NOT NULL,

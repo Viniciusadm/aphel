@@ -329,6 +329,7 @@ pub(crate) struct Booking {
     pub(crate) meeting_type_name: String,
     pub(crate) host_user_id: UserId,
     pub(crate) host_name: String,
+    pub(crate) record_type: String,
     pub(crate) contact_id: Option<Uuid>,
     pub(crate) activity_id: Option<Uuid>,
     pub(crate) status: BookingStatus,
