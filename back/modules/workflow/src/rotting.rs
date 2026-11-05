@@ -70,7 +70,7 @@ fn rotting_fields(
                 .iter()
                 .map(|byte| format!("{byte:02x}"))
                 .collect();
-            format!(" AND {field} = CONVERT(X'{encoded}' USING utf8mb4)")
+            format!(" AND {field} = CONVERT(X'{encoded}' USING utf8mb4) COLLATE utf8mb4_unicode_ci")
         }
         _ => String::new(),
     };

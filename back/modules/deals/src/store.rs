@@ -108,7 +108,8 @@ fn deal_from_row(row: &MySqlRow) -> Result<DealRecord, AppError> {
         name: row.try_get("stage_name")?,
         kind: StageKind::parse(&stage_kind)
             .ok_or_else(|| invalid_column("workflow_stages.kind", &stage_kind))?,
-        probability: row.try_get("stage_probability")?,
+        probability: u8::try_from(row.try_get::<i64, _>("stage_probability")?)
+            .map_err(|_| invalid_column("stage_probability", "out of range"))?,
         rotting_days: row.try_get("stage_rotting_days")?,
     };
     let owner = deal
