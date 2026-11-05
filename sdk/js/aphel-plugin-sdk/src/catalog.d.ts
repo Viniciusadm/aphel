@@ -76,6 +76,8 @@ export declare const operations: {
   readonly TAGGING_LIST: 'tagging.list'
   readonly TAGGING_REMOVE: 'tagging.remove'
   readonly TASKS_COMPLETE: 'tasks.complete'
+  readonly TASKS_CREATE: 'tasks.create'
+  readonly TASKS_TYPES: 'tasks.types'
   readonly TELEPHONY_LOG: 'telephony.log'
   readonly TIMELINE_KINDS: 'timeline.kinds'
   readonly TIMELINE_PAGE: 'timeline.page'

@@ -918,9 +918,11 @@ impl PluginManifest {
             violations.push(FieldViolation::new(path, message));
         }
         for (index, operation) in self.provides.operations.iter().enumerate() {
-            if aphel_sdk::platform::modules::try_app()
-                .is_some_and(|app| app.has_native_operation(&operation.key))
-            {
+            let held = crate::modules::held_modules(self);
+            if aphel_sdk::platform::modules::try_app().is_some_and(|app| {
+                app.native_operation_owner(&operation.key)
+                    .is_some_and(|owner| !held.iter().any(|module| module == owner))
+            }) {
                 violations.push(FieldViolation::new(
                     format!("provides.operations[{index}].key"),
                     "is already provided by a built-in module",

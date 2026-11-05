@@ -76,6 +76,8 @@ pub mod operations {
     pub const TAGGING_LIST: &str = "tagging.list";
     pub const TAGGING_REMOVE: &str = "tagging.remove";
     pub const TASKS_COMPLETE: &str = "tasks.complete";
+    pub const TASKS_CREATE: &str = "tasks.create";
+    pub const TASKS_TYPES: &str = "tasks.types";
     pub const TELEPHONY_LOG: &str = "telephony.log";
     pub const TIMELINE_KINDS: &str = "timeline.kinds";
     pub const TIMELINE_PAGE: &str = "timeline.page";

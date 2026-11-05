@@ -722,8 +722,12 @@ impl RuntimeBatch {
         &mut self,
         app: &App,
         entry: crate::modules::operations::OperationEntry,
+        replaced_modules: &[String],
     ) -> Result<(), AppError> {
-        if app.has_native_operation(entry.key) {
+        if app
+            .native_operation_owner(entry.key)
+            .is_some_and(|owner| !replaced_modules.iter().any(|module| module == owner))
+        {
             return Err(AppError::validation_code(
                 "operation_key_taken",
                 format!("operation `{}` is already provided natively", entry.key),
@@ -893,6 +897,20 @@ impl App {
             .into_iter()
             .filter(|contribution| contribution.point == point)
             .collect()
+    }
+
+    pub fn native_operation_owner(&self, key: &str) -> Option<&'static str> {
+        self.contributions
+            .get(&TypeId::of::<Arc<crate::modules::operations::OperationEntry>>())
+            .into_iter()
+            .flatten()
+            .find(|contribution| {
+                contribution
+                    .item
+                    .downcast_ref::<Arc<crate::modules::operations::OperationEntry>>()
+                    .is_some_and(|entry| entry.key == key)
+            })
+            .map(|contribution| contribution.module)
     }
 
     pub fn has_native_operation(&self, key: &str) -> bool {

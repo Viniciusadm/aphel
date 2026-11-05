@@ -5,6 +5,21 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
     contract: contract!("tasks", "1.0.0"),
     entries: &[
         KeyEntry::new(
+            "tasks.create",
+            KeyKind::Operation,
+            "Create a task: { title, activity_type_id, due_at?, owner_id?, record_type?, record_id?, description?, duration_minutes? } -> { id }",
+        ),
+        KeyEntry::new(
+            "tasks.types",
+            KeyKind::Operation,
+            "Active task types: {} -> { items: [{ id, key, name }] }",
+        ),
+        KeyEntry::new(
+            "tasks.complete",
+            KeyKind::Operation,
+            "Mark an open task as done now: { id }",
+        ),
+        KeyEntry::new(
             "tasks.remote_calendars",
             KeyKind::ExtensionPoint,
             "Owner remote calendar connection, availability and synchronization execution",

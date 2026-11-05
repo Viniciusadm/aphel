@@ -113,6 +113,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `tagging.list` | tagging | read | — | Tags of the organization with their usage, optionally only those allowed on a record type: { record_type? } -> { data } |
 | `tagging.remove` | tagging | write | yes | Remove a tag from a record the actor can edit: { record_type, record_id, tag_id } -> { changed, tags } |
 | `tasks.complete` | tasks | write | yes | Mark an open activity as done now: { id } |
+| `tasks.create` | tasks | write | no | Create a task: { title, activity_type_id, due_at?, owner_id?, record_type?, record_id?, description?, duration_minutes? } -> { id } |
+| `tasks.types` | tasks | read | — | Active task types: {} -> { items: [{ id, key, name }] } |
 | `telephony.log` | telephony | write | yes | Log a call as an activity: { outcome_key, record_type?, record_id?, direction?: inbound\|outbound, duration_seconds?, phone_number?, recording_url?, title?, notes?, occurred_at?, provider?, provider_call_id?, custom_fields? } -> the activity |
 | `timeline.kinds` | timeline | read | — | Available timeline kinds and localized labels: { record_type, record_id } |
 | `timeline.page` | timeline | read | — | Owner-authorized record timeline, newest first: { record_type, record_id, cursor?, kinds?: comma-separated contributed keys, per_page? } -> { data, meta: { next_cursor } } |

@@ -76,6 +76,8 @@ export const operations = Object.freeze({
   TAGGING_LIST: 'tagging.list',
   TAGGING_REMOVE: 'tagging.remove',
   TASKS_COMPLETE: 'tasks.complete',
+  TASKS_CREATE: 'tasks.create',
+  TASKS_TYPES: 'tasks.types',
   TELEPHONY_LOG: 'telephony.log',
   TIMELINE_KINDS: 'timeline.kinds',
   TIMELINE_PAGE: 'timeline.page',

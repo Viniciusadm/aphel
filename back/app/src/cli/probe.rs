@@ -241,7 +241,7 @@ fn provided_operations(failures: &mut Vec<String>) {
         }
     };
     let mut batch = aphel_kernel::modules::RuntimeBatch::new();
-    if let Err(error) = batch.add_operation(app, runtime_operation_entry(KEY)) {
+    if let Err(error) = batch.add_operation(app, runtime_operation_entry(KEY), &[]) {
         failures.push(format!(
             "provided operations: a new key must be accepted: {error}"
         ));
@@ -260,7 +260,7 @@ fn provided_operations(failures: &mut Vec<String>) {
     };
     let mut shadow = aphel_kernel::modules::RuntimeBatch::new();
     if shadow
-        .add_operation(app, runtime_operation_entry(native.key))
+        .add_operation(app, runtime_operation_entry(native.key), &[])
         .is_ok()
     {
         failures.push(format!(

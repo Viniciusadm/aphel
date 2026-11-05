@@ -324,13 +324,14 @@ fn publish_extensions(snapshot: &Snapshot) {
                 continue;
             }
         };
+        let replaced = crate::modules::held_modules(&plugin.manifest);
         for entry in entries {
             let key = entry.key;
             if !provided.insert(key) {
                 tracing::warn!(plugin = %plugin.key, operation = key, "operation already provided by another plugin; skipped");
                 continue;
             }
-            if let Err(error) = batch.add_operation(app, entry) {
+            if let Err(error) = batch.add_operation(app, entry, &replaced) {
                 tracing::warn!(plugin = %plugin.key, operation = key, error = %error, "provided operation skipped");
             }
         }
