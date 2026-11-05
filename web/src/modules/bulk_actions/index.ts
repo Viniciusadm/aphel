@@ -1,6 +1,5 @@
 import { ListChecks } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
-import { BULK_RECORD_TYPES } from './api'
 import { BulkActionBar } from './BulkActionBar'
 
 const bulkActionsModule = defineModule({
@@ -54,7 +53,6 @@ const bulkActionsModule = defineModule({
     })
     app.slot('record.list.bulkActions', {
       key: 'bulk-actions',
-      recordTypes: [...BULK_RECORD_TYPES],
       render: BulkActionBar,
     })
   },

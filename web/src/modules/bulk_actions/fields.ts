@@ -1,12 +1,10 @@
 import { type FieldDefinition, type FieldSchema } from '@/sdk'
-import { BULK_SYSTEM_FIELDS, type BulkRecordType } from './api'
 
 function writable(field: FieldDefinition): boolean {
   return field.access === 'editable' && field.field_type !== 'formula'
 }
 
-export function bulkEditableFields(schema: FieldSchema, recordType: BulkRecordType): FieldDefinition[] {
-  const system = BULK_SYSTEM_FIELDS[recordType]
+export function bulkEditableFields(schema: FieldSchema, system: readonly string[]): FieldDefinition[] {
   return schema.fields
     .filter((field) => field.is_active && writable(field) && (field.is_system ? system.includes(field.key) : true))
     .filter((field) => field.key !== 'owner_id')

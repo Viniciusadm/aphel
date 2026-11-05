@@ -86,6 +86,7 @@ pub fn custom_record_definition(object: &CustomObject) -> Result<EntityDefinitio
             serde_json::from_value(declaration.clone())
                 .map_err(|error| AppError::Configuration(error.to_string()))?;
         definition.capabilities.traits.extend(declaration.traits);
+        definition.capabilities.bulk_fields = declaration.bulk_fields;
         definition.references = declaration.references;
     }
     definition.key = match &object.module_key {

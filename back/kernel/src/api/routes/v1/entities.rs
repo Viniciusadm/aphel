@@ -40,7 +40,8 @@ async fn entities(
             "key":entity.key,"record_type":entity.record_type.as_str(),"storage":entity.storage,"title_field":entity.title_field,
             "labels":entity.capabilities.plural_labels_value().or_else(||entity.custom.as_ref().map(|labels|labels.plural.clone().into())).unwrap_or_else(||entity.record_type.as_str().to_owned().into()),
             "traits":entity.capabilities.traits,"indexes":entity.indexes,"references":entity.references,
-            "permissions":{"read":entity.read_permission.as_str(),"create":create.as_ref().map(|permission|permission.as_str()),"update":update.as_ref().map(|permission|permission.as_str())},
+            "bulk_fields":entity.capabilities.bulk_fields,
+            "permissions":{"read":entity.read_permission.as_str(),"create":create.as_ref().map(|permission|permission.as_str()),"update":update.as_ref().map(|permission|permission.as_str()),"archive":entity.action_permission("archive").as_ref().map(|permission|permission.as_str().to_owned()),"delete":entity.action_permission("delete").as_ref().map(|permission|permission.as_str().to_owned()),"export":entity.action_permission("export").as_ref().map(|permission|permission.as_str().to_owned())},
             "access":{"read":tenant.scope.require(&entity.read_permission).is_ok(),"create":create.is_some_and(|permission|tenant.scope.require(&permission).is_ok()),"update":update.is_some_and(|permission|tenant.scope.require(&permission).is_ok())},
         })
     }).collect();

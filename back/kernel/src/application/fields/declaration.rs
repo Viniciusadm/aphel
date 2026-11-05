@@ -11,6 +11,8 @@ pub struct EntityDeclaration {
     pub references: Vec<super::SoftReference>,
     #[serde(default)]
     pub traits: std::collections::BTreeMap<String, Value>,
+    #[serde(default)]
+    pub bulk_fields: Vec<String>,
     pub key: String,
     pub label: String,
     pub label_plural: String,
@@ -264,6 +266,7 @@ impl EntityDeclaration {
             }
         }
         definition.capabilities.traits.extend(self.traits.clone());
+        definition.capabilities.bulk_fields = self.bulk_fields.clone();
         definition.check()?;
         Ok(definition)
     }

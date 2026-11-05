@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { type BulkActionContext, NativeSelect, recordsKeys, useFieldSchema, useOrganizationUsers } from '@/sdk'
+import { type BulkActionContext, NativeSelect, recordsKeys, useBulkEntity, useFieldSchema, useOrganizationUsers } from '@/sdk'
 import type { ReferenceOption } from '@/kernel/modules/define'
 import { useReferenceQueryKeys } from '@/kernel/modules/reference-options'
 import { ReferenceOptions } from '@/kernel/modules/ReferenceOptions'
@@ -261,7 +261,11 @@ function TagsForm({ recordType, onChange }: DraftFormProps & { recordType: BulkR
 function FieldForm({ recordType, onChange }: DraftFormProps & { recordType: BulkRecordType }) {
   const { t } = useTranslation('bulk_actions')
   const schema = useFieldSchema(recordType)
-  const fields = useMemo(() => (schema.data ? bulkEditableFields(schema.data, recordType) : []), [schema.data, recordType])
+  const bulkFields = useBulkEntity(recordType)?.bulk_fields
+  const fields = useMemo(
+    () => (schema.data ? bulkEditableFields(schema.data, bulkFields ?? []) : []),
+    [schema.data, bulkFields],
+  )
   const [fieldKey, setFieldKey] = useState('')
   const [value, setValue] = useState<unknown>(null)
   const field = fields.find((candidate) => candidate.key === fieldKey)

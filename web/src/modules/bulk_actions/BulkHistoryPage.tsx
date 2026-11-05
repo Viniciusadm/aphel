@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import { BulkResult } from './BulkResult'
-import { HISTORY_PAGE_SIZE, bulkApi, bulkKeys, isBulkRecordType, useBulkHistory, type BulkOperation } from './api'
+import { HISTORY_PAGE_SIZE, bulkApi, bulkKeys, useBulkHistory, type BulkOperation } from './api'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
@@ -48,7 +48,7 @@ export function BulkHistoryPage() {
   }
 
   const recordTypeLabel = (recordType: string) =>
-    isBulkRecordType(recordType) ? t(`history.recordTypes.${recordType}`) : recordType
+    t(`history.recordTypes.${recordType}`, { defaultValue: recordType })
 
   return (
     <Page>

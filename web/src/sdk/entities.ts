@@ -6,7 +6,15 @@ export interface EntityDescriptor {
   key: string
   record_type: string
   labels?: Record<string, string>
-  permissions: { read: string; create: string | null; update: string | null }
+  permissions: {
+    read: string
+    create: string | null
+    update: string | null
+    archive?: string | null
+    delete?: string | null
+    export?: string | null
+  }
+  bulk_fields?: string[]
   access: { read: boolean; create: boolean; update: boolean }
   traits: Record<string, unknown>
 }
@@ -35,4 +43,10 @@ export function useEntityLabel(recordType: string): string {
 export function useEntityHasTrait(recordType: string, trait: string): boolean {
   const entities = useEntities()
   return Boolean(entities.data?.find((entity) => entity.record_type === recordType)?.traits[trait])
+}
+
+export function useBulkEntity(recordType: string): EntityDescriptor | undefined {
+  const entities = useEntities()
+  const entity = entities.data?.find((candidate) => candidate.record_type === recordType)
+  return entity?.bulk_fields && entity.bulk_fields.length > 0 ? entity : undefined
 }

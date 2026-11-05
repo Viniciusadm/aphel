@@ -21,10 +21,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { type BulkActionContext } from '@/sdk'
+import { type BulkActionContext, useBulkEntity } from '@/sdk'
 import { useHasReferenceOptions } from '@/kernel/modules/reference-options'
 import { lazyComponent } from '@/lib/lazy-component'
-import { bulkPermission, isBulkRecordType, type BulkRecordType } from './api'
+import { bulkPermission, type BulkRecordType } from './api'
 import type { BulkActionKind } from './BulkActionDialog'
 
 const BulkActionDialog = lazyComponent(async () => (await import('./BulkActionDialog')).BulkActionDialog)
@@ -71,10 +71,11 @@ export function BulkActionBar(context: BulkActionContext) {
     sequence: useHasReferenceOptions('sequence'),
   }
   const recordType = context.recordType
-  if (!isBulkRecordType(recordType)) return null
+  const entity = useBulkEntity(recordType)
+  if (!entity) return null
 
   const allowed = (entry: MenuEntry, type: BulkRecordType) =>
-    (entry.requires ? hasPermission(entry.requires) : hasPermission(bulkPermission(type, entry.permission))) &&
+    (entry.requires ? hasPermission(entry.requires) : hasPermission(bulkPermission(entity, entry.permission))) &&
     (!entry.dealsOnly || type === 'deals.deal') &&
     (!entry.contactsOnly || type === 'people.person') &&
     (!entry.reference || references[entry.reference])
