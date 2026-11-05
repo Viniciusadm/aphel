@@ -2,7 +2,7 @@ import { Check, Clock, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
-import type { ApprovalRequestStep } from '../types'
+import type {ApprovalRequestStep} from '@/sdk'
 import { ApprovalStepBadge } from './StatusBadge'
 
 export interface ApprovalStepsProps {

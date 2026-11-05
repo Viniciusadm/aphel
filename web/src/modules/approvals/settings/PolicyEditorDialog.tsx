@@ -12,18 +12,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { FilterBuilder, NativeSelect, activeFields, emptyGroup, useCustomObjects, useFieldSchema, usePipelines } from '@/sdk'
-import { approvalsApi, usePolicyMutation, useQuoteRecordTypeAvailable } from '../api'
-import {
-  CONDITION_KINDS,
-  CORE_RECORD_TYPES,
-  DEAL_RECORD_TYPE,
-  MAX_DUE_HOURS,
-  MIN_DUE_HOURS,
-  QUOTE_RECORD_TYPE,
-} from '../constants'
-import { approvalErrorKey } from '../errors'
+import {approvalsApi, usePolicyMutation, useQuoteRecordTypeAvailable} from '@/sdk'
+import {CONDITION_KINDS, CORE_RECORD_TYPES, DEAL_RECORD_TYPE, MAX_DUE_HOURS, MIN_DUE_HOURS, QUOTE_RECORD_TYPE} from '@/sdk'
+import {approvalErrorKey} from '@/sdk'
 import { useRecordTypeLabel } from '../lib/labels'
-import type { ApprovalMoment, ApprovalPolicy, ConditionKind } from '../types'
+import type {ApprovalMoment, ApprovalPolicy, ConditionKind} from '@/sdk'
 import {
   availableMoments,
   draftFromPolicy,

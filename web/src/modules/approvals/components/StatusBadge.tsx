@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Badge, type BadgeTone } from '@/components/ui/badge'
-import type { ApprovalStatus, ApprovalStepState } from '../types'
+import type {ApprovalStatus, ApprovalStepState} from '@/sdk'
 
 const STATUS_VARIANTS: Record<ApprovalStatus, BadgeTone> = {
   pending: 'warning',

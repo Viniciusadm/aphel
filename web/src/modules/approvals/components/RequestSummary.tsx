@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
-import type { ApprovalRequest } from '../types'
+import type {ApprovalRequest} from '@/sdk'
 
 export function RequestSummary({ request }: { request: ApprovalRequest }) {
   const { t } = useTranslation('approvals')

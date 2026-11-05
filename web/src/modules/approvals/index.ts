@@ -3,28 +3,12 @@ import { defineModule } from '@/kernel/modules/define'
 import { ApprovalRequestsPanel } from './components/ApprovalRequestsPanel'
 import { ApprovalsNavBadge } from './components/ApprovalsNavBadge'
 import { QuoteApprovalsCard } from './components/QuoteApprovalsCard'
-import { APPROVALS_MANAGE_PERMISSION, APPROVALS_PATH, APPROVALS_TAB_KEY, DEAL_RECORD_TYPE } from './constants'
+import {APPROVALS_MANAGE_PERMISSION, APPROVALS_PATH, APPROVALS_TAB_KEY, DEAL_RECORD_TYPE} from '@/sdk'
 import { approvalsRoutes, approvalsSettingsRoute } from './routes'
 
 export { ApprovalRequestsPanel } from './components/ApprovalRequestsPanel'
 export type { ApprovalRequestsPanelProps } from './components/ApprovalRequestsPanel'
-export { RequestApprovalDialog } from './components/RequestApprovalDialog'
-export type { RequestApprovalDialogProps } from './components/RequestApprovalDialog'
 export { ApprovalsNavBadge } from './components/ApprovalsNavBadge'
-export { notifyApprovalGate, notifyApprovalPending, useApprovalGate } from './components/useApprovalGate'
-export type { ApprovalGate } from './components/useApprovalGate'
-export { approvalsApi, approvalsKeys, usePendingApprovalsCount, useRecordApprovalRequests } from './api'
-export { approvalPendingDetails, approvalRequiredDetails, isApprovalGateError } from './errors'
-export {
-  APPROVALS_MANAGE_PERMISSION,
-  APPROVALS_PATH,
-  APPROVALS_SETTINGS_PATH,
-  APPROVALS_TAB_KEY,
-  APPROVAL_PENDING,
-  APPROVAL_REQUIRED,
-  approvalPath,
-} from './constants'
-export type * from './types'
 
 const approvalsModule = defineModule({
   key: 'approvals',

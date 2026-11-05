@@ -2,8 +2,8 @@ import { Ban, Check, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import type { ApprovalDecisionAction } from '../api'
-import type { ApprovalRequest } from '../types'
+import type {ApprovalDecisionAction} from '@/sdk'
+import type {ApprovalRequest} from '@/sdk'
 import { DecisionDialog } from './DecisionDialog'
 
 export interface RequestActionsProps {

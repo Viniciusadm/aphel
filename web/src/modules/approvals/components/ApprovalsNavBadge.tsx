@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { usePendingApprovalsCount } from '../api'
+import {usePendingApprovalsCount} from '@/sdk'
 
 export function ApprovalsNavBadge({ collapsed = false }: { collapsed?: boolean }) {
   const { t } = useTranslation('approvals')

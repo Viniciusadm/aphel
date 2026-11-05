@@ -9,18 +9,12 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, NativeSelect, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
-import { useApprovalInbox } from './api'
+import {useApprovalInbox} from '@/sdk'
 import { ApprovalStatusBadge } from './components/StatusBadge'
-import {
-  APPROVAL_BOXES,
-  APPROVAL_STATUSES,
-  APPROVALS_MANAGE_PERMISSION,
-  APPROVALS_PER_PAGE,
-  approvalPath,
-} from './constants'
+import {APPROVAL_BOXES, APPROVAL_STATUSES, APPROVALS_MANAGE_PERMISSION, APPROVALS_PER_PAGE, approvalPath} from '@/sdk'
 import { useRecordTypeLabel } from './lib/labels'
 import { recordPath } from './lib/record-link'
-import type { ApprovalBox, ApprovalRequest, ApprovalStatus } from './types'
+import type {ApprovalBox, ApprovalRequest, ApprovalStatus} from '@/sdk'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'

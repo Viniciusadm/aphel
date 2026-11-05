@@ -16,8 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { notifyApprovalGate } from '@/modules/approvals/components/useApprovalGate'
-import { isApprovalGateError } from '@/modules/approvals/errors'
+import {notifyApprovalGate} from '@/sdk'
+import {isApprovalGateError} from '@/sdk'
 import { type PipelineStage, type RecordItem, type StageKind, activePipelines, recordsKeys, usePipelines } from '@/sdk'
 import { dealsApi, dealsKeys } from '../api'
 import { LostReasonDialog, type LostReasonChoice } from '../LostReasonDialog'

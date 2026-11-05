@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
-import { useApprovalDecision, type ApprovalDecisionAction } from '../api'
-import { approvalErrorKey } from '../errors'
-import type { ApprovalRequest } from '../types'
+import {useApprovalDecision, type ApprovalDecisionAction} from '@/sdk'
+import {approvalErrorKey} from '@/sdk'
+import type {ApprovalRequest} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface DecisionDialogProps {

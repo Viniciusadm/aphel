@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query'
 import { notifyError } from '@/components/feedback/notify'
-import { isApprovalGateError } from '@/modules/approvals/errors'
+import {isApprovalGateError} from '@/sdk'
 import { recordsKeys } from '@/sdk'
 import { dealsApi } from '../api'
 import { requirementFieldsFromError } from '../requirements'

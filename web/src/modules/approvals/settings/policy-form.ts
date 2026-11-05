@@ -1,14 +1,7 @@
 import { type DraftGroup, emptyGroup, type FieldDefinition, type FieldSchema, fieldViolations, serializeFilter, toDraft } from '@/sdk'
 import { identifierFrom } from './identifier'
-import { MAX_DUE_HOURS, MIN_DUE_HOURS, QUOTE_RECORD_TYPE, STAGE_RECORD_TYPES } from '../constants'
-import type {
-  ApprovalMoment,
-  ApprovalPolicy,
-  ApprovalPolicyRequest,
-  ApprovalRule,
-  ApproverKind,
-  ConditionKind,
-} from '../types'
+import {MAX_DUE_HOURS, MIN_DUE_HOURS, QUOTE_RECORD_TYPE, STAGE_RECORD_TYPES} from '@/sdk'
+import type {ApprovalMoment, ApprovalPolicy, ApprovalPolicyRequest, ApprovalRule, ApproverKind, ConditionKind} from '@/sdk'
 
 export const CUSTOM_FIELD_PREFIX = 'custom_fields.'
 
