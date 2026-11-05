@@ -3,7 +3,7 @@ import { useModuleState } from '@/kernel/modules/registry'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui/avatar'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
-import type { RecentActivityData } from '../types'
+import type {RecentActivityData} from '@/sdk'
 import { RecordLinkText } from '@/kernel/widgets/shared'
 
 export function RecentActivityWidget({ data }: { data: RecentActivityData }) {

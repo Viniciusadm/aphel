@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { useDashboardSubjects } from './api'
-import type { DashboardSubject } from './types'
+import {useDashboardSubjects} from '@/sdk'
+import type {DashboardSubject} from '@/sdk'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'
 import { ToggleField } from '@/components/ui/toggle-field'

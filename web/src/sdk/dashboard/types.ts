@@ -13,9 +13,9 @@ export interface WidgetCatalogPage {
   meta: Schemas['PageMeta']
 }
 export type WidgetSize = Schemas['DashboardWidgetSize']
-import type { LayoutPeriod } from '@/sdk'
+import type { LayoutPeriod } from '../period'
 
-export type { LayoutPeriod, PeriodPreset } from '@/sdk'
+export type { LayoutPeriod, PeriodPreset } from '../period'
 export type ResolvedPeriod = Schemas['DashboardPeriodResponse']
 export type DashboardSubject = Schemas['DashboardSubject']
 export type SubjectType = Schemas['DashboardSubjectType']

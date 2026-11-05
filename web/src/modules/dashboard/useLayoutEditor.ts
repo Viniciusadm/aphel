@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
-import { dashboardApi, dashboardKeys } from './api'
-import type { DashboardLayout, SaveLayoutRequest } from './types'
+import {dashboardApi, dashboardKeys} from '@/sdk'
+import type {DashboardLayout, SaveLayoutRequest} from '@/sdk'
 
 export function useLayoutEditor() {
   const { t } = useTranslation('dashboard')

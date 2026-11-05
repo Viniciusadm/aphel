@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PERIOD_PRESETS, isValidCustomRange } from '@/sdk'
-import type { LayoutPeriod, PeriodPreset } from './types'
+import type {LayoutPeriod, PeriodPreset} from '@/sdk'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'
 

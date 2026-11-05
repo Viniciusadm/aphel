@@ -28,18 +28,10 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useDashboardLayout, useWidgetCatalog } from './api'
+import {useDashboardLayout, useWidgetCatalog} from '@/sdk'
 import { PeriodSelector } from './PeriodSelector'
 import { CompareToggle, SubjectSelector } from './SubjectSelector'
-import type {
-  DashboardLayout,
-  DashboardSubject,
-  LayoutPeriod,
-  LayoutWidget,
-  WidgetDescriptor,
-  WidgetSettings,
-  WidgetSize,
-} from './types'
+import type {DashboardLayout, DashboardSubject, LayoutPeriod, LayoutWidget, WidgetDescriptor, WidgetSettings, WidgetSize} from '@/sdk'
 import { useLayoutEditor } from './useLayoutEditor'
 import { WidgetCard } from './WidgetCard'
 import { PageHeader } from '@/components/ui/page-header'

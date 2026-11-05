@@ -1,6 +1,6 @@
 import { moduleWidgetRenderer } from '@/kernel/modules/contributions'
 import type { WidgetRenderer } from '@/kernel/widgets/types'
-import type { RecentActivityData } from '../types'
+import type {RecentActivityData} from '@/sdk'
 import { CollectionWidget, type CollectionData } from './CollectionWidget'
 import { RecentActivityWidget } from './RecentActivityWidget'
 
