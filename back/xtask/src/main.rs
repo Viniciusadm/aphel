@@ -96,21 +96,37 @@ fn back_dir() -> PathBuf {
         .to_path_buf()
 }
 
+fn blueprint_plugins(directory: &Path) -> Result<std::collections::BTreeSet<String>, Failure> {
+    let mut plugins = std::collections::BTreeSet::new();
+    for entry in fs::read_dir(directory)? {
+        let path = entry?.path().join("blueprint.toml");
+        if !path.is_file() {
+            continue;
+        }
+        let document: toml::Value = toml::from_str(&fs::read_to_string(&path)?)?;
+        for list in ["required", "recommended"] {
+            let keys = document
+                .get("plugins")
+                .and_then(|plugins| plugins.get(list))
+                .and_then(toml::Value::as_array);
+            plugins.extend(
+                keys.into_iter()
+                    .flatten()
+                    .filter_map(toml::Value::as_str)
+                    .map(str::to_owned),
+            );
+        }
+    }
+    Ok(plugins)
+}
+
 fn sync(check: bool) -> Result<bool, Failure> {
     let back = back_dir();
     let selection = read_selection(&back.join(SELECTION))?;
-    let profiles: Vec<Value> = serde_json::from_str(&fs::read_to_string(
-        back.join("../blueprints/profiles.json"),
-    )?)?;
+    let blueprint_plugins = blueprint_plugins(&back.join("../blueprints"))?;
     for module in selection.iter().filter(|module| !module.spec.required) {
-        if !profiles.iter().any(|profile| {
-            profile["modules"].as_array().is_some_and(|modules| {
-                modules
-                    .iter()
-                    .any(|key| key.as_str() == Some(module.key.as_str()))
-            })
-        }) {
-            return Err(format!("optional module {} has no installer profile", module.key).into());
+        if !blueprint_plugins.contains(module.key.as_str()) {
+            return Err(format!("optional module {} is in no blueprint", module.key).into());
         }
     }
     let manifest_path = back.join(APP_MANIFEST);

@@ -79,10 +79,30 @@ pub fn validate_business(
     (!answers.is_empty()).then_some(answers)
 }
 
+static CATALOG: std::sync::OnceLock<aphel_blueprint::Catalog> = std::sync::OnceLock::new();
+
+fn catalog() -> &'static aphel_blueprint::Catalog {
+    CATALOG.get_or_init(|| aphel_blueprint::embedded().expect("valid embedded blueprints"))
+}
+
+pub fn installer_profiles() -> Vec<aphel_kernel::application::installer::modules::InstallerProfile> {
+    catalog()
+        .resolve_all()
+        .expect("valid embedded blueprints")
+        .into_iter()
+        .map(|blueprint| {
+            aphel_kernel::application::installer::modules::InstallerProfile {
+                key: blueprint.key.clone(),
+                modules: blueprint.plugins().map(str::to_owned).collect(),
+            }
+        })
+        .collect()
+}
+
 struct BlueprintInstaller;
 impl aphel_kernel::application::installer::InstallerBlueprintSource for BlueprintInstaller {
     fn profiles(&self) -> Vec<aphel_kernel::application::installer::modules::InstallerProfile> {
-        serde_json::from_str(include_str!("profiles.json")).expect("valid blueprint profiles")
+        installer_profiles()
     }
     fn validate(
         &self,

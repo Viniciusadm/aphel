@@ -1,0 +1,47 @@
+key = "real_estate"
+name = "Real Estate"
+version = "1.0.0"
+description = "For real estate agencies and agents: sales and rental workflow, property details, rental fields that only appear when the deal is a rental, showings, inspections and client profile tags."
+
+[plugins]
+recommended = [
+  "timeline",
+  "dashboard",
+  "reminders",
+  "favorites",
+  "themes",
+  "followers",
+  "onboarding",
+  "imports",
+  "bulk_actions",
+  "duplicates",
+  "trash",
+  "privacy",
+  "leads",
+  "assignment",
+  "forms",
+  "telephony",
+  "messaging",
+  "booking",
+  "email",
+  "automations",
+  "google",
+  "ai",
+  "enrichment",
+  "esign",
+  "marketplace",
+  "notifications",
+  "objects",
+  "search",
+  "saved_views",
+  "record_layouts",
+  "formulas",
+  "validation_rules",
+  "config_packages",
+  "calendar",
+  "tasks",
+  "workflow",
+  "money",
+  "documents",
+  "wasm_runtime",
+]

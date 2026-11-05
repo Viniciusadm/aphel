@@ -503,7 +503,9 @@ fn web_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
                         cross_imports.push(format!("{}: {specifier}", relative(&web, &file)));
                     }
                 }
-                if specifier.starts_with("@/features") && !WEB_PLATFORM_PLUGINS.contains(&key.as_str()) {
+                if specifier.starts_with("@/features")
+                    && !WEB_PLATFORM_PLUGINS.contains(&key.as_str())
+                {
                     feature_imports.push(format!("{}: {specifier}", relative(&web, &file)));
                 }
             }

@@ -17,6 +17,7 @@ plugins = ["dep:module-objects", "dep:module-notifications", "dep:module-config-
 [dependencies]
 serde.workspace = true
 aphel-kernel.workspace = true
+aphel-blueprint.workspace = true
 axum.workspace = true
 chrono.workspace = true
 clap.workspace = true
