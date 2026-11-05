@@ -294,6 +294,21 @@ async fn rebase_rates(
             ]),
         )
         .await?;
+    if let Some(factor) =
+        anchor_on(&anchor, now.date_naive()).and_then(|anchor| Decimal::ONE.checked_div(anchor))
+    {
+        ports
+            .jobs
+            .enqueue(
+                tx,
+                aphel_sdk::platform::application::shared::Job::new(
+                    aphel_sdk::money::REBASE_COMPLETED_JOB,
+                    json!({ "factor": factor.to_string() }),
+                )
+                .with_max_attempts(1),
+            )
+            .await?;
+    }
     ports.jobs.enqueue(tx, recalculation_job(None)).await?;
     Ok(outcome)
 }

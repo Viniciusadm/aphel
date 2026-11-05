@@ -158,32 +158,43 @@ pub(crate) async fn run_action(
     } else {
         None
     };
-    if existing.is_none()
-        && !body.contains_key("owner_id")
-        && let Some(rule) = &action.assignment_rule_id
-    {
-        if !fields
+    let assignment_rule = if existing.is_none() && !body.contains_key("owner_id") {
+        action.assignment_rule_id.as_ref()
+    } else {
+        None
+    };
+    if assignment_rule.is_some()
+        && !fields
             .active()
             .any(|f| f.key() == "owner_id" && f.is_editable())
-        {
-            return Err(failure_from_error(AppError::Forbidden(
-                "the owner field is not editable".into(),
-            )));
-        }
+    {
+        return Err(failure_from_error(AppError::Forbidden(
+            "the owner field is not editable".into(),
+        )));
+    }
+    let routing_values = {
         let mut values = custom.clone();
         values.extend(body.clone());
-        if let Some(owner) =
-            super::gateway::distribute_owner(ctx, rule, &action.record_type, &values)
-                .await
-                .map_err(failure_from_error)?
-        {
-            body.insert("owner_id".into(), json!(owner));
-        }
-    }
+        values
+    };
     if !custom.is_empty() {
         body.insert("custom_fields".into(), Value::Object(custom));
     }
-    let (saved, operation) = if let Some(id) = existing {
+    let assigned = match assignment_rule {
+        Some(rule) => super::gateway::create_with_owner(
+            ctx,
+            rule,
+            &action.record_type,
+            &routing_values,
+            Value::Object(body.clone()),
+        )
+        .await
+        .map_err(failure_from_error)?,
+        None => None,
+    };
+    let (saved, operation) = if let Some(record) = assigned {
+        (Ok(json!({"id": record.record_id})), CREATED)
+    } else if let Some(id) = existing {
         (
             ctx.update_record(&action.record_type, id, Value::Object(body))
                 .await,

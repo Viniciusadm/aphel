@@ -423,6 +423,69 @@ pub trait OwnerWriter: Send + Sync {
     ) -> Result<Option<PendingCommit>, AppError>;
 }
 
+pub(crate) struct CreateOwner<'a> {
+    pub(crate) ctx: &'a Ctx<'a>,
+    pub(crate) record_type: &'a str,
+    pub(crate) owner_field: &'a str,
+    pub(crate) body: Value,
+    created: std::sync::Mutex<Option<RecordRef>>,
+}
+
+impl<'a> CreateOwner<'a> {
+    pub(crate) fn new(
+        ctx: &'a Ctx<'a>,
+        record_type: &'a str,
+        owner_field: &'a str,
+        body: Value,
+    ) -> Self {
+        Self {
+            ctx,
+            record_type,
+            owner_field,
+            body,
+            created: std::sync::Mutex::new(None),
+        }
+    }
+
+    pub(crate) fn created(&self) -> Option<RecordRef> {
+        self.created.lock().ok().and_then(|created| created.clone())
+    }
+}
+
+#[async_trait]
+impl OwnerWriter for CreateOwner<'_> {
+    async fn write(
+        &self,
+        tx: &mut MySqlTx,
+        user_id: UserId,
+    ) -> Result<Option<PendingCommit>, AppError> {
+        let mut body = self.body.clone();
+        if let Some(object) = body.as_object_mut() {
+            object.insert(
+                self.owner_field.to_owned(),
+                Value::String(user_id.into_inner()),
+            );
+        }
+        let pending = self
+            .ctx
+            .registry()
+            .handler(self.record_type)?
+            .create_in_tx(
+                &aphel_kernel::records::RecordCtx::from_runtime(
+                    self.ctx.scope,
+                    &self.ctx.runtime(),
+                ),
+                tx,
+                body,
+            )
+            .await?;
+        if let Ok(mut created) = self.created.lock() {
+            *created = Some(pending.record.clone());
+        }
+        Ok(Some(pending))
+    }
+}
+
 pub struct PickOnly;
 
 #[async_trait]
@@ -528,7 +591,9 @@ pub async fn assign(
                 sequence: next,
                 user_id: chosen.clone(),
                 credits,
-                record: request.record,
+                record: request
+                    .record
+                    .or_else(|| pending.as_ref().map(|pending| pending.record.clone())),
                 source: request.source,
                 idempotency_key: request.idempotency_key,
                 at: now,

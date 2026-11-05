@@ -206,7 +206,7 @@ fn color(value: Option<&str>, violations: &mut Vec<FieldViolation>) -> Option<St
     }
 }
 
-fn object_snapshot(object: &CustomObject) -> Value {
+pub(crate) fn object_snapshot(object: &CustomObject) -> Value {
     json!({
         "key": object.key,
         "label_singular": object.data.label_singular,

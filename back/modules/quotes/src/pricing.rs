@@ -99,21 +99,25 @@ async fn resolve_item(
         quantity: Decimal::ONE,
         ..QuoteItemData::default()
     };
+    let mut product_rejected = false;
     let product = match input.product_id.as_deref().map(str::trim) {
         None | Some("") => None,
         Some(text) => match parse_id(text) {
             None => {
                 validator.violation(&path("product_id"), "must be a valid id");
+                product_rejected = true;
                 None
             }
             Some(id) => {
                 match aphel_sdk::line_items::catalog_item(&ctx.with_scope(scope), id).await? {
                     None => {
                         validator.violation(&path("product_id"), "product was not found");
+                        product_rejected = true;
                         None
                     }
                     Some(found) if !found.active => {
                         validator.violation(&path("product_id"), "product is inactive");
+                        product_rejected = true;
                         None
                     }
                     Some(found) => Some(found),
@@ -190,7 +194,7 @@ async fn resolve_item(
             .text(&path("name"), Some(name), MAX_ITEM_NAME_LENGTH)
             .unwrap_or_default();
     }
-    if data.name.trim().is_empty() {
+    if data.name.trim().is_empty() && !product_rejected {
         validator.violation(&path("name"), "is required");
     }
     if input.description.is_some() {

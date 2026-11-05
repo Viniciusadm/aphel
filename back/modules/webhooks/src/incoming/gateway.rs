@@ -59,12 +59,13 @@ pub(crate) async fn distribution_rule_usable(
         None => Ok(false),
     }
 }
-pub(crate) async fn distribute_owner(
+pub(crate) async fn create_with_owner(
     ctx: &Ctx<'_>,
     rule: &str,
     entity: &str,
     values: &Map<String, Value>,
-) -> Result<Option<String>, AppError> {
+    body: Value,
+) -> Result<Option<aphel_sdk::platform::application::shared::RecordRef>, AppError> {
     let provider =
         selector(ctx)?.ok_or_else(|| AppError::Validation("assignment is unavailable".into()))?;
     if !provider.usable(ctx, rule, entity).await? {
@@ -72,15 +73,18 @@ pub(crate) async fn distribute_owner(
             "assignment rule is unavailable".into(),
         ));
     }
-    Ok(provider
-        .select(
+    provider
+        .create_assigned(
             ctx,
-            rule,
-            entity,
-            values,
-            "incoming_webhook",
-            Uuid::now_v7().to_string(),
+            aphel_sdk::assignment::AssignedCreate {
+                rule,
+                record_type: entity,
+                values,
+                body,
+                owner_field: "owner_id",
+                source: "incoming_webhook",
+                idempotency_key: Uuid::now_v7().to_string(),
+            },
         )
-        .await?
-        .map(|id| id.as_str().to_owned()))
+        .await
 }

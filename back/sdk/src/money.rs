@@ -26,6 +26,9 @@ pub trait MoneyRates: Send + Sync {
 #[async_trait]
 pub trait MoneyRecalculationSource: Send + Sync {
     async fn recalculate(&self, pool: &MySqlPool, currency: Option<&str>) -> Result<u64, AppError>;
+    async fn rebase_completed(&self, _pool: &MySqlPool, _factor: Decimal) -> Result<u64, AppError> {
+        Ok(0)
+    }
 }
 pub trait MoneyTraits {
     fn monetary(self, mapping: MonetaryMapping) -> Self;

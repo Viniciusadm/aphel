@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::application::{is_relatable_core_type, is_title_field_type};
+use crate::application::{CUSTOM_OBJECT_RECORD_TYPE, is_relatable_core_type, is_title_field_type};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::diff;
 use aphel_sdk::configuration::sections::fields::{PackageField, package_fields};
@@ -15,6 +15,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_sdk::platform::application::custom_objects::{ChangeRecord, publish_change};
 use aphel_sdk::platform::application::custom_objects::{
     CustomObjectRepository, RelationshipRepository, custom_record_definition,
 };
@@ -97,14 +98,16 @@ fn bounded(value: &str, max: usize) -> bool {
     !text.is_empty() && text.chars().count() <= max
 }
 
-pub struct CustomObjectsSection<O, R, D> {
+pub struct CustomObjectsSection<O, R, D, E, A> {
     registry: Arc<RecordTypeRegistry>,
     objects: O,
     relationships: R,
     definitions: D,
+    events: E,
+    audit: A,
 }
 
-impl<O, R, D> CustomObjectsSection<O, R, D>
+impl<O, R, D, E, A> CustomObjectsSection<O, R, D, E, A>
 where
     O: CustomObjectRepository,
     R: RelationshipRepository,
@@ -115,12 +118,16 @@ where
         objects: O,
         relationships: R,
         definitions: D,
+        events: E,
+        audit: A,
     ) -> Self {
         Self {
             registry,
             objects,
             relationships,
             definitions,
+            events,
+            audit,
         }
     }
 
@@ -415,9 +422,11 @@ fn relatable(record_type: &str, declared: &BTreeSet<String>, existing: &[CustomO
 }
 
 #[async_trait]
-impl<O, R, D, Tx> ConfigSection<Tx> for CustomObjectsSection<O, R, D>
+impl<O, R, D, E, A, Tx> ConfigSection<Tx> for CustomObjectsSection<O, R, D, E, A>
 where
     Tx: Send,
+    E: aphel_sdk::platform::application::shared::EventPublisher<Tx>,
+    A: aphel_sdk::platform::application::shared::AuditLog<Tx>,
     O: CustomObjectRepository<Tx = Tx>,
     R: RelationshipRepository<Tx = Tx>,
     D: FieldDefinitionRepository<Tx = Tx>,
@@ -712,6 +721,28 @@ where
                     self.objects
                         .grant_default_permissions(tx, &object.record_type(), None)
                         .await?;
+                    publish_change(
+                        &self.events,
+                        &self.audit,
+                        tx,
+                        scope,
+                        context.at,
+                        ChangeRecord {
+                            record: aphel_sdk::platform::application::shared::RecordRef::new(
+                                CUSTOM_OBJECT_RECORD_TYPE,
+                                object.id,
+                            ),
+                            event_type: crate::application::CUSTOM_OBJECT_CREATED.to_owned(),
+                            payload: json!({ "key": object.key, "record_type": object.record_type() }),
+                            changes: aphel_sdk::platform::application::audit::diff_values(
+                                &Value::Null,
+                                &crate::application::object_snapshot(&object),
+                                &aphel_sdk::platform::application::audit::DiffOptions::default(),
+                            )?,
+                            ip: None,
+                        },
+                    )
+                    .await?;
                     context.resolve(
                         ConfigReferenceKind::new("objects.object"),
                         &object.key,

@@ -221,4 +221,8 @@ impl aphel_sdk::money::MoneyRecalculationSource for DealRecalculation {
             .recalculate(currency)
             .await
     }
+
+    async fn rebase_completed(&self, pool: &MySqlPool, factor: Decimal) -> Result<u64, AppError> {
+        store(pool.clone()).rebase_completed(factor).await
+    }
 }

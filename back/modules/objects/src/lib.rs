@@ -57,6 +57,8 @@ impl Module for ObjectsModule {
                     aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),
+                    aphel_sdk::platform::infrastructure::events::MySqlEventPublisher::new(),
+                    aphel_sdk::platform::infrastructure::audit::MySqlAuditLog::new(),
                 ))
             }),
         ));

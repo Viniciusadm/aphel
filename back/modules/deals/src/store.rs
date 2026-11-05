@@ -381,6 +381,20 @@ impl DealStore {
         Ok(result.rows_affected())
     }
 
+    pub(crate) async fn rebase_completed(&self, factor: Decimal) -> Result<u64, AppError> {
+        let result = sqlx::query(
+            "UPDATE deals SET amount_base = ROUND(amount_base * ?, 2), \
+             exchange_rate = ROUND(exchange_rate * ?, 10), updated_at = updated_at \
+             WHERE status <> ? AND amount_base IS NOT NULL",
+        )
+        .bind(factor)
+        .bind(factor)
+        .bind(DealStatus::Open.as_str())
+        .execute(&self.pool)
+        .await?;
+        Ok(result.rows_affected())
+    }
+
     pub(crate) async fn record_initial_stage(
         &self,
         deal_id: Uuid,

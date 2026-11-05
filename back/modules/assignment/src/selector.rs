@@ -66,4 +66,37 @@ impl AssignmentSelector for NativeAssignmentSelector {
             Err(error) => Err(error),
         }
     }
+
+    async fn create_assigned(
+        &self,
+        ctx: &Ctx<'_>,
+        request: aphel_sdk::assignment::AssignedCreate<'_>,
+    ) -> Result<Option<aphel_sdk::platform::application::shared::RecordRef>, AppError> {
+        let source = crate::domain::AssignmentSource::parse(request.source)
+            .ok_or_else(|| AppError::Validation("invalid assignment source".into()))?;
+        let writer = crate::service::CreateOwner::new(
+            ctx,
+            request.record_type,
+            request.owner_field,
+            request.body,
+        );
+        let result = crate::service::assign(
+            ctx,
+            crate::service::AssignRequest {
+                rule_id: request.rule,
+                record_type: request.record_type,
+                record: None,
+                values: request.values,
+                source,
+                idempotency_key: Some(request.idempotency_key),
+            },
+            &writer,
+        )
+        .await;
+        match result {
+            Ok(_) => Ok(writer.created()),
+            Err(AppError::Coded { code, .. }) if code == crate::service::RULE_NOT_FOUND => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
 }

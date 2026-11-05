@@ -146,6 +146,7 @@ impl Module for MoneyModule {
         .routes(|_| http::router())
         .job(|env| runtime::exchange_rates_sync_handler(env.pool.clone()))
         .job(|env| Arc::new(runtime::MoneyRecalculateHandler::new(env.pool.clone())))
+        .job(|env| Arc::new(runtime::MoneyRebaseCompletedHandler::new(env.pool.clone())))
         .schedule(runtime::exchange_rates_sync_schedule())
         .consumer(|env| Arc::new(runtime::BaseCurrencyConsumer::new(env.pool.clone())));
         for definition in PUBLIC_EVENTS {

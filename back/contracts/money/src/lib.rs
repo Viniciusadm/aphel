@@ -23,6 +23,7 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
 pub const BASE_AMOUNT_FIELD: &str = "amount_base";
 pub const BASE_AMOUNT_METRIC: &str = "sum:amount_base";
 pub const RECALCULATE_JOB: &str = "money.recalculate";
+pub const REBASE_COMPLETED_JOB: &str = "money.rebase_completed";
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Money {
     pub amount: Decimal,

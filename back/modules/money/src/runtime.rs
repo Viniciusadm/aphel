@@ -130,3 +130,33 @@ impl JobHandler for MoneyRecalculateHandler {
         Ok(())
     }
 }
+
+pub(crate) struct MoneyRebaseCompletedHandler {
+    pool: MySqlPool,
+}
+impl MoneyRebaseCompletedHandler {
+    pub(crate) fn new(pool: MySqlPool) -> Self {
+        Self { pool }
+    }
+}
+#[async_trait]
+impl JobHandler for MoneyRebaseCompletedHandler {
+    fn kind(&self) -> &str {
+        aphel_sdk::money::REBASE_COMPLETED_JOB
+    }
+    async fn handle(&self, _context: &JobContext, payload: Value) -> Result<(), AppError> {
+        let Some(factor) = payload
+            .get("factor")
+            .and_then(Value::as_str)
+            .and_then(|factor| factor.parse::<rust_decimal::Decimal>().ok())
+        else {
+            return Ok(());
+        };
+        for source in aphel_sdk::platform::modules::app()
+            .contributions::<dyn aphel_sdk::money::MoneyRecalculationSource>()
+        {
+            source.rebase_completed(&self.pool, factor).await?;
+        }
+        Ok(())
+    }
+}

@@ -30,11 +30,16 @@ Manual acceptance of the P5 checklists on isolated instances (own database, port
 - Public Google and Microsoft sign-in endpoints are rate limited.
 - Earlier in the same run: automation `record.*` triggers for native entities, favorites limit locking, lifecycle history purge, hidden `due_at` in tasks.
 
+## Fixed after the first pass
+
+- Webhook assignment now creates the record inside the assignment transaction (`AssignmentSelector::create_assigned`): a failed create no longer advances the rule counter and the history row carries the record id.
+- Changing the base currency converts the amounts of completed deals (`money.rebase_completed`, at most once); their line items are not converted.
+- A quote item with a rejected catalog product no longer reports a second "name is required" violation.
+- Applying a configuration package that creates a custom object publishes `custom_object.created` with audit.
+
 ## Known and deferred
 
-- Webhook assignment is consumed before `create_record`; a failed create still advances the rule counter, and assignment history from webhooks and imports has no `record_id`.
-- After changing the base currency, closed records keep the old base amount.
-- A deal's `amount_base` can differ by cents from the sum of its items' `amount_base` (per-line versus total rounding).
-- Hidden catalog price on a quote returns "product was not found" instead of a permission error.
-- Config package apply records `config_package.applied` but no `custom_object.created` audit entry.
+- A deal's `amount_base` is converted from its total and can differ by cents from the sum of its items' `amount_base` (per-line rounding); both are correctly rounded.
+- Line items of completed deals keep the old base amounts after a base currency change.
+- A hidden catalog price on a quote still reports "product was not found" so that the catalog does not leak existence.
 - Open: `p5-remaining-domains`, `p5-bridges`, P6 permission-refusal/cycle/`[[contribute]]` lines, P7 shortcut, palette and installer lines (need the web UI).

@@ -1,5 +1,14 @@
 use crate::{AppError, fields::EntityTraits};
 pub use aphel_contract_assignment::*;
+pub struct AssignedCreate<'a> {
+    pub rule: &'a str,
+    pub record_type: &'a str,
+    pub values: &'a serde_json::Map<String, serde_json::Value>,
+    pub body: serde_json::Value,
+    pub owner_field: &'a str,
+    pub source: &'a str,
+    pub idempotency_key: String,
+}
 pub trait AssignmentTraits {
     fn workload(self, mapping: WorkloadMapping) -> Self;
     fn workload_mapping(&self) -> Result<Option<WorkloadMapping>, AppError>;
@@ -53,6 +62,12 @@ pub trait AssignmentSelector: Send + Sync {
         source: &str,
         idempotency_key: String,
     ) -> Result<Option<aphel_kernel::domain::UserId>, AppError>;
+
+    async fn create_assigned(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        request: AssignedCreate<'_>,
+    ) -> Result<Option<crate::platform::application::shared::RecordRef>, AppError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
