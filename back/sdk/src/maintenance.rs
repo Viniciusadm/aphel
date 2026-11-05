@@ -9,7 +9,6 @@ use std::collections::BTreeMap;
 pub struct MaintenanceCatalog {
     pub stages: Vec<(String, String)>,
     pub lost_reason_ids: Vec<String>,
-    pub task_types: BTreeMap<String, String>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CleanupPhase {
@@ -192,4 +191,40 @@ pub trait DatasetSeed: Send + Sync {
     async fn backdate(&self, _ctx: &Ctx<'_>, _entry: &DatasetEntry) -> Result<bool, AppError> {
         Ok(false)
     }
+    async fn cleanup(
+        &self,
+        _tx: &mut MySqlTx,
+        _records: Option<&[RecordRef]>,
+    ) -> Result<bool, AppError> {
+        Ok(false)
+    }
+    async fn counts(&self, _tx: &mut MySqlTx) -> Result<Option<BTreeMap<String, u64>>, AppError> {
+        Ok(None)
+    }
+}
+
+pub fn push_record_tuples(query: &mut sqlx::QueryBuilder<sqlx::MySql>, records: &[RecordRef]) {
+    if records.is_empty() {
+        query.push("FALSE");
+        return;
+    }
+    query.push("(record_type, record_id) IN (");
+    let mut tuples = query.separated(", ");
+    for record in records {
+        tuples
+            .push("(")
+            .push_bind_unseparated(record.record_type.as_str().to_owned())
+            .push_unseparated(", ")
+            .push_bind_unseparated(record.record_id.to_string())
+            .push_unseparated(")");
+    }
+    query.push(")");
+}
+
+pub fn ids_of(records: &[RecordRef], record_type: &crate::shared::RecordType) -> Vec<String> {
+    records
+        .iter()
+        .filter(|record| &record.record_type == record_type)
+        .map(|record| record.record_id.to_string())
+        .collect()
 }

@@ -1,7 +1,6 @@
 use aphel_contract_crm::CrmRecordTypes;
 use std::collections::{BTreeMap, HashMap};
 
-use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -9,9 +8,8 @@ use crate::DEMO_SEED;
 use crate::revenue;
 use crate::store::DemoStore;
 use crate::{
-    DemoAnchors, DemoCatalog, DemoCleanup, DemoDataset, DemoDealAnchor, DemoRemovalReport,
-    DemoResetReport, DemoSeedCommand, DemoSeedReport, DemoTarget, DemoVisitor, NewDemoVisitor,
-    generate,
+    DemoCatalog, DemoCleanup, DemoRemovalReport, DemoResetReport, DemoSeedCommand, DemoSeedReport,
+    DemoVisitor, NewDemoVisitor,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
@@ -26,8 +24,6 @@ use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
 use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog};
-use aphel_sdk::notes::CreateNoteCommand;
-use aphel_sdk::tasks::CreateActivityCommand;
 use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
 use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
@@ -43,20 +39,8 @@ pub(crate) const DEMO_VISITOR_ROLE_NAME: &str = "Visitante da demonstração";
 pub(crate) const DEMO_VISITOR_NAME: &str = "Visitante Demo";
 
 struct SeedState {
-    organizations: Vec<Uuid>,
-    people: Vec<Uuid>,
     deals: Vec<Uuid>,
     counts: BTreeMap<String, u64>,
-}
-
-impl SeedState {
-    fn target(&self, target: DemoTarget) -> (RecordType, Uuid) {
-        match target {
-            DemoTarget::Company(index) => (RecordType::COMPANY, self.organizations[index]),
-            DemoTarget::Contact(index) => (RecordType::CONTACT, self.people[index]),
-            DemoTarget::Deal(index) => (RecordType::DEAL, self.deals[index]),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,7 +74,6 @@ pub(crate) async fn seed(
     };
     install_template(&ctx, DEMO_TEMPLATE).await?;
     let catalog = store.catalog().await?;
-    let now = ctx.now();
     let open_stages: Vec<&str> = catalog
         .stages
         .iter()
@@ -112,8 +95,6 @@ pub(crate) async fn seed(
         ));
     }
     let mut state = SeedState {
-        organizations: Vec::new(),
-        people: Vec::new(),
         deals: Vec::new(),
         counts: BTreeMap::new(),
     };
@@ -123,7 +104,7 @@ pub(crate) async fn seed(
             track(&store, &mut state, revenue::EXCHANGE_RATE_RECORD_TYPE, id).await?;
         }
     }
-    let anchors = run_dataset_seeds(
+    let deal_open = run_dataset_seeds(
         &ctx,
         &store,
         &catalog,
@@ -131,10 +112,7 @@ pub(crate) async fn seed(
         &mut state,
     )
     .await?;
-    let dataset = generate(now, &anchors);
-    seed_activities(&ctx, &store, &dataset, &catalog, &mut state).await?;
-    seed_notes(&ctx, &store, &dataset, &mut state).await?;
-    seed_revenue(&ctx, &store, &dataset, &catalog, &open_stages, &mut state).await?;
+    seed_revenue(&ctx, &store, &deal_open, &catalog, &open_stages, &mut state).await?;
 
     record_outcome(
         &ctx,
@@ -341,8 +319,6 @@ async fn track(
     Ok(record)
 }
 
-const ORGANIZATION_ENTITY: &str = "organizations.organization";
-const CONTACT_ENTITY: &str = "people.person";
 const DEAL_ENTITY: &str = "deals.deal";
 
 async fn run_dataset_seeds(
@@ -351,7 +327,7 @@ async fn run_dataset_seeds(
     catalog: &DemoCatalog,
     foreign_currency: Option<&str>,
     state: &mut SeedState,
-) -> Result<DemoAnchors, AppError> {
+) -> Result<Vec<bool>, AppError> {
     let mut session = DatasetSession::new(
         ctx.now(),
         DEMO_SEED,
@@ -362,7 +338,6 @@ async fn run_dataset_seeds(
                 .map(|stage| (stage.id.clone(), stage.kind.clone()))
                 .collect(),
             lost_reason_ids: catalog.lost_reason_ids.clone(),
-            task_types: catalog.task_types.clone(),
         },
     );
     if let Some(code) = foreign_currency {
@@ -392,125 +367,23 @@ async fn run_dataset_seeds(
             }
         }
     }
-    state.organizations = session.ids(ORGANIZATION_ENTITY);
-    state.people = session.ids(CONTACT_ENTITY);
     state.deals = session.ids(DEAL_ENTITY);
-    Ok(DemoAnchors {
-        company_names: session
-            .entries(ORGANIZATION_ENTITY)
-            .iter()
-            .map(|entry| entry.attributes.get("name").cloned().unwrap_or_default())
-            .collect(),
-        company_created: session
-            .entries(ORGANIZATION_ENTITY)
-            .iter()
-            .map(|entry| entry.created_at)
-            .collect(),
-        contact_created: session
-            .entries(CONTACT_ENTITY)
-            .iter()
-            .map(|entry| entry.created_at)
-            .collect(),
-        deals: session
-            .entries(DEAL_ENTITY)
-            .iter()
-            .map(|entry| DemoDealAnchor {
-                open: entry
-                    .attributes
-                    .get("open")
-                    .is_some_and(|open| open == "true"),
-                created_at: entry.created_at,
-                last_change_at: entry.changed_at,
-            })
-            .collect(),
-    })
-}
-
-async fn seed_activities(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    dataset: &DemoDataset,
-    catalog: &DemoCatalog,
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    let fallback_type = catalog.task_types.values().next().cloned();
-    for activity in &dataset.tasks {
-        let Some(activity_type_id) = catalog
-            .task_types
-            .get(&activity.type_key)
-            .cloned()
-            .or_else(|| fallback_type.clone())
-        else {
-            return Err(AppError::Validation(
-                "the organization has no activity types".to_owned(),
-            ));
-        };
-        let (record_type, record_id) = state.target(activity.target);
-        let id = aphel_sdk::tasks::writer()?
-            .create(
-                ctx,
-                CreateActivityCommand {
-                    title: activity.title.clone(),
-                    activity_type_id,
-                    status: Some(
-                        if activity.completed_at.is_some() {
-                            "done"
-                        } else {
-                            "open"
-                        }
-                        .to_owned(),
-                    ),
-                    priority: Some(activity.priority.clone()),
-                    due_at: Some(rfc3339(activity.due_at)),
-                    completed_at: activity.completed_at.map(rfc3339),
-                    record_type: Some(record_type.as_str().to_owned()),
-                    record_id: Some(record_id.to_string()),
-                    ..CreateActivityCommand::default()
-                },
-            )
-            .await?;
-        let record = track(store, state, RecordType::ACTIVITY, id).await?;
-        let changed_at = activity.completed_at.unwrap_or(activity.created_at);
-        store
-            .backdate(&record, activity.created_at, changed_at)
-            .await?;
-    }
-    Ok(())
-}
-
-async fn seed_notes(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    dataset: &DemoDataset,
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    for note in &dataset.notes {
-        let (record_type, record_id) = state.target(note.target);
-        let id = aphel_sdk::notes::writer()?
-            .create(
-                ctx,
-                CreateNoteCommand {
-                    record_type: record_type.as_str().to_owned(),
-                    record_id: record_id.to_string(),
-                    body: note.body.clone(),
-                    visibility: Some("team".to_owned()),
-                    pinned: Some(note.pinned),
-                    ip: None,
-                },
-            )
-            .await?;
-        let record = track(store, state, RecordType::NOTE, id).await?;
-        store
-            .backdate(&record, note.created_at, note.created_at)
-            .await?;
-    }
-    Ok(())
+    Ok(session
+        .entries(DEAL_ENTITY)
+        .iter()
+        .map(|entry| {
+            entry
+                .attributes
+                .get("open")
+                .is_some_and(|open| open == "true")
+        })
+        .collect())
 }
 
 async fn seed_revenue(
     ctx: &Ctx<'_>,
     store: &DemoStore,
-    dataset: &DemoDataset,
+    deal_open: &[bool],
     catalog: &DemoCatalog,
     open_stages: &[&str],
     state: &mut SeedState,
@@ -526,7 +399,7 @@ async fn seed_revenue(
     let open_deals: Vec<Uuid> = state
         .deals
         .iter()
-        .zip(dataset.deal_open.iter().copied())
+        .zip(deal_open.iter().copied())
         .filter_map(|(id, open)| open.then_some(*id))
         .collect();
     let with_items = revenue::seed_line_items(ctx, &open_deals, &products).await?;
@@ -552,10 +425,6 @@ async fn seed_revenue(
         track(store, state, revenue::VALIDATION_RULE_RECORD_TYPE, id).await?;
     }
     Ok(())
-}
-
-fn rfc3339(value: DateTime<Utc>) -> String {
-    value.to_rfc3339()
 }
 
 pub(crate) fn demo_visitor_permissions() -> Vec<Permission> {

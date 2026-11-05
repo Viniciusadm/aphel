@@ -18,29 +18,60 @@ use aphel_sdk::maintenance::DatasetSeed;
 use privacy::mysql::sql::{file_reference_columns, unreferenced_file_predicate};
 
 const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
-const LEADING_BUSINESS_TABLES: [&str; 1] = ["tasks"];
-const TRAILING_BUSINESS_TABLES: [&str; 3] = ["products", "custom_records", "notes"];
+const TRAILING_BUSINESS_TABLES: [&str; 2] = ["products", "custom_records"];
 
-fn seeded_record_tables() -> Vec<String> {
+fn ordered_seeds(descending: bool) -> Vec<std::sync::Arc<dyn DatasetSeed>> {
     let mut seeds = aphel_kernel::modules::app().contributions::<dyn DatasetSeed>();
-    seeds.sort_by_key(|seed| std::cmp::Reverse(seed.order()));
+    seeds.sort_by_key(|seed| {
+        if descending {
+            -i64::from(seed.order())
+        } else {
+            i64::from(seed.order())
+        }
+    });
     seeds
-        .iter()
-        .flat_map(|seed| seed.entities())
-        .filter_map(|record_type| record_table(&record_type))
-        .collect()
 }
 
-fn business_tables() -> Vec<String> {
-    LEADING_BUSINESS_TABLES
-        .iter()
-        .map(|table| (*table).to_owned())
-        .chain(seeded_record_tables())
-        .chain(
-            TRAILING_BUSINESS_TABLES
-                .iter()
-                .map(|table| (*table).to_owned()),
-        )
+async fn seed_counts(tx: &mut MySqlTx) -> Result<BTreeMap<String, u64>, AppError> {
+    let mut counts = BTreeMap::new();
+    for seed in ordered_seeds(false) {
+        if let Some(owned) = seed.counts(tx).await? {
+            counts.extend(owned);
+            continue;
+        }
+        for record_type in seed.entities() {
+            let Some(table) = record_table(&record_type) else {
+                continue;
+            };
+            counts.extend(table_count(tx, &table).await?);
+        }
+    }
+    for table in TRAILING_BUSINESS_TABLES {
+        counts.extend(table_count(tx, table).await?);
+    }
+    Ok(counts)
+}
+
+async fn table_count(tx: &mut MySqlTx, table: &str) -> Result<Option<(String, u64)>, AppError> {
+    let total: i64 = sqlx::query_scalar(AssertSqlSafe(format!(
+        "SELECT COUNT(*) FROM {}",
+        quoted(table)
+    )))
+    .fetch_one(&mut **tx)
+    .await?;
+    Ok((total > 0).then(|| (table.to_owned(), total as u64)))
+}
+
+async fn tracked_records(tx: &mut MySqlTx) -> Result<Vec<RecordRef>, AppError> {
+    sqlx::query("SELECT record_type, record_id FROM demo_records")
+        .fetch_all(&mut **tx)
+        .await?
+        .into_iter()
+        .map(|row| {
+            let record_type: String = row.try_get("record_type")?;
+            let record_id: String = row.try_get("record_id")?;
+            RecordRef::parse(&record_type, &record_id)
+        })
         .collect()
 }
 
@@ -82,19 +113,6 @@ async fn tracked_counts(tx: &mut MySqlTx) -> Result<BTreeMap<String, u64>, AppEr
             Ok((row.try_get("record_type")?, total.max(0) as u64))
         })
         .collect()
-}
-
-async fn record_counts(tx: &mut MySqlTx) -> Result<BTreeMap<String, u64>, AppError> {
-    let mut counts = BTreeMap::new();
-    for table in business_tables() {
-        let total: i64 = sqlx::query_scalar(AssertSqlSafe(format!("SELECT COUNT(*) FROM {table}")))
-            .fetch_one(&mut **tx)
-            .await?;
-        if total > 0 {
-            counts.insert(table.to_owned(), total as u64);
-        }
-    }
-    Ok(counts)
 }
 
 const TRACKED_RECORDS: &str = "*";
@@ -141,20 +159,31 @@ async fn remove_module_rows(tx: &mut MySqlTx, targets: &[(&str, &str)]) -> Resul
     Ok(())
 }
 
-async fn remove_seeded_records(tx: &mut MySqlTx) -> Result<(), AppError> {
-    let mut seeds = aphel_kernel::modules::app().contributions::<dyn DatasetSeed>();
-    seeds.sort_by_key(|seed| std::cmp::Reverse(seed.order()));
-    for record_type in seeds.iter().flat_map(|seed| seed.entities()) {
-        let Some(table) = record_table(&record_type) else {
+async fn remove_seeded_records(
+    tx: &mut MySqlTx,
+    records: Option<&[RecordRef]>,
+) -> Result<(), AppError> {
+    for seed in ordered_seeds(true) {
+        if seed.cleanup(tx, records).await? {
             continue;
-        };
-        sqlx::query(AssertSqlSafe(format!(
-            "DELETE FROM {} WHERE id IN (SELECT record_id FROM demo_records WHERE record_type = ?)",
-            quoted(&table)
-        )))
-        .bind(record_type.as_str())
-        .execute(&mut **tx)
-        .await?;
+        }
+        for record_type in seed.entities() {
+            let Some(table) = record_table(&record_type) else {
+                continue;
+            };
+            let statement = match records {
+                Some(_) => format!(
+                    "DELETE FROM {} WHERE id IN (SELECT record_id FROM demo_records WHERE record_type = ?)",
+                    quoted(&table)
+                ),
+                None => format!("DELETE FROM {}", quoted(&table)),
+            };
+            let mut query = sqlx::query(AssertSqlSafe(statement));
+            if records.is_some() {
+                query = query.bind(record_type.as_str());
+            }
+            query.execute(&mut **tx).await?;
+        }
     }
     Ok(())
 }
@@ -204,17 +233,8 @@ impl DemoStore {
     }
 
     pub(crate) async fn has_business_records(&self) -> Result<bool, AppError> {
-        for table in business_tables() {
-            let exists: i64 = sqlx::query_scalar(AssertSqlSafe(format!(
-                "SELECT EXISTS(SELECT 1 FROM {table})"
-            )))
-            .fetch_one(&self.pool)
-            .await?;
-            if exists != 0 {
-                return Ok(true);
-            }
-        }
-        Ok(false)
+        let mut tx = MySqlTx::from(self.pool.begin().await?);
+        Ok(!seed_counts(&mut tx).await?.is_empty())
     }
 
     pub(crate) async fn catalog(&self) -> Result<DemoCatalog, AppError> {
@@ -239,18 +259,9 @@ impl DemoStore {
         )
         .fetch_all(&self.pool)
         .await?;
-        let task_types = sqlx::query(
-            "SELECT `key`, id FROM task_types WHERE is_active = TRUE ORDER BY position, id",
-        )
-        .fetch_all(&self.pool)
-        .await?
-        .into_iter()
-        .map(|row| Ok((row.try_get("key")?, row.try_get("id")?)))
-        .collect::<Result<BTreeMap<String, String>, AppError>>()?;
         Ok(DemoCatalog {
             stages,
             lost_reason_ids,
-            task_types,
         })
     }
 
@@ -339,26 +350,20 @@ impl DemoStore {
                 "DELETE FROM custom_field_multi_values WHERE (record_type, record_id) IN {tracked} OR field_id IN {}",
                 tracked_of("field")
             ),
-            format!(
-                "DELETE FROM notes WHERE id IN {} OR (record_type, record_id) IN {tracked}",
-                tracked_of("notes.note")
-            ),
-            format!("DELETE FROM task_links WHERE (record_type, record_id) IN {tracked}"),
-            format!(
-                "UPDATE tasks SET record_type = NULL, record_id = NULL WHERE (record_type, record_id) IN {tracked}"
-            ),
-            format!("DELETE FROM tasks WHERE id IN {}", tracked_of("tasks.task")),
-            format!(
-                "DELETE FROM field_definitions WHERE id IN {}",
-                tracked_of("field")
-            ),
         ];
         for statement in statements {
             sqlx::query(AssertSqlSafe(statement))
                 .execute(&mut **tx)
                 .await?;
         }
-        remove_seeded_records(tx).await?;
+        let tracked_list = tracked_records(tx).await?;
+        remove_seeded_records(tx, Some(&tracked_list)).await?;
+        sqlx::query(AssertSqlSafe(format!(
+            "DELETE FROM field_definitions WHERE id IN {}",
+            tracked_of("field")
+        )))
+        .execute(&mut **tx)
+        .await?;
         remove_module_rows(tx, &MODULE_CLEANUP_AFTER_RECORDS).await?;
         sqlx::query("DELETE FROM demo_records")
             .execute(&mut **tx)
@@ -386,7 +391,7 @@ impl DemoStore {
 
     pub(crate) async fn wipe(&self, tx: &mut MySqlTx) -> Result<DemoCleanup, AppError> {
         let tracked = self.remove_tracked(tx).await?;
-        let mut counts = record_counts(tx).await?;
+        let mut counts = seed_counts(tx).await?;
         for (record_type, count) in tracked.counts {
             *counts.entry(record_type).or_default() += count;
         }
@@ -409,7 +414,8 @@ impl DemoStore {
                 .execute(&mut **tx)
                 .await?;
         }
-        for table in business_tables() {
+        remove_seeded_records(tx, None).await?;
+        for table in TRAILING_BUSINESS_TABLES {
             sqlx::query(AssertSqlSafe(format!("DELETE FROM {table}")))
                 .execute(&mut **tx)
                 .await?;

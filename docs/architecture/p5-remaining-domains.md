@@ -590,6 +590,7 @@ The remaining identity changes, shared capability interfaces, owner-only SQL, de
 - `aphel_sdk::maintenance::DatasetSeed` lets each owner seed its own demonstration records. `demo` runs enabled contributions by `order`, tracks and backdates what they report through `DatasetSession`, and cleans or wipes through the registry tables of each seed's `entities`.
 - `organizations` (order 100) and `people` (order 200) seed their own custom fields and records; people read company ids and domains from earlier session entries and degrade when organizations is disabled.
 - `deals` (order 300) seeds its own contract-duration field and deals, moves stages, wins and loses them, and backdates its own rows through `DatasetSeed::backdate`. The foreign currency reaches it through the session value `money.foreign_currency`.
-- Tasks, notes and the revenue seeds still live in `demo`; tasks and notes anchor on session entries.
-- [ ] Move tasks, notes, workflow, money, catalog items, pricing, quotes, approvals and validation-rule seeds to their owners, then drop the remaining `demo` crate dependencies.
+- `tasks` (order 400) and `notes` (order 410) seed from session deals, contacts and organizations, and own their cleanup, counts and (notes) backdating through `DatasetSeed::cleanup`, `counts` and `backdate`. `demo` cleans and wipes seed records in descending order and falls back to the registry table for seeds that do not clean up themselves.
+- The revenue seeds (rotting stages, money, products, pricing, line items, quotes, deal team, approvals, validation rules) still live in `demo`.
+- [ ] Move workflow, money, catalog items, pricing, quotes, approvals and validation-rule seeds to their owners, then drop the remaining `demo` crate dependencies.
 - [ ] Manual acceptance: seed, remove and full reset with organizations and people enabled and with organizations disabled; confirm tracked fields and records are removed in people-then-organizations order.

@@ -8,7 +8,7 @@ pub mod settings;
 mod status;
 pub(crate) mod store;
 
-pub(crate) use dataset::*;
+pub(crate) use dataset::DEMO_SEED;
 pub(crate) use domain::*;
 
 use aphel_kernel::modules::Migration;

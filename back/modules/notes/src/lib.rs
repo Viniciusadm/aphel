@@ -1,5 +1,6 @@
 mod context_source;
 mod dashboard;
+mod dataset_seed;
 mod followers;
 mod merge_references;
 mod privacy;
@@ -63,6 +64,9 @@ impl Module for NotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::NotesSeed,
+        ));
         app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
             merge_references::References,
         ));

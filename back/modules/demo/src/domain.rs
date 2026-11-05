@@ -47,7 +47,6 @@ pub(crate) struct DemoStage {
 pub(crate) struct DemoCatalog {
     pub(crate) stages: Vec<DemoStage>,
     pub(crate) lost_reason_ids: Vec<String>,
-    pub(crate) task_types: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
