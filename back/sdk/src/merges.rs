@@ -59,11 +59,17 @@ pub trait MergeReferences: Send + Sync {
 }
 
 pub fn owner(ctx: &Ctx<'_>, record_type: &str) -> Option<std::sync::Arc<dyn MergeOwner>> {
-    ctx.app()
+    let matches: Vec<_> = ctx
+        .app()
         .contributions::<dyn MergeOwner>()
-        .iter()
-        .find(|owner| owner.record_type() == record_type)
-        .cloned()
+        .into_iter()
+        .filter(|owner| owner.record_type() == record_type)
+        .collect();
+    if matches.len() == 1 {
+        matches.into_iter().next()
+    } else {
+        None
+    }
 }
 
 pub fn use_duplicate(
