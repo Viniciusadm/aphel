@@ -210,24 +210,23 @@ async fn widget_rows(
     query.push(")");
     let rows = query.build().fetch_all(pool).await?;
     let mut stages = std::collections::HashMap::new();
-    if !fields.is_hidden("stage_id") {
-        if let Some(source) = context
+    if !fields.is_hidden("stage_id")
+        && let Some(source) = context
             .ports
             .services()
             .get::<dyn aphel_sdk::workflow::WorkflowCatalog>()
-        {
-            let stage_ids = rows
-                .iter()
-                .map(|row| {
-                    let id: String = row.try_get("stage_id")?;
-                    aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
-                        &id,
-                        "deals.stage_id",
-                    )
-                })
-                .collect::<Result<Vec<_>, AppError>>()?;
-            stages = source.stage_names(pool, &stage_ids).await?;
-        }
+    {
+        let stage_ids = rows
+            .iter()
+            .map(|row| {
+                let id: String = row.try_get("stage_id")?;
+                aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+                    &id,
+                    "deals.stage_id",
+                )
+            })
+            .collect::<Result<Vec<_>, AppError>>()?;
+        stages = source.stage_names(pool, &stage_ids).await?;
     }
     let mut values = std::collections::HashMap::new();
     for row in rows {

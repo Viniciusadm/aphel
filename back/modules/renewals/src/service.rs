@@ -385,7 +385,7 @@ async fn finish(
         "original_title": original.title,
         "renewal_deal_id": renewal_id.to_string(),
         "contract_end": original.contract_end.map(date),
-        "owner_id": original.owner_id.as_ref().map(|owner| owner.as_str()),
+        "owner_id": original.owner_id.as_deref(),
         "requested_by": ctx.scope.user_id().as_str(),
     });
     ctx.events()

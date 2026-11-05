@@ -71,12 +71,12 @@ impl MergeOwner for Owner {
                 match *key {
                     "name" => merged.name = duplicate.data.name.clone(),
                     "code" => merged.code = duplicate.data.code.clone(),
-                    "price" => merged.price = duplicate.data.price.clone(),
+                    "price" => merged.price = duplicate.data.price,
                     "currency" => merged.currency = duplicate.data.currency.clone(),
                     "unit" => merged.unit = duplicate.data.unit.clone(),
-                    "recurrence" => merged.recurrence = duplicate.data.recurrence.clone(),
-                    "term_months" => merged.term_months = duplicate.data.term_months.clone(),
-                    "is_active" => merged.is_active = duplicate.data.is_active.clone(),
+                    "recurrence" => merged.recurrence = duplicate.data.recurrence,
+                    "term_months" => merged.term_months = duplicate.data.term_months,
+                    "is_active" => merged.is_active = duplicate.data.is_active,
                     "description" => merged.description = duplicate.data.description.clone(),
                     _ => unreachable!(),
                 }
