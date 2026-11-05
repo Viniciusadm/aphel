@@ -290,7 +290,7 @@ Plugin entities are managed custom objects: they are created with `module_key` a
 
 Besides records, a plugin reaches the modules through two generic channels. Both are open catalogs: each module contributes its own entries, so the WIT does not change when a module offers something new.
 
-**Operations.** `invoke(operation, input-json)` calls a use case of a module (`notes.create`, `tagging.apply`, `deals.move_stage`, `email.send`, `sequences.enroll`, `ai.complete`, …). The operation runs the same service as the module's API, with the plugin's scope (see [Capabilities](#capabilities-and-scope)): permissions, events and audit apply, and the plugin needs the matching permissions in `requires` (`notes.create` needs `notes.create`). The plugin lists the operations it calls in `operations`, and the installer sees them in the consent.
+**Operations.** `invoke(operation, input-json)` calls a use case of a module (`notes.create`, `tagging.apply`, `deals.move_stage`, `email.send`, `sequences.enroll`, `ai.complete`, …). The operation runs the same service as the module's API, with the plugin's scope (see [Capabilities](#capabilities-and-scope)): permissions, events and audit apply, and the plugin needs the matching permissions in `requires` (`notes.create` needs `notes.create`). The plugin lists the operations it calls in `operations`, and the installer sees them in the consent. Operations provided by another plugin (`provides.operations`) are called the same way once that plugin is enabled; the provider's `permission` is checked against the caller's scope, a plugin cannot call itself through a cycle (the execution chain refuses it), and writing operations are refused inside hooks.
 
 | Situation | Result |
 | --- | --- |

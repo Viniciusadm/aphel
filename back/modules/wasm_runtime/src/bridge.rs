@@ -17,7 +17,8 @@ use aphel_kernel::modules::{
 };
 use aphel_kernel::records::RecordCtx;
 use aphel_sdk::notifications::intern;
-use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 const OPERATION_UNKNOWN: &str = "plugin_operation_unknown";
 const OPERATION_NOT_DECLARED: &str = "plugin_operation_not_declared";
@@ -28,11 +29,15 @@ struct ProvidedOperationHandler {
     plugin: Arc<LoadedPlugin>,
     key: String,
     read_only: bool,
+    permission: Option<Permission>,
 }
 
 impl OperationHandler for ProvidedOperationHandler {
     fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         Box::pin(async move {
+            if let Some(permission) = &self.permission {
+                ctx.scope.require(permission)?;
+            }
             let output = crate::runtime::on_operation(
                 &self.plugin,
                 ctx.scope,
@@ -67,6 +72,17 @@ pub fn provided_operations(plugin: &Arc<LoadedPlugin>) -> Result<Vec<OperationEn
             spec.effect = effect;
             spec.idempotent = operation.idempotent;
             spec.permission = operation.permission.as_deref().map(intern);
+            let permission = operation
+                .permission
+                .as_ref()
+                .map(|value| Permission::parse(value.clone()))
+                .transpose()
+                .map_err(|_| {
+                    AppError::validation_code(
+                        "plugin_operation_permission_invalid",
+                        format!("operation {} requires an invalid permission", operation.key),
+                    )
+                })?;
             Ok(OperationEntry::runtime(
                 intern(&operation.key),
                 spec,
@@ -74,6 +90,7 @@ pub fn provided_operations(plugin: &Arc<LoadedPlugin>) -> Result<Vec<OperationEn
                     plugin: plugin.clone(),
                     key: operation.key.clone(),
                     read_only: effect == Effect::Read,
+                    permission,
                 }),
             ))
         })
