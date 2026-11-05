@@ -35,6 +35,9 @@ impl Module for ThemesModule {
             "Installable visual themes: design tokens and fonts applied to the whole installation",
         )
         .routes(|_| http::router());
+        app.contribute::<dyn aphel_sdk::platform::application::installer::BlueprintThemeInstaller>(
+            std::sync::Arc::new(service::BlueprintTheme),
+        );
         app.permission(PermissionDefinition::administrative(MANAGE))
             .grant_to(["admin"]);
         Ok(())

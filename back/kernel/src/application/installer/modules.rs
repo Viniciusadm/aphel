@@ -41,7 +41,8 @@ pub struct InstallerIdentity {
 #[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
 pub struct InstallerSection {
     pub key: String,
-    pub label: String,
+    #[schema(value_type = Object)]
+    pub label: Value,
     pub items: Vec<String>,
 }
 

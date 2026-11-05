@@ -667,11 +667,7 @@ async fn install_plugin(
     crate::conflicts::require_acknowledged(&conflicts, params.acknowledge_conflicts)?;
     crate::modules::ensure_unblocked(&module_conflicts)?;
     let enabled = previous.as_ref().is_none_or(|plugin| plugin.enabled);
-    let held = if enabled {
-        crate::modules::hold(&state, scope, &package.manifest).await?
-    } else {
-        Vec::new()
-    };
+    let mut held: Vec<String> = Vec::new();
     let outcome: Result<InstalledPlugin, AppError> = async {
         schema::apply(&state, scope, &package.manifest).await?;
         let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
@@ -697,6 +693,9 @@ async fn install_plugin(
         )
         .await?;
         tx.commit().await.map_err(AppError::from)?;
+        if enabled {
+            held = crate::modules::hold(&state, scope, &package.manifest).await?;
+        }
         registry::invalidate().await;
         if let Err(error) = prune_compiled(&state).await {
             tracing::warn!(error = %error, "could not prune precompiled plugin backends");

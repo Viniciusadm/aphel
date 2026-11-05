@@ -382,7 +382,14 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
     let mut conflicts = Vec::new();
     for (_, file) in &plugin_sources {
         let text = fs::read_to_string(file)?;
-        let count = text.matches("conflicts_with").count() + text.matches("MENU_ACTIONS").count();
+        let mut scanned = text.clone();
+        if let Some(start) = scanned.find("const REMOVED_MANIFEST_FIELDS")
+            && let Some(length) = scanned[start..].find("];")
+        {
+            scanned.replace_range(start..start + length + 2, "");
+        }
+        let count =
+            scanned.matches("conflicts_with").count() + scanned.matches("MENU_ACTIONS").count();
         for _ in 0..count {
             conflicts.push(relative(back, file));
         }

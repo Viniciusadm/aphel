@@ -4,7 +4,8 @@ import type { NavContribution, NavSectionContribution } from './define'
 import { NO_FILTER_CONTEXT, useFilters } from './filters'
 import { useLabelTranslator } from './i18n'
 import { pluginMenus, type PluginMenu } from './wasm_runtime'
-import { useInstalledBlueprint, type BlueprintSection } from './blueprint'
+import { useTranslation } from 'react-i18next'
+import { blueprintLabel, useInstalledBlueprint, type BlueprintSection } from './blueprint'
 import { sortContributions, useActiveContributions, usePermissionCheck } from './registry'
 import { ORGANIZATION_AREA, useAdminAreas, useAllowedSettingsAreas } from './settings'
 
@@ -36,13 +37,17 @@ export function useNavSections(): ResolvedNavSection[] {
   const items = useActiveContributions<NavSectionContribution>('navSections')
   const translate = useLabelTranslator()
   const blueprint = useInstalledBlueprint()
+  const { i18n } = useTranslation()
   return useMemo(() => {
     const declared = sortContributions(items)
       .filter(({ value }, index, all) => all.findIndex((other) => other.value.key === value.key) === index)
       .map(({ module, value }) => ({ key: value.key, label: translate(module, value.label) }))
-    const chosen = (blueprint.data?.sections ?? []).map(({ key, label }) => ({ key, label }))
+    const chosen = (blueprint.data?.sections ?? []).map(({ key, label }) => ({
+      key,
+      label: blueprintLabel(label, i18n.language),
+    }))
     return [...chosen, ...declared.filter((section) => !chosen.some((other) => other.key === section.key))]
-  }, [items, translate, blueprint.data])
+  }, [items, translate, blueprint.data, i18n.language])
 }
 
 export const SETTINGS_ENTRY_KEY = 'settings'

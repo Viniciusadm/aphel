@@ -16709,7 +16709,7 @@ export interface components {
         InstallerSection: {
             items: string[];
             key: string;
-            label: string;
+            label: Record<string, never>;
         };
         InstallerStatusResponse: {
             available: boolean;

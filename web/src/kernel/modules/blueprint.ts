@@ -1,10 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 
+export type BlueprintLabel = string | Record<string, string>
+
 export interface BlueprintSection {
   key: string
-  label: string
+  label: BlueprintLabel
   items: string[]
+}
+
+export function blueprintLabel(label: BlueprintLabel, language: string): string {
+  if (typeof label === 'string') return label
+  const primary = language.split('-')[0]
+  return label[language] ?? label[primary] ?? label.en ?? Object.values(label)[0] ?? ''
 }
 
 export interface InstalledBlueprint {

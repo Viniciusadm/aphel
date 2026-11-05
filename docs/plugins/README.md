@@ -238,6 +238,7 @@ own_entities = "hidden"
 | --- | --- |
 | `menu.flat` | The plugin's `app.nav` items ignore their `group`: they appear as regular items, not as a submenu named after the plugin |
 | `menu.own_entities` | `hidden` removes the plugin's entities (custom objects with its `module_key`) from the sidebar; default `visible` |
+| `conflicts_with`, `menu.rules` | Removed. A manifest that still has them is rejected (`plugin_manifest_invalid`) with a message naming the replacement |
 | `provides.contracts` | Contracts the plugin provides (`<name>@<major>`). A contract has one provider: when a built-in module declares the same contract, installing (or enabling) the plugin disables that module and uninstalling (or disabling) it enables it again, only if it was enabled before and no other plugin still holds it. While held, enabling the module is refused (409 `module_held_by_extension`). The navigation of a held module disappears with it; blueprints own the order of the remaining sections |
 
 Conflicts between plugins are detected on install, upgrade and enable: hooks on the same `(hook, record_type)` for `record.saving|validating|deleting|archiving` of a type neither owns, or the same role preset key. They need `acknowledge_conflicts=true` (409 `plugin_conflicts_unacknowledged`).

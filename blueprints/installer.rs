@@ -135,13 +135,20 @@ impl aphel_kernel::application::installer::InstallerBlueprintSource for Blueprin
                     .map(|section| {
                         aphel_kernel::application::installer::modules::InstallerSection {
                             key: section.key,
-                            label: section.label,
+                            label: serde_json::to_value(section.label).unwrap_or_default(),
                             items: section.items,
                         }
                     })
                     .collect(),
             },
         )
+    }
+    fn theme(&self, business: Option<&serde_json::Value>) -> Option<serde_json::Value> {
+        let key = business
+            .and_then(|business| business.get("business_type"))
+            .and_then(serde_json::Value::as_str)?;
+        let path = catalog().resolve(key).ok()?.configuration.theme?;
+        serde_json::from_str(&aphel_blueprint::embedded_file(&path)?).ok()
     }
     fn roles(
         &self,

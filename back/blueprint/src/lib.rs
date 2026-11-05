@@ -16,9 +16,16 @@ pub struct Plugins {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum Label {
+    Text(String),
+    Localized(BTreeMap<String, String>),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct NavigationSection {
     pub key: String,
-    pub label: String,
+    pub label: Label,
     #[serde(default)]
     pub items: Vec<String>,
 }
@@ -291,10 +298,17 @@ fn push_unique(target: &mut Vec<String>, additions: &[String]) {
 #[derive(rust_embed::RustEmbed)]
 #[folder = "../../blueprints/"]
 #[include = "*/blueprint.toml"]
+#[include = "*/themes/*.json"]
 struct EmbeddedFiles;
+
+pub fn embedded_file(path: &str) -> Option<String> {
+    let file = EmbeddedFiles::get(path)?;
+    String::from_utf8(file.data.into_owned()).ok()
+}
 
 pub fn embedded() -> Result<Catalog, BlueprintError> {
     let files: Vec<(String, String)> = EmbeddedFiles::iter()
+        .filter(|path| path.ends_with("/blueprint.toml"))
         .filter_map(|path| {
             let file = EmbeddedFiles::get(&path)?;
             let text = String::from_utf8(file.data.into_owned()).ok()?;

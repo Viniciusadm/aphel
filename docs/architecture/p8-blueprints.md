@@ -27,8 +27,12 @@ Compilation, lint, the arch check and `make probe` do not prove behaviour. Check
 - A blueprint whose package does not exist: the install succeeds, `GET /api/v1/blueprint` returns `configuration_error`, admins see the banner, and after fixing the package the retry button applied it (pipeline created, banner gone).
 - A blueprint with `[[roles]]` creates the role with only the valid permissions; a blueprint with `navigation.sections` shows its own sidebar section (`Pipeline` with Empresas and Oportunidades). These two used a temporary change to `blueprints/crm`, reverted afterwards.
 
+## Checked at the end (2026-11-06)
+- Blueprint `theme`: installing with a temporary theme in `blueprints/crm` made `/api/v1/public/themes/active.css` return the theme tokens.
+- Blueprint `home = "/tasks"` redirected `/` to `/tasks` after sign-in; a localized section label (`Funil`) showed in pt-BR. Both used a temporary `blueprints/crm`, reverted.
+- Plugin contract hold with a manifest-only package providing `booking@1`: dry run listed `replaces: ["booking"]`, the install disabled `booking` (`held_by` shown), enabling it was refused with `module_held_by_extension`, and uninstalling re-enabled it. This found and fixed a foreign key failure (the hold ran before the plugin row existed).
+- A manifest with `conflicts_with` or `[[menu.rules]]` is rejected with a clear message.
+
 ## Known gaps
-- `configuration.theme` is parsed but not applied.
-- Navigation section labels are literal text, not translated.
-- Structural `is_system` seeds (task types, call outcomes, lead disqualification reasons, deal member roles) remain module seeds, run only for enabled modules.
-- `aphel.modules.toml` still decides what is compiled; build selection by blueprint is deferred.
+- Structural `is_system` seeds (task types, call outcomes, lead disqualification reasons, deal member roles) remain module seeds, run only for enabled modules (decision: hybrid).
+- `aphel.modules.toml` still decides what is compiled; build selection by blueprint is deferred (decision).

@@ -97099,7 +97099,7 @@
             "type": "string"
           },
           "label": {
-            "type": "string"
+            "type": "object"
           }
         }
       },

@@ -51,6 +51,10 @@ const MAX_OBJECT_KEY_LENGTH: usize = 48;
 const MAX_ROLE_PRESETS: usize = 20;
 pub const ENTITY_ACTIONS: &[&str] = &["read", "create", "update", "delete", "archive", "export"];
 const RESERVED_ROLES: &[&str] = &["admin"];
+const REMOVED_MANIFEST_FIELDS: &[(&str, &str)] = &[(
+    "conflicts_with",
+    "provide the contract of the module you replace through provides.contracts",
+)];
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PluginManifest {
@@ -409,6 +413,16 @@ impl PluginManifest {
     }
 
     pub fn parse(text: &str) -> Result<Self, AppError> {
+        if let Ok(table) = text.parse::<toml::Table>() {
+            for (field, hint) in REMOVED_MANIFEST_FIELDS {
+                if table.contains_key(*field) {
+                    return Err(AppError::validation_code(
+                        INVALID_MANIFEST,
+                        format!("plugin.toml is invalid: `{field}` was removed; {hint}"),
+                    ));
+                }
+            }
+        }
         toml::from_str(text).map_err(|error| {
             AppError::validation_code(INVALID_MANIFEST, format!("plugin.toml is invalid: {error}"))
         })

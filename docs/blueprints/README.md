@@ -49,8 +49,9 @@ The `aphel-blueprint` crate (`back/blueprint`) parses every `blueprints/*/bluepr
 
 - `plugins.required` plugins are enabled and locked by the installer.
 - `[[roles]]` are created after the install (only permissions the build knows are granted, organization wide; existing roles with the same key are left alone).
-- `navigation.sections` replace the module-declared sidebar sections: `items` are plugin keys; sections the blueprint does not claim keep their module-declared ones. `navigation.home` is where `/` redirects when that item is enabled; labels are literal text.
-- `configuration.theme` is parsed but not applied yet.
+- `navigation.sections` replace the module-declared sidebar sections: `items` are plugin keys; sections the blueprint does not claim keep their module-declared ones. A label is plain text or a table per language (`label = { en = "Pipeline", "pt-BR" = "Funil" }`).
+- `navigation.home` is where `/` goes after sign-in when the user has no home of their own (a personal preference or a plugin role home win), when it is not `/`; if no module serves `/` the blank home redirects there too.
+- `configuration.theme` is a path relative to `blueprints/` (for example `crm/themes/warm.json`) to an `aphel-theme` package; it is installed and activated through the `themes` module when that module is enabled.
 
 ## Install-time configuration
 

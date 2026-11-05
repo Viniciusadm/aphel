@@ -323,3 +323,18 @@ pub(crate) async fn export(ctx: &Ctx<'_>, key: &str) -> Result<ThemePackage, App
             .collect(),
     })
 }
+
+pub(crate) struct BlueprintTheme;
+
+#[async_trait::async_trait]
+impl aphel_sdk::platform::application::installer::BlueprintThemeInstaller for BlueprintTheme {
+    async fn apply_theme(&self, ctx: &Ctx<'_>, package: serde_json::Value) -> Result<(), AppError> {
+        let package: ThemePackage = serde_json::from_value(package).map_err(|error| {
+            AppError::Configuration(format!("invalid blueprint theme: {error}"))
+        })?;
+        let key = package.id.clone();
+        install(ctx, package, "blueprint", None).await?;
+        activate(ctx, Some(key), None).await?;
+        Ok(())
+    }
+}
