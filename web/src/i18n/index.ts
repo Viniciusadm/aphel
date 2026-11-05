@@ -11,6 +11,7 @@ void i18n.use(initReactI18next).init({
   defaultNS: 'common',
   interpolation: { escapeValue: false },
   returnNull: false,
+  react: { bindI18nStore: 'added' },
   initAsync: false,
 })
 

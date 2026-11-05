@@ -23,10 +23,11 @@ interface SetupStepFrameProps {
   primary?: SetupAction
   secondary?: SetupAction
   aside?: ReactNode
+  form?: boolean
   children?: ReactNode
 }
 
-export function SetupStepFrame({ title, description, error, notice, primary, secondary, aside, children }: SetupStepFrameProps) {
+export function SetupStepFrame({ title, description, error, notice, primary, secondary, aside, form = true, children }: SetupStepFrameProps) {
   const { t } = useTranslation('setup')
   const { onBack } = useSetupFrame()
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -42,9 +43,8 @@ export function SetupStepFrame({ title, description, error, notice, primary, sec
     primary?.onClick?.()
   }
 
-  return (
-    <Card>
-      <form className="grid gap-6" onSubmit={onSubmit} noValidate>
+  const content = (
+    <>
         <CardHeader className="gap-2">
           <PageTitle ref={headingRef} tabIndex={-1} className="outline-none">
             {title}
@@ -83,7 +83,11 @@ export function SetupStepFrame({ title, description, error, notice, primary, sec
                 </Button>
               )}
               {primary && (
-                <Button type="submit" disabled={busy || primary.disabled}>
+                <Button
+                  type={form ? 'submit' : 'button'}
+                  onClick={form ? undefined : primary.onClick}
+                  disabled={busy || primary.disabled}
+                >
                   {primary.busy && <LoaderCircle className="animate-spin" aria-hidden />}
                   {primary.busy && primary.busyLabel ? primary.busyLabel : primary.label}
                 </Button>
@@ -91,7 +95,18 @@ export function SetupStepFrame({ title, description, error, notice, primary, sec
             </div>
           </CardFooter>
         )}
-      </form>
+    </>
+  )
+
+  return (
+    <Card>
+      {form ? (
+        <form className="grid gap-6" onSubmit={onSubmit} noValidate>
+          {content}
+        </form>
+      ) : (
+        <div className="grid gap-6">{content}</div>
+      )}
     </Card>
   )
 }

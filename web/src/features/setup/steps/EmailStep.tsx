@@ -13,6 +13,7 @@ export function EmailStep({ onDone }: { onDone: () => void }) {
     <SetupStepFrame
       title={t('email.title')}
       description={t('email.description')}
+      form={false}
       primary={configured ? { label: t('email.continue'), onClick: onDone } : undefined}
       secondary={configured ? undefined : { label: t('actions.later'), onClick: onDone }}
     >
