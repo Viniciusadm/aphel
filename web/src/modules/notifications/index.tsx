@@ -1,8 +1,8 @@
 import { Bell } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
-import { NotificationSettingsPage, NotificationBell } from './ui'
+import { MentionInput, NotificationSettingsPage, NotificationBell } from './ui'
 import { PushLifecycle } from './PushLifecycle'
-const module = defineModule({ key: 'notifications', register(app) { app.settings('account', {
+const module = defineModule({ key: 'notifications', register(app) { app.provideComponent('notifications.MentionInput', MentionInput); app.settings('account', {
       group: 'profile',
       path: 'notifications',
       label: 'settings:tabs.notifications',

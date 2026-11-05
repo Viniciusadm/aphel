@@ -4,13 +4,18 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Slot } from '@/kernel/modules/Slot'
 import { type ComposerSubject } from '@/kernel/modules/slots'
-import { MentionInput } from '@/modules/notifications/ui'
-import { NativeSelect } from '@/sdk'
+import { ContractComponent, NativeSelect, type ContractComponentProps } from '@/sdk'
+import { Textarea } from '@/components/ui/textarea'
 import type { NoteVisibility } from '../api'
 import { Markdown } from '@/components/markdown'
 import { Field } from '@/components/ui/field'
 
 export const MAX_NOTE_LENGTH = 50_000
+
+function PlainBody({ onValueChange, ...props }: ContractComponentProps<'notifications.MentionInput'>) {
+  void onValueChange
+  return <Textarea {...props} />
+}
 
 export interface NoteEditorValue {
   body: string
@@ -92,7 +97,9 @@ export function NoteEditor({
           )}
         </div>
       ) : (
-        <MentionInput
+        <ContractComponent
+          name="notifications.MentionInput"
+          fallback={PlainBody}
           id={`${id}-body`}
           rows={4}
           value={body}

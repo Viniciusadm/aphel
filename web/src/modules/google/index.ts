@@ -1,13 +1,11 @@
 import { CalendarDays } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { GOOGLE_CALENDAR_PERMISSION, GOOGLE_KEY } from './api'
-import {SSO_SHARED_KEY} from '@/sdk'
 import { GoogleSettingsPanel } from './SettingsPanel'
 
 const googleModule = defineModule({
   key: GOOGLE_KEY,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
-  namespaces: { [SSO_SHARED_KEY]: { 'pt-BR': () => import('@/modules/sso/i18n/pt-BR.json'), en: () => import('@/modules/sso/i18n/en.json') } },
   settingsPanel: GoogleSettingsPanel,
   register(app) {
     app.routes([
