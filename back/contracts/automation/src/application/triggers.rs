@@ -94,11 +94,17 @@ pub fn event_context(trigger_type: &str, event: &DomainEvent) -> TriggerContext 
 pub fn record_event<'a>(event: &'a DomainEvent, action: &str) -> Option<&'a RecordRef> {
     let record = event.record.as_ref()?;
     let (prefix, suffix) = event.event_type.rsplit_once('.')?;
-    (suffix == action
-        && aphel_kernel::application::shared::RecordType::parse(prefix)
-            .is_ok_and(|key| key == record.record_type)
-        && is_automatable(prefix))
-    .then_some(record)
+    if suffix != action || !is_automatable(record.record_type.as_str()) {
+        return None;
+    }
+    let matches_type = aphel_kernel::application::shared::RecordType::parse(prefix)
+        .is_ok_and(|key| key == record.record_type);
+    let matches_prefix = aphel_kernel::modules::try_app().is_some_and(|app| {
+        app.record_types()
+            .get(&record.record_type)
+            .is_some_and(|definition| definition.event_prefix == prefix)
+    });
+    (matches_type || matches_prefix).then_some(record)
 }
 
 pub fn changes(payload: &Value) -> (Vec<String>, Map<String, Value>) {
