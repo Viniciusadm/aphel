@@ -334,7 +334,7 @@
       "description": "Define what each role can see and do."
     },
     "fields": {
-      "description": "Custom fields for people, organizations and deals."
+      "description": "Custom fields for the record types."
     },
     "layouts": {
       "description": "Arrange fields on each record screen."

@@ -334,7 +334,7 @@
       "description": "Defina o que cada perfil pode ver e fazer."
     },
     "fields": {
-      "description": "Campos personalizados de contatos, empresas e negócios."
+      "description": "Campos personalizados dos tipos de registro."
     },
     "layouts": {
       "description": "Organize os campos nas telas de cada registro."
