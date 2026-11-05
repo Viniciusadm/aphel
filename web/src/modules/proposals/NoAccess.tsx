@@ -1,7 +1,7 @@
 import { Lock } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { PROPOSALS_KEY } from './api'
+import {PROPOSALS_KEY} from '@/sdk'
 
 export function NoAccess() {
   const t = useModuleTranslation(PROPOSALS_KEY)

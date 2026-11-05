@@ -1,6 +1,6 @@
 import { api } from '@/api'
 import type { EsignRequest } from '@/modules/esign/api'
-import type { ProposalDocument } from '@/modules/proposals/api'
+import type {ProposalDocument} from '@/sdk'
 
 export const PROPOSALS_MODULE = 'proposals'
 export const ESIGN_MODULE = 'esign'

@@ -17,16 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { fileDownloadUrl, formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
-import {
-  GENERATE_PERMISSION,
-  PROPOSALS_KEY,
-  proposalsApi,
-  proposalsKeys,
-  useInvalidateProposals,
-  useProposalDocuments,
-  useProposalTemplates,
-  type ProposalDocument,
-} from './api'
+import {GENERATE_PERMISSION, PROPOSALS_KEY, proposalsApi, proposalsKeys, useInvalidateProposals, useProposalDocuments, useProposalTemplates, type ProposalDocument} from '@/sdk'
 import { ProposalDocumentView } from './ProposalDocumentView'
 import { Field } from '@/components/ui/field'
 

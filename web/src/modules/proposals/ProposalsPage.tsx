@@ -17,16 +17,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import {
-  MANAGE_PERMISSION,
-  PROPOSALS_KEY,
-  PROPOSALS_PATH,
-  proposalsApi,
-  useInvalidateProposals,
-  useProposalTemplates,
-  type ProposalTemplate,
-  type UpdateProposalTemplate,
-} from './api'
+import {MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH, proposalsApi, useInvalidateProposals, useProposalTemplates, type ProposalTemplate, type UpdateProposalTemplate} from '@/sdk'
 import { NoAccess } from './NoAccess'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'

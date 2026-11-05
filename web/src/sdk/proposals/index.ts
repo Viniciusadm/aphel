@@ -1,0 +1,2 @@
+export { GENERATE_PERMISSION, MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH, proposalsApi, proposalsKeys, useInvalidateProposals, useProposalDocuments, useProposalTemplate, useProposalTemplates, useProposalVariables } from './api'
+export type { ProposalBlock, ProposalDocument, ProposalIssue, ProposalItemsTable, ProposalSpan, ProposalTemplate, ProposalVariable, UpdateProposalTemplate } from './api'

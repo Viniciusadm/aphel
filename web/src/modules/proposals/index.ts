@@ -1,7 +1,7 @@
 import { FileText } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { lazyComponent } from '@/lib/lazy-component'
-import { GENERATE_PERMISSION, MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH } from './api'
+import {GENERATE_PERMISSION, MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH} from '@/sdk'
 
 const DealProposalsTab = lazyComponent(async () => (await import('./DealProposalsTab')).DealProposalsTab)
 

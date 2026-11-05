@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { PROPOSALS_KEY, type ProposalVariable } from './api'
+import {PROPOSALS_KEY, type ProposalVariable} from '@/sdk'
 
 const GROUP_ORDER = ['deal', 'contact', 'company', 'owner', 'items', 'blocks', 'proposal', 'user', 'organization']
 

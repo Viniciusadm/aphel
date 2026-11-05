@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { cn } from '@/lib/utils'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { PROPOSALS_KEY, type ProposalBlock, type ProposalItemsTable, type ProposalSpan } from './api'
+import {PROPOSALS_KEY, type ProposalBlock, type ProposalItemsTable, type ProposalSpan} from '@/sdk'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 function Spans({ spans }: { spans: ProposalSpan[] }) {

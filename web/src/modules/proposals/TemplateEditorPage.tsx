@@ -15,19 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { RecordFieldInput } from '@/components/fields'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import {
-  MANAGE_PERMISSION,
-  PROPOSALS_KEY,
-  PROPOSALS_PATH,
-  proposalsApi,
-  proposalsKeys,
-  useInvalidateProposals,
-  useProposalTemplate,
-  useProposalVariables,
-  type ProposalIssue,
-  type ProposalTemplate,
-  type ProposalVariable,
-} from './api'
+import {MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH, proposalsApi, proposalsKeys, useInvalidateProposals, useProposalTemplate, useProposalVariables, type ProposalIssue, type ProposalTemplate, type ProposalVariable} from '@/sdk'
 import { NoAccess } from './NoAccess'
 import { ProposalDocumentView } from './ProposalDocumentView'
 import { VariablePicker } from './VariablePicker'
