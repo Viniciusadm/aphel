@@ -6,11 +6,13 @@ use serde_json::{Map, Value};
 
 use aphel_contract_automation::application::context::lookup;
 use aphel_contract_automation::application::templates::TRIGGER_PATHS;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::{Filter, FilterCondition, FilterGroup, LogicalOperator};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::FieldViolation;
 use aphel_sdk::conditions::{ConditionContext, condition_matches};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::query::{
+    Filter, FilterCondition, FilterGroup, LogicalOperator,
+};
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub(crate) const TRIGGER_FIELD_PREFIX: &str = "trigger.";
 

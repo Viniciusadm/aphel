@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 use std::sync::LazyLock;
 
-use aphel_kernel::application::files::sha256_hex;
-use aphel_kernel::modules::builder::APHEL_VERSION;
+use aphel_sdk::platform::application::files::sha256_hex;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD;
 use regex::Regex;

@@ -12,9 +12,9 @@ use crate::model::{AiComposeRequest, AiRecordRequest};
 use crate::provider::AiMessage;
 use crate::service::AiSession;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
+use aphel_sdk::platform::application::access::Authorizer;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]

@@ -6,14 +6,14 @@ use crate::application::{
     FormulaNode, FormulaPorts, FunctionSpec, INCOMPATIBLE_RESULT, Span, TypeFormulas, ValueKind,
     compile_formula, find_cycle,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{FieldSet, ReferenceChecker, value_to_json};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::fields::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{FieldSet, ReferenceChecker, value_to_json};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::fields::{
     FieldConfig, FieldDefinition, FieldKey, FormulaResultType, FormulaSettings, MAX_DECIMALS,
 };
-use aphel_kernel::errors::{AppError, FieldViolation};
 
 pub const FORMULA_RECORD_NOT_FOUND: &str = "record_not_found";
 pub const PREVIEW_KEY: &str = "formula_preview";

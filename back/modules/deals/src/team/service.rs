@@ -20,26 +20,28 @@ use crate::team::domain::{
 };
 use crate::team::store::{DealCreditReader, DealMemberRoleStore, DealMemberStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, not_accessible};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, QueryPlan, RecordQuery, RecordQueryExecutor,
-    RecordQueryPorts, ResolveContext, resolve_query,
-};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
-    ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{
+    NOT_ACCESSIBLE_MESSAGE, not_accessible,
+};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterOperator, QueryPlan, RecordQuery, RecordQueryExecutor,
+    RecordQueryPorts, ResolveContext, resolve_query,
+};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
+    ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 const INVALID_DEAL_MEMBER: &str = "invalid deal member";
 const STATUS: &str = "status";

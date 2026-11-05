@@ -15,15 +15,15 @@ use crate::tracking::{
 };
 use crate::{EMAIL_BOUNCED, EMAIL_CLICKED, EMAIL_OPENED, EmailMessageView, EngagementKind};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::secrets::SecretVault;
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::secrets::SecretVault;
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::privacy::mask_email;
 
 pub(crate) async fn existing_tracking_key(ctx: &Ctx<'_>) -> Result<Option<Vec<u8>>, AppError> {

@@ -8,14 +8,14 @@ use uuid::Uuid;
 use crate::engine::{
     DashboardRepository, SubjectDirectory, SubjectTeam, SubjectUser, WidgetRegistry,
 };
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
-use aphel_kernel::infrastructure::repositories::mapper::invalid_column;
-use aphel_kernel::records::constrain_query;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::query::compiler::{Projection, build_query};
+use aphel_sdk::platform::infrastructure::repositories::mapper::invalid_column;
+use aphel_sdk::platform::records::constrain_query;
 
 #[derive(Clone)]
 pub struct MySqlDashboardRepository {
@@ -137,7 +137,7 @@ pub use aphel_sdk::dashboard::WidgetPorts as MySqlDashboardPorts;
 
 impl WidgetRegistry<MySqlDashboardPorts> {
     pub fn builtin() -> Self {
-        aphel_kernel::modules::app()
+        aphel_sdk::platform::modules::app()
             .contributions::<dyn crate::engine::WidgetProvider<MySqlDashboardPorts>>()
             .into_iter()
             .fold(Self::empty(), |registry, provider| {

@@ -2,9 +2,9 @@ use crate::domain::EmailAccess;
 use crate::{
     EmailAttachmentView, EmailBody, EmailMessageView, ParticipantView, RecordLinkView, ThreadView,
 };
-use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::shared::{ByteStream, RecordRef, RecordType};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::PERMISSION_DENIED;
+use aphel_sdk::platform::application::shared::{ByteStream, RecordRef, RecordType};
 
 pub(crate) const EMAIL_THREAD_NOT_FOUND: &str = "email_thread_not_found";
 pub(crate) const EMAIL_ATTACHMENT_NOT_FOUND: &str = "email_attachment_not_found";

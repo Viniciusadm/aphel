@@ -13,9 +13,9 @@ use crate::store::{self, StoredChannel, StoredConversation, StoredMessage};
 use crate::text;
 use crate::{MESSAGE_FAILED, MESSAGE_SENT, job_kind, user_uuid};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{FieldChange, Job, JobContext};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::{FieldChange, Job, JobContext};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const SEND_JOB: &str = "send";
 pub(crate) const SEND_ATTEMPTS: u32 = 5;

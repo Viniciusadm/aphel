@@ -6,12 +6,12 @@ use serde_json::Value;
 use crate::domain::{TRASH_PURGE_CRON, TRASH_PURGE_JOB};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) fn trash_purge_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(TRASH_PURGE_JOB, TRASH_PURGE_CRON)

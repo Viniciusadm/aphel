@@ -6,9 +6,9 @@ use crate::application::{
     CreateValidationRuleCommand, ReorderValidationRulesCommand, UpdateValidationRuleCommand,
     ValidationRule, ValidationRulePreview,
 };
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::common::timestamp;
 use aphel_sdk::formulas::dto::FormulaPreviewResponse;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::common::timestamp;
 
 #[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "snake_case")]

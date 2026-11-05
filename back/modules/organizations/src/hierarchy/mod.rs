@@ -7,15 +7,15 @@ use uuid::Uuid;
 
 use crate::domain::COMPANY_UPDATED;
 use crate::store::CompanyStore;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{
-    AuditLog, EventPublisher, FieldChange, RecordRef, RecordType,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::fields::FieldValueError;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{
+    AuditLog, EventPublisher, FieldChange, RecordRef, RecordType,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::fields::FieldValueError;
 
 pub(crate) mod http;
 pub(crate) mod restore;

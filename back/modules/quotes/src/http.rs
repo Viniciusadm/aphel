@@ -26,25 +26,25 @@ use crate::domain::{
 };
 use crate::{document, public, service, workflow};
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{
-    Data, ErrorEnvelope, Page, QuickSearchParams, decimal_text, double_option, timestamp,
-};
-use aphel_kernel::api::dto::query::{RecordListQuery, RecordQueryParams};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{
-    AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
-};
-use aphel_kernel::api::rate_limit::SharedRateLimiter;
-use aphel_kernel::api::routes::v1::field_permissions::{redacted, redacted_items};
-use aphel_kernel::api::routes::v1::files::content_disposition;
-use aphel_kernel::api::state::AppState;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
 use aphel_sdk::email::EmailAddressDto;
 use aphel_sdk::line_items::{DiscountKind, money};
 use aphel_sdk::money::DecimalInputSchema;
+use aphel_sdk::platform::api::dto::common::{
+    Data, ErrorEnvelope, Page, QuickSearchParams, decimal_text, double_option, timestamp,
+};
+use aphel_sdk::platform::api::dto::query::{RecordListQuery, RecordQueryParams};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{
+    AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
+};
+use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
+use aphel_sdk::platform::api::routes::v1::field_permissions::{redacted, redacted_items};
+use aphel_sdk::platform::api::routes::v1::files::content_disposition;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const TAG: &str = "quotes";
 

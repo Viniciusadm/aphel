@@ -7,8 +7,8 @@ pub(crate) mod store;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "favorites";
 
@@ -29,7 +29,7 @@ impl Module for FavoritesModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("favorites"),
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable("favorites"),
         ));
         app.openapi_tag(
             http::TAG,

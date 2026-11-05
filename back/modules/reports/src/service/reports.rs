@@ -11,18 +11,20 @@ use crate::domain::custom::{
 use crate::store::ReportStore;
 use crate::table::report_table;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::fields::permissions::query_error;
-use aphel_kernel::application::query::{AggregateEngine, AggregateQuery, AggregateResult};
-use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::TeamId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, lock_version, publish_mutation};
 use aphel_sdk::exports::{CSV_MIME_TYPE, ExportFormat, XLSX_MIME_TYPE, encode_csv, encode_xlsx};
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::fields::permissions::query_error;
+use aphel_sdk::platform::application::query::{AggregateEngine, AggregateQuery, AggregateResult};
+use aphel_sdk::platform::application::shared::{
+    FieldChange, RecordRef, RecordType, ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::views::ViewVisibility;
 
 #[derive(Serialize)]

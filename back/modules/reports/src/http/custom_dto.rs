@@ -8,9 +8,9 @@ use crate::domain::custom::{
     ReportVisualization, RunOverrides, ScheduleEntry, ScheduleFrequency, UpdateReportCommand,
     UpdateScheduleCommand,
 };
-use aphel_kernel::api::dto::aggregates::AggregateQueryRequest;
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::files::UserReferenceResponse;
+use aphel_sdk::platform::api::dto::aggregates::AggregateQueryRequest;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::files::UserReferenceResponse;
 use aphel_sdk::views::ViewVisibilitySchema;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]

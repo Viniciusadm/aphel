@@ -10,11 +10,11 @@ use aphel_contract_automation::application::triggers::{
     TriggerReference, TriggerRegistry, is_automatable,
 };
 use aphel_contract_crm::refs;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::query::Filter;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) struct AutomationValidator<'a> {
     pub(crate) scope: &'a AccessScope,

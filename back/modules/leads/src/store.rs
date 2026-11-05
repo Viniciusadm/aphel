@@ -14,17 +14,17 @@ use crate::domain::{
     TransitionTrigger,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{ArchivedFilter, QueryPlan};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::push_record_ids_subquery;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{ArchivedFilter, QueryPlan};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_ids_subquery;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const REASON_COLUMNS: &str = "id, `key`, name, is_active, position, created_at, updated_at";
 
@@ -451,7 +451,7 @@ impl LeadRecords {
             },
         };
         Ok(
-            aphel_kernel::records::constrain_query(&self.pool, scope, &plan)
+            aphel_sdk::platform::records::constrain_query(&self.pool, scope, &plan)
                 .await?
                 .unwrap_or(plan),
         )
@@ -492,10 +492,10 @@ impl LeadRecords {
         record_type: &RecordType,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
-        use aphel_kernel::application::query::{
+        use aphel_sdk::platform::application::query::{
             Filter, FilterOperator, RecordQuery, RecordQueryEngine,
         };
-        let ports = aphel_kernel::infrastructure::query::MySqlRecordQueryPorts::new(
+        let ports = aphel_sdk::platform::infrastructure::query::MySqlRecordQueryPorts::new(
             self.pool.clone(),
             self.registry.clone(),
         );
@@ -571,7 +571,7 @@ impl LeadRecords {
         &self,
         deal_id: Uuid,
     ) -> Result<Option<DealParties>, AppError> {
-        let app = aphel_kernel::modules::app();
+        let app = aphel_sdk::platform::modules::app();
         let Some(source) = app.services().get::<dyn aphel_sdk::deals::DealLifecycle>() else {
             return Ok(None);
         };
@@ -583,7 +583,7 @@ impl LeadRecords {
         record_type: &RecordType,
         record_id: Uuid,
     ) -> Result<Option<DealOutcomes>, AppError> {
-        let app = aphel_kernel::modules::app();
+        let app = aphel_sdk::platform::modules::app();
         let Some(source) = app.services().get::<dyn aphel_sdk::deals::DealLifecycle>() else {
             return Ok(None);
         };

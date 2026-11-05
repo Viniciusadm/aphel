@@ -12,21 +12,21 @@ use crate::outgoing::model::{
 };
 use crate::outgoing::store::{WebhookDeliveryStore, WebhookEndpointStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::outbound_http::{OutboundUrlGuard, UrlRejection};
-use aphel_kernel::application::public_events::is_public_event;
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
-use aphel_kernel::application::security::SecureTokens;
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::Secret;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::outbound_http::{OutboundUrlGuard, UrlRejection};
+use aphel_sdk::platform::application::public_events::is_public_event;
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::application::security::SecureTokens;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::Secret;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::auth::Sha256SecureTokens;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::auth::Sha256SecureTokens;
 
 pub(crate) const WEBHOOK_ENDPOINT_NOT_FOUND: &str = "webhook_endpoint_not_found";
 pub(crate) const WEBHOOK_DELIVERY_NOT_FOUND: &str = "webhook_delivery_not_found";
@@ -270,7 +270,7 @@ pub(crate) async fn create(
     let mut violations = Vec::new();
     let description = clean_description(command.description);
     validate_description(&description, &mut violations);
-    aphel_kernel::application::public_events::refresh_public_events(ctx.pool()).await?;
+    aphel_sdk::platform::application::public_events::refresh_public_events(ctx.pool()).await?;
     let events = validate_events(&command.events, &mut violations);
     if !violations.is_empty() {
         return Err(AppError::invalid_fields(
@@ -356,7 +356,7 @@ pub(crate) async fn update(
         validate_description(&updated.description, &mut violations);
     }
     if let Some(events) = &command.events {
-        aphel_kernel::application::public_events::refresh_public_events(ctx.pool()).await?;
+        aphel_sdk::platform::application::public_events::refresh_public_events(ctx.pool()).await?;
         updated.events = validate_events(events, &mut violations);
     }
     if !violations.is_empty() {

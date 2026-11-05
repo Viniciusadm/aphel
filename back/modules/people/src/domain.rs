@@ -2,8 +2,6 @@ use chrono::{DateTime, Utc};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::permissions::provided_key;
-use aphel_kernel::application::files::UserReference;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
@@ -11,6 +9,8 @@ use aphel_kernel::records::{
     insert_text, value_patch,
 };
 pub(crate) use aphel_sdk::email::EmailEngagement;
+use aphel_sdk::platform::application::fields::permissions::provided_key;
+use aphel_sdk::platform::application::files::UserReference;
 
 pub(crate) const CONTACT_NOT_FOUND: &str = "contact_not_found";
 pub(crate) const LINK_NOT_FOUND: &str = "link_not_found";

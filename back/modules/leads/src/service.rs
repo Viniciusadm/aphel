@@ -6,9 +6,9 @@ use serde::Serialize;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -28,19 +28,19 @@ use crate::hooks::{
 };
 use crate::store::{HistoryStore, LeadRecords, ReasonStore, SettingsStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+use aphel_sdk::platform::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
 
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::EventConsumer;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::EventConsumer;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 use aphel_sdk::deals::{DEAL_CREATED, DEAL_DELETED, DEAL_LOST, DEAL_REOPENED, DEAL_WON};
 
@@ -997,7 +997,7 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
 
 async fn move_stage_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut aphel_kernel::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
     stage_move: StageMove,
 ) -> Result<Option<aphel_kernel::records::PendingCommit>, AppError> {
     let scope = ctx.scope;

@@ -1,7 +1,7 @@
 use serde::Serialize;
 use utoipa::ToSchema;
 
-use aphel_kernel::application::public_events::{PreviousValues, PublicEventDefinition};
+use aphel_sdk::platform::application::public_events::{PreviousValues, PublicEventDefinition};
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct PublicEventTypeResponse {

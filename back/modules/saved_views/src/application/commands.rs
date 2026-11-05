@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde_json::Value;
 
 use crate::application::SavedView;
-use aphel_kernel::application::query::{Filter, SortSpec};
+use aphel_sdk::platform::application::query::{Filter, SortSpec};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CreateViewCommand {

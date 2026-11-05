@@ -7,7 +7,7 @@ use crate::domain::{
     normalized_names_similar, ordered_pair,
 };
 use crate::{DuplicateType, RecordFingerprint, RuleSetting, SCAN_WINDOW};
-use aphel_kernel::application::fields::LabelNormalization;
+use aphel_sdk::platform::application::fields::LabelNormalization;
 
 pub(crate) fn enabled_rules(kind: &DuplicateType, settings: &[RuleSetting]) -> Vec<DuplicateRule> {
     kind.rules()

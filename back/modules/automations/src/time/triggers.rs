@@ -7,10 +7,10 @@ use aphel_contract_automation::application::time::triggers::*;
 use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, is_automatable,
 };
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::{Filter, FilterOperator, in_saved_filter};
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::query::{Filter, FilterOperator, in_saved_filter};
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
 
 struct DateRelative;
 

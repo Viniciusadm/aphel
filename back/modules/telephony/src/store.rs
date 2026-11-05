@@ -12,13 +12,13 @@ use crate::domain::{
     DEFAULT_CALL_OUTCOMES, SessionCounts, SessionItemStatus,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub(crate) struct CallStore {

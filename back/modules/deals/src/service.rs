@@ -25,34 +25,34 @@ use crate::hooks::{
 };
 use crate::store::DealStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, FieldSet, RecordDraft, RecordPipeline,
-    RecordWrite, WriteMode,
-};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
-    FieldTarget, Filter, FilterExpansion, FilterExpansions, FilterOperator, PlanCondition,
-    PlanNode, PlanValue, Predicate, QueryPlan, RecordQuery, RecordQueryEngine, RecordQueryExecutor,
-    RecordQueryPorts, ResolveContext, resolve_query_with,
-};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
-    ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
     InputValidator, PendingCommit, changes_payload, contributed_input, is_writable_contributed,
     load_contributed, merge_contributed, with_contributed, write_contributed,
 };
 use aphel_sdk::money::{CurrencyConverter, base_amount, currency_not_enabled};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::fields::permissions::check_record_writes;
+use aphel_sdk::platform::application::fields::{
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, FieldSet, RecordDraft, RecordPipeline,
+    RecordWrite, WriteMode,
+};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
+    FieldTarget, Filter, FilterExpansion, FilterExpansions, FilterOperator, PlanCondition,
+    PlanNode, PlanValue, Predicate, QueryPlan, RecordQuery, RecordQueryEngine, RecordQueryExecutor,
+    RecordQueryPorts, ResolveContext, resolve_query_with,
+};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
+    ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
+use aphel_sdk::platform::domain::fields::FieldType;
 use aphel_sdk::workflow::WorkflowReader;
 use aphel_sdk::workflow::{
     LostReason, PIPELINE_NOT_FOUND, Pipeline, PipelineStage, StageKind, first_active_of_kind,
@@ -494,8 +494,13 @@ async fn update_record(
         &values,
         &DiffOptions::default(),
     )?;
-    aphel_kernel::records::lock_version(tx, "deals", current.deal.id, input.expected_updated_at)
-        .await?;
+    aphel_sdk::platform::records::lock_version(
+        tx,
+        "deals",
+        current.deal.id,
+        input.expected_updated_at,
+    )
+    .await?;
     if !filtered
         && let Some(input) = saving(
             ctx,
@@ -1230,14 +1235,14 @@ async fn refresh_contract(
         ctx.services()
             .get::<dyn aphel_sdk::deals::RevenueCalculator>(),
     ) {
-        let system = aphel_kernel::domain::access::AccessScope::system();
+        let system = aphel_sdk::platform::domain::access::AccessScope::system();
         let rows = items
             .rows(
                 &ctx.with_scope(&system),
                 &RecordRef::new(RecordType::DEAL, deal.id),
             )
             .await?;
-        use aphel_kernel::application::query::RecordQueryExecutor;
+        use aphel_sdk::platform::application::query::RecordQueryExecutor;
         let timezone = ctx.query().executor().timezone().await?;
         let won_on = deal
             .closed_at

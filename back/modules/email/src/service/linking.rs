@@ -9,14 +9,14 @@ use crate::service::reading;
 use crate::store::LinkStore;
 use crate::{EMAIL_THREAD_LINKED, EMAIL_THREAD_UNLINKED, NewRecordLink};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn link(
     ctx: &Ctx<'_>,

@@ -6,12 +6,12 @@ use uuid::Uuid;
 
 use crate::domain::{Product, ProductData, Recurrence};
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mapper::{instant, optional_user, push_ids};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{instant, optional_user, push_ids};
 
 const PRODUCT_SELECT: &str = "SELECT r.id, r.name, r.code, r.description, r.price, r.currency, \
      r.unit, r.recurrence, r.term_months, r.is_active, r.created_by, r.created_at, r.updated_at \
@@ -100,7 +100,7 @@ impl ProductStore {
                 .fetch_optional(&self.pool)
                 .await?;
         Ok(currency.unwrap_or_else(|| {
-            aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
+            aphel_sdk::platform::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
         }))
     }
 

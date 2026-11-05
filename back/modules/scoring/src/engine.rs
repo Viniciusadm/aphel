@@ -11,11 +11,11 @@ use crate::domain::{
 };
 use crate::store::{ModelStore, ScoreStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 use aphel_kernel::errors::AppError;
 
@@ -24,7 +24,7 @@ const LIFECYCLE_ACTIONS: [&str; 5] = ["created", "updated", "restored", "deleted
 const COMPANY_FIELD: &str = "company_id";
 
 pub(crate) fn is_scored_record_type(record_type: &str) -> bool {
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .record_types()
         .require(record_type)
         .is_ok_and(|definition| {
@@ -35,7 +35,7 @@ pub(crate) fn is_scored_record_type(record_type: &str) -> bool {
 pub(crate) fn is_lifecycle_event(event_type: &str) -> bool {
     event_type.rsplit_once('.').is_some_and(|(prefix, action)| {
         LIFECYCLE_ACTIONS.contains(&action)
-            && aphel_kernel::application::shared::RecordType::parse(prefix)
+            && aphel_sdk::platform::application::shared::RecordType::parse(prefix)
                 .is_ok_and(|key| is_scored_record_type(key.as_str()))
     })
 }

@@ -1,14 +1,5 @@
 use super::queries;
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::{
-    AggregateFunction, Filter, FilterOperator, MetricSpec, RecordQueryPorts,
-};
-use aphel_kernel::application::query::{QueryPlan, SortSpec};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::{
     DashboardPorts, DashboardRepository, Planner, SettingsReader, WidgetContext, WidgetProvider,
@@ -16,6 +7,15 @@ use aphel_sdk::dashboard::{
 };
 use aphel_sdk::dashboard::{DashboardSource, WidgetPorts};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
+use aphel_sdk::platform::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::{
+    AggregateFunction, Filter, FilterOperator, MetricSpec, RecordQueryPorts,
+};
+use aphel_sdk::platform::application::query::{QueryPlan, SortSpec};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::workflow::rotting::stale_record_filter;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -154,7 +154,7 @@ where
     ) -> Result<Value, AppError> {
         let Some(planner) = context.planner(&RecordType::DEAL).await? else {
             return Err(AppError::forbidden_code(
-                aphel_kernel::application::access::PERMISSION_DENIED,
+                aphel_sdk::platform::application::access::PERMISSION_DENIED,
                 "missing permission deals.read",
             ));
         };
@@ -260,7 +260,7 @@ where
         })?;
         let Some(planner) = context.planner(&RecordType::DEAL).await? else {
             return Err(AppError::forbidden_code(
-                aphel_kernel::application::access::PERMISSION_DENIED,
+                aphel_sdk::platform::application::access::PERMISSION_DENIED,
                 "missing permission deals.read",
             ));
         };
@@ -272,10 +272,10 @@ where
         .await?;
         if policy.key_access("stage_id") == FieldAccess::Hidden {
             return Err(
-                aphel_kernel::application::fields::permissions::not_accessible(vec![
+                aphel_sdk::platform::application::fields::permissions::not_accessible(vec![
                     FieldViolation::new(
                         "stage_id",
-                        aphel_kernel::application::fields::permissions::NOT_ACCESSIBLE_MESSAGE,
+                        aphel_sdk::platform::application::fields::permissions::NOT_ACCESSIBLE_MESSAGE,
                     ),
                 ]),
             );
@@ -334,7 +334,7 @@ impl aphel_sdk::dashboard::DashboardSource for DealPendingSource {
     fn collection(&self) -> &str {
         "pending"
     }
-    fn available(&self, scope: &aphel_kernel::domain::access::AccessScope) -> bool {
+    fn available(&self, scope: &aphel_sdk::platform::domain::access::AccessScope) -> bool {
         scope.filter_for(&Permission::DEALS_READ).is_some()
     }
     async fn data(

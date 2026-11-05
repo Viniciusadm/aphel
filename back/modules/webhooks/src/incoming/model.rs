@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const INCOMING_WEBHOOK_RECORD_TYPE: RecordType =
     RecordType::from_static("webhooks.incoming_webhook");

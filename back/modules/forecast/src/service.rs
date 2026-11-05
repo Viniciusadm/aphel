@@ -15,25 +15,27 @@ use crate::domain::{
 };
 use crate::store::ForecastStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, not_accessible};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::query::{
-    AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, ArchivedFilter, Filter,
-    FilterOperator, GroupBySpec, MetricSpec, OWNER_TEAM_FIELD, RecordQuery, RecordQueryExecutor,
-    RecordQueryPorts, ResolveContext, TimeGranularity,
-};
-use aphel_kernel::application::shared::{RecordRef, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::deals::{CreditedUsers, credited_from_owner_filter, credited_won_months};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{
+    NOT_ACCESSIBLE_MESSAGE, not_accessible,
+};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::query::{
+    AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, ArchivedFilter, Filter,
+    FilterOperator, GroupBySpec, MetricSpec, OWNER_TEAM_FIELD, RecordQuery, RecordQueryExecutor,
+    RecordQueryPorts, ResolveContext, TimeGranularity,
+};
+use aphel_sdk::platform::application::shared::{RecordRef, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 const DEAL: &str = "deals.deal";
 const AMOUNT: &str = "amount";

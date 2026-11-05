@@ -10,10 +10,10 @@ use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext, only_keys, record_permission, text,
 };
 use aphel_contract_automation::application::triggers::is_automatable;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub(crate) const ASSIGN_BY_RULE: &str = "assign_by_rule";
 pub(crate) const DEFAULT_FIELD: &str = "owner_id";
@@ -78,8 +78,8 @@ impl AutomationAction for AssignByRule {
     }
     fn supports(&self, record_type: &str) -> bool {
         is_automatable(record_type)
-            && (aphel_kernel::domain::custom_objects::is_custom_record_type(record_type)
-                || aphel_kernel::modules::app()
+            && (aphel_sdk::platform::domain::custom_objects::is_custom_record_type(record_type)
+                || aphel_sdk::platform::modules::app()
                     .record_types()
                     .require(record_type)
                     .is_ok_and(|definition| definition.owner_column.is_some()))

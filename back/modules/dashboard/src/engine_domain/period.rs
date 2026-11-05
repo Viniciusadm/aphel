@@ -1,1 +1,1 @@
-pub use aphel_kernel::domain::period::*;
+pub use aphel_sdk::platform::domain::period::*;

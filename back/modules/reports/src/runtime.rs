@@ -10,16 +10,16 @@ use crate::domain::custom::{
 };
 use crate::service::delivery;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::mail::SharedMailer;
-use aphel_kernel::application::organization_profile::PublicBaseUrl;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_sdk::exports::system_scope;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::mail::SharedMailer;
+use aphel_sdk::platform::application::organization_profile::PublicBaseUrl;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 pub(crate) fn report_schedules_dispatch_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(

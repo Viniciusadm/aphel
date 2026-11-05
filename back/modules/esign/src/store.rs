@@ -3,8 +3,8 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{self, MySqlPool, Row};
 use uuid::Uuid;
 
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 pub(crate) const STATUS_SENT: &str = "sent";
 pub(crate) const STATUS_COMPLETED: &str = "completed";

@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use crate::compose::html::{escape_html, html_to_text, sanitize_html};
 use crate::templates::{RenderedEmail, VariableField};
-use aphel_kernel::application::fields::RelatedRecord;
+use aphel_sdk::platform::application::fields::RelatedRecord;
 
 pub(crate) const RECORD_PREFIX: &str = "record";
 pub(crate) const USER_PREFIX: &str = "user";
@@ -92,7 +92,7 @@ pub(crate) fn render_template(
 }
 
 pub(crate) fn related_records(record_type: &str) -> &'static [RelatedRecord] {
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .record_types()
         .capabilities(record_type)
         .map_or(&[], |capabilities| capabilities.related_records.as_slice())

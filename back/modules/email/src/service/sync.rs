@@ -28,16 +28,18 @@ use crate::{
     NewEmailMessage, NewParticipant, NewRecordLink, NewThread, SyncRequest,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::files::{NewFile, sanitize_file_name, sha256_hex, storage_key};
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::files::{
+    NewFile, sanitize_file_name, sha256_hex, storage_key,
+};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
     RecordType, SharedFileStorage,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 const MAX_BACKOFF_MINUTES: i64 = 360;
 const BODY_FILE_NAME: &str = "message.json";

@@ -1,4 +1,4 @@
-use aphel_kernel::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::fields::EntityDefinition;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Dataset {

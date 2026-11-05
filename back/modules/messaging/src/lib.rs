@@ -23,15 +23,15 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, ModuleCtx, SettingField, SettingKind,
     module_secret_key, module_settings,
 };
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "messaging";
 pub(crate) const TAG: &str = "messaging";
@@ -176,7 +176,7 @@ impl Module for MessagingModule {
         ));
         app.openapi_tag(opt_out_http::TAG, "Communication opt-outs")
             .routes(|_| opt_out_http::router());
-        app.contribute::<dyn aphel_kernel::application::mail::MailRecipientPolicy>(
+        app.contribute::<dyn aphel_sdk::platform::application::mail::MailRecipientPolicy>(
             std::sync::Arc::new(RecipientPolicy),
         );
         app.openapi_tag(
@@ -210,7 +210,7 @@ impl Module for MessagingModule {
 
     async fn purge_data(&self, ctx: &mut ModuleCtx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
         let channels = store::list_channels(ctx.pool).await?;
-        let state = aphel_kernel::state::runtime_state()?;
+        let state = aphel_sdk::platform::state::runtime_state()?;
         let ctx = Ctx::from_state(&state, ctx.scope).await?;
         for channel in channels {
             channels::remove_credentials(&ctx, tx, &channel).await?;
@@ -221,7 +221,7 @@ impl Module for MessagingModule {
 
 struct RecipientPolicy;
 #[async_trait]
-impl aphel_kernel::application::mail::MailRecipientPolicy for RecipientPolicy {
+impl aphel_sdk::platform::application::mail::MailRecipientPolicy for RecipientPolicy {
     async fn check(
         &self,
         pool: &sqlx::MySqlPool,

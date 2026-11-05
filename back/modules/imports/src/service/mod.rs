@@ -16,25 +16,25 @@ use crate::{
     ImportTarget, ImportTotals, PREVIEW_ROWS, RowReport, RowStatus, ValidationReport,
     normalize_label, parse_source, source_mime_type, suggest_mapping,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{
-    NOT_ACCESSIBLE_MESSAGE, READ_ONLY_MESSAGE, query_error,
-};
-use aphel_kernel::application::files::{
-    FileRepository, NewFile, sanitize_file_name, sha256_hex, storage_key,
-};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, FieldChange, Job, JobQueue, RecordRef,
-};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::storage::MySqlFileRepository;
 use aphel_sdk::exports::{CSV_MIME_TYPE, discard_generated_file, read_file_content};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{
+    NOT_ACCESSIBLE_MESSAGE, READ_ONLY_MESSAGE, query_error,
+};
+use aphel_sdk::platform::application::files::{
+    FileRepository, NewFile, sanitize_file_name, sha256_hex, storage_key,
+};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{RecordQueryExecutor, RecordQueryPorts};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, FieldChange, Job, JobQueue, RecordRef,
+};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::storage::MySqlFileRepository;
 
 use evaluate::{ResolutionCache, ResolveMode, RowEvaluator};
 
@@ -641,7 +641,7 @@ async fn owned(ctx: &Ctx<'_>, import_id: &str) -> Result<ImportJob, AppError> {
     let job = visible(ctx, import_id).await?;
     if &job.created_by != ctx.scope.user_id() {
         return Err(AppError::forbidden_code(
-            aphel_kernel::application::access::PERMISSION_DENIED,
+            aphel_sdk::platform::application::access::PERMISSION_DENIED,
             "only the user who created the import can change it",
         ));
     }

@@ -6,10 +6,10 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use crate::application::{NotificationPreferenceRepository, PreferenceSetting};
 use crate::domain::{NotificationChannel, NotificationKind};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub struct MySqlNotificationPreferenceRepository {

@@ -8,12 +8,12 @@ use crate::domain::ExitReason;
 use crate::runner::exit_enrollment;
 use crate::store::{DirectoryStore, EnrollmentStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::booking::MEETING_BOOKED;
 use aphel_sdk::deals::{DEAL_LOST, DEAL_WON};
 use aphel_sdk::email::{EMAIL_BOUNCED, EMAIL_OPENED, EMAIL_RECEIVED};
 use aphel_sdk::email::{EMAIL_TRACKING_OBJECTION_ADDED, address_hash};
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
 
 pub(crate) const SEQUENCE_EXITS_CONSUMER: &str = "sequences.exits";
 pub(crate) const CONTACT_DELETED: &str = "contact.deleted";

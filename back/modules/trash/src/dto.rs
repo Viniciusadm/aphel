@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
 use crate::domain::{TrashEntry, TrashItem, TrashQuery, TrashSettings};
-use aphel_kernel::api::dto::common::{OwnerResponse, timestamp};
-use aphel_kernel::application::fields::EntityDefinition;
+use aphel_sdk::platform::api::dto::common::{OwnerResponse, timestamp};
+use aphel_sdk::platform::application::fields::EntityDefinition;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TrashItemResponse {

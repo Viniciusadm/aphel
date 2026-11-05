@@ -6,10 +6,10 @@ use serde_json::{Map, Value};
 use uuid::Uuid;
 
 use crate::{ExportCell, ID_COLUMN};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_error};
-use aphel_kernel::domain::fields::{FieldDefinition, FieldType};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_error};
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType};
 
 pub(crate) const MAX_EXPORT_COLUMNS: usize = 200;
 

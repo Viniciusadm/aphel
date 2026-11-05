@@ -9,11 +9,11 @@ use uuid::Uuid;
 
 use crate::domain::Tag;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const TAG_COLUMNS: &str =
     "t.id, t.name, t.color, t.record_types, t.created_by, t.created_at, t.updated_at";

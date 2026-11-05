@@ -7,11 +7,11 @@ use uuid::Uuid;
 use crate::domain::{EmailVisibility, MailboxStatus};
 use crate::{DueMailbox, MailboxChanges, MailboxSyncState, MailboxView, NewMailbox};
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const MAILBOX_SELECT: &str = "SELECT m.id, m.user_id, m.provider, m.address, m.display_name, m.status, \
      m.status_reason, m.settings, m.sync_cursor, m.history_days, m.default_visibility, \

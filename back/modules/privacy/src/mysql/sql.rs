@@ -4,14 +4,14 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::service::subject::SubjectMatcher;
-use aphel_kernel::application::files::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::files::{
     FileReferenceColumn, FileReferenceSource, UserReference, declared_file_columns,
     unreferenced_file_condition,
 };
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 pub(crate) const PRIVACY_FILE_COLUMNS: [FileReferenceColumn; 1] =
     [FileReferenceColumn::new("privacy_requests", "file_id")];
@@ -55,7 +55,7 @@ pub(crate) async fn existing_columns(
 pub async fn file_reference_columns(
     pool: &MySqlPool,
 ) -> Result<Vec<FileReferenceColumn>, AppError> {
-    let declared = declared_file_columns(aphel_kernel::modules::app())
+    let declared = declared_file_columns(aphel_sdk::platform::modules::app())
         .into_iter()
         .map(|reference| (reference.table, reference.column))
         .collect();

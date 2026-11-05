@@ -5,11 +5,11 @@ use sqlx::MySqlPool;
 use crate::application::push::NotificationPushHandler;
 use crate::infrastructure::MySqlNotificationPorts;
 use crate::infrastructure::push::{MySqlPushPorts, WebPushSender};
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::JobHandler;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::platform::SharedSecretVault;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::JobHandler;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
 
 pub fn push_delivery_handler(
     pool: MySqlPool,

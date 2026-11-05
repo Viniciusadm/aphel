@@ -6,10 +6,10 @@ use utoipa_axum::routes;
 use crate::application::SearchUseCases;
 use crate::dto::{SearchParams, SearchResponse};
 use crate::infrastructure::MySqlSearchPorts;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::AuthContext;
-use aphel_kernel::api::state::AppState;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::AuthContext;
+use aphel_sdk::platform::api::state::AppState;
 
 pub const TAG: &str = "search";
 

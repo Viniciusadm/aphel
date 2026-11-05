@@ -5,12 +5,12 @@ use std::time::Duration;
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::api::rate_limit::{SlidingWindowLimiter, shared_hit};
-use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::platform::api::rate_limit::{SlidingWindowLimiter, shared_hit};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) fn actor_id(scope: &AccessScope) -> Uuid {
     if scope.is_system() {
@@ -77,7 +77,7 @@ pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<FieldSet,
 
 pub(crate) async fn update_record_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut aphel_kernel::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
     record_type: &str,
     id: Uuid,
     values: Map<String, Value>,

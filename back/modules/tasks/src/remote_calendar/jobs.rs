@@ -8,14 +8,14 @@ use super::engine::{self, configured_meeting_key, failure_status, schedule_push}
 use super::model::CalendarApi;
 use super::store;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{
-    DomainEvent, EventConsumer, Job, JobContext, JobHandler, JobQueue,
-};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{
+    DomainEvent, EventConsumer, Job, JobContext, JobHandler, JobQueue,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::sso::errors::{error_code, is_internal, is_unavailable};
 
 pub(crate) const SYNC_ALL_KIND: &str = "tasks.calendar_sync_all";

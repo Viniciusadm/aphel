@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 use serde_json::json;
 
-use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, payload_text,
     requested_job_intents,
 };
+use aphel_sdk::platform::application::shared::DomainEvent;
 
 use crate::domain::{PRIVACY_REQUEST_COMPLETED, PRIVACY_REQUEST_FAILED};
 
@@ -52,7 +52,7 @@ impl aphel_sdk::notifications::NotificationTexts for ExportNotificationTexts {
         &self,
         view: &aphel_sdk::notifications::NotificationView,
         _actor: &str,
-        locale: aphel_kernel::application::mail::MailLocale,
+        locale: aphel_sdk::platform::application::mail::MailLocale,
     ) -> Option<String> {
         view.data.get("privacy_request_id")?;
         let text = match view.kind {
@@ -69,7 +69,7 @@ impl aphel_sdk::notifications::NotificationTexts for ExportNotificationTexts {
     fn action_label(
         &self,
         view: &aphel_sdk::notifications::NotificationView,
-        locale: aphel_kernel::application::mail::MailLocale,
+        locale: aphel_sdk::platform::application::mail::MailLocale,
     ) -> Option<&'static str> {
         (view.data.get("privacy_request_id").is_some()
             && matches!(

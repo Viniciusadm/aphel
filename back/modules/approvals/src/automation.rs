@@ -18,10 +18,10 @@ use aphel_contract_automation::application::triggers::{
     TriggerCandidate, event_context, is_automatable,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{DomainEvent, RecordRef};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::configuration::is_config_key;
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordRef};
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const REQUEST_APPROVAL: &str = "request_approval";
 const ACTION_OPTIONS: [&str; 2] = ["policy_key", "comment"];

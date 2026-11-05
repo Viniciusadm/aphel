@@ -10,14 +10,14 @@ use crate::manifest::RECORD_HOOKS;
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime::{on_hook, scope_actor, wit};
 use aphel_kernel::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     HookCtx, PluginHook, PluginHookCall, PluginHookDispatcher, PluginOperation, app,
     operation_input,
 };
 use aphel_kernel::records::RecordCtx;
-use aphel_kernel::state::runtime_state;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::state::runtime_state;
 
 const OPERATION_UNKNOWN: &str = "plugin_operation_unknown";
 const OPERATION_NOT_DECLARED: &str = "plugin_operation_not_declared";
@@ -283,14 +283,14 @@ async fn external_query(
     input: Value,
     remaining: std::time::Duration,
 ) -> Result<String, AppError> {
-    use aphel_kernel::application::shared::ExecutionContext;
+    use aphel_sdk::platform::application::shared::ExecutionContext;
     use sqlx::{Row, types::Json};
     let execution = ExecutionContext::current().ok_or_else(|| {
         AppError::Internal("external plugin queries require an execution context".to_owned())
     })?;
-    let hash = aphel_kernel::application::files::sha256_hex(input.to_string().as_bytes());
+    let hash = aphel_sdk::platform::application::files::sha256_hex(input.to_string().as_bytes());
     let authority_hash =
-        aphel_kernel::application::files::sha256_hex(format!("{:?}", ctx.scope).as_bytes());
+        aphel_sdk::platform::application::files::sha256_hex(format!("{:?}", ctx.scope).as_bytes());
     let execution_id = execution.id.to_string();
     let inserted = sqlx::query("INSERT IGNORE INTO plugins_external_queries (plugin_key, execution_id, operation, input_hash, authority_hash) VALUES (?, ?, ?, ?, ?)")
         .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).bind(&authority_hash).execute(ctx.pool()).await?.rows_affected();

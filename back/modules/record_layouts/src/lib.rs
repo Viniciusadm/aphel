@@ -13,7 +13,7 @@ impl Module for RecordLayoutsModule {
         Manifest::new(
             KEY,
             "RecordLayouts",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
@@ -39,7 +39,9 @@ impl Module for RecordLayoutsModule {
         ));
 
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("form_layouts"),
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable(
+                "form_layouts",
+            ),
         ));
         app.openapi_tag(http::TAG, "RecordLayouts")
             .routes(|_| http::router());
@@ -48,13 +50,13 @@ impl Module for RecordLayoutsModule {
                 std::sync::Arc::new(section::LayoutsSection::new(
                     registry.clone(),
                     infrastructure::MySqlFormLayoutRepository::new(pool.clone()),
-                    aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                    aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),
                 ))
             }),
         ));
-        app.contribute::<dyn aphel_kernel::application::fields::ConditionalRulesFactory>(
+        app.contribute::<dyn aphel_sdk::platform::application::fields::ConditionalRulesFactory>(
             std::sync::Arc::new(RulesFactory),
         );
         Ok(())
@@ -62,14 +64,14 @@ impl Module for RecordLayoutsModule {
 }
 
 struct RulesFactory;
-impl aphel_kernel::application::fields::ConditionalRulesFactory for RulesFactory {
+impl aphel_sdk::platform::application::fields::ConditionalRulesFactory for RulesFactory {
     fn create(
         &self,
         pool: &sqlx::MySqlPool,
-    ) -> std::sync::Arc<dyn aphel_kernel::application::fields::ConditionalRules> {
+    ) -> std::sync::Arc<dyn aphel_sdk::platform::application::fields::ConditionalRules> {
         std::sync::Arc::new(application::LayoutConditionalRules::new(
             infrastructure::MySqlFormLayoutRepository::new(pool.clone()),
-            aphel_kernel::infrastructure::auth::SystemClock,
+            aphel_sdk::platform::infrastructure::auth::SystemClock,
         ))
     }
 }

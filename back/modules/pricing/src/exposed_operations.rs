@@ -12,12 +12,12 @@ use crate::hooks::{CatalogPriceListResolver, PriceListResolver};
 use crate::http::{PriceListListParams, PriceListResponse};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 use aphel_sdk::access::require_organization_record_scope as require_catalog;
 use aphel_sdk::line_items::{normalize_quantity, parse_money};
 use aphel_sdk::money::normalize_currency_code as normalize_currency;
+use aphel_sdk::platform::domain::access::Permission;
 
 #[derive(Deserialize)]
 struct ListInput {

@@ -16,19 +16,19 @@ use crate::{
     SequenceStep, SequenceTask, SequenceView, StepRun, truncate,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EnqueueOutcome, EventPublisher, FieldChange, Job,
-    JobQueue,
-};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::email::EmailAddress;
 use aphel_sdk::email::EmailPreviewCommand as PreviewCommand;
 use aphel_sdk::email::address_hash;
 use aphel_sdk::email::sender;
 use aphel_sdk::email::{RecordInput, SendEmailCommand};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EnqueueOutcome, EventPublisher, FieldChange, Job,
+    JobQueue,
+};
+use aphel_sdk::platform::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_sdk::tasks::CreateActivityCommand;
 
 pub(crate) const SEQUENCES_TICK_JOB: &str = "sequences.tick";

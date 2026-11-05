@@ -10,18 +10,6 @@ use crate::domain::{
 use crate::hierarchy::{HierarchyStore, Reparent, check_parent, reparent_children};
 use crate::store::CompanyStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, RecordDraft,
-    RecordPipeline, RecordWrite, WriteMode,
-};
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::query::{RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
     InputValidator, PendingCommit, RecordMutation, archive_change, changes_payload, check_owner,
@@ -29,6 +17,18 @@ use aphel_kernel::records::{
     normalize_search_term, parse_record_id, permission_denied, publish_mutation, with_contributed,
     write_contributed,
 };
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::permissions::check_record_writes;
+use aphel_sdk::platform::application::fields::{
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, RecordDraft,
+    RecordPipeline, RecordWrite, WriteMode,
+};
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::query::{RecordQuery, RecordQueryEngine};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 
 pub(crate) fn company_values(data: &CompanyData, contributed: &Map<String, Value>) -> Value {
     with_contributed(company_snapshot(data), contributed)
@@ -281,7 +281,7 @@ pub async fn update_in_tx(
     let record = RecordRef::new(RecordType::COMPANY, id);
     let fields = ctx.fields();
     let store = CompanyStore::of(ctx);
-    aphel_kernel::records::lock_version(
+    aphel_sdk::platform::records::lock_version(
         tx,
         "organizations",
         current.company.id,

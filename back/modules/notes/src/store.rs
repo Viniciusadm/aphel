@@ -5,15 +5,15 @@ use uuid::Uuid;
 
 use crate::domain::{NoteData, NoteView, NoteVisibility};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper::{self, user_reference};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{self, user_reference};
 
 const NOTE_SELECT: &str = "SELECT n.id, n.author_id, au.display_name AS author_name, n.record_type, n.record_id, \
      n.body, n.visibility, n.pinned, n.created_at, n.updated_at \

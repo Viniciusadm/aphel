@@ -11,12 +11,12 @@ use crate::dto::{
     ValidationRuleResponse,
 };
 use crate::infrastructure::MySqlValidationRulePorts;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
-use aphel_kernel::api::state::AppState;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::formulas::{PreviewFormulaCommand, prospective};
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
+use aphel_sdk::platform::api::state::AppState;
 
 pub const TAG: &str = "validation-rules";
 

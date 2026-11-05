@@ -1,9 +1,9 @@
 use crate::application::{FormulaEngine, TypeFormulas, ValueKind, compile_formula};
 use crate::infrastructure::MySqlFormulaPorts;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::fields::{FieldDefinition, FieldValue};
 use aphel_sdk::access::AccessScope;
 use aphel_sdk::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldValue};
 use aphel_sdk::{AppError, formulas::FormulaPredicates};
 use sqlx::MySqlPool;
 use std::sync::Arc;

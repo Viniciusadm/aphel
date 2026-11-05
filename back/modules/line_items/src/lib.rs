@@ -14,10 +14,10 @@ use std::sync::Arc;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
 use aphel_sdk::configuration::ConfigSectionFactory;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub const KEY: &str = "line_items";
 
@@ -42,7 +42,9 @@ impl Module for LineItemsModule {
         ));
         app.contract(aphel_sdk::line_items::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("line_items"),
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable(
+                "line_items",
+            ),
         ));
         app.on(aphel_kernel::records::RecordPurged, 10, |ctx, args| {
             Box::pin(async move {
@@ -55,8 +57,8 @@ impl Module for LineItemsModule {
             })
         });
         app.permission(
-            aphel_kernel::domain::access::PermissionDefinition::administrative(
-                aphel_kernel::domain::access::Permission::from_static("line_items.read"),
+            aphel_sdk::platform::domain::access::PermissionDefinition::administrative(
+                aphel_sdk::platform::domain::access::Permission::from_static("line_items.read"),
             ),
         )
         .grant_to(["admin", "manager", "member"]);

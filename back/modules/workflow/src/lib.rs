@@ -17,12 +17,14 @@ pub mod store;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::public_events::{PublicEventDefinition, PublicResource, event};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
+use aphel_sdk::platform::application::public_events::{
+    PublicEventDefinition, PublicResource, event,
+};
+use aphel_sdk::platform::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 const CHECKLIST_RESOURCE: PublicResource = PublicResource::payload("workflow.record");
 
@@ -81,13 +83,13 @@ impl Module for WorkflowModule {
         ));
         app.contract(aphel_sdk::workflow::DESCRIPTOR);
         app.permission(
-            aphel_kernel::domain::access::PermissionDefinition::administrative(
-                aphel_kernel::domain::access::Permission::from_static("workflow.read"),
+            aphel_sdk::platform::domain::access::PermissionDefinition::administrative(
+                aphel_sdk::platform::domain::access::Permission::from_static("workflow.read"),
             ),
         )
         .grant_to(["admin", "manager", "member"]);
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable(
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable(
                 "workflow_checklist_progress",
             ),
         ));
@@ -109,77 +111,95 @@ impl Module for WorkflowModule {
             },
         ));
 
-        app.entity(aphel_kernel::application::fields::builtin::with_fields(
-            aphel_kernel::application::fields::EntityDefinition::new(
-                aphel_kernel::application::shared::RecordType::from_static("workflow.pipeline"),
-                "workflow",
-                aphel_kernel::domain::access::Permission::from_static("workflow.read"),
-            )
-            .capabilities(
-                aphel_kernel::application::fields::EntityTraits::default()
-                    .with_trait("records.global"),
-            )
-            .title_field("name")
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "name",
-                "Name",
-                aphel_kernel::domain::fields::FieldType::Text,
-            )?)
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "is_active",
-                "Active",
-                aphel_kernel::domain::fields::FieldType::Checkbox,
-            )?),
-            aphel_kernel::application::fields::builtin::timestamps()?,
-        ));
+        app.entity(
+            aphel_sdk::platform::application::fields::builtin::with_fields(
+                aphel_sdk::platform::application::fields::EntityDefinition::new(
+                    aphel_sdk::platform::application::shared::RecordType::from_static(
+                        "workflow.pipeline",
+                    ),
+                    "workflow",
+                    aphel_sdk::platform::domain::access::Permission::from_static("workflow.read"),
+                )
+                .capabilities(
+                    aphel_sdk::platform::application::fields::EntityTraits::default()
+                        .with_trait("records.global"),
+                )
+                .title_field("name")
+                .system_field(aphel_sdk::platform::application::fields::builtin::field(
+                    "name",
+                    "Name",
+                    aphel_sdk::platform::domain::fields::FieldType::Text,
+                )?)
+                .system_field(
+                    aphel_sdk::platform::application::fields::builtin::field(
+                        "is_active",
+                        "Active",
+                        aphel_sdk::platform::domain::fields::FieldType::Checkbox,
+                    )?,
+                ),
+                aphel_sdk::platform::application::fields::builtin::timestamps()?,
+            ),
+        );
 
-        app.entity(aphel_kernel::application::fields::builtin::with_fields(
-            aphel_kernel::application::fields::EntityDefinition::new(
-                aphel_kernel::application::shared::RecordType::from_static("workflow.stage"),
-                "workflow_stages",
-                aphel_kernel::domain::access::Permission::from_static("workflow.read"),
-            )
-            .capabilities(
-                aphel_kernel::application::fields::EntityTraits::default()
-                    .with_trait("records.global"),
-            )
-            .title_field("name")
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "name",
-                "Name",
-                aphel_kernel::domain::fields::FieldType::Text,
-            )?)
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "is_active",
-                "Active",
-                aphel_kernel::domain::fields::FieldType::Checkbox,
-            )?),
-            aphel_kernel::application::fields::builtin::timestamps()?,
-        ));
+        app.entity(
+            aphel_sdk::platform::application::fields::builtin::with_fields(
+                aphel_sdk::platform::application::fields::EntityDefinition::new(
+                    aphel_sdk::platform::application::shared::RecordType::from_static(
+                        "workflow.stage",
+                    ),
+                    "workflow_stages",
+                    aphel_sdk::platform::domain::access::Permission::from_static("workflow.read"),
+                )
+                .capabilities(
+                    aphel_sdk::platform::application::fields::EntityTraits::default()
+                        .with_trait("records.global"),
+                )
+                .title_field("name")
+                .system_field(aphel_sdk::platform::application::fields::builtin::field(
+                    "name",
+                    "Name",
+                    aphel_sdk::platform::domain::fields::FieldType::Text,
+                )?)
+                .system_field(
+                    aphel_sdk::platform::application::fields::builtin::field(
+                        "is_active",
+                        "Active",
+                        aphel_sdk::platform::domain::fields::FieldType::Checkbox,
+                    )?,
+                ),
+                aphel_sdk::platform::application::fields::builtin::timestamps()?,
+            ),
+        );
 
-        app.entity(aphel_kernel::application::fields::builtin::with_fields(
-            aphel_kernel::application::fields::EntityDefinition::new(
-                aphel_kernel::application::shared::RecordType::from_static("workflow.lost_reason"),
-                "lost_reasons",
-                aphel_kernel::domain::access::Permission::from_static("workflow.read"),
-            )
-            .capabilities(
-                aphel_kernel::application::fields::EntityTraits::default()
-                    .with_trait("records.global"),
-            )
-            .title_field("name")
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "name",
-                "Name",
-                aphel_kernel::domain::fields::FieldType::Text,
-            )?)
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "is_active",
-                "Active",
-                aphel_kernel::domain::fields::FieldType::Checkbox,
-            )?),
-            aphel_kernel::application::fields::builtin::timestamps()?,
-        ));
+        app.entity(
+            aphel_sdk::platform::application::fields::builtin::with_fields(
+                aphel_sdk::platform::application::fields::EntityDefinition::new(
+                    aphel_sdk::platform::application::shared::RecordType::from_static(
+                        "workflow.lost_reason",
+                    ),
+                    "lost_reasons",
+                    aphel_sdk::platform::domain::access::Permission::from_static("workflow.read"),
+                )
+                .capabilities(
+                    aphel_sdk::platform::application::fields::EntityTraits::default()
+                        .with_trait("records.global"),
+                )
+                .title_field("name")
+                .system_field(aphel_sdk::platform::application::fields::builtin::field(
+                    "name",
+                    "Name",
+                    aphel_sdk::platform::domain::fields::FieldType::Text,
+                )?)
+                .system_field(
+                    aphel_sdk::platform::application::fields::builtin::field(
+                        "is_active",
+                        "Active",
+                        aphel_sdk::platform::domain::fields::FieldType::Checkbox,
+                    )?,
+                ),
+                aphel_sdk::platform::application::fields::builtin::timestamps()?,
+            ),
+        );
 
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::versioning::fragments::NestedFragmentLayout {
@@ -195,7 +215,7 @@ impl Module for WorkflowModule {
             ("workflow.lost_reason", "lost_reasons"),
         ] {
             app.contribute(std::sync::Arc::new(
-                aphel_kernel::infrastructure::query::aggregate::LookupTitleSource {
+                aphel_sdk::platform::infrastructure::query::aggregate::LookupTitleSource {
                     record_type,
                     table,
                     title_column: "name",
@@ -209,7 +229,7 @@ impl Module for WorkflowModule {
                     registry.clone(),
                     crate::store::PipelineStore::new(pool.clone()),
                     aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
-                    aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                    aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),
                 ))
@@ -254,8 +274,8 @@ impl Module for WorkflowModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+pub(crate) fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )

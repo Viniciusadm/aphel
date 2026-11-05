@@ -19,8 +19,8 @@ pub use service::*;
 pub use store::{TagStore, Tagging};
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "tagging";
 
@@ -48,7 +48,7 @@ impl Module for TaggingModule {
             std::sync::Arc::new(config_references::References),
         );
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::application::query::ReferenceSetField {
+            aphel_sdk::platform::application::query::ReferenceSetField {
                 key: "tags",
                 label: "Tags",
             },
@@ -91,7 +91,7 @@ impl Module for TaggingModule {
             search::TagSearchContent,
         ));
         app.contribute(Arc::new(
-            aphel_kernel::infrastructure::query::compiler::ReferenceSetStorage {
+            aphel_sdk::platform::infrastructure::query::compiler::ReferenceSetStorage {
                 links_table: "taggings",
                 value_column: "tag_id",
                 labels_table: "tags",

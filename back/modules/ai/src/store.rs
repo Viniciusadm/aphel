@@ -4,8 +4,8 @@ use sqlx::{MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::model::{AiCall, AiUsageTotals};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 pub(crate) struct NewCall<'a> {
     pub(crate) user_id: Option<Uuid>,

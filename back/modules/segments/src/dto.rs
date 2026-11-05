@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
 use crate::domain::{CreateSegmentCommand, SegmentMember, SegmentView, UpdateSegmentCommand};
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::query::FilterNodeSchema;
-use aphel_kernel::application::query::Filter;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::query::FilterNodeSchema;
+use aphel_sdk::platform::application::query::Filter;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

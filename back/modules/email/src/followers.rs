@@ -41,9 +41,9 @@ impl FollowedEventSource for EmailFollowedEvents {
         event: &DomainEvent,
     ) -> Result<bool, aphel_sdk::AppError> {
         use aphel_contract_crm::CrmPermissions;
-        use aphel_kernel::application::access::{AccessRepository, build_access_scope};
+        use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
         let access =
-            aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository::new(
+            aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository::new(
                 pool.clone(),
             );
         let Some(access) = access.load_access(recipient).await? else {
@@ -51,7 +51,7 @@ impl FollowedEventSource for EmailFollowedEvents {
         };
         let scope = build_access_scope(recipient.clone(), access);
         if scope
-            .filter_for(&aphel_kernel::domain::access::Permission::EMAILS_READ)
+            .filter_for(&aphel_sdk::platform::domain::access::Permission::EMAILS_READ)
             .is_none()
         {
             return Ok(false);

@@ -14,24 +14,24 @@ use uuid::Uuid;
 use crate::domain::{CompanyDetails, CompanyInput, SaveCompanyCommand};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{
-    Data, DuplicateMatchResponse, ErrorEnvelope, OwnerResponse, Page, QuickSearchParams,
-    double_option, timestamp,
-};
-use aphel_kernel::api::dto::query::{RecordListQuery, RecordQueryParams};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{
-    AuthContext, ClientInfo, IfMatch, IncludeQuery, JsonBody, Pagination, PaginationQuery,
-};
-use aphel_kernel::api::routes::v1::field_permissions::{redacted, redacted_items};
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{AddressInput, merge_survivor, possible_duplicates};
 use aphel_kernel::records::{
     PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
 };
+use aphel_sdk::platform::api::dto::common::{
+    Data, DuplicateMatchResponse, ErrorEnvelope, OwnerResponse, Page, QuickSearchParams,
+    double_option, timestamp,
+};
+use aphel_sdk::platform::api::dto::query::{RecordListQuery, RecordQueryParams};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{
+    AuthContext, ClientInfo, IfMatch, IncludeQuery, JsonBody, Pagination, PaginationQuery,
+};
+use aphel_sdk::platform::api::routes::v1::field_permissions::{redacted, redacted_items};
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::records::record_includes;
 
 pub(crate) const TAG: &str = "organizations";

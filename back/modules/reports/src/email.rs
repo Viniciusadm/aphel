@@ -1,7 +1,7 @@
 use crate::domain::custom::{ReportRecipient, SavedReport};
 use crate::table::{ReportCell, report_table};
-use aphel_kernel::application::mail::{EmailMessage, MailLocale};
-use aphel_kernel::application::query::{AggregateRange, AggregateResult};
+use aphel_sdk::platform::application::mail::{EmailMessage, MailLocale};
+use aphel_sdk::platform::application::query::{AggregateRange, AggregateResult};
 
 pub(crate) const MAX_EMAIL_ROWS: usize = 50;
 pub(crate) const MAX_ATTACHMENT_BYTES: usize = 5 * 1024 * 1024;

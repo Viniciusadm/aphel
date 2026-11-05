@@ -7,14 +7,14 @@ use rust_decimal::Decimal;
 use uuid::Uuid;
 
 use crate::application::{AggregateColumn, AggregateFunction, AggregateSource};
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{
     CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
     ReferenceChecker, SystemField,
 };
-use aphel_kernel::application::shared::{JobQueue, RecordType, TransactionManager};
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::FieldValue;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{JobQueue, RecordType, TransactionManager};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::FieldValue;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AggregateQuery<'a> {

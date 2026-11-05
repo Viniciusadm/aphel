@@ -10,20 +10,20 @@ use crate::domain::{
 };
 use crate::store::NoteStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::messaging::mentions::extract_mentions;
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
-use aphel_sdk::messaging::mentions::extract_mentions;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 const MAX_MENTIONS_PER_NOTE: usize = 50;
 
 fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {

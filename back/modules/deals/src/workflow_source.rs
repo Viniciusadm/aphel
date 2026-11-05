@@ -1,14 +1,14 @@
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, RecordRef, RecordType,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope;
-use aphel_kernel::infrastructure::repositories::mapper::parse_uuid;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
+use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 use aphel_sdk::workflow::{StageLocation, StageMove, StageUsage, StagedRecordSource, UsageTarget};
 use async_trait::async_trait;
 use sqlx::{MySql, MySqlPool, QueryBuilder};

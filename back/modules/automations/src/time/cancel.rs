@@ -7,10 +7,10 @@ use crate::runtime::AutomationRuntime;
 use crate::store::{AutomationTimeStore, CancelTarget};
 use aphel_contract_automation::application::triggers::is_automatable;
 use aphel_contract_automation::domain::SkipReason;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const CANCEL_WAITING_CONSUMER: &str = "automations.cancel_waiting";
 
@@ -35,7 +35,9 @@ impl EventConsumer for WaitingRunsCanceller {
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
         let Some(record) = event.record.as_ref().filter(|record| {
             deleted_record_type(&event.event_type)
-                .and_then(|key| aphel_kernel::application::shared::RecordType::parse(key).ok())
+                .and_then(|key| {
+                    aphel_sdk::platform::application::shared::RecordType::parse(key).ok()
+                })
                 .is_some_and(|key| key == record.record_type)
         }) else {
             return Ok(());

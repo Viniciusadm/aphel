@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
 use crate::application::{FormLayout, LayoutContext, LayoutField};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::{Filter, ResolveContext, validate_view_query};
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::query::{Filter, ResolveContext, validate_view_query};
 
 pub const MAX_LAYOUT_TABS: usize = 10;
 pub const MAX_LAYOUT_SECTIONS: usize = 20;

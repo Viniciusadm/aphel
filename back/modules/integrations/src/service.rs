@@ -10,16 +10,16 @@ use crate::engine::{
     IntegrationErrorSource, IntegrationStatus, ProviderKind, ResolvedConfig,
     SharedIntegrationProvider, missing_required, secret_key, validate_config,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::shared::{
+use aphel_kernel::context::Ctx;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType, ensure_version,
 };
-use aphel_kernel::context::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::platform::SharedSecretVault;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
 
 pub(crate) const INTEGRATION_PROVIDER_NOT_FOUND: &str = "integration_provider_not_found";
 pub(crate) const INTEGRATION_NOT_CONFIGURABLE: &str = "integration_not_configurable";
@@ -271,7 +271,7 @@ pub(crate) async fn configure(
                 .await?;
             changes.push(FieldChange::new(
                 name.clone(),
-                Value::String(aphel_kernel::application::shared::REDACTED.to_owned()),
+                Value::String(aphel_sdk::platform::application::shared::REDACTED.to_owned()),
                 Value::Null,
             ));
         }

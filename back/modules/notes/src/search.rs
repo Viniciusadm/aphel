@@ -6,10 +6,10 @@ use serde_json::Value;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::messaging::mentions::mentions_to_text;
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::search::{SearchContentSource, SearchRefresh};
 
 use crate::domain::{NOTE_CREATED, NOTE_DELETED, NOTE_UPDATED, NoteVisibility};

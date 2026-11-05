@@ -7,11 +7,13 @@ use crate::application::{
     ConditionContext, FormLayout, FormLayoutRepository, LayoutContext, LayoutField,
     condition_matches, has_value,
 };
-use aphel_kernel::application::fields::{ConditionalRules, FieldSet, WriteMode, custom_field_path};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::FieldValueError;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::{
+    ConditionalRules, FieldSet, WriteMode, custom_field_path,
+};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::FieldValueError;
 
 pub fn rule_contexts(mode: WriteMode) -> &'static [LayoutContext] {
     match mode {

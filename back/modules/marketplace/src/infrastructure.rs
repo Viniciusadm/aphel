@@ -135,7 +135,7 @@ impl CatalogPorts for MySqlCatalogPorts {
         &self,
         scope: &aphel_sdk::access::AccessScope,
     ) -> Result<Vec<(String, String)>, aphel_sdk::AppError> {
-        let Some(source) = aphel_kernel::modules::app()
+        let Some(source) = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::configuration::ConfigurationCatalog>()
         else {

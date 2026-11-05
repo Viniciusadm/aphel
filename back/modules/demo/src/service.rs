@@ -10,18 +10,18 @@ use crate::{
     NewDemoVisitor,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::security::{PasswordHasher, password_violation};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FileStorage,
-};
-use aphel_kernel::domain::access::{AccessScope, Permission, permission_catalog};
 use aphel_kernel::domain::{Email, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
 use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog, TemplateOnboarding};
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::security::{PasswordHasher, password_violation};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FileStorage,
+};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, permission_catalog};
+use aphel_sdk::platform::infrastructure::auth::Argon2PasswordHasher;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 const STAGE_KIND_OPEN: &str = "open";
 const STAGE_KIND_WON: &str = "won";
 const STAGE_KIND_LOST: &str = "lost";

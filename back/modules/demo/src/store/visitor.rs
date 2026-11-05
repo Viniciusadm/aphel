@@ -2,9 +2,9 @@ use sqlx::{MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::NewDemoVisitor;
-use aphel_kernel::domain::access::RecordScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::domain::access::RecordScope;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 pub(crate) async fn ensure_visitor(
     pool: &MySqlPool,

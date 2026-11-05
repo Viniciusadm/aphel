@@ -1,5 +1,5 @@
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::{AppError, email::EmailAutomationReader};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use std::collections::HashMap;
@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) struct Reader;
 
 fn uuid(value: String, column: &str) -> Result<Uuid, AppError> {
-    aphel_kernel::infrastructure::repositories::mapper::parse_uuid(&value, column)
+    aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(&value, column)
 }
 fn opt_uuid(value: Option<String>, column: &str) -> Result<Option<Uuid>, AppError> {
     value.map(|value| uuid(value, column)).transpose()

@@ -1,5 +1,5 @@
 use crate::application::{SavedViewRepository, is_visible};
-use aphel_kernel::application::access::Authorizer;
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::views::{SavedViewReader, SavedViewSnapshot};
 use aphel_sdk::{AppError, Ctx};
 use uuid::Uuid;

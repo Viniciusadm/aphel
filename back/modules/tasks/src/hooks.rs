@@ -3,12 +3,12 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::domain::ActivityData;
-use aphel_kernel::application::fields::permissions::{FieldAccessPolicy, is_unrestricted};
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::permissions::role_access_rules;
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::{RemovedRecord, SerializedRecords};
+use aphel_sdk::platform::application::fields::permissions::{FieldAccessPolicy, is_unrestricted};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::infrastructure::fields::permissions::role_access_rules;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CompletingActivity {

@@ -15,7 +15,7 @@ impl Module for SavedViewsModule {
         Manifest::new(
             KEY,
             "SavedViews",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
@@ -51,7 +51,9 @@ impl Module for SavedViewsModule {
         ));
 
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("saved_views"),
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable(
+                "saved_views",
+            ),
         ));
         app.openapi_tag(http::TAG, "SavedViews")
             .routes(|_| http::router());
@@ -61,7 +63,7 @@ impl Module for SavedViewsModule {
                     registry.clone(),
                     infrastructure::MySqlSavedViewRepository::new(pool.clone()),
                     aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),
-                    aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                    aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),
                 ))

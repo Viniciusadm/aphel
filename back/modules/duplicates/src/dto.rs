@@ -12,13 +12,13 @@ use crate::{
     CandidateQuery, CandidateView, DuplicateMatch, DuplicateProbeInput, MergeCommand, MergeOutcome,
     RecordSummary, RuleSetting,
 };
-use aphel_kernel::api::dto::common::timestamp;
+use aphel_sdk::platform::api::dto::common::timestamp;
 
 fn rule_keys(rules: &[DuplicateRule]) -> Vec<String> {
     rules.iter().map(|rule| rule.as_str().to_owned()).collect()
 }
 
-pub(crate) use aphel_kernel::api::dto::common::DuplicateMatchResponse;
+pub(crate) use aphel_sdk::platform::api::dto::common::DuplicateMatchResponse;
 
 pub(crate) fn match_response(found: DuplicateMatch) -> DuplicateMatchResponse {
     PossibleDuplicate::from(found).into()

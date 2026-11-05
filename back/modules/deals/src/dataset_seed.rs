@@ -1,11 +1,13 @@
 use std::collections::BTreeMap;
 
 use aphel_contract_crm::CrmRecordTypes;
-use aphel_kernel::application::fields::{CreateFieldCommand, FieldUseCases, LocalizedLabels};
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
-use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_sdk::maintenance::{DatasetEntry, DatasetSeed, DatasetSession};
+use aphel_sdk::platform::application::fields::{
+    CreateFieldCommand, FieldUseCases, LocalizedLabels,
+};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldPorts;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::shared::RecordType;
 use aphel_sdk::{AppError, Ctx};
 use async_trait::async_trait;

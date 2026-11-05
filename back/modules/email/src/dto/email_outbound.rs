@@ -8,8 +8,8 @@ use crate::templates::{
     UpdateTemplateCommand,
 };
 use crate::tracking::{TrackingObjection, TrackingSettings};
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::common::timestamp as instant;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::common::timestamp as instant;
 
 pub use aphel_sdk::email::EmailAddressDto;
 

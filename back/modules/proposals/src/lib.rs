@@ -17,15 +17,15 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
-use aphel_kernel::application::public_events::event;
 use aphel_kernel::context::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::PermissionDefinition;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, ModuleCtx};
-use aphel_kernel::state::runtime_state;
 use aphel_sdk::configuration::ConfigSection;
+use aphel_sdk::platform::application::files::{FileReferenceColumn, FileReferenceSource};
+use aphel_sdk::platform::application::public_events::event;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::PermissionDefinition;
+use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) use service::{
     GENERATE, MANAGE, PROPOSAL_GENERATED, TEMPLATE_CREATED, TEMPLATE_DELETED, TEMPLATE_UPDATED,
@@ -84,7 +84,7 @@ impl Module for ProposalsModule {
         app.permission(PermissionDefinition::administrative(MANAGE));
         app.public_event(event(
             service::PROPOSAL_GENERATED,
-            aphel_kernel::application::public_events::PublicResource::new(
+            aphel_sdk::platform::application::public_events::PublicResource::new(
                 "deals.deal",
                 "DealDetailResponse",
             ),

@@ -12,14 +12,14 @@ use axum::http::StatusCode;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::public_events::{PublicEventDefinition, event};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "forms";
 pub(crate) const TAG: &str = "forms";

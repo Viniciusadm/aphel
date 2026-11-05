@@ -13,7 +13,7 @@ impl Module for ObjectsModule {
         Manifest::new(
             KEY,
             "Objects",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
@@ -44,13 +44,13 @@ impl Module for ObjectsModule {
             aphel_sdk::configuration::ConfigSectionFactory::new(10, |pool, registry| {
                 std::sync::Arc::new(section::CustomObjectsSection::new(
                     registry.clone(),
-                    aphel_kernel::infrastructure::custom_objects::MySqlCustomObjectRepository::new(
+                    aphel_sdk::platform::infrastructure::custom_objects::MySqlCustomObjectRepository::new(
                         pool.clone(),
                     ),
-                    aphel_kernel::infrastructure::custom_objects::MySqlRelationshipRepository::new(
+                    aphel_sdk::platform::infrastructure::custom_objects::MySqlRelationshipRepository::new(
                         pool.clone(),
                     ),
-                    aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                    aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                         pool.clone(),
                     ),
                 ))

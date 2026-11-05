@@ -3,8 +3,8 @@ use sqlx::mysql::MySqlRow;
 use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct TemplateRow {

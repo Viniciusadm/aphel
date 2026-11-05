@@ -1,4 +1,4 @@
-use aphel_kernel::domain::users::UserStatus;
+use aphel_sdk::platform::domain::users::UserStatus;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
@@ -8,14 +8,14 @@ use crate::domain::{
     DueReminder, DueTaskReminder, ReminderData, ReminderFilter, ReminderStatus, ReminderView,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::timeline::LinkedRecord;
 
 pub(crate) const MAX_DUE_REMINDERS_PER_RUN: u32 = 1000;
@@ -226,7 +226,7 @@ impl ReminderStore {
         since: DateTime<Utc>,
         now: DateTime<Utc>,
     ) -> Result<Vec<DueTaskReminder>, AppError> {
-        let Some(source) = aphel_kernel::modules::app()
+        let Some(source) = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::tasks::TaskReminderSource>()
         else {
@@ -241,7 +241,7 @@ impl ReminderStore {
         reminder: &DueTaskReminder,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
-        let source = aphel_kernel::modules::app()
+        let source = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::tasks::TaskReminderSource>()
             .ok_or_else(|| {

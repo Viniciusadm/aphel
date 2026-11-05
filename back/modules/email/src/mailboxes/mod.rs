@@ -4,10 +4,10 @@ use uuid::Uuid;
 
 use crate::domain::{EmailVisibility, validate_history_days};
 use crate::{MAILBOX_CREDENTIALS_SECRET, MAILBOX_SECRET_OWNER, MailboxConnectionKind, MailboxView};
-use aphel_kernel::application::secrets::SecretKey;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::secrets::SecretKey;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const MAILBOX_NOT_FOUND: &str = "mailbox_not_found";
 pub(crate) const MAILBOX_ALREADY_CONNECTED: &str = "mailbox_already_connected";

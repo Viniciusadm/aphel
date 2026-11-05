@@ -6,9 +6,9 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::application::ConfigKeyRepository;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub struct MySqlConfigKeyRepository {

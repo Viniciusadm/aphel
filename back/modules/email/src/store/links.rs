@@ -5,12 +5,12 @@ use uuid::Uuid;
 use crate::domain::LinkOrigin;
 use crate::{NewRecordLink, RecordLinkView};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub(crate) struct LinkStore {

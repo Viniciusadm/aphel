@@ -1,11 +1,11 @@
 use crate::incoming::{ActionKind, ActionTarget, MappableField, MappingExpression, WebhookAction};
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::RecordQueryPorts;
 use aphel_kernel::{
     Ctx,
     errors::{AppError, FieldViolation},
 };
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::query::RecordQueryPorts;
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 
@@ -23,7 +23,8 @@ impl FieldCatalog {
             let key = definition.record_type.as_str();
             if (!definition.generic_writes
                 && definition.handler.is_none()
-                && definition.storage != aphel_kernel::application::fields::EntityStorage::Dynamic)
+                && definition.storage
+                    != aphel_sdk::platform::application::fields::EntityStorage::Dynamic)
                 || !aphel_sdk::records::enabled(ctx, &definition.record_type)
                 || ctx.registry().handler(key).is_err()
                 || !definition

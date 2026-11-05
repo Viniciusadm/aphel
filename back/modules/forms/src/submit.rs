@@ -12,14 +12,16 @@ use crate::store::{self, NewSubmission, StoredForm};
 use crate::validate::{can, contact_fields};
 use crate::{KEY, SUBMITTED, error_code, error_fields, scope_for_user};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType,
-};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::RecordCtx;
 use aphel_sdk::leads::{Lead, LeadConversion, LeadConverting};
+use aphel_sdk::platform::application::query::{
+    Filter, FilterOperator, RecordQuery, RecordQueryEngine,
+};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType,
+};
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const MAX_BODY_BYTES: usize = 64 * 1024;
 pub(crate) const INVALID_PAYLOAD: &str = "lead_form_invalid_payload";
@@ -378,7 +380,7 @@ async fn existing_contact(ctx: &Ctx<'_>, email: &str) -> Result<Option<Uuid>, Ap
             RecordType::CONTACT.as_str(),
             RecordQuery {
                 filter: Some(Filter::condition("email", FilterOperator::Eq, json!(email))),
-                window: aphel_kernel::application::organization_admin::ListWindow {
+                window: aphel_sdk::platform::application::organization_admin::ListWindow {
                     offset: 0,
                     limit: 1,
                 },

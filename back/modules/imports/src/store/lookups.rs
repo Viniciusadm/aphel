@@ -1,14 +1,16 @@
 use crate::DuplicateKey;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{EntityDefinition, LabelNormalization, RecordTypeRegistry};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, SortSpec,
-};
 use aphel_kernel::domain::{UserId, access::AccessScope};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
-use aphel_kernel::records::normalize_domain;
+use aphel_sdk::platform::application::fields::{
+    EntityDefinition, LabelNormalization, RecordTypeRegistry,
+};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, SortSpec,
+};
+use aphel_sdk::platform::infrastructure::query::MySqlRecordQueryPorts;
+use aphel_sdk::platform::records::normalize_domain;
 use sqlx::MySqlPool;
 use std::sync::Arc;
 use uuid::Uuid;

@@ -9,16 +9,16 @@ use crate::application::{
     ConflictDecision, Decisions, PackageIssue, PackageMetadata, PlanAction, PlanItem,
     TemplateCatalog,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     TransactionManager,
 };
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::organization_profile::DEFAULT_LOCALE;
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::organization_profile::DEFAULT_LOCALE;
 
 pub const CONFIG_PACKAGE_APPLIED: &str = "config_package.applied";
 pub const CONFIG_PACKAGE_INSTALL_RECORD_TYPE: RecordType =
@@ -110,8 +110,9 @@ where
                 .filter(|author| !author.is_empty()),
             locale: command.locale.unwrap_or_else(|| default_locale.to_owned()),
         });
-        let issues = package
-            .header_issues(&aphel_kernel::application::organization_profile::SUPPORTED_LOCALES);
+        let issues = package.header_issues(
+            &aphel_sdk::platform::application::organization_profile::SUPPORTED_LOCALES,
+        );
         if !issues.is_empty() {
             return Err(AppError::invalid_fields(
                 "invalid export",
@@ -385,8 +386,9 @@ where
             Err(issues) => return Ok((None, issues, Vec::new())),
         };
         let skipped_fields = self.prune(&mut package);
-        let mut issues = package
-            .header_issues(&aphel_kernel::application::organization_profile::SUPPORTED_LOCALES);
+        let mut issues = package.header_issues(
+            &aphel_sdk::platform::application::organization_profile::SUPPORTED_LOCALES,
+        );
         let known: BTreeSet<&str> = self.ports.sections().keys().into_iter().collect();
         for key in package.sections.keys() {
             if !known.contains(key.as_str()) {

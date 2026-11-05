@@ -5,14 +5,14 @@ use tracing::info;
 
 use crate::application::{ReindexOutcome, SearchUseCases};
 use crate::infrastructure::MySqlSearchPorts;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::config::AppConfig;
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::custom_objects::MySqlCustomSchemaSource;
 use aphel_kernel::modules::CommandResult as CliResult;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
+use aphel_sdk::platform::infrastructure::custom_objects::MySqlCustomSchemaSource;
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 pub(crate) enum SearchCommand {
@@ -37,7 +37,7 @@ async fn reindex(config: AppConfig, args: SearchReindexArgs) -> CliResult {
         .database_url
         .as_deref()
         .ok_or_else(|| AppError::Configuration("DATABASE_URL is not configured".to_owned()))?;
-    let pool = aphel_kernel::modules::connect_with_modules(database_url).await?;
+    let pool = aphel_sdk::platform::modules::connect_with_modules(database_url).await?;
     let catalog = RecordTypeCatalog::new(
         RecordTypeRegistry::builtin(),
         Arc::new(MySqlCustomSchemaSource::new(pool.clone())),

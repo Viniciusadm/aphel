@@ -10,12 +10,14 @@ use crate::outgoing::delivery::{
 use crate::outgoing::renderer::ApiPublicEventRenderer;
 use crate::outgoing::service::WEBHOOK_DELIVER_JOB;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::public_events::{SharedPublicEventRenderer, is_public_event};
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::public_events::{SharedPublicEventRenderer, is_public_event};
+use aphel_sdk::platform::application::shared::{
+    DomainEvent, EventConsumer, JobContext, JobHandler,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) fn outgoing_webhook_worker(env: &WorkerEnv) -> WorkerParts {
     let state = env.state();
@@ -48,7 +50,7 @@ impl EventConsumer for WebhookFanOutConsumer {
     }
 
     fn accepts(&self, event_type: &str) -> bool {
-        is_public_event(event_type) || aphel_kernel::modules::app().contributions::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>().iter().any(|source| source.recognizes(event_type))
+        is_public_event(event_type) || aphel_sdk::platform::modules::app().contributions::<dyn aphel_sdk::platform::application::public_events::RuntimePublicEventSource>().iter().any(|source| source.recognizes(event_type))
     }
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {

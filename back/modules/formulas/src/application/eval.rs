@@ -9,7 +9,7 @@ use crate::application::{
     AggregateFunction, AggregateRef, BinaryOp, Expr, ExprKind, FormulaValue, MAX_TEXT_VALUE_LENGTH,
     UnaryOp,
 };
-use aphel_kernel::domain::fields::MAX_NUMBER_ABS;
+use aphel_sdk::platform::domain::fields::MAX_NUMBER_ABS;
 
 const MAX_ROUND_DECIMALS: u32 = 6;
 const MAX_DAY_OFFSET: i64 = 3_650_000;

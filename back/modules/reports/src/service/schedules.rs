@@ -14,20 +14,20 @@ use crate::domain::timing::next_run_after;
 use crate::service::reports::{can_read_type, require_report};
 use crate::store::ScheduleStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::permissions::query_error;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
-use aphel_kernel::application::shared::{FieldChange, RecordRef, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::{RecordMutation, lock_version, publish_mutation};
 use aphel_sdk::dashboard::PeriodPreset;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::fields::permissions::query_error;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{RecordQueryExecutor, RecordQueryPorts};
+use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 #[derive(Serialize)]
 struct ScheduleSnapshot<'a> {

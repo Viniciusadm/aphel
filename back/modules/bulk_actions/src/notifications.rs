@@ -5,17 +5,17 @@ use serde_json::{Value, json};
 use sqlx::MySqlPool;
 
 use crate::{BULK_OPERATION_COMPLETED, BULK_OPERATION_FAILED};
-use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+use aphel_sdk::platform::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
 
-use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_sdk::notifications::NotificationClient;
 use aphel_sdk::notifications::record_type_label;
 use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKind, NotificationKindDefinition};
 use aphel_sdk::notifications::{NotificationIntent, dispatch};
+use aphel_sdk::platform::application::mail::MailLocale;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub(crate) const BULK_NOTIFICATIONS_CONSUMER: &str = "bulk_actions.notifications";
 pub(crate) const BULK_OPERATION_FINISHED: NotificationKind =

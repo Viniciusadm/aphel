@@ -5,11 +5,11 @@ use uuid::Uuid;
 
 use crate::tracking::{NewTrackingObjection, TrackingObjection, TrackingSettings};
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 fn objection_from_row(row: &MySqlRow) -> Result<TrackingObjection, AppError> {
     let created_by: Option<String> = row.try_get("created_by")?;

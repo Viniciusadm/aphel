@@ -10,21 +10,21 @@ use crate::service::{inspect, restore_installation};
 use crate::store::OrgDataStore;
 use crate::{IdStrategy, RestoreCommand, RestoreEnv, build_archive};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::SharedFileStorage;
 use aphel_kernel::config::AppConfig;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::custom_objects::MySqlCustomSchemaSource;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::secrets::build_secret_vault;
-use aphel_kernel::infrastructure::storage::DynamicFileStorage;
 use aphel_kernel::modules::{CommandResult, ModuleCommand, connect_with_modules};
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::SharedFileStorage;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::custom_objects::MySqlCustomSchemaSource;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::infrastructure::organization_profile::organization_config_catalog;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::secrets::build_secret_vault;
+use aphel_sdk::platform::infrastructure::storage::DynamicFileStorage;
 use aphel_sdk::search::SearchMaintenance;
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
@@ -187,7 +187,7 @@ async fn import(config: &AppConfig, pool: sqlx::MySqlPool, args: OrgImportArgs) 
     .await?;
     catalog.invalidate();
     let registry = catalog.registry().await?;
-    if let Some(search) = aphel_kernel::modules::app()
+    if let Some(search) = aphel_sdk::platform::modules::app()
         .services()
         .get::<dyn SearchMaintenance>()
     {

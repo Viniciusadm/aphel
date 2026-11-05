@@ -35,22 +35,24 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
-use aphel_kernel::application::fields::{
-    EntityDefinition, EntityTraits, RecordRelation, RelationPath, SystemField,
-};
-use aphel_kernel::application::public_events::{
-    PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
-};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
-use aphel_kernel::infrastructure::query::aggregate::LookupTitleSource;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use aphel_sdk::platform::application::fields::builtin::{
+    field, record_field, timestamps, with_fields,
+};
+use aphel_sdk::platform::application::fields::{
+    EntityDefinition, EntityTraits, RecordRelation, RelationPath, SystemField,
+};
+use aphel_sdk::platform::application::public_events::{
+    PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
+use aphel_sdk::platform::infrastructure::query::aggregate::LookupTitleSource;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub const ACTIVITY_RESOURCE: PublicResource = PublicResource::new("tasks.task", "ActivityResponse");
 
@@ -344,29 +346,33 @@ impl Module for TasksModule {
             },
         ));
 
-        app.entity(aphel_kernel::application::fields::builtin::with_fields(
-            aphel_kernel::application::fields::EntityDefinition::new(
-                aphel_kernel::application::shared::RecordType::from_static("tasks.type"),
-                "task_types",
-                aphel_kernel::domain::access::Permission::TASKS_READ,
-            )
-            .capabilities(
-                aphel_kernel::application::fields::EntityTraits::default()
-                    .with_trait("records.global"),
-            )
-            .title_field("name")
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "name",
-                "Name",
-                aphel_kernel::domain::fields::FieldType::Text,
-            )?)
-            .system_field(aphel_kernel::application::fields::builtin::field(
-                "is_active",
-                "Active",
-                aphel_kernel::domain::fields::FieldType::Checkbox,
-            )?),
-            aphel_kernel::application::fields::builtin::timestamps()?,
-        ));
+        app.entity(
+            aphel_sdk::platform::application::fields::builtin::with_fields(
+                aphel_sdk::platform::application::fields::EntityDefinition::new(
+                    aphel_sdk::platform::application::shared::RecordType::from_static("tasks.type"),
+                    "task_types",
+                    aphel_sdk::platform::domain::access::Permission::TASKS_READ,
+                )
+                .capabilities(
+                    aphel_sdk::platform::application::fields::EntityTraits::default()
+                        .with_trait("records.global"),
+                )
+                .title_field("name")
+                .system_field(aphel_sdk::platform::application::fields::builtin::field(
+                    "name",
+                    "Name",
+                    aphel_sdk::platform::domain::fields::FieldType::Text,
+                )?)
+                .system_field(
+                    aphel_sdk::platform::application::fields::builtin::field(
+                        "is_active",
+                        "Active",
+                        aphel_sdk::platform::domain::fields::FieldType::Checkbox,
+                    )?,
+                ),
+                aphel_sdk::platform::application::fields::builtin::timestamps()?,
+            ),
+        );
 
         app.contract(aphel_sdk::calendar::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::calendar::CalendarSource>(Arc::new(
@@ -445,8 +451,8 @@ impl Module for TasksModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+pub(crate) fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )

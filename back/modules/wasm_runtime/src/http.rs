@@ -23,23 +23,23 @@ use crate::registry;
 use crate::runtime::{self, wit};
 use crate::schema;
 use crate::store::{self, InstalledPlugin};
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
-use aphel_kernel::api::rate_limit::SharedRateLimiter;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::secrets::MAX_SECRET_BYTES;
-use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::Secret;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::repositories::runtime_permissions::{
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo};
+use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::secrets::MAX_SECRET_BYTES;
+use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::repositories::runtime_permissions::{
     RuntimeGrant, remove_runtime_permissions, replace_runtime_permissions,
     set_runtime_permissions_active,
 };
-use aphel_kernel::modules::builder::APHEL_VERSION;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub const TAG: &str = "plugins";
 const PLUGIN_NOT_FOUND: &str = "plugin_not_found";
@@ -112,7 +112,7 @@ async fn record(
     ip: Option<String>,
 ) -> Result<(), AppError> {
     let pool = state.db()?;
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         pool.begin().await.map_err(AppError::from)?,
     );
     record_in(&mut tx, state, scope, action, plugin, changes, ip).await?;
@@ -665,7 +665,7 @@ async fn install_plugin(
     };
     let outcome: Result<InstalledPlugin, AppError> = async {
         schema::apply(&state, scope, &package.manifest).await?;
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+        let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
             pool.begin().await.map_err(AppError::from)?,
         );
         store::save(&mut tx, &package, Some(scope.user_id())).await?;
@@ -965,7 +965,7 @@ async fn uninstall_plugin(
     } else {
         schema::set_active(&state, &plugin.manifest, false).await?;
     }
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
     store::delete(&mut tx, &key).await?;
@@ -1015,7 +1015,7 @@ async fn toggle(
             crate::modules::ensure_unblocked(&plans)?;
             crate::modules::hold(state, &tenant.scope, &plugin.manifest).await?;
         }
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+        let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
             state.db()?.begin().await.map_err(AppError::from)?,
         );
         store::set_enabled(&mut tx, key, enabled).await?;
@@ -1241,7 +1241,7 @@ async fn update_plugin_settings(
         Value::Object(plugin.settings),
         Value::Object(settings.clone()),
     )];
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
     store::set_settings(&mut tx, &key, &settings).await?;

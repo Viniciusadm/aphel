@@ -6,11 +6,11 @@ use reqwest::{Client, Method};
 
 use crate::registry::LoadedPlugin;
 use crate::runtime::wit;
-use aphel_kernel::application::outbound_http::UrlRejection;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::outbound_http::network::parse_webhook_url;
-use aphel_kernel::infrastructure::outbound_http::{GuardedResolver, OutboundNetworkPolicy};
-use aphel_kernel::state::runtime_state;
+use aphel_sdk::platform::application::outbound_http::UrlRejection;
+use aphel_sdk::platform::infrastructure::outbound_http::network::parse_webhook_url;
+use aphel_sdk::platform::infrastructure::outbound_http::{GuardedResolver, OutboundNetworkPolicy};
+use aphel_sdk::platform::state::runtime_state;
 
 pub const MAX_RESPONSE_BYTES: usize = 5 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = 5 * 1024 * 1024;

@@ -1,7 +1,7 @@
 mod http;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::AppError;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 pub const KEY: &str = "calendar";
 pub struct CalendarModule;
 impl Module for CalendarModule {
@@ -12,8 +12,8 @@ impl Module for CalendarModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_sdk::calendar::DESCRIPTOR);
         app.permission(
-            aphel_kernel::domain::access::PermissionDefinition::administrative(
-                aphel_kernel::domain::access::Permission::from_static("calendar.read"),
+            aphel_sdk::platform::domain::access::PermissionDefinition::administrative(
+                aphel_sdk::platform::domain::access::Permission::from_static("calendar.read"),
             ),
         )
         .grant_to(["admin", "manager", "member"]);

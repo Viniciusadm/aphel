@@ -17,15 +17,15 @@ use crate::{
     rule_settings, scan_passes,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{CustomFieldPorts, FieldSet, ReferenceChecker};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{CustomFieldPorts, FieldSet, ReferenceChecker};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, RecordType,
 };
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 
 pub(crate) use merge::merge;
 

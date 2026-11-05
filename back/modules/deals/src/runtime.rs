@@ -11,11 +11,11 @@ use uuid::Uuid;
 
 use crate::domain::{DEAL_CREATED, DEAL_STAGE_CHANGED, StageTransitionEntry};
 use crate::store::DealStore;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::money::MoneyRates;
 use aphel_sdk::money::organization_today;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer, RecordType};
 
 pub(crate) const DEALS_LAST_ACTIVITY_CONSUMER: &str = "deals.last_activity";
 pub(crate) const DEAL_STAGE_HISTORY_CONSUMER: &str = "reports.deal_stage_history";
@@ -165,7 +165,7 @@ impl CurrencyRecalculateHandler {
     }
 
     async fn recalculate(&self, currency: Option<&str>) -> Result<u64, AppError> {
-        let currencies = aphel_kernel::modules::app()
+        let currencies = aphel_sdk::platform::modules::app()
             .services()
             .require::<dyn MoneyRates>()?;
         let Some(context) = currencies.context(&self.pool).await? else {
@@ -177,10 +177,10 @@ impl CurrencyRecalculateHandler {
             Some(currency) => vec![currency.to_owned()],
             None => deals.open_currencies().await?,
         };
-        let items = aphel_kernel::modules::app()
+        let items = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::line_items::LineItemsPort>();
-        let financials = aphel_kernel::modules::app()
+        let financials = aphel_sdk::platform::modules::app()
             .services()
             .require::<dyn aphel_sdk::deals::DealFinancials>()?;
         let mut updated = 0;
@@ -191,14 +191,14 @@ impl CurrencyRecalculateHandler {
                 currencies.rate_on(&self.pool, &code, today).await?
             };
             let mut tx =
-                aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+                aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
             updated += deals.apply_open_rate(&mut tx, &code, rate).await?;
             if let Some(items) = &items {
                 for id in financials.open_ids(&mut tx, &code).await? {
                     items
                         .sync_rate(
                             &mut tx,
-                            &aphel_kernel::application::shared::RecordRef::new(
+                            &aphel_sdk::platform::application::shared::RecordRef::new(
                                 RecordType::DEAL,
                                 id,
                             ),

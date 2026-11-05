@@ -10,14 +10,14 @@ use crate::{
     registry,
     runtime::{self, wit},
 };
-use aphel_kernel::application::shared::{
-    Actor, ExecutionContext, Job, JobContext, JobHandler, JobQueue,
-};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::ChangedRecord;
+use aphel_sdk::platform::application::shared::{
+    Actor, ExecutionContext, Job, JobContext, JobHandler, JobQueue,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub const RUN_JOB: &str = "plugin.committed";
 
@@ -58,7 +58,7 @@ pub async fn enqueue(ctx: &mut HookCtx<'_>, changed: &ChangedRecord) -> Result<(
             changed.record.record_id
         );
         let input = json!({"record_type": changed.record_type.as_str(), "record_id": changed.record.record_id,
-            "mode": match changed.mode { aphel_kernel::application::fields::WriteMode::Create => "create", aphel_kernel::application::fields::WriteMode::Update => "update" },
+            "mode": match changed.mode { aphel_sdk::platform::application::fields::WriteMode::Create => "create", aphel_sdk::platform::application::fields::WriteMode::Update => "update" },
             "actor_type": actor.kind(), "actor_id": actor.id(), "values": changed.values,
             "changes": changed.changes.iter().map(|change| json!({"field": change.field, "old": change.old, "new": change.new})).collect::<Vec<_>>(),
             "state": state, "authority": authority});
@@ -160,7 +160,7 @@ impl JobHandler for Run {
                 })
                 .collect(),
         };
-        let app = aphel_kernel::modules::app();
+        let app = aphel_sdk::platform::modules::app();
         let mut ctx = HookCtx::new(&mut tx, &self.pool, &scope, app.services(), crate::KEY);
         execution
             .scope(runtime::on_hook(plugin, &mut ctx, &call))

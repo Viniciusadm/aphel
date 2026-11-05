@@ -3,12 +3,12 @@ use serde_json::Value;
 use crate::compose::AttachmentFile;
 use crate::templates::VariableField;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::files::{FileSettings, FileUseCases, RecordAccessChecker};
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::records::mysql_record_access::MySqlRecordAccessChecker;
-use aphel_kernel::infrastructure::storage::mysql_files::MySqlFilePorts;
+use aphel_sdk::platform::application::access::PERMISSION_DENIED;
+use aphel_sdk::platform::application::files::{FileSettings, FileUseCases, RecordAccessChecker};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::infrastructure::records::mysql_record_access::MySqlRecordAccessChecker;
+use aphel_sdk::platform::infrastructure::storage::mysql_files::MySqlFilePorts;
 
 pub(crate) async fn load_record(
     ctx: &Ctx<'_>,

@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
 
 pub(crate) const MAX_TEMPLATE_NAME_LENGTH: usize = 200;
 pub(crate) const MAX_TEMPLATE_SUBJECT_LENGTH: usize = 998;

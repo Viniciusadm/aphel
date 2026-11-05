@@ -13,13 +13,13 @@ impl Module for MarketplaceModule {
         Manifest::new(
             KEY,
             "Marketplace",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_kernel::application::organization_profile::OrganizationConfigExtension>(std::sync::Arc::new(settings::SourceConfiguration));
+        app.contribute::<dyn aphel_sdk::platform::application::organization_profile::OrganizationConfigExtension>(std::sync::Arc::new(settings::SourceConfiguration));
         app.openapi_tag(http::TAG, "Plugin and configuration marketplace")
             .routes(|_| http::router());
         Ok(())

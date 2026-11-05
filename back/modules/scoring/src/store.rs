@@ -1,5 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
-use aphel_kernel::domain::access::AccessScope;
+use aphel_sdk::platform::domain::access::AccessScope;
 use std::collections::HashMap;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
@@ -11,13 +11,13 @@ use uuid::Uuid;
 
 use crate::domain::*;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::parse_uuid;
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
+use aphel_sdk::platform::application::query::Filter;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 
 macro_rules! model_columns {
     () => {
@@ -415,7 +415,7 @@ impl ScoreStore {
         event_id: Option<Uuid>,
         occurred_at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
-        let mut tx = aphel_kernel::database::receipt::begin(&self.pool).await?;
+        let mut tx = aphel_sdk::platform::database::receipt::begin(&self.pool).await?;
         let recorded = self
             .record_signal_in_tx(&mut tx, record, signal, source_key, event_id, occurred_at)
             .await?;

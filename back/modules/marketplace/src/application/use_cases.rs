@@ -7,11 +7,11 @@ use crate::application::{
     CatalogEntry, CatalogEntryKind, CatalogFetchError, CatalogFetcher, CatalogPorts,
     MAX_CATALOG_INDEX_BYTES, RejectedEntry, parse_index, resolve_package_url,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::versioning::compare_versions;
 use aphel_sdk::configuration::{APHEL_VERSION, MAX_PACKAGE_BYTES, parse_version};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use sha2::{Digest, Sha256};
 
 pub const CATALOG_DISABLED: &str = "catalog_disabled";

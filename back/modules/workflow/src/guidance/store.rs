@@ -5,10 +5,10 @@ use uuid::Uuid;
 
 use crate::guidance::domain::{ChecklistItem, ChecklistProgress, GuidanceText};
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::{naive, parse_uuid, utc};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{naive, parse_uuid, utc};
 
 macro_rules! item_select {
     ($condition:literal) => {
@@ -200,7 +200,7 @@ impl GuidanceStore {
 
     pub(crate) async fn progress(
         &self,
-        record_type: &aphel_kernel::application::shared::RecordType,
+        record_type: &aphel_sdk::platform::application::shared::RecordType,
         record_id: Uuid,
     ) -> Result<Vec<ChecklistProgress>, AppError> {
         let rows = sqlx::query(
@@ -230,7 +230,7 @@ impl GuidanceStore {
     pub(crate) async fn mark_done(
         &self,
         tx: &mut MySqlTx,
-        record_type: &aphel_kernel::application::shared::RecordType,
+        record_type: &aphel_sdk::platform::application::shared::RecordType,
         record_id: Uuid,
         progress: &ChecklistProgress,
     ) -> Result<(), AppError> {
@@ -252,7 +252,7 @@ impl GuidanceStore {
     pub(crate) async fn mark_pending(
         &self,
         tx: &mut MySqlTx,
-        record_type: &aphel_kernel::application::shared::RecordType,
+        record_type: &aphel_sdk::platform::application::shared::RecordType,
         record_id: Uuid,
         item_id: Uuid,
     ) -> Result<(), AppError> {

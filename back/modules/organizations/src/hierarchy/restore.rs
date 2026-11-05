@@ -7,12 +7,12 @@ use sqlx::MySqlPool;
 use crate::domain::COMPANY_RESTORED;
 use crate::hierarchy::{HierarchyStore, reattach_children};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer, RecordType};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 pub(crate) const HIERARCHY_RESTORE_CONSUMER: &str = "organizations.hierarchy_restore";
 

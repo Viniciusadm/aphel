@@ -30,13 +30,13 @@ use std::sync::Arc;
 
 use aphel_contract_automation::application::{AutomationActionSource, AutomationTriggerSource};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
 use aphel_kernel::modules::{PluginHookDispatcher, PluginOperation};
 use aphel_kernel::records::{
     RecordArchiving, RecordDeleted, RecordDeleting, RecordPurged, RecordRestored, RecordSaved,
     RecordSaving, RecordValidating,
 };
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub const KEY: &str = "wasm_runtime";
 
@@ -69,7 +69,7 @@ impl Module for WasmRuntimeModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.provide::<dyn aphel_kernel::infrastructure::deferred_authority::DeferredPluginPolicy>(
+        app.provide::<dyn aphel_sdk::platform::infrastructure::deferred_authority::DeferredPluginPolicy>(
             std::sync::Arc::new(registry::DeferredPluginPolicy),
         );
         app.filter(RecordSaving, HOOK_PRIORITY, |ctx, saving| {
@@ -114,13 +114,13 @@ impl Module for WasmRuntimeModule {
         })
         .public_routes(|_| http::public_router())
         .root_routes(|_| http::root_router());
-        app.contribute::<dyn aphel_kernel::modules::toggle_guard::ModuleToggleGuard>(Arc::new(
-            modules::PluginModuleGuard,
-        ));
-        app.contribute::<dyn aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource>(
+        app.contribute::<dyn aphel_sdk::platform::modules::toggle_guard::ModuleToggleGuard>(
+            Arc::new(modules::PluginModuleGuard),
+        );
+        app.contribute::<dyn aphel_sdk::platform::modules::runtime_catalog::RuntimeCatalogSource>(
             Arc::new(registry::PublicEvents),
         );
-        app.contribute::<dyn aphel_kernel::application::public_events::RuntimePublicEventSource>(
+        app.contribute::<dyn aphel_sdk::platform::application::public_events::RuntimePublicEventSource>(
             Arc::new(registry::PublicEvents),
         );
         app.contribute::<dyn aphel_sdk::privacy::DataSubjectSource>(Arc::new(

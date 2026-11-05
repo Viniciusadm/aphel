@@ -8,8 +8,8 @@ use crate::errors;
 use crate::http::{GenerateProposalRequest, ProposalDocument, optional_id, parse_id};
 use crate::service::{self, GENERATE, TemplateChoice};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
+use aphel_sdk::platform::application::access::Authorizer;
 
 #[derive(Deserialize)]
 struct GenerateInput {

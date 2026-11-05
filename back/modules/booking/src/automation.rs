@@ -4,7 +4,7 @@ use std::sync::Arc;
 use crate::{MEETING_BOOKED, MEETING_CANCELED, MEETING_RESCHEDULED};
 use aphel_contract_automation::application::AutomationTrigger;
 use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
 
 struct MeetingTrigger {
     key: &'static str,

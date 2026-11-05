@@ -20,14 +20,18 @@ use crate::runtime::{
     ScoringDecayHandler, ScoringEventsConsumer, ScoringRecalculateHandler, ScoringRuntime,
     scoring_decay_schedule,
 };
-use aphel_kernel::application::fields::{COMPUTED_RECORD_ALIAS, ComputedColumn, SystemField};
-use aphel_kernel::application::public_events::{PreviousValues, PublicEventDefinition, changed};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
+use aphel_sdk::platform::application::fields::{
+    COMPUTED_RECORD_ALIAS, ComputedColumn, SystemField,
+};
+use aphel_sdk::platform::application::public_events::{
+    PreviousValues, PublicEventDefinition, changed,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "scoring";
 
@@ -57,7 +61,7 @@ pub(crate) fn score_field(record_type: &RecordType) -> Result<SystemField, AppEr
 }
 
 fn extend_scored(
-    definition: &mut aphel_kernel::application::fields::EntityDefinition,
+    definition: &mut aphel_sdk::platform::application::fields::EntityDefinition,
 ) -> Result<(), AppError> {
     if !definition.capabilities.has_trait("scoring.subject") {
         return Ok(());
@@ -134,8 +138,8 @@ impl Module for ScoringModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+pub(crate) fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )

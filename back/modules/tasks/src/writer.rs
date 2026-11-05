@@ -27,9 +27,11 @@ impl aphel_sdk::tasks::TaskTypes for Writer {
         &self,
         ctx: &Ctx<'_>,
         include_inactive: bool,
-        window: aphel_kernel::application::organization_admin::ListWindow,
+        window: aphel_sdk::platform::application::organization_admin::ListWindow,
     ) -> Result<
-        aphel_kernel::application::organization_admin::Listing<aphel_sdk::tasks::ActivityTypeView>,
+        aphel_sdk::platform::application::organization_admin::Listing<
+            aphel_sdk::tasks::ActivityTypeView,
+        >,
         AppError,
     > {
         crate::types::list(ctx, include_inactive, window).await
@@ -45,7 +47,7 @@ impl aphel_sdk::tasks::MeetingScheduler for Writer {
     async fn schedule(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
         meeting: aphel_sdk::tasks::MeetingActivity,
     ) -> Result<Uuid, AppError> {
         let mut prepared = crate::service::prepare_create(
@@ -71,7 +73,7 @@ impl aphel_sdk::tasks::MeetingScheduler for Writer {
     async fn move_to(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
         scope: &aphel_sdk::access::AccessScope,
         activity_id: Uuid,
         change: aphel_sdk::tasks::MeetingActivityMove,
@@ -93,7 +95,7 @@ impl aphel_sdk::tasks::MeetingScheduler for Writer {
     async fn cancel(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
         scope: &aphel_sdk::access::AccessScope,
         activity_id: Uuid,
         ip: Option<String>,

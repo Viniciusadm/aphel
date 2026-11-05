@@ -1,11 +1,11 @@
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{CustomFieldPorts, ReferenceChecker};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::Permission;
 use aphel_sdk::calendar::{
     CalendarBatch, CalendarCategory, CalendarOwner, CalendarQuery, CalendarRecord, CalendarSource,
 };
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{CustomFieldPorts, ReferenceChecker};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::{AppError, Ctx};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -33,7 +33,7 @@ impl CalendarSource for TaskCalendar {
             crate::types::list(
                 ctx,
                 false,
-                aphel_kernel::application::organization_admin::ListWindow {
+                aphel_sdk::platform::application::organization_admin::ListWindow {
                     offset: 0,
                     limit: 200,
                 },

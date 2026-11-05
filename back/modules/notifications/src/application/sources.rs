@@ -5,7 +5,7 @@ pub use aphel_sdk::notifications::{
 use std::sync::Arc;
 
 pub fn notification_sources() -> Vec<Arc<dyn NotificationSource>> {
-    let mut sources = aphel_kernel::modules::try_app()
+    let mut sources = aphel_sdk::platform::modules::try_app()
         .map(|app| app.contributions::<dyn NotificationSource>())
         .unwrap_or_default();
     sources.sort_by_key(|source| source.order());

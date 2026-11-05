@@ -18,13 +18,15 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::public_events::{PublicEventDefinition, PublicResource, event};
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::RecordValidating;
 use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use aphel_sdk::platform::application::public_events::{
+    PublicEventDefinition, PublicResource, event,
+};
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{ApprovalGate, EngineApprovalGate, approval_gate};
 
@@ -100,7 +102,7 @@ impl Module for ApprovalsModule {
         ));
         app.contract(aphel_sdk::approvals::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::defaults::seed::DefaultsSeed(|connection| {
+            aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed(|connection| {
                 Box::pin(defaults::seed_templates(connection))
             }),
         ));

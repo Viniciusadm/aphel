@@ -7,8 +7,8 @@ use crate::{
     EnrollmentCounts, EnrollmentFilter, EnrollmentView, SaveSequenceCommand, SequenceListQuery,
     SequenceMetrics, SequenceStep, SequenceSummary, StepInput, StepMetrics,
 };
-use aphel_kernel::api::dto::common::double_option;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::api::dto::common::double_option;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

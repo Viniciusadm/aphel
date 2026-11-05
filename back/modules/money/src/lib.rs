@@ -15,12 +15,12 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::public_events::{
+use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
-use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
-use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 use hooks::{CurrencyConverter, RateCurrencyConverter};
 
@@ -98,12 +98,12 @@ impl Module for MoneyModule {
             }),
         ));
         app.contract(aphel_sdk::money::DESCRIPTOR);
-        use aphel_kernel::application::fields::{
+        use aphel_sdk::platform::application::fields::{
             EntityDefinition, EntityTraits,
             builtin::{field, timestamps, with_fields},
         };
-        use aphel_kernel::application::shared::RecordType;
-        use aphel_kernel::domain::fields::FieldType;
+        use aphel_sdk::platform::application::shared::RecordType;
+        use aphel_sdk::platform::domain::fields::FieldType;
         app.entity(with_fields(
             EntityDefinition::new(
                 RecordType::from_static("money.exchange_rate"),
@@ -113,7 +113,7 @@ impl Module for MoneyModule {
             .capabilities(
                 EntityTraits::default()
                     .with_trait("records.global")
-                    .localized_labels(aphel_kernel::application::fields::LocalizedLabels(
+                    .localized_labels(aphel_sdk::platform::application::fields::LocalizedLabels(
                         std::collections::BTreeMap::from([
                             ("en".into(), "Exchange rates".into()),
                             ("pt-BR".into(), "Taxas de câmbio".into()),
@@ -132,7 +132,7 @@ impl Module for MoneyModule {
             timestamps()?,
         ));
         app.permission(
-            aphel_kernel::domain::access::PermissionDefinition::administrative(
+            aphel_sdk::platform::domain::access::PermissionDefinition::administrative(
                 aphel_sdk::money::READ_PERMISSION,
             ),
         )
@@ -152,15 +152,15 @@ impl Module for MoneyModule {
             app.public_event(*definition);
         }
         exposed_operations::register(app);
-        app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
+        app.contribute::<dyn aphel_sdk::platform::application::public_events::PublicResourceLoader>(
             Arc::new(public::ExchangeRatePublicResource),
         );
         Ok(())
     }
 }
 
-fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )

@@ -8,12 +8,12 @@ use utoipa_axum::routes;
 use crate::domain::{FollowedRecord, RecordFollower, RecordFollowers};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope, Page, timestamp as instant};
-use aphel_kernel::api::dto::files::UserReferenceResponse;
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, Pagination, PaginationQuery};
-use aphel_kernel::api::routes::v1::members::window;
-use aphel_kernel::api::state::AppState;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope, Page, timestamp as instant};
+use aphel_sdk::platform::api::dto::files::UserReferenceResponse;
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, Pagination, PaginationQuery};
+use aphel_sdk::platform::api::routes::v1::members::window;
+use aphel_sdk::platform::api::state::AppState;
 
 pub(crate) const TAG: &str = "followers";
 

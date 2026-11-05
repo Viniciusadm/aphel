@@ -7,14 +7,14 @@ use crate::prospective_values::{
     CompiledRule, ProposedRecord, aggregate_value, compile_rule, json_formula_value,
     rule_dependencies, rule_preview, stored_formula_value, violation_path,
 };
-use aphel_kernel::application::fields::{
+use aphel_sdk::platform::application::fields::{
     FieldDefinitionReader, RecordTypeRegistry, SystemField, WriteMode,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::FieldDefinition;
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::FieldDefinition;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_sdk::{
     AppError,
     formulas::{
@@ -42,7 +42,8 @@ impl ProspectivePredicates for Predicates {
             .context(record_type)
             .await?;
         Ok(PredicateCheck {
-            errors: if expression.chars().count() > aphel_kernel::domain::fields::MAX_FORMULA_LENGTH
+            errors: if expression.chars().count()
+                > aphel_sdk::platform::domain::fields::MAX_FORMULA_LENGTH
             {
                 Vec::new()
             } else {

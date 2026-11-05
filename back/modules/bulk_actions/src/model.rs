@@ -5,13 +5,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::{EntityTraits, RecordTypeRegistry};
-use aphel_kernel::application::query::{ArchivedFilter, Filter};
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::exports::ExportFormat;
+use aphel_sdk::platform::application::fields::{EntityTraits, RecordTypeRegistry};
+use aphel_sdk::platform::application::query::{ArchivedFilter, Filter};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const BULK_RUN_JOB: &str = "bulk.run";
 pub(crate) const BULK_INLINE_LIMIT: usize = 200;

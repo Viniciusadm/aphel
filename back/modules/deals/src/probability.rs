@@ -1,19 +1,21 @@
 use crate::team::store::{push_credit_share, push_credited_filter};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, not_accessible};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::query::{QueryPlan, RecordQuery};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::query::compiler::push_where;
-use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_sdk::deals::{
     CreditedUsers, DealProbabilityReader, ProbabilityDeal, ProbabilityDealsRequest,
     ProbabilityGroup, ProbabilitySource,
 };
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{
+    NOT_ACCESSIBLE_MESSAGE, not_accessible,
+};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::query::{QueryPlan, RecordQuery};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::query::compiler::push_where;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::workflow::{PipelineStage, WorkflowCatalog};
 use chrono::NaiveDate;
 use rust_decimal::Decimal;

@@ -8,14 +8,14 @@ use crate::domain::{
 use crate::engine::{self, record_not_found};
 use crate::store::{ApprovalDirectory, ApprovalStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::ChangedRecord;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 pub use aphel_sdk::approvals::{ApprovalGate, approval_gate};
 

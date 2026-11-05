@@ -5,16 +5,16 @@ use crate::domain::custom::{ReportEntry, RunOverrides, authorize_edit};
 use crate::http::custom_dto::ReportResponse;
 use crate::service::reports::run_report;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::aggregates::AggregateResultResponse;
-use aphel_kernel::application::shared::is_access_denied;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::state::runtime_state;
 use aphel_sdk::dashboard::ResolvedPeriod;
 use aphel_sdk::dashboard::{
     DashboardPorts, SettingsReader, WidgetContext, WidgetProvider, WidgetSize,
 };
+use aphel_sdk::platform::api::dto::aggregates::AggregateResultResponse;
+use aphel_sdk::platform::application::shared::is_access_denied;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
+use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const SAVED_REPORT_WIDGET: &str = "saved_report";
 pub(crate) const REPORT_ID_SETTING: &str = "report_id";
@@ -55,7 +55,7 @@ where
         if permissions.grants_everything() {
             return true;
         }
-        let record_types = aphel_kernel::modules::app().record_types();
+        let record_types = aphel_sdk::platform::modules::app().record_types();
         permissions.grants().any(|grant| {
             grant
                 .permission

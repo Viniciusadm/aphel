@@ -12,12 +12,12 @@ use crate::application::versioning::{
     ConfigVersionPorts, ConfigVersionRepository, InstalledVersion, ItemResolution, VersionItem,
 };
 use crate::infrastructure::MySqlConfigPackagePorts;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const MAX_LISTED_VERSIONS: i64 = 500;
 const VERSION_COLUMNS: &str = "v.id, v.package_id, v.version, v.name, v.install_id, v.origin, \

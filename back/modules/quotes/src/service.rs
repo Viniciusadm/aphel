@@ -24,23 +24,6 @@ use crate::store::QuoteStore;
 use crate::token::encode_link_token;
 use crate::{KEY, PricedQuote, QuoteTotals};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, RecordDraft, RecordPipeline,
-    RecordWrite, ReferenceChecker, WriteMode, decimal_json, saving_unsupported,
-};
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
-    ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
@@ -49,12 +32,31 @@ use aphel_kernel::records::{
 };
 use aphel_sdk::approvals::APPROVAL_PENDING;
 use aphel_sdk::line_items::{DiscountKind, parse_money};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::permissions::check_record_writes;
+use aphel_sdk::platform::application::fields::{
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, RecordDraft, RecordPipeline,
+    RecordWrite, ReferenceChecker, WriteMode, decimal_json, saving_unsupported,
+};
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::query::{
+    Filter, FilterOperator, RecordQuery, RecordQueryEngine,
+};
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
+    ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
+use aphel_sdk::platform::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_sdk::pricing::PriceListSelection;
 
 use aphel_sdk::tokens::{decode_key, generate_key};
 
-use aphel_kernel::application::shared::money_text;
-pub(crate) use aphel_kernel::application::shared::parse_uuid as parse_id;
+use aphel_sdk::platform::application::shared::money_text;
+pub(crate) use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
 
 pub(crate) const INVALID_QUOTE: &str = "invalid quote";
 

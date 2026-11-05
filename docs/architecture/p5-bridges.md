@@ -5,3 +5,7 @@
 - Seven files stay named `plugin_bridge.rs` (`automations`, `deals`, `email`, `leads`, `quotes`, `sequences`, `tasks`): they hold the native-hook forwarders (`forward_plugin_hook`) and `PluginHook` metadata. Moving those to bus-level subscriptions is part of the WebAssembly runtime parity work (P6.1, P6.3).
 - No section 5.4 bridge plugin was needed.
 - [ ] Manual acceptance: from a WebAssembly plugin call one read and one write operation of each converted module (`invoke`) and confirm the result and the durable-mutation behaviour match the previous release; confirm `aphel catalog` lists each operation once.
+
+## Kernel paths through the SDK
+
+- Plugins no longer name `aphel_kernel::<area>::<module>` paths: `aphel_sdk::platform` re-exports the 80 kernel modules and items plugins use (`platform::application::shared`, `platform::domain::access`, `platform::database::transaction`, ...), and 3,198 references in 767 plugin files were rewritten to it. The facade is a list of module-level re-exports, not a curated item list: narrowing each entry to the items plugins need, and replacing entries with purpose-built SDK modules, is ongoing curation work. Kernel moves now need one edit in `sdk/src/platform.rs`.

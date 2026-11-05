@@ -10,16 +10,16 @@ use sqlx::{AssertSqlSafe, MySqlPool, QueryBuilder, Row};
 use crate::application::{
     FormLayout, FormLayoutRepository, LayoutContext, LayoutPorts, RulesSource, StoredFormLayout,
 };
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::{AuditLog, EventPublisher, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::auth::SystemClock;
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::{AuditLog, EventPublisher, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::auth::SystemClock;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::transactions::MySqlTransactionManager;
 
 const LAYOUT_COLUMNS: &str = "id, record_type, context, layout, updated_by, created_at, updated_at";
 

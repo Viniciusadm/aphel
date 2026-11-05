@@ -4,9 +4,9 @@ use async_trait::async_trait;
 use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::search::{SearchContentSource, SearchRefresh};
 
 use crate::service::{

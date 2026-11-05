@@ -15,9 +15,9 @@ use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext, record_permission,
 };
 use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
-use aphel_kernel::application::shared::DomainEvent;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::DomainEvent;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const SEND_OWNER_EMAIL: &str = "send_owner_email";
 const OPTIONS: [&str; 5] = ["to", "template_id", "subject", "body", "tracking"];

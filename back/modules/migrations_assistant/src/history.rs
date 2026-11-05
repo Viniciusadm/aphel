@@ -11,11 +11,11 @@ use crate::{
     DEAL_COLUMN, DESCRIPTION_COLUMN, DONE_COLUMN, DUE_AT_COLUMN, NormalizedFile, OWNER_COLUMN,
     StepKind, TITLE_COLUMN,
 };
-use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::imports::{ImportSources, sources};
+use aphel_sdk::platform::application::query::{RecordQueryExecutor, RecordQueryPorts};
+use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::tasks::{CreateActivityCommand, RecordLinkInput};
 use std::sync::Arc;
 

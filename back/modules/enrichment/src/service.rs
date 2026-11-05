@@ -13,14 +13,14 @@ use crate::{
     CNPJ_FIELD_SETTING, COMPANY, COMPANY_ENRICHED, DATA_ITEMS, KEY, SOURCE_SETTING, USE, cnpj,
     data_item,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{
+use aphel_kernel::context::Ctx;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
 };
-use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::module_settings;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::modules::module_settings;
 
 pub(crate) const COMPANY_NOT_FOUND: &str = "company_not_found";
 pub(crate) const CNPJ_MISSING: &str = "enrichment_cnpj_missing";

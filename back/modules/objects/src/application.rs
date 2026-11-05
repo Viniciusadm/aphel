@@ -1,34 +1,34 @@
-use aphel_kernel::application::custom_objects::{ChangeRecord, publish_change};
+use aphel_sdk::platform::application::custom_objects::{ChangeRecord, publish_change};
 use std::collections::BTreeSet;
 
 use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::custom_objects::{
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::custom_objects::{
     CUSTOM_OBJECTS_MAX, CustomObjectRepository, RelationshipRepository, custom_record_definition,
 };
 
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::records::Patch;
+use aphel_sdk::platform::application::fields::{
     FieldDefinitionRepository, RecordTypeRegistry, is_sql_identifier, normalize_color,
 };
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     AuditLog, EventPublisher, FieldChange, RecordRef, RecordType, TransactionManager,
     ensure_version,
 };
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::custom_objects::{
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::custom_objects::{
     Cardinality, CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
     MAX_OBJECT_DESCRIPTION_LENGTH, MAX_OBJECT_ICON_LENGTH, MAX_OBJECT_KEY_LENGTH,
     MAX_OBJECT_LABEL_LENGTH, MAX_RELATIONSHIP_KEY_LENGTH, MAX_RELATIONSHIP_LABEL_LENGTH, OnDelete,
     RelationshipDefinition, is_custom_record_type, is_object_key,
 };
-use aphel_kernel::domain::fields::{FieldConfig, FieldDefinition, FieldKey, FieldType};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::Patch;
+use aphel_sdk::platform::domain::fields::{FieldConfig, FieldDefinition, FieldKey, FieldType};
 
 pub const CUSTOM_OBJECT_RECORD_TYPE: RecordType = RecordType::from_static("custom_object");
 pub const RELATIONSHIP_RECORD_TYPE: RecordType = RecordType::from_static("relationship");
@@ -438,7 +438,7 @@ where
             .objects()
             .seed_system_fields(&mut tx, &definition)
             .await?;
-        if definition.storage == aphel_kernel::application::fields::EntityStorage::Dynamic {
+        if definition.storage == aphel_sdk::platform::application::fields::EntityStorage::Dynamic {
             self.ports
                 .definitions()
                 .insert(&mut tx, &title_field)

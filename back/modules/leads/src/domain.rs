@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use chrono::{DateTime, Duration, NaiveDate, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub use aphel_sdk::leads::{LEAD_STAGE, LIFECYCLE_STAGE_FIELD};
 pub(crate) const QUALIFIED_STAGE: &str = "qualified";

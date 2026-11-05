@@ -13,16 +13,16 @@ use crate::domain::{
 };
 use crate::store::{self, AssignmentFilter, DistributionStore, RuleListFilter, TargetInfo};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::configuration::{MAX_CONFIG_KEY_LENGTH, is_config_key, key_from_name};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 mod distribution;
 

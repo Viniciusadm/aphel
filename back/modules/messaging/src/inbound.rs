@@ -9,14 +9,16 @@ use crate::store::{self, StoredChannel, StoredConversation, StoredMessage};
 use crate::text::{self, EXCERPT_CHARS, PREVIEW_CHARS};
 use crate::{MESSAGE_RECEIVED, error_code};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::platform::application::query::{
+    Filter, FilterOperator, RecordQuery, RecordQueryEngine,
+};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum IngestOutcome {
@@ -153,7 +155,7 @@ async fn contact_by_peer(
             RecordType::CONTACT.as_str(),
             RecordQuery {
                 filter: Some(Filter::or(conditions)),
-                window: aphel_kernel::application::organization_admin::ListWindow {
+                window: aphel_sdk::platform::application::organization_admin::ListWindow {
                     offset: 0,
                     limit: 1,
                 },

@@ -6,10 +6,10 @@ use crate::application::NotificationPorts;
 use crate::infrastructure::{
     MySqlNotificationDirectory, MySqlNotificationPreferenceRepository, MySqlNotificationRepository,
 };
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::infrastructure::auth::SystemClock;
-use aphel_kernel::infrastructure::platform::SharedJobQueue;
-use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::infrastructure::auth::SystemClock;
+use aphel_sdk::platform::infrastructure::platform::SharedJobQueue;
+use aphel_sdk::platform::infrastructure::transactions::MySqlTransactionManager;
 
 #[derive(Clone)]
 pub struct MySqlNotificationPorts {

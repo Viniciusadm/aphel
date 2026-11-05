@@ -30,11 +30,12 @@ async fn read(
         .iter()
         .map(|row| {
             Ok(PrimaryOrganization {
-                person_id: aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column(
-                    row, "id",
-                )?,
+                person_id:
+                    aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column(
+                        row, "id",
+                    )?,
                 organization_id:
-                    aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column(
+                    aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column(
                         row,
                         "company_id",
                     )?,

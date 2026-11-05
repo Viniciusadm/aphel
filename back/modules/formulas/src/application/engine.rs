@@ -10,13 +10,13 @@ use crate::application::{
     CompiledFormula, EvalEnv, FormulaContext, FormulaPorts, FormulaSource, FormulaValue,
     FormulaWorkspace, evaluate, order_formulas,
 };
-use aphel_kernel::application::fields::{CustomFieldValueRepository, SystemField};
-use aphel_kernel::application::shared::{RecordRef, RecordType, TransactionManager};
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{CustomFieldValueRepository, SystemField};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType, TransactionManager};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::{
     FieldDefinition, FieldType, FieldValue, MAX_NUMBER_ABS, MAX_TEXT_LENGTH,
 };
-use aphel_kernel::errors::AppError;
 
 pub const MAX_PROPAGATION_DEPTH: usize = 3;
 pub const RECALCULATION_BATCH: u32 = 200;

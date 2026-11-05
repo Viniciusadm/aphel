@@ -1,10 +1,10 @@
 use crate::application::{
     FORMULA_CYCLE, FormulaNode, FormulaWorkspace, ValueKind, compile_formula, find_cycle,
 };
-use aphel_kernel::application::fields::{FieldDefinitionReader, RecordTypeRegistry};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::{FieldDefinitionReader, RecordTypeRegistry};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::fields::FieldDefinition;
 
 pub const MAX_REPORTED_ERRORS: usize = 5;
 pub const EXPRESSION_PATH: &str = "config.expression";

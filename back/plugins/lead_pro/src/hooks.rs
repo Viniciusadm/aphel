@@ -1,12 +1,12 @@
 use aphel_contract_crm::CrmRecordTypes;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::fields::WriteMode;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::{ChangedRecord, SavingRecord};
 use aphel_sdk::leads::{Lead, LeadConversion};
+use aphel_sdk::platform::application::fields::WriteMode;
+use aphel_sdk::platform::application::shared::RecordType;
 
 use crate::domain::{LEAD_NOT_HOT_ENOUGH, LeadProSettings, MAX_TEMPERATURE, TEMPERATURE_FIELD};
 use crate::store;

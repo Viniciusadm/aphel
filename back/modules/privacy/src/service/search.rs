@@ -5,8 +5,8 @@ use crate::service::subject::parse_subject;
 use crate::service::{audit_only, personal_fields, require_privacy};
 use crate::store::PrivacyStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{FieldChange, RecordRef};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{FieldChange, RecordRef};
 
 pub(crate) async fn search_subject(
     ctx: &Ctx<'_>,

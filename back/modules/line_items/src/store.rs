@@ -1,4 +1,4 @@
-use aphel_kernel::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use sqlx::mysql::MySqlRow;
@@ -7,14 +7,14 @@ use uuid::Uuid;
 
 use crate::domain::LineItemSettings;
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper::{
+use aphel_sdk::line_items::{AmountMode, DiscountKind, LineData, LineItem, Recurrence};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{
     instant, invalid_column, naive, optional_user, optional_uuid,
 };
-use aphel_sdk::line_items::{AmountMode, DiscountKind, LineData, LineItem, Recurrence};
 
 const ITEM_SELECT: &str = "SELECT id, record_type, record_id, product_id, name, unit, quantity, unit_price, \
      discount_type, discount_value, tax_percent, recurrence, term_months, total, amount_base, exchange_rate, \
@@ -26,7 +26,7 @@ fn item_from_row(row: &MySqlRow) -> Result<LineItem, AppError> {
     let recurrence: String = row.try_get("recurrence")?;
     Ok(LineItem {
         id: uuid_column(row, "id")?,
-        record: aphel_kernel::application::shared::RecordRef::new(
+        record: aphel_sdk::platform::application::shared::RecordRef::new(
             RecordType::parse(row.try_get::<String, _>("record_type")?.as_str())?,
             uuid_column(row, "record_id")?,
         ),

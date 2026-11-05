@@ -12,14 +12,14 @@ use crate::team::domain::{
     DealMemberRole, MAX_DEAL_MEMBER_ROLE_NAME_LENGTH, MAX_DEAL_MEMBER_ROLES,
 };
 use crate::team::store::DealMemberRoleStore;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const DEAL_MEMBER_ROLES_SECTION: &str = "deal_member_roles";
 pub(crate) const DEAL_MEMBER_ROLE_ITEM: &str = "deal_member_role";

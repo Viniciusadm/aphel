@@ -1,10 +1,10 @@
 use crate::domain::DealStatus;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::{
+use aphel_sdk::deals::{DealFinancials, DealRevenue, LockedAmount, RevenueState};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{
     invalid_column, naive, optional_uuid, utc,
 };
-use aphel_sdk::deals::{DealFinancials, DealRevenue, LockedAmount, RevenueState};
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use chrono_tz::Tz;
 use rust_decimal::Decimal;

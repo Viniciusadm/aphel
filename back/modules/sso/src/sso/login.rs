@@ -17,12 +17,12 @@ use super::settings::{self, LoginSettings};
 use super::states::{self, PURPOSE_LOGIN, StoredState};
 use crate::support;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::sso::LoginOption;
-use aphel_kernel::application::auth::UserRepository;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
-use aphel_kernel::modules::module_settings;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::api::sso::LoginOption;
+use aphel_sdk::platform::application::auth::UserRepository;
+use aphel_sdk::platform::infrastructure::repositories::mysql_users::MySqlUserRepository;
+use aphel_sdk::platform::modules::module_settings;
 
 const LIMIT_PER_MINUTE: u32 = 30;
 const MINUTE: Duration = Duration::from_secs(60);

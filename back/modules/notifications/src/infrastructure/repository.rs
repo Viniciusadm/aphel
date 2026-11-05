@@ -12,14 +12,14 @@ use crate::application::{
     NotificationView,
 };
 use crate::domain::{NotificationCursor, NotificationKind};
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mapper::user_reference;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mapper::user_reference;
 
 const NOTIFICATION_SELECT: &str = "SELECT n.id, n.user_id, n.kind, n.title, n.body, n.record_type, n.record_id, \
      n.actor_id, au.display_name AS actor_name, n.link, n.data, n.read_at, n.emailed_at, n.created_at \

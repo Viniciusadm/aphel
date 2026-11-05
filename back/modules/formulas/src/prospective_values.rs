@@ -13,7 +13,7 @@ use crate::application::{
     FormulaPreview, FormulaValue, INCOMPATIBLE_RESULT, Span, TypeFormulas, ValueKind,
     compile_formula, evaluate, formula_field_value,
 };
-use aphel_kernel::domain::fields::{FieldDefinition, FieldType, FieldValue};
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType, FieldValue};
 
 pub fn compile_rule(
     expression: &str,

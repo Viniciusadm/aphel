@@ -6,11 +6,11 @@ use rust_decimal::Decimal;
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::permissions::provided_key;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::records::Patch;
 use aphel_sdk::email::EmailAddress;
 use aphel_sdk::line_items::{DiscountKind, Recurrence, money_limit, round_money};
+use aphel_sdk::platform::application::fields::permissions::provided_key;
 
 pub(crate) const MAX_QUOTE_TITLE_LENGTH: usize = 255;
 pub(crate) const MAX_QUOTE_ITEMS: usize = 200;

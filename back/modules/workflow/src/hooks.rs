@@ -9,13 +9,15 @@ use crate::guidance::domain::{CHECKLIST_PATH_PREFIX, STAGE_CHECKLIST_INCOMPLETE}
 use crate::guidance::store::GuidanceStore;
 use crate::requirements::{ensure_stage_requirements, needs_custom_values};
 use crate::store::PipelineStore;
-use aphel_kernel::application::fields::{
-    CUSTOM_FIELDS_PREFIX, CustomFieldReader, FieldSet, WriteMode,
-};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::fields::{MySqlCustomFieldPorts, MySqlFieldDefinitionRepository};
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::ChangedRecord;
+use aphel_sdk::platform::application::fields::{
+    CUSTOM_FIELDS_PREFIX, CustomFieldReader, FieldSet, WriteMode,
+};
+use aphel_sdk::platform::infrastructure::fields::{
+    MySqlCustomFieldPorts, MySqlFieldDefinitionRepository,
+};
 
 fn field_value<'a>(values: &'a Value, field: &str) -> Option<&'a Value> {
     values
@@ -24,9 +26,9 @@ fn field_value<'a>(values: &'a Value, field: &str) -> Option<&'a Value> {
 }
 
 fn field_change<'a>(
-    write: &'a aphel_kernel::application::fields::RecordWrite<'_>,
+    write: &'a aphel_sdk::platform::application::fields::RecordWrite<'_>,
     field: &str,
-) -> Option<&'a aphel_kernel::application::shared::FieldChange> {
+) -> Option<&'a aphel_sdk::platform::application::shared::FieldChange> {
     write
         .changed(field)
         .or_else(|| write.changed(&format!("{CUSTOM_FIELDS_PREFIX}.{field}")))

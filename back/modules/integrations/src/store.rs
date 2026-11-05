@@ -7,9 +7,9 @@ use uuid::Uuid;
 
 use crate::engine::{Integration, IntegrationError, IntegrationStatus};
 use aphel_kernel::context::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const INTEGRATION_COLUMNS: &str = "id, provider_key, config, status, recent_errors, last_tested_at, \
      last_test_ok, created_at, updated_at";

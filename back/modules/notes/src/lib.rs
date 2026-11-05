@@ -22,14 +22,14 @@ pub mod store;
 use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::public_events::{
-    PublicEventDefinition, PublicResource, deleted, event,
-};
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use aphel_sdk::platform::application::public_events::{
+    PublicEventDefinition, PublicResource, deleted, event,
+};
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const NOTE_RESOURCE: PublicResource = PublicResource::new("notes.note", "NoteResponse");
 
@@ -95,7 +95,7 @@ impl Module for NotesModule {
         app.contribute::<dyn aphel_sdk::search::SearchContentSource>(std::sync::Arc::new(
             search::NoteSearchContent,
         ));
-        app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
+        app.contribute::<dyn aphel_sdk::platform::application::public_events::PublicResourceLoader>(
             std::sync::Arc::new(public::NotePublicResource),
         );
         app.contribute::<dyn aphel_sdk::notifications::NotificationSource>(std::sync::Arc::new(

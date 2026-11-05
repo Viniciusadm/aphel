@@ -1,5 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
-use aphel_kernel::application::shared::RecordType;
+use aphel_sdk::platform::application::shared::RecordType;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -17,14 +17,14 @@ use crate::domain::{
     QuoteItemData, QuoteOrganization, QuotePeople, QuoteSettings, QuoteStatus, QuoteVersionSummary,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope_as;
-use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_sdk::line_items::{DiscountKind, Recurrence};
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope_as;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const QUOTE_SELECT: &str = "SELECT r.id, r.deal_id, r.number, r.version, r.is_current, \
      r.title, r.status, r.owner_id, r.contact_id, r.company_id, r.currency, r.price_list_id, \
@@ -592,7 +592,7 @@ impl QuoteStore {
             None => None,
         };
         let query = ctx.query();
-        use aphel_kernel::application::query::RecordQueryPorts;
+        use aphel_sdk::platform::application::query::RecordQueryPorts;
         let mut names = Vec::new();
         for (entity, id) in [
             (RecordType::CONTACT, quote.contact_id),
@@ -604,7 +604,7 @@ impl QuoteStore {
                     ctx.registry(),
                     query.definitions(),
                     ctx.scope,
-                    &aphel_kernel::application::shared::RecordRef::new(entity, id),
+                    &aphel_sdk::platform::application::shared::RecordRef::new(entity, id),
                 )
                 .await?
                 .map(|label| label.title.unwrap_or_else(|| id.to_string())),

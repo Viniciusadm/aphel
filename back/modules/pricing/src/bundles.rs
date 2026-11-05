@@ -14,16 +14,16 @@ use crate::domain::{
 use crate::hooks::{BundleExpander, CatalogBundleExpander};
 use crate::store::BundleStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
-    ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::access::require_organization_record_scope as require_catalog;
 use aphel_sdk::catalog_items::product_not_found;
 use aphel_sdk::line_items::{QUANTITY_DECIMALS, normalize_quantity};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
+    ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 const INVALID_BUNDLE: &str = "invalid product bundle";
 

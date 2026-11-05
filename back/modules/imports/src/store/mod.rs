@@ -14,12 +14,12 @@ use crate::{
     RowError, RowOutcome, RowStatus, SourceRow, TextEncoding, delimiter_from_label,
     delimiter_label,
 };
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
 use aphel_kernel::context::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const ROW_INSERT_CHUNK: usize = 500;
 

@@ -7,7 +7,7 @@ pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
 
-pub(crate) use aphel_kernel::application::outbound_http::*;
+pub(crate) use aphel_sdk::platform::application::outbound_http::*;
 pub(crate) use model::*;
 pub(crate) use runtime::outgoing_webhook_worker;
 pub(crate) use service::{

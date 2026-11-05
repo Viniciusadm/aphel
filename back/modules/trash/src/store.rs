@@ -7,18 +7,18 @@ use uuid::Uuid;
 
 use crate::domain::TrashItem;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::{
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::{
     aliased, push_partition, push_record_scope_as,
 };
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mapper::{instant, owner_reference};
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{instant, owner_reference};
 
 pub use aphel_sdk::trash::TrashExclusion;
 

@@ -10,14 +10,14 @@ use crate::application::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
 };
 
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{
     CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, MAX_CUSTOM_FIELDS,
     RecordTypeRegistry, config_to_json, field_definition_violations,
 };
-use aphel_kernel::application::shared::{JobQueue, RecordType};
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::{FieldDefinition, FieldOption};
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{JobQueue, RecordType};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldOption};
 
 pub use aphel_sdk::configuration::sections::fields::*;
 const FIELD_KIND: &str = "field";

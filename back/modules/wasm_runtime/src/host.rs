@@ -6,17 +6,17 @@ use crate::runtime::aphel::plugin::host::Host;
 use crate::runtime::{CallState, to_plugin_error, wit};
 use crate::{net, store};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, parse_sort,
-};
-use aphel_kernel::application::secrets::SecretKey;
-use aphel_kernel::application::shared::{Actor, DomainEvent, RecordRef};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
 use aphel_kernel::state::{runtime_pool, runtime_state};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, parse_sort,
+};
+use aphel_sdk::platform::application::secrets::SecretKey;
+use aphel_sdk::platform::application::shared::{Actor, DomainEvent, RecordRef};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 const MAX_PAGE_SIZE: u64 = 100;
 const MAX_KV_ITEMS: u32 = 500;
@@ -182,15 +182,16 @@ pub(crate) async fn write(
 }
 
 async fn aggregate(scope: &AccessScope, query_json: &str) -> Result<String, AppError> {
-    let request: aphel_kernel::api::dto::aggregates::AggregateQueryRequest =
+    let request: aphel_sdk::platform::api::dto::aggregates::AggregateQueryRequest =
         serde_json::from_str(query_json)
             .map_err(|error| AppError::Validation(format!("invalid aggregate query: {error}")))?;
     let state = runtime_state()?;
-    let ports = aphel_kernel::api::routes::v1::aggregates::aggregate_ports(&state).await?;
-    let result = aphel_kernel::application::query::AggregateEngine::new(&ports)
+    let ports = aphel_sdk::platform::api::routes::v1::aggregates::aggregate_ports(&state).await?;
+    let result = aphel_sdk::platform::application::query::AggregateEngine::new(&ports)
         .run(scope, request.into_query())
         .await?;
-    let response: aphel_kernel::api::dto::aggregates::AggregateResultResponse = result.into();
+    let response: aphel_sdk::platform::api::dto::aggregates::AggregateResultResponse =
+        result.into();
     serde_json::to_string(&response).map_err(|error| AppError::Internal(error.to_string()))
 }
 
@@ -290,8 +291,8 @@ pub(crate) async fn update_if(
     let id = record_id(id)?;
     let expected = parse_version(expected_updated_at)?;
     let values = parse(values_json)?;
-    let mut tx = aphel_kernel::database::receipt::begin(&state.db()?).await?;
-    aphel_kernel::records::lock_version(&mut tx, &table, id, Some(expected)).await?;
+    let mut tx = aphel_sdk::platform::database::receipt::begin(&state.db()?).await?;
+    aphel_sdk::platform::records::lock_version(&mut tx, &table, id, Some(expected)).await?;
     let pending = handler.update_in_tx(&ctx, &mut tx, id, values).await?;
     tx.commit().await.map_err(AppError::from)?;
     if let Some(pending) = pending {
@@ -406,7 +407,7 @@ pub(crate) async fn apply(
     let state = runtime_state()?;
     let registry = state.registry().await?;
     let ctx = RecordCtx::new(scope, &state);
-    let mut tx = aphel_kernel::database::receipt::begin(&state.db()?).await?;
+    let mut tx = aphel_sdk::platform::database::receipt::begin(&state.db()?).await?;
     let mut ids: Vec<uuid::Uuid> = Vec::with_capacity(mutations.len());
     let mut pending = Vec::with_capacity(mutations.len());
     let mut types = Vec::with_capacity(mutations.len());
@@ -427,7 +428,7 @@ pub(crate) async fn apply(
                 (Some(id), expected) => {
                     let id = record_id(id)?;
                     if let Some(expected) = expected {
-                        aphel_kernel::records::lock_version(
+                        aphel_sdk::platform::records::lock_version(
                             &mut tx,
                             &definition.table,
                             id,
@@ -525,8 +526,8 @@ pub(crate) async fn emit(
     if let Some(record) = record {
         event = event.with_record(record);
     }
-    let mut tx = aphel_kernel::database::receipt::begin(&state.db()?).await?;
-    let mut audit = aphel_kernel::application::shared::AuditEntry::new(
+    let mut tx = aphel_sdk::platform::database::receipt::begin(&state.db()?).await?;
+    let mut audit = aphel_sdk::platform::application::shared::AuditEntry::new(
         Actor::from_scope(scope),
         event.event_type.clone(),
         event.occurred_at,
@@ -586,10 +587,10 @@ fn raw_body(
 }
 
 async fn organization() -> Result<String, AppError> {
-    use aphel_kernel::application::organization_profile::OrganizationRepository;
+    use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
     let pool = runtime_pool()?;
     let organization =
-        aphel_kernel::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(pool)
+        aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(pool)
             .find()
             .await?
             .ok_or_else(|| {
@@ -611,7 +612,7 @@ async fn organization() -> Result<String, AppError> {
 pub(crate) fn effective_permissions(scope: &AccessScope) -> Vec<String> {
     let permissions = scope.permissions();
     if permissions.grants_everything() {
-        let mut keys: Vec<String> = aphel_kernel::domain::access::permission_catalog()
+        let mut keys: Vec<String> = aphel_sdk::platform::domain::access::permission_catalog()
             .into_iter()
             .map(|definition| definition.permission.as_str().to_owned())
             .chain(
@@ -674,7 +675,7 @@ impl Host for CallState {
         let scope = self.scope.clone();
         let reason = self.audit_reason.clone();
         answer(
-            aphel_kernel::application::shared::with_audit_reason(
+            aphel_sdk::platform::application::shared::with_audit_reason(
                 reason,
                 write(&scope, &record_type, None, &values_json),
             )
@@ -694,7 +695,7 @@ impl Host for CallState {
         let scope = self.scope.clone();
         let reason = self.audit_reason.clone();
         answer(
-            aphel_kernel::application::shared::with_audit_reason(
+            aphel_sdk::platform::application::shared::with_audit_reason(
                 reason,
                 write(&scope, &record_type, Some(&id), &values_json),
             )
@@ -709,7 +710,7 @@ impl Host for CallState {
         let scope = self.scope.clone();
         let reason = self.audit_reason.clone();
         answer(
-            aphel_kernel::application::shared::with_audit_reason(
+            aphel_sdk::platform::application::shared::with_audit_reason(
                 reason,
                 delete(&scope, &record_type, &id),
             )
@@ -730,7 +731,7 @@ impl Host for CallState {
         let scope = self.scope.clone();
         let reason = self.audit_reason.clone();
         answer(
-            aphel_kernel::application::shared::with_audit_reason(
+            aphel_sdk::platform::application::shared::with_audit_reason(
                 reason,
                 update_if(
                     &scope,
@@ -754,8 +755,11 @@ impl Host for CallState {
         let scope = self.scope.clone();
         let reason = self.audit_reason.clone();
         answer(
-            aphel_kernel::application::shared::with_audit_reason(reason, apply(&scope, mutations))
-                .await,
+            aphel_sdk::platform::application::shared::with_audit_reason(
+                reason,
+                apply(&scope, mutations),
+            )
+            .await,
         )
     }
 
@@ -794,7 +798,7 @@ impl Host for CallState {
     }
 
     async fn can(&mut self, permission: String) -> bool {
-        aphel_kernel::domain::access::Permission::parse(permission)
+        aphel_sdk::platform::domain::access::Permission::parse(permission)
             .ok()
             .is_some_and(|permission| self.scope.permissions().scope_for(&permission).is_some())
     }
@@ -977,7 +981,7 @@ impl Host for CallState {
 
     async fn invoke(&mut self, operation: String, input_json: String) -> HostResult<String> {
         if self.retryable
-            && aphel_kernel::modules::app()
+            && aphel_sdk::platform::modules::app()
                 .contributions::<aphel_kernel::modules::PluginOperation>()
                 .iter()
                 .any(|candidate| {
@@ -1041,8 +1045,10 @@ impl Host for CallState {
     }
 
     async fn execution_context_json(&mut self) -> String {
-        serde_json::to_string(&aphel_kernel::application::shared::ExecutionContext::current())
-            .unwrap_or_else(|_| "null".to_owned())
+        serde_json::to_string(
+            &aphel_sdk::platform::application::shared::ExecutionContext::current(),
+        )
+        .unwrap_or_else(|_| "null".to_owned())
     }
 
     async fn list_users(&mut self, query_json: String) -> HostResult<String> {

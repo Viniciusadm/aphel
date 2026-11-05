@@ -3,10 +3,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{SourceRow, TextEncoding};
-use aphel_kernel::application::fields::{EntityDefinition, LabelNormalization, SystemField};
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::fields::FieldType;
+use aphel_sdk::platform::application::fields::{EntityDefinition, LabelNormalization, SystemField};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub(crate) const IMPORT_RECORD_TYPE: RecordType = RecordType::from_static("imports.import");
 pub(crate) const IMPORT_RUN_JOB: &str = "import.run";
@@ -253,7 +253,7 @@ impl Default for ImportOptions {
 impl ImportOptions {
     pub fn default_for(record_type: &str) -> Self {
         Self::default_for_definition(
-            aphel_kernel::modules::app()
+            aphel_sdk::platform::modules::app()
                 .record_types()
                 .require(record_type)
                 .ok(),

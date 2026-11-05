@@ -17,11 +17,13 @@ use crate::domain::{
 };
 use crate::{service as tasks, types as task_types};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::shared::{Job, JobQueue, RecordType};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    Filter, FilterOperator, RecordQuery, RecordQueryEngine,
+};
+use aphel_sdk::platform::application::shared::{Job, JobQueue, RecordType};
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::sso::errors::{error_code, internal, is_internal, is_not_found};
 use aphel_sdk::sso::login::credentials;
 use aphel_sdk::sso::oauth::{self, INVALID_GRANT};

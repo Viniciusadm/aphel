@@ -5,10 +5,10 @@ use serde_json::{Map, Value, json};
 use aphel_contract_automation::application::actions::*;
 use aphel_contract_automation::application::gateway::{MessageChannel, MessageSpec};
 use aphel_contract_automation::application::triggers::is_automatable;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) struct UpdateFields;
 

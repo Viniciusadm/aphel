@@ -9,13 +9,13 @@ use crate::{
     DUPLICATES_CLEANUP_CRON, DUPLICATES_CLEANUP_JOB, DUPLICATES_SCAN_CRON, DUPLICATES_SCAN_JOB,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 pub(crate) fn duplicates_scan_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(DUPLICATES_SCAN_JOB, DUPLICATES_SCAN_CRON)

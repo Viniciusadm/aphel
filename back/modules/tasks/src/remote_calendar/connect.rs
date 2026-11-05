@@ -7,9 +7,9 @@ use super::jobs::enqueue_sync;
 use super::model::{CalendarApi, CalendarConnectUrl, CalendarStatus, NO_REFRESH_TOKEN};
 use super::store;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_sdk::sso::IdTokenClaims;
 use aphel_sdk::sso::errors::error_code;
 use aphel_sdk::sso::login::{

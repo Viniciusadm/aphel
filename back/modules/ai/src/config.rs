@@ -4,11 +4,11 @@ use serde_json::Value;
 
 use crate::KEY;
 use crate::provider::{AiProvider, AnthropicProvider, OpenAiCompatibleProvider};
-use aphel_kernel::application::secrets::SecretVault;
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{module_secret_key, module_settings};
+use aphel_sdk::platform::application::secrets::SecretVault;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const NOT_CONFIGURED: &str = "ai_not_configured";
 pub(crate) const FEATURE_DISABLED: &str = "ai_feature_disabled";

@@ -10,13 +10,13 @@ use uuid::Uuid;
 use crate::application::{
     ProposedFieldValues, RuleTiming, ValidationRule, ValidationRuleRepository,
 };
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::fields::{FieldDefinition, FieldType, FieldValue};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::parse_uuid;
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType, FieldValue};
+use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 
 macro_rules! rule_select {
     ($condition:literal) => {

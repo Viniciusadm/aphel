@@ -1,4 +1,3 @@
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::{
     Ctx,
     application::{fields::LocalizedLabels, shared::RecordRef},
@@ -6,6 +5,7 @@ use aphel_kernel::{
     domain::access::Permission,
     errors::AppError,
 };
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::privacy::sql::{push_refs, push_text_match, table_exists};
 use aphel_sdk::privacy::{
     PrivacyItem, PrivacySource, Redaction, SourceOutcome, SourceRequest, SourceSnapshot,

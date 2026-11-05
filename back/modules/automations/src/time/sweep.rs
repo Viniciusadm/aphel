@@ -20,14 +20,16 @@ use aphel_contract_automation::application::time::triggers::{
 use aphel_contract_automation::application::time::triggers::{TimeCatchUp, contributed_planner};
 use aphel_contract_automation::domain::RunStatus;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{ArchivedFilter, RecordQuery, SortSpec};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{Actor, JobContext, JobHandler, JobQueue, RecordRef};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{ArchivedFilter, RecordQuery, SortSpec};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
+    Actor, JobContext, JobHandler, JobQueue, RecordRef,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const TIME_SWEEP_JOB: &str = "automations.time_sweep";
 pub(crate) const TIME_SWEEP_CRON: &str = "0 * * * * *";
@@ -225,7 +227,7 @@ impl TimeTriggerSweep {
         context: &SweepContext<'_>,
         rule: &DueRule,
         _key: Option<Uuid>,
-        catch_up_filter: &Option<aphel_kernel::application::query::Filter>,
+        catch_up_filter: &Option<aphel_sdk::platform::application::query::Filter>,
     ) -> Result<usize, AppError> {
         let record_type = context.active.automation.record_type.as_str();
         let mut offset = 0;

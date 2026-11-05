@@ -6,8 +6,8 @@ use sqlx::{self, AssertSqlSafe, MySql, MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::channels::ChannelKind;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 #[derive(Debug, Clone)]
 pub(crate) struct StoredChannel {

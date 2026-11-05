@@ -12,12 +12,12 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::rate_limit::SharedRateLimiter;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 use crate::clicksign::{self, SIGNATURE_HEADER};
 use crate::runtime::acting_scope;

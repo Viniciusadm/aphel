@@ -3,9 +3,9 @@ use sqlx::MySqlPool;
 
 use crate::registry;
 use crate::runtime::{event_actor, on_event, wit};
-use aphel_kernel::application::shared::{Actor, DomainEvent, EventConsumer};
-use aphel_kernel::application::shared::{ExecutionContext, JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{Actor, DomainEvent, EventConsumer};
+use aphel_sdk::platform::application::shared::{ExecutionContext, JobContext, JobHandler};
 use sqlx::{Row, types::Json};
 use std::sync::Arc;
 
@@ -38,7 +38,8 @@ impl EventConsumer for PluginEventsConsumer {
         if consumers.is_empty() {
             return Ok(());
         }
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx =
+            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
         for plugin in consumers {
             if matches!(&event.actor, Actor::Service { kind, id } if kind == Actor::PLUGIN && *id == plugin.key)
                 || event
@@ -77,11 +78,11 @@ impl EventConsumer for PluginEventsConsumer {
             .bind(format!("event:{}", event.id))
             .fetch_one(&mut *tx)
             .await?;
-            use aphel_kernel::application::shared::JobQueue;
-            aphel_kernel::infrastructure::jobs::MySqlJobQueue::new(self.pool.clone())
+            use aphel_sdk::platform::application::shared::JobQueue;
+            aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue::new(self.pool.clone())
                 .enqueue(
                     &mut tx,
-                    aphel_kernel::application::shared::Job::new(
+                    aphel_sdk::platform::application::shared::Job::new(
                         RUN_JOB,
                         serde_json::json!({"id": id}),
                     )
@@ -121,7 +122,8 @@ impl JobHandler for Run {
             .get("id")
             .and_then(serde_json::Value::as_str)
             .ok_or_else(|| AppError::Validation("plugin.event requires an id".to_owned()))?;
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx =
+            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
         let row = sqlx::query("SELECT plugin_key, input, execution, status FROM plugins_executions WHERE id = ? FOR UPDATE")
             .bind(id).fetch_one(&mut *tx).await?;
         if row.try_get::<String, _>("status")? == "completed" {

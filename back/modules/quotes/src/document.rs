@@ -8,10 +8,10 @@ use crate::pdf::{self, Block, Header, ItemsTable, TableRow};
 use crate::public::public_quote;
 use crate::service::{now, timezone, visible};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::CustomFieldPorts;
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::CustomFieldPorts;
+use aphel_sdk::platform::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
+use aphel_sdk::platform::domain::access::Permission;
 
 const HIDDEN: &str = "—";
 
@@ -251,7 +251,7 @@ pub(crate) async fn render(ctx: &Ctx<'_>, quote_id: &str) -> Result<QuotePdf, Ap
 pub(crate) struct QuoteDocumentSource;
 #[async_trait::async_trait]
 impl aphel_sdk::documents::DocumentSource for QuoteDocumentSource {
-    fn record_type(&self) -> aphel_kernel::application::shared::RecordType {
+    fn record_type(&self) -> aphel_sdk::platform::application::shared::RecordType {
         crate::QUOTE
     }
     async fn document(

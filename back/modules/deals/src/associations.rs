@@ -1,4 +1,4 @@
-use aphel_kernel::application::fields::{CustomFieldPorts, FieldSet};
+use aphel_sdk::platform::application::fields::{CustomFieldPorts, FieldSet};
 use aphel_sdk::{AppError, Ctx, party::PartyAssociationSource, shared::RecordType};
 use sqlx::QueryBuilder;
 use uuid::Uuid;

@@ -14,12 +14,12 @@ use crate::token::ManageToken;
 use crate::validation::parse_timezone;
 use crate::{BOOKING_EMAIL_JOB, BookingStatus};
 use aphel_kernel::Ctx;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::mail::{CalendarInvite, EmailMessage, Mailer, SharedMailer};
-use aphel_kernel::application::organization_profile::PublicBaseUrl;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::mail::{CalendarInvite, EmailMessage, Mailer, SharedMailer};
+use aphel_sdk::platform::application::organization_profile::PublicBaseUrl;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 
@@ -116,7 +116,7 @@ impl JobHandler for BookingEmailHandler {
         let Some(email) = self.render(booking_id, kind, recipient).await? else {
             return Ok(());
         };
-        if aphel_kernel::application::mail::delivery_override().is_some() {
+        if aphel_sdk::platform::application::mail::delivery_override().is_some() {
             tracing::info!(
                 subject = email.subject.as_str(),
                 "mail policy: booking e-mail discarded instead of sent"

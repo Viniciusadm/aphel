@@ -12,14 +12,14 @@ use crate::domain::{
 };
 use crate::store::SequenceStore;
 use crate::{SequenceStep, SequenceView, StepInput, parse_window, validate_steps};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const SEQUENCES_SECTION: &str = "sequences";
 const SEQUENCE_KIND: &str = "sequence";

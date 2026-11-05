@@ -1,8 +1,8 @@
 use crate::runtime::AutomationRuntime;
 use crate::time::sweep::TimeTriggerSweep;
 use aphel_contract_automation::application::time::triggers::TimeTriggerPlanner;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
 use async_trait::async_trait;
 use std::sync::Arc;
 pub(crate) struct TimeCatchUpConsumer(pub(crate) Arc<AutomationRuntime>);
@@ -12,7 +12,7 @@ impl EventConsumer for TimeCatchUpConsumer {
         "automations.time_catch_up"
     }
     fn accepts(&self, event_type: &str) -> bool {
-        aphel_kernel::modules::app()
+        aphel_sdk::platform::modules::app()
             .contributions::<TimeTriggerPlanner>()
             .iter()
             .any(|planner| {
@@ -23,7 +23,7 @@ impl EventConsumer for TimeCatchUpConsumer {
             })
     }
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
-        for planner in aphel_kernel::modules::app().contributions::<TimeTriggerPlanner>() {
+        for planner in aphel_sdk::platform::modules::app().contributions::<TimeTriggerPlanner>() {
             let Some(policy) = planner
                 .catch_up
                 .as_ref()

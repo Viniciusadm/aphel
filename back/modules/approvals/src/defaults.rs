@@ -2,7 +2,7 @@ use aphel_kernel::errors::AppError;
 use sqlx::MySqlConnection;
 use uuid::Uuid;
 pub(crate) async fn seed_templates(connection: &mut MySqlConnection) -> Result<(), AppError> {
-    let templates = aphel_kernel::modules::app()
+    let templates = aphel_sdk::platform::modules::app()
         .contributions::<aphel_sdk::approvals::ApprovalPolicyTemplate>();
     let mut keys = std::collections::BTreeSet::new();
     for template in &templates {

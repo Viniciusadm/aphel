@@ -12,19 +12,19 @@ use crate::outgoing::model::{
 use crate::outgoing::service::{WEBHOOK_ENDPOINT_DISABLED_EVENT, deliver_job, secret_key};
 use crate::outgoing::store::{WebhookDeliveryStore, WebhookEndpointStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::outbound_http::OutboundSender;
-use aphel_kernel::application::public_events::SharedPublicEventRenderer;
-use aphel_kernel::application::secrets::SecretVault;
-use aphel_kernel::application::security::signature::sign_payload;
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::outbound_http::OutboundSender;
+use aphel_sdk::platform::application::public_events::SharedPublicEventRenderer;
+use aphel_sdk::platform::application::secrets::SecretVault;
+use aphel_sdk::platform::application::security::signature::sign_payload;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EnqueueOutcome, EventPublisher, FieldChange,
     JobQueue, RecordRef,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::outbound_http::OutboundHttpNetwork;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::outbound_http::OutboundHttpNetwork;
 
 pub(crate) const OUTGOING_WEBHOOKS_CONSUMER: &str = "webhooks.outgoing";
 pub(crate) const WEBHOOKS_MAINTENANCE_JOB: &str = "webhooks.maintenance";

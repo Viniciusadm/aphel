@@ -6,10 +6,10 @@ use crate::application::texts::notification_email;
 use crate::application::{
     NOTIFICATION_EMAIL_JOB, NotificationDirectory, NotificationPorts, NotificationRepository,
 };
-use aphel_kernel::application::mail::Mailer;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::mail::Mailer;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EmailDelivery {
@@ -21,7 +21,7 @@ pub enum EmailDelivery {
 pub struct NotificationEmailHandler<P, M> {
     ports: P,
     mailer: M,
-    app_base_url: aphel_kernel::application::organization_profile::PublicBaseUrl,
+    app_base_url: aphel_sdk::platform::application::organization_profile::PublicBaseUrl,
 }
 
 impl<P, M> NotificationEmailHandler<P, M>
@@ -32,7 +32,7 @@ where
     pub fn new(
         ports: P,
         mailer: M,
-        app_base_url: impl Into<aphel_kernel::application::organization_profile::PublicBaseUrl>,
+        app_base_url: impl Into<aphel_sdk::platform::application::organization_profile::PublicBaseUrl>,
     ) -> Self {
         Self {
             ports,

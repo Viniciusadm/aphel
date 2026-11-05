@@ -7,14 +7,14 @@ use uuid::Uuid;
 
 use crate::domain::custom::{ReportVisualization, SavedReport};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::query::AggregateQuery;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::query::AggregateQuery;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::views::ViewVisibility;
 
 const REPORT_COLUMNS: &str = "id, record_type, name, description, owner_id, visibility, team_id, \

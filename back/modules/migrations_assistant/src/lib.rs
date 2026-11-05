@@ -7,8 +7,8 @@ pub(crate) mod sources;
 pub(crate) mod store;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) use history::HistoryReport;
 pub(crate) use normalize::*;

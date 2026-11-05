@@ -2,11 +2,11 @@ use crate::domain::{CompanyData, CompanyView, company_not_found, company_snapsho
 use crate::hierarchy::{HierarchyStore, Reparent, blocked_parents, reparent_children};
 use crate::store::CompanyStore;
 use aphel_contract_crm::CrmPermissions;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::records::{Address, permission_denied};
 use aphel_sdk::merges::{MergeOwner, PreparedMerge, use_duplicate};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::{AppError, Ctx};
 use chrono::{DateTime, Utc};
 use serde_json::Value;

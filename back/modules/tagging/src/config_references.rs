@@ -43,7 +43,7 @@ impl ConfigurationReferences for References {
             .iter()
             .map(|row| {
                 Ok((
-                    aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column(
+                    aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column(
                         row, "id",
                     )?,
                     row.try_get("name")?,

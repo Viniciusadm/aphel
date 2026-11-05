@@ -6,17 +6,19 @@ use crate::application::{
     LayoutPorts, LayoutsTx, SaveLayoutCommand, StoredFormLayout, validate_layout,
     with_required_fields,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::{EntityDefinition, FieldDefinitionRepository, FieldSet};
-use aphel_kernel::application::query::ResolveContext;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::{
+    EntityDefinition, FieldDefinitionRepository, FieldSet,
+};
+use aphel_sdk::platform::application::query::ResolveContext;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
     TransactionManager,
 };
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 pub const LAYOUT_CONTEXT_NOT_FOUND: &str = "layout_context_not_found";
 pub const FORM_LAYOUT_UPDATED: &str = "form_layout.updated";

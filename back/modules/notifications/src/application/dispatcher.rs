@@ -7,10 +7,10 @@ use crate::application::{
     preferences_of,
 };
 use crate::domain::NotificationChannel;
-use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{Job, JobQueue, TransactionManager};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::mail::MailLocale;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{Job, JobQueue, TransactionManager};
 
 pub const NOTIFICATION_EMAIL_JOB: &str = "notification.email";
 

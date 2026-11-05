@@ -18,24 +18,24 @@ use crate::incoming::{
     truncated_body, validate_actions, verify_signature,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::auth::UserRepository;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
-use aphel_kernel::application::security::SecureTokens;
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::Secret;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::auth::UserRepository;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::application::security::SecureTokens;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::Secret;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::users::User;
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::auth::Sha256SecureTokens;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::users::User;
+use aphel_sdk::platform::infrastructure::auth::Sha256SecureTokens;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::repositories::mysql_users::MySqlUserRepository;
 
 pub(crate) const INCOMING_WEBHOOK_NOT_FOUND: &str = "incoming_webhook_not_found";
 pub(crate) const INCOMING_WEBHOOK_REQUEST_NOT_FOUND: &str = "incoming_webhook_request_not_found";

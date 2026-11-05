@@ -15,14 +15,14 @@ use crate::{
     NewThread, ParticipantView, ThreadView,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::files::{UserReference, sha256_hex};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::files::{UserReference, sha256_hex};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const THREAD_SELECT: &str = "SELECT t.id, t.mailbox_id, m.user_id AS owner_id, u.display_name AS owner_name, \
      m.address AS mailbox_address, t.subject, t.visibility, m.default_visibility, t.message_count, t.snippet, \

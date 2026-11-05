@@ -8,19 +8,19 @@ use uuid::Uuid;
 
 use crate::domain::{Company, CompanyData, CompanyView, EmailEngagement};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope;
-use aphel_kernel::infrastructure::repositories::mapper::{
+use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{
     self, ADDRESS_COLUMNS, address_from_row, instant, optional_instant, optional_user,
     optional_uuid, owner_reference, push_ids,
 };
-use aphel_kernel::records::load_contributed;
+use aphel_sdk::platform::records::load_contributed;
 
 const COMPANY_COLUMNS: &str = "r.id, r.owner_id, r.name, r.domain, r.website, r.industry, r.size_range, \
      r.phone, r.email, r.description, r.source, r.parent_company_id, r.created_by, r.archived_at, r.created_at, \

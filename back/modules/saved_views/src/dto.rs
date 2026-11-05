@@ -4,9 +4,9 @@ use serde_json::{Map, Value};
 use utoipa::ToSchema;
 
 use crate::application::{CreateViewCommand, SavedViewEntry, UpdateViewCommand};
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::query::{FilterNodeSchema, SortSpecSchema};
-use aphel_kernel::application::query::{Filter, SortSpec};
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::query::{FilterNodeSchema, SortSpecSchema};
+use aphel_sdk::platform::application::query::{Filter, SortSpec};
 
 pub use aphel_sdk::views::{ViewTypeSchema, ViewVisibilitySchema};
 

@@ -7,14 +7,14 @@ use crate::domain::{
 };
 use crate::store::OnboardingStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
-};
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::organization_profile::DEFAULT_LOCALE;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::configuration::ConfigurationCatalog;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
+};
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::domain::organization_profile::DEFAULT_LOCALE;
 
 pub const ONBOARDING_NOT_PENDING: &str = "onboarding_not_pending";
 pub(crate) const ONBOARDING_COMPLETED: &str = "onboarding.completed";

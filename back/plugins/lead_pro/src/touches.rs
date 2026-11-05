@@ -8,20 +8,20 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{
-    Actor, DomainEvent, EventConsumer, JobContext, JobHandler, RecordRef, RecordType,
-};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_sdk::notifications::NotificationClient;
 use aphel_sdk::notifications::{NotificationIntent, dispatch};
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{
+    Actor, DomainEvent, EventConsumer, JobContext, JobHandler, RecordRef, RecordType,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 use crate::domain::{LEAD_HOT, LeadProSettings, TEMPERATURE_CHANGED, heated};
 use crate::store;

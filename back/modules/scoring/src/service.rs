@@ -16,16 +16,18 @@ use crate::domain::{
 use crate::engine::is_scored_record_type;
 use crate::store::{ModelStore, ScoreStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::application::shared::{FieldChange, Job, JobQueue, RecordRef, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::query::Filter;
+use aphel_sdk::platform::application::shared::{
+    FieldChange, Job, JobQueue, RecordRef, ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 const INVALID_SCORING_MODEL: &str = "invalid scoring model";
 const KEY_MESSAGE: &str = "must be snake_case: lowercase letters, digits and single underscores, starting with a letter (max 64)";
@@ -634,7 +636,7 @@ pub(crate) async fn record_signal(
         ctx.jobs()
             .enqueue(
                 &mut tx,
-                aphel_kernel::application::shared::Job::new(
+                aphel_sdk::platform::application::shared::Job::new(
                     crate::domain::SCORING_RECALCULATE_JOB,
                     json!({ "record_type": record.record_type.as_str(), "record_id": record_id }),
                 ),

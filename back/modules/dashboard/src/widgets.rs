@@ -1,9 +1,9 @@
 use crate::engine::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider, instant_value};
 use crate::queries::{self, ReadableRecords, RecentEvent, RecentEventsRequest, RecordLink};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::RecordQueryPorts;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::RecordQueryPorts;
+use aphel_sdk::platform::domain::access::Permission;
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 pub(crate) const RECENT_ACTIVITY: &str = "recent_activity";
@@ -51,7 +51,7 @@ fn event_json(event: &RecentEvent) -> Value {
 
 pub(crate) fn recent_events_request<P: RecordQueryPorts>(
     query: &P,
-    scope: &aphel_kernel::domain::access::AccessScope,
+    scope: &aphel_sdk::platform::domain::access::AccessScope,
     limit: u32,
 ) -> RecentEventsRequest {
     let records = query
@@ -95,8 +95,8 @@ where
     fn required_permissions(&self) -> Vec<Permission> {
         Vec::new()
     }
-    fn is_available(&self, scope: &aphel_kernel::domain::access::AccessScope) -> bool {
-        aphel_kernel::modules::app()
+    fn is_available(&self, scope: &aphel_sdk::platform::domain::access::AccessScope) -> bool {
+        aphel_sdk::platform::modules::app()
             .record_types()
             .definitions()
             .any(|definition| scope.filter_for(&definition.read_permission).is_some())
@@ -153,8 +153,8 @@ async fn source_sections(
     collection: &str,
     settings: &Value,
 ) -> Result<Value, AppError> {
-    let mut sources =
-        aphel_kernel::modules::app().contributions::<dyn aphel_sdk::dashboard::DashboardSource>();
+    let mut sources = aphel_sdk::platform::modules::app()
+        .contributions::<dyn aphel_sdk::dashboard::DashboardSource>();
     sources.sort_by(|left, right| left.key().cmp(right.key()));
     let mut keys = std::collections::HashSet::new();
     let mut sections = Vec::new();
@@ -206,8 +206,8 @@ impl WidgetProvider<aphel_sdk::dashboard::WidgetPorts> for PendingCenterWidget {
     fn required_permissions(&self) -> Vec<Permission> {
         Vec::new()
     }
-    fn is_available(&self, scope: &aphel_kernel::domain::access::AccessScope) -> bool {
-        aphel_kernel::modules::app()
+    fn is_available(&self, scope: &aphel_sdk::platform::domain::access::AccessScope) -> bool {
+        aphel_sdk::platform::modules::app()
             .contributions::<dyn aphel_sdk::dashboard::DashboardSource>()
             .iter()
             .any(|source| source.collection() == "pending" && source.available(scope))
@@ -253,8 +253,8 @@ impl WidgetProvider<aphel_sdk::dashboard::WidgetPorts> for ReportTotalsWidget {
     fn required_permissions(&self) -> Vec<Permission> {
         Vec::new()
     }
-    fn is_available(&self, scope: &aphel_kernel::domain::access::AccessScope) -> bool {
-        aphel_kernel::modules::app()
+    fn is_available(&self, scope: &aphel_sdk::platform::domain::access::AccessScope) -> bool {
+        aphel_sdk::platform::modules::app()
             .contributions::<dyn aphel_sdk::dashboard::DashboardSource>()
             .iter()
             .any(|source| source.collection() == "summary" && source.available(scope))

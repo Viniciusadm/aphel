@@ -5,10 +5,10 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::application::ConfigSectionRegistry;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{AuditLog, EventPublisher, TransactionManager};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{AuditLog, EventPublisher, TransactionManager};
 
 pub const SAVED_VIEW_ITEM: ConfigReferenceKind = ConfigReferenceKind::new("views.view");
 

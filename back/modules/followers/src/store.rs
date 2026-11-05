@@ -4,13 +4,13 @@ use uuid::Uuid;
 
 use crate::domain::{Follow, FollowOrigin, RecordFollower};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 fn origin(value: &str) -> Result<FollowOrigin, AppError> {
     FollowOrigin::parse(value).ok_or_else(|| mapper::invalid_column("origin", value))

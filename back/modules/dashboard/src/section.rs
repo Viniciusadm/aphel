@@ -14,13 +14,13 @@ use crate::layout::{
     MAX_WIDGET_SETTINGS_BYTES,
 };
 use crate::store::LayoutStore;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const DASHBOARD_SECTION: &str = "dashboard";
 const DASHBOARD_KIND: &str = "dashboard_layout";
@@ -63,7 +63,7 @@ impl DashboardSection {
     fn catalog(
         kind: aphel_sdk::ReferenceKind,
     ) -> Result<Option<std::sync::Arc<dyn DashboardReferenceCatalog>>, AppError> {
-        let catalogs: Vec<_> = aphel_kernel::modules::app()
+        let catalogs: Vec<_> = aphel_sdk::platform::modules::app()
             .contributions::<dyn DashboardReferenceCatalog>()
             .into_iter()
             .filter(|catalog| catalog.kind() == kind)

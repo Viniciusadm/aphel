@@ -14,11 +14,11 @@ use crate::store::QuoteStore;
 use crate::token::SignedLinkToken;
 use crate::{AcceptingQuote, KEY, QuoteAccepting};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{Actor, FieldChange, Job, JobQueue};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::normalize_email;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::{Actor, FieldChange, Job, JobQueue};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::normalize_email;
 
 const MAX_USER_AGENT_LENGTH: usize = 512;
 

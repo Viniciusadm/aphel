@@ -14,14 +14,14 @@ use crate::model::{
     NewEnrollment, SequenceListQuery, SequenceStep, SequenceView, StepMetrics, StepRun,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 fn uuid(value: String, column: &str) -> Result<Uuid, AppError> {
     Uuid::parse_str(&value).map_err(|_| mapper::invalid_column(column, &value))
@@ -670,7 +670,7 @@ impl EnrollmentStore {
         Ok(crate::contacts::list(
             ctx,
             &ids,
-            aphel_kernel::application::query::ArchivedFilter::Include,
+            aphel_sdk::platform::application::query::ArchivedFilter::Include,
         )
         .await?
         .into_values()
@@ -979,7 +979,7 @@ impl DirectoryStore {
         Ok(crate::contacts::list(
             ctx,
             &[contact_id],
-            aphel_kernel::application::query::ArchivedFilter::Exclude,
+            aphel_sdk::platform::application::query::ArchivedFilter::Exclude,
         )
         .await?
         .remove(&contact_id))

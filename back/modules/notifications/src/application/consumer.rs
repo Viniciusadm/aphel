@@ -7,9 +7,9 @@ use crate::application::{
 };
 use crate::domain::NotificationKind;
 use aphel_contract_automation::application::AUTOMATION_MESSAGE;
-use aphel_kernel::application::shared::{Actor, DomainEvent, EventConsumer};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{Actor, DomainEvent, EventConsumer};
 
 pub const NOTIFICATIONS_CONSUMER: &str = "notifications.events";
 

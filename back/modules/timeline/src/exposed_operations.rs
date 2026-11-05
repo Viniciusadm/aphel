@@ -20,7 +20,7 @@ fn page<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
 fn kinds<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
         let params: TimelineParams = operation_input(input)?;
-        let subject = aphel_kernel::application::shared::RecordRef::parse(
+        let subject = aphel_sdk::platform::application::shared::RecordRef::parse(
             &params.record_type,
             &params.record_id,
         )?;

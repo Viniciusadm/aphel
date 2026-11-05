@@ -1,4 +1,3 @@
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::{
     Ctx,
     application::{
@@ -9,6 +8,7 @@ use aphel_kernel::{
     domain::access::Permission,
     errors::AppError,
 };
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::privacy::sql::{push_ids, push_refs, push_text_match, redact_text, table_exists};
 use aphel_sdk::privacy::{
     PrivacyItem, PrivacySource, Redaction, SourceOutcome, SourceRequest, SourceSnapshot,
@@ -146,7 +146,7 @@ impl PrivacySource for TasksPrivacy {
         record_type: &RecordType,
         threshold: chrono::DateTime<chrono::Utc>,
     ) -> Result<(), AppError> {
-        let at = aphel_kernel::infrastructure::repositories::mapper::naive(threshold);
+        let at = aphel_sdk::platform::infrastructure::repositories::mapper::naive(threshold);
         builder.push(" AND NOT EXISTS(SELECT 1 FROM tasks a WHERE a.record_type = ").push_bind(record_type.as_str().to_owned()).push(" AND a.record_id = r.id AND a.updated_at >= ").push_bind(at).push(") AND NOT EXISTS(SELECT 1 FROM task_links l JOIN tasks a ON a.id = l.activity_id WHERE l.record_type = ").push_bind(record_type.as_str().to_owned()).push(" AND l.record_id = r.id AND a.updated_at >= ").push_bind(at).push(")");
         Ok(())
     }

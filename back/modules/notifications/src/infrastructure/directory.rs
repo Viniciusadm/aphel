@@ -9,16 +9,16 @@ use sqlx::{AssertSqlSafe, MySqlPool, Row};
 use crate::application::{
     DueTask, NotificationDirectory, Recipient, RecordFollowerSource, RecordSummary,
 };
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 pub const MAX_DUE_TASKS_PER_RUN: u32 = 5000;
 
@@ -39,7 +39,7 @@ impl MySqlNotificationDirectory {
     }
 
     async fn current_registry(&self) -> Arc<RecordTypeRegistry> {
-        match aphel_kernel::state::runtime_state() {
+        match aphel_sdk::platform::state::runtime_state() {
             Ok(state) => state
                 .registry()
                 .await
@@ -81,9 +81,10 @@ impl NotificationDirectory for MySqlNotificationDirectory {
         };
         let scope = build_access_scope(user_id.clone(), access);
         let registry = self.current_registry().await;
-        let definitions = aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
-            self.pool.clone(),
-        );
+        let definitions =
+            aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+                self.pool.clone(),
+            );
         Ok(aphel_sdk::records::visible_record_label(
             &self.pool,
             &registry,
@@ -153,7 +154,7 @@ impl NotificationDirectory for MySqlNotificationDirectory {
     }
 
     async fn followers(&self, record: &RecordRef) -> Result<Vec<UserId>, AppError> {
-        match aphel_kernel::modules::app()
+        match aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn RecordFollowerSource>()
         {
@@ -200,7 +201,7 @@ impl NotificationDirectory for MySqlNotificationDirectory {
         to: DateTime<Utc>,
     ) -> Result<Vec<DueTask>, AppError> {
         let mut tasks = Vec::new();
-        for source in aphel_kernel::modules::app().contributions::<dyn DigestSource>() {
+        for source in aphel_sdk::platform::modules::app().contributions::<dyn DigestSource>() {
             tasks.extend(
                 source
                     .open_tasks_due(

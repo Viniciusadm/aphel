@@ -2,11 +2,11 @@ use aphel_contract_crm::CrmRecordTypes;
 
 use crate::domain::{Deal, StageSummary};
 use crate::service::{pipeline_condition, restrict_to_pipelines};
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::QueryConstraints;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::workflow::WorkflowReader;
 use aphel_sdk::workflow::{LostReason, PipelineStage, pipeline_restriction, sees_every_pipeline};
 

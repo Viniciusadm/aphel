@@ -17,20 +17,20 @@ use crate::domain::{
 };
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::dto::common::{
     Data, ErrorEnvelope, Page, double_option, timestamp as instant,
 };
-use aphel_kernel::api::dto::files::UserReferenceResponse;
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{
+use aphel_sdk::platform::api::dto::files::UserReferenceResponse;
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{
     AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
 };
-use aphel_kernel::api::routes::v1::field_permissions::redacted;
-use aphel_kernel::api::routes::v1::members::window;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::routes::v1::field_permissions::redacted;
+use aphel_sdk::platform::api::routes::v1::members::window;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::tasks::TaskRecord;
 use aphel_sdk::tasks::dto::ActivityResponse;
 

@@ -19,13 +19,13 @@ use crate::mysql::sql::{
 };
 use crate::service::subject::{Redaction, SubjectMatcher};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 pub(crate) use aphel_sdk::records::TextAssignment as ColumnAssignment;
 

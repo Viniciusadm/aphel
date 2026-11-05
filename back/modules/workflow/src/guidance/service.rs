@@ -15,14 +15,16 @@ use crate::guidance::domain::{
 use crate::guidance::store::GuidanceStore;
 use crate::store::PipelineStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::{CustomFieldPorts, ReferenceChecker};
-use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::{CustomFieldPorts, ReferenceChecker};
+use aphel_sdk::platform::application::shared::{
+    FieldChange, RecordRef, RecordType, ensure_version,
+};
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 
 const INVALID_STAGE_GUIDANCE: &str = "invalid stage guidance";
 
@@ -299,7 +301,7 @@ async fn visible_record(
     if !visible.contains(&id) {
         return Err(record_not_found());
     }
-    let source = aphel_kernel::modules::app()
+    let source = aphel_sdk::platform::modules::app()
         .contributions::<dyn aphel_sdk::workflow::StagedRecordSource>()
         .into_iter()
         .find(|source| source.record_type() == definition.record_type);

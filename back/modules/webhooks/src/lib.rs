@@ -15,9 +15,9 @@ use std::sync::Arc;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
 use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 use incoming::{incoming_webhooks_purge_handler, incoming_webhooks_purge_schedule};
 use outgoing::outgoing_webhook_worker;
 
@@ -71,8 +71,8 @@ impl Module for WebhooksModule {
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(Arc::new(privacy::WebhookPrivacy));
         app.trigger(Arc::new(automation::IncomingWebhook))
             .action(Arc::new(automation::CallWebhook));
-        app.contribute::<dyn aphel_kernel::application::organization_profile::OrganizationConfigExtension>(Arc::new(settings::DeliveryConfiguration));
-        app.contribute::<dyn aphel_kernel::application::outbound_http::OutboundHttpPolicy>(
+        app.contribute::<dyn aphel_sdk::platform::application::organization_profile::OrganizationConfigExtension>(Arc::new(settings::DeliveryConfiguration));
+        app.contribute::<dyn aphel_sdk::platform::application::outbound_http::OutboundHttpPolicy>(
             Arc::new(settings::DeliveryConfiguration),
         );
         app.openapi_tag(

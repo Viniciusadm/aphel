@@ -1,6 +1,6 @@
 use crate::application::*;
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::custom_objects::*;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::custom_objects::*;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};

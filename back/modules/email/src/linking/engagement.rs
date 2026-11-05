@@ -2,9 +2,9 @@ use async_trait::async_trait;
 
 use crate::store::settings::EngagementReader;
 use crate::{EMAIL_RECEIVED, EMAIL_SENT, EMAIL_THREAD_LINKED, EMAIL_THREAD_UNLINKED};
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
 
 pub(crate) const EMAIL_ENGAGEMENT_CONSUMER: &str = "email.engagement";
 
@@ -35,7 +35,7 @@ impl EventConsumer for EmailEngagementConsumer {
         let Some(record) = &event.record else {
             return Ok(());
         };
-        let sources = aphel_kernel::modules::app()
+        let sources = aphel_sdk::platform::modules::app()
             .all_contributions::<dyn aphel_sdk::email::EmailEngagementProjection>();
         let mut matching = sources
             .iter()

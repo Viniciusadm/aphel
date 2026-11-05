@@ -7,9 +7,11 @@ use uuid::Uuid;
 
 use crate::domain::{LostReason, Pipeline, PipelineStage, StageKind, StageUsage};
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, parse_uuid, utc};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{
+    invalid_column, naive, parse_uuid, utc,
+};
 
 const PIPELINE_COLUMNS: &str = "id, name, is_default, position, is_active, created_at, updated_at, \
      (SELECT GROUP_CONCAT(pt.team_id ORDER BY pt.team_id SEPARATOR ',') FROM workflow_teams pt \
@@ -233,7 +235,7 @@ impl PipelineStore {
         pipeline_id: Uuid,
     ) -> Result<HashMap<Uuid, u64>, AppError> {
         let mut result = HashMap::new();
-        for source in aphel_kernel::modules::app()
+        for source in aphel_sdk::platform::modules::app()
             .contributions::<dyn aphel_sdk::workflow::StagedRecordSource>()
         {
             for (stage, count) in source.stage_counts(ctx, pipeline_id).await? {
@@ -255,7 +257,7 @@ impl PipelineStore {
         target: aphel_sdk::workflow::UsageTarget,
     ) -> Result<StageUsage, AppError> {
         let mut total = StageUsage::default();
-        for (_, source) in aphel_kernel::modules::app()
+        for (_, source) in aphel_sdk::platform::modules::app()
             .all_contributions::<dyn aphel_sdk::workflow::StagedRecordSource>()
         {
             let usage = source.usage(&self.pool, target).await?;

@@ -1,8 +1,8 @@
 use crate::http::CompanyResponse;
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::query::RecordQuery;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::{Ctx, errors::AppError};
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::query::RecordQuery;
+use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::record_context::RecordListSource;
 use serde_json::Value;
 pub(crate) struct ContextSource;

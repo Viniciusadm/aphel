@@ -19,12 +19,12 @@ use crate::config::{
     SETTING_SEND_PERSONAL_DATA, SETTING_USER_HOURLY_LIMIT, has_valid_scheme,
 };
 use crate::provider::{AnthropicProvider, OpenAiCompatibleProvider};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, ModuleCtx, SettingField, SettingKind, SettingOption,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 
 pub(crate) const KEY: &str = "ai";
 pub(crate) const VERSION: &str = "0.1.0";

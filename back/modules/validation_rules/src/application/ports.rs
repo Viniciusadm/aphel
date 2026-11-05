@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use uuid::Uuid;
 
 use crate::application::ValidationRule;
-use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{AuditLog, EventPublisher, TransactionManager};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{AuditLog, EventPublisher, TransactionManager};
 
 #[async_trait]
 pub trait ValidationRuleRepository: Send + Sync {

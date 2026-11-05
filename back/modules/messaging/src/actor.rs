@@ -4,13 +4,13 @@ use uuid::Uuid;
 use crate::store::StoredChannel;
 use crate::{KEY, SETTING_ACTING_USER, SETTING_CREATE_CONTACTS, settings};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::auth::UserRepository;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::auth::UserRepository;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::repositories::mysql_users::MySqlUserRepository;
 
 pub(crate) async fn scope_for_user(
     ctx: &Ctx<'_>,

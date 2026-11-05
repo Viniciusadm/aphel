@@ -14,14 +14,14 @@ use crate::application::{
     ConflictDecision, Decisions, INVALID_PACKAGE, PLAN_OUTDATED, PackageIssue, PlanAction,
     PlanItem, PlanSummary,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     TransactionManager,
 };
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 pub const CONFIG_PACKAGE_VERSION_APPLIED: &str = "config_package.version_applied";
 pub const CONFIG_PACKAGE_VERSION_RECORD_TYPE: RecordType =
@@ -575,8 +575,9 @@ where
             Ok(package) => package,
             Err(issues) => return Ok((None, issues)),
         };
-        let mut issues = package
-            .header_issues(&aphel_kernel::application::organization_profile::SUPPORTED_LOCALES);
+        let mut issues = package.header_issues(
+            &aphel_sdk::platform::application::organization_profile::SUPPORTED_LOCALES,
+        );
         issues.extend(identity_issues(&package));
         let registry = self.ports.packages().sections();
         let known: BTreeSet<&str> = registry.keys().into_iter().collect();

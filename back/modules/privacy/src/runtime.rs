@@ -11,13 +11,13 @@ use crate::domain::{
 use crate::service::requests::{self, GENERIC_FAILURE, RunPrivacyRequest};
 use crate::service::retention::{self, RunRetentionRequest};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{JobContext, JobHandler, SharedFileStorage};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler, SharedFileStorage};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 pub(crate) fn privacy_retention_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(PRIVACY_RETENTION_JOB, PRIVACY_RETENTION_CRON)

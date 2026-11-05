@@ -10,9 +10,9 @@ use crate::{
     RetentionPolicyCommand, RetentionPreview, RetentionRun, RetentionRunFilter, SubjectRecord,
     SubjectSearchResult,
 };
-use aphel_kernel::api::dto::common::{OwnerResponse, timestamp};
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::api::dto::common::{OwnerResponse, timestamp};
+use aphel_sdk::platform::application::shared::RecordRef;
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub(crate) struct SubjectSearchRequest {

@@ -7,11 +7,11 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::application::{ConfigInstallRepository, ConfigPackageInstall};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const INSTALL_COLUMNS: &str = "i.id, i.name, i.format_version, i.template_key, i.summary, \
      i.installed_by, u.display_name AS installed_by_name, i.installed_at";

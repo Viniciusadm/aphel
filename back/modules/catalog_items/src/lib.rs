@@ -12,17 +12,19 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::builtin::field;
-use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, LabelNormalization};
-use aphel_kernel::application::public_events::{
+use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::application::fields::builtin::field;
+use aphel_sdk::platform::application::fields::{
+    EntityDefinition, EntityTraits, LabelNormalization,
+};
+use aphel_sdk::platform::application::public_events::{
     PreviousValues, PublicEventDefinition, changed, deleted, event,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
-use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use aphel_sdk::catalog_items::KEY;
 
@@ -176,8 +178,8 @@ impl Module for CatalogItemsModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+pub(crate) fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )
@@ -186,8 +188,8 @@ pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedL
 struct LineItemCatalog;
 #[async_trait::async_trait]
 impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
-    fn record_type(&self) -> aphel_kernel::application::shared::RecordType {
-        aphel_kernel::application::shared::RecordType::from_static("catalog_items.item")
+    fn record_type(&self) -> aphel_sdk::platform::application::shared::RecordType {
+        aphel_sdk::platform::application::shared::RecordType::from_static("catalog_items.item")
     }
     async fn item(
         &self,
@@ -201,7 +203,7 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
         ctx: &aphel_sdk::Ctx<'_>,
         ids: &[uuid::Uuid],
     ) -> Result<Vec<aphel_sdk::line_items::CatalogItem>, AppError> {
-        use aphel_kernel::application::access::Authorizer;
+        use aphel_sdk::platform::application::access::Authorizer;
         if aphel_sdk::access::require_organization_record_scope(
             ctx.scope,
             &Permission::PRODUCTS_READ,
@@ -209,7 +211,7 @@ impl aphel_sdk::line_items::ItemCatalog for LineItemCatalog {
         .is_err()
             && ctx
                 .scope
-                .require(&aphel_kernel::domain::access::Permission::SETTINGS_MANAGE)
+                .require(&aphel_sdk::platform::domain::access::Permission::SETTINGS_MANAGE)
                 .is_err()
         {
             return Ok(Vec::new());

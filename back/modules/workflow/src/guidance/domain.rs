@@ -85,7 +85,7 @@ pub(crate) struct RecordChecklistItem {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RecordChecklist {
-    pub(crate) record_type: aphel_kernel::application::shared::RecordType,
+    pub(crate) record_type: aphel_sdk::platform::application::shared::RecordType,
     pub(crate) record_id: Uuid,
     pub(crate) guidance: StageGuidance,
     pub(crate) items: Vec<RecordChecklistItem>,

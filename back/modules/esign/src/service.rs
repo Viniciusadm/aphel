@@ -6,14 +6,14 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::files::{ListAttachmentsQuery, UploadFileCommand};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
+use aphel_sdk::platform::application::files::{ListAttachmentsQuery, UploadFileCommand};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, Job, RecordRef, RecordType,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 use crate::clicksign::Clicksign;
 use crate::provider::{NoticeKind, SignatureProvider, WebhookNotice};
@@ -487,7 +487,7 @@ pub(crate) async fn send(
     .await?;
     ctx.jobs().enqueue(&mut tx, Job::new("esign.deliver", json!({
         "request_id": request.id, "quote_id": input.quote_id,
-        "authority": aphel_kernel::infrastructure::deferred_authority::DeferredAuthority::capture(scope),
+        "authority": aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority::capture(scope),
     })).with_max_attempts(1).with_unique_key(format!("esign.deliver:{}", request.id))).await?;
     tx.commit().await?;
     Ok((request, rows))
@@ -513,7 +513,7 @@ pub(crate) async fn cancel(
             request.status = "cancel_pending".to_owned();
             ctx.jobs().enqueue(&mut tx, Job::new("esign.deliver", json!({
                 "request_id": request.id, "cancel": true,
-                "authority": aphel_kernel::infrastructure::deferred_authority::DeferredAuthority::capture(scope),
+                "authority": aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority::capture(scope),
             })).with_max_attempts(1).with_unique_key(format!("esign.cancel:{}", request.id))).await?;
         }
         _ => {

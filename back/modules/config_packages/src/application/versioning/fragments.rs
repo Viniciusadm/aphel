@@ -117,7 +117,7 @@ pub use aphel_sdk::configuration::versioning::fragments::{
 };
 
 fn flat_layout(section: &str) -> Option<std::sync::Arc<SectionFragmentLayout>> {
-    aphel_kernel::modules::try_app()?
+    aphel_sdk::platform::modules::try_app()?
         .contributions::<SectionFragmentLayout>()
         .into_iter()
         .find(|layout| layout.section == section)
@@ -270,7 +270,7 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
 }
 
 fn nested_layout(section: &str) -> Option<std::sync::Arc<NestedFragmentLayout>> {
-    aphel_kernel::modules::try_app()?
+    aphel_sdk::platform::modules::try_app()?
         .contributions::<NestedFragmentLayout>()
         .into_iter()
         .find(|layout| layout.section == section)

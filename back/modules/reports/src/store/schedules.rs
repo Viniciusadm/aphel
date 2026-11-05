@@ -11,14 +11,14 @@ use crate::domain::custom::{
     ScheduleFrequency, ScheduleTiming,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const SCHEDULE_COLUMNS: &str = "id, report_id, created_by, frequency, weekday, day_of_month, hour, minute, \
      period_preset, is_active, next_run_at, last_run_at, created_at, updated_at";

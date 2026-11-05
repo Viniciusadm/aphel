@@ -6,8 +6,8 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::manifest::PluginManifest;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 const UNKNOWN_PRESET: &str = "plugin_role_preset_unknown";
 

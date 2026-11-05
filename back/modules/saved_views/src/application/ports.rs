@@ -3,13 +3,15 @@ use chrono::{DateTime, Utc};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
-use aphel_kernel::application::query::{Filter, SortSpec};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{AuditLog, EventPublisher, RecordType, TransactionManager};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
+use aphel_sdk::platform::application::query::{Filter, SortSpec};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
+    AuditLog, EventPublisher, RecordType, TransactionManager,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub use aphel_sdk::views::{ViewType, ViewVisibility};
 

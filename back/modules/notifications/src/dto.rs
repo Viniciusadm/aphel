@@ -6,9 +6,9 @@ use crate::application::{
     DEFAULT_NOTIFICATION_PAGE_SIZE, MAX_NOTIFICATION_PAGE_SIZE, NotificationFilter,
     NotificationPage, NotificationView, PreferenceSetting, PreferenceUpdate,
 };
-use aphel_kernel::api::dto::common::timestamp as instant;
-use aphel_kernel::api::dto::files::UserReferenceResponse;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::api::dto::common::timestamp as instant;
+use aphel_sdk::platform::api::dto::files::UserReferenceResponse;
 
 #[derive(Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]

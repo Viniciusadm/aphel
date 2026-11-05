@@ -35,7 +35,7 @@ impl BackendSlot {
         let loaded = self
             .loaded
             .get_or_try_init(|| async {
-                let pool = aphel_kernel::state::runtime_pool()?;
+                let pool = aphel_sdk::platform::state::runtime_pool()?;
                 let installed = store::find(&pool, &self.key)
                     .await?
                     .filter(|plugin| plugin.enabled && plugin.checksum == self.checksum)
@@ -280,7 +280,7 @@ fn publish_extensions(snapshot: &Snapshot) {
     let mut widgets = Vec::new();
     for plugin in &snapshot.plugins {
         for spec in &plugin.manifest.emits {
-            use aphel_kernel::application::public_events::{PublicResource, event};
+            use aphel_sdk::platform::application::public_events::{PublicResource, event};
             events.push(
                 event(
                     intern::intern(&plugin.manifest.event_type(&spec.name)),
@@ -321,7 +321,7 @@ fn publish_extensions(snapshot: &Snapshot) {
     for event in events {
         batch.add(std::sync::Arc::new(event));
     }
-    aphel_kernel::modules::app().replace_runtime(crate::KEY, batch);
+    aphel_sdk::platform::modules::app().replace_runtime(crate::KEY, batch);
 }
 
 pub fn spawn_refresh(pool: MySqlPool) {
@@ -345,7 +345,7 @@ pub fn spawn_refresh(pool: MySqlPool) {
 pub struct PublicEvents;
 
 #[async_trait::async_trait]
-impl aphel_kernel::application::public_events::RuntimePublicEventSource for PublicEvents {
+impl aphel_sdk::platform::application::public_events::RuntimePublicEventSource for PublicEvents {
     fn recognizes(&self, event_type: &str) -> bool {
         event_type.starts_with("plugin.")
     }
@@ -357,7 +357,7 @@ impl aphel_kernel::application::public_events::RuntimePublicEventSource for Publ
 }
 
 #[async_trait::async_trait]
-impl aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource for PublicEvents {
+impl aphel_sdk::platform::modules::runtime_catalog::RuntimeCatalogSource for PublicEvents {
     async fn ensure_ready(&self, pool: &MySqlPool) -> Result<(), AppError> {
         current(pool).await?;
         Ok(())
@@ -367,15 +367,15 @@ impl aphel_kernel::modules::runtime_catalog::RuntimeCatalogSource for PublicEven
 pub(crate) struct DeferredPluginPolicy;
 
 #[async_trait::async_trait]
-impl aphel_kernel::infrastructure::deferred_authority::DeferredPluginPolicy
+impl aphel_sdk::platform::infrastructure::deferred_authority::DeferredPluginPolicy
     for DeferredPluginPolicy
 {
     async fn reauthorize(
         &self,
         pool: &MySqlPool,
         key: &str,
-        scope: aphel_kernel::domain::access::AccessScope,
-    ) -> Result<aphel_kernel::domain::access::AccessScope, AppError> {
+        scope: aphel_sdk::platform::domain::access::AccessScope,
+    ) -> Result<aphel_sdk::platform::domain::access::AccessScope, AppError> {
         let snapshot = current(pool).await?;
         let plugin = snapshot.plugin(key).ok_or_else(|| {
             AppError::forbidden_code(

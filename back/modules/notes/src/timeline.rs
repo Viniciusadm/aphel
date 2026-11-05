@@ -1,12 +1,12 @@
 use crate::{domain::note_preview, store::note_from_row};
 use aphel_contract_crm::CrmPermissions;
-use aphel_kernel::api::dto::common::timestamp as instant;
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::{
     Ctx,
     domain::access::{AccessScope, Permission},
     errors::AppError,
 };
+use aphel_sdk::platform::api::dto::common::timestamp as instant;
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::timeline::{
     KindDefinition, TimelineEntry, TimelineRequest, TimelineSource, push_cursor,
 };

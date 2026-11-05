@@ -11,10 +11,10 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 use crate::runtime::{GoalOwnerRemovedConsumer, PurgeOrphanGoalsHandler, purge_orphans_schedule};
 

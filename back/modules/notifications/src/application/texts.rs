@@ -1,6 +1,6 @@
 use crate::application::{NotificationView, Recipient};
 use crate::domain::NotificationKind;
-use aphel_kernel::application::mail::{EmailMessage, MailLocale};
+use aphel_sdk::platform::application::mail::{EmailMessage, MailLocale};
 
 const AUTOMATION_TYPE: &str = "automation";
 
@@ -8,7 +8,7 @@ pub fn record_type_label(record_type: &str, locale: MailLocale) -> String {
     if record_type == AUTOMATION_TYPE {
         return locale.pick("Automações", "Automations").to_owned();
     }
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .record_types()
         .capabilities(record_type)
         .and_then(|capabilities| capabilities.plural_labels_value())
@@ -51,7 +51,7 @@ pub fn render_localized(
 pub use aphel_sdk::notifications::{NotificationTexts, data_text};
 
 fn contributed<T>(pick: impl Fn(&dyn NotificationTexts) -> Option<T>) -> Option<T> {
-    aphel_kernel::modules::try_app()?
+    aphel_sdk::platform::modules::try_app()?
         .all_contributions::<dyn NotificationTexts>()
         .into_iter()
         .find_map(|(_, texts)| pick(texts.as_ref()))

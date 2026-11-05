@@ -1,10 +1,10 @@
 use crate::domain::{Product, ProductData, product_not_found, product_snapshot};
 use crate::store::ProductStore;
 use aphel_contract_crm::CrmPermissions;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_sdk::merges::{MergeOwner, PreparedMerge, use_duplicate};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::{AppError, Ctx};
 use chrono::{DateTime, Utc};
 use serde_json::Value;

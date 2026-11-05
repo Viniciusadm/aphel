@@ -4,14 +4,14 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::records::{self, actor_id, actor_kind, is_tolerated, is_validation};
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{
+use aphel_kernel::context::Ctx;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
 };
-use aphel_kernel::context::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 use crate::errors::{self, TEMPLATE_INACTIVE, TEMPLATE_REQUIRED};
 use crate::format;
@@ -545,7 +545,7 @@ pub(crate) async fn generate(
     let file = files
         .prepare_upload(
             ctx.scope,
-            &aphel_kernel::application::files::UploadFileCommand {
+            &aphel_sdk::platform::application::files::UploadFileCommand {
                 file_name: file_name(number, &data.deal),
                 content: bytes::Bytes::from(content),
                 attach_to: Some(attach_to.clone()),

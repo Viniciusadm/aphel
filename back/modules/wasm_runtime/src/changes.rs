@@ -8,11 +8,11 @@ use utoipa::ToSchema;
 
 use crate::manifest::PLUGIN_EVENT_PREFIX;
 use crate::registry;
-use aphel_kernel::application::public_events::custom_event_record_type;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::state::runtime_state;
+use aphel_sdk::platform::application::public_events::custom_event_record_type;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const CHANGES_CONSUMER: &str = "wasm_runtime.changes";
 pub(crate) const MAX_PAGE: u32 = 500;

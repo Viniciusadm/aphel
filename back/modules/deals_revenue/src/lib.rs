@@ -11,7 +11,7 @@ impl Module for DealsRevenueModule {
         Manifest::new(
             KEY,
             "Deal revenue",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .description("Recurring revenue projections for deals")
         .enabled_by_default()

@@ -1,9 +1,9 @@
 use aphel_contract_crm::CrmPermissions;
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::push_reference_subquery;
 use aphel_sdk::dashboard::DashboardEventScope;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::query::compiler::push_reference_subquery;
 use aphel_sdk::shared::{RecordRef, RecordType};
 use async_trait::async_trait;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};

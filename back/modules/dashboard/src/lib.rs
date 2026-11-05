@@ -17,8 +17,8 @@ use aphel_kernel::modules::Migration;
 
 use crate::widgets::{PendingCenterWidget, RecentActivityWidget, ReportTotalsWidget};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub const KEY: &str = "dashboard";
 

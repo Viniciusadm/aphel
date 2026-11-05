@@ -4,9 +4,9 @@ use uuid::Uuid;
 
 use crate::application::contents::is_content_key;
 use crate::application::text::{MAX_VALUE_LENGTH, normalize_content, phone_content, truncate};
-use aphel_kernel::application::fields::{EntityDefinition, FieldSet, ResolvedField};
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::fields::FieldType;
+use aphel_sdk::platform::application::fields::{EntityDefinition, FieldSet, ResolvedField};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub const TITLE_WEIGHT: u8 = 3;
 pub const SYSTEM_WEIGHT: u8 = 2;

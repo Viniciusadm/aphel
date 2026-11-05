@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
 
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
-pub use aphel_kernel::application::shared::parse_uuid as parse_id;
+pub use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
 
 pub const PIPELINE_NOT_FOUND: &str = "pipeline_not_found";
 pub(crate) const PIPELINE_STAGE_NOT_FOUND: &str = "pipeline_stage_not_found";

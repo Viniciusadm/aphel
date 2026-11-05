@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::query::Filter;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 pub(crate) const APPROVAL_REQUESTED: &str = "approval.requested";
 pub use aphel_sdk::approvals::APPROVAL_APPROVED;

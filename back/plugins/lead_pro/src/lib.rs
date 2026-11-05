@@ -9,10 +9,6 @@ use std::sync::Arc;
 
 use serde_json::json;
 
-use aphel_kernel::application::fields::SystemField;
-use aphel_kernel::application::public_events::{PublicEventDefinition, event};
-use aphel_kernel::domain::access::PermissionDefinition;
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, SettingField, SettingKind, WorkerParts,
@@ -20,6 +16,10 @@ use aphel_kernel::modules::{
 use aphel_kernel::records::{RecordSaving, RecordValidating};
 use aphel_sdk::leads::{LeadConverter, LeadConverting, LeadQualifying};
 use aphel_sdk::notifications::NotificationKindDefinition;
+use aphel_sdk::platform::application::fields::SystemField;
+use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
+use aphel_sdk::platform::domain::access::PermissionDefinition;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 use crate::domain::{
     COOLDOWN_DAYS_SETTING, COOLDOWN_POINTS_SETTING, DEFAULT_COOLDOWN_DAYS, DEFAULT_COOLDOWN_POINTS,

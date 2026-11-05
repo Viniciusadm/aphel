@@ -9,11 +9,11 @@ use crate::application::{
     NotificationPreferenceRepository, dispatch,
 };
 use crate::domain::{NotificationChannel, NotificationKind};
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::mail::MailLocale;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 pub const DAILY_DIGEST_JOB: &str = "notification.daily_digest";
 pub const DAILY_DIGEST_CRON: &str = "0 0 * * * *";

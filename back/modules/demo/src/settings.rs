@@ -4,8 +4,8 @@ use std::sync::OnceLock;
 use async_trait::async_trait;
 use tracing::info;
 
-use aphel_kernel::application::mail::{EmailAttachment, EmailMessage, Mailer};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::mail::{EmailAttachment, EmailMessage, Mailer};
 
 pub(crate) const DEFAULT_DEMO_VISITOR_EMAIL: &str = "demo@aphel.demo";
 pub(crate) const DEFAULT_DEMO_VISITOR_PASSWORD: &str = "aphel-demo";

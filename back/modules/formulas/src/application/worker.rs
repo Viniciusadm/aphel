@@ -6,13 +6,13 @@ use uuid::Uuid;
 use crate::application::{
     FormulaEngine, FormulaPorts, FormulaSource, MAX_PROPAGATION_DEPTH, TypeFormulas, local_today,
 };
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, Job, JobContext, JobHandler, JobQueue, RecordType,
 };
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::FORMULA_FIELD_TYPE;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::FORMULA_FIELD_TYPE;
 
 pub const FORMULAS_CONSUMER: &str = "formulas.recalculate";
 pub const FORMULAS_RECALCULATE_JOB: &str = "formulas.recalculate";
@@ -31,13 +31,13 @@ fn is_record_event(event_type: &str) -> bool {
     let Some((record_type, _)) = event_type.rsplit_once('.') else {
         return false;
     };
-    if aphel_kernel::domain::custom_objects::is_custom_record_type(record_type) {
+    if aphel_sdk::platform::domain::custom_objects::is_custom_record_type(record_type) {
         return true;
     }
     let Ok(record_type) = RecordType::parse(record_type) else {
         return false;
     };
-    aphel_kernel::modules::try_app()
+    aphel_sdk::platform::modules::try_app()
         .is_some_and(|app| app.record_types().get(&record_type).is_some())
 }
 

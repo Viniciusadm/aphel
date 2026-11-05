@@ -4,8 +4,8 @@ use serde::Serialize;
 
 use crate::domain::{address_domain, normalize_address};
 use crate::sync::{BlockKind, BlockedEntry, CaptureSettings};
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const EMAIL_CAPTURE_SETTINGS_UPDATED: &str = "email_capture_settings.updated";
 pub(crate) const EMAIL_BLOCKLIST_ADDED: &str = "email_blocklist.added";

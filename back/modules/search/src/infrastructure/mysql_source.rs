@@ -6,9 +6,9 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::application::{SearchSource, SourceRow};
-use aphel_kernel::application::fields::EntityDefinition;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{push_partition, quoted};
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::infrastructure::query::compiler::{push_partition, quoted};
 
 #[derive(Clone)]
 pub struct MySqlSearchSource {

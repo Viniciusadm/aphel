@@ -1,8 +1,8 @@
-use aphel_kernel::application::organization_profile::{
-    OrganizationConfig, OrganizationConfigExtension,
-};
 use aphel_kernel::config::OutboundHttpConfig;
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::application::organization_profile::{
+    OrganizationConfig, OrganizationConfigExtension,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -74,7 +74,7 @@ impl OrganizationConfigExtension for DeliveryConfiguration {
         errors
     }
 }
-impl aphel_kernel::application::outbound_http::OutboundHttpPolicy for DeliveryConfiguration {
+impl aphel_sdk::platform::application::outbound_http::OutboundHttpPolicy for DeliveryConfiguration {
     fn configure(
         &self,
         config: &OrganizationConfig,

@@ -55,9 +55,9 @@ impl TaskTransactions for Transactions {
         key: &str,
     ) -> Result<Option<aphel_sdk::tasks::ActivityTypeView>, AppError> {
         use aphel_contract_crm::CrmPermissions;
-        use aphel_kernel::application::access::Authorizer;
+        use aphel_sdk::platform::application::access::Authorizer;
         ctx.scope
-            .require(&aphel_kernel::domain::access::Permission::TASKS_CREATE)?;
+            .require(&aphel_sdk::platform::domain::access::Permission::TASKS_CREATE)?;
         Ok(crate::store::ActivityTypeStore::of(ctx)
             .list(false)
             .await?

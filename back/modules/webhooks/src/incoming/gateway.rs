@@ -1,9 +1,9 @@
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
+use aphel_kernel::{Ctx, errors::AppError};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
     Filter, FilterOperator, RecordQuery, RecordQueryEngine, SortSpec,
 };
-use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
-use aphel_kernel::{Ctx, errors::AppError};
+use aphel_sdk::platform::infrastructure::query::MySqlRecordQueryPorts;
 use serde_json::{Map, Value};
 use uuid::Uuid;
 

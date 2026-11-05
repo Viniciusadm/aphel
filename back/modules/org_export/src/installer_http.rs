@@ -13,16 +13,16 @@ use utoipa_axum::routes;
 
 use crate::service::restore_installation;
 use crate::{IdStrategy, RestoreCommand, RestoreEnv, TempFile};
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::ClientInfo;
-use aphel_kernel::api::payload_limit::payload_too_large;
-use aphel_kernel::api::rate_limit::SharedRateLimiter;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::installer::InstallerUseCases;
-use aphel_kernel::application::shared::JobQueue;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::installer::MySqlInstallerPorts;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::ClientInfo;
+use aphel_sdk::platform::api::payload_limit::payload_too_large;
+use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::installer::InstallerUseCases;
+use aphel_sdk::platform::application::shared::JobQueue;
+use aphel_sdk::platform::infrastructure::installer::MySqlInstallerPorts;
 use aphel_sdk::search::SearchMaintenance;
 
 pub(crate) const TAG: &str = "installer";

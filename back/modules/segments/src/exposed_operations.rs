@@ -8,9 +8,9 @@ use crate::domain::SegmentMembersQuery;
 use crate::dto::{SegmentListParams, SegmentMemberResponse, SegmentResponse};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::query::{ArchivedFilter, Filter, parse_sort};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
+use aphel_sdk::platform::application::query::{ArchivedFilter, Filter, parse_sort};
 
 #[derive(Deserialize)]
 struct ListInput {

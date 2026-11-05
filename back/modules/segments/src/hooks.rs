@@ -3,8 +3,8 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::store::SegmentStore;
-use aphel_kernel::application::query::{FilterSource, FilterSourceResolver};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::query::{FilterSource, FilterSourceResolver};
 
 pub(crate) struct StoredFilterSources;
 

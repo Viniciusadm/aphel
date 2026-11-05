@@ -5,13 +5,8 @@ use uuid::Uuid;
 
 use crate::domain::{LineItemsOutcome, QuoteDeal, QuoteEmail};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::approvals::approval_gate;
 use aphel_sdk::approvals::{
     ApprovalCheckpoint, ApprovalRequestSummary, ApprovalSubmission, SubmissionOutcome,
@@ -20,12 +15,17 @@ use aphel_sdk::email::EmailAddress;
 use aphel_sdk::email::{RecordInput, SendEmailCommand};
 use aphel_sdk::line_items::LineData;
 use aphel_sdk::line_items::LineItemsPort;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::pricing::{
     BundleExpansion, PriceListSelection, PriceListSummary, PriceRequest, ResolvedPrice,
 };
 use aphel_sdk::pricing::{bundle_expander, discount_limits, price_list_resolver};
 
-use aphel_kernel::application::shared::money_text;
+use aphel_sdk::platform::application::shared::money_text;
 
 pub(crate) const DEAL_NOT_FOUND: &str = "deal_not_found";
 

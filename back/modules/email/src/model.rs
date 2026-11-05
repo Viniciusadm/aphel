@@ -7,10 +7,10 @@ use crate::domain::{
     EmailDirection, EmailKind, EmailStatus, EmailVisibility, LinkOrigin, MailboxStatus,
     ParticipantRole,
 };
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 pub(crate) const MAILBOX_SECRET_OWNER: &str = "mailbox";
 pub(crate) const MAILBOX_CREDENTIALS_SECRET: &str = "credentials";

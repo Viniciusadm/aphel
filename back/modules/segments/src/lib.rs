@@ -12,10 +12,10 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::query::FilterSourceResolver;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::application::query::FilterSourceResolver;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use aphel_sdk::segments::KEY;
 
@@ -45,7 +45,7 @@ impl Module for SegmentsModule {
             std::sync::Arc::new(config_references::References),
         );
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("segments"),
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable("segments"),
         ));
         app.openapi_tag(
             http::TAG,

@@ -11,8 +11,8 @@ use crate::mailboxes::{
 use crate::reading::{MessageDetail, ThreadDetail, ThreadSummary};
 use crate::sync::{BlockedEntry, CaptureSettings};
 use crate::{EmailAttachmentView, MailboxConnectionKind, ParticipantView, RecordLinkView};
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::common::timestamp as instant;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::common::timestamp as instant;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct MailProviderConnectionResponse {

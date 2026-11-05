@@ -12,9 +12,6 @@ use crate::domain::{
 };
 use crate::rotting::{rotting_days_message, valid_rotting_days};
 use crate::store::PipelineStore;
-use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::sections::fields::{package_fields, projected_field_set};
@@ -22,6 +19,9 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
     PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys,
 };
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub use aphel_sdk::workflow::configuration::{PIPELINES_SECTION, stage_item_key};
 const PIPELINE_KIND: &str = "pipeline";

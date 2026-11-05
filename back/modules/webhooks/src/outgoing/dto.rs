@@ -6,7 +6,7 @@ use crate::outgoing::{
     CreateWebhookEndpointCommand, UpdateWebhookEndpointCommand, WebhookDelivery,
     WebhookEndpointView, WebhookEndpointWithSecret,
 };
-use aphel_kernel::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::common::double_option;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Millis, true)

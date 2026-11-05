@@ -10,12 +10,12 @@ use rust_decimal::Decimal;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::decimal_json;
-use aphel_kernel::application::fields::permissions::provided_key;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::records::{
     InputValidator, MAX_LONG_TEXT_LENGTH, Patch, bool_patch, insert_text, value_patch,
 };
+use aphel_sdk::platform::application::fields::decimal_json;
+use aphel_sdk::platform::application::fields::permissions::provided_key;
 
 pub use aphel_sdk::money::normalize_currency_code as normalize_currency;
 

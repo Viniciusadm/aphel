@@ -6,16 +6,16 @@ use serde_json::{Map, Value, json};
 
 use std::str::FromStr;
 
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::application::query::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider};
+use aphel_sdk::platform::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
+use aphel_sdk::platform::application::query::{
     AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, Filter, FilterOperator,
     GroupBySpec, MAX_AGGREGATE_LIMIT, MetricSpec, RecordQueryPorts,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::period::ResolvedPeriod;
-use aphel_kernel::errors::AppError;
-use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::domain::period::ResolvedPeriod;
 
 pub(crate) const RECURRING_REVENUE_WIDGET: &str = "recurring_revenue";
 const EXCHANGE_RATE_FIELD: &str = "exchange_rate";
@@ -28,7 +28,7 @@ pub(crate) fn whole(value: Option<Decimal>) -> u64 {
 
 fn missing_permission() -> AppError {
     AppError::forbidden_code(
-        aphel_kernel::application::access::PERMISSION_DENIED,
+        aphel_sdk::platform::application::access::PERMISSION_DENIED,
         "missing permission deals.read",
     )
 }

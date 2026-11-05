@@ -11,14 +11,14 @@ use crate::application::{
     MAX_RULE_MESSAGE_LENGTH, MAX_RULE_NAME_LENGTH, RuleTiming, ValidationRule,
     ValidationRuleRepository, is_validated_record_type,
 };
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::MAX_FORMULA_LENGTH;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::MAX_FORMULA_LENGTH;
 
 pub const VALIDATION_RULES_SECTION: &str = "validation_rules";
 pub const VALIDATION_RULE_ITEM: &str = "validation_rule";

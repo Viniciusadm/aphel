@@ -12,11 +12,11 @@ use crate::mysql::sql::{
     user_reference, uuid_column,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const POLICY_SELECT: &str = "SELECT p.*, u.display_name AS created_by_name FROM retention_policies p \
      LEFT JOIN users u ON u.id = p.created_by";
@@ -74,7 +74,7 @@ async fn candidates(
     action: RetentionAction,
     definition: &EntityDefinition,
     threshold: DateTime<Utc>,
-    projection: aphel_kernel::infrastructure::query::compiler::Projection,
+    projection: aphel_sdk::platform::infrastructure::query::compiler::Projection,
 ) -> Result<QueryBuilder<MySql>, AppError> {
     use aphel_kernel::{
         application::query::{
@@ -159,7 +159,7 @@ async fn candidates(
             limit: 1,
         },
     };
-    let mut builder = aphel_kernel::infrastructure::query::compiler::build_query_unwindowed(
+    let mut builder = aphel_sdk::platform::infrastructure::query::compiler::build_query_unwindowed(
         &AccessScope::system(),
         &plan,
         projection,
@@ -453,7 +453,7 @@ impl RetentionStore {
                     action,
                     definition,
                     threshold,
-                    aphel_kernel::infrastructure::query::compiler::Projection::Count,
+                    aphel_sdk::platform::infrastructure::query::compiler::Projection::Count,
                 )
                 .await?;
                 builder.build_query_scalar().fetch_one(&self.pool).await?
@@ -498,7 +498,7 @@ impl RetentionStore {
             action,
             definition,
             threshold,
-            aphel_kernel::infrastructure::query::compiler::Projection::Ids,
+            aphel_sdk::platform::infrastructure::query::compiler::Projection::Ids,
         )
         .await?;
         builder
@@ -509,7 +509,7 @@ impl RetentionStore {
         for id in ids {
             let id = Uuid::parse_str(&id)
                 .map_err(|_| AppError::Internal("invalid stored record id".to_owned()))?;
-            let record = aphel_kernel::application::shared::RecordRef::new(
+            let record = aphel_sdk::platform::application::shared::RecordRef::new(
                 definition.record_type.clone(),
                 id,
             );

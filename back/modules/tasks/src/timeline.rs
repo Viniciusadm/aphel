@@ -1,7 +1,6 @@
 use crate::domain::{ActivityView, instant};
 use crate::store::{activity_from_row, activity_select};
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::{
     Ctx,
     application::{
@@ -13,6 +12,7 @@ use aphel_kernel::{
     errors::AppError,
     infrastructure::{query::compiler::push_record_scope, repositories::mapper},
 };
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::timeline::{
     KindDefinition, TimelineEntry, TimelineRequest, TimelineSource, push_cursor,
 };
@@ -21,7 +21,7 @@ use chrono::NaiveDateTime;
 use serde_json::{Value, json};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use std::sync::Arc;
-fn user_json(entry: &Option<aphel_kernel::application::files::UserReference>) -> Value {
+fn user_json(entry: &Option<aphel_sdk::platform::application::files::UserReference>) -> Value {
     entry
         .as_ref()
         .map(|user| json!({ "id": user.id.as_str(), "display_name": user.display_name }))
@@ -106,7 +106,7 @@ impl SourceStore {
             self.registry.require(RecordType::ACTIVITY.as_str())?,
             visibility,
         );
-        let plan = aphel_kernel::application::query::QueryPlan {
+        let plan = aphel_sdk::platform::application::query::QueryPlan {
             record_type: self
                 .registry
                 .require(RecordType::ACTIVITY.as_str())?
@@ -115,17 +115,17 @@ impl SourceStore {
             filter: None,
             search: None,
             sort: Vec::new(),
-            archived: aphel_kernel::application::query::ArchivedFilter::Include,
-            window: aphel_kernel::application::organization_admin::ListWindow {
+            archived: aphel_sdk::platform::application::query::ArchivedFilter::Include,
+            window: aphel_sdk::platform::application::organization_admin::ListWindow {
                 offset: 0,
                 limit: 1,
             },
         };
         if let Some(constrained) =
-            aphel_kernel::records::constrain_query(&self.pool, scope, &plan).await?
+            aphel_sdk::platform::records::constrain_query(&self.pool, scope, &plan).await?
         {
             builder.push(" AND r.id IN (SELECT r.id FROM tasks r");
-            aphel_kernel::infrastructure::query::compiler::push_where(
+            aphel_sdk::platform::infrastructure::query::compiler::push_where(
                 &mut builder,
                 scope,
                 &constrained,
@@ -193,11 +193,11 @@ impl TimelineSource for TasksTimeline {
             FieldAccessPolicy::load(ctx.query().definitions(), ctx.scope, &RecordType::ACTIVITY)
                 .await?;
         let hidden = policy.hidden_keys();
-        let checker = aphel_kernel::infrastructure::records::MySqlRecordAccessChecker::new(
+        let checker = aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker::new(
             ctx.pool().clone(),
             ctx.registry().clone(),
         );
-        use aphel_kernel::application::files::RecordAccessChecker;
+        use aphel_sdk::platform::application::files::RecordAccessChecker;
         for entry in &mut entries {
             if let Some(linked) = &entry.record
                 && (!aphel_sdk::records::enabled(ctx, &linked.record.record_type)
@@ -244,7 +244,7 @@ impl TimelineSource for TasksTimeline {
     }
 }
 
-use aphel_kernel::records::serialize_records;
+use aphel_sdk::platform::records::serialize_records;
 use serde_json::Map;
 use std::collections::HashMap;
 async fn attach_contributions(

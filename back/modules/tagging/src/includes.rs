@@ -13,7 +13,7 @@ impl RecordIncludeSource for Tags {
             definition
                 .capabilities
                 .has_trait(aphel_sdk::tagging::TAGGABLE)
-                || aphel_kernel::domain::custom_objects::is_custom_record_type(record_type)
+                || aphel_sdk::platform::domain::custom_objects::is_custom_record_type(record_type)
         })
     }
     async fn load(
@@ -23,7 +23,7 @@ impl RecordIncludeSource for Tags {
         ids: &[String],
     ) -> Result<HashMap<String, Value>, AppError> {
         let mut result = HashMap::new();
-        for chunk in ids.chunks(aphel_kernel::application::query::MAX_LIST_VALUES) {
+        for chunk in ids.chunks(aphel_sdk::platform::application::query::MAX_LIST_VALUES) {
             let mut tags = crate::service::tags_for_records(ctx, record_type, chunk).await?;
             for id in chunk {
                 let key = uuid::Uuid::parse_str(id)

@@ -28,31 +28,31 @@ use crate::recurrence::{
 };
 use crate::store::{ActivityStore, ActivityTypeStore, RecurrenceStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::records::PendingCommit;
+use aphel_sdk::calendar::local_day;
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::fields::permissions::check_record_writes;
+use aphel_sdk::platform::application::fields::{
     CustomFieldPorts, CustomFieldReader, CustomFieldWriter, FieldSet, RecordDraft, RecordPipeline,
     RecordWrite, ReferenceChecker, WriteMode, saving_unsupported,
 };
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
     CompareOp, FieldTarget, Filter, FilterOperator, PlanCondition, PlanNode, PlanValue, Predicate,
     RecordQuery, RecordQueryExecutor, RecordQueryPorts, ResolveContext, SortSpec, resolve_query,
 };
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
-use aphel_kernel::records::PendingCommit;
-use aphel_sdk::calendar::local_day;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 
 pub fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
     MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())
@@ -1043,7 +1043,8 @@ async fn write_update_in_tx(
     } = effects;
     let now = ctx.now();
     let record_ref = current.record_ref();
-    aphel_kernel::records::lock_version(tx, "tasks", current.id, Some(current.updated_at)).await?;
+    aphel_sdk::platform::records::lock_version(tx, "tasks", current.id, Some(current.updated_at))
+        .await?;
     if events.contains(&ACTIVITY_COMPLETED) {
         ctx.run_hook(
             ActivityCompleting,

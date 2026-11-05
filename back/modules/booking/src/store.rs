@@ -12,12 +12,12 @@ use crate::{
     MeetingTypeFilter, OrganizationProfile, Question, QuestionKind, WeeklyInterval, parse_clock,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::RecordScopeFilter;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::RecordScopeFilter;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub(crate) struct BookingStore {

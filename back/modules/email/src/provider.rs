@@ -1,7 +1,7 @@
 use serde_json::Value;
 
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub use aphel_sdk::email::mailbox::{
     MailProviderError, MailProviderErrorKind, MailboxProvider, SharedMailboxProvider,
@@ -14,7 +14,7 @@ struct RegisteredProvider {
 }
 impl RegisteredProvider {
     fn enabled(&self) -> bool {
-        let app = aphel_kernel::modules::app();
+        let app = aphel_sdk::platform::modules::app();
         app.is_enabled(self.owner)
             && self
                 .provider

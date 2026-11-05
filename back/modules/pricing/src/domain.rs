@@ -2,10 +2,10 @@ use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::Patch;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const PRICE_LIST_CREATED: &str = "price_list.created";
 pub(crate) const PRICE_LIST_UPDATED: &str = "price_list.updated";

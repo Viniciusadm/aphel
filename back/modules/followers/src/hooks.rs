@@ -6,16 +6,16 @@ use sqlx::MySqlPool;
 
 use crate::domain::FollowOrigin;
 use crate::store::FollowerStore;
-use aphel_kernel::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+use aphel_sdk::platform::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
 
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::record_sharing::RecordDirectory;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer};
-use aphel_kernel::database::receipt;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::record_sharing::MySqlRecordDirectory;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::record_sharing::RecordDirectory;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
+use aphel_sdk::platform::database::receipt;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
+use aphel_sdk::platform::infrastructure::record_sharing::MySqlRecordDirectory;
 
 pub(crate) const FOLLOWERS_OWNERS_CONSUMER: &str = "followers.owners";
 

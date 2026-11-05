@@ -11,8 +11,8 @@ use crate::model::ReplyRequest;
 use crate::sending;
 use crate::{REPLY, VIEW};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
+use aphel_sdk::platform::application::access::Authorizer;
 
 #[derive(Deserialize)]
 struct ReplyInput {

@@ -4,10 +4,10 @@ use std::sync::Arc;
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const CONTENT_KEY_PREFIX: char = '@';
 
@@ -36,7 +36,7 @@ impl SearchContents {
     }
 
     pub fn from_app(pool: MySqlPool) -> Self {
-        let sources = aphel_kernel::modules::try_app()
+        let sources = aphel_sdk::platform::modules::try_app()
             .map(|app| app.contributions::<dyn SearchContentSource>())
             .unwrap_or_default();
         Self::new(pool, sources)

@@ -12,14 +12,14 @@ use crate::templates::{
     MAX_TEMPLATE_SUBJECT_LENGTH, NewEmailTemplate, TemplateFilter, TemplateListScope,
     TemplateScope, is_email_record_type,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const EMAIL_TEMPLATES_SECTION: &str = "email_templates";
 const EMAIL_TEMPLATE_KIND: &str = "email_template";

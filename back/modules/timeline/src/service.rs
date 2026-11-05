@@ -18,7 +18,7 @@ pub(crate) fn compare_entries(left: &TimelineEntry, right: &TimelineEntry) -> Or
 }
 pub(crate) async fn authorize(ctx: &Ctx<'_>, subject: &RecordRef) -> Result<(), AppError> {
     if !aphel_sdk::records::enabled(ctx, &subject.record_type) {
-        return Err(aphel_kernel::modules::module_disabled());
+        return Err(aphel_sdk::platform::modules::module_disabled());
     }
     if !MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())
         .can_read(ctx.scope, subject)

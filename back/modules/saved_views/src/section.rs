@@ -12,12 +12,6 @@ use crate::application::{
     MAX_VIEW_COLUMNS, MAX_VIEW_NAME_LENGTH, MAX_VIEW_SETTINGS_BYTES, SavedView,
     SavedViewRepository, ViewType, ViewVisibility,
 };
-use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
-use aphel_kernel::application::query::{
-    Filter, FilterCondition, FilterOperator, ResolveContext, SortSpec, validate_view_query,
-};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::sections::custom_objects::package_registry;
@@ -27,6 +21,12 @@ use aphel_sdk::configuration::{
     PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys,
     field_reference, parse_section,
 };
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
+use aphel_sdk::platform::application::query::{
+    Filter, FilterCondition, FilterOperator, ResolveContext, SortSpec, validate_view_query,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const VIEWS_SECTION: &str = "views";
 const VIEW_KIND: &str = "view";

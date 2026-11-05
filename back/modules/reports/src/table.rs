@@ -2,12 +2,12 @@ use chrono::{Datelike, NaiveDate};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::ToPrimitive;
 
-use aphel_kernel::application::query::{
+use aphel_sdk::exports::ExportCell;
+use aphel_sdk::platform::application::query::{
     AggregateFunction, AggregateGroupColumn, AggregateMetricColumn, AggregateResult, GroupValue,
     TimeGranularity,
 };
-use aphel_kernel::domain::fields::FieldType;
-use aphel_sdk::exports::ExportCell;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub(crate) const EMPTY_GROUP_LABEL: &str = "(vazio)";
 pub(crate) const TOTAL_LABEL: &str = "Total";

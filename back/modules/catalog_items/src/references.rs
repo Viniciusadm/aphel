@@ -1,5 +1,5 @@
-use aphel_kernel::application::access::Authorizer;
 use aphel_sdk::catalog_items::CatalogReferences;
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::{
     AppError,
     access::{AccessScope, Permission},

@@ -9,17 +9,19 @@ use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime::CallState;
-use aphel_kernel::application::shared::{ExecutionContext, Job, JobContext, JobHandler, JobQueue};
 use aphel_kernel::database::{
     receipt::{self, MutationReceipt},
     transaction::MySqlTx,
 };
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-pub use aphel_kernel::infrastructure::deferred_authority::DeferredAuthority as Authority;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_kernel::records::RecordCtx;
 use aphel_kernel::state::{runtime_pool, runtime_state};
+use aphel_sdk::platform::application::shared::{
+    ExecutionContext, Job, JobContext, JobHandler, JobQueue,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
+pub use aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority as Authority;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub const RUN_JOB: &str = "plugin.effect";
 
@@ -108,9 +110,9 @@ const MAX_EMAIL_BODY: usize = 100 * 1024;
 const EMAIL_PER_MINUTE: u32 = 120;
 const HTTP_EFFECT_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 
-static EMAIL_LIMIT: std::sync::LazyLock<aphel_kernel::api::rate_limit::SharedRateLimiter> =
+static EMAIL_LIMIT: std::sync::LazyLock<aphel_sdk::platform::api::rate_limit::SharedRateLimiter> =
     std::sync::LazyLock::new(|| {
-        aphel_kernel::api::rate_limit::SharedRateLimiter::new(
+        aphel_sdk::platform::api::rate_limit::SharedRateLimiter::new(
             "wasm_runtime.email",
             EMAIL_PER_MINUTE,
             std::time::Duration::from_secs(60),
@@ -188,7 +190,7 @@ pub async fn defer(
         state.effects.push(effect);
     } else {
         let pool = runtime_pool()?;
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
         let canonical = persist(&mut tx, &pool, vec![effect]).await?;
         tx.commit().await?;
         return canonical
@@ -258,7 +260,7 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
         } => {
             if !plugin
                 .manifest
-                .allows(&aphel_kernel::domain::access::Permission::EMAILS_SEND)
+                .allows(&aphel_sdk::platform::domain::access::Permission::EMAILS_SEND)
             {
                 return Err(AppError::forbidden_code(
                     "plugin_email_not_allowed",
@@ -305,7 +307,7 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
         }
         Command::Invoke { operation, .. } => {
             if !plugin.manifest.uses_operation(operation)
-                || !aphel_kernel::modules::app()
+                || !aphel_sdk::platform::modules::app()
                     .contributions::<aphel_kernel::modules::PluginOperation>()
                     .iter()
                     .any(|candidate| candidate.key == operation && candidate.durable)
@@ -460,10 +462,10 @@ async fn execute(
             html,
             purpose,
         } => {
-            use aphel_kernel::application::access::Authorizer;
-            scope.require(&aphel_kernel::domain::access::Permission::EMAILS_SEND)?;
+            use aphel_sdk::platform::application::access::Authorizer;
+            scope.require(&aphel_sdk::platform::domain::access::Permission::EMAILS_SEND)?;
             if let Err(refusal) =
-                aphel_kernel::application::mail::check_recipient(pool, &to, &purpose).await
+                aphel_sdk::platform::application::mail::check_recipient(pool, &to, &purpose).await
             {
                 sqlx::query("UPDATE plugins_effects SET last_error = ? WHERE id = ?")
                     .bind(refusal.client_message())
@@ -480,7 +482,7 @@ async fn execute(
                 let html = html.unwrap_or_else(|| format!("<p>{}</p>", escape_html(&text)));
                 runtime_state()?
                     .mailer()
-                    .send(aphel_kernel::application::mail::EmailMessage {
+                    .send(aphel_sdk::platform::application::mail::EmailMessage {
                         to,
                         subject,
                         html,

@@ -12,8 +12,6 @@ use crate::domain::{
     MAX_RENEWAL_TITLE_PREFIX_LENGTH, RenewalOwnerMode, RenewalSettings,
 };
 use crate::store::RenewalStore;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::ConfigKeyClient;
 use aphel_sdk::configuration::sections::common::diff;
@@ -21,6 +19,8 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::workflow::configuration::{PIPELINES_SECTION, parse_pipelines, stage_item_key};
 use aphel_sdk::workflow::{Pipeline, StageKind, WorkflowReader};
 
@@ -123,8 +123,10 @@ impl PipelineRenewalsSection {
             .keys
             .keys(ConfigReferenceKind::new("workflow.stage"))
             .await?;
-        let reader =
-            WorkflowReader::new(self.pool.clone(), aphel_kernel::modules::app().services())?;
+        let reader = WorkflowReader::new(
+            self.pool.clone(),
+            aphel_sdk::platform::modules::app().services(),
+        )?;
         let pipelines = reader.list_pipelines().await?;
         let stored = self
             .keys

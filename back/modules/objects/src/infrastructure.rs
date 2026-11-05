@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use sqlx::MySqlPool;
 
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::infrastructure::auth::SystemClock;
-use aphel_kernel::infrastructure::custom_objects::{
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::infrastructure::auth::SystemClock;
+use aphel_sdk::platform::infrastructure::custom_objects::{
     MySqlCustomObjectRepository, MySqlRelationshipRepository,
 };
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
-use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
+use aphel_sdk::platform::infrastructure::transactions::MySqlTransactionManager;
 
 use crate::application::CustomObjectAdminPorts;
 pub struct MySqlCustomObjectAdminPorts {

@@ -4,15 +4,15 @@ use uuid::Uuid;
 
 use crate::application::contents::SearchContents;
 use crate::application::document::{IndexDocument, IndexEntry, SourceRow};
-use aphel_kernel::application::fields::{
-    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
-};
-use aphel_kernel::application::query::{QueryPlan, RecordQueryExecutor};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{JobQueue, RecordType};
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::BoxFuture;
+use aphel_sdk::platform::application::fields::{
+    CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
+};
+use aphel_sdk::platform::application::query::{QueryPlan, RecordQueryExecutor};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{JobQueue, RecordType};
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IndexQuery<'a> {

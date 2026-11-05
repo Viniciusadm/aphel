@@ -2,11 +2,11 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::custom_objects::{is_custom_record_type, object_permission};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::domain::custom_objects::{is_custom_record_type, object_permission};
 
 pub(crate) const EXPORT_RECORD_TYPE: RecordType = RecordType::from_static("exports.export");
 pub(crate) const EXPORT_RUN_JOB: &str = "export.run";
@@ -22,7 +22,7 @@ pub(crate) fn export_permission(record_type: &str) -> Option<Permission> {
     if is_custom_record_type(record_type) {
         return object_permission(record_type, "export");
     }
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .record_types()
         .require(record_type)
         .ok()
@@ -32,7 +32,7 @@ pub(crate) fn export_permission(record_type: &str) -> Option<Permission> {
 
 pub(crate) fn is_exportable(record_type: &str) -> bool {
     is_custom_record_type(record_type)
-        || aphel_kernel::modules::app()
+        || aphel_sdk::platform::modules::app()
             .record_types()
             .capabilities(record_type)
             .is_some_and(|capabilities| capabilities.has_trait("exports.exportable"))

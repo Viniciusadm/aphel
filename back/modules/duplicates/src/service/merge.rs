@@ -13,20 +13,20 @@ use crate::{
     deleted_event, merged_event, parse_duplicate_type, record_not_found, updated_event,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::records::{changes_payload, permission_denied};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::{
     CustomFieldMap, CustomFieldReader, CustomFieldWriter, FieldSet, RecordPipeline, RecordWrite,
     WriteMode,
 };
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::{changes_payload, permission_denied};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
 const STAGE_FIELD: &str = "lifecycle_stage";
 
 pub(crate) fn system_merge_keys(ctx: &Ctx<'_>, kind: &DuplicateType) -> Vec<String> {

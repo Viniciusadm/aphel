@@ -4,7 +4,7 @@ use sqlx::mysql::MySqlRow;
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub(crate) enum CallDirection {

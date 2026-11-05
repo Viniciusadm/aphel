@@ -11,15 +11,15 @@ use crate::domain::{
 };
 use crate::store::RenewalStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, RecordRef, RecordType, ensure_version,
-};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::line_items::{LineItem, Recurrence};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, RecordRef, RecordType, ensure_version,
+};
+use aphel_sdk::platform::domain::access::Permission;
 #[derive(serde::Deserialize)]
 struct RenewalSource {
     id: Uuid,
@@ -284,7 +284,7 @@ async fn recurring_items(ctx: &Ctx<'_>, deal_id: Uuid) -> Result<Vec<LineItem>, 
         .require::<dyn aphel_sdk::line_items::LineItemsPort>()?
         .rows(
             ctx,
-            &aphel_kernel::application::shared::RecordRef::parse(
+            &aphel_sdk::platform::application::shared::RecordRef::parse(
                 "deals.deal",
                 &deal_id.to_string(),
             )?,
@@ -348,8 +348,10 @@ async fn copy_items(
     if recurring.is_empty() || !items_enabled(ctx) {
         return Ok(());
     }
-    let record =
-        aphel_kernel::application::shared::RecordRef::parse("deals.deal", &renewal_id.to_string())?;
+    let record = aphel_sdk::platform::application::shared::RecordRef::parse(
+        "deals.deal",
+        &renewal_id.to_string(),
+    )?;
     let port = ctx
         .services()
         .require::<dyn aphel_sdk::line_items::LineItemsPort>()?;

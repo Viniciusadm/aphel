@@ -9,16 +9,16 @@ use crate::team::domain::{
     DealMemberRoleRef, NewDealMember,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::{push_where, quoted};
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::{push_where, quoted};
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const MEMBER_SELECT: &str = "SELECT m.id, m.deal_id, m.user_id, u.display_name AS user_name, \
      CASE WHEN u.status = ? THEN 1 ELSE 0 END AS user_active, m.role_id, r.`key` AS role_key, \

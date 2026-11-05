@@ -6,7 +6,7 @@ use chrono::{DateTime, SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
-use aphel_kernel::api::dto::files::FormFile;
+use aphel_sdk::platform::api::dto::files::FormFile;
 
 use crate::{
     ConfigureImportCommand, DuplicateKey, DuplicateStrategy, ImportDetails, ImportJob,

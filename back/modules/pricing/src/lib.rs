@@ -15,12 +15,12 @@ use std::sync::Arc;
 use aphel_kernel::modules::Migration;
 use utoipa_axum::router::OpenApiRouter;
 
-use aphel_kernel::application::public_events::{
+use aphel_kernel::errors::AppError;
+use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::application::public_events::{
     PreviousValues, PublicEventDefinition, PublicResource, changed, deleted, event,
 };
-use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
-use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{
     BundleExpander, CatalogBundleExpander, CatalogPriceListResolver, DiscountLimits,
@@ -117,7 +117,7 @@ impl Module for PricingModule {
             app.public_event(*definition);
         }
         exposed_operations::register(app);
-        app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
+        app.contribute::<dyn aphel_sdk::platform::application::public_events::PublicResourceLoader>(
             Arc::new(public::PriceListPublicResource),
         );
         Ok(())

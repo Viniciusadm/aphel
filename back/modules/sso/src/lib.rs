@@ -11,9 +11,9 @@ use async_trait::async_trait;
 use serde_json::{Value, json};
 use utoipa_axum::router::OpenApiRouter;
 
-use aphel_kernel::api::sso::LoginProvider;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, SettingField, SettingKind};
+use aphel_sdk::platform::api::sso::LoginProvider;
 
 pub use provider::{IdentityLogin, OidcProvider};
 

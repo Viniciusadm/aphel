@@ -3,19 +3,19 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
-use aphel_kernel::application::custom_objects::custom_record_definition;
-use aphel_kernel::application::fields::config_to_json;
-use aphel_kernel::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::custom_objects::{
-    CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
-};
-use aphel_kernel::domain::fields::{FieldDefinition, FieldKey, FieldOption, FieldType};
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::fields::unique_values;
 use aphel_kernel::state::AppState;
 use aphel_sdk::objects::{CreateObjectCommand, ManagedObject, managed_object_writer};
+use aphel_sdk::platform::application::custom_objects::custom_record_definition;
+use aphel_sdk::platform::application::fields::config_to_json;
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::custom_objects::{
+    CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
+};
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldKey, FieldOption, FieldType};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::infrastructure::fields::unique_values;
 
 const PLUGIN_FIELD_POSITION: i32 = 20_000;
 const FIELD_TAKEN: &str = "plugin_field_conflict";
@@ -49,7 +49,7 @@ pub async fn validate_dependencies(
 ) -> Result<(), AppError> {
     let registry = state.registry().await?;
     for required in &manifest.requires {
-        let permission = aphel_kernel::domain::access::Permission::parse(required.clone())?;
+        let permission = aphel_sdk::platform::domain::access::Permission::parse(required.clone())?;
         if let Some(owner) = state.app.catalog().permission_owner(&permission)
             && !state.app.is_enabled(owner)
         {
@@ -61,8 +61,9 @@ pub async fn validate_dependencies(
     }
     for entity in &manifest.entities {
         for reference in &entity.references {
-            let aphel_kernel::application::fields::ReferenceTarget::Entity { entity: target } =
-                &reference.target
+            let aphel_sdk::platform::application::fields::ReferenceTarget::Entity {
+                entity: target,
+            } = &reference.target
             else {
                 continue;
             };
@@ -111,23 +112,24 @@ pub async fn validate_dependencies(
 
 pub async fn check(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
     for entity in &manifest.entities {
-        if entity.storage == aphel_kernel::application::fields::EntityStorage::Dynamic
+        if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Dynamic
             && !entity.indexes.is_empty()
         {
             return Err(AppError::Validation(
                 "entity indexes require managed storage".to_owned(),
             ));
         }
-        if entity.storage == aphel_kernel::application::fields::EntityStorage::Table {
+        if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Table {
             return Err(AppError::Validation(
                 "runtime entities cannot use native table storage".to_owned(),
             ));
         }
         let key = format!("{}.{}", manifest.key, entity.key);
-        let permission = aphel_kernel::domain::access::Permission::parse(format!("{key}.read"))?;
+        let permission =
+            aphel_sdk::platform::domain::access::Permission::parse(format!("{key}.read"))?;
         let definition = entity.definition(&key, permission)?;
-        if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
-            aphel_kernel::infrastructure::fields::managed_schema(&definition)?;
+        if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Managed {
+            aphel_sdk::platform::infrastructure::fields::managed_schema(&definition)?;
         }
     }
     validate_dependencies(state, manifest).await?;
@@ -149,9 +151,7 @@ async fn ensure_unique_values(state: &AppState, manifest: &PluginManifest) -> Re
             continue;
         };
         let Some(existing) = MySqlFieldDefinitionRepository::new(pool.clone())
-            .list(&aphel_kernel::application::shared::RecordType::parse(
-                &record_type,
-            )?)
+            .list(&aphel_sdk::platform::application::shared::RecordType::parse(&record_type)?)
             .await?
             .into_iter()
             .find(|candidate| candidate.key.as_str() == field.key)
@@ -210,27 +210,28 @@ pub async fn apply(
         if let Some(stored) = storage {
             let previous = stored
                 .and_then(|json| {
-                    serde_json::from_value::<aphel_kernel::application::fields::EntityDeclaration>(
-                        json.0,
-                    )
+                    serde_json::from_value::<
+                        aphel_sdk::platform::application::fields::EntityDeclaration,
+                    >(json.0)
                     .ok()
                 })
                 .map(|declaration| declaration.storage)
-                .unwrap_or(aphel_kernel::application::fields::EntityStorage::Dynamic);
+                .unwrap_or(aphel_sdk::platform::application::fields::EntityStorage::Dynamic);
             if previous != entity.storage {
                 return Err(AppError::Configuration(
                     "changing entity storage needs a data migration".to_owned(),
                 ));
             }
         }
-        if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
+        if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Managed {
             let key = format!("{}.{}", manifest.key, entity.key);
-            let permission = aphel_kernel::domain::access::Permission::parse(format!(
+            let permission = aphel_sdk::platform::domain::access::Permission::parse(format!(
                 "{}.read",
                 manifest.entity_record_type(&entity.key)
             ))?;
             let definition = entity.definition(&key, permission)?;
-            aphel_kernel::infrastructure::fields::ensure_managed_schema(&pool, &definition).await?;
+            aphel_sdk::platform::infrastructure::fields::ensure_managed_schema(&pool, &definition)
+                .await?;
         }
         match object_owner(&pool, &object_key).await? {
             Some(Some(owner)) if owner == manifest.key => {
@@ -295,7 +296,7 @@ pub async fn apply(
     let registry = state.registry().await?;
     let fields = declared_fields(manifest);
     let repository = MySqlFieldDefinitionRepository::new(pool.clone());
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
         let mut definition = definition(&registry, &manifest.key, &record_type, field, index)?;
         let existing: Option<(String, Option<String>)> = sqlx::query_as(
@@ -312,7 +313,7 @@ pub async fn apply(
                     || (owner.is_none()
                         && definition.is_system
                         && registry.require(&record_type)?.storage
-                            == aphel_kernel::application::fields::EntityStorage::Managed) =>
+                            == aphel_sdk::platform::application::fields::EntityStorage::Managed) =>
             {
                 definition.id = Uuid::parse_str(&id)
                     .map_err(|_| AppError::Internal(format!("invalid field id {id}")))?;
@@ -389,7 +390,7 @@ fn reserved_keys(manifest: &PluginManifest, entity_key: &str) -> Result<Vec<Stri
     else {
         return Ok(Vec::new());
     };
-    if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
+    if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Managed {
         return Ok([
             "id",
             "created_at",
@@ -460,7 +461,8 @@ async fn preflight(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), Ap
                     "SELECT module_key, is_system, column_name FROM field_definitions WHERE record_type = ? AND `key` = ?",
                 ).bind(&record_type).bind(&field.key).fetch_optional(pool).await?;
                 let owned_managed = manifest.entities.iter().any(|entity| {
-                    entity.storage == aphel_kernel::application::fields::EntityStorage::Managed
+                    entity.storage
+                        == aphel_sdk::platform::application::fields::EntityStorage::Managed
                         && manifest.entity_record_type(&entity.key) == record_type
                 });
                 owner.is_some_and(|(owner, system, column)| {
@@ -532,7 +534,7 @@ async fn ensure_compatible(pool: &MySqlPool, manifest: &PluginManifest) -> Resul
 }
 
 async fn deactivate_undeclared_options(
-    tx: &mut aphel_kernel::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
     field_id: &str,
     options: &[FieldOption],
 ) -> Result<(), AppError> {
@@ -641,9 +643,9 @@ fn definition(
         label: field.label.clone(),
         field_type,
         is_system: registry.require(record_type)?.storage
-            == aphel_kernel::application::fields::EntityStorage::Managed,
+            == aphel_sdk::platform::application::fields::EntityStorage::Managed,
         column_name: (registry.require(record_type)?.storage
-            == aphel_kernel::application::fields::EntityStorage::Managed)
+            == aphel_sdk::platform::application::fields::EntityStorage::Managed)
             .then(|| field.key.clone()),
         is_required: field.required,
         is_unique: field.unique,
@@ -700,7 +702,7 @@ pub async fn set_active(
 
 pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
     let pool = state.db()?;
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(pool.begin().await?);
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
     let mut attached: Vec<Uuid> = Vec::new();
     for record_type in manifest.entity_record_types() {
         let files: Vec<String> =
@@ -742,14 +744,15 @@ pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
         .bind(&manifest.key)
         .execute(&mut *tx)
         .await?;
-    let orphans = aphel_kernel::infrastructure::storage::references::delete_unreferenced_files(
-        &mut tx, &attached,
-    )
-    .await?;
+    let orphans =
+        aphel_sdk::platform::infrastructure::storage::references::delete_unreferenced_files(
+            &mut tx, &attached,
+        )
+        .await?;
     tx.commit().await?;
     for entity in &manifest.entities {
-        if entity.storage == aphel_kernel::application::fields::EntityStorage::Managed {
-            let table = aphel_kernel::application::fields::managed_table(&format!(
+        if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Managed {
+            let table = aphel_sdk::platform::application::fields::managed_table(&format!(
                 "{}.{}",
                 manifest.key, entity.key
             ));

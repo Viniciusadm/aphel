@@ -4,19 +4,19 @@ use uuid::Uuid;
 
 use crate::{ACTIVITY_TYPE_KEY, ContactFieldOption, MAPPABLE_CONTACT_FIELDS};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::fields::FieldDefinitionRepository;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{Filter, FilterOperator, RecordQuery};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::records::PendingCommit;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::fields::FieldDefinitionRepository;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{Filter, FilterOperator, RecordQuery};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::tasks::{MeetingActivity, MeetingActivityMove};
 
 fn mappable_custom(field_type: FieldType) -> bool {

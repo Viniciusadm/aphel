@@ -24,7 +24,7 @@ fn mail_provider_registry() -> Arc<MailboxProviderRegistry> {
     let mut registry = MailboxProviderRegistry::new();
     registry.register(crate::KEY, Arc::new(imap::ImapMailboxProvider::from_env()));
     for (owner, provider) in
-        aphel_kernel::modules::app().all_contributions::<dyn crate::MailboxProvider>()
+        aphel_sdk::platform::modules::app().all_contributions::<dyn crate::MailboxProvider>()
     {
         registry.register(owner, provider);
     }

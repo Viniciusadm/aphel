@@ -20,29 +20,29 @@ use crate::{
     WEBHOOK_ENDPOINTS_DATASET, column_role, dataset, file_stream, invalid_archive, record_priority,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::fields::{
+use aphel_kernel::domain::{Email, NonEmptyString, UserId};
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::fields::{
     CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, RecordTypeRegistry,
     raw_from_json,
 };
-use aphel_kernel::application::files::storage_key;
-use aphel_kernel::application::organization_profile::{
+use aphel_sdk::platform::application::files::storage_key;
+use aphel_sdk::platform::application::organization_profile::{
     NewOrganization, NewOwner, organization_registration,
 };
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     SharedFileStorage,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
-use aphel_kernel::domain::fields::{FieldDefinition, FieldType, validate_value};
-use aphel_kernel::domain::{Email, NonEmptyString, UserId};
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::{
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType, validate_value};
+use aphel_sdk::platform::infrastructure::fields::{
     MySqlCustomFieldValueRepository, MySqlFieldDefinitionRepository,
 };
-use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
+use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
 
 const ID_CHECK_CHUNK: usize = 500;
 const FILES_TABLE: &str = "files";
@@ -368,7 +368,7 @@ pub(crate) async fn restore_installation(
     )?;
     let registry = env.registry().await?;
     let snapshot = InstallationSnapshot::capture(&env.pool).await?;
-    let mut tx = aphel_kernel::database::transaction::MySqlTx::from(env.pool.begin().await?);
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(env.pool.begin().await?);
     if !env
         .data
         .create_installation(&mut tx, &registration, &registry)

@@ -4,14 +4,14 @@ use chrono_tz::Tz;
 use serde_json::Value;
 use uuid::Uuid;
 
-use aphel_kernel::application::auth::UserRepository;
-use aphel_kernel::application::shared::Actor;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::infrastructure::repositories::mysql_organization_profile::find_organization;
-use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
+use aphel_sdk::platform::application::auth::UserRepository;
+use aphel_sdk::platform::application::shared::Actor;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::find_organization;
+use aphel_sdk::platform::infrastructure::repositories::mysql_users::MySqlUserRepository;
 
 use crate::format::Locale;
 
@@ -141,7 +141,7 @@ pub(crate) async fn line_items(
         .require::<dyn aphel_sdk::line_items::LineItemsPort>()?
         .summary(
             ctx,
-            &aphel_kernel::application::shared::RecordRef::parse(
+            &aphel_sdk::platform::application::shared::RecordRef::parse(
                 "deals.deal",
                 &deal_id.to_string(),
             )?,

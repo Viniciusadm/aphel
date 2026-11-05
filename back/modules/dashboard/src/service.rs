@@ -16,12 +16,12 @@ use crate::layout::{
 use crate::repository::{MySqlDashboardPorts, MySqlDashboardRepository};
 use crate::store::LayoutStore;
 
-use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::query::{RecordQueryExecutor, RecordQueryPorts};
-use aphel_kernel::application::security::Clock;
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::PERMISSION_DENIED;
+use aphel_sdk::platform::application::query::{RecordQueryExecutor, RecordQueryPorts};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const WIDGET_NOT_FOUND: &str = "widget_not_found";
 

@@ -4,8 +4,8 @@ use uuid::Uuid;
 use crate::incoming::{
     ActionFieldError, IncomingWebhook, RequestStatus, SignatureFailure, WEBHOOK_TOKEN_PREFIX,
 };
-use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::domain::access::{AccessScope, PermissionSet, RoleKey};
 
 pub(crate) const INCOMING_WEBHOOK_DISABLED: &str = "incoming_webhook_disabled";
 pub(crate) const INVALID_WEBHOOK_SIGNATURE: &str = "invalid_webhook_signature";

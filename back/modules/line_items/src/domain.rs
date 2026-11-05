@@ -4,14 +4,14 @@ use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::decimal_json;
-use aphel_kernel::application::shared::{FieldChange, RecordType};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::Patch;
 use aphel_sdk::line_items::{AmountMode, LineData, LineItem, LineTotalError};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::decimal_json;
+use aphel_sdk::platform::application::shared::{FieldChange, RecordType};
 
-use aphel_kernel::application::shared::money_text;
+use aphel_sdk::platform::application::shared::money_text;
 
 pub(crate) const LINE_ITEM_NOT_FOUND: &str = "line_item_not_found";
 pub(crate) const PRODUCT_CURRENCY_MISMATCH: &str = "product_currency_mismatch";
@@ -72,7 +72,7 @@ pub struct LineItemLine {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LineItemsSummary {
-    pub(crate) record: aphel_kernel::application::shared::RecordRef,
+    pub(crate) record: aphel_sdk::platform::application::shared::RecordRef,
     pub(crate) currency: String,
     pub items: Vec<LineItemLine>,
     pub(crate) subtotal: Decimal,
@@ -92,7 +92,7 @@ pub(crate) struct LineItemSettings {
 
 #[derive(Debug, Clone)]
 pub(crate) struct HostRecord {
-    pub record: aphel_kernel::application::shared::RecordRef,
+    pub record: aphel_sdk::platform::application::shared::RecordRef,
     pub amount: Option<Decimal>,
     pub currency: String,
     pub exchange_rate: Option<Decimal>,

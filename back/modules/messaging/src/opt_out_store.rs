@@ -3,10 +3,10 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::opt_outs::{OPT_OUT_EXISTS, OptOut, OptOutScope, Purpose, normalize_address};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const SELECT: &str =
     "SELECT id, address, scope, reason, source, created_by, created_at FROM communication_opt_outs";

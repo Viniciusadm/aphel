@@ -11,12 +11,12 @@ use crate::{
 };
 use aphel_contract_automation::domain::AutomationStatus;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 pub(crate) const AUTOMATION_COLUMNS: &str = "a.id, a.`key`, a.name, a.description, a.record_type, \
      a.`trigger`, a.definition, a.status, a.version, a.created_by, a.updated_by, a.created_at, a.updated_at";

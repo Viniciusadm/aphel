@@ -11,11 +11,11 @@ use crate::provider::ExchangeRateProvider;
 use crate::service::{
     RatePorts, publish_rate_change, rate_snapshot, recalculation_job, snapshot_changes,
 };
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 enum SyncedRate {
     Created,

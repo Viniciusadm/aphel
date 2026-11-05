@@ -1,5 +1,5 @@
 use aphel_contract_crm::CrmPermissions;
-use aphel_kernel::application::shared::parse_uuid as parse_id;
+use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
 
 pub(crate) mod booking;
 pub(crate) mod crm;
@@ -23,16 +23,16 @@ use crate::{
     MeetingTypeSnapshot, SaveAvailabilityCommand, SaveMeetingTypeCommand,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{Permission, RecordScope};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScope};
 
 fn slug_taken() -> AppError {
     AppError::conflict_code(

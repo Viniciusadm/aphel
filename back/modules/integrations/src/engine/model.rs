@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::secrets::SecretKey;
+use aphel_sdk::platform::application::secrets::SecretKey;
 
 pub const INTEGRATION_SECRET_OWNER: &str = "integration";
 

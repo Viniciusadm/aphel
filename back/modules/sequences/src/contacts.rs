@@ -1,7 +1,9 @@
 use crate::model::{ContactTarget, EnrollmentView};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{ArchivedFilter, Filter, FilterOperator, RecordQuery};
 use aphel_kernel::{Ctx, errors::AppError};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterOperator, RecordQuery,
+};
 use serde_json::json;
 use std::collections::{BTreeSet, HashMap};
 use uuid::Uuid;

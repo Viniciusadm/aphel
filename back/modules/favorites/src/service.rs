@@ -1,4 +1,4 @@
-use aphel_kernel::application::fields::CustomFieldPorts;
+use aphel_sdk::platform::application::fields::CustomFieldPorts;
 use std::collections::{BTreeSet, HashMap};
 
 use uuid::Uuid;
@@ -9,10 +9,10 @@ use crate::domain::{
 };
 use crate::store::FavoriteStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::files::UNSUPPORTED_RECORD_TYPE;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::files::UNSUPPORTED_RECORD_TYPE;
+use aphel_sdk::platform::application::shared::RecordType;
 
 fn parse_id(value: Option<&str>, field: &str) -> Result<Uuid, AppError> {
     let value = value.map(str::trim).filter(|value| !value.is_empty());
@@ -58,7 +58,7 @@ async fn resolve(ctx: &Ctx<'_>, favorites: Vec<Favorite>) -> Result<Vec<Favorite
     let mut record_titles: HashMap<(RecordType, Uuid), String> = HashMap::new();
     for (record_type, ids) in record_ids {
         for id in ids {
-            let reference = aphel_kernel::application::shared::RecordRef::parse(
+            let reference = aphel_sdk::platform::application::shared::RecordRef::parse(
                 record_type.as_str(),
                 &id.to_string(),
             )?;
@@ -190,7 +190,7 @@ async fn record_target(
     let record_id = parse_id(command.record_id.as_deref(), "record_id")?;
     let definition = ctx.registry().get(&record_type).ok_or_else(unsupported)?;
     ctx.scope.record_filter(&definition.read_permission)?;
-    let reference = aphel_kernel::application::shared::RecordRef::parse(
+    let reference = aphel_sdk::platform::application::shared::RecordRef::parse(
         record_type.as_str(),
         &record_id.to_string(),
     )?;

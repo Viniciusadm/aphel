@@ -28,7 +28,7 @@ fn list<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         operation_output(LineItemsResponse::from(
             service::summary(
                 ctx,
-                &aphel_kernel::application::shared::RecordRef::parse(
+                &aphel_sdk::platform::application::shared::RecordRef::parse(
                     &input.record_type,
                     &input.record_id,
                 )?,
@@ -49,7 +49,7 @@ fn replace<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         operation_output(LineItemsResponse::from(
             service::replace(
                 ctx,
-                &aphel_kernel::application::shared::RecordRef::parse(
+                &aphel_sdk::platform::application::shared::RecordRef::parse(
                     &input.record_type,
                     &input.record_id,
                 )?,

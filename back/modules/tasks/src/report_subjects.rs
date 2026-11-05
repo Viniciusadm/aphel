@@ -1,10 +1,10 @@
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
+use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, SortSpec,
 };
-use aphel_kernel::domain::UserId;
 use aphel_sdk::{
     AppError, Ctx,
     tasks::{TaskReportPage, TaskReportQuery, TaskReportSubject, TaskReportSubjects},
@@ -82,7 +82,7 @@ impl TaskReportSubjects for Subjects {
         statement.push(")");
         let definition = ctx.registry().require("tasks.task")?;
         let visibility = ctx.scope.record_filter(&definition.read_permission)?;
-        aphel_kernel::infrastructure::query::compiler::push_record_scope_as(
+        aphel_sdk::platform::infrastructure::query::compiler::push_record_scope_as(
             &mut statement,
             ctx.scope,
             definition,

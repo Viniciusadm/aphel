@@ -38,18 +38,18 @@ use crate::{
     NewParticipant, NewRecordLink, NewThread, ProviderEmail, SentEmail, SharedMailboxProvider,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::files::{FileRepository, NewFile, sha256_hex, storage_key};
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::files::{FileRepository, NewFile, sha256_hex, storage_key};
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, RecordType,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::storage::mysql_files::MySqlFileRepository;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::infrastructure::storage::mysql_files::MySqlFileRepository;
 
 const IMMEDIATE_TOLERANCE_SECONDS: i64 = 5;
 
@@ -906,7 +906,7 @@ async fn persist_draft_in_tx(
                 tx,
                 Job::new(
                     SEND_SCHEDULED_JOB,
-                    json!({ "email_id": email_id, "requested_by": sender.as_str(), "authority": aphel_kernel::infrastructure::deferred_authority::DeferredAuthority::capture(scope) }),
+                    json!({ "email_id": email_id, "requested_by": sender.as_str(), "authority": aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority::capture(scope) }),
                 )
                 .run_at(run_at)
                 .with_unique_key(format!("{SEND_SCHEDULED_JOB}:{email_id}")),

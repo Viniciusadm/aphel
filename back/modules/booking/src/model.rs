@@ -4,10 +4,10 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::RecordScopeFilter;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::RecordScopeFilter;
 
 pub(crate) const AVAILABILITY_UPDATED: &str = "booking_availability.updated";
 pub(crate) const MEETING_TYPE_CREATED: &str = "meeting_type.created";

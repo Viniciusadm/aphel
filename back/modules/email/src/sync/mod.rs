@@ -6,9 +6,9 @@ pub(crate) use model::*;
 use serde_json::json;
 use uuid::Uuid;
 
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::Job;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::Job;
 
 pub(crate) const EMAIL_SYNC_JOB: &str = "email.sync";
 pub(crate) const EMAIL_SYNC_MAILBOX_JOB: &str = "email.sync.mailbox";

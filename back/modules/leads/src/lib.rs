@@ -13,16 +13,16 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::SystemField;
-use aphel_kernel::application::fields::builtin::field;
-use aphel_kernel::application::public_events::{PublicEventDefinition, event};
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::{RecordDeleted, RecordRestored, RecordValidating};
+use aphel_sdk::platform::application::fields::SystemField;
+use aphel_sdk::platform::application::fields::builtin::field;
+use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{
     ConvertedLead, DealLeadConverter, DisqualifyingLead, Lead, LeadConversion, LeadConverted,
@@ -35,7 +35,7 @@ pub(crate) const LIFECYCLE_STAGE_PRIORITY: i32 = 40;
 const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     event(
         "lead.qualified",
-        aphel_kernel::application::public_events::PublicResource::new(
+        aphel_sdk::platform::application::public_events::PublicResource::new(
             "people.person",
             "ContactResponse",
         )
@@ -44,7 +44,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
     event(
         "lead.disqualified",
-        aphel_kernel::application::public_events::PublicResource::new(
+        aphel_sdk::platform::application::public_events::PublicResource::new(
             "people.person",
             "ContactResponse",
         )
@@ -53,7 +53,7 @@ const PUBLIC_EVENTS: &[PublicEventDefinition] = &[
     ),
     event(
         "lead.converted",
-        aphel_kernel::application::public_events::PublicResource::new(
+        aphel_sdk::platform::application::public_events::PublicResource::new(
             "people.person",
             "ContactResponse",
         )
@@ -80,7 +80,7 @@ pub(crate) fn lifecycle_stage_field() -> Result<SystemField, AppError> {
 }
 
 fn extend_lifecycle(
-    definition: &mut aphel_kernel::application::fields::EntityDefinition,
+    definition: &mut aphel_sdk::platform::application::fields::EntityDefinition,
 ) -> Result<(), AppError> {
     let table = match definition.record_type.as_str() {
         "people.person" => "leads_contact_extension",
@@ -93,7 +93,7 @@ fn extend_lifecycle(
         ));
     }
     let mut field = lifecycle_stage_field()?;
-    field.extension = Some(aphel_kernel::application::fields::ExtensionColumn {
+    field.extension = Some(aphel_sdk::platform::application::fields::ExtensionColumn {
         table: table.into(),
         record_column: "record_id".into(),
     });
@@ -222,8 +222,8 @@ impl Module for LeadsModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+pub(crate) fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )

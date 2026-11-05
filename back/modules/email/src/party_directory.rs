@@ -1,10 +1,10 @@
 use crate::sync::ContactMatch;
-use aphel_kernel::application::fields::{CustomFieldPorts, FieldSet};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
+use aphel_sdk::platform::application::fields::{CustomFieldPorts, FieldSet};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, SortSpec,
 };
-use aphel_kernel::application::shared::RecordType;
+use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::{AppError, Ctx};
 use serde_json::{Value, json};
 use uuid::Uuid;

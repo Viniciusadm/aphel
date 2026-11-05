@@ -6,14 +6,14 @@ use serde_json::{Map, Value, json};
 
 use aphel_sdk::deals::{RevenueSummary, revenue_money as money};
 
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::application::query::{Filter, FilterOperator, RecordQueryPorts, SortSpec};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::dashboard::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
 use aphel_sdk::deals::date;
+use aphel_sdk::platform::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
+use aphel_sdk::platform::application::query::{Filter, FilterOperator, RecordQueryPorts, SortSpec};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const RENEWALS_DUE_WIDGET: &str = "renewals_due";
 
@@ -22,7 +22,7 @@ const DEFAULT_RENEWAL_LIMIT: i64 = 5;
 
 fn missing_permission() -> AppError {
     AppError::forbidden_code(
-        aphel_kernel::application::access::PERMISSION_DENIED,
+        aphel_sdk::platform::application::access::PERMISSION_DENIED,
         "missing permission deals.read",
     )
 }

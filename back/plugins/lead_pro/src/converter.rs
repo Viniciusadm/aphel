@@ -3,10 +3,10 @@ use std::sync::Arc;
 use async_trait::async_trait;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::leads::{Conversion, ConvertLeadCommand};
 use aphel_sdk::leads::{Lead, LeadConverter};
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 use crate::domain::CONVERTED_TOUCH;
 use crate::store;

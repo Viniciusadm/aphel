@@ -8,23 +8,23 @@ use crate::application::{
     CreateViewCommand, SavedView, SavedViewEntry, SavedViewRepository, UpdateViewCommand,
     ViewPorts, ViewType, ViewVisibility, ViewsTx,
 };
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_error};
-use aphel_kernel::application::fields::{EntityDefinition, FieldSet};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
+use aphel_kernel::domain::TeamId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, query_error};
+use aphel_sdk::platform::application::fields::{EntityDefinition, FieldSet};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
     Filter, RelatedFieldSets, ResolveContext, SortSpec, load_related_sets,
     validate_view_query_related,
 };
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     TransactionManager, ensure_version,
 };
-use aphel_kernel::domain::TeamId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 pub const VIEW_NOT_FOUND: &str = "view_not_found";
 pub const SAVED_VIEW_CREATED: &str = "saved_view.created";

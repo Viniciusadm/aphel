@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use aphel_contract_crm::CrmRecordTypes;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::modules::AppBuilder;
 use aphel_sdk::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::reference_cleanup::ReferenceCleanup;
 use aphel_sdk::shared::RecordType;
 use async_trait::async_trait;

@@ -5,14 +5,14 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::repository::{RecentEventExclusion, link_column, user_column, uuid_column};
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{ArchivedFilter, QueryPlan};
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::utc;
-use aphel_kernel::records::constrain_query;
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{ArchivedFilter, QueryPlan};
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::repositories::mapper::utc;
+use aphel_sdk::platform::records::constrain_query;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RecordLink {
@@ -68,14 +68,14 @@ async fn readable_plans(
     Ok(plans)
 }
 
-pub(crate) async fn recent_events<P: aphel_kernel::application::query::RecordQueryPorts>(
+pub(crate) async fn recent_events<P: aphel_sdk::platform::application::query::RecordQueryPorts>(
     pool: &MySqlPool,
     scope: &AccessScope,
     query: &P,
     request: &RecentEventsRequest,
 ) -> Result<Vec<RecentEvent>, AppError> {
     let plans = readable_plans(pool, scope, &request.records).await?;
-    let sources = aphel_kernel::modules::app()
+    let sources = aphel_sdk::platform::modules::app()
         .contributions::<dyn aphel_sdk::dashboard::DashboardEventScope>();
     let mut source_types = std::collections::HashSet::new();
     for source in &sources {
@@ -92,7 +92,7 @@ pub(crate) async fn recent_events<P: aphel_kernel::application::query::RecordQue
         if source_types.contains(&plan.record_type.record_type) {
             continue;
         }
-        aphel_kernel::infrastructure::query::compiler::push_reference_subquery(
+        aphel_sdk::platform::infrastructure::query::compiler::push_reference_subquery(
             &mut builder,
             scope,
             plan,
@@ -105,7 +105,8 @@ pub(crate) async fn recent_events<P: aphel_kernel::application::query::RecordQue
         source.restrict(pool, scope, &plans, &mut builder).await?;
     }
     builder.push(")");
-    for exclusion in aphel_kernel::modules::app().contributions::<dyn RecentEventExclusion>() {
+    for exclusion in aphel_sdk::platform::modules::app().contributions::<dyn RecentEventExclusion>()
+    {
         exclusion.exclude(&mut builder);
     }
     if let Some(actors) = &request.actor_ids {
@@ -134,10 +135,10 @@ pub(crate) async fn recent_events<P: aphel_kernel::application::query::RecordQue
         if let Some((record_type, _)) = &link {
             if query.registry().require(record_type).is_ok() {
                 let policy =
-                    aphel_kernel::application::fields::permissions::FieldAccessPolicy::load(
+                    aphel_sdk::platform::application::fields::permissions::FieldAccessPolicy::load(
                         query.definitions(),
                         scope,
-                        &aphel_kernel::application::shared::RecordType::parse(record_type)?,
+                        &aphel_sdk::platform::application::shared::RecordType::parse(record_type)?,
                     )
                     .await?;
                 policy.mask_event_payload(&event_type, &mut payload);
@@ -192,8 +193,10 @@ pub(crate) async fn recent_events<P: aphel_kernel::application::query::RecordQue
             }
         });
         if let Some((record_type, id)) = link {
-            let record =
-                aphel_kernel::application::shared::RecordRef::parse(&record_type, &id.to_string())?;
+            let record = aphel_sdk::platform::application::shared::RecordRef::parse(
+                &record_type,
+                &id.to_string(),
+            )?;
             if let Some(label) = aphel_sdk::records::visible_record_label(
                 pool,
                 &std::sync::Arc::new(query.registry().clone()),

@@ -10,14 +10,14 @@ use uuid::Uuid;
 use crate::domain::{Tag, normalize_tag_color, normalize_tag_name};
 use crate::store::TagStore;
 use crate::taggable_record_type;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
     PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const TAGS_SECTION: &str = "tags";
 const TAG_KIND: &str = "tag";

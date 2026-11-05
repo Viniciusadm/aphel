@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{CANCELLED, COMPLETED, DEAL, EXPIRED, REFUSED, SENT, SIGNED};
 use aphel_contract_automation::application::AutomationTrigger;
 use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
-use aphel_kernel::application::shared::DomainEvent;
+use aphel_sdk::platform::application::shared::DomainEvent;
 
 struct EsignTrigger {
     event_type: &'static str,

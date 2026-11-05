@@ -9,12 +9,14 @@ use crate::application::{
     NotificationEventConsumer, daily_digest_schedule,
 };
 use crate::infrastructure::MySqlNotificationPorts;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::mail::{OrganizationMailer, SharedOrganizationMailerResolver};
-use aphel_kernel::application::shared::{EventConsumer, JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::mail::{
+    OrganizationMailer, SharedOrganizationMailerResolver,
+};
+use aphel_sdk::platform::application::shared::{EventConsumer, JobContext, JobHandler};
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub struct NotificationWorkerParts {
     pub consumer: Arc<dyn EventConsumer>,
@@ -25,7 +27,7 @@ pub struct NotificationWorkerParts {
 pub fn notification_worker_parts(
     pool: MySqlPool,
     mailers: SharedOrganizationMailerResolver,
-    app_base_url: impl Into<aphel_kernel::application::organization_profile::PublicBaseUrl>,
+    app_base_url: impl Into<aphel_sdk::platform::application::organization_profile::PublicBaseUrl>,
 ) -> NotificationWorkerParts {
     let purge = crate::infrastructure::notifications_purge_handler(pool.clone());
     let ports = MySqlNotificationPorts::new(
@@ -54,7 +56,7 @@ pub fn notification_worker_parts(
 struct OrganizationNotificationEmailHandler {
     ports: MySqlNotificationPorts,
     mailers: SharedOrganizationMailerResolver,
-    app_base_url: aphel_kernel::application::organization_profile::PublicBaseUrl,
+    app_base_url: aphel_sdk::platform::application::organization_profile::PublicBaseUrl,
 }
 
 #[async_trait]

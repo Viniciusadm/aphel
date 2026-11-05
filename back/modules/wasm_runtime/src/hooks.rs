@@ -3,10 +3,10 @@ use serde_json::{Map, Value};
 use crate::manifest::{HOOK_DELETING, HOOK_SAVED, HOOK_SAVING, HOOK_VALIDATING};
 use crate::registry;
 use crate::runtime::{on_hook, scope_actor, wit};
-use aphel_kernel::application::fields::WriteMode;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::{ChangedRecord, RemovedRecord, SavingRecord};
+use aphel_sdk::platform::application::fields::WriteMode;
 
 const EMPTY_OBJECT: &str = "{}";
 

@@ -4,7 +4,7 @@ use rust_embed::RustEmbed;
 use serde_json::Value;
 
 use crate::application::{PackageTemplate, TemplateCatalog};
-use aphel_kernel::application::organization_profile::SUPPORTED_LOCALES;
+use aphel_sdk::platform::application::organization_profile::SUPPORTED_LOCALES;
 
 #[derive(RustEmbed)]
 #[folder = "../../../blueprints/templates/"]

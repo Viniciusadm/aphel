@@ -1,4 +1,4 @@
-use aphel_kernel::domain::access::AccessScope;
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::telephony::{SharedTelephonyProvider, TelephonyProvider};
 pub(crate) use aphel_sdk::telephony::{
     TelephonyRecordingRequest, TelephonyRouter, TelephonyStartRequest,
@@ -9,7 +9,7 @@ struct RegistryTelephonyRouter;
 
 impl TelephonyRouter for RegistryTelephonyRouter {
     fn providers(&self, scope: &AccessScope) -> Vec<SharedTelephonyProvider> {
-        let app = aphel_kernel::modules::app();
+        let app = aphel_sdk::platform::modules::app();
         let mut providers: Vec<SharedTelephonyProvider> = Vec::new();
         for (owner, provider) in app.all_contributions::<dyn TelephonyProvider>() {
             if !app.is_enabled(owner) {

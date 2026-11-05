@@ -11,11 +11,11 @@ use uuid::Uuid;
 use crate::config::{self, AiSettings, Feature};
 use crate::provider::{AiProvider, AiRequest, AiResponse};
 use crate::store::{self, NewCall};
-use aphel_kernel::api::rate_limit::{SlidingWindowLimiter, shared_hit};
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_organization_profile::find_organization;
+use aphel_sdk::platform::api::rate_limit::{SlidingWindowLimiter, shared_hit};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::find_organization;
 
 pub(crate) const LIMIT_REACHED: &str = "ai_limit_reached";
 pub(crate) const USER_LIMIT_REACHED: &str = "ai_user_limit_reached";

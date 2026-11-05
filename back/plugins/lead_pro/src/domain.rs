@@ -1,10 +1,10 @@
 use serde_json::Value;
 use sqlx::MySqlPool;
 
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::module_settings;
 use aphel_sdk::notifications::NotificationKind;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::modules::module_settings;
 
 pub(crate) const KEY: &str = "lead_pro";
 pub(crate) const TEMPERATURE_FIELD: &str = "lead_temperature";

@@ -20,7 +20,10 @@ impl DealLifecycle for Lifecycle {
         ).bind(id.to_string()).bind(id.to_string()).fetch_all(ctx.pool()).await?;
         rows.into_iter()
             .map(|value| {
-                aphel_kernel::infrastructure::repositories::mapper::parse_uuid(&value, "contact_id")
+                aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
+                    &value,
+                    "contact_id",
+                )
             })
             .collect()
     }

@@ -8,9 +8,9 @@ use aphel_contract_automation::application::actions::{
 };
 use aphel_contract_automation::application::gateway::Reference;
 use aphel_contract_automation::application::triggers::is_automatable;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::operations::{AutomationBinding, OperationEntry};
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::modules::operations::{AutomationBinding, OperationEntry};
 
 pub struct OperationAction {
     entry: Arc<OperationEntry>,

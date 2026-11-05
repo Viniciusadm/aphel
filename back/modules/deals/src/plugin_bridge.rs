@@ -11,12 +11,12 @@ use crate::hooks::{ClosingDeal, StageChange};
 use crate::http::{DealResponse, MoveDealPipelineRequest, MoveDealRequest};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
     operation_output,
 };
+use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::workflow::PipelineStage;
 
 pub(crate) const STAGE_CHANGING: &str = "deal.stage_changing";

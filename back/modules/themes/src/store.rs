@@ -6,9 +6,9 @@ use sqlx::{MySqlPool, Row};
 use crate::package::TokenSets;
 use crate::validate::DecodedFont;
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const THEME_COLUMNS: &str = "theme_key, name, version, author, description, license, \
     min_aphel_version, tokens, source, checksum, installed_by, created_at, updated_at";

@@ -7,8 +7,8 @@ use crate::pricing::deal_item_from_quote;
 use crate::service::{SystemEvent, any, now, record_system_event};
 use crate::store::QuoteStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 const MAX_SYNC_ERROR_LENGTH: usize = 500;
 

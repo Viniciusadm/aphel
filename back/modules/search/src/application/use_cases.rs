@@ -13,20 +13,20 @@ use crate::application::ports::{
     IndexCandidate, IndexHeader, IndexQuery, SearchIndexRepository, SearchPorts, SearchSource,
 };
 use crate::application::text::parse_terms;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{
     CustomFieldValueRepository, EntityDefinition, FieldDefinitionRepository, FieldSet,
 };
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, FieldTarget, PlanCondition, PlanNode, PlanValue, Predicate, QueryPlan,
     RecordQueryExecutor,
 };
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
-use aphel_kernel::domain::fields::{FieldType, FieldValue};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::domain::fields::{FieldType, FieldValue};
 
 pub const DEFAULT_LIMIT: u32 = 5;
 pub const MAX_LIMIT: u32 = 20;

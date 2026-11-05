@@ -9,13 +9,15 @@ use crate::domain::{
 };
 use crate::{sync, workflow};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
 use aphel_sdk::approvals::{APPROVAL_APPROVED, APPROVAL_CANCELLED, APPROVAL_REJECTED};
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{
+    DomainEvent, EventConsumer, JobContext, JobHandler,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) fn quotes_expire_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(QUOTES_EXPIRE_JOB, QUOTES_EXPIRE_CRON)

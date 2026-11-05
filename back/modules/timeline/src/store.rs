@@ -35,8 +35,8 @@ impl TimelineSource for Events {
     fn kinds(&self) -> Vec<KindDefinition> {
         vec![
             KindDefinition::new("attachment", "Files", "Arquivos").events(&[
-                aphel_kernel::application::files::ATTACHMENT_ADDED,
-                aphel_kernel::application::files::ATTACHMENT_REMOVED,
+                aphel_sdk::platform::application::files::ATTACHMENT_ADDED,
+                aphel_sdk::platform::application::files::ATTACHMENT_REMOVED,
             ]),
             KindDefinition::new("record_change", "Changes", "Alterações"),
             KindDefinition::new("event", "Other events", "Outros eventos"),

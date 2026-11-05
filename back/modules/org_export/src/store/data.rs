@@ -10,17 +10,17 @@ use uuid::Uuid;
 
 use crate::{ColumnInfo, ColumnKind, ConfigKind, DataRow, MemberRow, OrganizationProfile};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{RecordTypeRegistry, is_sql_identifier};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::organization_profile::OrganizationRegistration;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::RoleKey;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::quoted;
-use aphel_kernel::infrastructure::repositories::mapper;
-use aphel_kernel::infrastructure::repositories::mysql_organization_profile::insert_registration;
 use aphel_sdk::configuration::stored_reference_keys;
+use aphel_sdk::platform::application::fields::{RecordTypeRegistry, is_sql_identifier};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::organization_profile::OrganizationRegistration;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::RoleKey;
+use aphel_sdk::platform::infrastructure::query::compiler::quoted;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
+use aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::insert_registration;
 
 pub(crate) type ConfigKeyMap = BTreeMap<ConfigKind, BTreeMap<Uuid, String>>;
 

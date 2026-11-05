@@ -8,12 +8,12 @@ use crate::domain::{
 };
 use crate::store::ReminderStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::PERMISSION_DENIED;
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
+use aphel_sdk::platform::application::access::PERMISSION_DENIED;
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 
 fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
     MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())
@@ -276,9 +276,10 @@ async fn hydrate_titles(ctx: &Ctx<'_>, reminders: &mut [ReminderView]) -> Result
                 .insert(link.record.record_id);
         }
     }
-    let definitions = aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
-        ctx.pool().clone(),
-    );
+    let definitions =
+        aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+            ctx.pool().clone(),
+        );
     for (record_type, ids) in by_type {
         let record_type = RecordType::parse(&record_type)?;
         let mut labels = std::collections::HashMap::new();

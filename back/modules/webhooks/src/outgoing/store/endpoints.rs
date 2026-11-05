@@ -6,11 +6,11 @@ use uuid::Uuid;
 
 use crate::outgoing::{DisabledReason, EventSubscription, WebhookEndpoint};
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const ENDPOINT_COLUMNS: &str = "e.id, e.url, e.description, e.events, e.is_active, \
      e.disabled_reason, e.disabled_at, e.consecutive_failures, e.last_delivery_at, e.last_success_at, \

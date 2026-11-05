@@ -17,14 +17,14 @@ pub(crate) mod writer;
 
 use std::sync::Arc;
 
-use aphel_kernel::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_kernel::modules::Migration;
+use aphel_sdk::platform::application::files::{FileReferenceColumn, FileReferenceSource};
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, DEFAULT_PRIORITY, Manifest, Module, WorkerParts};
 use aphel_kernel::records::RecordSaved;
 use aphel_sdk::notifications::{ALL_CHANNELS, NotificationKindDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) use coerce::*;
 pub use mapping::*;

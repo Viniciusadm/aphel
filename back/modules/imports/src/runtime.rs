@@ -3,11 +3,11 @@ use serde_json::Value;
 
 use crate::IMPORT_RUN_JOB;
 use crate::service::{self, GENERIC_FAILURE, RunImportRequest, RunProgress};
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::AppState;
 use aphel_sdk::exports::system_scope;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 pub(crate) struct ImportRunHandler {
     state: AppState,

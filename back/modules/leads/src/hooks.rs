@@ -9,11 +9,11 @@ use crate::domain::{
 };
 use crate::store::{HistoryStore, LeadRecords};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{Actor, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{Hook, HookCtx};
 use aphel_kernel::records::{ChangedRecord, RemovedRecord};
+use aphel_sdk::platform::application::shared::{Actor, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 pub use aphel_sdk::leads::{
     Conversion, ConvertLeadCommand, Lead, LeadConversion, LeadConverter, LeadConverting,

@@ -2,9 +2,9 @@ use std::collections::HashSet;
 
 use sqlx::{AssertSqlSafe, Connection, MySqlConnection, MySqlPool};
 
-use aphel_kernel::application::fields::is_sql_identifier;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::quoted;
+use aphel_sdk::platform::application::fields::is_sql_identifier;
+use aphel_sdk::platform::infrastructure::query::compiler::quoted;
 
 const PRESERVED_TABLES: [&str; 3] = ["_sqlx_migrations", "installed_modules", "module_migrations"];
 const MAX_TRACKED_IDS: i64 = 50_000;

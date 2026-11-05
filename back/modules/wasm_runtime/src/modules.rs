@@ -7,12 +7,12 @@ use utoipa::ToSchema;
 
 use crate::manifest::PluginManifest;
 use crate::store;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::runtime::module_use_cases;
-use aphel_kernel::modules::toggle_guard::ModuleToggleGuard;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::modules::runtime::module_use_cases;
+use aphel_sdk::platform::modules::toggle_guard::ModuleToggleGuard;
 
 pub const BLOCKED: &str = "plugin_module_conflict_blocked";
 

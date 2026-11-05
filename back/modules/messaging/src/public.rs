@@ -22,13 +22,13 @@ use crate::store::{self, StoredChannel};
 use crate::text::{constant_time_eq, decode_hex};
 use crate::{TAG, jobs, secret};
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::ErrorEnvelope;
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::ClientInfo;
-use aphel_kernel::api::rate_limit::SharedRateLimiter;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::api::dto::common::ErrorEnvelope;
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::ClientInfo;
+use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 const MAX_PAYLOAD_BYTES: usize = 1024 * 1024;
 const VERIFY_LIMIT: u32 = 30;

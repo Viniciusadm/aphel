@@ -27,21 +27,21 @@ use aphel_contract_automation::application::templates::TemplateScope;
 use aphel_contract_automation::application::triggers::{MANUAL, TriggerRegistry};
 use aphel_contract_automation::domain::{AutomationStatus, RunStatus, SkipReason};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::secrets::SecretVault;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::Secret;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::secrets::SecretVault;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::Secret;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
-use aphel_kernel::application::shared::parse_uuid as parse_id;
+use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub(crate) struct CreateAutomationCommand {
@@ -896,7 +896,7 @@ pub(crate) fn template_scope(
     depth: u32,
     record_data: &Value,
     context: &TriggerContext,
-    fields: &aphel_kernel::application::fields::FieldSet,
+    fields: &aphel_sdk::platform::application::fields::FieldSet,
     timezone: chrono_tz::Tz,
     now: DateTime<Utc>,
 ) -> TemplateScope {

@@ -4,11 +4,11 @@ use serde_json::{Map, Value};
 use uuid::Uuid;
 
 use crate::is_importable;
-use aphel_kernel::application::shared::{EventOrigin, OriginEventPublisher};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::shared::{EventOrigin, OriginEventPublisher};
 
 pub(crate) const IMPORT_EVENT_ORIGIN: &str = "import";
 

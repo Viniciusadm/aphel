@@ -7,21 +7,21 @@ use sqlx::{AssertSqlSafe, MySqlPool, Row};
 
 use crate::{DemoCleanup, NewDemoVisitor};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::is_sql_identifier;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::quoted;
-use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_sdk::maintenance::DatasetSeed;
+use aphel_sdk::platform::application::fields::is_sql_identifier;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::query::compiler::quoted;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::records::cleanup_dataset_files;
 
 const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
 const TRAILING_BUSINESS_TABLES: [&str; 2] = ["products", "custom_records"];
 
 fn ordered_seeds(descending: bool) -> Vec<std::sync::Arc<dyn DatasetSeed>> {
-    let mut seeds = aphel_kernel::modules::app().contributions::<dyn DatasetSeed>();
+    let mut seeds = aphel_sdk::platform::modules::app().contributions::<dyn DatasetSeed>();
     seeds.sort_by_key(|seed| {
         if descending {
             -i64::from(seed.order())
@@ -96,7 +96,7 @@ fn record_table(record_type: &RecordType) -> Option<String> {
     if record_type.as_str() == NOTE_TYPE {
         return Some("notes".to_owned());
     }
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .record_types()
         .get(record_type)
         .filter(|definition| definition.partition.is_none())

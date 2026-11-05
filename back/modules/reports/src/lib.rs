@@ -18,8 +18,8 @@ use crate::runtime::{
 };
 use crate::widget::SavedReportWidget;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "reports";
 
@@ -60,7 +60,7 @@ impl Module for ReportsModule {
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(std::sync::Arc::new(
-            aphel_kernel::infrastructure::custom_objects::RecordTypeScopedTable("reports"),
+            aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable("reports"),
         ));
         app.openapi_tag(
             http::custom::TAG,

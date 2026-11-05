@@ -5,9 +5,9 @@ use chrono::{Duration, Utc};
 use serde_json::Value;
 use sqlx::MySqlPool;
 
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 pub const NOTIFICATIONS_PURGE_JOB: &str = "notifications.purge";
 pub const NOTIFICATIONS_PURGE_CRON: &str = "0 30 4 * * *";

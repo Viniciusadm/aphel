@@ -8,8 +8,8 @@ pub(crate) mod store;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use domain::{is_trashable, purged_event, restored_event, trashable_type, trashable_types};
 pub use store::{TrashExclusion, TrashSource, TrashStore};

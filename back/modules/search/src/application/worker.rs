@@ -9,11 +9,11 @@ const CUSTOM_OBJECT_UPDATED: &str = "custom_object.updated";
 use crate::application::contents::SearchRefresh;
 use crate::application::ports::SearchPorts;
 use crate::application::use_cases::{ReindexCursor, ReindexOutcome, SearchUseCases};
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, Job, JobContext, JobHandler, JobQueue, RecordType,
 };
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
 
 pub const SEARCH_INDEX_CONSUMER: &str = "search.index";
 pub const SEARCH_REINDEX_JOB: &str = "search.reindex";

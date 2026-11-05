@@ -1,15 +1,15 @@
-use aphel_kernel::application::mail::MailLocale;
 use aphel_sdk::notifications::NotificationTexts;
 use aphel_sdk::notifications::NotificationView;
+use aphel_sdk::platform::application::mail::MailLocale;
 use async_trait::async_trait;
 use serde_json::json;
 
-use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, payload_text,
     requested_job_intents,
 };
+use aphel_sdk::platform::application::shared::DomainEvent;
 
 use crate::model::{EXPORT_COMPLETED, EXPORT_FAILED};
 

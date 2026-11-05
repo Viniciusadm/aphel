@@ -3,9 +3,9 @@ use chrono_tz::Tz;
 use uuid::Uuid;
 
 use crate::domain::{ActivityData, ActivityPriority, ActivityStatus};
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 pub(crate) const MAX_RECURRENCE_INTERVAL: u32 = 365;
 pub(crate) const MAX_RECURRENCE_COUNT: u32 = 1000;

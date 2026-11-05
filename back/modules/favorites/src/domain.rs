@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const FAVORITE_NOT_FOUND: &str = "favorite_not_found";
 pub(crate) const FAVORITE_TARGET_NOT_FOUND: &str = "favorite_target_not_found";

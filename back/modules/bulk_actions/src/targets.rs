@@ -7,9 +7,9 @@ use uuid::Uuid;
 
 use crate::BulkAction;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::EntityTraits;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler};
+use aphel_sdk::platform::application::fields::EntityTraits;
 use aphel_sdk::sequences::{EnrollCommand, EnrollmentSource};
 
 fn unsupported_action(action: &BulkAction, record_type: &str) -> AppError {

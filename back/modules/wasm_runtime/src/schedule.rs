@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use aphel_kernel::application::shared::ExecutionContext;
+use aphel_sdk::platform::application::shared::ExecutionContext;
 use async_trait::async_trait;
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use serde_json::{Value, json};
@@ -9,10 +9,10 @@ use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime;
-use aphel_kernel::application::jobs::{CronSchedule, ScheduledJobDefinition};
-use aphel_kernel::application::shared::{Job, JobContext, JobHandler, JobQueue};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::application::jobs::{CronSchedule, ScheduledJobDefinition};
+use aphel_sdk::platform::application::shared::{Job, JobContext, JobHandler, JobQueue};
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub(crate) const TICK_JOB: &str = "wasm_runtime.tick";
 pub(crate) const RUN_JOB: &str = "plugin.schedule";
@@ -162,12 +162,14 @@ impl JobHandler for Run {
         let source = format!("schedule:{name}:{slot}");
         let execution =
             ExecutionContext::plugin(&key, "schedule", None, None, None, Uuid::now_v7())?;
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx =
+            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
         sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
             .bind(execution.id.to_string()).bind(&key).bind(&source).bind(Json(json!({"name": name, "slot": slot})))
             .bind(Json(&execution)).execute(&mut *tx).await?;
         tx.commit().await?;
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx =
+            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
         let row = sqlx::query("SELECT id, execution, status FROM plugins_executions WHERE plugin_key = ? AND source_key = ? FOR UPDATE")
             .bind(&key).bind(&source).fetch_one(&mut *tx).await?;
         if row.try_get::<String, _>("status")? == "completed" {

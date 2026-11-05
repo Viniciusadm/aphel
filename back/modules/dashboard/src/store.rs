@@ -5,10 +5,10 @@ use sqlx::types::Json;
 use uuid::Uuid;
 
 use aphel_kernel::context::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper::naive;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mapper::naive;
 
 #[derive(Clone)]
 pub(crate) struct LayoutStore {

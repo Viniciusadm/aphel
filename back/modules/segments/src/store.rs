@@ -9,14 +9,14 @@ use uuid::Uuid;
 
 use crate::domain::Segment;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::query::{Filter, FilterSource};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::quoted;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::query::{Filter, FilterSource};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::query::compiler::quoted;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const SEGMENT_COLUMNS: &str =
     "id, record_type, name, description, filter, created_by, created_at, updated_at";

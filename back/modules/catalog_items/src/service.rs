@@ -9,22 +9,22 @@ use crate::domain::{
 };
 use crate::store::ProductStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, RecordDraft, RecordPipeline,
-    RecordWrite, WriteMode, decimal_json,
-};
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::query::{RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
     InputValidator, RecordMutation, changes_payload, merge_violations, parse_record_id,
     publish_mutation,
 };
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::permissions::check_record_writes;
+use aphel_sdk::platform::application::fields::{
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, RecordDraft, RecordPipeline,
+    RecordWrite, WriteMode, decimal_json,
+};
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::query::{RecordQuery, RecordQueryEngine};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn list(
     ctx: &Ctx<'_>,
@@ -172,7 +172,7 @@ pub(crate) async fn update(
 
     let record = RecordRef::new(RecordType::PRODUCT, id);
     let mut tx = ctx.begin().await?;
-    aphel_kernel::records::lock_version(
+    aphel_sdk::platform::records::lock_version(
         &mut tx,
         "products",
         current.id,

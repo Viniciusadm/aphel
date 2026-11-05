@@ -1,23 +1,23 @@
-use aphel_kernel::application::mail::MailLocale;
 use aphel_sdk::notifications::NotificationTexts;
 use aphel_sdk::notifications::NotificationView;
+use aphel_sdk::platform::application::mail::MailLocale;
 use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 
-use aphel_kernel::api::routes::v1::field_permissions::user_field_redaction;
-use aphel_kernel::application::fields::{CUSTOM_FIELDS_PREFIX, FieldDefinitionRepository};
-use aphel_kernel::application::shared::{DomainEvent, REDACTED, RecordRef};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::state::runtime_pool;
 use aphel_sdk::notifications::NotificationKind;
 use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe,
 };
+use aphel_sdk::platform::api::routes::v1::field_permissions::user_field_redaction;
+use aphel_sdk::platform::application::fields::{CUSTOM_FIELDS_PREFIX, FieldDefinitionRepository};
+use aphel_sdk::platform::application::shared::{DomainEvent, REDACTED, RecordRef};
+use aphel_sdk::platform::domain::fields::FieldDefinition;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::state::runtime_pool;
 
 const MAX_BODY_CHANGES: usize = 3;
 const MAX_VALUE_LENGTH: usize = 80;
@@ -33,7 +33,7 @@ type FollowedSignal = (
 );
 
 fn followed_event(event: &DomainEvent) -> Result<Option<FollowedSignal>, AppError> {
-    let sources = aphel_kernel::modules::app()
+    let sources = aphel_sdk::platform::modules::app()
         .contributions::<dyn aphel_sdk::followers::FollowedEventSource>();
     let mut keys = std::collections::HashSet::new();
     for source in &sources {
@@ -68,7 +68,7 @@ fn followed_event(event: &DomainEvent) -> Result<Option<FollowedSignal>, AppErro
     let Some(prefix) = event.event_type.strip_suffix(".updated") else {
         return Ok(None);
     };
-    let registry = aphel_kernel::modules::app().record_types();
+    let registry = aphel_sdk::platform::modules::app().record_types();
     if registry
         .get(&record.record_type)
         .map(|definition| definition.event_prefix.as_str())
@@ -245,7 +245,7 @@ async fn visible_changes(
 impl NotificationSource for FollowedRecordNotifications {
     fn accepts(&self, event_type: &str) -> bool {
         event_type.ends_with(".updated")
-            || aphel_kernel::modules::app()
+            || aphel_sdk::platform::modules::app()
                 .contributions::<dyn aphel_sdk::followers::FollowedEventSource>()
                 .iter()
                 .any(|source| source.accepts(event_type))

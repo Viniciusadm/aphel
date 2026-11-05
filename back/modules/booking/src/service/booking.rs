@@ -20,18 +20,18 @@ use crate::{
     TOKEN_KEY_NAME, TOKEN_KEY_OWNER, email_job_payload,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, DomainEvent, FieldChange, Job, RecordRef, RecordType,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
-use aphel_kernel::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::PendingCommit;
 use aphel_sdk::email::normalize_address;
 use aphel_sdk::people::PersonCreation;
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, DomainEvent, FieldChange, Job, RecordRef, RecordType,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
+use aphel_sdk::platform::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_sdk::tasks::{MeetingActivity, MeetingActivityMove};
 
 const BUSY_MARGIN_DAYS: i64 = 1;

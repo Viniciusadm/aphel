@@ -15,9 +15,9 @@ use aphel_contract_automation::application::templates::parse_offset;
 use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context, is_automatable, parent_records,
 };
-use aphel_kernel::application::shared::DomainEvent;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::DomainEvent;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) struct ActivityCompleted;
 

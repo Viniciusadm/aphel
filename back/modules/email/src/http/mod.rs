@@ -9,7 +9,7 @@ pub(crate) mod mailboxes;
 
 use utoipa_axum::router::OpenApiRouter;
 
-use aphel_kernel::api::state::AppState;
+use aphel_sdk::platform::api::state::AppState;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()

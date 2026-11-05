@@ -6,14 +6,14 @@ use serde_json::{Value, json};
 use sqlx::MySqlPool;
 
 use crate::domain::DEAL_RENEWAL_CREATED;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, RecordType};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
 use aphel_sdk::notifications::NotificationClient;
 use aphel_sdk::notifications::{NotificationIntent, dispatch};
 use aphel_sdk::notifications::{NotificationKind, NotificationKindDefinition};
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer, RecordType};
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub(crate) const RENEWAL_NOTIFICATIONS_CONSUMER: &str = "renewals.notifications";
 pub(crate) const RENEWAL_CREATED: NotificationKind =

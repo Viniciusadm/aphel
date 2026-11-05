@@ -1,8 +1,8 @@
 use crate::domain::ListNotesQuery;
 use crate::http::NoteResponse;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::{Ctx, errors::AppError};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::RecordRef;
 use aphel_sdk::record_context::RelatedRecordSource;
 use serde_json::Value;
 pub(crate) struct ContextSource;

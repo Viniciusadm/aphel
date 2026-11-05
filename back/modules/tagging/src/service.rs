@@ -8,20 +8,22 @@ use uuid::Uuid;
 use crate::domain::{DEFAULT_TAG_COLOR, Tag, normalize_tag_color, normalize_tag_name};
 use crate::store::{TagStore, Tagging};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_kernel::records::{RecordMutation, publish_mutation};
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterOperator, ID_FIELD, MAX_LIST_VALUES, RecordQuery,
     RecordQueryEngine,
 };
-use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
-use aphel_kernel::records::{RecordMutation, publish_mutation};
+use aphel_sdk::platform::application::shared::{
+    FieldChange, RecordRef, RecordType, ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 
 pub(crate) const TAG_NOT_FOUND: &str = "tag_not_found";
 pub(crate) const TAG_NAME_TAKEN: &str = "tag_name_taken";
@@ -53,7 +55,7 @@ pub(crate) fn taggable_record_type(record_type: &str) -> Result<RecordType, AppE
     if is_custom_record_type(record_type) {
         return RecordType::parse(record_type);
     }
-    let app = aphel_kernel::modules::app();
+    let app = aphel_sdk::platform::modules::app();
     if app
         .record_types()
         .capabilities(record_type)

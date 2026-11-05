@@ -8,12 +8,12 @@ use async_trait::async_trait;
 use serde_json::{Value, json};
 use utoipa_axum::router::OpenApiRouter;
 
-use aphel_kernel::api::sso::LoginProvider;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, SettingField, SettingKind};
 use aphel_sdk::calendar::CalendarAvailability;
 use aphel_sdk::email::mailbox::MailboxProvider;
+use aphel_sdk::platform::api::sso::LoginProvider;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 use aphel_sdk::sso::IdentityLogin;
 use aphel_sdk::sso::settings::{self, login_setting_fields, validate_login_settings};
 use aphel_sdk::tasks::remote_calendar::CalendarBusy;

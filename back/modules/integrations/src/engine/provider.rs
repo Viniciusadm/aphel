@@ -3,8 +3,8 @@ use std::sync::Arc;
 use async_trait::async_trait;
 
 use crate::engine::schema::{ConfigSchema, ResolvedConfig};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProviderKind {

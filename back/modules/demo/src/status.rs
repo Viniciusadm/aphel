@@ -5,8 +5,8 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use crate::settings::demo_settings;
-use aphel_kernel::api::dto::common::Data;
-use aphel_kernel::api::state::AppState;
+use aphel_sdk::platform::api::dto::common::Data;
+use aphel_sdk::platform::api::state::AppState;
 
 pub const TAG: &str = "demo";
 

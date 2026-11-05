@@ -7,14 +7,14 @@ use utoipa_axum::routes;
 use crate::application::ViewUseCases;
 use crate::dto::{CreateViewRequest, SavedViewResponse, UpdateViewRequest};
 use crate::infrastructure::MySqlViewPorts;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope, Page};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope, Page};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{
     AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
 };
-use aphel_kernel::api::routes::v1::members::window;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::routes::v1::members::window;
+use aphel_sdk::platform::api::state::AppState;
 
 pub const TAG: &str = "views";
 

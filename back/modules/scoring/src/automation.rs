@@ -7,9 +7,9 @@ use crate::engine::is_scored_record_type;
 use aphel_contract_automation::application::AutomationTrigger;
 use aphel_contract_automation::application::definition::TriggerSpec;
 use aphel_contract_automation::application::triggers::{TriggerCandidate, event_context};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::shared::DomainEvent;
 
 const DIRECTIONS: [&str; 2] = ["up", "down"];
 

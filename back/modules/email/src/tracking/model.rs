@@ -5,10 +5,10 @@ use uuid::Uuid;
 
 use crate::compose::html::{append_pixel, rewrite_links};
 use crate::tracking::TrackingToken;
-use aphel_kernel::application::secrets::SecretKey;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::secrets::SecretKey;
+use aphel_sdk::platform::domain::access::{AccessScope, PermissionSet, RoleKey};
 
 pub(crate) const TRACKING_KEY_NAME: &str = "email_tracking_key";
 pub(crate) const EMAIL_TRACKING_UPDATED: &str = "email_tracking.updated";

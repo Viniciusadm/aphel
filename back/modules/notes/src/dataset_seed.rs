@@ -1,12 +1,12 @@
 use std::collections::BTreeMap;
 
 use aphel_contract_crm::CrmRecordTypes;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_sdk::maintenance::{
     DatasetEntry, DatasetSeed, DatasetSession, ids_of, push_record_tuples,
 };
 use aphel_sdk::notes::CreateNoteCommand;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::shared::{RecordRef, RecordType};
 use aphel_sdk::{AppError, Ctx};
 use async_trait::async_trait;

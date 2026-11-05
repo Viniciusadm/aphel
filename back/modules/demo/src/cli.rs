@@ -9,20 +9,20 @@ use crate::service;
 use crate::settings::demo_settings;
 use crate::{DemoSeedCommand, DemoVisitor};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::database;
 use aphel_kernel::domain::Secret;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::defaults::sync_defaults;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use aphel_kernel::infrastructure::fields::sync_system_fields;
-use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
-use aphel_kernel::infrastructure::secrets::build_secret_vault;
-use aphel_kernel::infrastructure::storage::DynamicFileStorage;
 use aphel_kernel::modules::{CommandResult, ModuleCommand, connect_with_modules};
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::defaults::sync_defaults;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::infrastructure::fields::sync_system_fields;
+use aphel_sdk::platform::infrastructure::organization_profile::organization_config_catalog;
+use aphel_sdk::platform::infrastructure::secrets::build_secret_vault;
+use aphel_sdk::platform::infrastructure::storage::DynamicFileStorage;
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 pub(crate) enum DemoCommand {

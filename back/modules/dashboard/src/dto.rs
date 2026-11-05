@@ -12,8 +12,8 @@ use crate::layout::{
     DashboardLayout, LayoutPeriod, LayoutView, LayoutWidget, SubjectQuery, WidgetDataQuery,
 };
 use crate::service::WidgetData;
-use aphel_kernel::domain::access::RecordScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::domain::access::RecordScope;
 
 fn instant(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

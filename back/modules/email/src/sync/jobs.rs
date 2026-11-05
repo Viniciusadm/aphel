@@ -10,12 +10,12 @@ use crate::sync::{
     EMAIL_SYNC_JOB, EMAIL_SYNC_MAILBOX_JOB, SyncMailboxRequest, SyncSettings, email_sync_schedule,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::WorkerParts;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const SYNC_INTERVAL_ENV: &str = "EMAIL_SYNC_INTERVAL_MINUTES";
 pub(crate) const SYNC_BATCH_SIZE_ENV: &str = "EMAIL_SYNC_BATCH_SIZE";

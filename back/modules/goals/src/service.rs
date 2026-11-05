@@ -16,25 +16,25 @@ use crate::domain::{
 };
 use crate::store::GoalStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
-    AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, COUNT_METRIC, Filter,
-    FilterOperator, MetricSpec, OWNER_TEAM_FIELD, RecordQueryExecutor, RecordQueryPorts,
-    TimeGranularity, bucket_start, next_bucket,
-};
-use aphel_kernel::application::shared::{RecordRef, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission, RecordScope};
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::deals::{CreditedUsers, credited_won_total};
 use aphel_sdk::money::BASE_AMOUNT_FIELD;
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
+    AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, COUNT_METRIC, Filter,
+    FilterOperator, MetricSpec, OWNER_TEAM_FIELD, RecordQueryExecutor, RecordQueryPorts,
+    TimeGranularity, bucket_start, next_bucket,
+};
+use aphel_sdk::platform::application::shared::{RecordRef, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScope};
 
-use aphel_kernel::application::shared::is_access_denied as is_unavailable;
+use aphel_sdk::platform::application::shared::is_access_denied as is_unavailable;
 
 const INVALID_GOAL: &str = "invalid goal";
 

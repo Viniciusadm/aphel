@@ -9,18 +9,18 @@ use crate::application::{
     VALIDATION_RULES_REORDERED, ValidationRule, ValidationRulePorts, ValidationRuleRepository,
     is_validated_record_type,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
-    FieldChange, RecordRef, RecordType, TransactionManager, ensure_version,
-};
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::fields::MAX_FORMULA_LENGTH;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::configuration::{is_config_key, key_from_name};
 use aphel_sdk::formulas::{PredicateCheck, prospective};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
+    FieldChange, RecordRef, RecordType, TransactionManager, ensure_version,
+};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::fields::MAX_FORMULA_LENGTH;
 
 const INVALID_VALIDATION_RULE: &str = "invalid validation rule";
 

@@ -12,15 +12,15 @@ use crate::domain::{
 };
 use crate::domain::{DistributionStrategy, Route, Routing, RoutingFallback, RuleMember};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{FieldDefinitionRepository, FieldSet};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::organization_admin::Listing;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, FieldSet};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::organization_admin::Listing;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 use chrono::{DateTime, Utc};
 
 const RULE_SELECT: &str = "SELECT r.id, r.`key`, r.name, r.description, r.record_type, r.strategy, \

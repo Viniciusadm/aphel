@@ -2,8 +2,8 @@ use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) use aphel_sdk::money::{
     Conversion, CurrencyContext, convert_amount, currency_not_enabled, normalize_currency_code,

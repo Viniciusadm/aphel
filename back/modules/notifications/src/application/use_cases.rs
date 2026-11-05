@@ -8,10 +8,10 @@ use crate::application::{
     NotificationRepository, PreferenceSetting,
 };
 use crate::domain::{NotificationChannel, NotificationCursor, NotificationKind};
-use aphel_kernel::application::security::Clock;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const NOTIFICATION_NOT_FOUND: &str = "notification_not_found";
 pub const MAX_PREFERENCE_UPDATES: usize = 100;

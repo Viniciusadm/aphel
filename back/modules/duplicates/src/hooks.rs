@@ -6,11 +6,11 @@ use crate::KEY;
 use crate::service;
 use crate::store::DuplicateStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::{DuplicateDetector, PossibleDuplicate, RemovedRecord};
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) struct RuleDuplicateDetector;
 

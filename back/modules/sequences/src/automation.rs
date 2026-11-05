@@ -10,8 +10,8 @@ use crate::{
 use aphel_contract_automation::application::actions::{
     ActionContext, AutomationAction, ValidationContext, record_permission,
 };
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const ENROLL_IN_SEQUENCE: &str = "enroll_in_sequence";
 const OPTIONS: [&str; 2] = ["sequence_id", "sender"];

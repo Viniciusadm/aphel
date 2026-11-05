@@ -13,17 +13,17 @@ use serde_json::Value;
 
 use crate::domain::{FieldSource, PersonalField, PrivacyRequest, PrivacyRequestKind, RunReport};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{
     CustomFieldPorts, EntityDefinition, FieldDefinitionRepository,
 };
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, FileStorage, RecordRef,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
 use aphel_sdk::privacy::{
     DataSubjectAction, DataSubjectRequest, DataSubjectSource, affected_items,
 };

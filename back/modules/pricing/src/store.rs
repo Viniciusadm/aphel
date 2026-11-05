@@ -14,19 +14,19 @@ use crate::domain::{
     PriceListCandidate, PriceListEntry, PriceListFilter, ProductBundle, RoleDiscountLimit,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
     Filter, FilterOperator, ID_FIELD, RecordQuery, RecordQueryEngine, in_saved_filter,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::access::{PermissionSet, RoleKey};
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::access::{PermissionSet, RoleKey};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::MySqlRecordQueryPorts;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const LIST_COLUMNS: &str = "l.id, l.`key`, l.name, l.description, l.currency, l.applies_to, \
      l.segment_id, l.valid_from, l.valid_to, l.is_active, l.is_default, l.created_by, \
@@ -318,7 +318,7 @@ impl PriceListStore {
                 .fetch_optional(&self.pool)
                 .await?;
         Ok(currency.unwrap_or_else(|| {
-            aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
+            aphel_sdk::platform::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
         }))
     }
 
@@ -332,7 +332,7 @@ impl PriceListStore {
         if base {
             return Ok(true);
         }
-        let Some(rates) = aphel_kernel::modules::app()
+        let Some(rates) = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::money::MoneyRates>()
         else {
@@ -348,7 +348,7 @@ impl PriceListStore {
     ) -> Result<Vec<Uuid>, AppError> {
         self.existing_records(
             ctx,
-            aphel_kernel::application::shared::RecordType::COMPANY,
+            aphel_sdk::platform::application::shared::RecordType::COMPANY,
             company_ids,
         )
         .await

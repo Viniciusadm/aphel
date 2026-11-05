@@ -7,8 +7,8 @@ use aphel_contract_automation::application::definition::{AutomationDefinition, T
 use aphel_contract_automation::domain::{
     AutomationStatus, RunStatus, SkipReason, StepKind, StepStatus,
 };
-use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 
 pub(crate) const AUTOMATION_RECORD_TYPE: RecordType =
     RecordType::from_static("automations.automation");

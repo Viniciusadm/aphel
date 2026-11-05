@@ -16,13 +16,15 @@ use crate::domain::{
 
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope, decimal_text, double_option, timestamp};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::shared::RecordRef;
 use aphel_sdk::line_items::money;
 use aphel_sdk::line_items::{AmountMode, DiscountKind, Recurrence};
+use aphel_sdk::platform::api::dto::common::{
+    Data, ErrorEnvelope, decimal_text, double_option, timestamp,
+};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]

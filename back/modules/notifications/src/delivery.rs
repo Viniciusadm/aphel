@@ -1,9 +1,9 @@
-use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::platform::SharedJobQueue;
 use aphel_sdk::notifications::{
     DispatchOutcome, NotificationDelivery, NotificationDirectory, NotificationIntent,
 };
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::infrastructure::platform::SharedJobQueue;
 use sqlx::MySqlPool;
 use std::sync::Arc;
 

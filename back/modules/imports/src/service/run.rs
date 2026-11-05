@@ -21,19 +21,19 @@ use crate::{
     IMPORT_RECORD_TYPE, ImportJob, ImportRow, ImportStatus, RecordValues, RowAction, RowError,
     RowOutcome, RowStatus, create_record, normalize_label, update_record,
 };
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
-};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::build_requester_scope;
-use aphel_kernel::infrastructure::storage::MySqlFileRepository;
-use aphel_kernel::records::normalize_domain;
 use aphel_sdk::exports::{
     CSV_MIME_TYPE, ExportCell, GeneratedFile, discard_generated_file, encode_csv,
     store_generated_file, system_scope,
 };
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
+};
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::build_requester_scope;
+use aphel_sdk::platform::infrastructure::storage::MySqlFileRepository;
+use aphel_sdk::platform::records::normalize_domain;
 
 const ERROR_COLUMN: &str = "Erros";
 const ERROR_REPORT_PAGE: u64 = 1000;

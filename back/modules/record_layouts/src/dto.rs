@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::application::{FormLayout, FormLayoutEntry, SaveLayoutCommand};
-use aphel_kernel::api::dto::query::FilterNodeSchema;
+use aphel_sdk::platform::api::dto::query::FilterNodeSchema;
 
 #[derive(Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]

@@ -6,8 +6,8 @@ use crate::domain::CreateActivityCommand;
 use crate::{service, types};
 use aphel_contract_automation::application::{TaskOperations, TaskSpec};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
 
 pub(crate) const DEFAULT_TASK_TYPE: &str = "task";
 

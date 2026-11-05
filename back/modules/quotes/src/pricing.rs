@@ -11,7 +11,6 @@ use crate::domain::{
 use crate::gateway::QuoteCatalog;
 use crate::service::parse_id;
 use aphel_kernel::Ctx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::InputValidator;
 use aphel_sdk::line_items::CatalogItem;
@@ -20,6 +19,7 @@ use aphel_sdk::line_items::{
     QUANTITY_DECIMALS, Recurrence, normalize_quantity, parse_money, parse_term_months,
     term_violation,
 };
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::pricing::PriceRequest;
 
 pub(crate) struct PricingContext<'a> {

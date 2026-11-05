@@ -5,9 +5,9 @@ use serde_json::{Value, json};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 
 use crate::domain::EmailVisibility;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::timeline::{TimelineEntry, TimelineEventExtension, TimelineRequest};
 
 pub(crate) const EMAIL_EVENT_SQL: &str =
@@ -208,15 +208,15 @@ impl TimelineEventExtension for EmailTimeline {
         _request: &TimelineRequest,
     ) {
         use aphel_contract_crm::CrmPermissions;
-        use aphel_kernel::application::access::Authorizer;
-        let enabled = aphel_kernel::modules::app().is_enabled(crate::KEY);
+        use aphel_sdk::platform::application::access::Authorizer;
+        let enabled = aphel_sdk::platform::modules::app().is_enabled(crate::KEY);
         push_email_visibility(
             builder,
             scope,
             subject,
             enabled
                 && scope
-                    .require(&aphel_kernel::domain::access::Permission::EMAILS_READ)
+                    .require(&aphel_sdk::platform::domain::access::Permission::EMAILS_READ)
                     .is_ok(),
         );
     }

@@ -7,10 +7,10 @@ use utoipa_axum::routes;
 use crate::service;
 use crate::tracking::tracking_scope;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::ErrorEnvelope;
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::AuthContext;
-use aphel_kernel::api::state::AppState;
+use aphel_sdk::platform::api::dto::common::ErrorEnvelope;
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::AuthContext;
+use aphel_sdk::platform::api::state::AppState;
 
 pub(crate) const TAG: &str = "email tracking";
 

@@ -13,14 +13,14 @@ use crate::dto::{
     STEP_FIELD, ValueMapsInput,
 };
 use crate::{MigrationFileCommand, SOURCE_TOOLS, service};
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::dto::files::FormFile;
-use aphel_kernel::api::error::app_error;
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::files::{FILE_TOO_LARGE, file_too_large};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::dto::files::FormFile;
+use aphel_sdk::platform::api::error::app_error;
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo};
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::files::{FILE_TOO_LARGE, file_too_large};
 
 pub(crate) const TAG: &str = "migration-assistant";
 

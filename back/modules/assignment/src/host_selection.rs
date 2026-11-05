@@ -10,10 +10,10 @@ use crate::{
     resolve_pool,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 fn rules(ctx: &Ctx<'_>) -> DistributionStore {
     DistributionStore::of(ctx)
@@ -164,7 +164,7 @@ impl aphel_sdk::assignment::HostAssignment for HostAssignments {
         rows.into_iter()
             .map(|(id, name)| {
                 Ok((
-                    aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+                    aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
                         &id,
                         "assignment_rules.id",
                     )?,

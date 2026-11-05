@@ -82,7 +82,7 @@ impl aphel_sdk::sso::login::IdentityFlows for Protocol {
         state: &aphel_kernel::state::AppState,
         provider: &dyn aphel_sdk::sso::IdentityProvider,
         email: &str,
-    ) -> Result<Vec<aphel_kernel::api::sso::LoginOption>, AppError> {
+    ) -> Result<Vec<aphel_sdk::platform::api::sso::LoginOption>, AppError> {
         crate::sso::login::discover_options(state, provider, email).await
     }
     async fn start(

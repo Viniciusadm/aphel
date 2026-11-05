@@ -1,16 +1,16 @@
-use aphel_kernel::application::mail::MailLocale;
 use aphel_sdk::notifications::NotificationTexts;
 use aphel_sdk::notifications::NotificationView;
+use aphel_sdk::platform::application::mail::MailLocale;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::shared::{DomainEvent, RecordRef};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications::NotificationKind;
 use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe,
 };
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordRef};
 
 use crate::domain::{NOTE_CREATED, NOTE_UPDATED, NoteVisibility};
 

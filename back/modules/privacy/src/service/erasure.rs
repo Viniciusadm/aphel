@@ -10,14 +10,14 @@ use crate::service::{
 };
 use crate::store::{ColumnAssignment, PrivacyStore, free_text_columns};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{
     CustomFieldPorts, CustomFieldReader, CustomFieldValueRepository, CustomFieldWriter,
     EntityDefinition, custom_field_path,
 };
-use aphel_kernel::application::shared::{Actor, FieldChange, FileStorage, RecordRef};
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{Actor, FieldChange, FileStorage, RecordRef};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 use aphel_sdk::privacy::PrivacyTraits;
 fn protected(definition: &EntityDefinition, key: &str) -> bool {
@@ -55,7 +55,7 @@ pub(crate) fn anonymize_assignments(
             if !field.field_type.is_textual() {
                 continue;
             }
-            Some(aphel_kernel::application::shared::REDACTED.to_owned())
+            Some(aphel_sdk::platform::application::shared::REDACTED.to_owned())
         } else {
             None
         };

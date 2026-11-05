@@ -12,19 +12,19 @@ use crate::domain::{
     StageTransitionEntry,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
-use aphel_kernel::domain::users::UserStatus;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::domain::users::UserStatus;
+use aphel_sdk::platform::infrastructure::query::compiler::{
     Projection, build_query, push_record_scope, quoted,
 };
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
-use aphel_kernel::records::constrain_query;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
+use aphel_sdk::platform::records::constrain_query;
 use aphel_sdk::workflow::StageKind;
 
 const DEAL_SELECT: &str = "SELECT r.id, r.owner_id, r.pipeline_id, r.stage_id, r.title, r.amount, \
@@ -277,7 +277,7 @@ impl DealStore {
                 .fetch_optional(&self.pool)
                 .await?;
         Ok(currency.unwrap_or_else(|| {
-            aphel_kernel::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
+            aphel_sdk::platform::domain::organization_profile::DEFAULT_CURRENCY.to_owned()
         }))
     }
 

@@ -9,14 +9,14 @@ use crate::{
     CellValue, DuplicateKey, ImportTarget, RecordValues, RowError, RowOutcome, check_value,
     coerce_cell,
 };
-use aphel_kernel::application::custom_objects::resolve_relation;
+use aphel_sdk::platform::application::custom_objects::resolve_relation;
 
-use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
-use aphel_kernel::domain::custom_objects::RelationSide;
-use aphel_kernel::domain::fields::FieldType;
-use aphel_kernel::domain::fields::{normalize_email, normalize_phone};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::records::normalize_domain;
+use aphel_sdk::platform::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
+use aphel_sdk::platform::domain::custom_objects::RelationSide;
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::domain::fields::{normalize_email, normalize_phone};
+use aphel_sdk::platform::records::normalize_domain;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ResolveMode {

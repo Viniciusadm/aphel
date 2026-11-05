@@ -7,10 +7,10 @@ pub(crate) mod store;
 pub(crate) mod tokens;
 pub(crate) mod validate;
 
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "themes";
 pub(crate) const MANAGE: Permission = Permission::from_static("themes.manage");

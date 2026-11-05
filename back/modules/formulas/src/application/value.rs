@@ -2,8 +2,8 @@ use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use serde_json::Value;
 
-use aphel_kernel::application::fields::decimal_json;
-use aphel_kernel::domain::fields::FormulaResultType;
+use aphel_sdk::platform::application::fields::decimal_json;
+use aphel_sdk::platform::domain::fields::FormulaResultType;
 
 pub const MAX_TEXT_VALUE_LENGTH: usize = 10_000;
 

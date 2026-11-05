@@ -1,8 +1,8 @@
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::dashboard::{DashboardPorts, DashboardSource, WidgetContext, WidgetPorts};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 pub(crate) struct PeopleSummarySource;

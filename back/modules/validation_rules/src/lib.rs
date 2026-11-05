@@ -13,7 +13,7 @@ impl Module for ValidationRulesModule {
         Manifest::new(
             KEY,
             "ValidationRules",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()

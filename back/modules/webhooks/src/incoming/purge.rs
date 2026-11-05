@@ -6,9 +6,9 @@ use serde_json::Value;
 use sqlx::MySqlPool;
 
 use crate::incoming::IncomingWebhookStore;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
 pub(crate) const INCOMING_WEBHOOKS_PURGE_JOB: &str = "incoming_webhooks.purge";
 pub(crate) const INCOMING_WEBHOOKS_PURGE_CRON: &str = "0 25 * * * *";

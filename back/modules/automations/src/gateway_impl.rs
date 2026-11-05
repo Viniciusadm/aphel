@@ -13,23 +13,23 @@ use aphel_contract_automation::application::{
     WebhookCallResult,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{FieldSet, RelationPath};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, RecordQueryExecutor,
-    RecordQueryPorts,
-};
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, CausedAuditLog, CausedEventPublisher, DomainEvent, EventCausation,
-    EventPublisher, RecordRef, TransactionManager,
-};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_kernel::modules::ReferenceProvider;
 use aphel_kernel::records::{RecordCtx, field_set, query_ports};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::fields::{FieldSet, RelationPath};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, RecordQueryExecutor,
+    RecordQueryPorts,
+};
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, CausedAuditLog, CausedEventPublisher, DomainEvent, EventCausation,
+    EventPublisher, RecordRef, TransactionManager,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const AUTOMATION_MESSAGE_SENT: &str = "automation.message_sent";
 

@@ -6,18 +6,18 @@ use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::api::routes::v1::field_permissions::user_field_redaction;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::public_events::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, CodedKind};
+use aphel_kernel::records::RecordCtx;
+use aphel_sdk::platform::api::routes::v1::field_permissions::user_field_redaction;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::public_events::{
     PublicEvent, PublicEventRenderer, PublicResource, SharedPublicEventRenderer,
     deleted_resource_data, find_public_event, payload_resource_data, previous_values,
     public_definition_for, public_record_type, public_resource_loader,
 };
-use aphel_kernel::application::shared::{DomainEvent, RecordType};
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_kernel::records::RecordCtx;
+use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 #[derive(Clone)]
 pub(crate) struct ApiPublicEventRenderer {
@@ -69,7 +69,8 @@ fn is_not_found(error: &AppError) -> bool {
 #[async_trait]
 impl PublicEventRenderer for ApiPublicEventRenderer {
     async fn render(&self, event: &DomainEvent) -> Result<Option<PublicEvent>, AppError> {
-        aphel_kernel::application::public_events::refresh_public_events(&self.state.db()?).await?;
+        aphel_sdk::platform::application::public_events::refresh_public_events(&self.state.db()?)
+            .await?;
         let Some(definition) = public_definition_for(event) else {
             return Ok(None);
         };

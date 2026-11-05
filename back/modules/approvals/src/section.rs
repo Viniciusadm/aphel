@@ -14,11 +14,7 @@ use crate::domain::{
 use crate::engine::acting_user;
 use crate::service::{PolicyDraft, check_shape};
 use crate::store::{ApprovalDirectory, ApprovalStore};
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
@@ -26,6 +22,10 @@ use aphel_sdk::configuration::{
     PlanItem, parse_section,
 };
 use aphel_sdk::configuration::{package_reference_keys, reference_keys};
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 use sqlx::MySqlPool;
 
 pub(crate) const APPROVAL_POLICIES_SECTION: &str = "approval_policies";

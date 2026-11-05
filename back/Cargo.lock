@@ -1845,6 +1845,7 @@ name = "aphel-mod-themes"
 version = "0.1.0"
 dependencies = [
  "aphel-kernel",
+ "aphel-sdk",
  "async-trait",
  "axum",
  "base64 0.22.1",

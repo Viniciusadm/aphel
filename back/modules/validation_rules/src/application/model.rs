@@ -2,10 +2,10 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::WriteMode;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
+use aphel_sdk::platform::application::fields::WriteMode;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
 
 pub const VALIDATION_RULE_FAILED: &str = "validation_rule_failed";
 pub const VALIDATION_RULE_NOT_FOUND: &str = "validation_rule_not_found";
@@ -24,7 +24,7 @@ pub const MAX_RULES_PER_RECORD_TYPE: usize = 100;
 
 pub fn is_validated_record_type(record_type: &str) -> bool {
     is_custom_record_type(record_type)
-        || aphel_kernel::modules::try_app().is_some_and(|app| {
+        || aphel_sdk::platform::modules::try_app().is_some_and(|app| {
             app.record_types()
                 .capabilities(record_type)
                 .is_some_and(|capabilities| capabilities.has_trait("validation_rules.subject"))

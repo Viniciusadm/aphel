@@ -1,4 +1,3 @@
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::{
     Ctx,
     application::{
@@ -14,6 +13,7 @@ use aphel_kernel::{
     infrastructure::query::compiler::push_reference_subquery,
     records::constrain_query,
 };
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::timeline::TimelineEventScope;
 use sqlx::{MySql, QueryBuilder};
 pub(crate) struct RelatedEvents;

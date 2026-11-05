@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::application::ValueKind;
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::{
     EntityDefinition, FieldDefinitionReader, FieldSet, ItemTable, RecordTypeRegistry, RelationPath,
     ResolvedField,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::fields::{FieldDefinition, FieldType};
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType};
 
 pub fn kind_of(field_type: FieldType) -> Option<ValueKind> {
     match field_type.base_type() {

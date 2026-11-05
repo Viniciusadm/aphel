@@ -26,17 +26,17 @@ use crate::rotting::{PIPELINE_STAGE_ROTTING_TIGHTENED, parse_rotting_days, rotti
 use crate::seed::DEFAULT_STAGES;
 use crate::store::PipelineStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::fields::{FieldDefinitionRepository, FieldSet};
-use aphel_kernel::application::query::RecordQueryPorts;
-use aphel_kernel::application::shared::{
-    Actor, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType, ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, FieldSet};
+use aphel_sdk::platform::application::query::RecordQueryPorts;
+use aphel_sdk::platform::application::shared::{
+    Actor, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType, ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 #[derive(Serialize)]
 struct PipelineSnapshot<'a> {
@@ -1246,7 +1246,9 @@ async fn move_records(
         }),
     };
     let mut count = 0;
-    for (_, source) in aphel_kernel::modules::app().all_contributions::<dyn StagedRecordSource>() {
+    for (_, source) in
+        aphel_sdk::platform::modules::app().all_contributions::<dyn StagedRecordSource>()
+    {
         count += source.move_records(ctx, tx, &movement).await?;
     }
     Ok(count)

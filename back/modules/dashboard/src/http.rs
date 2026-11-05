@@ -9,12 +9,12 @@ use crate::dto::{
     WidgetDataParams, WidgetDataResponse, WidgetDescriptorResponse,
 };
 use crate::service;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope, Page};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, JsonBody, Pagination, PaginationQuery};
-use aphel_kernel::api::state::AppState;
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope, Page};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, JsonBody, Pagination, PaginationQuery};
+use aphel_sdk::platform::api::state::AppState;
 
 pub(crate) const TAG: &str = "dashboard";
 

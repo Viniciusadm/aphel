@@ -37,9 +37,9 @@ impl LineItemProjection for Projection {
                 owner.set_amount(tx, id, total, totals.at).await?;
                 let old = current
                     .amount
-                    .map(aphel_kernel::application::fields::decimal_json)
+                    .map(aphel_sdk::platform::application::fields::decimal_json)
                     .unwrap_or(serde_json::Value::Null);
-                let new = aphel_kernel::application::fields::decimal_json(total);
+                let new = aphel_sdk::platform::application::fields::decimal_json(total);
                 publish_mutation(ctx.events(), ctx.audit(), tx, ctx.scope, totals.at, RecordMutation {
                     record: RecordRef::new(RecordType::DEAL, id), event_type: DEAL_AMOUNT_CHANGED,
                     payload: json!({"old": old, "new": new, "currency": current.currency, "source": "items"}),

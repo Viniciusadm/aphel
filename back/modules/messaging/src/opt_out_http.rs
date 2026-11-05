@@ -15,17 +15,17 @@ use crate::opt_outs::{
     MAX_REASON_LENGTH, OPT_OUT_NOT_FOUND, OPT_OUT_REMOVED_EVENT, OPTED_OUT_EVENT, OptOut,
     OptOutScope, normalize_address,
 };
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope, Page, timestamp};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope, Page, timestamp};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{
     AuthContext, ClientInfo, JsonBody, Pagination, PaginationQuery,
 };
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
+use aphel_sdk::platform::domain::access::Permission;
 
 pub const TAG: &str = "communication";
 
@@ -87,7 +87,7 @@ async fn record_change(
     event_type: &'static str,
     before: Value,
     after: Value,
-    mut tx: aphel_kernel::database::transaction::MySqlTx,
+    mut tx: aphel_sdk::platform::database::transaction::MySqlTx,
 ) -> Result<(), AppError> {
     let now = Utc::now();
     let actor = Actor::from_scope(&tenant.scope);
@@ -206,7 +206,7 @@ async fn create_opt_out(
         created_by: Some(tenant.scope.user_id().as_str().to_owned()),
         created_at: Utc::now(),
     };
-    let mut tx = aphel_kernel::database::receipt::begin(&state.db()?).await?;
+    let mut tx = aphel_sdk::platform::database::receipt::begin(&state.db()?).await?;
     store::insert(&mut tx, &opt_out).await?;
     record_change(
         &state,
@@ -246,7 +246,7 @@ async fn delete_opt_out(
     let id = Uuid::parse_str(&id).map_err(|_| not_found())?;
     let pool = state.db()?;
     let opt_out = store::find(&pool, id).await?.ok_or_else(not_found)?;
-    let mut tx = aphel_kernel::database::receipt::begin(&pool).await?;
+    let mut tx = aphel_sdk::platform::database::receipt::begin(&pool).await?;
     store::delete(&mut tx, id).await?;
     record_change(
         &state,

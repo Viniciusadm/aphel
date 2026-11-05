@@ -1,6 +1,6 @@
-use aphel_kernel::database::transaction::MySqlTx;
 pub(crate) use aphel_sdk::assignment::{HostPick, WeightedHost};
 use aphel_sdk::assignment::{HostPool, HostRule, host_assignment};
+use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::{AppError, Ctx};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;

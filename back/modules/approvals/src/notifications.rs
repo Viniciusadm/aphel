@@ -1,10 +1,9 @@
-use aphel_kernel::application::mail::MailLocale;
 use aphel_sdk::notifications::NotificationView;
 use aphel_sdk::notifications::{NotificationTexts, data_text};
+use aphel_sdk::platform::application::mail::MailLocale;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications::NotificationKind;
@@ -12,6 +11,7 @@ use aphel_sdk::notifications::{
     NotificationIntent, NotificationSource, NotificationSourceContext, event_dedupe, payload_text,
     payload_user,
 };
+use aphel_sdk::platform::application::shared::DomainEvent;
 
 use crate::domain::{
     APPROVAL_APPROVED, APPROVAL_CANCELLED, APPROVAL_OVERDUE, APPROVAL_REJECTED, APPROVAL_REQUESTED,

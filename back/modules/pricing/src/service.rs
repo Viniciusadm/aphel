@@ -19,21 +19,21 @@ use crate::domain::{
 };
 use crate::store::{DiscountLimitStore, PriceListStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
-    ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{InputValidator, MAX_LONG_TEXT_LENGTH, Patch, changes_payload};
 use aphel_sdk::access::require_organization_record_scope as require_catalog;
 use aphel_sdk::configuration::{is_config_key, key_from_name};
 use aphel_sdk::line_items::{MONEY_DECIMALS, QUANTITY_DECIMALS, normalize_quantity, parse_money};
 use aphel_sdk::money::normalize_currency_code as normalize_currency;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
+    ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 const INVALID_PRICE_LIST: &str = "invalid price list";
 const INVALID_ITEMS: &str = "invalid price list items";
 const INVALID_LIMITS: &str = "invalid discount limits";

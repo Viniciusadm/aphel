@@ -2,8 +2,6 @@ use crate::{
     domain::{NoteView, note_preview},
     store::note_from_row,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::RecordPipeline;
 use aphel_kernel::{
     Ctx,
     application::{
@@ -14,6 +12,8 @@ use aphel_kernel::{
     domain::access::Permission,
     errors::AppError,
 };
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::RecordPipeline;
 use aphel_sdk::privacy::sql::{push_ids, push_refs, push_text_match, redact_text, table_exists};
 use aphel_sdk::privacy::{
     PrivacyItem, PrivacySource, Redaction, SourceOutcome, SourceRequest, SourceSnapshot,
@@ -179,9 +179,7 @@ impl PrivacySource for NotesPrivacy {
             .push(" AND NOT EXISTS(SELECT 1 FROM notes n WHERE n.record_type = ")
             .push_bind(record_type.as_str().to_owned())
             .push(" AND n.record_id = r.id AND n.updated_at >= ")
-            .push_bind(aphel_kernel::infrastructure::repositories::mapper::naive(
-                threshold,
-            ))
+            .push_bind(aphel_sdk::platform::infrastructure::repositories::mapper::naive(threshold))
             .push(")");
         Ok(())
     }

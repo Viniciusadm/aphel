@@ -16,7 +16,7 @@ impl Module for FormulasModule {
         Manifest::new(
             KEY,
             "Formulas",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
@@ -39,7 +39,7 @@ impl Module for FormulasModule {
         ));
         app.openapi_tag(http::TAG, "Formulas")
             .routes(|_| http::router());
-        app.contribute::<dyn aphel_kernel::application::fields::FieldDefinitionValidator>(
+        app.contribute::<dyn aphel_sdk::platform::application::fields::FieldDefinitionValidator>(
             std::sync::Arc::new(DefinitionValidator),
         );
         app.worker(|env| {
@@ -61,12 +61,12 @@ impl Module for FormulasModule {
 
 struct DefinitionValidator;
 #[async_trait::async_trait]
-impl aphel_kernel::application::fields::FieldDefinitionValidator for DefinitionValidator {
+impl aphel_sdk::platform::application::fields::FieldDefinitionValidator for DefinitionValidator {
     async fn validate(
         &self,
-        registry: &aphel_kernel::application::fields::RecordTypeRegistry,
-        definitions: &dyn aphel_kernel::application::fields::FieldDefinitionReader,
-        field: &aphel_kernel::domain::fields::FieldDefinition,
+        registry: &aphel_sdk::platform::application::fields::RecordTypeRegistry,
+        definitions: &dyn aphel_sdk::platform::application::fields::FieldDefinitionReader,
+        field: &aphel_sdk::platform::domain::fields::FieldDefinition,
     ) -> Result<Vec<aphel_kernel::errors::FieldViolation>, AppError> {
         application::formula_definition_violations(registry, definitions, field).await
     }

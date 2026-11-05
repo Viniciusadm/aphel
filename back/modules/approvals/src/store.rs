@@ -15,28 +15,28 @@ use crate::domain::{
     PolicyListFilter, PolicyStep, RecordState, RequestApprover, RequestListFilter, StepSnapshot,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterExpansion, FilterOperator, ID_FIELD, RecordQuery,
     RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext, load_related_sets,
     resolve_query_related, validate_view_query_related,
 };
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, PermissionSet, RecordScopeFilter, RoleKey};
-use aphel_kernel::domain::fields::{
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, PermissionSet, RecordScopeFilter, RoleKey};
+use aphel_sdk::platform::domain::fields::{
     FieldConfig, FieldDefinition, FieldKey, FormulaResultType, FormulaSettings,
 };
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository;
-use aphel_kernel::infrastructure::query::compiler::{
+use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
+use aphel_sdk::platform::infrastructure::query::compiler::{
     Projection, build_query, push_record_scope, quoted,
 };
-use aphel_kernel::infrastructure::query::mysql_executor::MySqlRecordQueryPorts;
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive, utc};
+use aphel_sdk::platform::infrastructure::query::mysql_executor::MySqlRecordQueryPorts;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 
 fn parse_uuid(value: &str, column: &str) -> Result<Uuid, AppError> {
     Uuid::parse_str(value).map_err(|_| invalid_column(column, value))
@@ -923,7 +923,8 @@ impl ApprovalDirectory {
         definition: &EntityDefinition,
         filter: &Filter,
         record_id: Uuid,
-    ) -> Result<Result<aphel_kernel::application::query::QueryPlan, AppError>, AppError> {
+    ) -> Result<Result<aphel_sdk::platform::application::query::QueryPlan, AppError>, AppError>
+    {
         let elevated = condition_scope(scope);
         let ports = MySqlRecordQueryPorts::new(self.pool.clone(), self.registry.clone());
         let fields = FieldSet::for_scope(ports.definitions(), definition, &elevated).await?;
@@ -1191,7 +1192,7 @@ impl ApprovalDirectory {
     pub(crate) async fn managers(&self, _tx: &mut MySqlTx) -> Result<Vec<UserId>, AppError> {
         self.users_where(
             "EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = m.role_id AND rp.permission = ?)",
-            aphel_kernel::domain::access::Permission::APPROVALS_MANAGE
+            aphel_sdk::platform::domain::access::Permission::APPROVALS_MANAGE
                 .as_str()
                 .to_owned(),
         )
@@ -1249,7 +1250,7 @@ impl ApprovalDirectory {
         &self,
         ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
-        let Some(catalog) = aphel_kernel::modules::app()
+        let Some(catalog) = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::workflow::WorkflowCatalog>()
         else {

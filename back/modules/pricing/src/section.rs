@@ -15,8 +15,6 @@ use crate::domain::{
 };
 use crate::service::{parse_min_quantity, parse_percent};
 use crate::store::{DiscountLimitStore, PriceListStore};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
@@ -25,6 +23,8 @@ use aphel_sdk::configuration::{
 };
 use aphel_sdk::line_items::parse_money;
 use aphel_sdk::money::normalize_currency_code as normalize_currency;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const PRICE_LISTS_SECTION: &str = "price_lists";
 pub(crate) const DISCOUNT_LIMITS_SECTION: &str = "discount_limits";
@@ -92,7 +92,7 @@ fn parse<T: for<'de> Deserialize<'de>>(content: &Value) -> Result<T, AppError> {
 }
 
 fn package_currencies(package: &ConfigPackage) -> BTreeSet<String> {
-    if aphel_kernel::modules::app()
+    if aphel_sdk::platform::modules::app()
         .services()
         .get::<dyn aphel_sdk::money::MoneyRates>()
         .is_none()

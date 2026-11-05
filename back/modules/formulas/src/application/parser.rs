@@ -2,7 +2,7 @@ use crate::application::{
     BinaryOp, EMPTY_EXPRESSION, EXPRESSION_TOO_COMPLEX, EXPRESSION_TOO_LONG, Expr, ExprKind,
     FormulaError, Span, Token, TokenKind, UNEXPECTED_END, UNEXPECTED_TOKEN, UnaryOp, tokenize,
 };
-use aphel_kernel::domain::fields::MAX_FORMULA_LENGTH;
+use aphel_sdk::platform::domain::fields::MAX_FORMULA_LENGTH;
 
 pub const MAX_DEPTH: usize = 32;
 pub const MAX_NODES: usize = 400;

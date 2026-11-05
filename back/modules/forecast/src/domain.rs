@@ -3,10 +3,10 @@ use std::collections::BTreeMap;
 use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
 
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::RecordType;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::RecordType;
 
-pub(crate) use aphel_kernel::application::shared::is_access_denied as is_unavailable;
+pub(crate) use aphel_sdk::platform::application::shared::is_access_denied as is_unavailable;
 
 pub(crate) const DEFAULT_HORIZON_MONTHS: u8 = 6;
 pub(crate) const MAX_HORIZON_MONTHS: u8 = 18;

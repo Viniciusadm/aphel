@@ -1,10 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::application::{CompiledFormula, FormulaContext, FormulaWorkspace, compile_formula};
-use aphel_kernel::application::fields::FieldDefinitionReader;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::fields::FieldDefinition;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::FieldDefinitionReader;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::fields::FieldDefinition;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct FormulaNode {

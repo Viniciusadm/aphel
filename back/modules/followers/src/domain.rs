@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::shared::RecordRef;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 pub(crate) const MAX_FOLLOWED_RECORDS: u32 = 2000;
 

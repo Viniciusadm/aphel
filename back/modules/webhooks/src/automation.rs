@@ -9,11 +9,11 @@ use aphel_contract_automation::application::gateway::WebhookCall;
 use aphel_contract_automation::application::triggers::{
     AutomationTrigger, INCOMING_WEBHOOK, TriggerCandidate, TriggerReference, is_automatable, single,
 };
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::outbound_http::{HttpMethod, is_reserved_transport_header};
-use aphel_kernel::application::shared::DomainEvent;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::outbound_http::{HttpMethod, is_reserved_transport_header};
+use aphel_sdk::platform::application::shared::DomainEvent;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) struct IncomingWebhook;
 

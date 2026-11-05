@@ -10,12 +10,12 @@ use crate::sending::{self, SEND_JOB};
 use crate::store::{self, StoredChannel};
 use crate::{actor, error_code, inbound, job_kind, job_unique_key, text};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{Job, JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{Job, JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const POLL_JOB: &str = "poll";
 pub(crate) const POLL_CHANNEL_JOB: &str = "poll_channel";

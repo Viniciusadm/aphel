@@ -11,11 +11,11 @@ use crate::package::{FORMAT, FORMAT_VERSION, FontFile, ThemePackage};
 use crate::store::{ThemeRecord, ThemeStore};
 use crate::validate::{Issue, Validation, validate};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::files::sha256_hex;
-use aphel_kernel::application::shared::{FieldChange, RecordRef};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::files::sha256_hex;
+use aphel_sdk::platform::application::shared::{FieldChange, RecordRef};
 
 #[derive(Debug, Clone)]
 pub(crate) struct ThemeSummary {

@@ -6,11 +6,11 @@ use serde_json::Value;
 use crate::clock::automation_clock;
 use crate::runtime::{AutomationRuntime, resume_payload, run_job};
 use crate::store::AutomationTimeStore;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{JobContext, JobHandler, JobQueue};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler, JobQueue};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const RESUME_WAITING_JOB: &str = "automations.resume_waiting";
 pub(crate) const RESUME_WAITING_CRON: &str = "30 * * * * *";

@@ -6,13 +6,13 @@ use uuid::Uuid;
 
 use crate::DuplicateType;
 use crate::domain::{CandidateStatus, DuplicateFamily, DuplicateRule, ordered_pair};
-use aphel_kernel::application::fields::LabelNormalization;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::fields::{normalize_email, normalize_phone};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::records::normalize_domain;
-use aphel_kernel::records::normalize_domain as domain_from_website;
+use aphel_sdk::platform::application::fields::LabelNormalization;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::fields::{normalize_email, normalize_phone};
+use aphel_sdk::platform::records::normalize_domain;
+use aphel_sdk::platform::records::normalize_domain as domain_from_website;
 
 pub(crate) const CANDIDATE_NOT_FOUND: &str = "duplicate_candidate_not_found";
 pub(crate) const CANDIDATE_RESOLVED: &str = "duplicate_candidate_resolved";

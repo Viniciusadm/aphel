@@ -5,12 +5,12 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::shared::{FieldChange, JobContext, JobHandler};
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::deferred_authority::DeferredAuthority;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::shared::{FieldChange, JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority;
 
 use crate::provider::{EnvelopeRequest, EnvelopeSigner};
 use crate::{service, store};
@@ -30,7 +30,7 @@ impl JobHandler for Deliver {
             .get("authority")
             .map(|value| {
                 serde_json::from_value::<
-                    aphel_kernel::infrastructure::deferred_authority::DeferredAuthority,
+                    aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority,
                 >(value.clone())
             })
             .transpose()
@@ -79,7 +79,7 @@ impl Deliver {
         let result = async {
             let scope = authority.resolve(ctx.pool()).await?;
             if !scope.module_enabled(crate::KEY) {
-                return Err(aphel_kernel::modules::module_disabled());
+                return Err(aphel_sdk::platform::modules::module_disabled());
             }
             scope.require(&crate::SEND)?;
             scope.require(&Permission::DEALS_READ)?;

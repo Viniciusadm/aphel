@@ -6,9 +6,9 @@ use crate::application::push::{
     PushMessage, PushOutcome, PushPorts, PushSender, PushSubscriptionRepository,
 };
 use crate::application::{NotificationPorts, NotificationRepository, NotificationView};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{Job, JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{Job, JobContext, JobHandler};
 
 pub const NOTIFICATION_PUSH_JOB: &str = "notification.push";
 pub const PUSH_TITLE_MAX_CHARS: usize = 120;

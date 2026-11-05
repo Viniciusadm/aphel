@@ -7,14 +7,14 @@ use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
 use crate::recurrence::{ActivityRecurrenceView, ApplyTo, OccurrenceRef, RecurrenceRuleInput};
-use aphel_kernel::application::fields::CustomFieldMap;
-use aphel_kernel::application::fields::permissions::provided_key;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::RecordQuery;
-use aphel_kernel::application::shared::{FieldChange, RecordRef};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::fields::is_identifier;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::fields::CustomFieldMap;
+use aphel_sdk::platform::application::fields::permissions::provided_key;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::RecordQuery;
+use aphel_sdk::platform::application::shared::{FieldChange, RecordRef};
+use aphel_sdk::platform::domain::fields::is_identifier;
 
 pub(crate) const ACTIVITY_NOT_FOUND: &str = "activity_not_found";
 pub(crate) const ACTIVITY_ALREADY_COMPLETED: &str = "activity_already_completed";
@@ -368,7 +368,7 @@ pub struct ActivityView {
 impl ActivityView {
     pub(crate) fn record_ref(&self) -> RecordRef {
         RecordRef::new(
-            aphel_kernel::application::shared::RecordType::ACTIVITY,
+            aphel_sdk::platform::application::shared::RecordType::ACTIVITY,
             self.id,
         )
     }

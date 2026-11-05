@@ -19,10 +19,6 @@ use crate::store::QuoteStore;
 use crate::token::generate_public_key;
 use crate::{AcceptingQuote, KEY, QUOTE, QuoteAccepting};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{Actor, DomainEvent, FieldChange, Job, JobQueue};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::fields::normalize_email;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::approvals::{
@@ -31,6 +27,10 @@ use aphel_sdk::approvals::{
 };
 use aphel_sdk::email::EmailAddress;
 use aphel_sdk::messaging::text::escape_html;
+use aphel_sdk::platform::application::shared::{Actor, DomainEvent, FieldChange, Job, JobQueue};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::fields::normalize_email;
 
 const MAX_COMMENT_LENGTH: usize = 2_000;
 
@@ -478,7 +478,7 @@ pub(crate) async fn apply_approval(ctx: &Ctx<'_>, event: &DomainEvent) -> Result
     let Some(quote) = QuoteStore::of(ctx)
         .find(
             &scope,
-            &aphel_kernel::domain::access::RecordScopeFilter::Organization,
+            &aphel_sdk::platform::domain::access::RecordScopeFilter::Organization,
             record.record_id,
         )
         .await?
@@ -651,7 +651,7 @@ pub(crate) async fn store_discount_flag(
         locked,
         SystemEvent {
             event_type: QUOTE_UPDATED,
-            extra: aphel_kernel::records::changes_payload(&changes),
+            extra: aphel_sdk::platform::records::changes_payload(&changes),
             changes,
             ip: None,
         },

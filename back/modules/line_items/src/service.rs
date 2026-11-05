@@ -16,15 +16,6 @@ use crate::domain::{
 use crate::recurring::apply_item_recurrence;
 use crate::store::LineItemStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::permissions::{
-    FieldAccess, FieldAccessPolicy, check_access,
-};
-use aphel_kernel::application::fields::{CustomFieldPorts, ReferenceChecker};
-use aphel_kernel::application::query::RecordQueryPorts;
-use aphel_kernel::application::shared::{FieldChange, RecordRef, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{InputValidator, RecordMutation, publish_mutation};
 use aphel_sdk::line_items::{
@@ -33,6 +24,15 @@ use aphel_sdk::line_items::{
     parse_money,
 };
 use aphel_sdk::money::base_amount;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::permissions::{
+    FieldAccess, FieldAccessPolicy, check_access,
+};
+use aphel_sdk::platform::application::fields::{CustomFieldPorts, ReferenceChecker};
+use aphel_sdk::platform::application::query::RecordQueryPorts;
+use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, ensure_version};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 use aphel_sdk::line_items::catalog_item;
 fn parse_id(value: &str) -> Option<Uuid> {
@@ -387,10 +387,9 @@ pub(crate) async fn apply_total(
 
 pub(crate) async fn settings(ctx: &Ctx<'_>) -> Result<LineItemSettings, AppError> {
     if ctx.scope.require(&Permission::SETTINGS_MANAGE).is_err() {
-        ctx.scope
-            .require(&aphel_kernel::domain::access::Permission::from_static(
-                "line_items.read",
-            ))?;
+        ctx.scope.require(
+            &aphel_sdk::platform::domain::access::Permission::from_static("line_items.read"),
+        )?;
     }
     current_settings(ctx).await
 }
@@ -608,9 +607,10 @@ async fn lock(
     expected: &HostRecord,
 ) -> Result<(HostRecord, Vec<LineItem>), AppError> {
     let record = &expected.record;
-    let snapshot = aphel_kernel::records::snapshot::capture(tx, ctx.pool(), ctx.registry(), record)
-        .await?
-        .ok_or_else(item_not_found)?;
+    let snapshot =
+        aphel_sdk::platform::records::snapshot::capture(tx, ctx.pool(), ctx.registry(), record)
+            .await?
+            .ok_or_else(item_not_found)?;
     authorize(ctx, record, true).await?;
     let parent = host_snapshot(ctx, record, &snapshot)?;
     if parent.currency != expected.currency {
@@ -707,7 +707,7 @@ async fn ensure_amount_writable(ctx: &Ctx<'_>, record: &RecordRef) -> Result<(),
 }
 async fn authorize(ctx: &Ctx<'_>, record: &RecordRef, write: bool) -> Result<(), AppError> {
     if !aphel_sdk::records::enabled(ctx, &record.record_type) {
-        return Err(aphel_kernel::modules::module_disabled());
+        return Err(aphel_sdk::platform::modules::module_disabled());
     }
     let definition = ctx.registry().require(record.record_type.as_str())?;
     if definition.capabilities.line_item_mapping()?.is_none() {
@@ -792,16 +792,20 @@ pub(crate) async fn host_for(
         }
     }
     let mut tx = ctx.begin().await?;
-    let snapshot =
-        aphel_kernel::records::snapshot::capture(&mut tx, ctx.pool(), ctx.registry(), record)
-            .await?
-            .ok_or_else(item_not_found)?;
+    let snapshot = aphel_sdk::platform::records::snapshot::capture(
+        &mut tx,
+        ctx.pool(),
+        ctx.registry(),
+        record,
+    )
+    .await?
+    .ok_or_else(item_not_found)?;
     authorize(ctx, record, write).await?;
     host_snapshot(ctx, record, &snapshot)
 }
 
 fn has_projection(record: &RecordRef) -> bool {
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .contributions::<dyn LineItemProjection>()
         .iter()
         .any(|source| source.record_type() == record.record_type)
@@ -813,9 +817,10 @@ async fn summary_locked(
     tx: &mut MySqlTx,
     record: &RecordRef,
 ) -> Result<LineItemsSummary, AppError> {
-    let snapshot = aphel_kernel::records::snapshot::capture(tx, ctx.pool(), ctx.registry(), record)
-        .await?
-        .ok_or_else(item_not_found)?;
+    let snapshot =
+        aphel_sdk::platform::records::snapshot::capture(tx, ctx.pool(), ctx.registry(), record)
+            .await?
+            .ok_or_else(item_not_found)?;
     let parent = host_snapshot(ctx, record, &snapshot)?;
     let items = store.list_locked(tx, record).await?;
     let mode = if has_projection(record) {

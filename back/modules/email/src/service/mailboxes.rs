@@ -23,15 +23,15 @@ use crate::{
     NewMailbox, SharedMailboxProvider, mailbox_settings_or_empty,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::secrets::SecretVault;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::secrets::SecretVault;
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::platform::SharedSecretVault;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
 
 pub(crate) fn providers(ctx: &Ctx<'_>) -> Result<Vec<MailProviderInfo>, AppError> {
     Ok(crate::store::mail_providers()
@@ -409,7 +409,8 @@ impl CredentialSink for VaultCredentialSink {
         mailbox_id: Uuid,
         credentials: &MailboxCredentials,
     ) -> Result<(), AppError> {
-        let mut tx = aphel_kernel::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx =
+            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
         self.secrets
             .store(
                 &mut tx,

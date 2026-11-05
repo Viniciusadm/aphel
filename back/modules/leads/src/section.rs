@@ -12,14 +12,14 @@ use crate::domain::{
     MAX_DISQUALIFICATION_REASONS, MAX_STAGE_LENGTH, TransitionRule, TransitionTrigger,
 };
 use crate::store::{ReasonStore, SettingsStore};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const LIFECYCLE_SECTION: &str = "lifecycle";
 pub(crate) const DISQUALIFICATION_REASON_ITEM: &str = "lead_disqualification_reason";

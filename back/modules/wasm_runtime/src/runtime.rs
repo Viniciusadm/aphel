@@ -12,13 +12,13 @@ use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 use crate::compiled;
 use crate::registry::LoadedPlugin;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::shared::{Actor, ExecutionContext};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::state::{runtime_pool, runtime_state};
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::shared::{Actor, ExecutionContext};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use uuid::Uuid;
 
 wasmtime::component::bindgen!({
@@ -385,15 +385,16 @@ pub async fn on_hook(
     if call.hook == "record.saving" {
         let values = serde_json::from_str(&call.values_json).unwrap_or_default();
         let custom = serde_json::from_str(&call.custom_fields_json).unwrap_or_default();
-        state["proposed"] = aphel_kernel::records::snapshot::proposed(
+        state["proposed"] = aphel_sdk::platform::records::snapshot::proposed(
             state.get("before").filter(|value| !value.is_null()),
             &values,
             &custom,
         );
     }
     let runtime = runtime_state()?;
-    let record_type = aphel_kernel::application::shared::RecordType::parse(&call.record_type)?;
-    let redaction = aphel_kernel::api::routes::v1::field_permissions::field_redaction(
+    let record_type =
+        aphel_sdk::platform::application::shared::RecordType::parse(&call.record_type)?;
+    let redaction = aphel_sdk::platform::api::routes::v1::field_permissions::field_redaction(
         &runtime,
         &store.data().scope,
         &record_type,
@@ -443,8 +444,8 @@ pub async fn on_hook(
         .await?;
     if call.hook == "record.saving" {
         let registry = runtime.registry().await?;
-        let fields = aphel_kernel::application::fields::FieldSet::for_scope(
-            &aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+        let fields = aphel_sdk::platform::application::fields::FieldSet::for_scope(
+            &aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
                 runtime.db()?,
             ),
             registry.require(&call.record_type)?,
@@ -534,11 +535,13 @@ pub async fn on_action(
         ExecutionContext::current().as_ref(),
         None,
     )?;
-    execution.automation = Some(aphel_kernel::application::shared::AutomationExecution {
-        automation_id: call.automation_id.clone(),
-        run_id: call.run_id.clone(),
-        step_id: step_id.to_owned(),
-    });
+    execution.automation = Some(
+        aphel_sdk::platform::application::shared::AutomationExecution {
+            automation_id: call.automation_id.clone(),
+            run_id: call.run_id.clone(),
+            step_id: step_id.to_owned(),
+        },
+    );
     let pool = runtime_pool()?;
     let source = format!(
         "automation:{}",

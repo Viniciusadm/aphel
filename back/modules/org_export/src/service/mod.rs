@@ -20,20 +20,24 @@ use crate::{
     sha256_file,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
-use aphel_kernel::application::fields::{CustomFieldReader, EntityDefinition, RecordTypeRegistry};
-use aphel_kernel::application::files::{FileRepository, NewFile, sanitize_file_name, storage_key};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::configuration::APHEL_VERSION;
+use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
+use aphel_sdk::platform::application::fields::{
+    CustomFieldReader, EntityDefinition, RecordTypeRegistry,
+};
+use aphel_sdk::platform::application::files::{
+    FileRepository, NewFile, sanitize_file_name, storage_key,
+};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, ByteStream, DomainEvent, EventPublisher, FieldChange, FileStorage,
     Job, JobQueue, RecordRef, RecordType,
 };
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::storage::MySqlFileRepository;
-use aphel_sdk::configuration::APHEL_VERSION;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::storage::MySqlFileRepository;
 
 pub(crate) use config::{export_config_package, install_config_package};
 pub(crate) use restore::{IdStrategy, RestoreCommand, RestoreEnv, inspect, restore_installation};

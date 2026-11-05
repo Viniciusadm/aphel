@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use aphel_kernel::application::jobs::CronSchedule;
-use aphel_kernel::domain::access::{Permission, RecordScope, is_known_permission};
-use aphel_kernel::domain::custom_objects::is_custom_record_type;
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::jobs::CronSchedule;
+use aphel_sdk::platform::domain::access::{Permission, RecordScope, is_known_permission};
+use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub const API_VERSION: u32 = 1;
 pub const INVALID_MANIFEST: &str = "plugin_manifest_invalid";
@@ -272,7 +272,7 @@ pub struct ScheduleSpec {
     pub cron: String,
 }
 
-pub use aphel_kernel::application::fields::{EntityDeclaration, FieldDef, OptionDef};
+pub use aphel_sdk::platform::application::fields::{EntityDeclaration, FieldDef, OptionDef};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExtensionField {

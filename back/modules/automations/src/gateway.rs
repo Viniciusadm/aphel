@@ -3,7 +3,7 @@ use crate::gateway_impl::{
     SharedAutomationOperations,
 };
 use aphel_contract_automation::application::gateway::USER;
-use aphel_kernel::application::security::signature::sign_payload;
+use aphel_sdk::platform::application::security::signature::sign_payload;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -13,17 +13,17 @@ use uuid::Uuid;
 use aphel_contract_automation::application::{
     AutomationGatewayFactory, Reference, WebhookCall, WebhookCallResult,
 };
-use aphel_kernel::api::record_services::relation_use_cases;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::access::AccessRepository;
-use aphel_kernel::application::outbound_http::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::record_services::relation_use_cases;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::access::AccessRepository;
+use aphel_sdk::platform::application::outbound_http::{
     OutboundRequest, OutboundSender, OutboundUrlGuard, UrlRejection,
 };
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 pub struct ApiAutomationOperations;
 

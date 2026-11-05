@@ -9,10 +9,10 @@ use crate::domain::{
     BusinessType, Offering, OnboardingAnswers, OnboardingState, OnboardingStatus, TeamSize,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct StoredAnswers {

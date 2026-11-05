@@ -20,9 +20,9 @@ use aphel_contract_automation::application::time::waits::WAIT_UNTIL_POLL_MINUTES
 use aphel_contract_automation::domain::{
     AutomationStatus, RunStatus, SkipReason, StepKind, StepStatus,
 };
-use aphel_kernel::api::dto::common::double_option;
-use aphel_kernel::api::dto::query::FilterNodeSchema;
-use aphel_kernel::application::query::Filter;
+use aphel_sdk::platform::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::query::FilterNodeSchema;
+use aphel_sdk::platform::application::query::Filter;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
@@ -758,7 +758,7 @@ impl TriggerCatalogEntry {
                 .cloned()
                 .collect(),
             custom_objects: entities.iter().any(|key| {
-                aphel_kernel::domain::custom_objects::is_custom_record_type(key)
+                aphel_sdk::platform::domain::custom_objects::is_custom_record_type(key)
                     && trigger.supports(key)
             }),
             manual: trigger.is_manual(),
@@ -792,7 +792,7 @@ impl ActionCatalogEntry {
                 .cloned()
                 .collect(),
             custom_objects: entities.iter().any(|key| {
-                aphel_kernel::domain::custom_objects::is_custom_record_type(key)
+                aphel_sdk::platform::domain::custom_objects::is_custom_record_type(key)
                     && action.supports(key)
             }),
             secret_fields: action.secret_fields().to_vec(),

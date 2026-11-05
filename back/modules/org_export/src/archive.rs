@@ -14,8 +14,8 @@ use zip::write::SimpleFileOptions;
 use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
 use crate::{ManifestEntry, invalid_archive};
-use aphel_kernel::application::shared::ByteStream;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::ByteStream;
 
 pub(crate) type DataRow = Map<String, Value>;
 

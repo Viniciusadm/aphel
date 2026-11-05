@@ -10,12 +10,12 @@ use aphel_contract_automation::application::actions::{
 use aphel_contract_automation::application::triggers::{
     AutomationTrigger, TriggerCandidate, event_context,
 };
-use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::module_settings;
-use aphel_kernel::state::runtime_state;
+use aphel_sdk::platform::application::shared::DomainEvent;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::modules::module_settings;
+use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const ENRICH_ACTION: &str = "enrichment.enrich_company";
 pub(crate) const AUTOMATIC_DISABLED: &str = "enrichment_automatic_disabled";

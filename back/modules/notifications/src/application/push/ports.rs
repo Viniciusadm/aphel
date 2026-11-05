@@ -2,9 +2,9 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::security::Clock;
 use aphel_kernel::domain::{SessionId, UserId};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::security::Clock;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NewPushSubscription {

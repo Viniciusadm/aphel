@@ -4,8 +4,8 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::normalize_label;
-use aphel_kernel::application::fields::raw_from_json;
-use aphel_kernel::domain::fields::{FieldDefinition, FieldType, validate_value};
+use aphel_sdk::platform::application::fields::raw_from_json;
+use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType, validate_value};
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum CellValue {

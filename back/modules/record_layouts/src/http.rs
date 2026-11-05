@@ -7,11 +7,11 @@ use utoipa_axum::routes;
 use crate::application::LayoutUseCases;
 use crate::dto::{FormLayoutResponse, SaveLayoutRequest};
 use crate::infrastructure::MySqlLayoutPorts;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo, JsonBody};
-use aphel_kernel::api::state::AppState;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo, JsonBody};
+use aphel_sdk::platform::api::state::AppState;
 
 pub const TAG: &str = "layouts";
 

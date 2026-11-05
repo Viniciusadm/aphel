@@ -2,26 +2,26 @@ use std::sync::Arc;
 
 use sqlx::MySqlPool;
 
-use aphel_kernel::application::custom_objects::{
+use aphel_sdk::platform::application::custom_objects::{
     CatalogEventConsumer, CatalogJobHandler, RecordTypeCatalog,
 };
 
 use crate::application::{SearchContents, SearchIndexConsumer, SearchPorts, SearchReindexHandler};
 use crate::infrastructure::{MySqlSearchIndex, MySqlSearchSource};
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::application::shared::{EventConsumer, JobHandler};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::auth::SystemClock;
-use aphel_kernel::infrastructure::fields::{
+use aphel_kernel::modules::BoxFuture;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::application::shared::{EventConsumer, JobHandler};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::auth::SystemClock;
+use aphel_sdk::platform::infrastructure::fields::{
     MySqlCustomFieldValueRepository, MySqlFieldDefinitionRepository,
 };
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::query::MySqlRecordQueryExecutor;
-use aphel_kernel::modules::BoxFuture;
-use aphel_kernel::records::filter_search_plan;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::infrastructure::query::MySqlRecordQueryExecutor;
+use aphel_sdk::platform::records::filter_search_plan;
 
 pub struct MySqlSearchPorts {
     registry: Arc<RecordTypeRegistry>,

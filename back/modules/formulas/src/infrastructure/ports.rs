@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sqlx::MySqlPool;
 
-use aphel_kernel::application::custom_objects::{
+use aphel_sdk::platform::application::custom_objects::{
     CatalogEventConsumer, CatalogJobHandler, RecordTypeCatalog,
 };
 
@@ -10,13 +10,13 @@ use crate::application::{
     FormulaDailyHandler, FormulaEventConsumer, FormulaPorts, FormulaRecalculateHandler,
 };
 use crate::infrastructure::MySqlFormulaSource;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::{EventConsumer, JobHandler};
-use aphel_kernel::infrastructure::fields::{
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::{EventConsumer, JobHandler};
+use aphel_sdk::platform::infrastructure::fields::{
     MySqlCustomFieldValueRepository, MySqlFieldDefinitionRepository, MySqlReferenceChecker,
 };
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::infrastructure::transactions::MySqlTransactionManager;
 
 pub struct MySqlFormulaPorts {
     registry: Arc<RecordTypeRegistry>,

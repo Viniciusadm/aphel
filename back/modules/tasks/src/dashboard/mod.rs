@@ -1,22 +1,22 @@
-use aphel_kernel::application::query::MetricSpec;
 use aphel_sdk::dashboard::period_totals;
+use aphel_sdk::platform::application::query::MetricSpec;
 use rust_decimal::{Decimal, prelude::ToPrimitive};
 mod queries;
 use self::queries::{PendingActivity, RecordLink};
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::{
-    Filter, FilterOperator, QueryPlan, RecordQueryPorts, SortSpec,
-};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::domain::period::{local_today, start_of_day};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::{
     DashboardPorts, DashboardRepository, DashboardSource, Planner, SettingsReader, WidgetContext,
     WidgetPorts, instant_value,
 };
+use aphel_sdk::platform::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::{
+    Filter, FilterOperator, QueryPlan, RecordQueryPorts, SortSpec,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::domain::period::{local_today, start_of_day};
 use async_trait::async_trait;
 use chrono::{DateTime, Days, Utc};
 use serde_json::{Map, Value, json};
@@ -186,7 +186,7 @@ impl DashboardSource for TaskPendingSource {
         })?;
         let Some(tasks) = context.planner(&RecordType::ACTIVITY).await? else {
             return Err(AppError::forbidden_code(
-                aphel_kernel::application::access::PERMISSION_DENIED,
+                aphel_sdk::platform::application::access::PERMISSION_DENIED,
                 "missing permission tasks.read",
             ));
         };

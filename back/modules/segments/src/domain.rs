@@ -2,11 +2,11 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{ArchivedFilter, Filter, SortSpec};
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{ArchivedFilter, Filter, SortSpec};
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const SEGMENT_NOT_FOUND: &str = "segment_not_found";
 pub(crate) const SEGMENT_NAME_TAKEN: &str = "segment_name_taken";

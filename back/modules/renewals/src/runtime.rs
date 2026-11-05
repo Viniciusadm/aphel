@@ -8,13 +8,13 @@ use crate::domain::{RENEWALS_SCAN_CRON, RENEWALS_SCAN_JOB, RenewalScanOutcome};
 use crate::service;
 use crate::store::RenewalStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
-use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
 
 pub(crate) fn renewals_scan_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(RENEWALS_SCAN_JOB, RENEWALS_SCAN_CRON)

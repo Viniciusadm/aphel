@@ -2,9 +2,11 @@ pub use aphel_sdk::workflow::{
     DAYS_IN_STAGE_FIELD, IS_ROTTING_FIELD, ROTTING_AT_FIELD, STAGE_ENTERED_COLUMN,
 };
 
-use aphel_kernel::application::fields::{COMPUTED_RECORD_ALIAS, ComputedColumn, SystemField};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::{
+    COMPUTED_RECORD_ALIAS, ComputedColumn, SystemField,
+};
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub(crate) const MAX_ROTTING_DAYS: i64 = 3650;
 pub(crate) const ROTTING_DAYS_FIELD: &str = "rotting_days";
@@ -38,7 +40,7 @@ pub(crate) fn parse_rotting_days(
 pub use aphel_sdk::workflow::RottingState;
 
 fn field_expression(
-    definition: &aphel_kernel::application::fields::EntityDefinition,
+    definition: &aphel_sdk::platform::application::fields::EntityDefinition,
     key: &str,
 ) -> Result<String, AppError> {
     let field = definition.system_field_by_key(key).ok_or_else(|| {
@@ -47,7 +49,7 @@ fn field_expression(
         ))
     })?;
     Ok(
-        aphel_kernel::infrastructure::query::computed::system_expression(
+        aphel_sdk::platform::infrastructure::query::computed::system_expression(
             field,
             COMPUTED_RECORD_ALIAS,
         ),
@@ -56,7 +58,7 @@ fn field_expression(
 
 fn rotting_fields(
     mapping: &aphel_sdk::workflow::StagedMapping,
-    definition: &aphel_kernel::application::fields::EntityDefinition,
+    definition: &aphel_sdk::platform::application::fields::EntityDefinition,
 ) -> Result<Vec<SystemField>, AppError> {
     let stage = field_expression(definition, &mapping.stage_field)?;
     let entered = field_expression(definition, &mapping.entered_at_field)?;
@@ -90,7 +92,7 @@ pub use aphel_sdk::workflow::rotting::{
 };
 
 pub(crate) fn extend_staged(
-    definition: &mut aphel_kernel::application::fields::EntityDefinition,
+    definition: &mut aphel_sdk::platform::application::fields::EntityDefinition,
 ) -> Result<(), AppError> {
     use aphel_sdk::workflow::WorkflowTraits;
     let Some(mapping) = definition.capabilities.stage_mapping() else {

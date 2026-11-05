@@ -3,11 +3,11 @@ use uuid::Uuid;
 
 use crate::support;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::session_cookie;
-use aphel_kernel::application::access::AccessRepository;
-use aphel_kernel::application::auth::{ClientMetadata, LoginOutcome};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::api::session_cookie;
+use aphel_sdk::platform::application::access::AccessRepository;
+use aphel_sdk::platform::application::auth::{ClientMetadata, LoginOutcome};
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 pub(crate) const NOT_A_MEMBER: &str = "not_a_member";
 

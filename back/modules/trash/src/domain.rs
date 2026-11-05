@@ -1,9 +1,9 @@
 use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::shared::RecordType;
+use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const DEFAULT_RETENTION_DAYS: u32 = 30;
 pub(crate) const MIN_RETENTION_DAYS: u32 = 1;

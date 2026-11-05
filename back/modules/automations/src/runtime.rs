@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration as StdDuration, Instant};
 
-use aphel_kernel::application::shared::ExecutionContext;
+use aphel_sdk::platform::application::shared::ExecutionContext;
 use async_trait::async_trait;
 use chrono::Duration;
 use serde::{Deserialize, Serialize};
@@ -26,19 +26,19 @@ use aphel_contract_automation::application::triggers::{
 };
 use aphel_contract_automation::domain::{AutomationStatus, RunStatus, SkipReason};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::auth::UserRepository;
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::auth::UserRepository;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{
     Actor, DomainEvent, EventCausation, EventConsumer, EventPublisher, Job, JobContext, JobHandler,
     JobQueue, RecordRef,
 };
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::users::User;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::repositories::mysql_users::MySqlUserRepository;
-use aphel_kernel::state::AppState;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::users::User;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::repositories::mysql_users::MySqlUserRepository;
 
 pub(crate) const AUTOMATIONS_CONSUMER: &str = "automations.trigger";
 pub(crate) const AUTOMATION_RUN_JOB: &str = "automation.run";
@@ -221,7 +221,7 @@ impl AutomationRuntime {
             }
             match (trigger_key.as_str(), record_event) {
                 (RECORD_CREATED | RECORD_UPDATED | RECORD_DELETED, Some((prefix, _))) => {
-                    aphel_kernel::application::shared::RecordType::parse(prefix)
+                    aphel_sdk::platform::application::shared::RecordType::parse(prefix)
                         .is_ok_and(|key| key.as_str() == record_type)
                 }
                 _ => true,

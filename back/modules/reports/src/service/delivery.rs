@@ -14,13 +14,13 @@ use crate::service::reports::{can_read_type, encode_report};
 use crate::service::schedules::recipient_scope;
 use crate::store::{ReportStore, ScheduleStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::mail::{EmailAttachment, EmailMessage, Mailer};
-use aphel_kernel::application::query::AggregateEngine;
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, Job, JobQueue, RecordRef,
-};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::exports::ExportFormat;
+use aphel_sdk::platform::application::mail::{EmailAttachment, EmailMessage, Mailer};
+use aphel_sdk::platform::application::query::AggregateEngine;
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, Job, JobQueue, RecordRef,
+};
 
 fn is_access_error(error: &AppError) -> bool {
     matches!(

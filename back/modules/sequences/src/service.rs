@@ -23,24 +23,24 @@ use crate::{
     SequenceMetrics, SequenceStep, SequenceSummary, SequenceView, StepInput, StepMetrics,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
-    ensure_version,
-};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
 use aphel_sdk::configuration::{is_config_key, key_from_name};
 use aphel_sdk::email::address_hash;
 use aphel_sdk::email::html::sanitize_html;
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
+    ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 
-use aphel_kernel::application::shared::parse_uuid as parse_id;
+use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
 
 pub(crate) fn sequence_not_found() -> AppError {
     AppError::not_found_code(SEQUENCE_NOT_FOUND, "sequence was not found")

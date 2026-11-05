@@ -17,9 +17,9 @@ use aphel_kernel::modules::Migration;
 use std::sync::Arc;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerParts};
 use aphel_kernel::records::DuplicateDetector;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) use detection::*;
 pub(crate) use kinds::*;

@@ -11,12 +11,12 @@ use crate::hooks::CompletingActivity;
 use crate::http::ActivityResponse;
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::routes::v1::field_permissions::redacted;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
 };
+use aphel_sdk::platform::api::routes::v1::field_permissions::redacted;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 
 pub(crate) const COMPLETING: &str = "activity.completing";
 

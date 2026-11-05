@@ -10,14 +10,14 @@ use crate::domain::{MAX_ADDRESS_LENGTH, validate_history_days};
 use crate::store::settings::SettingsStore;
 use crate::sync::{BlockKind, BlockedEntry, CaptureSettings};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn settings(ctx: &Ctx<'_>) -> Result<CaptureSettings, AppError> {
     ctx.scope.require(&Permission::SETTINGS_MANAGE)?;

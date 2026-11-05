@@ -12,13 +12,15 @@ use crate::domain::{
 use crate::engine::{ScoringEngine, is_lifecycle_event};
 use crate::store::ModelStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::custom_objects::RecordTypeCatalog;
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::audit::MySqlAuditLog;
-use aphel_kernel::infrastructure::events::MySqlEventPublisher;
+use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{
+    DomainEvent, EventConsumer, JobContext, JobHandler,
+};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
+use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
 pub(crate) fn scoring_decay_schedule() -> ScheduledJobDefinition {
     ScheduledJobDefinition::new(SCORING_DECAY_JOB, SCORING_DECAY_CRON)
@@ -99,7 +101,7 @@ impl JobHandler for ScoringRecalculateHandler {
             payload.get("record_id").and_then(Value::as_str),
         ) {
             let record =
-                aphel_kernel::application::shared::RecordRef::parse(record_type, record_id)?;
+                aphel_sdk::platform::application::shared::RecordRef::parse(record_type, record_id)?;
             let scope = AccessScope::system();
             let ctx = self.0.ctx(&scope).await?;
             return ScoringEngine::new(&ctx).recalculate_signal(&record).await;

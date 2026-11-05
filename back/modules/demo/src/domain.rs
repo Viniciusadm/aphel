@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use chrono::{DateTime, Utc};
 
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::domain::{Email, Secret, UserId};
+use aphel_sdk::platform::domain::access::Permission;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct DemoSeedCommand {

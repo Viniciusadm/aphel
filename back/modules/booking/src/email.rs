@@ -4,8 +4,8 @@ use chrono_tz::Tz;
 use crate::ics::{Invite, InviteMethod, render};
 use crate::validation::parse_timezone;
 use crate::{Booking, HostProfile, LocationKind, MeetingType};
-use aphel_kernel::application::mail::MailLocale;
-use aphel_kernel::application::mail::templates::escape_html;
+use aphel_sdk::platform::application::mail::MailLocale;
+use aphel_sdk::platform::application::mail::templates::escape_html;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum BookingEmailKind {

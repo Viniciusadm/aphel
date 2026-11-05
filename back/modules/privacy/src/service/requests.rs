@@ -17,18 +17,18 @@ use crate::service::{
 };
 use crate::store::PrivacyStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, build_access_scope};
-use aphel_kernel::application::files::{FileRepository, StoredFile, UserReference};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::exports::{GeneratedFile, discard_generated_file, store_generated_file};
+use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
+use aphel_sdk::platform::application::files::{FileRepository, StoredFile, UserReference};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, ByteStream, FieldChange, FileStorage, Job, JobQueue, RecordRef,
 };
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::storage::MySqlFileRepository;
-use aphel_sdk::exports::{GeneratedFile, discard_generated_file, store_generated_file};
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::storage::MySqlFileRepository;
 
 pub(crate) const REQUESTER_INACTIVE: &str =
     "the requester is no longer an active member of the organization";

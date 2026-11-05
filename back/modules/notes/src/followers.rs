@@ -48,9 +48,9 @@ impl FollowedEventSource for NotesFollowedEvents {
         event: &DomainEvent,
     ) -> Result<bool, aphel_sdk::AppError> {
         use aphel_contract_crm::CrmPermissions;
-        use aphel_kernel::application::access::{AccessRepository, build_access_scope};
+        use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
         let repository =
-            aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository::new(
+            aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository::new(
                 pool.clone(),
             );
         let Some(access) = repository.load_access(recipient).await? else {
@@ -58,7 +58,7 @@ impl FollowedEventSource for NotesFollowedEvents {
         };
         let scope = build_access_scope(recipient.clone(), access);
         if scope
-            .filter_for(&aphel_kernel::domain::access::Permission::NOTES_READ)
+            .filter_for(&aphel_sdk::platform::domain::access::Permission::NOTES_READ)
             .is_none()
         {
             return Ok(false);

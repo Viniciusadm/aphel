@@ -8,12 +8,12 @@ use crate::reports::domain::{
     StageDuration, StageLoss,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::query::QueryPlan;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{push_where, quoted};
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, naive};
-use aphel_kernel::records::constrain_query;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::query::compiler::{push_where, quoted};
+use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive};
+use aphel_sdk::platform::records::constrain_query;
 use aphel_sdk::workflow::{PipelineStage, WorkflowReader};
 
 type StageDurationRow = (String, i64, Option<Decimal>, i64, Option<Decimal>);

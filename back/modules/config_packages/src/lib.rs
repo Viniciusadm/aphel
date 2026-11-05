@@ -17,7 +17,7 @@ impl Module for ConfigPackagesModule {
         Manifest::new(
             KEY,
             "Configuration packages",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()

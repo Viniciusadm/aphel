@@ -2,9 +2,9 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::query::Filter;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub const FORM_LAYOUT_RECORD_TYPE: RecordType = RecordType::from_static("form_layout");
 

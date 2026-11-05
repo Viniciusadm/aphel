@@ -2,13 +2,13 @@ use aphel_contract_crm::CrmRecordTypes;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
-};
-use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::{AppError, CodedKind};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
+};
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 
 pub(crate) struct FieldOption {
     pub(crate) value: String,

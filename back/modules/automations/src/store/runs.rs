@@ -11,11 +11,11 @@ use crate::store::automations::to_json;
 use crate::{AutomationRun, AutomationStats, RunListFilter, RunStep};
 use aphel_contract_automation::domain::{RunStatus, SkipReason, StepKind, StepStatus};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const RUN_COLUMNS: &str = "id, automation_id, version, trigger_key, trigger_event_id, \
      trigger_type, record_type, record_id, status, depth, chain, reason, error, attempts, started_at, finished_at, \

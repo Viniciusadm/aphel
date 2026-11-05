@@ -53,7 +53,7 @@ impl Sender for MailboxSender {
 }
 
 pub fn sender() -> Arc<dyn Sender> {
-    aphel_kernel::modules::app()
+    aphel_sdk::platform::modules::app()
         .services()
         .get::<dyn Sender>()
         .unwrap_or_else(|| Arc::new(MailboxSender))

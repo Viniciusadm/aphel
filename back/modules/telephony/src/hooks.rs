@@ -4,10 +4,10 @@ use uuid::Uuid;
 
 use crate::http::ActivityCallResponse;
 use crate::store::CallStore;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::SerializedRecords;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) async fn attach_calls(
     ctx: &mut HookCtx<'_>,

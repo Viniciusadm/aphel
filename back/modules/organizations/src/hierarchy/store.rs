@@ -8,14 +8,16 @@ use uuid::Uuid;
 
 use crate::hierarchy::HierarchyEntry;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::{MAX_GROUP_RECURSION, push_record_scope};
-use aphel_kernel::infrastructure::repositories::mapper::{self, optional_uuid, push_ids};
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::{
+    MAX_GROUP_RECURSION, push_record_scope,
+};
+use aphel_sdk::platform::infrastructure::repositories::mapper::{self, optional_uuid, push_ids};
 
 fn lineage_query(company_id: Uuid) -> QueryBuilder<MySql> {
     let mut builder = QueryBuilder::new(

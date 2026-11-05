@@ -1,8 +1,8 @@
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::{
     Ctx, application::fields::LocalizedLabels, database::transaction::MySqlTx,
     domain::access::Permission, errors::AppError,
 };
+use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::privacy::{PrivacySource, SourceOutcome, SourceRequest};
 pub(crate) struct DuplicatePrivacy;
 #[async_trait::async_trait]

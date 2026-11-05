@@ -3,11 +3,11 @@ use serde_json::Value;
 use crate::store::{LinkStore, MessageStore};
 use crate::{EmailEventPayload, EmailMessageView};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::shared::{
     Actor, DomainEvent, EventPublisher, RecordRef, RecordType,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 pub(crate) const EMAIL_MESSAGE_RECORD: RecordType = RecordType::from_static("email.email_message");
 

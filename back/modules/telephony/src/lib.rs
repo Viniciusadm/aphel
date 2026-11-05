@@ -12,14 +12,14 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::public_events::{
-    PreviousValues, PublicEventDefinition, changed, event,
-};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, DEFAULT_PRIORITY, Manifest, Module};
 use aphel_kernel::records::RecordSerializing;
+use aphel_sdk::platform::application::public_events::{
+    PreviousValues, PublicEventDefinition, changed, event,
+};
+use aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) use telephony::TelephonyRouter;
 

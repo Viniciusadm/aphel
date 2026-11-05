@@ -4,9 +4,9 @@ use std::collections::BTreeSet;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 use crate::model::{
     FULL_NAME_TARGET, LeadFormDeal, LeadFormDefinition, LeadFormField, LeadFormFieldKind,

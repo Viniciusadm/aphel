@@ -13,13 +13,13 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use aphel_kernel::application::public_events::{PublicEventDefinition, event};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, ModuleCtx, SettingField, SettingKind, SettingOption,
 };
+use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 
 pub(crate) const KEY: &str = "enrichment";
 pub(crate) const VERSION: &str = "0.1.0";

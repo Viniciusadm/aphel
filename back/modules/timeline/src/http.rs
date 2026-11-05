@@ -10,14 +10,14 @@ use utoipa_axum::routes;
 use crate::domain::{TimelineEntry, TimelinePage, TimelineQuery};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{ErrorEnvelope, timestamp as instant};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::AuthContext;
-use aphel_kernel::api::routes::v1::field_permissions::field_policies;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::dto::common::{ErrorEnvelope, timestamp as instant};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::AuthContext;
+use aphel_sdk::platform::api::routes::v1::field_permissions::field_policies;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const TAG: &str = "timeline";
 
@@ -195,19 +195,20 @@ pub(crate) struct TimelineKindResponse {
     key: String,
     labels: std::collections::BTreeMap<String, String>,
 }
-#[utoipa::path(get, path = "/timeline/kinds", tag = TAG, operation_id = "timeline_kinds", security(("session_cookie" = [])), params(TimelineParams), responses((status = 200, description = "Contributed timeline kinds and localized labels for an accessible record", body = aphel_kernel::api::dto::common::Data<Vec<TimelineKindResponse>>)))]
+#[utoipa::path(get, path = "/timeline/kinds", tag = TAG, operation_id = "timeline_kinds", security(("session_cookie" = [])), params(TimelineParams), responses((status = 200, description = "Contributed timeline kinds and localized labels for an accessible record", body = aphel_sdk::platform::api::dto::common::Data<Vec<TimelineKindResponse>>)))]
 async fn timeline_kinds(
     State(state): State<AppState>,
     tenant: AuthContext,
     Query(params): Query<TimelineParams>,
-) -> Result<Json<aphel_kernel::api::dto::common::Data<Vec<TimelineKindResponse>>>, ApiError> {
+) -> Result<Json<aphel_sdk::platform::api::dto::common::Data<Vec<TimelineKindResponse>>>, ApiError>
+{
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
-    let subject = aphel_kernel::application::shared::RecordRef::parse(
+    let subject = aphel_sdk::platform::application::shared::RecordRef::parse(
         &params.record_type,
         &params.record_id,
     )?;
     service::authorize(&ctx, &subject).await?;
-    Ok(Json(aphel_kernel::api::dto::common::Data::new(
+    Ok(Json(aphel_sdk::platform::api::dto::common::Data::new(
         crate::domain::kinds(&ctx)?
             .into_iter()
             .map(|kind| TimelineKindResponse {

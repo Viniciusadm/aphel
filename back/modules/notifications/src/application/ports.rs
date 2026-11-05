@@ -8,11 +8,11 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::domain::{NotificationChannel, NotificationCursor, NotificationKind};
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::application::shared::{JobQueue, RecordRef, TransactionManager};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::application::shared::{JobQueue, RecordRef, TransactionManager};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NewNotification {

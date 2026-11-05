@@ -14,20 +14,22 @@ use crate::reports::domain::{
 };
 use crate::reports::store::BuiltinReportStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{NOT_ACCESSIBLE_MESSAGE, not_accessible};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
-    AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, AggregateResult,
-    ArchivedFilter, Filter, FilterOperator, GroupBySpec, MAX_AGGREGATE_LIMIT, MetricSpec,
-    QueryPlan, RecordQuery, RecordQueryExecutor, RecordQueryPorts, ResolveContext, resolve_query,
-};
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::{PeriodQuery, instant_value, parse_period};
 use aphel_sdk::dashboard::{ResolvedPeriod, previous_period, resolve_period};
 use aphel_sdk::money::{BASE_AMOUNT_FIELD, BASE_AMOUNT_METRIC};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{
+    NOT_ACCESSIBLE_MESSAGE, not_accessible,
+};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    AggregateEngine, AggregateFunction, AggregatePeriod, AggregateQuery, AggregateResult,
+    ArchivedFilter, Filter, FilterOperator, GroupBySpec, MAX_AGGREGATE_LIMIT, MetricSpec,
+    QueryPlan, RecordQuery, RecordQueryExecutor, RecordQueryPorts, ResolveContext, resolve_query,
+};
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::workflow::PIPELINE_NOT_FOUND;
 use aphel_sdk::workflow::StageKind;
 use aphel_sdk::workflow::WorkflowReader;

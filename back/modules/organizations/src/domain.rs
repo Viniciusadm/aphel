@@ -2,14 +2,14 @@ use chrono::{DateTime, Utc};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::permissions::provided_key;
-use aphel_kernel::application::files::UserReference;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{
     Address, AddressInput, InputValidator, MAX_LONG_TEXT_LENGTH, Patch, insert_address,
     insert_text, normalize_domain, value_patch,
 };
+use aphel_sdk::platform::application::fields::permissions::provided_key;
+use aphel_sdk::platform::application::files::UserReference;
 
 pub(crate) const COMPANY_NOT_FOUND: &str = "company_not_found";
 

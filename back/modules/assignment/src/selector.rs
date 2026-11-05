@@ -20,7 +20,7 @@ impl AssignmentSelector for NativeAssignmentSelector {
             .list(&crate::RuleListFilter {
                 record_type: Some(record_type.to_owned()),
                 active: Some(true),
-                window: aphel_kernel::application::organization_admin::ListWindow {
+                window: aphel_sdk::platform::application::organization_admin::ListWindow {
                     offset: 0,
                     limit: 100,
                 },

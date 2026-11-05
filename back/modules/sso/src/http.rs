@@ -8,11 +8,11 @@ use crate::provider::OidcProvider;
 use crate::sso::status::{SsoLoginStatus, login_status};
 use crate::sso::{CallbackQuery, ClientContext, StartQuery, handle_callback, start_login};
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::{ApiError, app_error};
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::domain::access::AccessScope;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::{ApiError, app_error};
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo};
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const TAG: &str = "sso";
 

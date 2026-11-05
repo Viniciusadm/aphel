@@ -8,7 +8,7 @@ use crate::incoming::{
     IncomingRequestLog, IncomingWebhook, IssuedIncomingWebhook, MappableField, ReceiveOutcome,
     RequestStatus, SaveIncomingWebhookCommand, WebhookAction,
 };
-use aphel_kernel::api::dto::common::double_option;
+use aphel_sdk::platform::api::dto::common::double_option;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

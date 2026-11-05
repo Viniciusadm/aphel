@@ -10,14 +10,16 @@ use crate::compose::{DeliveryOutcome, SEND_SCHEDULED_JOB};
 use crate::service::{compose, tracking};
 use crate::tracking::tracking_scope;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
-use aphel_kernel::application::shared::{DomainEvent, EventConsumer, JobContext, JobHandler};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_kernel::modules::WorkerParts;
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
+use aphel_sdk::platform::application::shared::{
+    DomainEvent, EventConsumer, JobContext, JobHandler,
+};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 pub(crate) const EMAIL_REPLY_CONSUMER: &str = "email.reply_detection";
 
@@ -58,7 +60,7 @@ impl JobHandler for ScheduledEmailHandler {
             .get("authority")
             .map(|value| {
                 serde_json::from_value::<
-                    aphel_kernel::infrastructure::deferred_authority::DeferredAuthority,
+                    aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority,
                 >(value.clone())
             })
             .transpose()
@@ -81,7 +83,7 @@ impl ScheduledEmailHandler {
             .and_then(Value::as_str)
             .and_then(|value| UserId::new(value).ok());
         let author_scope = if let Some(authority) = payload.get("authority") {
-            let authority: aphel_kernel::infrastructure::deferred_authority::DeferredAuthority =
+            let authority: aphel_sdk::platform::infrastructure::deferred_authority::DeferredAuthority =
                 serde_json::from_value(authority.clone())
                     .map_err(|error| AppError::Validation(error.to_string()))?;
             match authority.resolve(&self.state.db()?).await {

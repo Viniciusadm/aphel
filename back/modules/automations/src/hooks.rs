@@ -3,9 +3,9 @@ use uuid::Uuid;
 
 use crate::KEY;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::Hook;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct RunningAction {
@@ -31,7 +31,7 @@ pub(crate) async fn before_action(ctx: &Ctx<'_>, running: &RunningAction) -> Res
         .app()
         .hooks()
         .has_actions_except(ActionRunning, Some(KEY))
-        && !aphel_kernel::modules::plugin_bridge::plugin_hook_subscribed(
+        && !aphel_sdk::platform::modules::plugin_bridge::plugin_hook_subscribed(
             ctx,
             crate::plugin_bridge::ACTION_RUNNING,
             running.record.record_type.as_str(),

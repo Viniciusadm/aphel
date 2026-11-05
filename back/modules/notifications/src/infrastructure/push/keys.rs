@@ -8,10 +8,10 @@ use ring::signature::{ECDSA_P256_SHA256_FIXED_SIGNING, EcdsaKeyPair, KeyPair};
 use tokio::sync::OnceCell;
 
 use crate::application::push::VapidKeys;
-use aphel_kernel::application::secrets::{SecretKey, SecretVault};
 use aphel_kernel::domain::Secret;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::platform::SharedSecretVault;
+use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
+use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
 
 pub const VAPID_OWNER_TYPE: &str = "web_push";
 pub const VAPID_OWNER_ID: &str = "vapid";

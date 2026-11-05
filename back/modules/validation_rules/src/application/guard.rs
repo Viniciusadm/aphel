@@ -1,11 +1,11 @@
 use crate::application::{
     ProposedFieldValues, VALIDATION_RULE_FAILED, ValidationRuleRepository, is_validated_record_type,
 };
-use aphel_kernel::application::fields::{RecordTypeRegistry, RecordWrite};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::formulas::{PredicateInput, ProspectiveRequest, prospective};
+use aphel_sdk::platform::application::fields::{RecordTypeRegistry, RecordWrite};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 use sqlx::MySqlPool;
 use std::sync::Arc;
 

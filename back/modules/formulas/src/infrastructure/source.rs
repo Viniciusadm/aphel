@@ -11,15 +11,15 @@ use uuid::Uuid;
 use crate::application::{
     AggregateColumn, AggregateFunction, AggregateQuery, AggregateSource, FormulaSource,
 };
-use aphel_kernel::application::fields::{EntityDefinition, RelationPath, SystemField};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
-use aphel_kernel::domain::fields::{FORMULA_FIELD_TYPE, FieldType, FieldValue};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::push_live_record;
-use aphel_kernel::infrastructure::query::computed::system_expression;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::fields::{EntityDefinition, RelationPath, SystemField};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::domain::fields::{FORMULA_FIELD_TYPE, FieldType, FieldValue};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::push_live_record;
+use aphel_sdk::platform::infrastructure::query::computed::system_expression;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub struct MySqlFormulaSource {

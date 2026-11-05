@@ -3,8 +3,8 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::public_events::{PublicResource, PublicResourceLoader};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::public_events::{PublicResource, PublicResourceLoader};
 
 use crate::http::NoteResponse;
 

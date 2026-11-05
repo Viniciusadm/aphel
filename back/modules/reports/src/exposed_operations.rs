@@ -7,9 +7,9 @@ use serde_json::{Value, json};
 use crate::http::custom_dto::{ListReportsParams, ReportResponse, RunReportRequest};
 use crate::service::reports;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::aggregates::AggregateResultResponse;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
+use aphel_sdk::platform::api::dto::aggregates::AggregateResultResponse;
 
 #[derive(Deserialize)]
 struct ListInput {

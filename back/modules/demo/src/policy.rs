@@ -1,7 +1,7 @@
 use crate::settings::{DemoLogMailer, demo_settings};
-use aphel_kernel::application::mail::{MailDeliveryPolicy, SharedMailer};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::HttpRequestPolicy;
+use aphel_sdk::platform::application::mail::{MailDeliveryPolicy, SharedMailer};
 use axum::http::Method;
 
 pub const DEMO_RESTRICTED: &str = "demo_restricted";

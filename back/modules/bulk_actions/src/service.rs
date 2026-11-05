@@ -13,25 +13,25 @@ use crate::{
     is_bulk_field,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::fields::permissions::{
-    NOT_ACCESSIBLE_MESSAGE, READ_ONLY_MESSAGE, not_accessible, read_only_error,
-};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
-    ArchivedFilter, Filter, FilterOperator, ID_FIELD, MAX_LIST_VALUES, RecordQuery,
-    RecordQueryEngine, RecordQueryPorts,
-};
-use aphel_kernel::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue, RecordRef,
-};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::repositories::mysql_access::build_requester_scope;
 use aphel_kernel::records::RecordCtx;
 use aphel_sdk::exports::{
     ExportJobResponse, ExportQuery, RequestExportCommand, request_export, system_scope,
 };
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::fields::permissions::{
+    NOT_ACCESSIBLE_MESSAGE, READ_ONLY_MESSAGE, not_accessible, read_only_error,
+};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterOperator, ID_FIELD, MAX_LIST_VALUES, RecordQuery,
+    RecordQueryEngine, RecordQueryPorts,
+};
+use aphel_sdk::platform::application::shared::{
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue, RecordRef,
+};
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::build_requester_scope;
 
 fn require_bulk_type(ctx: &Ctx<'_>, record_type: &str) -> Result<(), AppError> {
     if bulk_capabilities(ctx.registry(), record_type).is_some() {

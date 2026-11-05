@@ -4,10 +4,10 @@ use aphel_kernel::api::{
     extractors::{AuthContext, ClientInfo, IfMatch, JsonBody},
     state::AppState,
 };
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::organization_profile::OrganizationRepository;
-use aphel_kernel::domain::access::Permission;
 use aphel_sdk::calendar::{CalendarCategory, CalendarQuery, CalendarRecord, CalendarSource};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
+use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::{AppError, Ctx};
 use axum::{
     Json,
@@ -102,7 +102,7 @@ async fn get_calendar(
     items.sort_by(|a, b| a.due_at.cmp(&b.due_at).then(a.id.cmp(&b.id)));
     truncated |= items.len() > MAX_ITEMS;
     items.truncate(MAX_ITEMS);
-    let timezone = aphel_kernel::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(ctx.pool().clone()).find().await?;
+    let timezone = aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(ctx.pool().clone()).find().await?;
     Ok(Json(Data::new(CalendarResponse {
         categories: categories.into_values().collect(),
         from: query.from,

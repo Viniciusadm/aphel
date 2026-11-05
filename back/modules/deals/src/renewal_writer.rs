@@ -1,5 +1,5 @@
 use crate::domain::DealInput;
-use aphel_kernel::application::shared::money_text;
+use aphel_sdk::platform::application::shared::money_text;
 use aphel_sdk::{
     AppError, Ctx,
     deals::{DealRevenue, RenewalDealCreation, RenewalDealWriter, date},
@@ -53,7 +53,7 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
     async fn widget_rows(
         &self,
         context: &aphel_sdk::dashboard::WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,
-        plan: &aphel_kernel::application::query::QueryPlan,
+        plan: &aphel_sdk::platform::application::query::QueryPlan,
     ) -> Result<Vec<aphel_sdk::deals::RenewalDealRow>, AppError> {
         widget_rows(context, plan).await
     }
@@ -63,7 +63,7 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
         ctx: &Ctx<'_>,
         query: aphel_sdk::deals::RenewalDueQuery,
     ) -> Result<Vec<aphel_sdk::deals::RenewalCandidate>, AppError> {
-        use aphel_kernel::application::query::{
+        use aphel_sdk::platform::application::query::{
             ArchivedFilter, Filter, FilterOperator, RecordQuery, SortSpec,
         };
         let until = query
@@ -112,7 +112,7 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
                 filter: Some(Filter::and(filters)),
                 sort: vec![SortSpec::asc("contract_end"), SortSpec::asc("id")],
                 archived: ArchivedFilter::Include,
-                window: aphel_kernel::application::organization_admin::ListWindow {
+                window: aphel_sdk::platform::application::organization_admin::ListWindow {
                     offset: 0,
                     limit: 100,
                 },
@@ -158,7 +158,7 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
                 .await?;
         row.map(|(id, deleted)| {
             Ok(aphel_sdk::deals::ExistingDealRenewal {
-                deal_id: aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+                deal_id: aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
                     &id, "deals.id",
                 )?,
                 deleted: deleted.is_some(),
@@ -170,12 +170,12 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
 
 async fn widget_rows(
     context: &aphel_sdk::dashboard::WidgetContext<'_, aphel_sdk::dashboard::WidgetPorts>,
-    plan: &aphel_kernel::application::query::QueryPlan,
+    plan: &aphel_sdk::platform::application::query::QueryPlan,
 ) -> Result<Vec<aphel_sdk::deals::RenewalDealRow>, AppError> {
-    use aphel_kernel::application::fields::FieldSet;
-    use aphel_kernel::application::query::RecordQueryPorts;
-    use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
     use aphel_sdk::dashboard::DashboardPorts;
+    use aphel_sdk::platform::application::fields::FieldSet;
+    use aphel_sdk::platform::application::query::RecordQueryPorts;
+    use aphel_sdk::platform::infrastructure::query::compiler::{Projection, build_query};
     use sqlx::Row;
     if plan.record_type.record_type.as_str() != aphel_sdk::deals::RECORD_TYPE
         || !(1..=1000).contains(&plan.window.limit)
@@ -185,7 +185,8 @@ async fn widget_rows(
         ));
     }
     let pool = context.ports.pool();
-    let constrained = aphel_kernel::records::constrain_query(pool, context.scope, plan).await?;
+    let constrained =
+        aphel_sdk::platform::records::constrain_query(pool, context.scope, plan).await?;
     let plan = constrained.as_ref().unwrap_or(plan);
     let ids: Vec<String> = build_query(context.scope, plan, Projection::Ids)?
         .build_query_scalar()
@@ -220,7 +221,7 @@ async fn widget_rows(
             .iter()
             .map(|row| {
                 let id: String = row.try_get("stage_id")?;
-                aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+                aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
                     &id,
                     "deals.stage_id",
                 )
@@ -232,12 +233,13 @@ async fn widget_rows(
     for row in rows {
         let raw_id: String = row.try_get("id")?;
         let stage_id: String = row.try_get("stage_id")?;
-        let stage_id = aphel_kernel::infrastructure::repositories::mapper::parse_uuid(
+        let stage_id = aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
             &stage_id,
             "deals.stage_id",
         )?;
-        let id =
-            aphel_kernel::infrastructure::repositories::mapper::parse_uuid(&raw_id, "deals.id")?;
+        let id = aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
+            &raw_id, "deals.id",
+        )?;
         values.insert(
             raw_id,
             aphel_sdk::deals::RenewalDealRow {

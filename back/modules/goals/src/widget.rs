@@ -5,12 +5,12 @@ use crate::domain::{DATE_FORMAT, GoalListQuery, GoalOwnerKind};
 use crate::http::GoalResponse;
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::state::runtime_state;
 use aphel_sdk::dashboard::local_today;
 use aphel_sdk::dashboard::{DashboardPorts, SettingsReader, WidgetContext, WidgetProvider};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::state::runtime_state;
 
 pub(crate) const GOALS_PROGRESS: &str = "goals_progress";
 

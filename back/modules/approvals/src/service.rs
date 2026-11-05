@@ -11,17 +11,17 @@ use crate::engine::{
 };
 use crate::store::{ApprovalDirectory, ApprovalStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::{EntityDefinition, RecordTypeRegistry};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::Filter;
-use aphel_kernel::application::shared::{RecordRef, RecordType, ensure_version};
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{RecordMutation, changes_payload, publish_mutation};
 use aphel_sdk::configuration::is_config_key;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::Filter;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 pub(crate) const QUOTE_RECORD_TYPE: &str = "quotes.quote";
 pub(crate) const STAGE_FIELD: &str = "stage_id";
@@ -695,7 +695,7 @@ pub(crate) async fn reorder_policies(
         ApprovalStore::of(ctx)
             .set_positions(&mut tx, &positions, now)
             .await?;
-        let changes = vec![aphel_kernel::application::shared::FieldChange::new(
+        let changes = vec![aphel_sdk::platform::application::shared::FieldChange::new(
             "order",
             json!(old),
             json!(new),
@@ -979,7 +979,7 @@ async fn decide(
         )
         .await?;
     let mut request = record.request.clone();
-    let decision_change = vec![aphel_kernel::application::shared::FieldChange::new(
+    let decision_change = vec![aphel_sdk::platform::application::shared::FieldChange::new(
         "decision",
         serde_json::Value::Null,
         serde_json::json!(decision.as_str()),
@@ -1037,7 +1037,7 @@ async fn decide(
                 let approvers =
                     engine::start_step(ctx, &mut tx, &request, step + 1, owner.as_ref()).await?;
                 let mut changes = decision_change;
-                changes.push(aphel_kernel::application::shared::FieldChange::new(
+                changes.push(aphel_sdk::platform::application::shared::FieldChange::new(
                     "current_step",
                     serde_json::json!(step),
                     serde_json::json!(step + 1),

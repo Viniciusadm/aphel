@@ -2,8 +2,8 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::domain::{EmailDirection, EmailKind, EmailVisibility};
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
+use aphel_sdk::platform::application::shared::RecordRef;
 
 pub use aphel_sdk::email::EMAIL_RECEIVED;
 pub(crate) const EMAIL_SENT: &str = "email.sent";

@@ -10,17 +10,17 @@ use crate::domain::company_not_found;
 use crate::hierarchy::{HierarchyEntry, HierarchyStore, MAX_HIERARCHY_DEPTH};
 use crate::store::CompanyStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::permissions::{FieldAccess, FieldAccessPolicy};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::{
     AggregateEngine, AggregateFunction, AggregateQuery, AggregateResult, Filter, FilterOperator,
     GroupBySpec, MAX_AGGREGATE_LIMIT, MetricSpec, RecordQueryPorts,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::Permission;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::records::parse_record_id;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
+use aphel_sdk::platform::records::parse_record_id;
 
 pub(crate) const MAX_GROUP_COMPANIES: usize = 1000;
 

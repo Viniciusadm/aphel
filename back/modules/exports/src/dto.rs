@@ -4,9 +4,9 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::{ExportJob, ExportQuery, RequestExportCommand};
-use aphel_kernel::api::dto::query::FilterNodeSchema;
-use aphel_kernel::application::query::{ArchivedFilter, Filter, parse_sort};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::api::dto::query::FilterNodeSchema;
+use aphel_sdk::platform::application::query::{ArchivedFilter, Filter, parse_sort};
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)

@@ -1,9 +1,9 @@
 use crate::application::{ConfigInstallRepository, TemplateCatalog};
 use crate::infrastructure::{EmbeddedTemplates, MySqlConfigInstallRepository};
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::{Ctx, errors::AppError};
 use aphel_sdk::configuration::{ConfigurationCatalog, InstallationReference};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::domain::access::Permission;
 use uuid::Uuid;
 
 pub(crate) struct Catalog;

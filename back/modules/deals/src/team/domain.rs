@@ -6,12 +6,12 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::domain::OwnerRef;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::shared::RecordType;
 
-pub use aphel_kernel::application::shared::parse_uuid as parse_id;
+pub use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
 
 pub(crate) const MAX_DEAL_MEMBERS: usize = 50;
 pub(crate) const MAX_DEAL_MEMBER_ROLES: usize = 50;

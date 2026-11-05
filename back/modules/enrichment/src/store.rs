@@ -6,8 +6,8 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::sources::CompanyData;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::transaction::MySqlTx;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LookupRow {

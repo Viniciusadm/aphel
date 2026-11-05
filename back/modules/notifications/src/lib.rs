@@ -9,8 +9,8 @@ pub mod intern;
 pub mod push_dto;
 mod push_http;
 use crate::infrastructure::notification_worker_parts;
-use aphel_kernel::application::mail::GlobalMailerResolver;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::mail::GlobalMailerResolver;
 use std::sync::Arc;
 pub const KEY: &str = "notifications";
 pub use aphel_sdk::notifications::DigestSource;
@@ -21,7 +21,7 @@ impl aphel_kernel::modules::Module for NotificationsModule {
         aphel_kernel::modules::Manifest::new(
             KEY,
             "Notifications",
-            aphel_kernel::modules::builder::APHEL_VERSION,
+            aphel_sdk::platform::modules::builder::APHEL_VERSION,
         )
         .plugin_toml(include_str!("../plugin.toml"))
         .enabled_by_default()
@@ -65,11 +65,11 @@ impl aphel_kernel::modules::Module for NotificationsModule {
         for kind in domain::builtin_notification_kinds() {
             app.contribute(Arc::new(*kind));
         }
-        app.contribute::<dyn aphel_kernel::modules::unified_catalog::CatalogExtension>(Arc::new(
-            NotificationCatalog,
-        ));
+        app.contribute::<dyn aphel_sdk::platform::modules::unified_catalog::CatalogExtension>(
+            Arc::new(NotificationCatalog),
+        );
         app.on(
-            aphel_kernel::application::security::SessionRevoked,
+            aphel_sdk::platform::application::security::SessionRevoked,
             10,
             |ctx, args| {
                 Box::pin(async move {
@@ -96,7 +96,7 @@ impl aphel_kernel::modules::Module for NotificationsModule {
     }
 }
 struct NotificationCatalog;
-impl aphel_kernel::modules::unified_catalog::CatalogExtension for NotificationCatalog {
+impl aphel_sdk::platform::modules::unified_catalog::CatalogExtension for NotificationCatalog {
     fn project(&self, app: &aphel_kernel::modules::App) -> (String, serde_json::Value) {
         ("notification_kinds".to_owned(),serde_json::Value::Array(app.contributions::<domain::NotificationKindDefinition>().into_iter().map(|kind|serde_json::json!({"kind":kind.kind.as_str(),"email_default":kind.email_default,"push_default":kind.push_default})).collect()))
     }

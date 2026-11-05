@@ -17,16 +17,16 @@ use crate::recurrence::{
     RecurrenceSeries, parse_weekday_code, weekday_code,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::fields::mysql_definitions::uuid_column;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope;
-use aphel_kernel::infrastructure::repositories::mapper::{self, user_reference};
 use aphel_sdk::calendar::BusyInterval;
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
+use aphel_sdk::platform::infrastructure::repositories::mapper::{self, user_reference};
 
 pub fn activity_select(alias: &str) -> String {
     format!(
@@ -554,7 +554,7 @@ impl<'a> ActivityStore<'a> {
         let deal_ids: Vec<_> = deal_ids.into_iter().collect();
         let mut deals = HashMap::new();
         for batch in deal_ids.chunks(100) {
-            use aphel_kernel::application::query::{
+            use aphel_sdk::platform::application::query::{
                 ArchivedFilter, Filter, FilterOperator, RecordQuery,
             };
             let listing = aphel_sdk::record_context::list(
@@ -567,7 +567,7 @@ impl<'a> ActivityStore<'a> {
                         serde_json::json!(batch),
                     )),
                     archived: ArchivedFilter::Include,
-                    window: aphel_kernel::application::organization_admin::ListWindow {
+                    window: aphel_sdk::platform::application::organization_admin::ListWindow {
                         offset: 0,
                         limit: 100,
                     },
@@ -920,7 +920,7 @@ pub(crate) async fn hydrate_link_titles(
     ctx: &Ctx<'_>,
     mut links: Vec<&mut LinkedRecord>,
 ) -> Result<(), AppError> {
-    use aphel_kernel::application::query::RecordQueryPorts;
+    use aphel_sdk::platform::application::query::RecordQueryPorts;
     let mut groups: HashMap<RecordType, std::collections::BTreeSet<Uuid>> = HashMap::new();
     for link in &links {
         groups

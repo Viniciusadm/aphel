@@ -13,8 +13,6 @@ use crate::guidance::domain::{
 use crate::guidance::store::GuidanceStore;
 use crate::section::{PIPELINES_SECTION, keyed_pipelines, parse_pipelines, stage_item_key};
 use crate::store::PipelineStore;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::ConfigKeyClient;
 use aphel_sdk::configuration::sections::common::{check_key, diff};
@@ -22,6 +20,8 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const STAGE_GUIDANCE_SECTION: &str = "stage_guidance";
 const STAGE_GUIDANCE_KIND: &str = "stage_guidance";

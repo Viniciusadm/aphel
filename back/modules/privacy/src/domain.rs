@@ -2,11 +2,11 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::EntityDefinition;
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
+use aphel_sdk::platform::domain::fields::FieldType;
 
 pub(crate) const PRIVACY_REQUEST_RECORD_TYPE: RecordType =
     RecordType::from_static("privacy.privacy_request");

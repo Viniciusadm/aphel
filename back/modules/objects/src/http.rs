@@ -5,12 +5,12 @@ use crate::dto::{
     UpdateRelationshipRequest,
 };
 use crate::infrastructure::MySqlCustomObjectAdminPorts;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::dto::custom_objects::{CustomObjectResponse, RelationshipResponse};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
-use aphel_kernel::api::state::AppState;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::dto::custom_objects::{CustomObjectResponse, RelationshipResponse};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo, IfMatch, JsonBody};
+use aphel_sdk::platform::api::state::AppState;
 use axum::Json;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
@@ -248,7 +248,7 @@ async fn list_relationships(
     let manager = tenant
         .scope
         .permissions()
-        .scope_for(&aphel_kernel::domain::access::Permission::SETTINGS_MANAGE);
+        .scope_for(&aphel_sdk::platform::domain::access::Permission::SETTINGS_MANAGE);
     let relationships = admin_use_cases(&state)
         .await?
         .list_relationships(&tenant.scope, params.record_type.as_deref())

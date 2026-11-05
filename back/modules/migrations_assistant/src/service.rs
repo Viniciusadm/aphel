@@ -8,11 +8,11 @@ use crate::store::MemberStore;
 use crate::{
     NormalizedFile, SourceStep, SourceTool, StepKind, ValueMaps, encode, normalize, source_tool,
 };
-use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::context::Ctx;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::imports::{CreateImportCommand, drafts, dto::ImportJobResponse};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const MIGRATION_SOURCE_NOT_FOUND: &str = "migration_source_not_found";
 pub(crate) const MIGRATION_HISTORY_STEP: &str = "migration_history_step";

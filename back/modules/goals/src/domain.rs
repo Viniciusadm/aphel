@@ -3,9 +3,9 @@ use rust_decimal::Decimal;
 use rust_decimal::prelude::ToPrimitive;
 use uuid::Uuid;
 
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::domain::{TeamId, UserId};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) const GOAL_NOT_FOUND: &str = "goal_not_found";
 pub(crate) const GOAL_ALREADY_EXISTS: &str = "goal_already_exists";

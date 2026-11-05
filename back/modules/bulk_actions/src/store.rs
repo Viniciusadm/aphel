@@ -9,11 +9,11 @@ use uuid::Uuid;
 
 use crate::{BulkAction, BulkItem, BulkOperation, BulkSelection, BulkStatus, ItemOutcome};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const OPERATION_COLUMNS: &str = "id, record_type, action, params, selection, status, total, \
      processed, succeeded, skipped, failed, failure_reason, requested_by, created_at, updated_at, finished_at";

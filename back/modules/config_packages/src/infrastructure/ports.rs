@@ -7,15 +7,15 @@ use crate::application::{
     ConfigPackagePorts, ConfigSection, ConfigSectionRegistry, UnavailableFields,
 };
 use crate::infrastructure::{EmbeddedTemplates, MySqlConfigInstallRepository};
-use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::infrastructure::auth::SystemClock;
-use aphel_kernel::infrastructure::fields::{
+use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::infrastructure::auth::SystemClock;
+use aphel_sdk::platform::infrastructure::fields::{
     MySqlCustomFieldValueRepository, MySqlFieldDefinitionRepository,
 };
-use aphel_kernel::infrastructure::jobs::MySqlJobQueue;
-use aphel_kernel::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
-use aphel_kernel::infrastructure::transactions::MySqlTransactionManager;
+use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
+use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
+use aphel_sdk::platform::infrastructure::transactions::MySqlTransactionManager;
 
 pub use aphel_sdk::configuration::{ConfigSectionBuild, ConfigSectionFactory};
 
@@ -34,7 +34,7 @@ pub fn builtin_sections(
         )),
     )];
     let registry_types = registry.clone();
-    let app = aphel_kernel::modules::app();
+    let app = aphel_sdk::platform::modules::app();
     let mut unavailable = Vec::new();
     for (module, factory) in app.all_contributions::<ConfigSectionFactory>() {
         let section = (factory.build)(pool, &registry);

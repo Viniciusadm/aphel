@@ -1,4 +1,4 @@
-use aphel_kernel::application::fields::CustomFieldPorts;
+use aphel_sdk::platform::application::fields::CustomFieldPorts;
 
 use async_trait::async_trait;
 use uuid::Uuid;
@@ -7,14 +7,14 @@ use crate::KEY;
 use crate::domain::{FollowOrigin, FollowedRecord, MAX_FOLLOWED_RECORDS, RecordFollowers};
 use crate::store::FollowerStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::record_sharing::{RecordDirectory, record_not_found};
-use aphel_kernel::application::shared::RecordRef;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::record_sharing::MySqlRecordDirectory;
 use aphel_sdk::notifications::RecordFollowerSource;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::record_sharing::{RecordDirectory, record_not_found};
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::infrastructure::record_sharing::MySqlRecordDirectory;
 
 fn directory(ctx: &Ctx<'_>) -> MySqlRecordDirectory {
     MySqlRecordDirectory::new(ctx.pool().clone())
@@ -149,7 +149,7 @@ impl RecordFollowerSource for FollowerSource {
         pool: &sqlx::MySqlPool,
         record: &RecordRef,
     ) -> Result<Vec<UserId>, AppError> {
-        if !aphel_kernel::modules::app().is_enabled(KEY) {
+        if !aphel_sdk::platform::modules::app().is_enabled(KEY) {
             return Ok(Vec::new());
         }
         FollowerStore::new(pool.clone()).follower_ids(record).await

@@ -11,20 +11,20 @@ use crate::{
     resolve_columns, store_generated_file, system_scope,
 };
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{AccessRepository, Authorizer, build_access_scope};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterOperator, ID_FIELD, MAX_LIST_VALUES, RecordQuery,
     RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts,
 };
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue, RecordRef,
 };
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::infrastructure::storage::MySqlFileRepository;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
+use aphel_sdk::platform::infrastructure::storage::MySqlFileRepository;
 
 pub const EXPORT_NOT_FOUND: &str = "export_not_found";
 pub const EXPORT_NOT_SUPPORTED: &str = "export_not_supported";

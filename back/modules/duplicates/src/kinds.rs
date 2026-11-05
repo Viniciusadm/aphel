@@ -1,11 +1,11 @@
 use crate::domain::{DuplicateFamily, DuplicateRule};
-use aphel_kernel::application::fields::{
-    EntityDefinition, LabelAlias, RecordTypeRegistry, SystemField,
-};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::party::PartyTraits;
+use aphel_sdk::platform::application::fields::{
+    EntityDefinition, LabelAlias, RecordTypeRegistry, SystemField,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const DUPLICATE_RECORD_TYPE_MESSAGE: &str =
     "is not a record type with duplicate detection";

@@ -8,21 +8,6 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::application::{is_relatable_core_type, is_title_field_type};
-use aphel_kernel::application::custom_objects::{
-    CustomObjectRepository, RelationshipRepository, custom_record_definition,
-};
-use aphel_kernel::application::fields::{
-    FieldDefinitionRepository, RecordTypeRegistry, RelationPath, is_sql_identifier, normalize_color,
-};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::domain::custom_objects::{
-    Cardinality, CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
-    MAX_OBJECT_DESCRIPTION_LENGTH, MAX_OBJECT_LABEL_LENGTH, MAX_RELATIONSHIP_KEY_LENGTH,
-    MAX_RELATIONSHIP_LABEL_LENGTH, OnDelete, RelationshipDefinition, is_custom_record_type,
-    is_object_key, object_record_type,
-};
-use aphel_kernel::domain::fields::{FieldConfig, FieldDefinition, FieldKey, FieldType};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::sections::common::diff;
 use aphel_sdk::configuration::sections::fields::{PackageField, package_fields};
@@ -30,6 +15,21 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
+use aphel_sdk::platform::application::custom_objects::{
+    CustomObjectRepository, RelationshipRepository, custom_record_definition,
+};
+use aphel_sdk::platform::application::fields::{
+    FieldDefinitionRepository, RecordTypeRegistry, RelationPath, is_sql_identifier, normalize_color,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::domain::custom_objects::{
+    Cardinality, CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
+    MAX_OBJECT_DESCRIPTION_LENGTH, MAX_OBJECT_LABEL_LENGTH, MAX_RELATIONSHIP_KEY_LENGTH,
+    MAX_RELATIONSHIP_LABEL_LENGTH, OnDelete, RelationshipDefinition, is_custom_record_type,
+    is_object_key, object_record_type,
+};
+use aphel_sdk::platform::domain::fields::{FieldConfig, FieldDefinition, FieldKey, FieldType};
 
 const OBJECT_KIND: &str = "custom_object";
 const RELATIONSHIP_KIND: &str = "relationship";
@@ -405,7 +405,7 @@ fn parse(content: &Value) -> Result<PackageCustomObjects, AppError> {
 }
 
 fn relatable(record_type: &str, declared: &BTreeSet<String>, existing: &[CustomObject]) -> bool {
-    aphel_kernel::modules::try_app()
+    aphel_sdk::platform::modules::try_app()
         .is_some_and(|app| is_relatable_core_type(app.record_types(), record_type))
         || (is_custom_record_type(record_type)
             && (declared.contains(record_type)

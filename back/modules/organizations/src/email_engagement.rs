@@ -19,7 +19,7 @@ impl EmailEngagementProjection for Projection {
         if record.record_type.as_str() != self.record_type() {
             return Ok(());
         }
-        let mut tx = aphel_kernel::database::receipt::begin(pool).await?;
+        let mut tx = aphel_sdk::platform::database::receipt::begin(pool).await?;
         let found: Option<String> =
             sqlx::query_scalar("SELECT id FROM organizations WHERE id = ? FOR UPDATE")
                 .bind(record.record_id.to_string())

@@ -11,23 +11,23 @@ use crate::domain::*;
 use crate::store::{CallOutcomeStore, CallSessionStore, CallStore};
 use crate::telephony::{TelephonyRecordingRequest, TelephonyRouter, TelephonyStartRequest};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::{Authorizer, PERMISSION_DENIED};
-use aphel_kernel::application::audit::{DiffOptions, diff_changes};
-use aphel_kernel::application::files::RecordAccessChecker;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{
+use aphel_kernel::domain::UserId;
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::platform::application::access::{Authorizer, PERMISSION_DENIED};
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
+use aphel_sdk::platform::application::files::RecordAccessChecker;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, RecordQuery, RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts,
 };
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::{AccessScope, Permission};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::records::MySqlRecordAccessChecker;
-use aphel_sdk::configuration::{is_config_key, key_from_name};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 use aphel_sdk::tasks::{CreateActivityCommand, PreparedTask, TaskRecord, instant, transactions};
 
 fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
@@ -1518,9 +1518,10 @@ async fn hydrate_session_people(
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect();
-    let definitions = aphel_kernel::infrastructure::fields::MySqlFieldDefinitionRepository::new(
-        ctx.pool().clone(),
-    );
+    let definitions =
+        aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository::new(
+            ctx.pool().clone(),
+        );
     let mut labels = std::collections::HashMap::new();
     for batch in ids.chunks(1000) {
         labels.extend(

@@ -11,19 +11,19 @@ use crate::domain::{
 };
 use crate::store::{TrashHidden, TrashSource, TrashStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{
     CustomFieldPorts, CustomFieldWriter, EntityDefinition, FieldSet, RecordPipeline, RecordWrite,
     WriteMode,
 };
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::records::permission_denied;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
+use aphel_sdk::platform::records::permission_denied;
 
 pub(crate) fn trash_item_not_found() -> AppError {
     AppError::not_found_code(TRASH_ITEM_NOT_FOUND, "the record is not in the trash")

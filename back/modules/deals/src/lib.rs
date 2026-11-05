@@ -38,21 +38,23 @@ use std::sync::Arc;
 
 use aphel_kernel::modules::Migration;
 
-use aphel_kernel::application::fields::builtin::{field, record_field, timestamps, with_fields};
-use aphel_kernel::application::fields::{EntityDefinition, EntityTraits, RecordRelation};
-use aphel_kernel::application::public_events::{
-    PreviousValues, PublicEventDefinition, changed, deleted, event,
-};
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
-use aphel_kernel::domain::fields::FieldType;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::defaults::seed::DefaultsSeed;
 use aphel_kernel::modules::DEFAULT_PRIORITY;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_kernel::records::{RecordQueryFilter, SearchPlanFilter};
 use aphel_sdk::notifications::NotificationKindDefinition;
+use aphel_sdk::platform::application::fields::builtin::{
+    field, record_field, timestamps, with_fields,
+};
+use aphel_sdk::platform::application::fields::{EntityDefinition, EntityTraits, RecordRelation};
+use aphel_sdk::platform::application::public_events::{
+    PreviousValues, PublicEventDefinition, changed, deleted, event,
+};
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::infrastructure::defaults::seed::DefaultsSeed;
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub use hooks::{
     ClosingDeal, DealLosing, DealLost, DealStageChanging, DealWinning, DealWon, StageChange,
@@ -458,7 +460,7 @@ impl Module for DealsModule {
             workflow_source::DealStages,
         ));
         app.extend(RecordType::DEAL.as_str(), |deal| {
-            let mut items = aphel_kernel::application::fields::ItemTable::new(
+            let mut items = aphel_sdk::platform::application::fields::ItemTable::new(
                 "items",
                 crate::labels("Items"),
                 "line_items",
@@ -608,8 +610,8 @@ impl Module for DealsModule {
     }
 }
 
-pub(crate) fn labels(key: &str) -> aphel_kernel::application::fields::LocalizedLabels {
-    aphel_kernel::application::fields::LocalizedLabels::from_catalog(
+pub(crate) fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
         include_str!("../locales/labels.json"),
         key,
     )

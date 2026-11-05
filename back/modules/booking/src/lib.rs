@@ -20,11 +20,11 @@ use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;
 use utoipa_axum::router::OpenApiRouter;
 
-use aphel_kernel::application::public_events::{PublicEventDefinition, event};
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) use model::*;
 pub use payload::*;

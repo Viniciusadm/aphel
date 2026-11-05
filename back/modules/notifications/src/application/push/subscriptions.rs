@@ -5,9 +5,9 @@ use uuid::Uuid;
 use crate::application::push::{
     NewPushSubscription, PushPorts, PushSubscriptionRepository, VapidKeys,
 };
-use aphel_kernel::application::security::Clock;
 use aphel_kernel::domain::{SessionId, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::security::Clock;
 
 pub const MAX_PUSH_ENDPOINT_LENGTH: usize = 1024;
 pub const MAX_PUSH_USER_AGENT_LENGTH: usize = 255;

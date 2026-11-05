@@ -1,10 +1,10 @@
 use serde_json::{Value, json};
 
-use aphel_kernel::api::dto::aggregates::{AggregateQueryRequest, decimal};
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::query::{AggregateEngine, RecordQueryPorts};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::dashboard::{DashboardPorts, WidgetContext};
+use aphel_sdk::platform::api::dto::aggregates::{AggregateQueryRequest, decimal};
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::query::{AggregateEngine, RecordQueryPorts};
 
 pub(crate) const FIELD_NOT_ACCESSIBLE: &str = "field_not_accessible";
 

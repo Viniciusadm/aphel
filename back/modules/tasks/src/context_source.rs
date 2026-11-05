@@ -1,9 +1,9 @@
 use crate::domain::ListActivitiesQuery;
 use crate::http::ActivityResponse;
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::RecordQuery;
-use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::{Ctx, errors::AppError};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::RecordQuery;
+use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
 use aphel_sdk::record_context::RelatedRecordSource;
 use serde_json::Value;
 pub(crate) struct ContextSource;

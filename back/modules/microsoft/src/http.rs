@@ -9,12 +9,12 @@ use utoipa_axum::routes;
 
 use crate::provider::MicrosoftProvider;
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::{ApiError, app_error};
-use aphel_kernel::api::extractors::{AuthContext, ClientInfo};
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_sdk::email::oauth as mail_connect;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::{ApiError, app_error};
+use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo};
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::sso::status::{SsoLoginStatus, login_status};
 use aphel_sdk::sso::{CallbackQuery, ClientContext, StartQuery, handle_callback, start_login};
 use aphel_sdk::tasks::remote_calendar as connect;

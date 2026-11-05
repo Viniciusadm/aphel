@@ -8,11 +8,11 @@ use crate::domain::{EXCHANGE_RATES_SYNC_CRON, EXCHANGE_RATES_SYNC_JOB};
 use crate::provider::configured_provider;
 use crate::service::{RatePorts, recalculation_job};
 use crate::sync::{rebase, sync_rates};
-use aphel_kernel::application::jobs::ScheduledJobDefinition;
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
+use aphel_sdk::platform::application::shared::{
     Actor, DomainEvent, EventConsumer, JobContext, JobHandler, JobQueue,
 };
-use aphel_kernel::errors::AppError;
 
 pub(crate) const CURRENCIES_BASE_CONSUMER: &str = "money.base_currency";
 const ORGANIZATION_UPDATED: &str = "organization.updated";
@@ -122,7 +122,7 @@ impl JobHandler for MoneyRecalculateHandler {
             .get("currency")
             .and_then(Value::as_str)
             .and_then(aphel_sdk::money::normalize_currency_code);
-        for source in aphel_kernel::modules::app()
+        for source in aphel_sdk::platform::modules::app()
             .contributions::<dyn aphel_sdk::money::MoneyRecalculationSource>()
         {
             source.recalculate(&self.pool, currency.as_deref()).await?;

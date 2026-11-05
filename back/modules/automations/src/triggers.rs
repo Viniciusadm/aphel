@@ -6,9 +6,9 @@ use aphel_contract_automation::application::triggers::{
     changes, event_context, is_automatable, pipeline_change, record_event, single, stage_change,
     string_list_schema,
 };
-use aphel_kernel::application::fields::FieldSet;
-use aphel_kernel::application::shared::DomainEvent;
 use aphel_kernel::errors::FieldViolation;
+use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::shared::DomainEvent;
 
 const DEAL_STAGE_CHANGED: &str = "deal.stage_changed";
 

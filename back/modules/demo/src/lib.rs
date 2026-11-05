@@ -13,8 +13,8 @@ pub(crate) use domain::*;
 use aphel_kernel::modules::Migration;
 
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub(crate) const KEY: &str = "demo";
 
@@ -46,7 +46,7 @@ impl Module for DemoModule {
         app.contribute::<dyn aphel_kernel::modules::HttpRequestPolicy>(std::sync::Arc::new(
             policy::DemoPolicy,
         ));
-        app.contribute::<dyn aphel_kernel::application::mail::MailDeliveryPolicy>(
+        app.contribute::<dyn aphel_sdk::platform::application::mail::MailDeliveryPolicy>(
             std::sync::Arc::new(policy::DemoPolicy),
         );
         app.openapi_tag(status::TAG, "Demonstration environment status")

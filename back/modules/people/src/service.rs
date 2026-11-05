@@ -11,19 +11,6 @@ use crate::domain::{
 };
 use crate::store::ContactStore;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::audit::{DiffOptions, diff_values};
-use aphel_kernel::application::fields::permissions::check_record_writes;
-use aphel_kernel::application::fields::{
-    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, RecordDraft,
-    RecordPipeline, RecordWrite, ReferenceChecker, WriteMode,
-};
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::query::{RecordQuery, RecordQueryEngine};
-use aphel_kernel::application::shared::{FieldChange, RecordRef, RecordType, ensure_version};
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::{Permission, RecordScopeFilter};
-use aphel_kernel::domain::fields::FieldValueError;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{
     InputValidator, PendingCommit, RecordMutation, archive_change, changes_payload, check_owner,
@@ -31,6 +18,21 @@ use aphel_kernel::records::{
     normalize_search_term, parse_record_id, permission_denied, publish_mutation, with_contributed,
     write_contributed,
 };
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
+use aphel_sdk::platform::application::fields::permissions::check_record_writes;
+use aphel_sdk::platform::application::fields::{
+    CustomFieldPorts, CustomFieldReader, CustomFieldWriter, EntityDefinition, RecordDraft,
+    RecordPipeline, RecordWrite, ReferenceChecker, WriteMode,
+};
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::query::{RecordQuery, RecordQueryEngine};
+use aphel_sdk::platform::application::shared::{
+    FieldChange, RecordRef, RecordType, ensure_version,
+};
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
+use aphel_sdk::platform::domain::fields::FieldValueError;
 fn company_not_found() -> AppError {
     AppError::not_found_code("company_not_found", "company was not found")
 }
@@ -314,7 +316,7 @@ pub async fn update_in_tx(
     let record = RecordRef::new(RecordType::CONTACT, id);
     let fields = ctx.fields();
     let store = ContactStore::of(ctx);
-    aphel_kernel::records::lock_version(
+    aphel_sdk::platform::records::lock_version(
         tx,
         "people",
         current.contact.id,

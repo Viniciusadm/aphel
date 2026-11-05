@@ -4,10 +4,10 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::application::push::{NewPushSubscription, PushSubscriptionRepository, PushTarget};
-use aphel_kernel::application::files::sha256_hex;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::files::sha256_hex;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
 pub struct MySqlPushSubscriptionRepository {

@@ -1,9 +1,9 @@
 use crate::application::{
     FormulaNode, FormulaWorkspace, MAX_REPORTED_ERRORS, ValueKind, compile_formula, find_cycle,
 };
-use aphel_kernel::application::fields::{FieldDefinitionReader, RecordTypeRegistry};
-use aphel_kernel::application::shared::{Job, RecordType};
-use aphel_kernel::domain::fields::FieldDefinition;
+use aphel_sdk::platform::application::fields::{FieldDefinitionReader, RecordTypeRegistry};
+use aphel_sdk::platform::application::shared::{Job, RecordType};
+use aphel_sdk::platform::domain::fields::FieldDefinition;
 use aphel_sdk::{
     AppError,
     formulas::{FormulaDefinitionIssue, FormulaDefinitionPlanner},

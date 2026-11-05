@@ -3,15 +3,15 @@ use rust_decimal::Decimal;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use aphel_kernel::application::fields::decimal_json;
-use aphel_kernel::application::fields::permissions::provided_key;
-use aphel_kernel::application::query::RecordQuery;
-use aphel_kernel::application::shared::FieldChange;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::decimal_json;
+use aphel_sdk::platform::application::fields::permissions::provided_key;
+use aphel_sdk::platform::application::query::RecordQuery;
+use aphel_sdk::platform::application::shared::FieldChange;
 use aphel_sdk::workflow::{Pipeline, PipelineStage, StageKind};
 
-pub(crate) use aphel_kernel::application::shared::normalize_currency_code as normalize_currency;
+pub(crate) use aphel_sdk::platform::application::shared::normalize_currency_code as normalize_currency;
 
 pub(crate) const DEAL_NOT_FOUND: &str = "deal_not_found";
 pub(crate) const NO_DEFAULT_PIPELINE: &str = "no_default_pipeline";

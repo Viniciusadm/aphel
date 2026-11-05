@@ -6,22 +6,22 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
-use aphel_kernel::application::organization_admin::ListWindow;
-use aphel_kernel::application::query::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::fields::{EntityDefinition, FieldSet, RecordTypeRegistry};
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterExpansion, FilterOperator, ID_FIELD, QueryPlan, RecordQuery,
     RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts, ResolveContext, load_related_sets,
     resolve_query_related, validate_view_query_related,
 };
-use aphel_kernel::application::security::Clock;
-use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
-use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::infrastructure::query::compiler::{
+use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
+use aphel_sdk::platform::infrastructure::query::compiler::{
     Projection, build_query, push_record_scope, quoted,
 };
-use aphel_kernel::infrastructure::query::mysql_executor::MySqlRecordQueryPorts;
-use aphel_kernel::infrastructure::repositories::mapper::parse_uuid;
+use aphel_sdk::platform::infrastructure::query::mysql_executor::MySqlRecordQueryPorts;
+use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 
 const PAGE_SIZE: u64 = 1000;
 

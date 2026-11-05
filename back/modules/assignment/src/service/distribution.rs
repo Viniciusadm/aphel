@@ -13,12 +13,12 @@ use crate::store::{DistributionStore, PickRecord};
 use aphel_contract_automation::application::AutomationGateway;
 use aphel_contract_automation::application::templates::CUSTOM_FIELDS_KEY;
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordRef;
-use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::PendingCommit;
+use aphel_sdk::platform::application::shared::RecordRef;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const RULE_NOT_FOUND: &str = "assignment_rule_not_found";
 pub(crate) const RULE_INACTIVE: &str = "assignment_rule_inactive";
@@ -252,10 +252,10 @@ pub async fn workload_counts(
     rule: &DistributionRule,
     users: &[UserId],
 ) -> Result<HashMap<UserId, u64>, AppError> {
-    use aphel_kernel::application::query::{
+    use aphel_sdk::assignment::AssignmentTraits;
+    use aphel_sdk::platform::application::query::{
         AggregateEngine, AggregateQuery, Filter, FilterOperator, GroupBySpec,
     };
-    use aphel_sdk::assignment::AssignmentTraits;
     use rust_decimal::prelude::ToPrimitive;
     if rule.strategy != DistributionStrategy::LeastLoaded || users.is_empty() {
         return Ok(HashMap::new());

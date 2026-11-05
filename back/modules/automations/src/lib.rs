@@ -35,13 +35,13 @@ pub(crate) use service::{
 };
 
 use actions::{AssignOwner, CreateRelatedRecord, SendMessage, UpdateFields};
-use aphel_kernel::domain::access::{Permission, PermissionDefinition};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::builder::APHEL_VERSION;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module, WorkerEnv, WorkerParts};
 use aphel_sdk::notifications::{
     ALL_CHANNELS, EMAIL_ONLY, IN_APP_AND_PUSH, NotificationKind, NotificationKindDefinition,
 };
+use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
+use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 use time::{
     TimeCatchUpConsumer, TimeTriggerSweep, WaitingRunsCanceller, WaitingRunsResumer,
     resume_waiting_schedule, time_sweep_schedule,
@@ -179,8 +179,8 @@ fn worker(env: &WorkerEnv) -> WorkerParts {
 struct BoundOperations;
 impl aphel_contract_automation::application::AutomationActionSource for BoundOperations {
     fn actions(&self) -> Vec<aphel_contract_automation::Action> {
-        aphel_kernel::modules::app()
-            .contributions::<aphel_kernel::modules::operations::OperationEntry>()
+        aphel_sdk::platform::modules::app()
+            .contributions::<aphel_sdk::platform::modules::operations::OperationEntry>()
             .into_iter()
             .filter_map(operation_action::OperationAction::new)
             .map(|action| std::sync::Arc::new(action) as aphel_contract_automation::Action)

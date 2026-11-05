@@ -11,9 +11,9 @@ use crate::aggregate::{
     visible_fields, with_subject,
 };
 use crate::settings::{SettingsReader, invalid_settings};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
+use aphel_sdk::platform::domain::access::Permission;
 
 const SOURCE_FIELD: &str = "source";
 const AMOUNT_FIELD: &str = "amount";

@@ -1,10 +1,10 @@
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::query::QueryPlan;
 use aphel_kernel::domain::{UserId, access::AccessScope};
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::{Projection, build_query};
-use aphel_kernel::infrastructure::repositories::mapper::{invalid_column, utc};
-use aphel_kernel::records::constrain_query;
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::infrastructure::query::compiler::{Projection, build_query};
+use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, utc};
+use aphel_sdk::platform::records::constrain_query;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
@@ -88,7 +88,9 @@ pub(crate) struct PendingActivity {
     pub(crate) record: Option<RecordLink>,
 }
 
-pub(crate) async fn pending_activities<P: aphel_kernel::application::query::RecordQueryPorts>(
+pub(crate) async fn pending_activities<
+    P: aphel_sdk::platform::application::query::RecordQueryPorts,
+>(
     pool: &MySqlPool,
     scope: &AccessScope,
     query: &P,
@@ -130,7 +132,7 @@ pub(crate) async fn pending_activities<P: aphel_kernel::application::query::Reco
     let mut result = Vec::new();
     for (mut activity, link) in in_order(&ids, items) {
         if let Some((record_type, record_id)) = link {
-            let reference = aphel_kernel::application::shared::RecordRef::parse(
+            let reference = aphel_sdk::platform::application::shared::RecordRef::parse(
                 &record_type,
                 &record_id.to_string(),
             )?;

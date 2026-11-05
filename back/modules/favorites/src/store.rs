@@ -5,11 +5,11 @@ use uuid::Uuid;
 
 use crate::domain::{FAVORITE_ALREADY_EXISTS, Favorite, FavoriteKind};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::database::transaction::MySqlTx;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const FAVORITE_COLUMNS: &str =
     "id, favorite_type, record_type, record_id, view_id, position, created_at";

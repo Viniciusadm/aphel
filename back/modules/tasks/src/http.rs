@@ -30,20 +30,20 @@ use crate::recurrence::{
 };
 use crate::{service, types};
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{
-    Data, ErrorEnvelope, Page, double_option, timestamp as instant,
-};
-use aphel_kernel::api::dto::query::{RecordListQuery, RecordQueryParams};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{
-    AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
-};
-use aphel_kernel::api::routes::v1::field_permissions::{redacted, redacted_items};
-use aphel_kernel::api::routes::v1::members::window;
-use aphel_kernel::api::state::AppState;
-use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, RecordTypeHandler, optional_record, values_request};
+use aphel_sdk::platform::api::dto::common::{
+    Data, ErrorEnvelope, Page, double_option, timestamp as instant,
+};
+use aphel_sdk::platform::api::dto::query::{RecordListQuery, RecordQueryParams};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{
+    AuthContext, ClientInfo, IfMatch, JsonBody, Pagination, PaginationQuery,
+};
+use aphel_sdk::platform::api::routes::v1::field_permissions::{redacted, redacted_items};
+use aphel_sdk::platform::api::routes::v1::members::window;
+use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::shared::RecordType;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()

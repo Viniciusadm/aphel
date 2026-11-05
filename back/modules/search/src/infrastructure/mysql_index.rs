@@ -6,11 +6,11 @@ use uuid::Uuid;
 use crate::application::{
     IndexCandidate, IndexDocument, IndexEntry, IndexHeader, IndexQuery, SearchIndexRepository,
 };
-use aphel_kernel::application::shared::RecordType;
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::infrastructure::query::compiler::push_record_scope_keyed;
-use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::domain::access::AccessScope;
+use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope_keyed;
+use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const HEADER_ALIAS: &str = "s";
 const OWNER_COLUMN: &str = "owner_id";

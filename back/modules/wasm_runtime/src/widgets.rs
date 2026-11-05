@@ -6,11 +6,11 @@ use serde_json::Value;
 use crate::manifest::WidgetSpec;
 use crate::registry::LoadedPlugin;
 use crate::runtime::{self, scope_actor, wit};
-use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::dashboard::DashboardWidget;
 use aphel_sdk::dashboard::WidgetPorts;
 use aphel_sdk::dashboard::{WidgetContext, WidgetProvider, WidgetSize};
+use aphel_sdk::platform::domain::access::Permission;
 
 const DEFAULT_CATEGORY: &str = "plugins";
 const MAX_SETTINGS_BYTES: usize = 16 * 1024;

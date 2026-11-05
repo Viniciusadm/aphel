@@ -11,13 +11,13 @@ use utoipa_axum::routes;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
-use aphel_kernel::api::dto::common::{Data, ErrorEnvelope};
-use aphel_kernel::api::error::ApiError;
-use aphel_kernel::api::extractors::{AuthContext, JsonBody};
-use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
+use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::{AuthContext, JsonBody};
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 use crate::service::{self, INVALID_REQUEST, SendInput, SignerInput};
 use crate::store::{self, RequestRow, SignerRow};

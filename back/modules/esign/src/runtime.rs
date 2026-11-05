@@ -7,11 +7,11 @@ use uuid::Uuid;
 use crate::service::{self, ATTACH_JOB};
 use crate::{job_kind, scope_for_user, store};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::shared::{JobContext, JobHandler};
-use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{WorkerEnv, WorkerParts};
 use aphel_kernel::state::AppState;
+use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) struct AttachSignedDocument {
     state: AppState,

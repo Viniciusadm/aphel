@@ -7,8 +7,8 @@ use crate::{
     DateOrder, DecimalStyle, HistoryReport, MigrationHistory, MigrationImport, MigrationPreview,
     SourceTool, ValueMaps,
 };
-use aphel_kernel::api::dto::files::FormFile;
 use aphel_sdk::imports::dto::ImportJobResponse;
+use aphel_sdk::platform::api::dto::files::FormFile;
 
 pub(crate) const SOURCE_FIELD: &str = "source";
 pub(crate) const STEP_FIELD: &str = "step";

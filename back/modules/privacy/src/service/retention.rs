@@ -17,14 +17,14 @@ use crate::service::erasure::erased_event;
 use crate::service::{Mutation, definition, publish, remove_stored_files, require_privacy};
 use crate::store::{PrivacyStore, RetentionStore};
 use aphel_kernel::Ctx;
-use aphel_kernel::application::fields::{CustomFieldWriter, EntityDefinition};
-use aphel_kernel::application::files::UserReference;
-use aphel_kernel::application::organization_admin::{ListWindow, Listing};
-use aphel_kernel::application::shared::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::{CustomFieldWriter, EntityDefinition};
+use aphel_sdk::platform::application::files::UserReference;
+use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
+use aphel_sdk::platform::application::shared::{
     Actor, EnqueueOutcome, FieldChange, FileStorage, Job, JobQueue, RecordRef,
 };
-use aphel_kernel::domain::access::AccessScope;
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const RETENTION_BATCH_SIZE: u32 = 200;
 pub(crate) const LOG_PURGE_BATCH_SIZE: u32 = 5_000;

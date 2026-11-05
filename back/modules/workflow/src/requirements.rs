@@ -1,8 +1,8 @@
 use serde_json::{Map, Value};
 
 use crate::domain::PipelineStage;
-use aphel_kernel::application::fields::FieldSet;
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::platform::application::fields::FieldSet;
 
 pub(crate) const STAGE_REQUIREMENTS_MISSING: &str = "stage_requirements_missing";
 pub(crate) const STAGE_REQUIREMENTS_INACCESSIBLE: &str = "stage_requirements_inaccessible";
