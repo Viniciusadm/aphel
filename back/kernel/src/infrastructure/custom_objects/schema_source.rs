@@ -58,3 +58,16 @@ impl CustomSchemaSource for MySqlCustomSchemaSource {
         load_schema(&self.pool).await
     }
 }
+
+pub(crate) async fn load_objects_in(
+    tx: &mut crate::database::transaction::MySqlTx,
+) -> Result<Vec<crate::domain::custom_objects::CustomObject>, AppError> {
+    sqlx::query(sqlx::AssertSqlSafe(format!(
+        "SELECT {OBJECT_COLUMNS} FROM custom_objects o ORDER BY o.position, o.id"
+    )))
+    .fetch_all(&mut **tx)
+    .await?
+    .iter()
+    .map(object_from_row)
+    .collect()
+}

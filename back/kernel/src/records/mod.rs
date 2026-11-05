@@ -40,3 +40,8 @@ pub use maintenance::{
 };
 
 pub use references::{copy_custom_columns, existing_tables, move_core_references, retire_custom};
+
+pub use purge::{
+    backdate_dataset_history, cleanup_dataset_files, cleanup_dataset_records,
+    cleanup_dataset_references, dataset_core_counts,
+};
