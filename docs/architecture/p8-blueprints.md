@@ -16,6 +16,12 @@ Compilation, lint, the arch check and `make probe` do not prove behaviour. Check
 - [ ] A runtime plugin with `provides.contracts = ["<built-in contract>@1"]` holds the built-in module on install and releases it on uninstall; the plugin details show `Replaces modules`.
 - [ ] A manifest with `conflicts_with` or `[[menu.rules]]` is rejected as an unknown field.
 
+## Checked in Chrome (2026-11-06)
+- Agency install: required plugins shown as always included, the rest preselected; dashboard home loads; `GET /api/v1/blueprint` returns `agency`; the default pipeline is `Funil padrão` with six localized stages and the Kanban shows them.
+- `notes` and `people` disable when nothing depends on them (`/people` becomes a 404, the sidebar drops Contacts, deals keeps working); `deals` refuses with `module_required_by` while `deals_revenue` is on; both re-enable.
+- Blank install (earlier session): only `kernel` enabled, blank home with module and settings links.
+- Not checked: the other business types, a plugin that provides a built-in contract, manifests with `conflicts_with`.
+
 ## Known gaps
 - Blueprint navigation sections, roles and theme are parsed and resolved but only `navigation.home` is applied.
 - Structural `is_system` seeds (task types, call outcomes, lead disqualification reasons, deal member roles) remain module seeds, run only for enabled modules.
