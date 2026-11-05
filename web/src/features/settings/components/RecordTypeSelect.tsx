@@ -1,25 +1,26 @@
 import { NativeSelect } from '@/components/ui/native-select'
 import { useNavigate } from 'react-router'
-import { RECORD_TYPES, type KnownRecordType } from '../fields/lib/field-types'
+import { useRecordTypeOptions } from '../fields/lib/record-types'
 import { useCustomObjectsAdmin } from '@/modules/objects/ui/api'
 
 interface RecordTypeSelectProps {
   value: string
   label: string
-  coreLabel: (recordType: KnownRecordType) => string
   to: (recordType: string) => string
   extraTypes?: { value: string; label: string }[]
 }
 
-export function RecordTypeSelect({ value, label, coreLabel, to, extraTypes = [] }: RecordTypeSelectProps) {
+export function RecordTypeSelect({ value, label, to, extraTypes = [] }: RecordTypeSelectProps) {
   const navigate = useNavigate()
   const objects = useCustomObjectsAdmin()
 
-  const core = RECORD_TYPES.map((recordType) => ({ value: recordType as string, label: coreLabel(recordType) }))
+  const core = useRecordTypeOptions()
   const custom = (objects.data ?? [])
     .filter((object) => (object.is_active && !object.is_internal) || object.record_type === value)
     .map((object) => ({ value: object.record_type, label: object.label_plural }))
-  const known = [...core, ...extraTypes, ...custom]
+  const known = [...core, ...extraTypes, ...custom].filter(
+    (option, index, all) => all.findIndex((other) => other.value === option.value) === index,
+  )
   const options = known.some((option) => option.value === value) ? known : [...known, { value, label: value }]
 
   return (

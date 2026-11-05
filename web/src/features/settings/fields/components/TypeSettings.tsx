@@ -1,8 +1,8 @@
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
+import { useRecordTypeOptions } from '../lib/record-types'
 import {
-  RECORD_TYPES,
   hasOptions,
   isNumeric,
   supportsDefaultValue,
@@ -33,6 +33,7 @@ const DEFAULT_INPUT_TYPES: Partial<Record<FieldType, string>> = {
 
 export function TypeSettings({ fieldType, control, register, errors, optionChoices }: TypeSettingsProps) {
   const { t } = useTranslation('fields')
+  const recordTypeOptions = useRecordTypeOptions()
   const configErrors = errors.config
   const hasSettings =
     isNumeric(fieldType) ||
@@ -94,10 +95,7 @@ export function TypeSettings({ fieldType, control, register, errors, optionChoic
                   id="field-config-target"
                   value={field.value}
                   placeholder={t('config.targetRecordTypePlaceholder')}
-                  choices={RECORD_TYPES.map((recordType) => ({
-                    value: recordType,
-                    label: t(`recordTypes.${recordType}`),
-                  }))}
+                  choices={recordTypeOptions}
                   invalid={Boolean(fieldState.error)}
                   describedBy={describedBy('field-config-target', fieldState.error?.message)}
                   onChange={field.onChange}

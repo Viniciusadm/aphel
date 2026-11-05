@@ -13,7 +13,6 @@ import { RecordTypeSelect } from '../../components/RecordTypeSelect'
 import { RequirePermission } from '../../components/RequirePermission'
 import { SETTINGS_MANAGE } from '../../lib/permissions'
 import { isRecordTypeNotFound } from '../lib/errors'
-import { DEFAULT_RECORD_TYPE } from '../lib/field-types'
 import { useRecordTypeLabel } from '../lib/useRecordTypeLabel'
 import {
   FIELD_ACCESS_LEVELS,
@@ -32,7 +31,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Page } from '@/components/ui/page'
 
 export function FieldPermissionsPage() {
-  const { recordType = DEFAULT_RECORD_TYPE } = useParams()
+  const { recordType = '' } = useParams()
   return (
     <RequirePermission permission={SETTINGS_MANAGE}>
       <FieldPermissionsSection key={recordType} recordType={recordType} />
@@ -42,7 +41,6 @@ export function FieldPermissionsPage() {
 
 function FieldPermissionsSection({ recordType }: { recordType: string }) {
   const { t } = useTranslation('field-permissions')
-  const { t: tf } = useTranslation('fields')
   const query = useFieldPermissions(recordType)
   const recordTypeLabel = useRecordTypeLabel(recordType)
   const unavailable = query.isError && isRecordTypeNotFound(query.error)
@@ -57,7 +55,6 @@ function FieldPermissionsSection({ recordType }: { recordType: string }) {
           <RecordTypeSelect
             value={recordType}
             label={t('recordTypesLabel')}
-            coreLabel={(type) => tf(`recordTypes.${type}`)}
             to={(type) => `/settings/fields/${type}/permissions`}
           />
         }

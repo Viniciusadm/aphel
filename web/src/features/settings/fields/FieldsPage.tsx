@@ -16,14 +16,13 @@ import { FieldRow, type FieldAction } from './components/FieldRow'
 import { SortableList } from './components/SortableList'
 import { FieldEditorDialog } from './FieldEditorDialog'
 import { errorMessageKey, isRecordTypeNotFound } from './lib/errors'
-import { DEFAULT_RECORD_TYPE } from './lib/field-types'
 import { mergeVisibleOrder, moveId } from './lib/order'
 import { useRecordTypeLabel } from './lib/useRecordTypeLabel'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
 export function FieldsPage() {
-  const { recordType = DEFAULT_RECORD_TYPE } = useParams()
+  const { recordType = '' } = useParams()
   return (
     <RequirePermission permission={SETTINGS_MANAGE}>
       <FieldsSection key={recordType} recordType={recordType} />
@@ -108,7 +107,6 @@ function FieldsSection({ recordType }: { recordType: string }) {
             <RecordTypeSelect
               value={recordType}
               label={t('recordTypes.label')}
-              coreLabel={(type) => t(`recordTypes.${type}`)}
               to={(type) => `/settings/fields/${type}`}
             />
             <Button variant="outline" asChild>

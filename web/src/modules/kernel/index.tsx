@@ -18,12 +18,12 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
-import { Navigate, type RouteObject } from 'react-router'
+import { type RouteObject } from 'react-router'
 import { authRoutes } from '@/features/auth/routes'
 import { registerCustomRecordContributions } from '@/features/custom-records/register'
 import { customRecordsRoutes } from '@/features/custom-records/routes'
 import { InstallerGate, setupRoutes } from '@/features/setup'
-import { DEFAULT_RECORD_TYPE } from '@/features/settings/fields/lib/field-types'
+import { DefaultRecordTypeRedirect } from '@/features/settings/fields/DefaultRecordTypeRedirect'
 import {
   AUDIT_READ,
   SETTINGS_MANAGE,
@@ -168,7 +168,7 @@ function registerSettings(app: ModuleApp) {
       routes: [
         {
           path: 'fields',
-          element: <Navigate to={DEFAULT_RECORD_TYPE} replace />,
+          element: <DefaultRecordTypeRedirect />,
         },
         {
           path: 'fields/:recordType',

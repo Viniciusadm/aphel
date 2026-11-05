@@ -20,12 +20,6 @@ export const FIELD_TYPES = [
   'formula',
 ] as const satisfies readonly FieldType[]
 
-export const RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal', 'tasks.task', 'catalog_items.item'] as const
-
-export type KnownRecordType = (typeof RECORD_TYPES)[number]
-
-export const DEFAULT_RECORD_TYPE: KnownRecordType = 'people.person'
-
 export const LABEL_MAX_LENGTH = 140
 export const KEY_MAX_LENGTH = 64
 export const TEXT_MAX_LENGTH = 1024
@@ -40,10 +34,6 @@ const COMPATIBLE_GROUPS: FieldType[][] = [
 
 const UNIQUE_TYPES: FieldType[] = ['text', 'number', 'url', 'email', 'phone']
 const SEARCHABLE_TYPES: FieldType[] = ['text', 'long_text', 'url', 'email', 'phone']
-
-export function isKnownRecordType(value: string): value is KnownRecordType {
-  return (RECORD_TYPES as readonly string[]).includes(value)
-}
 
 export function compatibleTypes(fieldType: FieldType): FieldType[] {
   return COMPATIBLE_GROUPS.find((group) => group.includes(fieldType)) ?? [fieldType]

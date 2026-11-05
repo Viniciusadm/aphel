@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { toast } from '@/components/ui/toast-store'
-import { DEFAULT_RECORD_TYPE, type FieldSchema, fieldViolations, type FormLayout, formLayoutKeys, formLayoutsApi, isKnownRecordType, LAYOUT_CONTEXTS, type LayoutContext, layoutFields, layoutKeys, ListSkeleton, RecordForm, RecordTypeSelect, RequirePermission, savedLayout, SETTINGS_MANAGE, useFieldSchema, useFormLayout } from '@/sdk'
+import { type FieldSchema, fieldViolations, type FormLayout, formLayoutKeys, formLayoutsApi, LAYOUT_CONTEXTS, type LayoutContext, layoutFields, layoutKeys, ListSkeleton, RecordForm, RecordTypeSelect, RequirePermission, savedLayout, SETTINGS_MANAGE, useFieldSchema, useFormLayout, useIsKnownRecordType } from '@/sdk'
 import { FieldRulesDialog } from '@/modules/record_layouts/ui/components/FieldRulesDialog'
 import { LayoutCanvas } from '@/modules/record_layouts/ui/components/LayoutCanvas'
 import { fieldAtPath, layoutCandidates, layoutsEqual, normalizeForSave, setFieldRules, startingLayout } from '@/modules/record_layouts/ui/lib/draft'
@@ -24,7 +24,7 @@ function parseContext(value: string | null): LayoutContext {
 }
 
 export function LayoutsPage() {
-  const { recordType = DEFAULT_RECORD_TYPE } = useParams()
+  const { recordType = '' } = useParams()
   return (
     <RequirePermission permission={SETTINGS_MANAGE}>
       <LayoutsSection key={recordType} recordType={recordType} />
@@ -33,6 +33,7 @@ export function LayoutsPage() {
 }
 
 function LayoutsSection({ recordType }: { recordType: string }) {
+  const knownRecordType = useIsKnownRecordType(recordType)
   const { t } = useTranslation('layouts')
   const [params, setParams] = useSearchParams()
   const context = parseContext(params.get('context'))
@@ -49,7 +50,6 @@ function LayoutsSection({ recordType }: { recordType: string }) {
             <RecordTypeSelect
               value={recordType}
               label={t('recordTypes.label')}
-              coreLabel={(type) => t(`recordTypes.${type}`)}
               to={(type) => `/settings/layouts/${type}?context=${context}`}
             />
             <NativeSelect value={context}
@@ -68,7 +68,7 @@ function LayoutsSection({ recordType }: { recordType: string }) {
         <ListSkeleton />
       ) : schema.isError || layout.isError ? (
         <ErrorState
-          title={isKnownRecordType(recordType) ? t('errors.load') : t('errors.unavailable')}
+          title={knownRecordType ? t('errors.load') : t('errors.unavailable')}
           onRetry={() => {
             void schema.refetch()
             void layout.refetch()

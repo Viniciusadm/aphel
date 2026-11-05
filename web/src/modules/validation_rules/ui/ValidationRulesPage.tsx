@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { DEFAULT_RECORD_TYPE, RecordTypeSelect, RequirePermission, SETTINGS_MANAGE, useFieldSchema } from '@/sdk'
+import { RecordTypeSelect, RequirePermission, SETTINGS_MANAGE, useFieldSchema } from '@/sdk'
 import { useInvalidateValidationRules, useValidationRules, validationRulesApi } from '@/modules/validation_rules/ui/api'
 import { VALIDATION_RULES_PATH } from '@/modules/validation_rules/ui/routes'
 import type { ValidationRule } from '@/modules/validation_rules/ui/types'
@@ -33,7 +33,7 @@ function ValidationRulesSettings() {
   const { t } = useTranslation('validation-rules')
   const { t: tFields } = useTranslation('fields')
   const quotesActive = useIsModuleActive('quotes')
-  const { recordType = DEFAULT_RECORD_TYPE } = useParams()
+  const { recordType = '' } = useParams()
   const rules = useValidationRules(recordType)
   const schema = useFieldSchema(recordType)
   const invalidate = useInvalidateValidationRules()
@@ -77,7 +77,6 @@ function ValidationRulesSettings() {
         <RecordTypeSelect
           value={recordType}
           label={t('recordType')}
-          coreLabel={(type) => tFields(`recordTypes.${type}`)}
           to={(type) => `${VALIDATION_RULES_PATH}/${type}`}
           extraTypes={quotesActive ? [{ value: 'quotes.quote', label: tFields('recordTypes.quote') }] : []}
         />

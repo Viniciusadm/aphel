@@ -1,10 +1,12 @@
-import { useTranslation } from 'react-i18next'
 import { useCustomObjectsAdmin } from '@/modules/objects/ui/api'
-import { isKnownRecordType } from './field-types'
+import { useRecordTypeOptions } from './record-types'
 
 export function useRecordTypeLabel(recordType: string): string {
-  const { t } = useTranslation('fields')
+  const options = useRecordTypeOptions()
   const objects = useCustomObjectsAdmin()
-  if (isKnownRecordType(recordType)) return t(`recordTypes.${recordType}`)
-  return objects.data?.find((object) => object.record_type === recordType)?.label_plural ?? recordType
+  return (
+    options.find((option) => option.value === recordType)?.label ??
+    objects.data?.find((object) => object.record_type === recordType)?.label_plural ??
+    recordType
+  )
 }
