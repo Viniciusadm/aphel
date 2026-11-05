@@ -67,7 +67,13 @@ The binary compiles the modules listed in `back/aphel.modules.toml`. After chang
 
 ## Tests
 
-The project currently has no automated tests: they were removed in session 11 and will only come back when the maintainer asks for them. Validate changes with `make lint` (module registries, `cargo fmt --check`, clippy, oxlint and typecheck).
+The project has no test suites: they were removed in session 11 and do not run per commit. The one automated check beyond compilation is the phase-gate probe:
+
+```bash
+make probe
+```
+
+`aphel probe` needs no database or network and prints failures only (it exits non-zero on any). It checks access-scope filters, hook ordering, the record-validation priorities of the build, entity registry integrity (permissions, title fields, soft references), operation uniqueness and the event actor envelope. Run it at every phase gate and after changes to those areas. Everything else is validated with `make lint` (module registries, `cargo fmt --check`, clippy, oxlint and typecheck) and by hand.
 
 ## Quality
 
@@ -118,6 +124,7 @@ The production walkthrough (reverse proxy, systemd, first access) is in [Install
 | `make dev-back` | Backend at http://127.0.0.1:3001 |
 | `make dev-web` | Vite with a proxy for `/api` |
 | `make lint` | module registries, fmt check, clippy, oxlint, typecheck |
+| `make probe` | Phase-gate invariant probe (no database, failures only) |
 | `make fmt` | `cargo fmt` |
 | `make api-types` | Generates the API types |
 | `make build` | Release build (web + binary) |

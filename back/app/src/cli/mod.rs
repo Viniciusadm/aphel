@@ -6,6 +6,7 @@ mod healthcheck;
 mod migrate;
 mod modules;
 mod openapi;
+mod probe;
 mod secrets;
 mod serve;
 mod upgrade;
@@ -81,6 +82,10 @@ pub(crate) enum Command {
         about = "List everything this build offers to plugins: plugins, operations, hooks, events, permissions"
     )]
     Catalog(CatalogArgs),
+    #[command(
+        about = "Check the platform invariants of this build: access filters, hook order, registry, operations, event actors (no database)"
+    )]
+    Probe,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Args)]
@@ -107,6 +112,9 @@ pub(crate) async fn run() -> CliResult {
         command = command.subcommand(module_command.command());
     }
     let matches = command.get_matches();
+    if matches.subcommand_name() == Some("probe") {
+        return probe::run();
+    }
     let dotenv_result = dotenvy::dotenv();
     init_tracing();
 
@@ -139,6 +147,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Healthcheck(args) => healthcheck::run(config, args).await,
         Command::Modules(command) => modules::run(config, command).await,
         Command::Catalog(args) => catalog::run(args),
+        Command::Probe => unreachable!("the probe runs before configuration is loaded"),
     }
 }
 

@@ -379,6 +379,30 @@ impl HookBus {
         self.apply_entry(hook.key(), ctx, value).await
     }
 
+    pub fn run_order<K: HookRef>(&self, hook: K) -> Vec<HookInfo> {
+        let Some(handlers) = self.handlers::<K::Args>(hook.key()) else {
+            return Vec::new();
+        };
+        let info = |kind: HookKind, module: &'static str, priority: i32| HookInfo {
+            hook: hook.key(),
+            kind,
+            module,
+            priority,
+        };
+        handlers
+            .actions
+            .iter()
+            .map(|entry| info(HookKind::Action, entry.module, entry.priority))
+            .chain(
+                handlers
+                    .filters
+                    .iter()
+                    .map(|entry| info(HookKind::Filter, entry.module, entry.priority)),
+            )
+            .filter(|entry| self.enabled.is_enabled(entry.module))
+            .collect()
+    }
+
     pub fn describe(&self) -> &[HookInfo] {
         &self.registered
     }

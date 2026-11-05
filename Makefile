@@ -6,7 +6,7 @@ NPM := npm --prefix web
 .DEFAULT_GOAL := help
 
 .PHONY: help up down modules dev-back dev-web lint fmt api-types build
-.PHONY: sdk catalog-docs
+.PHONY: sdk catalog-docs probe
 
 help:
 	@echo "Targets:"
@@ -17,6 +17,7 @@ help:
 	@echo "  dev-web    run Vite with /api proxied to the backend"
 	@echo "  lint       arch check, cargo fmt --check, clippy -D warnings, oxlint, typecheck"
 	@echo "  fmt        cargo fmt"
+	@echo "  probe      run the phase-gate invariant probe (no database, failures only)"
 	@echo "  catalog-docs  regenerate docs/modules/hooks.md and docs/plugins/host-catalog.md"
 	@echo "  api-types  generate web/src/api/schema.d.ts from the OpenAPI document"
 	@echo "  build      release build (web + binary)"
@@ -57,6 +58,9 @@ lint: | web/dist
 
 fmt:
 	$(CARGO) fmt --all
+
+probe:
+	@$(CARGO) run -q -p aphel -- probe
 
 catalog-docs:
 	$(CARGO) run -q -p aphel -- catalog --markdown hooks > ../docs/modules/hooks.md
