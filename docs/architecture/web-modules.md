@@ -107,6 +107,8 @@ Routes of non-required modules sit behind the `ModuleGate` (skeleton while loadi
 
 Each module has a namespace equal to its key, in `web/src/modules/<key>/i18n/<locale>.json` (`pt-BR` and `en`). The `kernel` declares the namespaces of `web/src/i18n/<locale>/*.json` by glob (without `eager`) (`namespaces`). Translations declared as loaders only download the active language and the `pt-BR` fallback (details in [`docs/modules/web.md`](../modules/web.md#on-demand-translations)). After creating or moving a JSON file, run `npm run i18n:types` (`web/scripts/i18n-types`), which generates `web/src/i18n/i18next.d.ts` from both places. For dynamic keys, `useModuleTranslation(key)` returns an untyped `t` in the module's namespace.
 
+`ModuleLocale` is a plain string: any module may ship any locale code in `translations`, and the language menus list `availableLanguages()` (the shipped `pt-BR` and `en` plus every locale a registered module declares). Names come from `navigation-settings:language.options.<code>` when present, otherwise from `Intl.DisplayNames`. `normalizeLanguage` matches an exact code first, then the primary subtag. Missing keys fall back to `pt-BR`.
+
 ## Field types
 
 `FieldInput` and `FieldValueDisplay` look up `useFieldTypeRenderers(type)`. The native ones are registered by the kernel (`kernel/modules/native-field-types.ts`, components in `components/fields/native-inputs.tsx` and `features/records/display/native-displays.tsx`); contributions from active modules win. The record being displayed (so the phone knows which contact it belongs to) comes from `useDisplayRecord()` (`features/records/display/display-record.ts`).

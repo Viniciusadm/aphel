@@ -11,13 +11,13 @@ import type { FilterContext, FilterName, FilterValue } from './filters'
 import type { RecordTypeSelector } from './record-types'
 import type { SlotName, SlotProps } from './slots'
 
-export type ModuleLocale = 'pt-BR' | 'en'
+export type ModuleLocale = string
 
 export type TranslationResources = Record<string, unknown>
 
 export type TranslationLoader = () => Promise<TranslationResources | { default: TranslationResources }>
 
-export type ModuleTranslations = Partial<Record<ModuleLocale, TranslationResources | TranslationLoader>>
+export type ModuleTranslations = Record<ModuleLocale, TranslationResources | TranslationLoader>
 
 export type PermissionRequirement = string | string[]
 

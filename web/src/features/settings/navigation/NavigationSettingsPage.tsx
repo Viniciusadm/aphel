@@ -1,3 +1,4 @@
+import { availableLanguages, useLanguageLabel } from '@/kernel/modules/i18n'
 import { qualifiedLabel } from '@/kernel/modules/navigation'
 import { NativeSelect } from '@/components/ui/native-select'
 import { useId, useMemo, useState } from 'react'
@@ -20,13 +21,13 @@ import { Field } from '@/components/ui/field'
 
 const FOLLOW_ORGANIZATION = 'organization'
 const DEFAULT_HOME = '/'
-const LANGUAGES: SupportedLanguage[] = ['pt-BR', 'en']
 
 function LanguageSection({ preferences }: { preferences: PersonalPreferences }) {
   const { t } = useTranslation('navigation-settings')
   const queryClient = useQueryClient()
   const update = useUpdatePersonalPreferences()
   const labelId = useId()
+  const languageLabel = useLanguageLabel()
 
   const change = (value: string) => {
     const locale = value === FOLLOW_ORGANIZATION ? null : (value as SupportedLanguage)
@@ -48,9 +49,9 @@ function LanguageSection({ preferences }: { preferences: PersonalPreferences }) 
       <Field id={labelId} label={t('language.label')} className="max-w-sm">
         <NativeSelect value={preferences.locale ?? FOLLOW_ORGANIZATION} onValueChange={change} disabled={update.isPending} id={labelId}>
             <option value={FOLLOW_ORGANIZATION}>{t('language.organization')}</option>
-            {LANGUAGES.map((language) => (
+            {availableLanguages().map((language) => (
               <option key={language} value={language}>
-                {t(`language.options.${language}`)}
+                {languageLabel(language)}
               </option>
             ))}
           </NativeSelect>

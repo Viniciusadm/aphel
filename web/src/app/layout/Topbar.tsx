@@ -22,9 +22,9 @@ import { OrganizationBrand } from '@/features/settings/organization/Organization
 import { Slot } from '@/kernel/modules/Slot'
 import { useUpdatePersonalPreferences } from '@/features/settings/navigation/api'
 import type { SupportedLanguage } from '@/features/settings/navigation/types'
+import { availableLanguages, useLanguageLabel } from '@/kernel/modules/i18n'
 import { normalizeLanguage } from './language'
 
-const LANGUAGES: SupportedLanguage[] = ['pt-BR', 'en']
 
 export function UserMenu() {
   const { t, i18n } = useTranslation('layout')
@@ -34,6 +34,7 @@ export function UserMenu() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const updatePreferences = useUpdatePersonalPreferences()
+  const languageLabel = useLanguageLabel()
   const currentLanguage = normalizeLanguage(i18n.language) ?? 'pt-BR'
 
   const changeLanguage = (value: string) => {
@@ -74,9 +75,9 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuLabel>{tNavigation('language.label')}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={currentLanguage} onValueChange={changeLanguage}>
-          {LANGUAGES.map((language) => (
+          {availableLanguages().map((language) => (
             <DropdownMenuRadioItem key={language} value={language}>
-              {tNavigation(`language.options.${language}`)}
+              {languageLabel(language)}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>

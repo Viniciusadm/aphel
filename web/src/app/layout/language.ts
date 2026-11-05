@@ -1,17 +1,19 @@
-import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '@/i18n'
-import { switchLanguage } from '@/kernel/modules/i18n'
+import i18n, { DEFAULT_LANGUAGE } from '@/i18n'
+import { availableLanguages, switchLanguage } from '@/kernel/modules/i18n'
 import { readStorage, writeStorage } from '@/lib/storage'
 
-export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
+export type AppLanguage = string
 
 const LANGUAGE_STORAGE_KEY = 'aphel.language'
 
 export function normalizeLanguage(value: string | null | undefined): AppLanguage | null {
   if (!value) return null
   const lower = value.toLowerCase()
-  if (lower === 'en' || lower.startsWith('en-')) return 'en'
-  if (lower === 'pt' || lower.startsWith('pt-')) return 'pt-BR'
-  return null
+  const languages = availableLanguages()
+  const exact = languages.find((language) => language.toLowerCase() === lower)
+  if (exact) return exact
+  const primary = lower.split('-')[0]
+  return languages.find((language) => language.toLowerCase().split('-')[0] === primary) ?? null
 }
 
 export function applyLanguage(language: AppLanguage): void {

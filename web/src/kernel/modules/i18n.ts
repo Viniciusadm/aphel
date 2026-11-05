@@ -1,12 +1,10 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18n, { DEFAULT_LANGUAGE } from '@/i18n'
+import i18n, { DEFAULT_LANGUAGE, SHIPPED_LANGUAGES } from '@/i18n'
 import type { ModuleLocale, ModuleTranslations, TranslationLoader, TranslationResources, WebModule } from './define'
 import { isModuleActive, moduleState, registeredModules, subscribeModules, type ModuleState } from './registry'
 
 export type ModuleTranslate = (key: string, options?: Record<string, unknown>) => string
-
-const SUPPORTED_LOCALES: readonly ModuleLocale[] = ['pt-BR', 'en']
 
 const installed = new Map<string, string[]>()
 const owners = new Map<string, Set<string>>()
@@ -24,12 +22,8 @@ function moduleNamespaces(module: WebModule): [string, ModuleTranslations][] {
   return [...own, ...Object.entries(module.namespaces ?? {})]
 }
 
-function isLocale(value: string): value is ModuleLocale {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(value)
-}
-
 function localesFor(language: string = i18n.language): ModuleLocale[] {
-  return [...new Set([language, DEFAULT_LANGUAGE])].filter(isLocale)
+  return [...new Set([language, DEFAULT_LANGUAGE])]
 }
 
 function unwrap(loaded: TranslationResources | { default: TranslationResources }): TranslationResources {
@@ -105,7 +99,8 @@ function unload(module: WebModule) {
   if (!namespaces) return
   installed.delete(module.key)
   for (const namespace of namespaces) {
-    for (const locale of SUPPORTED_LOCALES) applied.delete(bundleKey(module.key, namespace, locale))
+    const prefix = bundleKey(module.key, namespace, '')
+    for (const key of [...applied]) if (key.startsWith(prefix)) applied.delete(key)
     const remaining = owners.get(namespace)
     remaining?.delete(module.key)
     if (remaining && remaining.size > 0) continue
@@ -116,6 +111,21 @@ function unload(module: WebModule) {
 
 function activeModules(state: ModuleState): WebModule[] {
   return registeredModules().filter((module) => isModuleActive(module.key, state))
+}
+
+export function availableLanguages(): string[] {
+  const declared = registeredModules().flatMap((module) =>
+    moduleNamespaces(module).flatMap(([, translations]) => Object.keys(translations)),
+  )
+  return [...new Set<string>([...SHIPPED_LANGUAGES, ...declared])]
+}
+
+export function languageName(code: string): string {
+  try {
+    return new Intl.DisplayNames([code], { type: 'language' }).of(code) ?? code
+  } catch {
+    return code
+  }
 }
 
 export function syncModuleTranslations(): Promise<void> {
@@ -182,6 +192,19 @@ function isReady() {
 
 export function useModuleTranslationsReady(): boolean {
   return useSyncExternalStore(subscribeReady, isReady, isReady)
+}
+
+export function useLanguageLabel(): (code: string) => string {
+  const { t } = useTranslation('navigation-settings')
+  return useCallback(
+    (code: string) =>
+      String(
+        (t as unknown as (key: string, options: Record<string, unknown>) => string)(`language.options.${code}`, {
+          defaultValue: languageName(code),
+        }),
+      ),
+    [t],
+  )
 }
 
 export function useModuleTranslation(moduleKey: string): ModuleTranslate {
