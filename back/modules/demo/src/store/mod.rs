@@ -15,7 +15,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::quoted;
 use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_sdk::maintenance::DatasetSeed;
-use privacy::mysql::sql::{file_reference_columns, unreferenced_file_predicate};
+use aphel_sdk::records::cleanup_dataset_files;
 
 const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
 const TRAILING_BUSINESS_TABLES: [&str; 2] = ["products", "custom_records"];
@@ -236,7 +236,6 @@ impl DemoStore {
 
         let statements = [
             format!("DELETE FROM attachments WHERE (record_type, record_id) IN {tracked}"),
-            format!("DELETE FROM notifications WHERE (record_type, record_id) IN {tracked}"),
             format!("DELETE FROM domain_events WHERE (record_type, record_id) IN {tracked}"),
             format!("DELETE FROM audit_logs WHERE (record_type, record_id) IN {tracked}"),
             format!(
@@ -265,20 +264,7 @@ impl DemoStore {
             .execute(&mut **tx)
             .await?;
 
-        let mut storage_keys = Vec::new();
-        let unreferenced = unreferenced_file_predicate(&file_reference_columns(&self.pool).await?);
-        for (file_id, storage_key) in attached_files {
-            let deleted = sqlx::query(AssertSqlSafe(format!(
-                "DELETE f FROM files f WHERE f.id = ? AND {unreferenced}"
-            )))
-            .bind(&file_id)
-            .execute(&mut **tx)
-            .await?
-            .rows_affected();
-            if deleted > 0 {
-                storage_keys.push(storage_key);
-            }
-        }
+        let storage_keys = cleanup_dataset_files(tx, &attached_files, false).await?;
         Ok(DemoCleanup {
             counts,
             storage_keys,
@@ -316,19 +302,6 @@ impl DemoStore {
                 .execute(&mut **tx)
                 .await?;
         }
-        let kept_files = "SELECT logo_file_id FROM organization_settings WHERE logo_file_id IS NOT NULL \
-             UNION SELECT u.avatar_file_id FROM users u JOIN roles r ON r.id = u.role_id \
-             WHERE r.`key` = 'admin' AND u.avatar_file_id IS NOT NULL";
-        let storage_keys: Vec<String> = sqlx::query_scalar(AssertSqlSafe(format!(
-            "SELECT storage_key FROM files WHERE id NOT IN ({kept_files})"
-        )))
-        .fetch_all(&mut **tx)
-        .await?;
-        sqlx::query(AssertSqlSafe(format!(
-            "DELETE FROM files WHERE id NOT IN ({kept_files})"
-        )))
-        .execute(&mut **tx)
-        .await?;
         let removed_users = sqlx::query(
             "DELETE FROM users WHERE role_id NOT IN (SELECT r.id FROM roles r WHERE r.`key` = 'admin')",
         )
@@ -338,7 +311,7 @@ impl DemoStore {
         if removed_users > 0 {
             counts.insert("users".to_owned(), removed_users);
         }
-        let mut storage_keys = storage_keys;
+        let mut storage_keys = cleanup_dataset_files(tx, &[], true).await?;
         storage_keys.extend(tracked.storage_keys);
         Ok(DemoCleanup {
             counts,

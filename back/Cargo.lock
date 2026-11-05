@@ -854,8 +854,6 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
- "aphel-mod-onboarding",
- "aphel-mod-privacy",
  "aphel-sdk",
  "async-trait",
  "axum",
@@ -1408,6 +1406,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
+ "async-trait",
  "axum",
  "chrono",
  "serde",

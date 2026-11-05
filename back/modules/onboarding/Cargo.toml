@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 aphel-sdk.workspace = true
 aphel-kernel.workspace = true
+async-trait.workspace = true
 axum.workspace = true
 chrono.workspace = true
 serde.workspace = true

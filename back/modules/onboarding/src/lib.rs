@@ -3,6 +3,7 @@ pub(crate) mod dto;
 pub(crate) mod http;
 pub mod service;
 pub(crate) mod store;
+mod template;
 
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::builder::APHEL_VERSION;
@@ -20,6 +21,9 @@ impl Module for OnboardingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::maintenance::TemplateOnboarding>(std::sync::Arc::new(
+            template::TemplateCompletion,
+        ));
         app.openapi_tag(
             http::TAG,
             "First-run setup assistant of the organization: questions, template recommendation and state",

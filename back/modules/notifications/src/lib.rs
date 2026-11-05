@@ -1,4 +1,5 @@
 pub mod application;
+mod dataset_seed;
 mod delivery;
 pub mod domain;
 pub mod dto;
@@ -51,6 +52,9 @@ impl aphel_kernel::modules::Module for NotificationsModule {
         ])
     }
     fn register(&self, app: &mut aphel_kernel::modules::AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::NotificationsSeed,
+        ));
         app.provide::<dyn aphel_sdk::notifications::NotificationDelivery>(Arc::new(
             delivery::Delivery,
         ));

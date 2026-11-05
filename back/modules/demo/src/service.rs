@@ -21,9 +21,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
-use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog};
-use onboarding::domain::CompleteOnboardingCommand;
-use onboarding::service::ONBOARDING_NOT_PENDING;
+use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog, TemplateOnboarding};
 const STAGE_KIND_OPEN: &str = "open";
 const STAGE_KIND_WON: &str = "won";
 const STAGE_KIND_LOST: &str = "lost";
@@ -263,23 +261,12 @@ async fn install_template(ctx: &Ctx<'_>, template_key: &str) -> Result<(), AppEr
             },
         )
         .await?;
-    match onboarding::service::complete(
-        ctx,
-        CompleteOnboardingCommand {
-            template_key: Some(template_key.to_owned()),
-            install_id: Some(result.install.id.to_string()),
-            ip: None,
-        },
-    )
-    .await
-    {
-        Ok(_)
-        | Err(AppError::Coded {
-            code: ONBOARDING_NOT_PENDING,
-            ..
-        }) => Ok(()),
-        Err(error) => Err(error),
+    if let Some(onboarding) = ctx.services().get::<dyn TemplateOnboarding>() {
+        onboarding
+            .complete_with_template(ctx, template_key, &result.install.id.to_string())
+            .await?;
     }
+    Ok(())
 }
 
 fn ordered_seeds(ctx: &Ctx<'_>) -> Vec<std::sync::Arc<dyn DatasetSeed>> {

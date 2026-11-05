@@ -10,8 +10,6 @@ publish = false
 aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-onboarding = { package = "aphel-mod-onboarding", path = "../onboarding" }
-privacy = { package = "aphel-mod-privacy", path = "../privacy" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true
