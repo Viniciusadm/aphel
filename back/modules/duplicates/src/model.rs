@@ -12,7 +12,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::fields::{normalize_email, normalize_phone};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::normalize_domain;
-use organizations::domain::domain_from_website;
+use aphel_kernel::records::normalize_domain as domain_from_website;
 
 pub(crate) const CANDIDATE_NOT_FOUND: &str = "duplicate_candidate_not_found";
 pub(crate) const CANDIDATE_RESOLVED: &str = "duplicate_candidate_resolved";

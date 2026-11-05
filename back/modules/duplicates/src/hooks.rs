@@ -66,7 +66,7 @@ pub(crate) async fn forget_purged_record(
 
 pub(crate) struct MergedRecords;
 
-impl trash::TrashExclusion for MergedRecords {
+impl aphel_sdk::trash::TrashExclusion for MergedRecords {
     fn push_hidden(
         &self,
         builder: &mut QueryBuilder<MySql>,

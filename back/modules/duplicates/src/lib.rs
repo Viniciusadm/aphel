@@ -37,8 +37,8 @@ impl Module for DuplicatesModule {
         Manifest::new(KEY, "Duplicates", APHEL_VERSION)
             .description("Duplicate detection rules, the duplicate queue and record merging")
             .enabled_by_default()
-            .optional(leads::KEY)
-            .optional(trash::KEY)
+            .optional(aphel_sdk::leads::KEY)
+            .optional("trash")
             .owned_tables(&["duplicate_candidates", "duplicate_rules", "record_merges"])
             .migration(Migration::new(
                 1,
@@ -60,7 +60,7 @@ impl Module for DuplicatesModule {
         )
         .routes(|_| http::router())
         .provide::<dyn DuplicateDetector>(Arc::new(hooks::RuleDuplicateDetector))
-        .contribute::<dyn trash::TrashExclusion>(Arc::new(hooks::MergedRecords));
+        .contribute::<dyn aphel_sdk::trash::TrashExclusion>(Arc::new(hooks::MergedRecords));
         app.on(
             aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,

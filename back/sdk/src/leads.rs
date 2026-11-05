@@ -100,3 +100,25 @@ pub trait LeadConverter: Send + Sync {
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError>;
 }
+
+#[async_trait]
+pub trait LeadMergeHistory: Send + Sync {
+    async fn stage(
+        &self,
+        ctx: &Ctx<'_>,
+        tx: &mut MySqlTx,
+        entity: &crate::shared::RecordType,
+        id: Uuid,
+    ) -> Result<Option<Option<String>>, AppError>;
+    async fn changed(
+        &self,
+        ctx: &Ctx<'_>,
+        tx: &mut MySqlTx,
+        record: &crate::shared::RecordRef,
+        before: Option<String>,
+        after: Option<String>,
+    ) -> Result<(), AppError>;
+}
+pub fn merge_history(ctx: &Ctx<'_>) -> Option<std::sync::Arc<dyn LeadMergeHistory>> {
+    ctx.services().get::<dyn LeadMergeHistory>()
+}

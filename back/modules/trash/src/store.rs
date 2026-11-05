@@ -20,14 +20,7 @@ use aphel_kernel::infrastructure::query::compiler::{
 use aphel_kernel::infrastructure::repositories::mapper;
 use aphel_kernel::infrastructure::repositories::mapper::{instant, owner_reference};
 
-pub trait TrashExclusion: Send + Sync {
-    fn push_hidden(
-        &self,
-        builder: &mut QueryBuilder<MySql>,
-        definition: &EntityDefinition,
-        alias: &str,
-    );
-}
+pub use aphel_sdk::trash::TrashExclusion;
 
 const NULL_TEXT: &str = "CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci";
 

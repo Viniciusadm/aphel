@@ -2,6 +2,7 @@ pub mod formulas;
 pub mod leads;
 pub mod notes;
 pub mod sso;
+pub mod trash;
 pub use aphel_contract::{
     Catalog as ContractCatalog, Contract, ContractDescriptor, EventKey, ExtensionPoint, HookKey,
     HookKind, KeyEntry, KeyKind, OperationKey, ReferenceKind, action, contract, event,

@@ -10,10 +10,8 @@ publish = false
 aphel-sdk.workspace = true
 aphel-contract-crm.workspace = true
 aphel-kernel.workspace = true
-leads = { package = "aphel-mod-leads", path = "../leads" }
 organizations = { package = "aphel-mod-organizations", path = "../organizations" }
 people = { package = "aphel-mod-people", path = "../people" }
-trash = { package = "aphel-mod-trash", path = "../trash" }
 axum.workspace = true
 async-trait.workspace = true
 chrono.workspace = true

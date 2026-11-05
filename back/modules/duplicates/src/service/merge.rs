@@ -30,8 +30,6 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::records::{changes_payload, permission_denied};
-use leads::service::record_stage_history;
-use leads::store::LeadRecords;
 use organizations::domain::{CompanyView, company_not_found, company_snapshot};
 use organizations::hierarchy::{HierarchyStore, Reparent, blocked_parents, reparent_children};
 use organizations::store::CompanyStore;
@@ -67,7 +65,7 @@ fn not_found(kind: &DuplicateType) -> AppError {
 }
 
 fn tracks_lifecycle(ctx: &Ctx<'_>, kind: &DuplicateType) -> bool {
-    kind.family != DuplicateFamily::Generic && ctx.app().is_enabled(leads::KEY)
+    kind.family != DuplicateFamily::Generic && aphel_sdk::leads::merge_history(ctx).is_some()
 }
 
 async fn lifecycle_stage(
@@ -79,9 +77,10 @@ async fn lifecycle_stage(
     if !tracks_lifecycle(ctx, kind) {
         return Ok(None);
     }
-    LeadRecords::of(ctx)
-        .current_stage_in(tx, kind.record_type(), id)
-        .await
+    match aphel_sdk::leads::merge_history(ctx) {
+        Some(source) => source.stage(ctx, tx, kind.record_type(), id).await,
+        None => Ok(None),
+    }
 }
 
 fn redact_hidden(changes: Vec<FieldChange>, fields: &FieldSet) -> Vec<FieldChange> {
@@ -476,7 +475,11 @@ async fn finish_merge(
         && write.changed(STAGE_FIELD).is_none()
         && let Some(after) = lifecycle_stage(ctx, &mut tx, &kind, primary_id).await?
     {
-        record_stage_history(ctx, &mut tx, &survivor, before, after).await?;
+        if let Some(source) = aphel_sdk::leads::merge_history(ctx) {
+            source
+                .changed(ctx, &mut tx, &survivor, before, after)
+                .await?;
+        }
     }
     let actor = Actor::from_scope(scope);
     if !changes.is_empty() {

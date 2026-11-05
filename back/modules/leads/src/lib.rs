@@ -2,6 +2,7 @@ mod capture_defaults;
 pub mod domain;
 pub mod hooks;
 pub(crate) mod http;
+mod merge_history;
 pub(crate) mod plugin_bridge;
 pub(crate) mod section;
 pub mod service;
@@ -118,6 +119,9 @@ impl Module for LeadsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.provide::<dyn aphel_sdk::leads::LeadMergeHistory>(std::sync::Arc::new(
+            merge_history::History,
+        ));
         app.contract(aphel_sdk::leads::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::party::PartyCaptureDefaults>(Arc::new(
             capture_defaults::CaptureDefaults,

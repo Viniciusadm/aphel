@@ -569,6 +569,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Move the remaining notification title/owner lookup into deals through its enabled renewal reader. Renewals now has no literal foreign SQL; scoped compilation passes.
 - [ ] Manual acceptance: notification recipients, deleted deals and disabled deal readers.
 
+## Duplicate lifecycle and trash interfaces
+
+- [x] Duplicates consumes the shared trash exclusion point and delegates transactional lead stage reads/history to leads; remove both implementation dependencies. Use the generic domain normalization codec directly.
+- [x] Scoped trash/leads/duplicate compilation passes without warnings. Party merge repositories and formatted foreign rewrites remain pending.
+- [ ] Manual acceptance: lifecycle history, optional leads/trash and merged-record exclusion.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
