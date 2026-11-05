@@ -163,6 +163,19 @@ size = "medium"                # small | medium | large
 uses_period = false            # default true: the dashboard period is passed
 default_settings = { limit = 5 }
 
+[[provides.operations]]        # operations other plugins call with ctx.call and invoke
+key = "equine.estimate_value"  # dotted lowercase, unique, never a native key
+description = "Estimates the value of a horse"
+effect = "read"                # read | write | external, default read
+permission = "equine.horse.read"   # optional: the caller needs it
+idempotent = true              # optional
+
+[[contribute]]                 # a typed contribution to an extension point
+point = "dashboard.widget"
+name = "horses_for_sale"
+title = "Cavalos à venda"      # optional
+data = {}                      # optional, validated by the point
+
 [web]
 entry = "web/index.js"
 style = "web/style.css"        # optional
@@ -193,6 +206,8 @@ What the declarations become:
 | `emits` | Events `plugin.<key>.<name>` the backend publishes with `emit`, available as automation triggers |
 | `notifications` | Notification kinds `<key>_<name>` in the preferences, sent with `notify` (see Notifications) |
 | `widgets` | Dashboard widgets `<key>_<name>` whose data comes from `on-widget` (see Dashboard widgets) |
+| `provides.operations` | Operations the plugin offers. While the plugin is enabled each one is in the operation registry (`ctx.call`, `invoke`, the platform catalog, `aphel catalog`); the host runs `on-operation(key, input-json)` with the caller's scope intersected with the plugin's capabilities. A key owned by a native module is refused on install and upgrade; a read operation runs read-only. Disabling or uninstalling the plugin removes them |
+| `contribute` | Typed contributions to an extension point. They are validated on install and upgrade; behaviour is routed to `on-contribution(point, name, input-json)` with the same restricted scope |
 | `privacy.subject_data` | The plugin holds personal data outside its record fields and takes part in privacy requests (see Data subject requests) |
 | `web.public` | Folder under `web/` served as a public single-page app at `/p/<key>/` (see Public web app) |
 
@@ -494,7 +509,7 @@ A veto is never silently bypassed.
 The backend is a [WebAssembly component](https://component-model.bytecodealliance.org) of the world `aphel:plugin@1.0.0`:
 - It is defined in [`back/modules/wasm_runtime/wit/plugin.wit`](../../back/modules/wasm_runtime/wit/plugin.wit) and shipped inside the SDK crate as `sdk/rust/aphel-plugin-sdk/wit/plugin.wit`. The copies are kept in sync by `make modules` and checked by `make lint`.
 - It is also copied to `sdk/js/aphel-plugin-sdk/wit/plugin.wit` for the JavaScript SDK.
-- It exports `on-hook`, `on-event`, `on-route`, `on-schedule`, `on-action` and `on-widget`.
+- It exports `on-hook`, `on-event`, `on-route`, `on-schedule`, `on-action`, `on-widget`, `on-operation` and `on-contribution`.
 - It imports the `host` interface: `get-record`, `list-records`, `create-record`, `update-record`, `delete-record`, `update-record-if`, `apply-records`, `can`, `permissions`, `kv-get`, `kv-set`, `kv-delete`, `kv-list`, `kv-increment`, `kv-set-if-absent`, `next-number`, `aggregate-records`, `iterate-records`, `upload-file`, `read-file`, `respond-bytes`, `set-audit-reason`, `organization-json`, `list-users`, `list-roles`, `list-teams`, `defer-effect`, `hook-state-json`, `execution-context-json`, `http-fetch`, `notify`, `emit`, `invoke`, `settings-json`, `secret`, `now` and `log`.
 - Record values travel as JSON strings inside the typed records, because record fields are dynamic (custom fields, custom objects).
 

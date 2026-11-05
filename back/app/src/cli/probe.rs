@@ -208,6 +208,68 @@ fn operations(failures: &mut Vec<String>) {
     }
 }
 
+fn probe_operation<'a>(
+    _ctx: &'a aphel_kernel::Ctx<'_>,
+    input: serde_json::Value,
+) -> aphel_kernel::modules::OperationFuture<'a> {
+    Box::pin(async move { Ok(input) })
+}
+
+fn runtime_operation_entry(key: &'static str) -> aphel_kernel::modules::OperationEntry {
+    let run: aphel_kernel::modules::plugin_bridge::OperationFn = probe_operation;
+    aphel_kernel::modules::OperationEntry::runtime(
+        key,
+        aphel_kernel::modules::OperationSpec::read("probe"),
+        Arc::new(run),
+    )
+}
+
+fn provided_operations(failures: &mut Vec<String>) {
+    const OWNER: &str = "probe_runtime";
+    const KEY: &str = "probe_runtime.echo";
+    let app = aphel_kernel::modules::app();
+    let visible = |expected: bool, step: &str, failures: &mut Vec<String>| {
+        let found = app.operations().iter().any(|(_, entry)| entry.key == KEY)
+            && app
+                .all_contributions::<aphel_kernel::modules::PluginOperation>()
+                .iter()
+                .any(|(_, operation)| operation.key == KEY);
+        if found != expected {
+            failures.push(format!(
+                "provided operations: `{KEY}` visibility is {found} {step}, expected {expected}"
+            ));
+        }
+    };
+    let mut batch = aphel_kernel::modules::RuntimeBatch::new();
+    if let Err(error) = batch.add_operation(app, runtime_operation_entry(KEY)) {
+        failures.push(format!(
+            "provided operations: a new key must be accepted: {error}"
+        ));
+    }
+    app.replace_runtime(OWNER, batch);
+    visible(true, "after replace_runtime", failures);
+    app.replace_runtime(OWNER, aphel_kernel::modules::RuntimeBatch::new());
+    visible(false, "after replacing with an empty batch", failures);
+
+    let Some((_, native)) = app
+        .operations()
+        .into_iter()
+        .find(|(owner, _)| *owner != OWNER)
+    else {
+        return;
+    };
+    let mut shadow = aphel_kernel::modules::RuntimeBatch::new();
+    if shadow
+        .add_operation(app, runtime_operation_entry(native.key))
+        .is_ok()
+    {
+        failures.push(format!(
+            "provided operations: a WebAssembly operation must not shadow native `{}`",
+            native.key
+        ));
+    }
+}
+
 fn event_envelope(failures: &mut Vec<String>) {
     let service = scope_with(&[]).acting_as("plugin", "probe");
     match Actor::from_scope(&service) {
@@ -244,6 +306,7 @@ pub(crate) fn run() -> CliResult {
     record_validation_order(&mut failures);
     registry_integrity(&mut failures);
     operations(&mut failures);
+    provided_operations(&mut failures);
     event_envelope(&mut failures);
     if failures.is_empty() {
         return Ok(());
