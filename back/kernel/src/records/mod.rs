@@ -38,3 +38,5 @@ pub use maintenance::{
     inspect_entity, lock_entity_version, mark_entity_deleted, matching_entity_text_ids,
     purge_entity, update_entity_text,
 };
+
+pub use references::{copy_custom_columns, existing_tables, move_core_references, retire_custom};

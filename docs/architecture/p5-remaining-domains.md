@@ -575,6 +575,12 @@ This phase is in progress. Completed entries describe static source validation; 
 - [x] Scoped trash/leads/duplicate compilation passes without warnings. Party merge repositories and formatted foreign rewrites remain pending.
 - [ ] Manual acceptance: lifecycle history, optional leads/trash and merged-record exclusion.
 
+## Platform merge storage
+
+- [x] Core owns attachment, typed custom-reference and typed relationship rewrites. Custom column copy/retirement requires a custom entity definition, validated columns and storage partitions; native tables require owner capabilities.
+- [x] Add bounded schema-presence lookup for disabled-owner maintenance. Kernel compilation passes; no public module is added.
+- [ ] Manual acceptance: reference collisions, identical UUIDs across entity types, partitions, protected columns and missing schemas.
+
 ## Outstanding scope
 
 The remaining identity changes, shared capability interfaces, owner-only SQL, deletion policies and per-plugin manual acceptance matrices are still pending. Existing architectural debt is not considered resolved by renaming packages.
