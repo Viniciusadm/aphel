@@ -5,11 +5,13 @@ use chrono::{DateTime, Duration, Utc};
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
+use crate::DEMO_SEED;
 use crate::revenue;
 use crate::store::DemoStore;
 use crate::{
-    DemoCatalog, DemoCleanup, DemoDataset, DemoDealOutcome, DemoRemovalReport, DemoResetReport,
-    DemoSeedCommand, DemoSeedReport, DemoTarget, DemoVisitor, NewDemoVisitor, generate,
+    DemoAnchors, DemoCatalog, DemoCleanup, DemoDataset, DemoDealOutcome, DemoRemovalReport,
+    DemoResetReport, DemoSeedCommand, DemoSeedReport, DemoTarget, DemoVisitor, NewDemoVisitor,
+    generate,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
@@ -24,15 +26,13 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::infrastructure::auth::Argon2PasswordHasher;
 use aphel_kernel::infrastructure::fields::MySqlFieldPorts;
 use aphel_kernel::infrastructure::repositories::mysql_access::MySqlAccessRepository;
-use aphel_kernel::records::AddressInput;
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
+use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog};
 use aphel_sdk::notes::CreateNoteCommand;
 use aphel_sdk::tasks::CreateActivityCommand;
 use deals::domain::{DealInput, LoseDealCommand, MoveDealCommand};
 use onboarding::domain::CompleteOnboardingCommand;
 use onboarding::service::ONBOARDING_NOT_PENDING;
-use organizations::domain::{CompanyInput, SaveCompanyCommand};
-use people::domain::{ContactInput, SaveContactCommand};
 use workflow::seed::{STAGE_KIND_LOST, STAGE_KIND_OPEN, STAGE_KIND_WON};
 
 pub(crate) const DEMO_SEEDED: &str = "demo.seeded";
@@ -116,17 +116,20 @@ pub(crate) async fn seed(
             "the default pipeline needs open, won and lost stages".to_owned(),
         ));
     }
-    let dataset = generate(now, open_stages.len(), catalog.lost_reason_ids.len());
-
     let mut state = SeedState {
         organizations: Vec::new(),
         people: Vec::new(),
         deals: Vec::new(),
         counts: BTreeMap::new(),
     };
+    let anchors = run_dataset_seeds(&ctx, &store, &catalog, &mut state).await?;
+    let dataset = generate(
+        now,
+        open_stages.len(),
+        catalog.lost_reason_ids.len(),
+        &anchors,
+    );
     seed_fields(&ctx, &store, &mut state).await?;
-    seed_companies(&ctx, &store, &dataset, &mut state).await?;
-    seed_contacts(&ctx, &store, &dataset, &mut state).await?;
     let foreign_currency = revenue::seed_currency(&ctx).await?;
     if let Some(currency) = foreign_currency {
         for id in revenue::seed_rates(&ctx, currency).await? {
@@ -352,6 +355,75 @@ async fn track(
     Ok(record)
 }
 
+const ORGANIZATION_ENTITY: &str = "organizations.organization";
+const CONTACT_ENTITY: &str = "people.person";
+
+async fn run_dataset_seeds(
+    ctx: &Ctx<'_>,
+    store: &DemoStore,
+    catalog: &DemoCatalog,
+    state: &mut SeedState,
+) -> Result<DemoAnchors, AppError> {
+    let mut session = DatasetSession::new(
+        ctx.now(),
+        DEMO_SEED,
+        MaintenanceCatalog {
+            stages: catalog
+                .stages
+                .iter()
+                .map(|stage| (stage.id.clone(), stage.kind.clone()))
+                .collect(),
+            lost_reason_ids: catalog.lost_reason_ids.clone(),
+            task_types: catalog.task_types.clone(),
+        },
+    );
+    let mut seeds = ctx.app().contributions::<dyn DatasetSeed>();
+    seeds.sort_by_key(|seed| seed.order());
+    for seed in seeds {
+        seed.seed(ctx, &mut session).await?;
+        for entry in session.take_pending() {
+            store.track(&entry.record).await?;
+            *state
+                .counts
+                .entry(entry.record.record_type.as_str().to_owned())
+                .or_default() += 1;
+            store
+                .backdate(&entry.record, entry.created_at, entry.changed_at)
+                .await?;
+        }
+    }
+    state.organizations = session.ids(ORGANIZATION_ENTITY);
+    state.people = session.ids(CONTACT_ENTITY);
+    let mut contacts_by_company = vec![Vec::new(); state.organizations.len()];
+    for (position, entry) in session.entries(CONTACT_ENTITY).iter().enumerate() {
+        let company_index = entry
+            .attributes
+            .get("company_index")
+            .and_then(|value| value.parse::<usize>().ok());
+        if let Some(bucket) = company_index.and_then(|index| contacts_by_company.get_mut(index)) {
+            bucket.push(position);
+        }
+    }
+    Ok(DemoAnchors {
+        company_names: session
+            .entries(ORGANIZATION_ENTITY)
+            .iter()
+            .map(|entry| entry.attributes.get("name").cloned().unwrap_or_default())
+            .collect(),
+        company_created: session
+            .entries(ORGANIZATION_ENTITY)
+            .iter()
+            .map(|entry| entry.created_at)
+            .collect(),
+        contact_created: session
+            .entries(CONTACT_ENTITY)
+            .iter()
+            .map(|entry| entry.created_at)
+            .collect(),
+        contacts_by_company,
+    })
+}
+
 async fn seed_fields(
     ctx: &Ctx<'_>,
     store: &DemoStore,
@@ -370,89 +442,6 @@ async fn seed_fields(
             .definition
             .id;
         track(store, state, DEMO_FIELD_RECORD_TYPE, id).await?;
-    }
-    Ok(())
-}
-
-async fn seed_companies(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    dataset: &DemoDataset,
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    for company in &dataset.organizations {
-        let id = organizations::service::create(
-            ctx,
-            SaveCompanyCommand {
-                input: CompanyInput {
-                    name: text(&company.name),
-                    domain: text(&company.domain),
-                    website: text(&format!("https://{}", company.domain)),
-                    industry: text(&company.industry),
-                    size_range: text(&company.size_range),
-                    phone: text(&company.phone),
-                    email: text(&format!("contato@{}", company.domain)),
-                    address: AddressInput {
-                        city: text(&company.city),
-                        state: text(&company.state),
-                        country: text("BR"),
-                        ..AddressInput::default()
-                    },
-                    source: text(&company.source),
-                    ..CompanyInput::default()
-                },
-                custom_fields: custom(&[("customer_tier", json!(company.tier))]),
-                ip: None,
-                expected_updated_at: None,
-            },
-        )
-        .await?
-        .view
-        .company
-        .id;
-        let record = track(store, state, RecordType::COMPANY, id).await?;
-        store
-            .backdate(&record, company.created_at, company.created_at)
-            .await?;
-        state.organizations.push(id);
-    }
-    Ok(())
-}
-
-async fn seed_contacts(
-    ctx: &Ctx<'_>,
-    store: &DemoStore,
-    dataset: &DemoDataset,
-    state: &mut SeedState,
-) -> Result<(), AppError> {
-    for contact in &dataset.people {
-        let id = people::service::create(
-            ctx,
-            SaveContactCommand {
-                input: ContactInput {
-                    first_name: text(&contact.first_name),
-                    last_name: text(&contact.last_name),
-                    email: text(&contact.email),
-                    mobile: text(&contact.mobile),
-                    job_title: text(&contact.job_title),
-                    company_id: text(&state.organizations[contact.company_index].to_string()),
-                    source: text(&contact.source),
-                    ..ContactInput::default()
-                },
-                custom_fields: custom(&[("preferred_channel", json!(contact.preferred_channel))]),
-                ip: None,
-                expected_updated_at: None,
-            },
-        )
-        .await?
-        .view
-        .contact
-        .id;
-        let record = track(store, state, RecordType::CONTACT, id).await?;
-        store
-            .backdate(&record, contact.created_at, contact.created_at)
-            .await?;
-        state.people.push(id);
     }
     Ok(())
 }
@@ -691,43 +680,15 @@ fn demo_fields() -> Vec<(&'static str, CreateFieldCommand)> {
             .collect(),
         ip: None,
     };
-    vec![
-        (
-            "organizations.organization",
-            field(
-                "customer_tier",
-                crate::labels("Customer category"),
-                "select",
-                &[("gold", "Ouro"), ("silver", "Prata"), ("bronze", "Bronze")],
-            ),
+    vec![(
+        "deals.deal",
+        field(
+            "contract_months",
+            crate::labels("Contract duration (months)"),
+            "number",
+            &[],
         ),
-        (
-            "people.person",
-            field(
-                "preferred_channel",
-                crate::labels("Preferred channel"),
-                "select",
-                &[
-                    ("email", "E-mail"),
-                    ("phone", "Telefone"),
-                    ("whatsapp", "WhatsApp"),
-                ],
-            ),
-        ),
-        (
-            "deals.deal",
-            field(
-                "contract_months",
-                crate::labels("Contract duration (months)"),
-                "number",
-                &[],
-            ),
-        ),
-    ]
-}
-
-fn text(value: &str) -> Option<Option<String>> {
-    Some(Some(value.to_owned()))
+    )]
 }
 
 fn custom(values: &[(&str, Value)]) -> Map<String, Value> {

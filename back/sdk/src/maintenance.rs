@@ -58,3 +58,125 @@ pub trait DatasetMaintenance: Send + Sync {
         phase: CleanupPhase,
     ) -> Result<(), AppError>;
 }
+
+#[derive(Debug, Clone)]
+pub struct DatasetRandom(u64);
+
+impl DatasetRandom {
+    pub fn new(seed: u64) -> Self {
+        Self(seed.max(1))
+    }
+
+    pub fn for_owner(seed: u64, owner: &str) -> Self {
+        let mixed = owner.bytes().fold(seed, |state, byte| {
+            (state ^ u64::from(byte)).wrapping_mul(0x0100_0000_01b3)
+        });
+        Self::new(mixed)
+    }
+
+    pub fn next_u64(&mut self) -> u64 {
+        let mut value = self.0;
+        value ^= value << 13;
+        value ^= value >> 7;
+        value ^= value << 17;
+        self.0 = value;
+        value
+    }
+
+    pub fn below(&mut self, bound: usize) -> usize {
+        (self.next_u64() % bound.max(1) as u64) as usize
+    }
+
+    pub fn between(&mut self, low: i64, high: i64) -> i64 {
+        low + (self.next_u64() % (high - low + 1).max(1) as u64) as i64
+    }
+
+    pub fn pick<'a, T>(&mut self, items: &'a [T]) -> &'a T {
+        &items[self.below(items.len())]
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DatasetEntry {
+    pub record: RecordRef,
+    pub created_at: DateTime<Utc>,
+    pub changed_at: DateTime<Utc>,
+    pub attributes: BTreeMap<String, String>,
+}
+
+pub struct DatasetSession {
+    now: DateTime<Utc>,
+    seed: u64,
+    catalog: MaintenanceCatalog,
+    entries: BTreeMap<String, Vec<DatasetEntry>>,
+    pending: Vec<DatasetEntry>,
+}
+
+impl DatasetSession {
+    pub fn new(now: DateTime<Utc>, seed: u64, catalog: MaintenanceCatalog) -> Self {
+        Self {
+            now,
+            seed,
+            catalog,
+            entries: BTreeMap::new(),
+            pending: Vec::new(),
+        }
+    }
+
+    pub fn now(&self) -> DateTime<Utc> {
+        self.now
+    }
+
+    pub fn random(&self, owner: &str) -> DatasetRandom {
+        DatasetRandom::for_owner(self.seed, owner)
+    }
+
+    pub fn catalog(&self) -> &MaintenanceCatalog {
+        &self.catalog
+    }
+
+    pub fn entries(&self, entity: &str) -> &[DatasetEntry] {
+        self.entries.get(entity).map(Vec::as_slice).unwrap_or(&[])
+    }
+
+    pub fn ids(&self, entity: &str) -> Vec<uuid::Uuid> {
+        self.entries(entity)
+            .iter()
+            .map(|entry| entry.record.record_id)
+            .collect()
+    }
+
+    pub fn push(&mut self, entry: DatasetEntry) {
+        self.entries
+            .entry(entry.record.record_type.as_str().to_owned())
+            .or_default()
+            .push(entry.clone());
+        self.pending.push(entry);
+    }
+
+    pub fn record(
+        &mut self,
+        record: RecordRef,
+        created_at: DateTime<Utc>,
+        changed_at: DateTime<Utc>,
+        attributes: BTreeMap<String, String>,
+    ) {
+        self.push(DatasetEntry {
+            record,
+            created_at,
+            changed_at,
+            attributes,
+        });
+    }
+
+    pub fn take_pending(&mut self) -> Vec<DatasetEntry> {
+        std::mem::take(&mut self.pending)
+    }
+}
+
+#[async_trait]
+pub trait DatasetSeed: Send + Sync {
+    fn order(&self) -> i32;
+    fn entities(&self) -> Vec<crate::shared::RecordType>;
+    async fn seed(&self, ctx: &Ctx<'_>, session: &mut DatasetSession) -> Result<(), AppError>;
+}

@@ -1,4 +1,5 @@
 mod context_source;
+mod dataset_seed;
 mod email_engagement;
 mod merges;
 use aphel_sdk::imports::ImportTraits;
@@ -215,6 +216,9 @@ impl Module for OrganizationsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::OrganizationsSeed,
+        ));
         app.contribute::<dyn aphel_sdk::merges::MergeOwner>(std::sync::Arc::new(merges::Owner));
         app.contribute::<dyn aphel_sdk::email::EmailEngagementProjection>(std::sync::Arc::new(
             email_engagement::Projection,

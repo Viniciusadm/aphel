@@ -50,5 +50,9 @@
   "Mobile": {
     "pt-BR": "Celular",
     "en": "Mobile"
+  },
+  "Preferred channel": {
+    "pt-BR": "Canal preferido",
+    "en": "Preferred channel"
   }
 }

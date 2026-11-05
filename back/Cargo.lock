@@ -859,8 +859,6 @@ dependencies = [
  "aphel-mod-deals",
  "aphel-mod-money",
  "aphel-mod-onboarding",
- "aphel-mod-organizations",
- "aphel-mod-people",
  "aphel-mod-pricing",
  "aphel-mod-privacy",
  "aphel-mod-quotes",

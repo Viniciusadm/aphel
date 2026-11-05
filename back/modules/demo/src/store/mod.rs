@@ -14,18 +14,35 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::query::compiler::quoted;
 use aphel_kernel::infrastructure::repositories::mapper;
+use aphel_sdk::maintenance::DatasetSeed;
 use privacy::mysql::sql::{file_reference_columns, unreferenced_file_predicate};
 
 const TRACKED_SELECT: &str = "SELECT record_type, record_id FROM demo_records";
-const BUSINESS_TABLES: [&str; 7] = [
-    "tasks",
-    "deals",
-    "people",
-    "organizations",
-    "products",
-    "custom_records",
-    "notes",
-];
+const LEADING_BUSINESS_TABLES: [&str; 2] = ["tasks", "deals"];
+const TRAILING_BUSINESS_TABLES: [&str; 3] = ["products", "custom_records", "notes"];
+
+fn seeded_record_tables() -> Vec<String> {
+    let mut seeds = aphel_kernel::modules::app().contributions::<dyn DatasetSeed>();
+    seeds.sort_by_key(|seed| std::cmp::Reverse(seed.order()));
+    seeds
+        .iter()
+        .flat_map(|seed| seed.entities())
+        .filter_map(|record_type| record_table(&record_type))
+        .collect()
+}
+
+fn business_tables() -> Vec<String> {
+    LEADING_BUSINESS_TABLES
+        .iter()
+        .map(|table| (*table).to_owned())
+        .chain(seeded_record_tables())
+        .chain(
+            TRAILING_BUSINESS_TABLES
+                .iter()
+                .map(|table| (*table).to_owned()),
+        )
+        .collect()
+}
 
 #[derive(Clone)]
 pub(crate) struct DemoStore {
@@ -69,7 +86,7 @@ async fn tracked_counts(tx: &mut MySqlTx) -> Result<BTreeMap<String, u64>, AppEr
 
 async fn record_counts(tx: &mut MySqlTx) -> Result<BTreeMap<String, u64>, AppError> {
     let mut counts = BTreeMap::new();
-    for table in BUSINESS_TABLES {
+    for table in business_tables() {
         let total: i64 = sqlx::query_scalar(AssertSqlSafe(format!("SELECT COUNT(*) FROM {table}")))
             .fetch_one(&mut **tx)
             .await?;
@@ -124,6 +141,24 @@ async fn remove_module_rows(tx: &mut MySqlTx, targets: &[(&str, &str)]) -> Resul
     Ok(())
 }
 
+async fn remove_seeded_records(tx: &mut MySqlTx) -> Result<(), AppError> {
+    let mut seeds = aphel_kernel::modules::app().contributions::<dyn DatasetSeed>();
+    seeds.sort_by_key(|seed| std::cmp::Reverse(seed.order()));
+    for record_type in seeds.iter().flat_map(|seed| seed.entities()) {
+        let Some(table) = record_table(&record_type) else {
+            continue;
+        };
+        sqlx::query(AssertSqlSafe(format!(
+            "DELETE FROM {} WHERE id IN (SELECT record_id FROM demo_records WHERE record_type = ?)",
+            quoted(&table)
+        )))
+        .bind(record_type.as_str())
+        .execute(&mut **tx)
+        .await?;
+    }
+    Ok(())
+}
+
 impl DemoStore {
     pub(crate) async fn key_exists(&self, table: &str, key: &str) -> Result<bool, AppError> {
         if !is_sql_identifier(table) {
@@ -169,7 +204,7 @@ impl DemoStore {
     }
 
     pub(crate) async fn has_business_records(&self) -> Result<bool, AppError> {
-        for table in BUSINESS_TABLES {
+        for table in business_tables() {
             let exists: i64 = sqlx::query_scalar(AssertSqlSafe(format!(
                 "SELECT EXISTS(SELECT 1 FROM {table})"
             )))
@@ -321,14 +356,6 @@ impl DemoStore {
             format!("DELETE FROM tasks WHERE id IN {}", tracked_of("tasks.task")),
             format!("DELETE FROM deals WHERE id IN {}", tracked_of("deals.deal")),
             format!(
-                "DELETE FROM people WHERE id IN {}",
-                tracked_of("people.person")
-            ),
-            format!(
-                "DELETE FROM organizations WHERE id IN {}",
-                tracked_of("organizations.organization")
-            ),
-            format!(
                 "DELETE FROM field_definitions WHERE id IN {}",
                 tracked_of("field")
             ),
@@ -338,6 +365,7 @@ impl DemoStore {
                 .execute(&mut **tx)
                 .await?;
         }
+        remove_seeded_records(tx).await?;
         remove_module_rows(tx, &MODULE_CLEANUP_AFTER_RECORDS).await?;
         sqlx::query("DELETE FROM demo_records")
             .execute(&mut **tx)
@@ -388,7 +416,7 @@ impl DemoStore {
                 .execute(&mut **tx)
                 .await?;
         }
-        for table in BUSINESS_TABLES {
+        for table in business_tables() {
             sqlx::query(AssertSqlSafe(format!("DELETE FROM {table}")))
                 .execute(&mut **tx)
                 .await?;

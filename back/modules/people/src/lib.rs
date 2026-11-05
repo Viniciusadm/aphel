@@ -1,6 +1,7 @@
 mod associations;
 mod context_source;
 mod creator;
+mod dataset_seed;
 mod email_engagement;
 mod merge_references;
 mod merges;
@@ -217,6 +218,9 @@ impl Module for PeopleModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute::<dyn aphel_sdk::merges::MergeReferences>(std::sync::Arc::new(
             merge_references::References,
+        ));
+        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
+            dataset_seed::PeopleSeed,
         ));
         app.contribute::<dyn aphel_sdk::merges::MergeOwner>(std::sync::Arc::new(merges::Owner));
         app.provide::<dyn aphel_sdk::people::PersonWriter>(std::sync::Arc::new(creator::Creator));

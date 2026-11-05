@@ -1,88 +1,7 @@
 use chrono::{DateTime, Duration, Utc};
 
 pub(crate) const DEMO_SEED: u64 = 0x0b17_2026_5eed_0008;
-pub(crate) const COMPANY_COUNT: usize = 20;
-pub(crate) const CONTACTS_PER_COMPANY: usize = 3;
 pub(crate) const DEAL_COUNT: usize = 40;
-
-const COMPANY_NAMES: [&str; COMPANY_COUNT] = [
-    "Aurora Logística",
-    "Bússola Engenharia",
-    "Cerrado Alimentos",
-    "Delta Saúde Integrada",
-    "Estrela Educação",
-    "Farol Contabilidade",
-    "Galáxia Software",
-    "Horizonte Imóveis",
-    "Ipê Construtora",
-    "Jangada Turismo",
-    "Lume Energia Solar",
-    "Maré Pescados",
-    "Nuvem Telecom",
-    "Orquídea Cosméticos",
-    "Pampa Agronegócio",
-    "Quasar Consultoria",
-    "Rio Claro Transportes",
-    "Serra Verde Móveis",
-    "Trilha Esportes",
-    "Vértice Marketing",
-];
-
-const INDUSTRIES: [&str; 10] = [
-    "Logística",
-    "Engenharia",
-    "Alimentos",
-    "Saúde",
-    "Educação",
-    "Serviços financeiros",
-    "Tecnologia",
-    "Imobiliário",
-    "Construção",
-    "Turismo",
-];
-
-const CITIES: [(&str, &str); 8] = [
-    ("São Paulo", "SP"),
-    ("Rio de Janeiro", "RJ"),
-    ("Belo Horizonte", "MG"),
-    ("Curitiba", "PR"),
-    ("Porto Alegre", "RS"),
-    ("Recife", "PE"),
-    ("Salvador", "BA"),
-    ("Goiânia", "GO"),
-];
-
-const SIZE_RANGES: [&str; 4] = ["size_1_10", "size_11_50", "size_51_200", "size_201_500"];
-
-const FIRST_NAMES: [&str; 20] = [
-    "Ana", "Bruno", "Camila", "Diego", "Elisa", "Felipe", "Gabriela", "Henrique", "Isabela",
-    "João", "Larissa", "Marcos", "Natália", "Otávio", "Paula", "Rafael", "Sofia", "Thiago",
-    "Vanessa", "Yuri",
-];
-
-const LAST_NAMES: [&str; 16] = [
-    "Almeida", "Barbosa", "Cardoso", "Duarte", "Esteves", "Ferreira", "Gomes", "Lima", "Martins",
-    "Nogueira", "Oliveira", "Pereira", "Ribeiro", "Souza", "Teixeira", "Vieira",
-];
-
-const JOB_TITLES: [&str; 8] = [
-    "Diretora comercial",
-    "Gerente de compras",
-    "Coordenador financeiro",
-    "Analista de operações",
-    "CEO",
-    "Gerente de TI",
-    "Head de marketing",
-    "Supervisor de vendas",
-];
-
-const SOURCES: [&str; 5] = [
-    "Indicação",
-    "Site",
-    "Evento",
-    "LinkedIn",
-    "Prospecção ativa",
-];
 
 const PRODUCTS: [&str; 8] = [
     "Plano anual",
@@ -95,8 +14,6 @@ const PRODUCTS: [&str; 8] = [
     "Suporte premium",
 ];
 
-const TIERS: [&str; 3] = ["gold", "silver", "bronze"];
-const CHANNELS: [&str; 3] = ["email", "phone", "whatsapp"];
 const CONTRACT_MONTHS: [i64; 4] = [6, 12, 24, 36];
 
 const NOTE_BODIES: [&str; 6] = [
@@ -149,33 +66,6 @@ impl DemoRandom {
     pub(crate) fn pick<'a, T>(&mut self, items: &'a [T]) -> &'a T {
         &items[self.below(items.len())]
     }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) struct DemoCompany {
-    pub(crate) name: String,
-    pub(crate) domain: String,
-    pub(crate) industry: String,
-    pub(crate) size_range: String,
-    pub(crate) phone: String,
-    pub(crate) city: String,
-    pub(crate) state: String,
-    pub(crate) source: String,
-    pub(crate) tier: String,
-    pub(crate) created_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) struct DemoContact {
-    pub(crate) company_index: usize,
-    pub(crate) first_name: String,
-    pub(crate) last_name: String,
-    pub(crate) email: String,
-    pub(crate) mobile: String,
-    pub(crate) job_title: String,
-    pub(crate) source: String,
-    pub(crate) preferred_channel: String,
-    pub(crate) created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -233,82 +123,41 @@ pub(crate) struct DemoNote {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct DemoDataset {
-    pub(crate) organizations: Vec<DemoCompany>,
-    pub(crate) people: Vec<DemoContact>,
     pub(crate) deals: Vec<DemoDeal>,
     pub(crate) tasks: Vec<DemoActivity>,
     pub(crate) notes: Vec<DemoNote>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub(crate) struct DemoAnchors {
+    pub(crate) company_names: Vec<String>,
+    pub(crate) company_created: Vec<DateTime<Utc>>,
+    pub(crate) contact_created: Vec<DateTime<Utc>>,
+    pub(crate) contacts_by_company: Vec<Vec<usize>>,
 }
 
 pub(crate) fn generate(
     now: DateTime<Utc>,
     open_stage_count: usize,
     lost_reason_count: usize,
+    anchors: &DemoAnchors,
 ) -> DemoDataset {
     let mut random = DemoRandom::new(DEMO_SEED);
     let days_ago = |random: &mut DemoRandom, low: i64, high: i64| {
         now - Duration::days(random.between(low, high)) - Duration::minutes(random.between(0, 600))
     };
 
-    let organizations: Vec<DemoCompany> = COMPANY_NAMES
-        .iter()
-        .enumerate()
-        .map(|(index, name)| {
-            let (city, state) = CITIES[index % CITIES.len()];
-            DemoCompany {
-                name: (*name).to_owned(),
-                domain: format!("{}.example.com", slugify(name)),
-                industry: INDUSTRIES[index % INDUSTRIES.len()].to_owned(),
-                size_range: random.pick(&SIZE_RANGES).to_string(),
-                phone: format!(
-                    "+55 11 3{:03}-{:04}",
-                    random.between(100, 999),
-                    random.between(1000, 9999)
-                ),
-                city: city.to_owned(),
-                state: state.to_owned(),
-                source: random.pick(&SOURCES).to_string(),
-                tier: random.pick(&TIERS).to_string(),
-                created_at: days_ago(&mut random, 90, 180),
-            }
-        })
-        .collect();
-
-    let mut people = Vec::new();
-    for company_index in 0..organizations.len() {
-        for slot in 0..CONTACTS_PER_COMPANY {
-            let position = company_index * CONTACTS_PER_COMPANY + slot;
-            let first_name = FIRST_NAMES[position % FIRST_NAMES.len()];
-            let last_name = LAST_NAMES[(position * 7 + company_index) % LAST_NAMES.len()];
-            people.push(DemoContact {
-                company_index,
-                first_name: first_name.to_owned(),
-                last_name: last_name.to_owned(),
-                email: format!(
-                    "{}.{}@{}",
-                    slugify(first_name),
-                    slugify(last_name),
-                    organizations[company_index].domain
-                ),
-                mobile: format!(
-                    "+55 11 9{:04}-{:04}",
-                    random.between(7000, 9999),
-                    random.between(1000, 9999)
-                ),
-                job_title: JOB_TITLES[position % JOB_TITLES.len()].to_owned(),
-                source: random.pick(&SOURCES).to_string(),
-                preferred_channel: random.pick(&CHANNELS).to_string(),
-                created_at: days_ago(&mut random, 60, 89),
-            });
-        }
-    }
+    let company_total = anchors.company_names.len();
+    let usable = company_total > 0 && anchors.contacts_by_company.iter().all(|c| !c.is_empty());
+    let deal_total = if usable { DEAL_COUNT } else { 0 };
 
     let open_stage_count = open_stage_count.max(1);
     let lost_reason_count = lost_reason_count.max(1);
-    let deals: Vec<DemoDeal> = (0..DEAL_COUNT)
+    let deals: Vec<DemoDeal> = (0..deal_total)
         .map(|index| {
-            let company_index = index % organizations.len();
-            let contact_index = company_index * CONTACTS_PER_COMPANY + index % CONTACTS_PER_COMPANY;
+            let company_index = index % company_total;
+            let contacts = &anchors.contacts_by_company[company_index];
+            let contact_index = contacts[index % contacts.len()];
             let outcome = match index % 10 {
                 0 | 1 => DemoDealOutcome::Won {
                     reached_stage: open_stage_count - 1,
@@ -335,7 +184,7 @@ pub(crate) fn generate(
                 title: format!(
                     "{} - {}",
                     random.pick(&PRODUCTS),
-                    organizations[company_index].name
+                    anchors.company_names[company_index]
                 ),
                 company_index,
                 contact_index,
@@ -379,7 +228,7 @@ pub(crate) fn generate(
             });
         }
     }
-    for contact_index in (0..people.len()).step_by(6) {
+    for contact_index in (0..anchors.contact_created.len()).step_by(6) {
         let overdue = contact_index % 12 == 0;
         tasks.push(DemoActivity {
             title: "Retomar contato".to_owned(),
@@ -392,7 +241,7 @@ pub(crate) fn generate(
             },
             completed_at: None,
             priority: "low".to_owned(),
-            created_at: people[contact_index].created_at,
+            created_at: anchors.contact_created[contact_index],
         });
     }
 
@@ -405,41 +254,18 @@ pub(crate) fn generate(
             created_at: deal.created_at + Duration::hours(random.between(2, 48)),
         });
     }
-    for company_index in (0..organizations.len()).step_by(4) {
+    for company_index in (0..company_total).step_by(4) {
         notes.push(DemoNote {
             target: DemoTarget::Company(company_index),
             body: random.pick(&NOTE_BODIES).to_string(),
             pinned: false,
-            created_at: organizations[company_index].created_at + Duration::days(1),
+            created_at: anchors.company_created[company_index] + Duration::days(1),
         });
     }
 
     DemoDataset {
-        organizations,
-        people,
         deals,
         tasks,
         notes,
     }
-}
-
-fn slugify(text: &str) -> String {
-    let mut slug = String::new();
-    for character in text.chars() {
-        let folded = match character {
-            'á' | 'à' | 'â' | 'ã' | 'Á' | 'Â' | 'Ã' => 'a',
-            'é' | 'ê' | 'É' | 'Ê' => 'e',
-            'í' | 'Í' => 'i',
-            'ó' | 'ô' | 'õ' | 'Ó' | 'Ô' | 'Õ' => 'o',
-            'ú' | 'ü' | 'Ú' => 'u',
-            'ç' | 'Ç' => 'c',
-            other => other,
-        };
-        if folded.is_ascii_alphanumeric() {
-            slug.push(folded.to_ascii_lowercase());
-        } else if !slug.is_empty() && !slug.ends_with('-') {
-            slug.push('-');
-        }
-    }
-    slug.trim_matches('-').to_owned()
 }

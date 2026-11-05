@@ -86,5 +86,9 @@
   "Mobile": {
     "pt-BR": "Celular",
     "en": "Mobile"
+  },
+  "Customer category": {
+    "pt-BR": "Categoria do cliente",
+    "en": "Customer category"
   }
 }
