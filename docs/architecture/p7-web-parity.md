@@ -30,12 +30,12 @@ Typecheck, oxlint and the arch check prove that the code compiles and the counts
 - [ ] Record summary panel shows the expected fields for deals and contacts, and every field for a resource without `summaryFields`.
 
 ## Per-module API types (P7.9)
-- [ ] `make api-types` regenerates `modules/line_items/api-types.d.ts` without a diff on an unchanged OpenAPI document.
+- [ ] `make api-types` regenerates the 24 `modules/*/api-types.d.ts` files without a diff on an unchanged OpenAPI document; `/api/openapi.json` shows `x-aphel-module` on operations and tags.
 
 ## Trait-aware UI (P7.10)
 - [ ] The related deals tab appears on contacts and companies only if the entity catalog reports `party.contact_points` in `traits` (not verified against the backend response).
 - [ ] A custom object whose entity carries `workflow.staged` shows a Stages view next to List: columns are the active pipeline's stages, a pipeline picker appears with more than one pipeline, dragging a card changes the stage field (needs a staged custom entity to exercise; not verified against the backend).
-- [ ] Not done: attachment panel by trait (no backend trait for it); the deals page keeps its own board.
+- [ ] The Files tab still appears for every entity (attachments are a kernel capability for any readable record, so no trait gates it); the deals page keeps its own board.
 
 ## Build without plugins
 - [ ] With `aphel.modules.toml` empty, `make modules` and `npm run typecheck` pass (checked once; restore the generated files afterwards).
