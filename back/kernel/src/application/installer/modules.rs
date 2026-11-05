@@ -30,6 +30,13 @@ pub struct PreparedModule {
     pub secrets: Vec<(String, Secret)>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
+pub struct InstallerIdentity {
+    pub key: String,
+    pub name: String,
+    pub home: Option<String>,
+}
+
 pub fn blueprint_required(business: Option<&Value>) -> Vec<String> {
     let Some(key) = business
         .and_then(|business| business.get("business_type"))

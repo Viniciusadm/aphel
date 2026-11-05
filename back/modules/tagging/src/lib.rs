@@ -30,7 +30,6 @@ impl Module for TaggingModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Tags", APHEL_VERSION)
             .description("Tags of the organization and tagging of opted-in records")
-            .required()
             .plugin_toml(include_str!("../plugin.toml"))
             .owned_tables(&["tags", "taggings"])
             .migration(Migration::new(

@@ -215,7 +215,6 @@ impl Module for PeopleModule {
         Manifest::new(KEY, "People", APHEL_VERSION)
             .description("Contacts and their links to organizations")
             .depends_on("organizations", "*")
-            .required()
             .owned_tables(&["people", "people_organizations"])
             .migration(Migration::new(
                 1,

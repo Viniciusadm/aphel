@@ -7,10 +7,11 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use crate::api::dto::auth::MeResponse;
+use crate::api::dto::common::Data;
 use crate::api::dto::common::ErrorEnvelope;
 use crate::api::dto::installer::{InstallRequest, InstallerStatusResponse};
 use crate::api::error::ApiError;
-use crate::api::extractors::{ClientInfo, JsonBody};
+use crate::api::extractors::{AuthContext, ClientInfo, JsonBody};
 use crate::api::session_cookie;
 use crate::api::state::AppState;
 use crate::application::auth::LoginCommand;
@@ -25,6 +26,7 @@ pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(installer_status, install))
         .routes(routes!(validate_modules))
+        .routes(routes!(installed_blueprint))
 }
 
 #[utoipa::path(
@@ -219,4 +221,43 @@ async fn validate_modules(
         None,
     )?;
     Ok(StatusCode::NO_CONTENT)
+}
+
+#[derive(Debug, serde::Serialize, utoipa::ToSchema)]
+pub struct BlueprintResponse {
+    pub blueprint: Option<crate::application::installer::modules::InstallerIdentity>,
+}
+
+#[utoipa::path(
+    get,
+    path = "/blueprint",
+    tag = TAG,
+    operation_id = "installed_blueprint",
+    security(("session_cookie" = [])),
+    description = "The blueprint the instance was installed from (key, name and navigation home), or `null` for a blank system.",
+    responses(
+        (status = 200, description = "The installed blueprint", body = Data<BlueprintResponse>),
+        (status = 401, description = "Missing or invalid credentials", body = ErrorEnvelope),
+    )
+)]
+async fn installed_blueprint(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<BlueprintResponse>>, ApiError> {
+    let key: Option<String> = sqlx::query_scalar(
+        "SELECT JSON_UNQUOTE(JSON_EXTRACT(settings, '$.installer.business_type')) \
+         FROM organization_settings WHERE id = 1",
+    )
+    .fetch_optional(&state.db()?)
+    .await
+    .map_err(AppError::from)?
+    .flatten();
+    let blueprint = key.and_then(|key| {
+        state
+            .app
+            .contributions::<dyn crate::application::installer::InstallerBlueprintSource>()
+            .into_iter()
+            .find_map(|source| source.identity(&key))
+    });
+    Ok(Json(Data::new(BlueprintResponse { blueprint })))
 }

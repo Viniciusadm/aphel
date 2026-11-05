@@ -926,6 +926,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/blueprint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The blueprint the instance was installed from (key, name and navigation home), or `null` for a blank system. */
+        get: operations["installed_blueprint"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/booking/availability": {
         parameters: {
             query?: never;
@@ -9484,6 +9501,9 @@ export interface components {
             /** Format: int32 */
             version: number;
         };
+        BlueprintResponse: {
+            blueprint?: null | components["schemas"]["InstallerIdentity"];
+        };
         BoardColumnResponse: {
             /** Format: int64 */
             count: number;
@@ -11305,6 +11325,11 @@ export interface components {
                 /** Format: int32 */
                 version: number;
                 waiting_step_id?: string | null;
+            };
+        };
+        Data_BlueprintResponse: {
+            data: {
+                blueprint?: null | components["schemas"]["InstallerIdentity"];
             };
         };
         Data_BoardResponse: {
@@ -16626,6 +16651,11 @@ export interface components {
             package_sha256: string;
             /** @example 1.0.0 */
             version: string;
+        };
+        InstallerIdentity: {
+            home?: string | null;
+            key: string;
+            name: string;
         };
         InstallerModuleResponse: {
             compatible: boolean;
@@ -27253,6 +27283,35 @@ export interface operations {
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    installed_blueprint: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The installed blueprint */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_BlueprintResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

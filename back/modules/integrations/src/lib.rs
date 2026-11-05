@@ -22,7 +22,6 @@ impl Module for IntegrationsModule {
             .description(
                 "Integration center: providers (generic webhook and module providers), configuration, connection test and activation",
             )
-            .required()
             .owned_tables(&["integrations"])
             .migration(Migration::new(
                 1,

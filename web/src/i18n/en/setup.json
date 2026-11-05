@@ -100,7 +100,8 @@
       "small": "2 to 10 people",
       "medium": "11 to 50 people",
       "large": "More than 50 people"
-    }
+    },
+    "blank": "Start with a blank system"
   },
   "features": {
     "title": "Choose your features",
@@ -126,7 +127,8 @@
     "validating": "Checking…",
     "invalidConfiguration": "Some details are not valid. Check the highlighted fields.",
     "invalidField": "Check this value.",
-    "selectOption": "Select an option"
+    "selectOption": "Select an option",
+    "descriptionBlank": "Pick the features this system should have. You can change them later in Settings."
   },
   "account": {
     "title": "Create your administrator account",

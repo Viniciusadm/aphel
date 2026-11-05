@@ -121,6 +121,14 @@ export function InstallWizard() {
     if (await form.trigger([...ORGANIZATION_FIELDS])) goTo(hasProfiles ? 'business' : hasModules ? 'features' : 'account')
   }
 
+  const startBlank = () => {
+    setError(null)
+    setBusiness(EMPTY_BUSINESS)
+    setChoice(EMPTY_CHOICE)
+    setPreselectedFor(null)
+    goTo('features')
+  }
+
   const nextFromBusiness = () => {
     if (!business.business_type) {
       setError(t('business.required'))
@@ -259,7 +267,7 @@ export function InstallWizard() {
     if (step === 'organization') {
       return <OrganizationStep form={form} error={error} onNext={() => void nextFromOrganization()} onRestore={() => setRestoring(true)} />
     }
-    if (step === 'business') return <BusinessStep value={business} onChange={setBusiness} error={error} onNext={nextFromBusiness} />
+    if (step === 'business') return <BusinessStep value={business} onChange={setBusiness} error={error} onNext={nextFromBusiness} onBlank={startBlank} />
     if (step === 'features') {
       if (!catalog) return catalogGate(t('features.title'))
       return (

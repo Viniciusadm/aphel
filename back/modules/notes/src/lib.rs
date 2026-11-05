@@ -54,7 +54,6 @@ impl Module for NotesModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Notes", APHEL_VERSION)
             .description("Notes attached to records, with mentions and private notes")
-            .required()
             .owned_tables(&["notes"])
             .migration(Migration::new(
                 1,

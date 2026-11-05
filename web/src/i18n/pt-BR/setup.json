@@ -100,7 +100,8 @@
       "small": "2 a 10 pessoas",
       "medium": "11 a 50 pessoas",
       "large": "Mais de 50 pessoas"
-    }
+    },
+    "blank": "Começar com um sistema em branco"
   },
   "features": {
     "title": "Escolha seus recursos",
@@ -126,7 +127,8 @@
     "validating": "Verificando…",
     "invalidConfiguration": "Alguns dados não são válidos. Confira os campos destacados.",
     "invalidField": "Confira este valor.",
-    "selectOption": "Selecione uma opção"
+    "selectOption": "Selecione uma opção",
+    "descriptionBlank": "Escolha os recursos que este sistema deve ter. Você pode mudar depois em Configurações."
   },
   "account": {
     "title": "Crie sua conta de administrador",

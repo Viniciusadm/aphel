@@ -118,6 +118,19 @@ impl aphel_kernel::application::installer::InstallerBlueprintSource for Blueprin
             .map(|blueprint| blueprint.configuration.packages)
             .unwrap_or_default()
     }
+    fn identity(
+        &self,
+        key: &str,
+    ) -> Option<aphel_kernel::application::installer::modules::InstallerIdentity> {
+        let blueprint = catalog().resolve(key).ok()?;
+        Some(
+            aphel_kernel::application::installer::modules::InstallerIdentity {
+                key: blueprint.key,
+                name: blueprint.name,
+                home: blueprint.navigation.home,
+            },
+        )
+    }
     fn validate(
         &self,
         input: Option<serde_json::Value>,

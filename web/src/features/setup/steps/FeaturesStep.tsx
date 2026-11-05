@@ -88,7 +88,7 @@ export function FeaturesStep({ catalog, businessType, businessLabel, value, onCh
   return (
     <SetupStepFrame
       title={t('features.title')}
-      description={t('features.description', { business: businessLabel })}
+      description={businessLabel ? t('features.description', { business: businessLabel }) : t('features.descriptionBlank')}
       error={error}
       primary={{ label: t('actions.next'), onClick: onNext }}
       aside={<span className="text-sm text-muted-foreground sm:px-2">{t('features.count', { count })}</span>}

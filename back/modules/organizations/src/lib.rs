@@ -203,7 +203,6 @@ impl Module for OrganizationsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Organizations", APHEL_VERSION)
             .description("Companies, their hierarchy (company groups) and group totals")
-            .required()
             .owned_tables(&["organizations"])
             .migration(Migration::new(
                 1,

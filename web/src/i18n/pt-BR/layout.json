@@ -29,7 +29,11 @@
   },
   "home": {
     "emptyTitle": "Nenhuma página disponível",
-    "emptyDescription": "Nenhum módulo com página inicial está habilitado para você. Fale com o administrador."
+    "emptyDescription": "Nenhum módulo com página inicial está habilitado para você. Fale com o administrador.",
+    "blankTitle": "Nada por aqui ainda",
+    "blankDescription": "Este sistema ainda não tem uma página inicial. Escolha uma seção no menu ou configure o que ele deve fazer.",
+    "openModules": "Escolher módulos",
+    "openSettings": "Abrir configurações"
   },
   "extensionsFailedTitle": "Parte do sistema não carregou",
   "extensionsFailed": "{{names}} não carregou. Avise o administrador do sistema."

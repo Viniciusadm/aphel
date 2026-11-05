@@ -29,7 +29,11 @@
   },
   "home": {
     "emptyTitle": "No page available",
-    "emptyDescription": "No module with a home page is enabled for you. Contact your administrator."
+    "emptyDescription": "No module with a home page is enabled for you. Contact your administrator.",
+    "blankTitle": "Nothing here yet",
+    "blankDescription": "This system has no home page. Pick a section from the menu or set up what it should do.",
+    "openModules": "Choose modules",
+    "openSettings": "Open settings"
   },
   "extensionsFailedTitle": "Part of the system did not load",
   "extensionsFailed": "{{names}} did not load. Tell your system administrator."

@@ -8,9 +8,10 @@ interface BusinessStepProps {
   onChange: (value: BusinessAnswers) => void
   error: string | null
   onNext: () => void
+  onBlank: () => void
 }
 
-export function BusinessStep({ value, onChange, error, onNext }: BusinessStepProps) {
+export function BusinessStep({ value, onChange, error, onNext, onBlank }: BusinessStepProps) {
   const { t } = useTranslation('setup')
   const legend = 'text-sm font-semibold'
 
@@ -20,6 +21,7 @@ export function BusinessStep({ value, onChange, error, onNext }: BusinessStepPro
       description={t('business.description')}
       error={error}
       primary={{ label: t('actions.next'), onClick: onNext }}
+      secondary={{ label: t('business.blank'), onClick: onBlank }}
     >
       <fieldset className="grid gap-3">
         <legend className={`${legend} mb-3`}>{t('business.typeLegend')}</legend>

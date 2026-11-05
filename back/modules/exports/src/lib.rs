@@ -46,7 +46,6 @@ impl Module for ExportsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Exports", APHEL_VERSION)
             .description("CSV and XLSX exports of filtered records, the generated file helpers and the worker state shared by the data modules")
-            .required()
             .owned_tables(&["export_jobs"])
             .migration(Migration::new(
                 1,

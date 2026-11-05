@@ -6508,6 +6508,43 @@
         "x-aphel-module": "automations"
       }
     },
+    "/api/v1/blueprint": {
+      "get": {
+        "tags": [
+          "installer"
+        ],
+        "description": "The blueprint the instance was installed from (key, name and navigation home), or `null` for a blank system.",
+        "operationId": "installed_blueprint",
+        "responses": {
+          "200": {
+            "description": "The installed blueprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_BlueprintResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          }
+        ],
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/booking/availability": {
       "get": {
         "tags": [
@@ -68889,6 +68926,21 @@
           }
         }
       },
+      "BlueprintResponse": {
+        "type": "object",
+        "properties": {
+          "blueprint": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InstallerIdentity"
+              }
+            ]
+          }
+        }
+      },
       "BoardColumnResponse": {
         "type": "object",
         "required": [
@@ -76050,6 +76102,29 @@
                 "type": [
                   "string",
                   "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "Data_BlueprintResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "blueprint": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/InstallerIdentity"
+                  }
                 ]
               }
             }
@@ -96771,6 +96846,27 @@
           "version": {
             "type": "string",
             "example": "1.0.0"
+          }
+        }
+      },
+      "InstallerIdentity": {
+        "type": "object",
+        "required": [
+          "key",
+          "name"
+        ],
+        "properties": {
+          "home": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
