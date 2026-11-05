@@ -1,7 +1,7 @@
 import { CircleAlert, CircleCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { ImportValidation } from '../api'
+import type {ImportValidation} from '@/sdk'
 import type { ImportRowReport } from '../mapping'
 import { RowErrors } from './RowErrors'
 

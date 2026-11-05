@@ -1,4 +1,4 @@
-import type { DuplicateKey, ImportJob, ImportTarget } from './api'
+import type {DuplicateKey, ImportJob, ImportTarget} from '@/sdk'
 
 type DeclaredJob = ImportJob & { duplicate_keys?: DuplicateKey[] }
 type DeclaredTarget = ImportTarget & { multiple?: boolean; satisfied_by?: string | null }

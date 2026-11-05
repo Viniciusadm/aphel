@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { useImportJob } from '@/modules/imports/api'
+import {useImportJob} from '@/sdk'
 import { ListSkeleton, NativeSelect, RequirePermission, SETTINGS_MANAGE, useAllMembers, usePipelines } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {

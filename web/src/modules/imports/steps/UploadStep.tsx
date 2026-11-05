@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router'
 import { errorMessage } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useUploadImport } from '../api'
+import {useUploadImport} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface UploadStepProps {

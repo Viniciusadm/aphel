@@ -1,7 +1,7 @@
 import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { ImportJob } from '../api'
+import type {ImportJob} from '@/sdk'
 import { processedRows } from '../mapping'
 
 export interface RunStepProps {

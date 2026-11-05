@@ -7,16 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { NativeSelect } from '@/sdk'
 import { Slot } from '@/kernel/modules/Slot'
-import {
-  useConfigureImport,
-  useStartImport,
-  useValidateImport,
-  type DuplicateKey,
-  type DuplicateStrategy,
-  type ImportJob,
-  type ImportOptions,
-  type ImportValidation,
-} from '../api'
+import {useConfigureImport, useStartImport, useValidateImport, type DuplicateKey, type DuplicateStrategy, type ImportJob, type ImportOptions, type ImportValidation} from '@/sdk'
 import { acceptsMultiple, delimiterLabel, duplicateKeysFor, missingRequired, supportsReferenceCreation } from '../mapping'
 import { ValidationReport } from './ValidationReport'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'

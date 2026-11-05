@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/pagination'
-import { ERROR_ROWS_PAGE_SIZE, useImportRows, useRetryFailed, type ImportJob } from '../api'
+import {ERROR_ROWS_PAGE_SIZE, useImportRows, useRetryFailed, type ImportJob} from '@/sdk'
 import { RowErrors } from './RowErrors'
 import { UploadStep } from './UploadStep'
 

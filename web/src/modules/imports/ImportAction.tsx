@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import type { SlotProps } from '@/kernel/modules/slots'
-import { useImportEntities } from './api'
+import {useImportEntities} from '@/sdk'
 
 export function ImportAction({ recordType }: SlotProps<'record.list.actions'>) {
   const { t } = useTranslation('imports')
