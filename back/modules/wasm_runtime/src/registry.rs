@@ -309,7 +309,32 @@ fn publish_extensions(snapshot: &Snapshot) {
             );
         }
     }
+    let app = aphel_sdk::platform::modules::app();
     let mut batch = aphel_kernel::modules::RuntimeBatch::new();
+    let mut provided = std::collections::HashSet::new();
+    for plugin in snapshot
+        .plugins
+        .iter()
+        .filter(|plugin| plugin.backend.is_some())
+    {
+        let entries = match crate::bridge::provided_operations(plugin) {
+            Ok(entries) => entries,
+            Err(error) => {
+                tracing::warn!(plugin = %plugin.key, error = %error, "could not build provided operations");
+                continue;
+            }
+        };
+        for entry in entries {
+            let key = entry.key;
+            if !provided.insert(key) {
+                tracing::warn!(plugin = %plugin.key, operation = key, "operation already provided by another plugin; skipped");
+                continue;
+            }
+            if let Err(error) = batch.add_operation(app, entry) {
+                tracing::warn!(plugin = %plugin.key, operation = key, error = %error, "provided operation skipped");
+            }
+        }
+    }
     for kind in kinds {
         batch.add(std::sync::Arc::new(kind));
     }
@@ -321,7 +346,7 @@ fn publish_extensions(snapshot: &Snapshot) {
     for event in events {
         batch.add(std::sync::Arc::new(event));
     }
-    aphel_sdk::platform::modules::app().replace_runtime(crate::KEY, batch);
+    app.replace_runtime(crate::KEY, batch);
 }
 
 pub fn spawn_refresh(pool: MySqlPool) {

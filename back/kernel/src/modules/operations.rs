@@ -163,6 +163,14 @@ pub struct OperationEntry {
 }
 
 impl OperationEntry {
+    pub fn runtime(
+        key: &'static str,
+        spec: OperationSpec,
+        handler: Arc<dyn OperationHandler>,
+    ) -> Self {
+        Self { key, spec, handler }
+    }
+
     pub fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
         self.handler.call(ctx, input)
     }

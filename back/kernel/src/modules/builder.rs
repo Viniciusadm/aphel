@@ -663,6 +663,23 @@ impl RuntimeBatch {
         Self::default()
     }
 
+    pub fn add_operation(
+        &mut self,
+        app: &App,
+        entry: crate::modules::operations::OperationEntry,
+    ) -> Result<(), AppError> {
+        if app.has_native_operation(entry.key) {
+            return Err(AppError::validation_code(
+                "operation_key_taken",
+                format!("operation `{}` is already provided natively", entry.key),
+            ));
+        }
+        let projection = entry.plugin_operation();
+        self.add(Arc::new(entry));
+        self.add(Arc::new(projection));
+        Ok(())
+    }
+
     pub fn add<T>(&mut self, item: Arc<T>) -> &mut Self
     where
         T: ?Sized + Send + Sync + 'static,
@@ -790,6 +807,19 @@ impl App {
             }
         }
         found
+    }
+
+    pub fn has_native_operation(&self, key: &str) -> bool {
+        self.contributions
+            .get(&TypeId::of::<Arc<crate::modules::operations::OperationEntry>>())
+            .into_iter()
+            .flatten()
+            .filter_map(|contribution| {
+                contribution
+                    .item
+                    .downcast_ref::<Arc<crate::modules::operations::OperationEntry>>()
+            })
+            .any(|entry| entry.key == key)
     }
 
     pub fn operation(&self, key: &str) -> Option<Arc<crate::modules::operations::OperationEntry>> {

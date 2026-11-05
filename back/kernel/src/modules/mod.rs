@@ -40,7 +40,8 @@ pub use plugin_bridge::{
     operation_input, operation_output,
 };
 pub use plugin_manifest::{
-    INVALID_PLUGIN_MANIFEST, Layer, PluginManifest, Provides, Runtime, Uses,
+    ContributionSpec, INVALID_PLUGIN_MANIFEST, Layer, PluginManifest, ProvidedEffect,
+    ProvidedOperation, Provides, Runtime, Uses,
 };
 pub use points::{
     FileReferenceSource, HealthSource, HttpRequestPolicy, ReferenceKeySource, ReferenceProvider,

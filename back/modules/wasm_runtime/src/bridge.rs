@@ -12,16 +12,104 @@ use crate::runtime::{on_hook, scope_actor, wit};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
-    HookCtx, PluginHook, PluginHookCall, PluginHookDispatcher, PluginOperation, app,
-    operation_input,
+    Effect, HookCtx, OperationEntry, OperationFuture, OperationHandler, OperationSpec, PluginHook,
+    PluginHookCall, PluginHookDispatcher, PluginOperation, ProvidedEffect, app, operation_input,
 };
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::notifications::intern;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 const OPERATION_UNKNOWN: &str = "plugin_operation_unknown";
 const OPERATION_NOT_DECLARED: &str = "plugin_operation_not_declared";
 const OPERATION_TIMEOUT: &str = "plugin_operation_timeout";
 const WRITE_IN_HOOK: &str = "plugin_write_in_hook";
+
+struct ProvidedOperationHandler {
+    plugin: Arc<LoadedPlugin>,
+    key: String,
+    read_only: bool,
+}
+
+impl OperationHandler for ProvidedOperationHandler {
+    fn call<'a>(&'a self, ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
+        Box::pin(async move {
+            let output = crate::runtime::on_operation(
+                &self.plugin,
+                ctx.scope,
+                &self.key,
+                &input.to_string(),
+                self.read_only,
+            )
+            .await?;
+            serde_json::from_str(&output).map_err(|_| {
+                AppError::Internal(format!(
+                    "the plugin {} answered operation {} with invalid JSON",
+                    self.plugin.key, self.key
+                ))
+            })
+        })
+    }
+}
+
+pub fn provided_operations(plugin: &Arc<LoadedPlugin>) -> Result<Vec<OperationEntry>, AppError> {
+    plugin
+        .manifest
+        .provides
+        .operations
+        .iter()
+        .map(|operation| {
+            let effect = match operation.effect {
+                ProvidedEffect::Read => Effect::Read,
+                ProvidedEffect::Write => Effect::Write,
+                ProvidedEffect::External => Effect::External,
+            };
+            let mut spec = OperationSpec::read(intern(&operation.description));
+            spec.effect = effect;
+            spec.idempotent = operation.idempotent;
+            spec.permission = operation.permission.as_deref().map(intern);
+            Ok(OperationEntry::runtime(
+                intern(&operation.key),
+                spec,
+                Arc::new(ProvidedOperationHandler {
+                    plugin: plugin.clone(),
+                    key: operation.key.clone(),
+                    read_only: effect == Effect::Read,
+                }),
+            ))
+        })
+        .collect()
+}
+
+pub async fn call_contribution(
+    plugin: &Arc<LoadedPlugin>,
+    ctx: &Ctx<'_>,
+    point: &str,
+    name: &str,
+    input: &Value,
+) -> Result<Value, AppError> {
+    let declared = plugin
+        .manifest
+        .contribute
+        .iter()
+        .any(|contribution| contribution.point == point && contribution.name == name);
+    if !declared {
+        return Err(AppError::not_found_code(
+            "plugin_contribution_unknown",
+            format!(
+                "plugin {} does not contribute {name} to {point}",
+                plugin.key
+            ),
+        ));
+    }
+    let output =
+        crate::runtime::on_contribution(plugin, ctx.scope, point, name, &input.to_string()).await?;
+    serde_json::from_str(&output).map_err(|_| {
+        AppError::Internal(format!(
+            "the plugin {} answered contribution {name} with invalid JSON",
+            plugin.key
+        ))
+    })
+}
 
 pub struct HostCatalogData {
     pub hooks: Vec<&'static str>,

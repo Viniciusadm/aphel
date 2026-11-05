@@ -69,6 +69,8 @@ pub struct PluginManifest {
     #[serde(default)]
     pub uses: aphel_kernel::modules::Uses,
     #[serde(default)]
+    pub contribute: Vec<aphel_kernel::modules::ContributionSpec>,
+    #[serde(default)]
     pub requires_aphel: Option<String>,
     #[serde(default)]
     pub entities: Vec<EntityDeclaration>,
@@ -859,6 +861,19 @@ impl PluginManifest {
                 "emits",
                 format!("can list at most {MAX_EMITS} events"),
             ));
+        }
+        for (path, message) in self.provides.violations(&self.contribute) {
+            violations.push(FieldViolation::new(path, message));
+        }
+        for (index, operation) in self.provides.operations.iter().enumerate() {
+            if aphel_sdk::platform::modules::try_app()
+                .is_some_and(|app| app.has_native_operation(&operation.key))
+            {
+                violations.push(FieldViolation::new(
+                    format!("provides.operations[{index}].key"),
+                    "is already provided by a built-in module",
+                ));
+            }
         }
         if self.operations.len() > MAX_OPERATIONS {
             violations.push(FieldViolation::new(
