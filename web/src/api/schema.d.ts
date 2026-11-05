@@ -9884,6 +9884,7 @@ export interface components {
         CatalogDocument: {
             contracts: components["schemas"]["ContractInfo"][];
             contribution_points: components["schemas"]["ContributionPointInfo"][];
+            entities: components["schemas"]["EntityInfo"][];
             entity_traits: components["schemas"]["TraitInfo"][];
             events: components["schemas"]["EventEntry"][];
             field_types: components["schemas"]["FieldTypeEntry"][];
@@ -11499,6 +11500,7 @@ export interface components {
             data: {
                 contracts: components["schemas"]["ContractInfo"][];
                 contribution_points: components["schemas"]["ContributionPointInfo"][];
+                entities: components["schemas"]["EntityInfo"][];
                 entity_traits: components["schemas"]["TraitInfo"][];
                 events: components["schemas"]["EventEntry"][];
                 field_types: components["schemas"]["FieldTypeEntry"][];
@@ -15723,6 +15725,11 @@ export interface components {
             contact_id: string;
             mailbox_id?: string | null;
             record_type?: string | null;
+        };
+        EntityInfo: {
+            read_permission: string;
+            record_type: string;
+            storage: string;
         };
         ErrorBody: {
             /** @example validation_error */

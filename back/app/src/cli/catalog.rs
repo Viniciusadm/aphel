@@ -168,8 +168,18 @@ fn summary(document: &CatalogDocument) {
             entity_trait.entities.join(", ")
         );
     }
+    println!("\nENTITIES ({})", document.entities.len());
+    for entity in &document.entities {
+        println!(
+            "  {:<32} {:<8} {}",
+            entity.record_type, entity.storage, entity.read_permission
+        );
+    }
     println!("\nEVENTS ({})", document.events.len());
-    println!("PERMISSIONS ({})", document.permissions.len());
+    println!("\nPERMISSIONS ({})", document.permissions.len());
+    for permission in &document.permissions {
+        println!("  {}", permission.permission);
+    }
     println!(
         "NOTIFICATION KINDS ({})",
         document

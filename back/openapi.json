@@ -70406,7 +70406,8 @@
           "events",
           "permissions",
           "contribution_points",
-          "entity_traits"
+          "entity_traits",
+          "entities"
         ],
         "properties": {
           "contracts": {
@@ -70419,6 +70420,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ContributionPointInfo"
+            }
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntityInfo"
             }
           },
           "entity_traits": {
@@ -76815,7 +76822,8 @@
               "events",
               "permissions",
               "contribution_points",
-              "entity_traits"
+              "entity_traits",
+              "entities"
             ],
             "properties": {
               "contracts": {
@@ -76828,6 +76836,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/ContributionPointInfo"
+                }
+              },
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EntityInfo"
                 }
               },
               "entity_traits": {
@@ -93391,6 +93405,25 @@
           }
         },
         "additionalProperties": false
+      },
+      "EntityInfo": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "storage",
+          "read_permission"
+        ],
+        "properties": {
+          "read_permission": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string"
+          },
+          "storage": {
+            "type": "string"
+          }
+        }
       },
       "ErrorBody": {
         "type": "object",

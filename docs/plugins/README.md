@@ -523,6 +523,41 @@ The standard library of `wasm32-wasip2` imports WASI interfaces. The host provid
 
 **Catalog constants.** `aphel_plugin_sdk::operations::NOTES_CREATE` and `aphel_plugin_sdk::domain_hooks::DEAL_WINNING` (JavaScript: `operations.NOTES_CREATE`, `domainHooks.DEAL_WINNING`) are generated from the compiled build's catalog by `make catalog-docs` (`aphel catalog --sdk rust|js|js-types`). They carry keys only; typed inputs and outputs wait for the operation schemas.
 
+### Shapes you will need
+
+- **Record JSON.** `ctx.records().get/list/create/update` return records like `{ "id", "record_type", "title", "owner_id", "created_at", "updated_at", "custom_fields": { … } }`; the values of a plugin entity's declared fields live in `custom_fields.<key>` (a `select` is its option `value`, an empty reference or value is `null`). Writes take the same nesting: `{ "custom_fields": { "status": "on_loan" }, "owner_id": "<user id>" }`.
+- **Title field.** Every entity has a required `name` in `custom_fields.name` (the record title). Do not declare it; set it when you create records.
+- **Hook changes.** In `record.validating` and `record.saving`, `HookCall.changes` lists `{ field, old, new }`; entity fields appear as `custom_fields.<key>` (`call.custom_changed("status")` builds that name), core fields by name. `old` is `null` on create (`call.is_create()`). `call.custom_fields` carries the proposed values of the write.
+- **Errors.** `PluginError::new(code, message)` answers 422 with `error.code`; `PluginError::field(code, field, message)` answers 422 and also puts the message under `details.fields`. A route handler that returns nothing, and the default `on_route`, answer 404 `route_not_found`.
+- **Operations.** `on_operation(key, input)` returns any JSON; the manifest `permission` of a provided operation is optional.
+- **Cargo.** The SDK re-exports `serde_json` (`Value`, `json!`, `Map`), not `serde`; add `serde` to your crate if you derive on your own types.
+- **Pack.** `aphel-plugin pack` zips `web/dist/*` as `web/*`, so a hand-written bundle goes in `web/dist/index.js`, and the manifest needs `[web] entry = "web/index.js"` (`aphel-plugin new` does not write it).
+
+### A web screen without a bundler
+
+A bundle can be plain JavaScript. `app.nav` needs an `icon` component (any React component that takes props such as `className` and renders an `<svg>`), `to` is an absolute path, and `app.routes` paths are relative to the app root:
+
+```js
+import { createElement as h } from 'react'
+import { RecordListView, defineModule } from '@aphel/web-sdk'
+
+const Icon = (props) =>
+  h('svg', { viewBox: '0 0 24 24', width: 16, height: 16, fill: 'none', stroke: 'currentColor', strokeWidth: 2, ...props },
+    h('rect', { x: 3, y: 4, width: 18, height: 14, rx: 2 }))
+
+const ItemsPage = () => h(RecordListView, { recordType: 'equipment.item' })
+
+export default defineModule({
+  key: 'equipment',                                    // the plugin key
+  register(app) {
+    app.routes([{ path: 'equipment', Component: ItemsPage }])
+    app.nav({ to: '/equipment', label: 'Equipamentos', icon: Icon, permission: 'equipment.item.read' })
+  },
+})
+```
+
+`app.nav` takes `{ to, label, icon, permission?, order?, group?, key?, badge?, mobile? }` (a plain string is shown as is). `RecordListView` takes `{ recordType, emptyAction?, toolbarActions?, bulkActions?, onRowClick?, baseFilter?, archived? }` and gives list, filters, forms and bulk actions without further code. The entity's permissions are `<plugin>.<entity>.read|create|update|delete|archive|export`.
+
 ## Backend in JavaScript or TypeScript
 
 `sdk/js/aphel-plugin-sdk` (`@aphel/plugin-sdk`) builds the same component from JavaScript or TypeScript. The bundle is made with esbuild and turned into a component with [`componentize-js`](https://github.com/bytecodealliance/ComponentizeJS), which embeds the SpiderMonkey engine.

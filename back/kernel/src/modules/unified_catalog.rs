@@ -112,6 +112,13 @@ pub struct ContributionPointInfo {
 }
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
+pub struct EntityInfo {
+    pub record_type: String,
+    pub storage: &'static str,
+    pub read_permission: String,
+}
+
+#[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
 pub struct TraitInfo {
     pub key: String,
     pub entities: Vec<String>,
@@ -130,6 +137,7 @@ pub struct CatalogDocument {
     pub permissions: Vec<PermissionEntry>,
     pub contribution_points: Vec<ContributionPointInfo>,
     pub entity_traits: Vec<TraitInfo>,
+    pub entities: Vec<EntityInfo>,
     #[serde(flatten)]
     pub extensions: std::collections::BTreeMap<String, serde_json::Value>,
 }
@@ -170,6 +178,7 @@ pub fn build(app: &App) -> CatalogDocument {
         permissions: permissions(),
         contribution_points: contribution_points(app),
         entity_traits: entity_traits(app),
+        entities: entities(app),
         extensions: app
             .contributions::<dyn CatalogExtension>()
             .into_iter()
@@ -207,6 +216,24 @@ fn contribution_points(app: &App) -> Vec<ContributionPointInfo> {
                 .collect(),
         })
         .collect()
+}
+
+fn entities(app: &App) -> Vec<EntityInfo> {
+    let mut entities: Vec<EntityInfo> = app
+        .record_types()
+        .definitions()
+        .map(|definition| EntityInfo {
+            record_type: definition.record_type.as_str().to_owned(),
+            storage: match definition.storage {
+                crate::application::fields::EntityStorage::Table => "table",
+                crate::application::fields::EntityStorage::Managed => "managed",
+                crate::application::fields::EntityStorage::Dynamic => "dynamic",
+            },
+            read_permission: definition.read_permission.as_str().to_owned(),
+        })
+        .collect();
+    entities.sort_by(|left, right| left.record_type.cmp(&right.record_type));
+    entities
 }
 
 fn entity_traits(app: &App) -> Vec<TraitInfo> {
