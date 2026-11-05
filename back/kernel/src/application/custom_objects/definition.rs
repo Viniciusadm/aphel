@@ -66,6 +66,7 @@ pub fn custom_record_definition(object: &CustomObject) -> Result<EntityDefinitio
             EntityTraits::default()
                 .importable()
                 .exportable()
+                .personal_data()
                 .restore_order(3),
         )
         .update_permission(update)

@@ -67,6 +67,24 @@ impl JsonPath {
         Ok(Self { segments })
     }
 
+    pub(crate) fn root(&self) -> Option<&str> {
+        match self.segments.first() {
+            Some(PathSegment::Key(key)) => Some(key),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn action_index(&self) -> Option<usize> {
+        match (self.segments.first(), self.segments.get(1)) {
+            (Some(PathSegment::Key(root)), Some(PathSegment::Index(index)))
+                if root == "actions" =>
+            {
+                Some(*index)
+            }
+            _ => None,
+        }
+    }
+
     pub(crate) fn lookup<'a>(&self, root: &'a Value) -> Option<&'a Value> {
         self.segments
             .iter()
@@ -108,6 +126,20 @@ impl MappingExpression {
             return parse_template(text).map(Self::Template);
         }
         Ok(Self::Constant(value.clone()))
+    }
+
+    pub(crate) fn paths(&self) -> Vec<&JsonPath> {
+        match self {
+            Self::Path(path) => vec![path],
+            Self::Template(parts) => parts
+                .iter()
+                .filter_map(|part| match part {
+                    TemplatePart::Path(path) => Some(path),
+                    TemplatePart::Text(_) => None,
+                })
+                .collect(),
+            Self::Constant(_) => Vec::new(),
+        }
     }
 
     pub(crate) fn evaluate(&self, payload: &Value) -> Option<Value> {

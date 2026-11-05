@@ -123,8 +123,26 @@ pub(crate) async fn validate_actions(
                     "must be an editable entity field",
                 ));
             }
-            if let Err(message) = MappingExpression::parse(expression) {
-                violations.push(FieldViolation::new(format!("{path}.fields.{key}"), message));
+            match MappingExpression::parse(expression) {
+                Err(message) => {
+                    violations.push(FieldViolation::new(format!("{path}.fields.{key}"), message));
+                }
+                Ok(parsed) => {
+                    for reference in parsed.paths() {
+                        let message = match reference.root() {
+                            Some("payload") => None,
+                            Some("actions") => match reference.action_index() {
+                                Some(earlier) if earlier < index => None,
+                                _ => Some("must reference an earlier action as $.actions[n]"),
+                            },
+                            _ => Some("must start with $.payload or $.actions[n]"),
+                        };
+                        if let Some(message) = message {
+                            violations
+                                .push(FieldViolation::new(format!("{path}.fields.{key}"), message));
+                        }
+                    }
+                }
             }
         }
         if action.kind() == ActionKind::UpsertRecord {

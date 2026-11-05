@@ -674,6 +674,16 @@ async fn validate_target(
     record_type: &str,
     violations: &mut Vec<FieldViolation>,
 ) -> Result<Option<TargetInfo>, AppError> {
+    if !targets(ctx)?
+        .iter()
+        .any(|target| target.record_type == record_type)
+    {
+        violations.push(FieldViolation::new(
+            "record_type",
+            "this record type is unavailable",
+        ));
+        return Ok(None);
+    }
     match store::target(ctx, record_type).await? {
         Some(target) if target.has_owner => Ok(Some(target)),
         Some(_) => {
@@ -831,6 +841,12 @@ pub(crate) fn targets(ctx: &Ctx<'_>) -> Result<Vec<AssignmentTarget>, AppError> 
         .registry()
         .definitions()
         .filter(|definition| definition.owner_column.is_some())
+        .filter(|definition| {
+            let app = aphel_sdk::platform::modules::app();
+            app.catalog()
+                .permission_owner(&definition.read_permission)
+                .is_none_or(|owner| app.is_enabled(owner))
+        })
         .map(|definition| {
             let labels = definition
                 .capabilities

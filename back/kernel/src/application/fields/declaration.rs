@@ -163,7 +163,10 @@ impl EntityDeclaration {
                 }
             }
         }
-        definition.capabilities = super::EntityTraits::default().importable().exportable();
+        definition.capabilities = super::EntityTraits::default()
+            .importable()
+            .exportable()
+            .personal_data();
         if self.storage == super::EntityStorage::Table {
             return Err(crate::errors::AppError::Configuration(
                 "declarative entities cannot select native tables".to_owned(),
