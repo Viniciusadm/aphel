@@ -1,12 +1,12 @@
 pub mod dto;
 pub(crate) mod encode;
+pub(crate) mod exposed_operations;
 pub(crate) mod format;
 pub(crate) mod generated;
 pub(crate) mod http;
 mod jobs;
 pub(crate) mod model;
 pub mod notifications;
-pub(crate) mod plugin_bridge;
 mod points;
 pub(crate) mod runtime;
 pub mod service;
@@ -84,9 +84,7 @@ impl Module for ExportsModule {
         app.worker(|env| {
             WorkerParts::default().handler(Arc::new(ExportRunHandler::new(env.state())))
         });
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

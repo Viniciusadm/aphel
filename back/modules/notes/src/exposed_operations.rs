@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -7,9 +8,7 @@ use crate::domain::{CreateNoteCommand, ListNotesQuery};
 use crate::http::{CreateNoteRequest, NoteResponse, UpdateNoteRequest};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ListInput {
@@ -93,37 +92,30 @@ fn delete<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "notes.list",
-            "Notes of a record visible to the actor: { record_type, record_id, page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(PluginOperation::read("notes.get", "One note: { id }", get)),
-        Arc::new(PluginOperation::write(
-            "notes.create",
-            "Create a note on a record: { record_type, record_id, body, visibility?: team|private, pinned? }",
-            create,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "notes.update",
-            "Edit a note: { id, body?, visibility?, pinned? }",
-            update,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "notes.pin",
-            "Pin or unpin a note: { id, pinned }",
-            pin,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "notes.delete",
-            "Delete a note: { id }",
-            delete,
-        )
-        .with_durable_mutations()),
-    ]
+const OP_NOTES_LIST: OperationKey<Value, Value> = operation!("notes.list");
+const OP_NOTES_GET: OperationKey<Value, Value> = operation!("notes.get");
+const OP_NOTES_CREATE: OperationKey<Value, Value> = operation!("notes.create");
+const OP_NOTES_UPDATE: OperationKey<Value, Value> = operation!("notes.update");
+const OP_NOTES_PIN: OperationKey<Value, Value> = operation!("notes.pin");
+const OP_NOTES_DELETE: OperationKey<Value, Value> = operation!("notes.delete");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_NOTES_LIST, OperationSpec::read("Notes of a record visible to the actor: { record_type, record_id, page?, per_page? } -> { data, total }"), list);
+    app.operation(OP_NOTES_GET, OperationSpec::read("One note: { id }"), get);
+    app.operation(OP_NOTES_CREATE, OperationSpec::write("Create a note on a record: { record_type, record_id, body, visibility?: team|private, pinned? }").durable(), create);
+    app.operation(
+        OP_NOTES_UPDATE,
+        OperationSpec::write("Edit a note: { id, body?, visibility?, pinned? }").durable(),
+        update,
+    );
+    app.operation(
+        OP_NOTES_PIN,
+        OperationSpec::write("Pin or unpin a note: { id, pinned }").durable(),
+        pin,
+    );
+    app.operation(
+        OP_NOTES_DELETE,
+        OperationSpec::write("Delete a note: { id }").durable(),
+        delete,
+    );
 }

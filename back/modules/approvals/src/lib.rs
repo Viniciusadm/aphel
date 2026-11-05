@@ -4,10 +4,10 @@ use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod engine;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod notifications;
-pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub mod service;
@@ -149,9 +149,7 @@ impl Module for ApprovalsModule {
         for definition in NOTIFICATION_KINDS {
             app.contribute(std::sync::Arc::new(*definition));
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

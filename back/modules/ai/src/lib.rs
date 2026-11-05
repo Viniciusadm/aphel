@@ -1,9 +1,9 @@
 mod config;
 mod context;
+mod exposed_operations;
 mod features;
 mod http;
 mod model;
-mod plugin_bridge;
 mod provider;
 mod query;
 mod records;
@@ -157,9 +157,7 @@ impl Module for AiModule {
         .routes(|_| http::router());
         app.permission(PermissionDefinition::administrative(USE));
         app.permission(PermissionDefinition::administrative(VIEW_USAGE));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 

@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -8,9 +9,7 @@ use crate::service::reports;
 use aphel_kernel::Ctx;
 use aphel_kernel::api::dto::aggregates::AggregateResultResponse;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ListInput {
@@ -57,17 +56,10 @@ fn run<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "reports.list",
-            "Saved reports visible to the actor, ordered by name: { record_type?, page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(PluginOperation::read(
-            "reports.run",
-            "Run a saved report with the actor's read scope and field permissions: { id, preset?, from? (YYYY-MM-DD), to?, compare_to_previous? } -> { record_type, timezone, groups, metrics, rows, totals, period, previous_period }",
-            run,
-        )),
-    ]
+const OP_REPORTS_LIST: OperationKey<Value, Value> = operation!("reports.list");
+const OP_REPORTS_RUN: OperationKey<Value, Value> = operation!("reports.run");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_REPORTS_LIST, OperationSpec::read("Saved reports visible to the actor, ordered by name: { record_type?, page?, per_page? } -> { data, total }"), list);
+    app.operation(OP_REPORTS_RUN, OperationSpec::read("Run a saved report with the actor's read scope and field permissions: { id, preset?, from? (YYYY-MM-DD), to?, compare_to_previous? } -> { record_type, timezone, groups, metrics, rows, totals, period, previous_period }"), run);
 }

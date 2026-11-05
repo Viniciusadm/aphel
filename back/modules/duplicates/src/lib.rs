@@ -1,11 +1,11 @@
 pub(crate) mod detection;
 pub(crate) mod domain;
 pub(crate) mod dto;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod kinds;
 pub(crate) mod model;
-pub(crate) mod plugin_bridge;
 mod privacy;
 pub(crate) mod scan;
 pub(crate) mod service;
@@ -77,9 +77,7 @@ impl Module for DuplicatesModule {
                 )))
                 .schedule(duplicates_cleanup_schedule())
         });
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

@@ -173,9 +173,7 @@ impl Module for EmailModule {
         for hook in plugin_bridge::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        plugin_bridge::register(app);
         Ok(())
     }
 }

@@ -3,11 +3,11 @@ mod config_references;
 mod dashboard;
 mod dataset_seed;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod guidance;
 pub(crate) mod hooks;
 pub mod http;
 pub(crate) mod lost_reason_section;
-pub(crate) mod plugin_bridge;
 pub(crate) mod requirements;
 pub mod rotting;
 pub mod section;
@@ -249,9 +249,7 @@ impl Module for WorkflowModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

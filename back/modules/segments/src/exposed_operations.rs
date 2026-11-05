@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -9,9 +10,7 @@ use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::query::{ArchivedFilter, Filter, parse_sort};
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ListInput {
@@ -118,22 +117,16 @@ fn members<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "segments.list",
-            "Segments of the record types the actor can read: { record_type?, counts?, page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(PluginOperation::read(
-            "segments.get",
-            "One segment with its member count: { id }",
-            get,
-        )),
-        Arc::new(PluginOperation::read(
-            "segments.members",
-            "Records of a segment visible to the actor: { id, filter? (filter AST), sort? (e.g. -created_at,name), search?, archived?: exclude|include|only, page?, per_page? } -> { data, total }",
-            members,
-        )),
-    ]
+const OP_SEGMENTS_LIST: OperationKey<Value, Value> = operation!("segments.list");
+const OP_SEGMENTS_GET: OperationKey<Value, Value> = operation!("segments.get");
+const OP_SEGMENTS_MEMBERS: OperationKey<Value, Value> = operation!("segments.members");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_SEGMENTS_LIST, OperationSpec::read("Segments of the record types the actor can read: { record_type?, counts?, page?, per_page? } -> { data, total }"), list);
+    app.operation(
+        OP_SEGMENTS_GET,
+        OperationSpec::read("One segment with its member count: { id }"),
+        get,
+    );
+    app.operation(OP_SEGMENTS_MEMBERS, OperationSpec::read("Records of a segment visible to the actor: { id, filter? (filter AST), sort? (e.g. -created_at,name), search?, archived?: exclude|include|only, page?, per_page? } -> { data, total }"), members);
 }

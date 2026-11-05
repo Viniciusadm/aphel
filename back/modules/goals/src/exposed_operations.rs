@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -6,9 +7,7 @@ use serde_json::{Value, json};
 use crate::http::{GoalListParams, GoalResponse};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ListInput {
@@ -39,17 +38,14 @@ fn get<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "goals.list",
-            "Goals the actor reaches, newest period first, each with its progress: { owner_type?: user|team|organization, user_id?, team_id?, metric?, period?, active_on? (YYYY-MM-DD), current?, progress? (default true), page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(PluginOperation::read(
-            "goals.get",
-            "One goal with its progress: { id }",
-            get,
-        )),
-    ]
+const OP_GOALS_LIST: OperationKey<Value, Value> = operation!("goals.list");
+const OP_GOALS_GET: OperationKey<Value, Value> = operation!("goals.get");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_GOALS_LIST, OperationSpec::read("Goals the actor reaches, newest period first, each with its progress: { owner_type?: user|team|organization, user_id?, team_id?, metric?, period?, active_on? (YYYY-MM-DD), current?, progress? (default true), page?, per_page? } -> { data, total }"), list);
+    app.operation(
+        OP_GOALS_GET,
+        OperationSpec::read("One goal with its progress: { id }"),
+        get,
+    );
 }

@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -11,7 +12,7 @@ use crate::sending;
 use crate::{REPLY, VIEW};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ReplyInput {
@@ -33,11 +34,8 @@ fn reply<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(PluginOperation::write(
-        "messaging.reply",
-        "Queue a reply in a shared inbox conversation (needs messaging view and reply permissions): { conversation_id, body }",
-        reply,
-    )
-        .with_durable_mutations())]
+const OP_MESSAGING_REPLY: OperationKey<Value, Value> = operation!("messaging.reply");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_MESSAGING_REPLY, OperationSpec::write("Queue a reply in a shared inbox conversation (needs messaging view and reply permissions): { conversation_id, body }").durable(), reply);
 }

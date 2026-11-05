@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use async_trait::async_trait;
 use serde::Deserialize;
@@ -16,7 +17,7 @@ use aphel_kernel::database::transaction::MySqlTx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input};
+use aphel_kernel::modules::{OperationFuture, operation_input};
 use aphel_kernel::records::{PendingCommit, RecordCtx, RecordTypeHandler};
 use aphel_kernel::state::{AppState, runtime_state};
 
@@ -162,11 +163,8 @@ fn assign<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(PluginOperation::write(
-        "assignment.assign",
-        "Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped }",
-        assign,
-    )
-    .with_durable_mutations())]
+const OP_ASSIGNMENT_ASSIGN: OperationKey<Value, Value> = operation!("assignment.assign");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_ASSIGNMENT_ASSIGN, OperationSpec::write("Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped }").durable(), assign);
 }

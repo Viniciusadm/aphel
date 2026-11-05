@@ -1,9 +1,9 @@
 mod config_references;
 pub(crate) mod domain;
 pub(crate) mod dto;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod service;
 pub(crate) mod store;
 mod target_reader;
@@ -53,9 +53,7 @@ impl Module for SegmentsModule {
         )
         .routes(|_| http::router());
         app.provide::<dyn FilterSourceResolver>(Arc::new(hooks::StoredFilterSources));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

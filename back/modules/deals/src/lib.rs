@@ -548,9 +548,7 @@ impl Module for DealsModule {
         for hook in plugin_bridge::hooks() {
             app.contribute::<aphel_kernel::modules::PluginHook>(hook);
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        plugin_bridge::register(app);
 
         app.provide::<dyn aphel_contract_automation::application::StageOperations>(
             std::sync::Arc::new(operations::AutomationStages),

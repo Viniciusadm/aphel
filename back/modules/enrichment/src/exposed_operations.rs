@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -10,7 +11,7 @@ use crate::http::{
 use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 const MAX_APPLY_ITEMS: usize = 64;
 
@@ -53,17 +54,10 @@ fn apply<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::write(
-            "enrichment.lookup",
-            "Look up a company's CNPJ in the configured public source and cache the field-by-field proposal without changing the company: { company_id, cnpj? } -> { id, company_id, cnpj, source, fetched_at, items: [{ data_key, label, field_key, current, proposed, changed }] }",
-            lookup,
-        ).with_external_query()),
-        Arc::new(PluginOperation::write(
-            "enrichment.apply",
-            "Apply chosen items of a lookup (within 60 minutes) to the company: { lookup_id, items: [data_key], only_blank? } -> { company_id, source, cnpj, fields }",
-            apply,
-        ).with_durable_mutations()),
-    ]
+const OP_ENRICHMENT_LOOKUP: OperationKey<Value, Value> = operation!("enrichment.lookup");
+const OP_ENRICHMENT_APPLY: OperationKey<Value, Value> = operation!("enrichment.apply");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_ENRICHMENT_LOOKUP, OperationSpec::external("Look up a company's CNPJ in the configured public source and cache the field-by-field proposal without changing the company: { company_id, cnpj? } -> { id, company_id, cnpj, source, fetched_at, items: [{ data_key, label, field_key, current, proposed, changed }] }"), lookup);
+    app.operation(OP_ENRICHMENT_APPLY, OperationSpec::write("Apply chosen items of a lookup (within 60 minutes) to the company: { lookup_id, items: [data_key], only_blank? } -> { company_id, source, cnpj, fields }").durable(), apply);
 }

@@ -3,8 +3,8 @@ pub(crate) mod automation;
 pub(crate) mod directory;
 pub(crate) mod domain;
 pub(crate) mod engine;
+pub(crate) mod exposed_operations;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub(crate) mod service;
@@ -126,9 +126,7 @@ impl Module for ScoringModule {
             Permission::SCORING_MANAGE,
         ))
         .grant_to(["admin"]);
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }

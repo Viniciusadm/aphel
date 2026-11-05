@@ -1,9 +1,9 @@
 pub(crate) mod bundles;
 mod dataset_seed;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod public;
 mod reference_cleanup;
 pub(crate) mod section;
@@ -116,9 +116,7 @@ impl Module for PricingModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         app.contribute::<dyn aphel_kernel::application::public_events::PublicResourceLoader>(
             Arc::new(public::PriceListPublicResource),
         );

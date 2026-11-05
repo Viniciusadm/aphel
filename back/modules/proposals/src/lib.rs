@@ -2,11 +2,11 @@ use aphel_contract_automation::AutomationBuilder;
 mod automation;
 mod config;
 mod errors;
+mod exposed_operations;
 mod format;
 mod http;
 mod markup;
 mod pdf;
-mod plugin_bridge;
 mod records;
 mod render;
 mod service;
@@ -91,9 +91,7 @@ impl Module for ProposalsModule {
             "A proposal PDF was generated and attached to the deal",
         ));
         app.permission(PermissionDefinition::administrative(GENERATE));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 

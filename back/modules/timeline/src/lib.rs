@@ -1,6 +1,6 @@
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod service;
 pub(crate) mod store;
 
@@ -25,9 +25,7 @@ impl Module for TimelineModule {
         ));
         app.openapi_tag(http::TAG, "Unified timeline of a record")
             .routes(|_| http::router());
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -13,7 +14,7 @@ use crate::service::AiSession;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -122,27 +123,14 @@ fn compose<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::write(
-            "ai.complete",
-            "Free completion with the configured AI provider, counted in the daily and per-user limits and logged as feature plugin: { system?, prompt } or { system?, messages: [{ role: user|assistant, content }] }, max_tokens? (1-4096, default 1024), temperature? (0-1) -> { text, input_tokens, output_tokens, provider, model }",
-            complete,
-        ).with_external_query()),
-        Arc::new(PluginOperation::write(
-            "ai.summary",
-            "AI summary of a record the actor can read: { record_type: contact|company|deal, record_id } -> { text, sources, provider, model }",
-            summary,
-        ).with_external_query()),
-        Arc::new(PluginOperation::write(
-            "ai.next_actions",
-            "Up to 5 suggested next actions for a record: { record_type: contact|company|deal, record_id } -> { suggestions: [{ title, due_in_days, reason }], sources, provider, model }",
-            next_actions,
-        ).with_external_query()),
-        Arc::new(PluginOperation::write(
-            "ai.compose",
-            "Write or rewrite a text: { context: note|email|message, instruction, draft?, record_type?, record_id? } -> { text, sources, provider, model }",
-            compose,
-        ).with_external_query()),
-    ]
+const OP_AI_COMPLETE: OperationKey<Value, Value> = operation!("ai.complete");
+const OP_AI_SUMMARY: OperationKey<Value, Value> = operation!("ai.summary");
+const OP_AI_NEXT_ACTIONS: OperationKey<Value, Value> = operation!("ai.next_actions");
+const OP_AI_COMPOSE: OperationKey<Value, Value> = operation!("ai.compose");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_AI_COMPLETE, OperationSpec::external("Free completion with the configured AI provider, counted in the daily and per-user limits and logged as feature plugin: { system?, prompt } or { system?, messages: [{ role: user|assistant, content }] }, max_tokens? (1-4096, default 1024), temperature? (0-1) -> { text, input_tokens, output_tokens, provider, model }"), complete);
+    app.operation(OP_AI_SUMMARY, OperationSpec::external("AI summary of a record the actor can read: { record_type: contact|company|deal, record_id } -> { text, sources, provider, model }"), summary);
+    app.operation(OP_AI_NEXT_ACTIONS, OperationSpec::external("Up to 5 suggested next actions for a record: { record_type: contact|company|deal, record_id } -> { suggestions: [{ title, due_in_days, reason }], sources, provider, model }"), next_actions);
+    app.operation(OP_AI_COMPOSE, OperationSpec::external("Write or rewrite a text: { context: note|email|message, instruction, draft?, record_type?, record_id? } -> { text, sources, provider, model }"), compose);
 }

@@ -3,11 +3,11 @@ use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub(crate) mod dto;
 pub(crate) mod email;
+pub(crate) mod exposed_operations;
 pub(crate) mod http;
 pub(crate) mod ics;
 pub(crate) mod model;
 pub(crate) mod payload;
-pub(crate) mod plugin_bridge;
 pub(crate) mod public_http;
 pub(crate) mod runtime;
 pub(crate) mod service;
@@ -88,9 +88,7 @@ impl Module for BookingModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

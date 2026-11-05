@@ -1,11 +1,12 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde_json::{Value, json};
 
 use crate::http::PipelineResponse;
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_output};
 
 fn list<'a>(ctx: &'a Ctx<'_>, _input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
@@ -18,10 +19,12 @@ fn list<'a>(ctx: &'a Ctx<'_>, _input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(PluginOperation::read(
-        "workflow.list",
-        "Pipelines visible to the actor with their stages: {} -> { data }",
+const OP_WORKFLOW_LIST: OperationKey<Value, Value> = operation!("workflow.list");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(
+        OP_WORKFLOW_LIST,
+        OperationSpec::read("Pipelines visible to the actor with their stages: {} -> { data }"),
         list,
-    ))]
+    );
 }

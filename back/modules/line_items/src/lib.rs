@@ -1,8 +1,8 @@
 mod dataset_seed;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub mod http;
-pub(crate) mod plugin_bridge;
 mod port;
 pub(crate) mod recurring;
 pub(crate) mod section;
@@ -72,9 +72,7 @@ impl Module for LineItemsModule {
             55,
             |pool, _registry| Arc::new(section::LineItemsSection::new(pool.clone())),
         )));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

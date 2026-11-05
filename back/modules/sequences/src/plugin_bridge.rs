@@ -1,3 +1,5 @@
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -13,8 +15,8 @@ use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
-    HookCtx, OperationFuture, OperationPage, PluginHook, PluginHookKind, PluginOperation,
-    forward_plugin_hook, operation_input, operation_output,
+    HookCtx, OperationFuture, OperationPage, PluginHook, PluginHookKind, forward_plugin_hook,
+    operation_input, operation_output,
 };
 
 pub(crate) const STEP_RUNNING: &str = "sequence.step_running";
@@ -126,44 +128,36 @@ fn exit<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "sequences.list",
-            "Sequences with their steps and enrollment counts: { active?, search?, page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(
-            PluginOperation::write(
-                "sequences.enroll",
-                "Enroll a contact in a sequence: { sequence_id, contact_id, mailbox_id? }",
-                enroll,
-            )
-            .with_durable_mutations(),
-        ),
-        Arc::new(
-            PluginOperation::write(
-                "sequences.pause",
-                "Pause an active enrollment: { id }",
-                pause,
-            )
-            .with_durable_mutations(),
-        ),
-        Arc::new(
-            PluginOperation::write(
-                "sequences.resume",
-                "Resume a paused enrollment: { id }",
-                resume,
-            )
-            .with_durable_mutations(),
-        ),
-        Arc::new(
-            PluginOperation::write(
-                "sequences.exit",
-                "Remove a contact from a sequence (ends a live enrollment): { id }",
-                exit,
-            )
-            .with_durable_mutations(),
-        ),
-    ]
+const OP_SEQUENCES_LIST: OperationKey<Value, Value> = operation!("sequences.list");
+const OP_SEQUENCES_ENROLL: OperationKey<Value, Value> = operation!("sequences.enroll");
+const OP_SEQUENCES_PAUSE: OperationKey<Value, Value> = operation!("sequences.pause");
+const OP_SEQUENCES_RESUME: OperationKey<Value, Value> = operation!("sequences.resume");
+const OP_SEQUENCES_EXIT: OperationKey<Value, Value> = operation!("sequences.exit");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_SEQUENCES_LIST, OperationSpec::read("Sequences with their steps and enrollment counts: { active?, search?, page?, per_page? } -> { data, total }"), list);
+    app.operation(
+        OP_SEQUENCES_ENROLL,
+        OperationSpec::write(
+            "Enroll a contact in a sequence: { sequence_id, contact_id, mailbox_id? }",
+        )
+        .durable(),
+        enroll,
+    );
+    app.operation(
+        OP_SEQUENCES_PAUSE,
+        OperationSpec::write("Pause an active enrollment: { id }").durable(),
+        pause,
+    );
+    app.operation(
+        OP_SEQUENCES_RESUME,
+        OperationSpec::write("Resume a paused enrollment: { id }").durable(),
+        resume,
+    );
+    app.operation(
+        OP_SEQUENCES_EXIT,
+        OperationSpec::write("Remove a contact from a sequence (ends a live enrollment): { id }")
+            .durable(),
+        exit,
+    );
 }

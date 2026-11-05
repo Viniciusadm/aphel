@@ -1,5 +1,6 @@
 use aphel_contract_crm::CrmPermissions;
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use chrono::NaiveDate;
 use serde::Deserialize;
@@ -13,9 +14,7 @@ use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 use aphel_sdk::access::require_organization_record_scope as require_catalog;
 use aphel_sdk::line_items::{normalize_quantity, parse_money};
 use aphel_sdk::money::normalize_currency_code as normalize_currency;
@@ -137,17 +136,10 @@ fn resolve<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "pricing.list",
-            "Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(PluginOperation::read(
-            "pricing.resolve",
-            "Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } | null, unit_price (string) | null, currency, quantity, on }",
-            resolve,
-        )),
-    ]
+const OP_PRICING_LIST: OperationKey<Value, Value> = operation!("pricing.list");
+const OP_PRICING_RESOLVE: OperationKey<Value, Value> = operation!("pricing.resolve");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_PRICING_LIST, OperationSpec::read("Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total }"), list);
+    app.operation(OP_PRICING_RESOLVE, OperationSpec::read("Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } | null, unit_price (string) | null, currency, quantity, on }"), resolve);
 }

@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -7,7 +8,7 @@ use crate::http::{CreateFavoriteRequest, FavoriteResponse};
 use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct FavoriteId {
@@ -55,24 +56,23 @@ fn remove<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "favorites.list",
+const OP_FAVORITES_LIST: OperationKey<Value, Value> = operation!("favorites.list");
+const OP_FAVORITES_ADD: OperationKey<Value, Value> = operation!("favorites.add");
+const OP_FAVORITES_REMOVE: OperationKey<Value, Value> = operation!("favorites.remove");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(
+        OP_FAVORITES_LIST,
+        OperationSpec::read(
             "Favorites of the acting user in display order (needs a user actor): {} -> { data }",
-            list,
-        )),
-        Arc::new(PluginOperation::write(
-            "favorites.add",
-            "Add a favorite for the acting user (needs a user actor): { favorite_type: record|view, record_type?, record_id?, view_id? }",
-            add,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "favorites.remove",
-            "Remove a favorite of the acting user (needs a user actor): { id }",
-            remove,
-        )
-        .with_durable_mutations()),
-    ]
+        ),
+        list,
+    );
+    app.operation(OP_FAVORITES_ADD, OperationSpec::write("Add a favorite for the acting user (needs a user actor): { favorite_type: record|view, record_type?, record_id?, view_id? }").durable(), add);
+    app.operation(
+        OP_FAVORITES_REMOVE,
+        OperationSpec::write("Remove a favorite of the acting user (needs a user actor): { id }")
+            .durable(),
+        remove,
+    );
 }

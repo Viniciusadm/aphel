@@ -1,6 +1,6 @@
 pub(crate) mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod section;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -45,9 +45,7 @@ impl Module for ForecastModule {
             225,
             |pool, registry| Arc::new(ForecastSection::new(pool.clone(), registry.clone())),
         )));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

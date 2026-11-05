@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -7,7 +8,7 @@ use crate::http::RecordFollowersResponse;
 use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct RecordInput {
@@ -51,24 +52,19 @@ fn unfollow<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "followers.list",
-            "Followers of a record the actor can read: { record_type, record_id } -> { record_type, record_id, following, total, followers }",
-            list,
-        )),
-        Arc::new(PluginOperation::write(
-            "followers.follow",
+const OP_FOLLOWERS_LIST: OperationKey<Value, Value> = operation!("followers.list");
+const OP_FOLLOWERS_FOLLOW: OperationKey<Value, Value> = operation!("followers.follow");
+const OP_FOLLOWERS_UNFOLLOW: OperationKey<Value, Value> = operation!("followers.unfollow");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_FOLLOWERS_LIST, OperationSpec::read("Followers of a record the actor can read: { record_type, record_id } -> { record_type, record_id, following, total, followers }"), list);
+    app.operation(
+        OP_FOLLOWERS_FOLLOW,
+        OperationSpec::write(
             "Make the acting user follow a record (needs a user actor): { record_type, record_id }",
-            follow,
         )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "followers.unfollow",
-            "Make the acting user stop following a record (needs a user actor): { record_type, record_id }",
-            unfollow,
-        )
-        .with_durable_mutations()),
-    ]
+        .durable(),
+        follow,
+    );
+    app.operation(OP_FOLLOWERS_UNFOLLOW, OperationSpec::write("Make the acting user stop following a record (needs a user actor): { record_type, record_id }").durable(), unfollow);
 }

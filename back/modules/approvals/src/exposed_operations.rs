@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -11,9 +12,7 @@ use crate::http::{
 use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct RequestsInput {
@@ -109,36 +108,21 @@ fn cancel<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "approvals.requests",
-            "Approval requests of a record the actor can read: { record_type, record_id, status?, page?, per_page? } -> { data, total }",
-            requests,
-        )),
-        Arc::new(PluginOperation::write(
-            "approvals.submit",
-            "Ask for the approvals a record needs at a moment (needs edit access): { record_type, record_id, moment: on_demand|stage_change|quote_send, target_id?, comment?, policy_key? } -> { outcome, requests }",
-            submit,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "approvals.approve",
-            "Approve a request as an approver of its current step (needs a user actor): { id, comment? }",
-            approve,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "approvals.reject",
-            "Reject a request as an approver of its current step (needs a user actor): { id, comment }",
-            reject,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "approvals.cancel",
-            "Cancel a pending request (needs a user actor): { id, comment? }",
-            cancel,
-        )
-        .with_durable_mutations()),
-    ]
+const OP_APPROVALS_REQUESTS: OperationKey<Value, Value> = operation!("approvals.requests");
+const OP_APPROVALS_SUBMIT: OperationKey<Value, Value> = operation!("approvals.submit");
+const OP_APPROVALS_APPROVE: OperationKey<Value, Value> = operation!("approvals.approve");
+const OP_APPROVALS_REJECT: OperationKey<Value, Value> = operation!("approvals.reject");
+const OP_APPROVALS_CANCEL: OperationKey<Value, Value> = operation!("approvals.cancel");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_APPROVALS_REQUESTS, OperationSpec::read("Approval requests of a record the actor can read: { record_type, record_id, status?, page?, per_page? } -> { data, total }"), requests);
+    app.operation(OP_APPROVALS_SUBMIT, OperationSpec::write("Ask for the approvals a record needs at a moment (needs edit access): { record_type, record_id, moment: on_demand|stage_change|quote_send, target_id?, comment?, policy_key? } -> { outcome, requests }").durable(), submit);
+    app.operation(OP_APPROVALS_APPROVE, OperationSpec::write("Approve a request as an approver of its current step (needs a user actor): { id, comment? }").durable(), approve);
+    app.operation(OP_APPROVALS_REJECT, OperationSpec::write("Reject a request as an approver of its current step (needs a user actor): { id, comment }").durable(), reject);
+    app.operation(
+        OP_APPROVALS_CANCEL,
+        OperationSpec::write("Cancel a pending request (needs a user actor): { id, comment? }")
+            .durable(),
+        cancel,
+    );
 }

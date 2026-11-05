@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -8,9 +9,7 @@ use crate::http::{CreateReminderRequest, ReminderListParams, ReminderResponse};
 use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct ListInput {
@@ -73,24 +72,17 @@ fn delete<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "reminders.list",
-            "Reminders of the acting user sorted by remind_at (needs a user actor): { status?: pending|sent|dismissed, record_type?, record_id?, page?, per_page? } -> { data, total }",
-            list,
-        )),
-        Arc::new(PluginOperation::write(
-            "reminders.create",
-            "Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? }",
-            create,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "reminders.delete",
-            "Delete a reminder of the acting user (needs a user actor): { id }",
-            delete,
-        )
-        .with_durable_mutations()),
-    ]
+const OP_REMINDERS_LIST: OperationKey<Value, Value> = operation!("reminders.list");
+const OP_REMINDERS_CREATE: OperationKey<Value, Value> = operation!("reminders.create");
+const OP_REMINDERS_DELETE: OperationKey<Value, Value> = operation!("reminders.delete");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_REMINDERS_LIST, OperationSpec::read("Reminders of the acting user sorted by remind_at (needs a user actor): { status?: pending|sent|dismissed, record_type?, record_id?, page?, per_page? } -> { data, total }"), list);
+    app.operation(OP_REMINDERS_CREATE, OperationSpec::write("Create a reminder for the acting user (needs a user actor): { remind_at, note?, record_type?, record_id? }").durable(), create);
+    app.operation(
+        OP_REMINDERS_DELETE,
+        OperationSpec::write("Delete a reminder of the acting user (needs a user actor): { id }")
+            .durable(),
+        delete,
+    );
 }

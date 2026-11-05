@@ -1,6 +1,6 @@
 pub(crate) mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -57,9 +57,7 @@ impl Module for GoalsModule {
         .worker(worker);
         app.permission(PermissionDefinition::record(Permission::GOALS_MANAGE))
             .grant_to(["admin", "manager", "member"]);
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

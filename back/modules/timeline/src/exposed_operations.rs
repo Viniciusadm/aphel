@@ -1,11 +1,12 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde_json::Value;
 
 use crate::http::{TimelinePageResponse, TimelineParams, mask_timeline};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 fn page<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     Box::pin(async move {
@@ -33,17 +34,16 @@ fn kinds<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "timeline.page",
-            "Owner-authorized record timeline, newest first: { record_type, record_id, cursor?, kinds?: comma-separated contributed keys, per_page? } -> { data, meta: { next_cursor } }",
-            page,
-        )),
-        Arc::new(PluginOperation::read(
-            "timeline.kinds",
+const OP_TIMELINE_PAGE: OperationKey<Value, Value> = operation!("timeline.page");
+const OP_TIMELINE_KINDS: OperationKey<Value, Value> = operation!("timeline.kinds");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_TIMELINE_PAGE, OperationSpec::read("Owner-authorized record timeline, newest first: { record_type, record_id, cursor?, kinds?: comma-separated contributed keys, per_page? } -> { data, meta: { next_cursor } }"), page);
+    app.operation(
+        OP_TIMELINE_KINDS,
+        OperationSpec::read(
             "Available timeline kinds and localized labels: { record_type, record_id }",
-            kinds,
-        )),
-    ]
+        ),
+        kinds,
+    );
 }

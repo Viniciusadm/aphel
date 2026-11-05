@@ -1,5 +1,6 @@
 use aphel_contract_crm::CrmPermissions;
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -11,7 +12,7 @@ use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
 use aphel_kernel::domain::access::Permission;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct RequestId {
@@ -40,17 +41,17 @@ fn cancel<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::write(
-            "esign.send",
-            "Queue a PDF attached to a deal for electronic signature (needs esign.send): { deal_id, file_id, signers: [{ name, email, contact_id? }], message?, quote_id? }",
-            send,
-        ).with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "esign.cancel",
+const OP_ESIGN_SEND: OperationKey<Value, Value> = operation!("esign.send");
+const OP_ESIGN_CANCEL: OperationKey<Value, Value> = operation!("esign.cancel");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_ESIGN_SEND, OperationSpec::write("Queue a PDF attached to a deal for electronic signature (needs esign.send): { deal_id, file_id, signers: [{ name, email, contact_id? }], message?, quote_id? }").durable(), send);
+    app.operation(
+        OP_ESIGN_CANCEL,
+        OperationSpec::write(
             "Queue cancellation of an open signature request (needs esign.send): { id }",
-            cancel,
-        ).with_durable_mutations()),
-    ]
+        )
+        .durable(),
+        cancel,
+    );
 }

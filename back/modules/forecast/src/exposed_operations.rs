@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -8,9 +9,7 @@ use crate::http::{
 };
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct DealsInput {
@@ -38,17 +37,10 @@ fn deals<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "forecast.summary",
-            "Revenue forecast per month from the current month, within the actor's deals.read scope: { owner_id?, team_id?, months? (at most 18) } -> { currency, timezone, from, to, probability_source, settings, months: [..], totals }",
-            summary,
-        )),
-        Arc::new(PluginOperation::read(
-            "forecast.deals",
-            "Open deals expected to close in a month, largest first: { month: YYYY-MM, category?: pipeline|best_case|commit, owner_id?, team_id?, page?, per_page? } -> { data, total }",
-            deals,
-        )),
-    ]
+const OP_FORECAST_SUMMARY: OperationKey<Value, Value> = operation!("forecast.summary");
+const OP_FORECAST_DEALS: OperationKey<Value, Value> = operation!("forecast.deals");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_FORECAST_SUMMARY, OperationSpec::read("Revenue forecast per month from the current month, within the actor's deals.read scope: { owner_id?, team_id?, months? (at most 18) } -> { currency, timezone, from, to, probability_source, settings, months: [..], totals }"), summary);
+    app.operation(OP_FORECAST_DEALS, OperationSpec::read("Open deals expected to close in a month, largest first: { month: YYYY-MM, category?: pipeline|best_case|commit, owner_id?, team_id?, page?, per_page? } -> { data, total }"), deals);
 }

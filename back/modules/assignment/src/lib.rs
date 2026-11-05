@@ -5,8 +5,8 @@ use aphel_sdk::assignment::AssignmentPermissions;
 pub(crate) mod automation;
 pub mod domain;
 pub(crate) mod dto;
+pub(crate) mod exposed_operations;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 pub(crate) mod section;
 pub mod service;
 pub mod store;
@@ -69,9 +69,7 @@ impl Module for AssignmentModule {
                 ))
             }),
         ));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }

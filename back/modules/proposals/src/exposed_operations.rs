@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -8,7 +9,7 @@ use crate::http::{GenerateProposalRequest, ProposalDocument, optional_id, parse_
 use crate::service::{self, GENERATE, TemplateChoice};
 use aphel_kernel::Ctx;
 use aphel_kernel::application::access::Authorizer;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct GenerateInput {
@@ -42,10 +43,8 @@ fn generate<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(PluginOperation::write(
-        "proposals.generate",
-        "Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? }",
-        generate,
-    ).with_durable_mutations())]
+const OP_PROPOSALS_GENERATE: OperationKey<Value, Value> = operation!("proposals.generate");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_PROPOSALS_GENERATE, OperationSpec::write("Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? }").durable(), generate);
 }

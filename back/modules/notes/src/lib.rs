@@ -9,11 +9,11 @@ mod writer;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub mod http;
 pub(crate) mod notifications;
 pub(crate) mod operations;
-pub(crate) mod plugin_bridge;
 pub(crate) mod public;
 pub(crate) mod search;
 pub mod service;
@@ -106,9 +106,7 @@ impl Module for NotesModule {
             aphel_kernel::modules::DEFAULT_PRIORITY,
             |ctx, removed| Box::pin(crate::hooks::purge_record_notes(ctx, removed)),
         );
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         app.trigger(std::sync::Arc::new(crate::automation::NoteCreated))
             .action(std::sync::Arc::new(crate::automation::CreateNote));
         app.openapi_tag(http::TAG, "Notes attached to records")

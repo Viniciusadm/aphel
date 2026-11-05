@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -6,7 +7,7 @@ use serde_json::{Value, json};
 use crate::http::{RecordScoreResponse, ScoringSignalSchema};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input, operation_output};
+use aphel_kernel::modules::{OperationFuture, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct RecordInput {
@@ -46,17 +47,10 @@ fn signal<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "scoring.scores",
-            "Scores of a record in every active scoring model of its type, primary first: { record_type, record_id } -> [{ model_id, model_key, model_name, is_primary, score, band, warm_from, hot_from, explanation, calculated_at }]",
-            scores,
-        )),
-        Arc::new(PluginOperation::write(
-            "scoring.signal",
-            "Record a behavior signal on a record the actor can update and queue score recalculation; idempotent per record, signal and source: { record_type, record_id, signal: email_opened|email_clicked|email_replied|meeting_booked|form_submitted|call_connected, source } -> { recorded }",
-            signal,
-        ).with_durable_mutations()),
-    ]
+const OP_SCORING_SCORES: OperationKey<Value, Value> = operation!("scoring.scores");
+const OP_SCORING_SIGNAL: OperationKey<Value, Value> = operation!("scoring.signal");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_SCORING_SCORES, OperationSpec::read("Scores of a record in every active scoring model of its type, primary first: { record_type, record_id } -> [{ model_id, model_key, model_name, is_primary, score, band, warm_from, hot_from, explanation, calculated_at }]"), scores);
+    app.operation(OP_SCORING_SIGNAL, OperationSpec::write("Record a behavior signal on a record the actor can update and queue score recalculation; idempotent per record, signal and source: { record_type, record_id, signal: email_opened|email_clicked|email_replied|meeting_booked|form_submitted|call_connected, source } -> { recorded }").durable(), signal);
 }

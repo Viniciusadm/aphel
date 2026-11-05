@@ -1,3 +1,5 @@
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -10,8 +12,7 @@ use crate::{service, workflow};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
-    HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
-    operation_input,
+    HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
 };
 
 pub(crate) const ACCEPTING: &str = "quote.accepting";
@@ -114,30 +115,18 @@ fn new_version<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::write(
-            "quotes.submit",
-            "Send a draft quote for approval (approved right away when no policy applies): { id, comment? }",
-            submit,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "quotes.send",
-            "Queue the quote link e-mail to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? }",
-            send,
-        ).with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "quotes.accept",
-            "Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? }",
-            accept,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "quotes.new_version",
-            "Create a new version of the current quote: { id }",
-            new_version,
-        )
-        .with_durable_mutations()),
-    ]
+const OP_QUOTES_SUBMIT: OperationKey<Value, Value> = operation!("quotes.submit");
+const OP_QUOTES_SEND: OperationKey<Value, Value> = operation!("quotes.send");
+const OP_QUOTES_ACCEPT: OperationKey<Value, Value> = operation!("quotes.accept");
+const OP_QUOTES_NEW_VERSION: OperationKey<Value, Value> = operation!("quotes.new_version");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_QUOTES_SUBMIT, OperationSpec::write("Send a draft quote for approval (approved right away when no policy applies): { id, comment? }").durable(), submit);
+    app.operation(OP_QUOTES_SEND, OperationSpec::write("Queue the quote link e-mail to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? }").durable(), send);
+    app.operation(OP_QUOTES_ACCEPT, OperationSpec::write("Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? }").durable(), accept);
+    app.operation(
+        OP_QUOTES_NEW_VERSION,
+        OperationSpec::write("Create a new version of the current quote: { id }").durable(),
+        new_version,
+    );
 }

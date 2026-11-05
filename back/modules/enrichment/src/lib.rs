@@ -1,8 +1,8 @@
 use aphel_contract_automation::AutomationBuilder;
 mod automation;
 mod cnpj;
+mod exposed_operations;
 mod http;
-mod plugin_bridge;
 mod service;
 mod sources;
 mod store;
@@ -269,9 +269,7 @@ impl Module for EnrichmentModule {
             .action(Arc::new(automation::EnrichCompanyAction))
             .trigger(Arc::new(automation::CompanyEnrichedTrigger));
         app.permission(PermissionDefinition::administrative(USE));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }

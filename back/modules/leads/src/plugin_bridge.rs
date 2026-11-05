@@ -1,3 +1,5 @@
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -9,8 +11,8 @@ use crate::service;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
-    HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
-    operation_input, operation_output,
+    HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
+    operation_output,
 };
 
 pub(crate) const QUALIFYING: &str = "lead.qualifying";
@@ -175,24 +177,12 @@ fn convert<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::write(
-            "leads.qualify",
-            "Qualify a contact in the lead stage: { contact_id } -> { contact_id, lifecycle_stage, deal_id }",
-            qualify,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "leads.disqualify",
-            "Disqualify an open lead with a reason: { contact_id, reason_id, note? } -> { contact_id, lifecycle_stage, deal_id }",
-            disqualify,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "leads.convert",
-            "Convert an open lead into a deal: { contact_id, pipeline_id, stage_id?, title?, amount?, currency? } -> { contact_id, lifecycle_stage, deal_id }",
-            convert,
-        ).with_durable_mutations()),
-    ]
+const OP_LEADS_QUALIFY: OperationKey<Value, Value> = operation!("leads.qualify");
+const OP_LEADS_DISQUALIFY: OperationKey<Value, Value> = operation!("leads.disqualify");
+const OP_LEADS_CONVERT: OperationKey<Value, Value> = operation!("leads.convert");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_LEADS_QUALIFY, OperationSpec::write("Qualify a contact in the lead stage: { contact_id } -> { contact_id, lifecycle_stage, deal_id }").durable(), qualify);
+    app.operation(OP_LEADS_DISQUALIFY, OperationSpec::write("Disqualify an open lead with a reason: { contact_id, reason_id, note? } -> { contact_id, lifecycle_stage, deal_id }").durable(), disqualify);
+    app.operation(OP_LEADS_CONVERT, OperationSpec::write("Convert an open lead into a deal: { contact_id, pipeline_id, stage_id?, title?, amount?, currency? } -> { contact_id, lifecycle_stage, deal_id }").durable(), convert);
 }

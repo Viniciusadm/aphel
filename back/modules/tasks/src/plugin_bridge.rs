@@ -1,4 +1,6 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -13,8 +15,7 @@ use aphel_kernel::api::routes::v1::field_permissions::redacted;
 use aphel_kernel::application::shared::{RecordRef, RecordType};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
-    HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
-    operation_input,
+    HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
 };
 
 pub(crate) const COMPLETING: &str = "activity.completing";
@@ -93,13 +94,12 @@ fn complete<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(
-        PluginOperation::write(
-            "tasks.complete",
-            "Mark an open activity as done now: { id }",
-            complete,
-        )
-        .with_durable_mutations(),
-    )]
+const OP_TASKS_COMPLETE: OperationKey<Value, Value> = operation!("tasks.complete");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(
+        OP_TASKS_COMPLETE,
+        OperationSpec::write("Mark an open activity as done now: { id }").durable(),
+        complete,
+    );
 }

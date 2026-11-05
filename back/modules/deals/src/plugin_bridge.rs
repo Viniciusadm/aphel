@@ -1,4 +1,6 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -12,8 +14,8 @@ use aphel_kernel::Ctx;
 use aphel_kernel::application::shared::RecordType;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
-    HookCtx, OperationFuture, PluginHook, PluginHookKind, PluginOperation, forward_plugin_hook,
-    operation_input, operation_output,
+    HookCtx, OperationFuture, PluginHook, PluginHookKind, forward_plugin_hook, operation_input,
+    operation_output,
 };
 use aphel_sdk::workflow::PipelineStage;
 
@@ -181,19 +183,10 @@ fn move_pipeline<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::write(
-            "deals.move_stage",
-            "Move a deal to a stage (a won/lost stage wins/loses it): { id, stage_id, lost_reason_id?, lost_reason_note?, fields? }",
-            move_stage,
-        )
-        .with_durable_mutations()),
-        Arc::new(PluginOperation::write(
-            "deals.move_pipeline",
-            "Move a deal to another pipeline: { id, pipeline_id, stage_id?, lost_reason_id?, lost_reason_note?, fields? }",
-            move_pipeline,
-        )
-        .with_durable_mutations()),
-    ]
+const OP_DEALS_MOVE_STAGE: OperationKey<Value, Value> = operation!("deals.move_stage");
+const OP_DEALS_MOVE_PIPELINE: OperationKey<Value, Value> = operation!("deals.move_pipeline");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_DEALS_MOVE_STAGE, OperationSpec::write("Move a deal to a stage (a won/lost stage wins/loses it): { id, stage_id, lost_reason_id?, lost_reason_note?, fields? }").durable(), move_stage);
+    app.operation(OP_DEALS_MOVE_PIPELINE, OperationSpec::write("Move a deal to another pipeline: { id, pipeline_id, stage_id?, lost_reason_id?, lost_reason_note?, fields? }").durable(), move_pipeline);
 }

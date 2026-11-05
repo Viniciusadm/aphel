@@ -1,5 +1,6 @@
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 use std::str::FromStr;
-use std::sync::Arc;
 
 use rust_decimal::Decimal;
 use serde::Deserialize;
@@ -10,7 +11,7 @@ use crate::hooks::CurrencyConverter;
 use crate::service::require_reader;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{OperationFuture, PluginOperation, operation_input};
+use aphel_kernel::modules::{OperationFuture, operation_input};
 
 #[derive(Deserialize)]
 struct ConvertInput {
@@ -109,10 +110,8 @@ fn convert<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![Arc::new(PluginOperation::read(
-        "currencies.convert",
-        "Today's exchange rate of a currency to the base currency: { currency } -> { base, currency, enabled, rate }; or convert an amount: { amount, from, to? (default: base currency) } -> { amount, from, to, base, rate, converted } (decimals as strings, rate/converted null when a rate is missing)",
-        convert,
-    ))]
+const OP_CURRENCIES_CONVERT: OperationKey<Value, Value> = operation!("currencies.convert");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_CURRENCIES_CONVERT, OperationSpec::read("Today's exchange rate of a currency to the base currency: { currency } -> { base, currency, enabled, rate }; or convert an amount: { amount, from, to? (default: base currency) } -> { amount, from, to, base, rate, converted } (decimals as strings, rate/converted null when a rate is missing)"), convert);
 }

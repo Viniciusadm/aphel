@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use aphel_kernel::modules::OperationSpec;
+use aphel_sdk::{OperationKey, operation};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -6,9 +7,7 @@ use serde_json::{Value, json};
 use crate::dto::{MeetingBookingListParams, MeetingBookingResponse};
 use crate::service;
 use aphel_kernel::Ctx;
-use aphel_kernel::modules::{
-    OperationFuture, OperationPage, PluginOperation, operation_input, operation_output,
-};
+use aphel_kernel::modules::{OperationFuture, OperationPage, operation_input, operation_output};
 
 #[derive(Deserialize)]
 struct BookingsInput {
@@ -44,18 +43,17 @@ fn cancel<'a>(ctx: &'a Ctx<'_>, input: Value) -> OperationFuture<'a> {
     })
 }
 
-pub(crate) fn operations() -> Vec<Arc<PluginOperation>> {
-    vec![
-        Arc::new(PluginOperation::read(
-            "booking.bookings",
-            "Meeting bookings of the hosts within the actor's booking.manage scope: { status?: confirmed|canceled, meeting_type_id?, upcoming?, page?, per_page? } -> { data, total }",
-            bookings,
-        )),
-        Arc::new(PluginOperation::write(
-            "booking.cancel",
+const OP_BOOKING_BOOKINGS: OperationKey<Value, Value> = operation!("booking.bookings");
+const OP_BOOKING_CANCEL: OperationKey<Value, Value> = operation!("booking.cancel");
+
+pub(crate) fn register(app: &mut aphel_kernel::modules::AppBuilder) {
+    app.operation(OP_BOOKING_BOOKINGS, OperationSpec::read("Meeting bookings of the hosts within the actor's booking.manage scope: { status?: confirmed|canceled, meeting_type_id?, upcoming?, page?, per_page? } -> { data, total }"), bookings);
+    app.operation(
+        OP_BOOKING_CANCEL,
+        OperationSpec::write(
             "Cancel a booking as the host (the guest receives the cancellation): { id, reason? }",
-            cancel,
         )
-        .with_durable_mutations()),
-    ]
+        .durable(),
+        cancel,
+    );
 }

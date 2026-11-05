@@ -7,11 +7,11 @@ pub(crate) mod actor;
 pub(crate) mod channel_routes;
 pub(crate) mod channels;
 pub(crate) mod errors;
+pub(crate) mod exposed_operations;
 pub(crate) mod inbound;
 pub(crate) mod inbox_routes;
 pub(crate) mod jobs;
 pub(crate) mod model;
-pub(crate) mod plugin_bridge;
 pub(crate) mod public;
 pub(crate) mod sending;
 pub(crate) mod store;
@@ -190,9 +190,7 @@ impl Module for MessagingModule {
         app.permission(PermissionDefinition::administrative(VIEW));
         app.permission(PermissionDefinition::administrative(REPLY));
         app.permission(PermissionDefinition::administrative(MANAGE_CHANNELS));
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 

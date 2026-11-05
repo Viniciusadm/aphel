@@ -1,8 +1,8 @@
 pub(crate) mod call;
 pub mod domain;
+pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
-pub(crate) mod plugin_bridge;
 mod reference_cleanup;
 pub(crate) mod service;
 pub(crate) mod store;
@@ -83,9 +83,7 @@ impl Module for TelephonyModule {
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }
-        for operation in plugin_bridge::operations() {
-            app.contribute::<aphel_kernel::modules::PluginOperation>(operation);
-        }
+        exposed_operations::register(app);
         Ok(())
     }
 }
