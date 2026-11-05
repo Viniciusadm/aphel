@@ -1,0 +1,82 @@
+{
+  "format": "aphel-config",
+  "format_version": 1,
+  "min_aphel_version": "0.1.0",
+  "name": "Padrões do CRM",
+  "description": "Funil padrão e motivos de perda instalados com o blueprint CRM.",
+  "author": "Aphel",
+  "locale": "pt-BR",
+  "sections": {
+    "workflow": [
+      {
+        "key": "default",
+        "name": "Funil padrão",
+        "default": true,
+        "stages": [
+          {
+            "key": "start",
+            "name": "Início",
+            "kind": "open",
+            "probability": 10
+          },
+          {
+            "key": "review",
+            "name": "Análise",
+            "kind": "open",
+            "probability": 25
+          },
+          {
+            "key": "preparation",
+            "name": "Preparação",
+            "kind": "open",
+            "probability": 50
+          },
+          {
+            "key": "in_progress",
+            "name": "Em andamento",
+            "kind": "open",
+            "probability": 75
+          },
+          {
+            "key": "completed",
+            "name": "Concluída",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "cancelled",
+            "name": "Cancelada",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      }
+    ],
+    "lost_reasons": [
+      {
+        "key": "requirements_not_met",
+        "name": "Requisitos não atendidos"
+      },
+      {
+        "key": "alternative_selected",
+        "name": "Escolheu outra alternativa"
+      },
+      {
+        "key": "resources_unavailable",
+        "name": "Recursos indisponíveis"
+      },
+      {
+        "key": "no_response",
+        "name": "Sem resposta"
+      },
+      {
+        "key": "timing",
+        "name": "Momento inadequado"
+      },
+      {
+        "key": "other",
+        "name": "Outro"
+      }
+    ]
+  }
+}

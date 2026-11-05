@@ -11,17 +11,22 @@ pub struct DefaultsSeed(pub DefaultsSeedFn);
 
 pub struct DefaultsProbe(pub &'static str);
 
-pub async fn seed_defaults(connection: &mut MySqlConnection) -> Result<(), AppError> {
-    for (_, seed) in crate::modules::app().all_contributions::<DefaultsSeed>() {
-        (seed.0)(&mut *connection).await?;
+pub async fn seed_defaults(
+    connection: &mut MySqlConnection,
+    enabled: &[String],
+) -> Result<(), AppError> {
+    for (module, seed) in crate::modules::app().all_contributions::<DefaultsSeed>() {
+        if enabled.iter().any(|key| key == module) {
+            (seed.0)(&mut *connection).await?;
+        }
     }
     Ok(())
 }
 
-fn probed_tables() -> Vec<&'static str> {
+fn probed_tables(enabled: &[String]) -> Vec<&'static str> {
     let mut tables: Vec<&'static str> = Vec::new();
-    for (_, probe) in crate::modules::app().all_contributions::<DefaultsProbe>() {
-        if !tables.contains(&probe.0) {
+    for (module, probe) in crate::modules::app().all_contributions::<DefaultsProbe>() {
+        if enabled.iter().any(|key| key == module) && !tables.contains(&probe.0) {
             tables.push(probe.0);
         }
     }
@@ -29,7 +34,8 @@ fn probed_tables() -> Vec<&'static str> {
 }
 
 pub async fn sync_defaults(pool: &MySqlPool) -> Result<u64, AppError> {
-    let missing_condition = probed_tables()
+    let enabled = crate::modules::enabled::stored_enabled(pool).await?;
+    let missing_condition = probed_tables(&enabled)
         .into_iter()
         .map(|table| format!("NOT EXISTS (SELECT 1 FROM {})", quoted(table)))
         .collect::<Vec<_>>()
@@ -46,7 +52,7 @@ pub async fn sync_defaults(pool: &MySqlPool) -> Result<u64, AppError> {
         return Ok(0);
     }
     let mut transaction = pool.begin().await?;
-    seed_defaults(&mut transaction).await?;
+    seed_defaults(&mut transaction, &enabled).await?;
     transaction.commit().await?;
     Ok(1)
 }

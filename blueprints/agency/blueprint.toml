@@ -25,6 +25,3 @@ recommended = [
   "enrichment",
   "esign",
 ]
-
-[configuration]
-packages = ["config/{locale}.json"]

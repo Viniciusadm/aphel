@@ -66,3 +66,31 @@ fn versions(
         ),
     )
 }
+
+pub(crate) struct TemplateInstaller;
+
+#[async_trait::async_trait]
+impl aphel_kernel::application::installer::BlueprintConfigurator for TemplateInstaller {
+    async fn apply_template(&self, ctx: &Ctx<'_>, template: &str) -> Result<(), AppError> {
+        let source = PackageSource::Template(template.to_owned());
+        let use_cases = packages(ctx);
+        let plan = use_cases.plan(ctx.scope, source.clone()).await?;
+        if !plan.valid {
+            return Err(AppError::Configuration(format!(
+                "blueprint template {template} is not valid"
+            )));
+        }
+        use_cases
+            .apply(
+                ctx.scope,
+                ApplyCommand {
+                    source,
+                    decisions: std::collections::HashMap::new(),
+                    fingerprint: plan.fingerprint,
+                    ip: None,
+                },
+            )
+            .await?;
+        Ok(())
+    }
+}

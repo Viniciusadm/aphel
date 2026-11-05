@@ -23,7 +23,6 @@ use aphel_kernel::records::RecordValidating;
 use aphel_sdk::platform::application::public_events::{
     PublicEventDefinition, PublicResource, event,
 };
-use aphel_sdk::platform::infrastructure::defaults::{DefaultsProbe, DefaultsSeed};
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 const CHECKLIST_RESOURCE: PublicResource = PublicResource::payload("workflow.record");
@@ -250,12 +249,6 @@ impl Module for WorkflowModule {
                 std::sync::Arc::new(crate::guidance::section::stage_guidance_section(pool))
             }),
         ));
-        app.contribute(std::sync::Arc::new(DefaultsSeed(|connection| {
-            Box::pin(seed::seed_pipeline_defaults(connection))
-        })));
-        for table in seed::SEEDED_TABLES {
-            app.contribute(std::sync::Arc::new(DefaultsProbe(table)));
-        }
         app.on(
             RecordValidating,
             STAGE_REQUIREMENTS_PRIORITY,

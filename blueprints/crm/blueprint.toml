@@ -46,3 +46,6 @@ recommended = [
 
 [navigation]
 home = "/"
+
+[configuration]
+packages = ["crm"]

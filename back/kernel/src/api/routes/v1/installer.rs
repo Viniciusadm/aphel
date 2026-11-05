@@ -105,6 +105,7 @@ async fn install(
     JsonBody(request): JsonBody<InstallRequest>,
 ) -> Result<Response, ApiError> {
     let password = Secret::new(request.admin_password);
+    let business = request.business.clone();
     let installation = use_cases(&state)?
         .install(InstallCommand {
             modules: request.modules,
@@ -149,6 +150,19 @@ async fn install(
         }
     }
     state.organization_config.refresh().await;
+    match crate::Ctx::from_state(&state, &scope).await {
+        Ok(context) => {
+            if let Err(error) = crate::application::installer::apply_blueprint_configuration(
+                &context,
+                business.as_ref(),
+            )
+            .await
+            {
+                tracing::error!("blueprint configuration failed: {error}");
+            }
+        }
+        Err(error) => tracing::error!("blueprint configuration context failed: {error}"),
+    }
     let session = state
         .auth_use_cases()?
         .login(LoginCommand {

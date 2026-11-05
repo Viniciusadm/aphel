@@ -10,6 +10,7 @@ pub mod modules;
 
 pub trait InstallerBlueprintSource: Send + Sync {
     fn profiles(&self) -> Vec<modules::InstallerProfile>;
+    fn packages(&self, business: Option<&serde_json::Value>) -> Vec<String>;
     fn validate(
         &self,
         input: Option<serde_json::Value>,
@@ -32,4 +33,32 @@ pub fn blueprint_input(
         input = source.validate(input, violations);
     }
     input
+}
+
+#[async_trait::async_trait]
+pub trait BlueprintConfigurator: Send + Sync {
+    async fn apply_template(
+        &self,
+        ctx: &crate::Ctx<'_>,
+        template: &str,
+    ) -> Result<(), crate::errors::AppError>;
+}
+
+pub async fn apply_blueprint_configuration(
+    ctx: &crate::Ctx<'_>,
+    business: Option<&serde_json::Value>,
+) -> Result<(), crate::errors::AppError> {
+    let app = crate::modules::app();
+    let configurators = app.contributions::<dyn BlueprintConfigurator>();
+    if configurators.is_empty() {
+        return Ok(());
+    }
+    for source in app.contributions::<dyn InstallerBlueprintSource>() {
+        for template in source.packages(business) {
+            for configurator in &configurators {
+                configurator.apply_template(ctx, &template).await?;
+            }
+        }
+    }
+    Ok(())
 }

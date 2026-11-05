@@ -106,6 +106,18 @@ impl aphel_kernel::application::installer::InstallerBlueprintSource for Blueprin
     fn profiles(&self) -> Vec<aphel_kernel::application::installer::modules::InstallerProfile> {
         installer_profiles()
     }
+    fn packages(&self, business: Option<&serde_json::Value>) -> Vec<String> {
+        let Some(key) = business
+            .and_then(|business| business.get("business_type"))
+            .and_then(serde_json::Value::as_str)
+        else {
+            return Vec::new();
+        };
+        catalog()
+            .resolve(key)
+            .map(|blueprint| blueprint.configuration.packages)
+            .unwrap_or_default()
+    }
     fn validate(
         &self,
         input: Option<serde_json::Value>,

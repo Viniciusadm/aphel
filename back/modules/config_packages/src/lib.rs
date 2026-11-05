@@ -45,6 +45,9 @@ impl Module for ConfigPackagesModule {
         app.provide::<dyn aphel_sdk::configuration::ConfigurationPackages>(std::sync::Arc::new(
             package_service::Packages,
         ));
+        app.contribute::<dyn aphel_kernel::application::installer::BlueprintConfigurator>(
+            std::sync::Arc::new(package_service::TemplateInstaller),
+        );
         app.provide::<dyn aphel_sdk::configuration::ConfigurationCatalog>(std::sync::Arc::new(
             catalog_service::Catalog,
         ));

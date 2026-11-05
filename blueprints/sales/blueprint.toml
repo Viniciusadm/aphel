@@ -24,6 +24,3 @@ recommended = [
   "ai",
   "enrichment",
 ]
-
-[configuration]
-packages = ["config/{locale}.json"]

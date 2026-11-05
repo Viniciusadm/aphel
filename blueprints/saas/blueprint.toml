@@ -23,6 +23,3 @@ recommended = [
   "sso",
   "ai",
 ]
-
-[configuration]
-packages = ["config/{locale}.json"]

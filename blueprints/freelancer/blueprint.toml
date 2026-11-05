@@ -15,6 +15,3 @@ recommended = [
   "google",
   "ai",
 ]
-
-[configuration]
-packages = ["config/{locale}.json"]

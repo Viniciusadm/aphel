@@ -1,0 +1,82 @@
+{
+  "format": "aphel-config",
+  "format_version": 1,
+  "min_aphel_version": "0.1.0",
+  "name": "CRM defaults",
+  "description": "Default workflow and lost reasons installed with the CRM blueprint.",
+  "author": "Aphel",
+  "locale": "en",
+  "sections": {
+    "workflow": [
+      {
+        "key": "default",
+        "name": "Default workflow",
+        "default": true,
+        "stages": [
+          {
+            "key": "start",
+            "name": "Start",
+            "kind": "open",
+            "probability": 10
+          },
+          {
+            "key": "review",
+            "name": "Review",
+            "kind": "open",
+            "probability": 25
+          },
+          {
+            "key": "preparation",
+            "name": "Preparation",
+            "kind": "open",
+            "probability": 50
+          },
+          {
+            "key": "in_progress",
+            "name": "In progress",
+            "kind": "open",
+            "probability": 75
+          },
+          {
+            "key": "completed",
+            "name": "Completed",
+            "kind": "won",
+            "probability": 100
+          },
+          {
+            "key": "cancelled",
+            "name": "Cancelled",
+            "kind": "lost",
+            "probability": 0
+          }
+        ]
+      }
+    ],
+    "lost_reasons": [
+      {
+        "key": "requirements_not_met",
+        "name": "Requirements not met"
+      },
+      {
+        "key": "alternative_selected",
+        "name": "Alternative selected"
+      },
+      {
+        "key": "resources_unavailable",
+        "name": "Resources unavailable"
+      },
+      {
+        "key": "no_response",
+        "name": "No response"
+      },
+      {
+        "key": "timing",
+        "name": "Timing"
+      },
+      {
+        "key": "other",
+        "name": "Other"
+      }
+    ]
+  }
+}
