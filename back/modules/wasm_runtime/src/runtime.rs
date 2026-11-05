@@ -627,6 +627,61 @@ pub async fn on_widget(
         .await
 }
 
+pub async fn on_operation(
+    plugin: &Arc<LoadedPlugin>,
+    scope: &AccessScope,
+    key: &str,
+    input_json: &str,
+    read_only: bool,
+) -> Result<String, AppError> {
+    let execution = execution_context(
+        plugin,
+        "operation",
+        Some(scope),
+        ExecutionContext::current().as_ref(),
+        None,
+    )?;
+    let scope = capability_scope(plugin, scope);
+    let (mut store, bindings) = instantiate(plugin, scope, ACTION_TIMEOUT, false).await?;
+    store.data_mut().read_only = read_only;
+    execution
+        .scope(async {
+            bindings
+                .call_on_operation(&mut store, key, input_json)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
+        .await
+}
+
+pub async fn on_contribution(
+    plugin: &Arc<LoadedPlugin>,
+    scope: &AccessScope,
+    point: &str,
+    name: &str,
+    input_json: &str,
+) -> Result<String, AppError> {
+    let execution = execution_context(
+        plugin,
+        "contribution",
+        Some(scope),
+        ExecutionContext::current().as_ref(),
+        None,
+    )?;
+    let scope = capability_scope(plugin, scope);
+    let (mut store, bindings) = instantiate(plugin, scope, ACTION_TIMEOUT, false).await?;
+    execution
+        .scope(async {
+            bindings
+                .call_on_contribution(&mut store, point, name, input_json)
+                .await
+                .map_err(|error| failure(plugin, error))?
+                .map_err(plugin_error)
+        })
+        .await
+}
+
 #[derive(Debug, Clone)]
 pub struct RawBody {
     pub content_type: String,

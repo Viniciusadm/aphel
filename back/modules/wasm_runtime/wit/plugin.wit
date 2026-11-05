@@ -202,4 +202,6 @@ world plugin {
   export on-schedule: func(name: string, slot: string) -> result<_, plugin-error>;
   export on-action: func(call: action-call) -> result<string, plugin-error>;
   export on-widget: func(name: string, request: widget-request) -> result<string, plugin-error>;
+  export on-operation: func(key: string, input-json: string) -> result<string, plugin-error>;
+  export on-contribution: func(point: string, name: string, input-json: string) -> result<string, plugin-error>;
 }
