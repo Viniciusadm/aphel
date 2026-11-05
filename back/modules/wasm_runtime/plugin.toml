@@ -1,5 +1,5 @@
 key = "wasm_runtime"
-name = "Plugins"
+name = "WebAssembly runtime"
 version = "0.1.0"
 layer = "capability"
 runtime = "native"

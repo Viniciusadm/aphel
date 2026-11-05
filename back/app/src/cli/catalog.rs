@@ -208,7 +208,7 @@ fn host_markdown(document: &CatalogDocument) -> String {
         .iter()
         .filter(|hook| hook.record_type.is_some())
         .collect();
-    hooks.sort_by_key(|hook| (hook.module != "plugins", hook.key.clone()));
+    hooks.sort_by_key(|hook| (hook.module != "wasm_runtime", hook.key.clone()));
     for hook in hooks {
         let record_type = match hook.record_type.as_deref() {
             Some("any") | Some("*") | None => "any".to_owned(),

@@ -6,6 +6,15 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 
 | Hook | Module | Record type | Kind | Values |
 | --- | --- | --- | --- | --- |
+| `record.archiving` | wasm_runtime | any | veto | The custom record or company being archived |
+| `record.committed` | wasm_runtime | any | action | `values` and `changes`, after the commit (errors only logged) |
+| `record.deleted` | wasm_runtime | any | action | The deleted record, inside the transaction |
+| `record.deleting` | wasm_runtime | any | veto | The record being deleted |
+| `record.purged` | wasm_runtime | any | action | The purged record, inside the transaction |
+| `record.restored` | wasm_runtime | any | action | The restored record, inside the transaction |
+| `record.saved` | wasm_runtime | any | action | `values` and `changes`, inside the transaction |
+| `record.saving` | wasm_runtime | any | filter | The draft `values`/`custom_fields`; return changes |
+| `record.validating` | wasm_runtime | any | veto | `values` and `changes` of the write |
 | `activity.completing` | tasks | `tasks.task` | veto | Before an activity is completed; values: { activity, previous, type_key }. An error blocks it |
 | `automation.action_running` | automations | any | veto | Before an automation action runs on a record (dry run and execution), for the record's type; values: { automation_id, run_id, step_id, action, record: { record_type, record_id }, config, dry_run }. An error skips the action |
 | `deal.losing` | deals | `deals.deal` | veto | Before a deal is lost; values: { deal, previous, stage, lost_reason }. An error blocks it |
@@ -19,15 +28,6 @@ What this Aphel offers to runtime plugins besides records: the hooks a manifest 
 | `lead.disqualifying` | leads | `people.person` | veto | Before a lead is disqualified; values: { lead, reason: { id, key, name }, note }. An error blocks it |
 | `lead.qualifying` | leads | `people.person` | veto | Before a lead is qualified in the lead inbox; values: { lead }. An error blocks the qualification |
 | `quote.accepting` | quotes | `quotes.quote` | veto | Before a quote is accepted (public page or manually); values: { quote, deal_id, acceptor: { name, email }, manual }. An error blocks the acceptance |
-| `record.archiving` | wasm_runtime | any | veto | The custom record or company being archived |
-| `record.committed` | wasm_runtime | any | action | `values` and `changes`, after the commit (errors only logged) |
-| `record.deleted` | wasm_runtime | any | action | The deleted record, inside the transaction |
-| `record.deleting` | wasm_runtime | any | veto | The record being deleted |
-| `record.purged` | wasm_runtime | any | action | The purged record, inside the transaction |
-| `record.restored` | wasm_runtime | any | action | The restored record, inside the transaction |
-| `record.saved` | wasm_runtime | any | action | `values` and `changes`, inside the transaction |
-| `record.saving` | wasm_runtime | any | filter | The draft `values`/`custom_fields`; return changes |
-| `record.validating` | wasm_runtime | any | veto | `values` and `changes` of the write |
 | `sequence.step_running` | sequences | `people.person` | veto | Before a sequence step runs for an enrolled contact; values: { enrollment_id, sequence_id, contact_id, enrolled_by, position, kind, template_id }. A definitive error removes the contact from the sequence, a transient one retries the step |
 
 ## Operations
