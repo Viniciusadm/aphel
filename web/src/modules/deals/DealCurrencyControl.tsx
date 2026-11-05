@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/components/ui/toast-store'
 import { formatCurrency, formatNumber, NativeSelect, type RecordItem, useRecordFormatting, useUpdateRecord } from '@/sdk'
-import { useCurrencySettings, currencyErrorKey } from '@/modules/money/api'
+import {useCurrencySettings, currencyErrorKey} from '@/sdk'
 
 const DEAL_RECORD_TYPE = 'deals.deal'
 const RATE_DECIMALS = 10

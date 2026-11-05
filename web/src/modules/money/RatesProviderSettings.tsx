@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, NativeSelect, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
-import { currenciesApi, useInvalidateCurrencies } from './api'
-import { currencyErrorKey } from './errors'
-import type { CurrencySettings, RatesProviderKey } from './types'
+import {currenciesApi, useInvalidateCurrencies} from '@/sdk'
+import {currencyErrorKey} from '@/sdk'
+import type {CurrencySettings, RatesProviderKey} from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 const PROVIDERS: RatesProviderKey[] = ['manual', 'frankfurter']
