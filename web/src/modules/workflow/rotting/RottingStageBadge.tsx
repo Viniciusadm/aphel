@@ -1,7 +1,7 @@
 import { AlarmClock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
-import { stageRottingDays } from './lib'
+import { stageRottingDays } from '@/sdk'
 
 export function RottingStageBadge({ stage }: { stage: object }) {
   const { t } = useTranslation('workflow', { keyPrefix: 'rotting' })

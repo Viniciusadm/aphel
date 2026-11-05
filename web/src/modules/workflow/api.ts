@@ -1,12 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { api, apiRequest } from '@/api'
-import type { LostReason, LostReasonsPage, Pipeline, PipelinesPage, PipelineStage, StageKind } from './types'
+import type { LostReason, LostReasonsPage, Pipeline, PipelinesPage, PipelineStage, StageKind } from '@/sdk'
 
-export const pipelinesKeys = {
-  all: ['workflow'] as const,
-  list: () => [...pipelinesKeys.all, 'list'] as const,
-  lostReasons: (includeInactive: boolean) => [...pipelinesKeys.all, 'lost-reasons', includeInactive] as const,
-}
+export { activePipelines, defaultPipeline, pipelinesKeys, useLostReasons, usePipelines } from '@/sdk'
 
 export const WORKFLOW_RECORDS_QUERY_KEY = ['records'] as const
 
@@ -62,29 +57,4 @@ export const lostReasonsApi = {
   update: (id: string, body: { name?: string; is_active?: boolean }) =>
     api.patch<LostReason>(`/v1/lost-reasons/${encodeURIComponent(id)}`, body),
   reorder: (ids: string[]) => api.put<LostReason[]>('/v1/lost-reasons/order', { ids }),
-}
-
-export function usePipelines() {
-  return useQuery({
-    queryKey: pipelinesKeys.list(),
-    queryFn: async () => (await pipelinesApi.list()).data,
-    staleTime: 60_000,
-  })
-}
-
-export function useLostReasons(includeInactive = false) {
-  return useQuery({
-    queryKey: pipelinesKeys.lostReasons(includeInactive),
-    queryFn: async () => (await lostReasonsApi.list(includeInactive)).data,
-    staleTime: 60_000,
-  })
-}
-
-export function defaultPipeline(workflow: Pipeline[] | undefined): Pipeline | undefined {
-  const active = workflow?.filter((pipeline) => pipeline.is_active)
-  return active?.find((pipeline) => pipeline.is_default) ?? active?.[0] ?? workflow?.[0]
-}
-
-export function activePipelines(workflow: Pipeline[] | undefined): Pipeline[] {
-  return workflow?.filter((pipeline) => pipeline.is_active) ?? []
 }

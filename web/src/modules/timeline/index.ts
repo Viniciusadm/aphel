@@ -1,13 +1,5 @@
 import { defineModule } from '@/kernel/modules/define'
-import { TIMELINE_MODULE_KEY } from './api'
-import { TIMELINE_RENDERERS } from './renderers'
-import { recordTimelineSource } from './source'
-
-export { TIMELINE_MODULE_KEY, timelineApi, type TimelineTarget } from './api'
-export { TimelineLine, TimelineRecordLink } from './contents'
-export { timelineRenderer } from './renderers'
-export { recordTimelineSource, timelineKindOptions } from './source'
-export { asObject, asText, eventType, nameOf, payloadOf, type TimelinePayload } from './text'
+import { TIMELINE_MODULE_KEY, TIMELINE_RENDERERS, recordTimelineSource } from '@/sdk'
 
 const timelineModule = defineModule({
   key: TIMELINE_MODULE_KEY,

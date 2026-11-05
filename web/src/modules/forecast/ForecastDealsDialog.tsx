@@ -13,8 +13,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { dealPath } from '@/modules/deals/resource'
-import { formatCurrency, formatDate, useRecordFormatting } from '@/sdk'
+import { formatCurrency, formatDate, recordDetailHref, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import { cn } from '@/lib/utils'
 import { FORECAST_DEALS_PER_PAGE, useForecastDeals, type ForecastCategory } from './api'
@@ -72,7 +71,7 @@ function DealsList({ drillDown }: { drillDown: DrillDown }) {
         {deals.data.data.map((deal) => (
           <li key={deal.id} className="flex min-w-0 flex-col gap-1 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="grid min-w-0 gap-0.5">
-              <Link to={dealPath(deal.id)} className="truncate font-medium underline-offset-4 hover:underline">
+              <Link to={recordDetailHref('deals.deal', deal.id) ?? '#'} className="truncate font-medium underline-offset-4 hover:underline">
                 {deal.title}
               </Link>
               <p className="truncate text-xs text-muted-foreground">

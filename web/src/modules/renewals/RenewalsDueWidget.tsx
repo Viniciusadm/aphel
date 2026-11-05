@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { StatTile } from '@/kernel/widgets/shared'
-import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/sdk'
-import { dealPath } from '@/modules/deals/resource'
+import { formatCurrency, formatDate, formatNumber, recordDetailHref, useRecordFormatting } from '@/sdk'
 import type { RenewalsDueData } from './types'
 
 export function RenewalsDueWidget({ data }: { data: RenewalsDueData }) {
@@ -28,7 +27,7 @@ export function RenewalsDueWidget({ data }: { data: RenewalsDueData }) {
               className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-md border p-2 text-sm"
             >
               <div className="grid min-w-0">
-                <Link to={dealPath(item.id)} className="truncate font-medium underline-offset-2 hover:underline">
+                <Link to={recordDetailHref('deals.deal', item.id) ?? '#'} className="truncate font-medium underline-offset-2 hover:underline">
                   {item.title}
                 </Link>
                 <span className="truncate text-xs text-muted-foreground">

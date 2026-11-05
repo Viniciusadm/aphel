@@ -8,7 +8,7 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { FilterChips, FilterMenu, type FilterNode, RecordFormDialog, type RecordItem, RecordListActions, RecordListView, type RecordViewConfig, type SavedView, SearchBox, useFieldSchema } from '@/sdk'
+import { FilterChips, FilterMenu, type FilterNode, type Pipeline, RecordFormDialog, type RecordItem, RecordListActions, RecordListView, type RecordViewConfig, type SavedView, SearchBox, activePipelines, defaultPipeline, useFieldSchema, usePipelines } from '@/sdk'
 import { useSavedViews } from '@/modules/saved_views/api'
 import {
   ALL_RECORDS_VIEW,
@@ -23,8 +23,6 @@ import { hasExplicitQuery, viewDensity } from '@/modules/saved_views/ui/urlState
 import { applyFilters } from '@/kernel/modules/filters'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'
-import { activePipelines, defaultPipeline, usePipelines } from '@/modules/workflow/api'
-import type { Pipeline } from '@/modules/workflow/types'
 import { dealsKeys } from './api'
 import { pipelineFromFilter, withPipelineFilter } from './pipeline-filter'
 import { DealsBoard } from './board/DealsBoard'

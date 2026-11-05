@@ -1,3 +1,4 @@
+import { useLostReasons } from '@/sdk'
 import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useId, useState } from 'react'
@@ -8,7 +9,6 @@ import {
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { useLostReasons } from '@/modules/workflow/api'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'
 

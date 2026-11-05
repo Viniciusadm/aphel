@@ -1,6 +1,6 @@
 import { History, Paperclip, PencilLine } from 'lucide-react'
 import { createElement, type ComponentType } from 'react'
-import { type TimelineItem, type TimelineRenderer } from '@/sdk'
+import { type TimelineItem, type TimelineRenderer } from '../records'
 import { AttachmentTimelineContent, EventTimelineContent, RecordChangeTimelineContent } from './contents'
 
 export function timelineRenderer(

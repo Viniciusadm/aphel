@@ -41,6 +41,7 @@ export default leadProModule
 | `settingsGroup(area, group)` | Adds or reuses a group (`key`, `label`, `order`) inside an area; the first declaration of a key wins, so every module may declare the groups it uses (e.g. `sales`) |
 | `recordTab(type, tab)` | Tab on the record pages of the type, after the page's own tabs. `render` receives `{ recordType, recordId, readOnly }` |
 | `slot(name, contribution)` | Component at a named point (table below), with `recordTypes?` and `permission?` |
+| `provideComponent(key, Component)` | Provides a contract component (see below) that other modules render without importing this one |
 | `filter(name, fn, priority)` | Transforms a value (table below). Lower priority runs first (default 10) |
 | `override(id, Component)` | Replaces a component marked with `<Overridable id="..." />`. The last active contribution wins; with more than one, a console warning in development |
 | `fieldType(type, { Input, Display })` | Input and display of a field type. Replaces the native one part by part (e.g. `calls` replaces only the `Display` of `phone`) |
@@ -78,6 +79,14 @@ Labels (`label`, `description`) are i18n keys in the module's namespace; use `ns
 | `quotes.editor.sidebar` | Side column of the quote editor (e.g. approvals) | `{ recordType, recordId }` |
 
 Render a new point with `<Slot name="..." props={..} />` (`kernel/modules/Slot.tsx`) or `useSlot`/`useSlotEntries`, and declare the props by augmenting `SlotPropsMap` from the module that owns the slot (`modules/<key>/slots.ts`, `declare module '@/kernel/modules/slots' { interface SlotPropsMap { 'my.slot': Props } }`). `kernel/modules/slots.ts` only lists the platform slots; domain slots (`reports.library`, `dashboard.source`, `dashboard.top`, `catalog.sections`, `deals.*`, ...) are declared by their owner.
+
+### Cross-module contracts
+
+A module never imports another module's package (`@/modules/<other>`; the arch check counts it). Three mechanisms replace those imports:
+
+1. **Contract components.** The provider declares the key and props by augmenting `ContractComponentMap` (`modules/<key>/contracts.ts`, props written with types the provider owns or primitives) and registers `app.provideComponent('workflow.RottingBadge', RottingBadge)`. The consumer renders `<ContractComponent name="workflow.RottingBadge" record={deal} fallback={Plain} />` (or `useContractComponent(key, Fallback)` when it needs the component value). With no enabled provider it renders the fallback, or nothing. The first enabled provider by order wins.
+2. **SDK contracts.** Pure helpers, hooks and API types that several modules share live in `web/src/sdk` (`workflow.ts`, `rotting.ts`, `period.ts`, `timeline/`), next to the backend `aphel_contract_*` crates. The owner module imports them from `@/sdk` too, so there is one definition.
+3. **Registries.** Navigation to another module's record goes through the record resource registry (`recordDetailHref(recordType, id)`), which returns `undefined` when the owner is disabled, never through the owner's resource file.
 
 ### Filters
 

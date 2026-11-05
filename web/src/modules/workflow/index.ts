@@ -4,6 +4,7 @@ import { defineModule } from '@/kernel/modules/define'
 import { StageGuidanceRecordTab } from './record-tabs'
 import { PIPELINE_STAGE_REFERENCE_OPTIONS } from './reference-options'
 import { isStagedRecord } from './traits'
+import { RottingBadge } from './rotting/RottingBadge'
 import { RottingFilterToggle } from './rotting/RottingFilterToggle'
 import { pipelinesSettingsRoute } from './routes'
 import './slots'
@@ -14,6 +15,7 @@ const pipelinesModule = defineModule({
   key: 'workflow',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.provideComponent('workflow.RottingBadge', RottingBadge)
     app.settings('organization', {
       group: 'records',
       path: 'workflow',

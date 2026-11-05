@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { usePipelines } from '@/modules/workflow/api'
-import { PeriodSelector } from '@/modules/dashboard/PeriodSelector'
-import { CompareToggle } from '@/modules/dashboard/SubjectSelector'
+import { ContractComponent, usePipelines } from '@/sdk'
 import { PERFORMANCE_DIMENSIONS, type PerformanceDimension } from './api'
 import type { ReportFiltersState } from './filters'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -52,8 +50,8 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
           ))}
         </NativeSelect>}
       </Field>
-      <PeriodSelector value={filters.period} onChange={state.setPeriod} />
-      <CompareToggle checked={filters.compare} onChange={state.setCompare} />
+      <ContractComponent name="dashboard.PeriodSelector" value={filters.period} onChange={state.setPeriod} />
+      <ContractComponent name="dashboard.CompareToggle" checked={filters.compare} onChange={state.setCompare} />
     </div>
   )
 }

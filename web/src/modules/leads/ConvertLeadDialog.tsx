@@ -14,9 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
-import { dealPath } from '@/modules/deals/resource'
-import { defaultPipeline, usePipelines } from '@/modules/workflow/api'
-import { NativeSelect } from '@/sdk'
+import { NativeSelect, defaultPipeline, recordDetailHref, usePipelines } from '@/sdk'
 import { useLeadActions } from './api'
 import type { LeadTarget } from './DisqualifyLeadDialog'
 import { lifecycleErrorMessage } from './errors'
@@ -85,7 +83,8 @@ function ConvertForm({ lead, onClose }: { lead: LeadTarget; onClose: () => void 
       const dealId = result.deal_id
       notifySuccess(t('convert.done', { name: lead.name }))
       onClose()
-      if (dealId) void navigate(dealPath(dealId))
+      const dealHref = dealId ? recordDetailHref('deals.deal', dealId) : undefined
+      if (dealHref) void navigate(dealHref)
     } catch (error) {
       toast({ title: lifecycleErrorMessage(error, t), variant: 'destructive' })
     }

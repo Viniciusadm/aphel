@@ -1,9 +1,9 @@
+import { type PipelineStage, type StageKind } from '@/sdk'
 import { useCallback, useState, type ReactNode } from 'react'
 import { useApprovalGate } from '@/modules/approvals/components/useApprovalGate'
 import { LostReasonDialog } from './LostReasonDialog'
 import { isStageRequirementsInaccessible, missingStageFields, requirementFieldsFromError } from './requirements'
 import { StageRequirementsDialog } from './StageRequirementsDialog'
-import type { PipelineStage, StageKind } from '@/modules/workflow/types'
 import type { Deal } from './types'
 
 export interface MoveTarget {

@@ -1,5 +1,5 @@
 import { type FilterNode, isFilterCondition, isFilterGroup } from '@/sdk'
-import { IS_ROTTING_FIELD } from './lib'
+import { IS_ROTTING_FIELD } from '@/sdk'
 
 const ROTTING_CONDITION: FilterNode = { field: IS_ROTTING_FIELD, operator: 'eq', value: true }
 

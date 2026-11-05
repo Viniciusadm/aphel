@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
-import { ActivityMapLink, formatDateTime, type TimelineItem, timelineLocation, useRecordFormatting } from '@/sdk'
+import { ActivityMapLink, type TimelineItem, TimelineLine as Line, TimelineRecordLink as RecordLink, asObject, asText, eventType, formatDateTime, nameOf, payloadOf, timelineLocation, useRecordFormatting } from '@/sdk'
 import { Markdown } from '@/components/markdown'
-import { TimelineLine as Line, TimelineRecordLink as RecordLink, asObject, asText, eventType, nameOf, payloadOf } from '@/modules/timeline'
 import { activityResource } from '../resource'
 import { dealChangeText } from './text'
 

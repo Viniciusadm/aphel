@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
-import { periodKey, periodQuery } from './period'
+import { periodKey, periodQuery } from '@/sdk'
 import type {
   DashboardLayout,
   DashboardSubjects,

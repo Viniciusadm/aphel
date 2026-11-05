@@ -1,5 +1,7 @@
 import { House } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
+import { PeriodSelector } from './PeriodSelector'
+import { CompareToggle } from './SubjectSelector'
 import { DASHBOARD_WIDGETS } from './widgets/registry'
 
 const dashboardModule = defineModule({
@@ -12,6 +14,8 @@ const dashboardModule = defineModule({
         lazy: async () => ({ Component: (await import('./DashboardPage')).DashboardPage }),
       },
     ])
+    app.provideComponent('dashboard.PeriodSelector', PeriodSelector)
+    app.provideComponent('dashboard.CompareToggle', CompareToggle)
     app.nav({ to: '/', label: 'nav.home', icon: House, end: true, order: 10 })
     for (const [key, renderer] of Object.entries(DASHBOARD_WIDGETS)) app.widget(key, renderer)
   },

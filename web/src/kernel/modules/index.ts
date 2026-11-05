@@ -1,4 +1,12 @@
 export { useModuleCreateActions, type ModuleCreateAction } from './actions'
+export {
+  useContractComponent,
+  useHasContractComponent,
+  type ContractComponentKey,
+  type ContractComponentMap,
+  type ContractComponentProps,
+} from './contract-components'
+export { ContractComponent, type ContractComponentRenderProps } from './ContractComponent'
 export { DEFAULT_FILTER_PRIORITY, createModuleApp } from './app'
 export { navigateApp, setAppNavigator, type AppNavigator } from './app-navigation'
 export { useModuleConfigPackageLabels, type ResolvedConfigPackageLabels } from './config-packages'

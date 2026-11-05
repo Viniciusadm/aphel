@@ -1,8 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api } from '@/api'
 import type { components } from '@/api/schema'
-import { periodQuery } from '@/modules/dashboard/period'
-import type { LayoutPeriod } from '@/modules/dashboard/types'
+import { periodQuery, type LayoutPeriod } from '@/sdk'
 
 type Schemas = components['schemas']
 

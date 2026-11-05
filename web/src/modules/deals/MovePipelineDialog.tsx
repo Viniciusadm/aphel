@@ -1,3 +1,4 @@
+import { type Pipeline, type StageKind, activePipelines, usePipelines } from '@/sdk'
 import { DialogForm } from '@/components/ui/dialog-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,8 +6,6 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/ui/dialog'
-import { activePipelines, usePipelines } from '@/modules/workflow/api'
-import type { Pipeline, StageKind } from '@/modules/workflow/types'
 import type { Deal } from './types'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Field } from '@/components/ui/field'

@@ -11,8 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
-import { activeFields, emptyGroup, FilterBuilder, NativeSelect, useCustomObjects, useFieldSchema } from '@/sdk'
-import { usePipelines } from '@/modules/workflow/api'
+import { FilterBuilder, NativeSelect, activeFields, emptyGroup, useCustomObjects, useFieldSchema, usePipelines } from '@/sdk'
 import { approvalsApi, usePolicyMutation, useQuoteRecordTypeAvailable } from '../api'
 import {
   CONDITION_KINDS,

@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
-import { DEFAULT_PERIOD, PERIOD_PRESETS, isValidCustomRange } from '@/modules/dashboard/period'
-import type { LayoutPeriod, PeriodPreset } from '@/modules/dashboard/types'
+import { DEFAULT_PERIOD, PERIOD_PRESETS, isValidCustomRange, type LayoutPeriod, type PeriodPreset } from '@/sdk'
 import { PERFORMANCE_DIMENSIONS, type PerformanceDimension, type PerformanceFilters } from './api'
 
 function parsePeriod(params: URLSearchParams): LayoutPeriod {

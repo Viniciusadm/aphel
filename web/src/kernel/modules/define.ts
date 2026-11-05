@@ -9,6 +9,7 @@ import type { ModuleEventHandler, ModuleEventName } from './events'
 import type { FieldTypeRenderers } from './field-types'
 import type { FilterContext, FilterName, FilterValue } from './filters'
 import type { RecordTypeSelector } from './record-types'
+import type { ContractComponentKey, ContractComponentProps } from './contract-components'
 import type { SlotName, SlotProps } from './slots'
 
 export type ModuleLocale = string
@@ -261,6 +262,10 @@ export interface ModuleApp {
   recordList(extension: RecordListExtension): void
   slot<N extends SlotName>(name: N, contribution: SlotContribution<SlotProps<N>>): void
   filter<N extends FilterName>(name: N, fn: FilterFunction<N>, priority?: number): void
+  provideComponent<K extends ContractComponentKey>(
+    key: K,
+    component: ComponentType<ContractComponentProps<K>>,
+  ): void
   override<P extends object>(id: string, component: ComponentType<P>): void
   fieldType(type: string, renderers: FieldTypeRenderers): void
   timelineRenderer(kind: string, renderer: TimelineRenderer): void

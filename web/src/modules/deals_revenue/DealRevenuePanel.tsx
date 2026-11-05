@@ -4,10 +4,11 @@ import { Link } from 'react-router'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrency, formatDate, useRecord, useRecordFormatting } from '@/sdk'
-import { DEAL_RECORD_TYPE, dealPath } from '@/modules/deals/resource'
+import { formatCurrency, formatDate, recordDetailHref, useRecord, useRecordFormatting } from '@/sdk'
 import { useLinkedDeal, useRenewalOf, type LinkedDeal } from './api'
 import type { DealRevenueFields } from './types'
+
+const DEAL_RECORD_TYPE = 'deals.deal'
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
@@ -24,7 +25,7 @@ function DealLink({ label, deal }: { label: string; deal: LinkedDeal }) {
       <span className="text-muted-foreground">{label}</span>
       <Link
         className="inline-flex min-w-0 items-center gap-1 font-medium text-primary hover:underline"
-        to={dealPath(deal.id)}
+        to={recordDetailHref('deals.deal', deal.id) ?? '#'}
       >
         <span className="truncate">{deal.title}</span>
         <ArrowRight className="size-3.5 shrink-0" aria-hidden="true" />

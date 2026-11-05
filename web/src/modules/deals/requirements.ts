@@ -1,7 +1,5 @@
 import { isApiError } from '@/api'
-import { fieldViolations } from '@/sdk'
-import { requiredStageFields } from '@/modules/workflow/requirements'
-import type { PipelineStage } from '@/modules/workflow/types'
+import { type PipelineStage, fieldViolations, requiredStageFields } from '@/sdk'
 import type { Deal } from './types'
 
 export const STAGE_REQUIREMENTS_MISSING = 'stage_requirements_missing'

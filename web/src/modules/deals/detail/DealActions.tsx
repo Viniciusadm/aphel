@@ -18,15 +18,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { notifyApprovalGate } from '@/modules/approvals/components/useApprovalGate'
 import { isApprovalGateError } from '@/modules/approvals/errors'
-import { type RecordItem, recordsKeys } from '@/sdk'
-import { activePipelines, usePipelines } from '@/modules/workflow/api'
+import { type PipelineStage, type RecordItem, type StageKind, activePipelines, recordsKeys, usePipelines } from '@/sdk'
 import { dealsApi, dealsKeys } from '../api'
 import { LostReasonDialog, type LostReasonChoice } from '../LostReasonDialog'
 import { MovePipelineDialog } from '../MovePipelineDialog'
 import { requirementFieldsFromError } from '../requirements'
 import { useDealMoveFlow, type DealMoveRequest } from '../useDealMoveFlow'
 import { DEAL_RECORD_TYPE, DEALS_PATH } from '../resource'
-import type { PipelineStage, StageKind } from '@/modules/workflow/types'
 import type { Deal } from '../types'
 
 export interface DealActionsProps {

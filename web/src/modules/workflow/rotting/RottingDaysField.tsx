@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
-import { MAX_ROTTING_DAYS } from './lib'
+import { MAX_ROTTING_DAYS } from '@/sdk'
 import { Field } from '@/components/ui/field'
 
 export interface RottingDaysFieldProps {

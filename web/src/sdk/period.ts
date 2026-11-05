@@ -1,4 +1,7 @@
-import type { LayoutPeriod, PeriodPreset } from './types'
+import type { components } from '@/api'
+
+export type PeriodPreset = components['schemas']['DashboardPeriodPreset']
+export type LayoutPeriod = components['schemas']['DashboardLayoutPeriod']
 
 export const PERIOD_PRESETS: PeriodPreset[] = [
   'today',

@@ -9,6 +9,7 @@ import {
 } from './define'
 import type { RecordTypeSelector } from './record-types'
 import type { FieldTypeRenderers } from './field-types'
+import { contractBucket } from './contract-components'
 import { contribute } from './registry'
 import type { SettingsEntry, SettingsGroupEntry } from './settings'
 
@@ -41,6 +42,7 @@ export function createModuleApp(key: string): ModuleApp {
     recordList: (extension) => contribute('recordList', key, extension),
     slot: (name, contribution) => contribute(`slot:${name}`, key, contribution, contribution.order),
     filter: (name, fn, priority = DEFAULT_FILTER_PRIORITY) => contribute(`filter:${name}`, key, { fn }, priority),
+    provideComponent: (contractKey, component) => contribute(contractBucket(contractKey), key, component),
     override: (id, component) => contribute(`override:${id}`, key, component),
     fieldType: (type, renderers) => contribute<FieldTypeRenderers>(`fieldType:${type}`, key, renderers),
     timelineRenderer: (kind, renderer) => contribute<TimelineRenderer>(`timeline:${kind}`, key, renderer),
