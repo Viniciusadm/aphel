@@ -89,6 +89,10 @@ A module never imports another module's package (`@/modules/<other>`; the arch c
 2. **SDK contracts.** Pure helpers, hooks and API types that several modules share live in `web/src/sdk` (`workflow.ts`, `rotting.ts`, `period.ts`, `timeline/`), next to the backend `aphel_contract_*` crates. The owner module imports them from `@/sdk` too, so there is one definition.
 3. **Registries.** Navigation to another module's record goes through the record resource registry (`recordDetailHref(recordType, id)`), which returns `undefined` when the owner is disabled, never through the owner's resource file.
 
+### Per-module API types
+
+`npm run api:types` (`make api-types`) also writes `web/src/modules/<key>/api-types.d.ts` for every module that has an `api-tags.json` (a JSON array of extra OpenAPI tags; the module key and its dashed form always count). The file holds only the operations carrying those tags and the schemas they reach, and the module imports `components` from `@/modules/<key>/api-types` instead of the global `@/api` schema. The split is tag based because the OpenAPI document does not name the owning module; a module whose schemas are reached through shared tags (for example `records`) stays on the global types until the backend marks ownership. `line_items` is the first module on its own types.
+
 ### Filters
 
 | Name | Value | Context |
