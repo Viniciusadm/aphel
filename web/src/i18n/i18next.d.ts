@@ -23,6 +23,7 @@ import type duplicatesNamespace from '../modules/duplicates/i18n/pt-BR.json'
 import type emailNamespace from '../modules/email/i18n/pt-BR.json'
 import type enrichmentNamespace from '../modules/enrichment/i18n/pt-BR.json'
 import type esignNamespace from '../modules/esign/i18n/pt-BR.json'
+import type experiencesSettingsNamespace from './pt-BR/experiences-settings.json'
 import type exportsNamespace from '../modules/exports/i18n/pt-BR.json'
 import type favoritesNamespace from '../modules/favorites/i18n/pt-BR.json'
 import type fieldPermissionsNamespace from './pt-BR/field-permissions.json'
@@ -121,6 +122,7 @@ declare module 'i18next' {
       email: typeof emailNamespace
       enrichment: typeof enrichmentNamespace
       esign: typeof esignNamespace
+      'experiences-settings': typeof experiencesSettingsNamespace
       exports: typeof exportsNamespace
       favorites: typeof favoritesNamespace
       'field-permissions': typeof fieldPermissionsNamespace

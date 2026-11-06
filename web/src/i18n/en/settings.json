@@ -46,7 +46,8 @@
     "email": "Email",
     "general": "General",
     "outgoingEmail": "Outgoing email",
-    "storage": "File storage"
+    "storage": "File storage",
+    "experiences": "Experiences"
   },
   "noAccess": {
     "title": "No permission",
@@ -434,6 +435,9 @@
     },
     "storage": {
       "description": "Local disk or S3 compatible storage for attachments and exports."
+    },
+    "experiences": {
+      "description": "Manage the organization catalog, shared default and permitted personal options."
     }
   },
   "areas": {

@@ -255,3 +255,7 @@ Lint, TypeScript and builds check the wiring but do not prove the runtime criter
 ## Distribution transport
 
 The version-1 catalog can now be reviewed through `POST /api/v1/organization/experiences/validate` (`settings.manage`, no writes). GET exports `.data.configuration` and the existing guarded PUT imports the same body. See [experience distribution](experience-distribution.md) for reproducible examples, dependency review, version distinctions, ownership-preserving upgrades and the separate admission of executable providers. No editor or personal-selection UI is included.
+
+## Organization administration
+
+The organization settings page at `/settings/experiences` now manages the existing catalog, shared default and permitted personal options. It stages edits/imports locally and requires validation plus an explicit review before PUT with If-Match. See [experience administration](experience-administration.md) for draft, availability, withdrawal and ownership boundaries. Personal selection/editor UI remains outside this step.

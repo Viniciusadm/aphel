@@ -46,7 +46,8 @@
     "email": "E-mail",
     "general": "Geral",
     "outgoingEmail": "E-mail de envio",
-    "storage": "Armazenamento de arquivos"
+    "storage": "Armazenamento de arquivos",
+    "experiences": "Experiências"
   },
   "noAccess": {
     "title": "Sem permissão",
@@ -434,6 +435,9 @@
     },
     "storage": {
       "description": "Disco local ou S3 compatível para anexos e exportações."
+    },
+    "experiences": {
+      "description": "Gerencie o catálogo da organização, o padrão compartilhado e as opções pessoais permitidas."
     }
   },
   "areas": {
