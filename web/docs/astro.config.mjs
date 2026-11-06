@@ -1,8 +1,10 @@
 import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 import starlightLinksValidator from 'starlight-links-validator'
+import { sections } from './src/sections.ts'
 
 export default defineConfig({
+  site: process.env.DOCS_SITE_URL,
   base: '/docs',
   outDir: '../dist/docs',
   integrations: [
@@ -13,13 +15,7 @@ export default defineConfig({
       favicon: '/favicon.svg',
       customCss: ['./src/styles/custom.css'],
       lastUpdated: false,
-      sidebar: [
-        { label: 'Getting started', items: [{ autogenerate: { directory: 'start' } }] },
-        { label: 'Using Aphel', items: [{ autogenerate: { directory: 'using' } }] },
-        { label: 'Administration', items: [{ autogenerate: { directory: 'admin' } }] },
-        { label: 'Building plugins', items: [{ autogenerate: { directory: 'plugins' } }] },
-        { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
-      ],
+      sidebar: sections.map(({ label, directory }) => ({ label, items: [{ autogenerate: { directory } }] })),
       plugins: [starlightLinksValidator({ errorOnLocalLinks: false })],
     }),
   ],

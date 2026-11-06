@@ -15,6 +15,8 @@ const HASHED_ASSETS_PREFIX: &str = "assets/";
 const DOCS_PREFIX: &str = "docs";
 const DOCS_HASHED_ASSETS_PREFIX: &str = "docs/_astro/";
 const DOCS_NOT_FOUND_FILE: &str = "docs/404.html";
+const LLMS_INDEX_PATH: &str = "llms.txt";
+const LLMS_FULL_PATH: &str = "llms-full.txt";
 const SERVICE_WORKER_FILE: &str = "sw.js";
 const MANIFEST_FILE: &str = "manifest.webmanifest";
 
@@ -25,7 +27,12 @@ pub async fn serve_web(uri: Uri) -> Response {
         return app_error(AppError::NotFound("route was not found".to_owned()));
     }
 
-    let requested_file = if path.is_empty() { INDEX_FILE } else { path };
+    let requested_file = match path {
+        "" => INDEX_FILE,
+        LLMS_INDEX_PATH => "docs/llms.txt",
+        LLMS_FULL_PATH => "docs/llms-full.txt",
+        other => other,
+    };
     if let Some(response) = embedded_file(requested_file) {
         return response;
     }
