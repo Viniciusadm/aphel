@@ -14,6 +14,7 @@ export default defineConfig({
       logo: { src: './src/assets/logo.svg', alt: 'Aphel' },
       favicon: '/favicon.svg',
       customCss: ['./src/styles/custom.css'],
+      components: { PageTitle: './src/components/PageTitle.astro' },
       lastUpdated: false,
       sidebar: sections.map(({ label, directory }) => ({ label, items: [{ autogenerate: { directory } }] })),
       plugins: [starlightLinksValidator({ errorOnLocalLinks: false })],

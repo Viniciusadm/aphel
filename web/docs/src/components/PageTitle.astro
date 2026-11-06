@@ -1,0 +1,34 @@
+---
+import Default from '@astrojs/starlight/components/PageTitle.astro'
+
+const { entry } = Astro.locals.starlightRoute
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const markdownHref = `${base}/${entry.id}.md`
+const llmsHref = `${base}/llms.txt`
+const hasMarkdown = entry.id !== 'index'
+---
+
+<Default />
+{hasMarkdown && (
+  <div class="page-actions not-content">
+    <button type="button" data-copy-markdown={markdownHref}>Copy as Markdown</button>
+    <a href={markdownHref}>View Markdown</a>
+    <a href={llmsHref}>llms.txt</a>
+  </div>
+)}
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-markdown]')) {
+    button.addEventListener('click', async () => {
+      const original = button.textContent
+      try {
+        const response = await fetch(button.dataset['copyMarkdown'] ?? '')
+        await navigator.clipboard.writeText(await response.text())
+        button.textContent = 'Copied!'
+      } catch {
+        button.textContent = 'Could not copy'
+      }
+      setTimeout(() => (button.textContent = original), 1600)
+    })
+  }
+</script>
