@@ -204,7 +204,11 @@
     "conflictWith": "{{kind}} (já em {{plugin}})",
     "toggleConflictsTitle": "Ativar {{name}}?",
     "toggleConflictsConfirm": "Ativar mesmo assim",
-    "heldByPlugin": "Mantido desativado por {{plugin}}"
+    "heldByPlugin": "Mantido desativado por {{plugin}}",
+    "webPresent": "Código de interface integrado",
+    "webWarning": "Esta interface executa dentro do Aphel com o acesso de cada usuário autenticado que a abrir. Pode observar a interface e entradas, usar o armazenamento do navegador e chamar APIs permitidas à sessão. As capacidades do backend não restringem este JavaScript.",
+    "webRecovery": "Admita somente código e versões em que confia como código da aplicação. Desativar impede novos carregamentos; recarregue as páginas abertas para remover o código carregado. Isso não desfaz efeitos concluídos. Esta revisão não verifica a identidade do fornecedor nem a segurança do código.",
+    "webAdmission": "Confio nesta versão para executar como código integrado da aplicação."
   },
   "placeholders": {
     "value": "Digite o valor"

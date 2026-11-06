@@ -73,7 +73,7 @@ The project has no test suites and nothing runs per commit. The one automated ch
 make probe
 ```
 
-`aphel probe` needs no database or network and prints failures only (it exits non-zero on any). It checks access-scope filters, hook ordering, the record-validation priorities of the build, entity registry integrity (permissions, title fields, soft references), operation uniqueness, the event actor envelope, organization experience catalog validation and personal experience policy projection/validation. Run it after changes to those areas. Everything else is validated with `make lint` (module registries, `cargo fmt --check`, clippy, oxlint and typecheck) and by hand.
+`aphel probe` needs no database or network and prints failures only (it exits non-zero on any). It checks access-scope filters, hook ordering, the record-validation priorities of the build, entity registry integrity (permissions, title fields, soft references), operation uniqueness, the event actor envelope, organization experience catalog validation, distributed experience JSON export/reimport and personal experience policy projection/validation. Run it after changes to those areas. Everything else is validated with `make lint` (module registries, `cargo fmt --check`, clippy, oxlint and typecheck) and by hand.
 
 ## Quality
 

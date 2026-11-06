@@ -587,7 +587,7 @@ async fn host_catalog(
     tag = TAG,
     operation_id = "plugins_install",
     security(("session_cookie" = [])),
-    description = "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Publishes `plugin.installed`.",
+    description = "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Integrated frontend code runs with the browser session, independently of backend capabilities; packages with web code require acknowledge_web_version=<manifest version> on each install or upgrade, including upgrades kept disabled. Dry runs need no admission. Publishes `plugin.installed`.",
     params(InstallParams),
     request_body(content_type = "multipart/form-data", description = "Field `package` with the .aphelplugin file"),
     responses(
@@ -595,7 +595,7 @@ async fn host_catalog(
         (status = 201, description = "Plugin installed or upgraded", body = Data<PluginResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
-        (status = 409, description = "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
+        (status = 409, description = "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), integrated frontend code was not admitted (`plugin_web_unacknowledged`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid package, manifest or backend (`plugin_package_invalid`, `plugin_manifest_invalid`, `plugin_backend_invalid`)", body = ErrorEnvelope),
     )
 )]
@@ -664,6 +664,7 @@ async fn install_plugin(
         };
         return Ok(Json(Data::new(consent)).into_response());
     }
+    require_web_admission(&package.manifest, params.acknowledge_web_version.as_deref())?;
     crate::conflicts::require_acknowledged(&conflicts, params.acknowledge_conflicts)?;
     crate::modules::ensure_unblocked(&module_conflicts)?;
     let enabled = previous.as_ref().is_none_or(|plugin| plugin.enabled);
@@ -727,12 +728,16 @@ pub(crate) struct InstallParams {
     dry_run: bool,
     #[serde(default)]
     acknowledge_conflicts: bool,
+    #[serde(default)]
+    acknowledge_web_version: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
 pub(crate) struct ToggleParams {
     #[serde(default)]
     acknowledge_conflicts: bool,
+    #[serde(default)]
+    acknowledge_web_version: Option<String>,
 }
 
 async fn package_bytes(
@@ -1005,13 +1010,26 @@ async fn uninstall_plugin(
     Ok(StatusCode::NO_CONTENT)
 }
 
+fn require_web_admission(
+    manifest: &PluginManifest,
+    acknowledged: Option<&str>,
+) -> Result<(), AppError> {
+    if manifest.web.is_some() && acknowledged != Some(manifest.version.as_str()) {
+        return Err(AppError::conflict_code(
+            "plugin_web_unacknowledged",
+            "integrated frontend code requires explicit admission for this version; send acknowledge_web_version=<manifest version> after reviewing its session-level access",
+        ));
+    }
+    Ok(())
+}
+
 async fn toggle(
     state: &AppState,
     tenant: &AuthContext,
     client: ClientInfo,
     key: &str,
     enabled: bool,
-    acknowledge_conflicts: bool,
+    params: ToggleParams,
 ) -> Result<PluginResponse, AppError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(state, key).await?;
@@ -1020,9 +1038,10 @@ async fn toggle(
             crate::dependents::ensure_none_broken(state, key, None).await?;
         }
         if enabled {
+            require_web_admission(&plugin.manifest, params.acknowledge_web_version.as_deref())?;
             schema::validate_dependencies(state, &plugin.manifest).await?;
             let conflicts = crate::conflicts::detect_for(&state.db()?, &plugin.manifest).await?;
-            crate::conflicts::require_acknowledged(&conflicts, acknowledge_conflicts)?;
+            crate::conflicts::require_acknowledged(&conflicts, params.acknowledge_conflicts)?;
             let plans = crate::modules::plan(state, &tenant.scope, &plugin.manifest).await?;
             crate::modules::ensure_unblocked(&plans)?;
             crate::modules::hold(state, &tenant.scope, &plugin.manifest).await?;
@@ -1060,11 +1079,11 @@ async fn toggle(
     tag = TAG,
     operation_id = "plugins_enable",
     security(("session_cookie" = [])),
-    description = "Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`.",
+    description = "Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Integrated frontend code requires acknowledge_web_version=<manifest version> before reactivation. Publishes `plugin.enabled`.",
     params(("key" = String, Path, description = "Plugin key"), ToggleParams),
     responses(
         (status = 200, description = "Plugin enabled", body = Data<PluginResponse>),
-        (status = 409, description = "The plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
+        (status = 409, description = "Integrated frontend code was not admitted (`plugin_web_unacknowledged`), or the plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
         (status = 404, description = "Plugin not installed (`plugin_not_found`)", body = ErrorEnvelope),
     )
@@ -1077,15 +1096,7 @@ async fn enable_plugin(
     Query(params): Query<ToggleParams>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
     Ok(Json(Data::new(
-        toggle(
-            &state,
-            &tenant,
-            client,
-            &key,
-            true,
-            params.acknowledge_conflicts,
-        )
-        .await?,
+        toggle(&state, &tenant, client, &key, true, params).await?,
     )))
 }
 
@@ -1110,7 +1121,15 @@ async fn disable_plugin(
     Path(key): Path<String>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
     Ok(Json(Data::new(
-        toggle(&state, &tenant, client, &key, false, false).await?,
+        toggle(
+            &state,
+            &tenant,
+            client,
+            &key,
+            false,
+            ToggleParams::default(),
+        )
+        .await?,
     )))
 }
 

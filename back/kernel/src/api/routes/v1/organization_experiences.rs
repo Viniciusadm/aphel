@@ -14,7 +14,9 @@ use crate::errors::AppError;
 use crate::infrastructure::organization_profile::MySqlOrganizationExperiencesPorts;
 
 pub fn router() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(get_experiences, replace_experiences))
+    OpenApiRouter::new()
+        .routes(routes!(get_experiences, replace_experiences))
+        .routes(routes!(validate_experiences))
 }
 
 async fn use_cases(
@@ -81,6 +83,35 @@ async fn replace_experiences(
         use_cases(&state)
             .await?
             .replace(&tenant.scope, configuration, expected, client.ip)
+            .await?,
+    )))
+}
+
+#[utoipa::path(
+    post,
+    path = "/organization/experiences/validate",
+    tag = "organization",
+    operation_id = "organization_experiences_validate",
+    description = "Validates a proposed declarative catalog without writing it. Requires settings.manage. Rejects unsupported profile formats and unknown properties. Reports unavailable record types and required frontend provider/section verification; it does not install code or certify frontend compatibility. The returned updated_at is the current organization version, not a reservation for a later PUT.",
+    security(("session_cookie" = [])),
+    request_body = OrganizationExperiences,
+    responses(
+        (status = 200, description = "Proposed configuration and dependency diagnostics; nothing saved", body = Data<OrganizationExperiencesView>),
+        (status = 401, description = "Missing or invalid credentials", body = ErrorEnvelope),
+        (status = 403, description = "Missing settings.manage", body = ErrorEnvelope),
+        (status = 404, description = "Organization not installed", body = ErrorEnvelope),
+        (status = 422, description = "Invalid or unsupported catalog", body = ErrorEnvelope),
+    )
+)]
+async fn validate_experiences(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    JsonBody(configuration): JsonBody<OrganizationExperiences>,
+) -> Result<Json<Data<OrganizationExperiencesView>>, ApiError> {
+    Ok(Json(Data::new(
+        use_cases(&state)
+            .await?
+            .preview(&tenant.scope, configuration)
             .await?,
     )))
 }

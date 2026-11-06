@@ -4988,6 +4988,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organization/experiences/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Validates a proposed declarative catalog without writing it. Requires settings.manage. Rejects unsupported profile formats and unknown properties. Reports unavailable record types and required frontend provider/section verification; it does not install code or certify frontend compatibility. The returned updated_at is the current organization version, not a reservation for a later PUT. */
+        post: operations["organization_experiences_validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organization/logo": {
         parameters: {
             query?: never;
@@ -8124,7 +8141,7 @@ export interface paths {
         /** @description Lists the plugins installed at runtime (permission `system.manage`), with what each one declares: entities, extended record types, hooks, consumed events, routes and settings. `backend_error` is set when the installed backend no longer loads: writes to the record types it hooks then fail with 503 `plugin_failed` until the plugin is reinstalled. */
         get: operations["plugins_list"];
         put?: never;
-        /** @description Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Publishes `plugin.installed`. */
+        /** @description Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Integrated frontend code runs with the browser session, independently of backend capabilities; packages with web code require acknowledge_web_version=<manifest version> on each install or upgrade, including upgrades kept disabled. Dry runs need no admission. Publishes `plugin.installed`. */
         post: operations["plugins_install"];
         delete?: never;
         options?: never;
@@ -8243,7 +8260,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`. */
+        /** @description Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Integrated frontend code requires acknowledge_web_version=<manifest version> before reactivation. Publishes `plugin.enabled`. */
         post: operations["plugins_enable"];
         delete?: never;
         options?: never;
@@ -48829,6 +48846,87 @@ export interface operations {
             };
         };
     };
+    organization_experiences_validate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationExperiences"];
+            };
+        };
+        responses: {
+            /** @description Proposed configuration and dependency diagnostics; nothing saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_OrganizationExperiencesView"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing settings.manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Organization not installed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid or unsupported catalog. `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     organization_logo: {
         parameters: {
             query?: never;
@@ -66439,6 +66537,7 @@ export interface operations {
             query?: {
                 dry_run?: boolean;
                 acknowledge_conflicts?: boolean;
+                acknowledge_web_version?: string | null;
             };
             header?: {
                 /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
@@ -66490,7 +66589,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), integrated frontend code was not admitted (`plugin_web_unacknowledged`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -66815,6 +66914,7 @@ export interface operations {
         parameters: {
             query?: {
                 acknowledge_conflicts?: boolean;
+                acknowledge_web_version?: string | null;
             };
             header?: {
                 /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
@@ -66855,7 +66955,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description Integrated frontend code was not admitted (`plugin_web_unacknowledged`), or the plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;

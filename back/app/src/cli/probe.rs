@@ -354,6 +354,25 @@ fn experience_configuration(failures: &mut Vec<String>) {
     };
     use serde_json::json;
 
+    for (name, source) in [
+        (
+            "pipeline-r1",
+            include_str!("../../../../docs/architecture/examples/pipeline-r1.json"),
+        ),
+        (
+            "work-development-r1",
+            include_str!("../../../../docs/architecture/examples/work-development-r1.json"),
+        ),
+    ] {
+        let roundtrip = serde_json::from_str::<OrganizationExperiences>(source)
+            .and_then(|config| serde_json::to_value(&config))
+            .and_then(serde_json::from_value::<OrganizationExperiences>);
+        if !roundtrip.is_ok_and(|config| validate_organization_experiences(&config).is_empty()) {
+            failures.push(format!(
+                "experiences: distributed {name} must survive export/reimport"
+            ));
+        }
+    }
     let base = json!({
         "profiles": [{ "enabled": true, "profile": {
             "format_version": 1, "key": "probe.standard", "label": "Probe",

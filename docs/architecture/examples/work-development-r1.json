@@ -1,0 +1,68 @@
+{
+  "profiles": [
+    {
+      "enabled": true,
+      "profile": {
+        "format_version": 1,
+        "key": "org.pipeline",
+        "label": "Pipeline",
+        "frame": {
+          "module": "kernel"
+        },
+        "record_detail": {
+          "record_type": "deals.deal",
+          "presentation": {
+            "module": "kernel"
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "profile": {
+        "format_version": 1,
+        "key": "org.work",
+        "label": "Work follow-up",
+        "frame": {
+          "module": "frame-fixture"
+        },
+        "record_detail": {
+          "record_type": "deals.deal",
+          "presentation": {
+            "module": "detail-fixture"
+          },
+          "regions": {
+            "main": [
+              {
+                "module": "tasks",
+                "key": "tasks"
+              },
+              {
+                "module": "workflow",
+                "key": "stage-guidance"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "default_profile": "org.work",
+  "policy": {
+    "allowed_profiles": [
+      "org.pipeline",
+      "org.work"
+    ],
+    "customization": {
+      "profile_selection": true,
+      "navigation": true,
+      "section_order": true,
+      "section_hidden": [
+        {
+          "module": "tasks",
+          "key": "tasks"
+        }
+      ]
+    }
+  }
+}

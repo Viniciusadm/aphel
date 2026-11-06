@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '@/components/feedback'
+import { PluginWebAdmission } from './PluginWebAdmission'
 import { PluginDeclarationList } from './PluginDeclarationList'
 import { PluginRolePresetChecklist } from './PluginRolePresetChecklist'
 import { PluginConflictList } from './PluginConflictList'
@@ -10,14 +11,16 @@ interface PluginConsentDialogProps {
   consent: PluginConsent | null
   pending: boolean
   onCancel: () => void
-  onConfirm: (rolePresets: string[], acknowledgeConflicts: boolean) => void
+  onConfirm: (rolePresets: string[], acknowledgeConflicts: boolean, admitWeb: boolean) => void
 }
 
 export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: PluginConsentDialogProps) {
   const { t } = useTranslation('modules')
   const [presets, setPresets] = useState<{ key: string; selected: string[] }>({ key: '', selected: [] })
   const [acknowledged, setAcknowledged] = useState<{ key: string; value: boolean }>({ key: '', value: false })
+  const [webAdmission, setWebAdmission] = useState<{ key: string; value: boolean }>({ key: '', value: false })
   const consentKey = consent ? `${consent.key}@${consent.version}` : ''
+  const webAdmitted = webAdmission.key === consentKey && webAdmission.value
   const selected = presets.key === consentKey ? presets.selected : []
   const acknowledgedNow = acknowledged.key === consentKey && acknowledged.value
   const hasConflicts = (consent?.conflicts.length ?? 0) > 0
@@ -33,6 +36,7 @@ export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: P
       : t('plugins.consentTitle', { name: consent.name, version: consent.version })
   const asksNothing =
     consent !== null &&
+    !consent.has_web &&
     consent.requires.length === 0 &&
     consent.module_conflicts.length === 0 &&
     consent.conflicts.length === 0 &&
@@ -48,12 +52,13 @@ export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: P
       description={t('plugins.consentDescription')}
       confirmLabel={t('plugins.consentConfirm')}
       pending={pending}
-      confirmDisabled={Boolean(blockedModule) || (hasConflicts && !acknowledgedNow)}
-      onConfirm={() => onConfirm(selected, acknowledgedNow)}
+      confirmDisabled={Boolean(blockedModule) || (hasConflicts && !acknowledgedNow) || Boolean(consent?.has_web && !webAdmitted)}
+      onConfirm={() => onConfirm(selected, acknowledgedNow, webAdmitted)}
     >
       {consent && (
         <div className="grid gap-3 text-sm">
           {consent.description && <p className="text-muted-foreground">{consent.description}</p>}
+          {consent.has_web && <PluginWebAdmission checked={webAdmitted} onChange={(value) => setWebAdmission({ key: consentKey, value })} />}
           {asksNothing && <p>{t('plugins.consentNothing')}</p>}
           {consent.public_routes.length > 0 && (
             <p role="note" className="text-warning">

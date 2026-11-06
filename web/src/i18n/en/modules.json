@@ -204,7 +204,11 @@
     "conflictWith": "{{kind}} (already in {{plugin}})",
     "toggleConflictsTitle": "Enable {{name}}?",
     "toggleConflictsConfirm": "Enable anyway",
-    "heldByPlugin": "Kept disabled by {{plugin}}"
+    "heldByPlugin": "Kept disabled by {{plugin}}",
+    "webPresent": "Integrated frontend code",
+    "webWarning": "This frontend runs inside Aphel with the access of each signed-in user who opens it. It can observe the interface and inputs, use browser storage, and call APIs allowed by that session. Backend capabilities do not restrict this JavaScript.",
+    "webRecovery": "Only admit code and versions you trust as application code. Disabling stops future loading; reload open pages to clear loaded code. It does not undo completed effects. Supplier identity and code safety are not verified by this review.",
+    "webAdmission": "I trust this version to run as integrated application code."
   },
   "placeholders": {
     "value": "Enter the value"

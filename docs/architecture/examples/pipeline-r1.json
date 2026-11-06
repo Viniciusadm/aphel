@@ -1,0 +1,33 @@
+{
+  "profiles": [
+    {
+      "enabled": true,
+      "profile": {
+        "format_version": 1,
+        "key": "org.pipeline",
+        "label": "Pipeline",
+        "frame": {
+          "module": "kernel"
+        },
+        "record_detail": {
+          "record_type": "deals.deal",
+          "presentation": {
+            "module": "kernel"
+          }
+        }
+      }
+    }
+  ],
+  "default_profile": "org.pipeline",
+  "policy": {
+    "allowed_profiles": [
+      "org.pipeline"
+    ],
+    "customization": {
+      "profile_selection": true,
+      "navigation": true,
+      "section_order": false,
+      "section_hidden": []
+    }
+  }
+}

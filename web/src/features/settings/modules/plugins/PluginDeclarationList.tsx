@@ -38,7 +38,8 @@ export function PluginDeclarationList({ plugin, compact = false }: { plugin: Plu
     return (
       <section className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-md bg-muted/40 p-3">
         <h3 className="shrink-0 text-xs font-semibold text-foreground">{t('plugins.declarationsPreview')}</h3>
-        {rows.length === 0 ? (
+        {plugin.has_web && <p className="text-xs text-warning">{t('plugins.webPresent')}</p>}
+        {rows.length === 0 && !plugin.has_web ? (
           <p className="text-xs text-muted-foreground">{t('plugins.noDeclarations')}</p>
         ) : (
           <dl className="grid content-start gap-2 overflow-hidden">
@@ -66,9 +67,10 @@ export function PluginDeclarationList({ plugin, compact = false }: { plugin: Plu
       </section>
     )
   }
-  if (rows.length === 0) return null
+  if (rows.length === 0 && !plugin.has_web) return null
   return (
     <dl className="grid gap-1 text-xs">
+      {plugin.has_web && <div><dt className="font-medium">{t('plugins.webPresent')}</dt><dd className="text-muted-foreground">{t('plugins.webWarning')}</dd></div>}
       {rows.map(([label, values]) => (
         <div key={label} className="flex flex-wrap gap-1">
           <dt className="font-medium">{t(`plugins.declares.${label}`)}:</dt>

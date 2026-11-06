@@ -15,6 +15,14 @@ Reference plugins, kept in their own repositories next to Aphel:
 - `aphel-probe`, which exercises every host call and hook kind. It is used as an end-to-end check of the platform.
 - `aphel-hello-js`, the same contract written in JavaScript: hooks, routes, events, an automation action and a widget.
 
+## Admitting integrated frontend code
+
+A web bundle runs in the application document with the session of each user opening it. It can observe interface/input, access browser storage and call APIs allowed to that user. Backend WASM capabilities do not isolate this JavaScript. Admit only code and versions trusted as application code; the package's name/version does not authenticate its supplier.
+
+For install or upgrade with web code, send `acknowledge_web_version=<manifest version>` after review. This also applies when an upgrade remains disabled. Dry-run needs no admission. Enabling a disabled web plugin requires the installed version in the same query parameter. Missing or mismatched admission returns 409 `plugin_web_unacknowledged` before schema/storage changes. `system.manage` remains required. Backend-only packages need no web admission; conflict acknowledgements and role grants remain separate. This explicit intent is not a signed dry-run token or a content-hash guarantee. Already enabled plugins are not retrospectively disabled.
+
+The UI shows frontend trust separately from backend capabilities. Disabling stops future loading; reload open tabs to clear already loaded code/styles. It does not undo completed effects or guarantee that a blocked script stops. Declarative [experience distribution](../architecture/experience-distribution.md) and validated themes cannot install/enable this code via personal preferences.
+
 ## Package
 
 ```
@@ -724,7 +732,7 @@ Install from the command line with an API token that has `system.manage`:
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin "https://crm.example.com/api/v1/wasm-runtime?dry_run=true"   # what it asks for
-curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin https://crm.example.com/api/v1/wasm-runtime                # install
+curl -H "Authorization: Bearer $TOKEN" -F package=@equine-2.0.0.aphelplugin "https://crm.example.com/api/v1/wasm-runtime?acknowledge_web_version=2.0.0" # admit reviewed web version and install
 ```
 
 ## Administration API

@@ -415,6 +415,26 @@ impl<P: OrganizationExperiencesPorts> OrganizationExperiencesUseCases<P> {
         Ok(self.view(self.ports.repository().find().await?))
     }
 
+    pub async fn preview(
+        &self,
+        scope: &AccessScope,
+        config: OrganizationExperiences,
+    ) -> Result<OrganizationExperiencesView, AppError> {
+        scope.require(&Permission::SETTINGS_MANAGE)?;
+        let errors = validate_organization_experiences(&config);
+        if !errors.is_empty() {
+            return Err(AppError::invalid_fields(
+                "invalid organization experiences",
+                errors,
+            ));
+        }
+        let current = self.ports.repository().find().await?;
+        Ok(self.view(StoredOrganizationExperiences {
+            configuration: Some(config),
+            updated_at: current.updated_at,
+        }))
+    }
+
     pub async fn replace(
         &self,
         scope: &AccessScope,

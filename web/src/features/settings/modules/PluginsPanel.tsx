@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SYSTEM_MANAGE } from '@/features/settings/lib/permissions'
+import { PluginWebAdmission } from './plugins/PluginWebAdmission'
 import { PluginConflictList } from './plugins/PluginConflictList'
 import { PluginConsentDialog } from './plugins/PluginConsentDialog'
 import { PluginDeclarationList } from './plugins/PluginDeclarationList'
@@ -63,7 +64,9 @@ function PluginsPanelContent() {
   const [configuring, setConfiguring] = useState<InstalledPlugin | null>(null)
   const [pending, setPending] = useState<{ file: File; consent: PluginConsent } | null>(null)
   const [details, setDetails] = useState<InstalledPlugin | null>(null)
-  const [overlapping, setOverlapping] = useState<{ plugin: InstalledPlugin; conflicts: PluginConflict[] } | null>(null)
+  const [overlapping, setOverlapping] = useState<{ plugin: InstalledPlugin; conflicts: PluginConflict[]; webVersion?: string } | null>(null)
+  const [admitting, setAdmitting] = useState<InstalledPlugin | null>(null)
+  const [webAdmitted, setWebAdmitted] = useState(false)
   const readiness = useQuery({
     queryKey: [...pluginsKey, 'readiness'],
     queryFn: () => api.get<{ state: 'loading' | 'ready' | 'degraded'; version: number | null }>(`${PLUGINS_PATH}/readiness`),
@@ -98,13 +101,15 @@ function PluginsPanelContent() {
       file,
       rolePresets,
       acknowledge,
+      webVersion,
     }: {
       file: File
       rolePresets: string[]
       acknowledge: boolean
+      webVersion?: string
     }) =>
       api.post<InstalledPlugin>(
-        acknowledge ? `${PLUGINS_PATH}?acknowledge_conflicts=true` : PLUGINS_PATH,
+        `${PLUGINS_PATH}?${new URLSearchParams({ acknowledge_conflicts: String(acknowledge), ...(webVersion ? { acknowledge_web_version: webVersion } : {}) })}`,
         packageForm(file, rolePresets),
       ),
     onSuccess: (response) => {
@@ -114,17 +119,18 @@ function PluginsPanelContent() {
     onError: (error) => notifyError(error),
   })
   const toggle = useMutation({
-    mutationFn: ({ plugin, acknowledge = false }: { plugin: InstalledPlugin; acknowledge?: boolean }) =>
+    mutationFn: ({ plugin, acknowledge = false, webVersion }: { plugin: InstalledPlugin; acknowledge?: boolean; webVersion?: string }) =>
       api.post(
-        `${PLUGINS_PATH}/${plugin.key}/${plugin.enabled ? 'disable' : 'enable'}${acknowledge ? '?acknowledge_conflicts=true' : ''}`,
+        `${PLUGINS_PATH}/${plugin.key}/${plugin.enabled ? 'disable' : 'enable'}?${new URLSearchParams({ acknowledge_conflicts: String(acknowledge), ...(webVersion ? { acknowledge_web_version: webVersion } : {}) })}`,
       ),
     onSuccess: () => {
       setOverlapping(null)
+      setAdmitting(null)
       changed(t('plugins.updated'))
     },
-    onError: (error, { plugin }) => {
+    onError: (error, { plugin, webVersion }) => {
       const conflicts = unacknowledgedConflicts(error)
-      if (conflicts) setOverlapping({ plugin, conflicts })
+      if (conflicts) setOverlapping({ plugin, conflicts, webVersion })
       else notifyError(error)
     },
   })
@@ -207,7 +213,10 @@ function PluginsPanelContent() {
                   <Info aria-hidden="true" />
                   {t('plugins.viewDetails')}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => toggle.mutate({ plugin })} disabled={toggle.isPending}>
+                <Button size="sm" variant="outline" onClick={() => {
+                  if (!plugin.enabled && plugin.has_web) { setWebAdmitted(false); setAdmitting(plugin) }
+                  else toggle.mutate({ plugin })
+                }} disabled={toggle.isPending}>
                   {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
                   {plugin.enabled ? t('plugins.disable') : t('plugins.enable')}
                 </Button>
@@ -241,23 +250,35 @@ function PluginsPanelContent() {
         )}
       </Dialog>
       <PluginConsentDialog
+        key={pending ? `${pending.consent.key}@${pending.consent.version}` : "no-package"}
         consent={pending?.consent ?? null}
         pending={install.isPending}
         onCancel={() => setPending(null)}
-        onConfirm={(rolePresets, acknowledge) => {
-          if (pending) install.mutate({ file: pending.file, rolePresets, acknowledge })
+        onConfirm={(rolePresets, acknowledge, admitWeb) => {
+          if (pending) install.mutate({ file: pending.file, rolePresets, acknowledge, webVersion: admitWeb ? pending.consent.version : undefined })
         }}
       />
       <ConfirmDialog
+        open={admitting !== null && overlapping === null}
+        onOpenChange={(open) => { if (!open) setAdmitting(null) }}
+        title={t('plugins.consentTitle', { name: admitting?.name ?? '', version: admitting?.version ?? '' })}
+        confirmLabel={t('plugins.enable')}
+        confirmDisabled={!webAdmitted}
+        pending={toggle.isPending}
+        onConfirm={() => { if (admitting && webAdmitted) toggle.mutate({ plugin: admitting, webVersion: admitting.version }) }}
+      >
+        <PluginWebAdmission checked={webAdmitted} onChange={setWebAdmitted} />
+      </ConfirmDialog>
+      <ConfirmDialog
         open={overlapping !== null}
         onOpenChange={(open) => {
-          if (!open) setOverlapping(null)
+          if (!open) { setOverlapping(null); setAdmitting(null) }
         }}
         title={t('plugins.toggleConflictsTitle', { name: overlapping?.plugin.name ?? '' })}
         confirmLabel={t('plugins.toggleConflictsConfirm')}
         pending={toggle.isPending}
         onConfirm={() => {
-          if (overlapping) toggle.mutate({ plugin: overlapping.plugin, acknowledge: true })
+          if (overlapping) toggle.mutate({ plugin: overlapping.plugin, acknowledge: true, webVersion: overlapping.webVersion })
         }}
       >
         {overlapping && <PluginConflictList conflicts={overlapping.conflicts} />}
