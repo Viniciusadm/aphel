@@ -29,5 +29,7 @@
   },
   "save": "Save navigation",
   "saved": "Navigation saved",
-  "saveError": "Could not save the preferences"
+  "saveError": "Could not save the preferences",
+  "policyBlocked": "Personal home and navigation adjustments are blocked by organization policy. Saved values are retained; resetting is still allowed.",
+  "resetNavigation": "Reset only my home and navigation"
 }

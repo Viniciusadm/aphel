@@ -10,6 +10,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   stored_experience: { profile: null, record_detail: null },
   stored_navigation: { order: [], hidden: [], home: null },
   experience_diagnostics: [],
+  experience_omittable_sections: [],
   keyboard_shortcuts: true,
   locale: null,
   navigation: { order: [], hidden: [], home: null },

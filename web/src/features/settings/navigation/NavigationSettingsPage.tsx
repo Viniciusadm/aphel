@@ -18,6 +18,7 @@ import type { NavigationPreferences, PersonalPreferences, SupportedLanguage } fr
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { useExperience } from '@/features/experiences/experience-context'
 
 const FOLLOW_ORGANIZATION = 'organization'
 const DEFAULT_HOME = '/'
@@ -72,6 +73,8 @@ function moveKey(keys: string[], index: number, offset: number): string[] {
 function NavigationSection({ preferences }: { preferences: PersonalPreferences }) {
   const { t } = useTranslation('navigation-settings')
   const update = useUpdatePersonalPreferences()
+  const experience = useExperience()
+  const blocked = experience?.config?.policy.customization.navigation === false
   const available = useAvailableSidebarEntries()
   const homeLabelId = useId()
   const [draft, setDraft] = useState<NavigationPreferences>(preferences.navigation)
@@ -106,6 +109,13 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
 
   return (
     <>
+      {blocked && <p role="status">{t('policyBlocked')}</p>}
+      <Button variant="outline" disabled={update.isPending} onClick={() => update.mutate({ navigation: {} }, {
+        onSuccess: () => toast({ title: t('saved'), variant: 'success' }),
+        onError: (error) => notifyError(error, { title: t('saveError') }),
+      })}>{t('resetNavigation')}</Button>
+      <fieldset disabled={blocked || update.isPending} className="grid min-w-0 gap-6">
+      <legend className="sr-only">{t('title')}</legend>
       <section className="grid gap-3">
         <PageHeader title={t('home.title')} description={t('home.description')} />
         <Field id={homeLabelId} label={t('home.label')} className="max-w-sm">
@@ -178,6 +188,7 @@ function NavigationSection({ preferences }: { preferences: PersonalPreferences }
           </Button>
         </div>
       </section>
+      </fieldset>
     </>
   )
 }

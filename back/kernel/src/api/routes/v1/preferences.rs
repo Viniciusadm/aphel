@@ -33,7 +33,7 @@ fn preferences_use_cases(
     operation_id = "preferences_get",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. Effective profile identity is not verification of frontend provider availability.", body = Data<PreferencesResponse>),
+        (status = 200, description = "Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. experience_omittable_sections projects the existing active owner declarations intersected with organization policy and the effective profile sources; it does not grant record access or prove context visibility. Effective profile identity is not verification of frontend provider availability.", body = Data<PreferencesResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
     )
 )]

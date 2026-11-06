@@ -259,3 +259,7 @@ The version-1 catalog can now be reviewed through `POST /api/v1/organization/exp
 ## Organization administration
 
 The organization settings page at `/settings/experiences` now manages the existing catalog, shared default and permitted personal options. It stages edits/imports locally and requires validation plus an explicit review before PUT with If-Match. See [experience administration](experience-administration.md) for draft, availability, withdrawal and ownership boundaries. Personal selection/editor UI remains outside this step.
+
+## Personal settings
+
+Account settings at `/account/experience` now expose permitted selection, source ordering/omission and independent resets through the existing preference PATCH. Read-only omission choices reuse the server's active owner declarations and current profile/policy intersection. See [personal experiences](personal-experiences.md) for policy changes, retained references, the existing navigation editor and validation limits.

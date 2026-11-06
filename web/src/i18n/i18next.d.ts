@@ -60,6 +60,7 @@ import type orgExportNamespace from '../modules/org_export/i18n/pt-BR.json'
 import type organizationSettingsNamespace from './pt-BR/organization-settings.json'
 import type organizationsNamespace from '../modules/organizations/i18n/pt-BR.json'
 import type peopleNamespace from '../modules/people/i18n/pt-BR.json'
+import type personalExperienceNamespace from './pt-BR/personal-experience.json'
 import type pricingNamespace from '../modules/pricing/i18n/pt-BR.json'
 import type privacyNamespace from '../modules/privacy/i18n/pt-BR.json'
 import type proposalsNamespace from '../modules/proposals/i18n/pt-BR.json'
@@ -159,6 +160,7 @@ declare module 'i18next' {
       'organization-settings': typeof organizationSettingsNamespace
       organizations: typeof organizationsNamespace
       people: typeof peopleNamespace
+      'personal-experience': typeof personalExperienceNamespace
       pricing: typeof pricingNamespace
       privacy: typeof privacyNamespace
       proposals: typeof proposalsNamespace

@@ -82,6 +82,7 @@ function registerNavigation(app: ModuleApp) {
 
 function registerSettings(app: ModuleApp) {
   settings(app, 'account', [
+    { group: 'profile', path: 'experience', label: 'personalExperience', icon: SlidersHorizontal, lazy: page(() => import('@/features/settings/personal-experience/PersonalExperiencePage'), 'PersonalExperiencePage') },
     {
       group: 'profile',
       path: 'preferences',

@@ -47,7 +47,8 @@
     "general": "General",
     "outgoingEmail": "Outgoing email",
     "storage": "File storage",
-    "experiences": "Experiences"
+    "experiences": "Experiences",
+    "personalExperience": "My experience"
   },
   "noAccess": {
     "title": "No permission",
@@ -438,6 +439,9 @@
     },
     "experiences": {
       "description": "Manage the organization catalog, shared default and permitted personal options."
+    },
+    "personalExperience": {
+      "description": "Choose an organization-permitted experience and adjust your record sections."
     }
   },
   "areas": {

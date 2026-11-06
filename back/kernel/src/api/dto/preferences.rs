@@ -96,6 +96,8 @@ pub struct PreferencesResponse {
     pub stored_experience: ExperiencePreferences,
     pub stored_navigation: NavigationPreferencesDto,
     pub experience_diagnostics: Vec<ExperiencePreferenceDiagnostic>,
+    pub experience_omittable_sections:
+        Vec<crate::application::organization_profile::ExperienceSection>,
 }
 
 impl From<UserPreferencesView> for PreferencesResponse {
@@ -109,6 +111,7 @@ impl From<UserPreferencesView> for PreferencesResponse {
             stored_experience: view.stored_experience,
             stored_navigation: view.stored_navigation.into(),
             experience_diagnostics: view.experience_diagnostics,
+            experience_omittable_sections: view.experience_omittable_sections,
         }
     }
 }

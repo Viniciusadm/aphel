@@ -47,7 +47,8 @@
     "general": "Geral",
     "outgoingEmail": "E-mail de envio",
     "storage": "Armazenamento de arquivos",
-    "experiences": "Experiências"
+    "experiences": "Experiências",
+    "personalExperience": "Minha experiência"
   },
   "noAccess": {
     "title": "Sem permissão",
@@ -438,6 +439,9 @@
     },
     "experiences": {
       "description": "Gerencie o catálogo da organização, o padrão compartilhado e as opções pessoais permitidas."
+    },
+    "personalExperience": {
+      "description": "Escolha uma experiência permitida pela organização e ajuste suas seções de registro."
     }
   },
   "areas": {

@@ -44,6 +44,7 @@ pub struct UserPreferencesView {
     pub stored_experience: ExperiencePreferences,
     pub stored_navigation: NavigationPreferences,
     pub experience_diagnostics: Vec<ExperiencePreferenceDiagnostic>,
+    pub experience_omittable_sections: Vec<ExperienceSection>,
 }
 
 fn allowed_profile<'a>(
@@ -252,7 +253,31 @@ pub fn personal_preferences_view(
     } else if stored.experience != ExperiencePreferences::default() {
         diagnostic("experience", "experience_configuration_unavailable");
     }
+    let experience_omittable_sections = config
+        .and_then(|config| {
+            selected_profile(config, &stored.experience).map(|profile| (config, profile))
+        })
+        .map(|(config, profile)| {
+            profile
+                .record_detail
+                .regions
+                .as_ref()
+                .map(|regions| {
+                    regions
+                        .main
+                        .iter()
+                        .filter(|source| {
+                            config.policy.customization.section_hidden.contains(source)
+                                && omittable.contains(source)
+                        })
+                        .cloned()
+                        .collect()
+                })
+                .unwrap_or_default()
+        })
+        .unwrap_or_default();
     UserPreferencesView {
+        experience_omittable_sections,
         effective,
         stored_experience: stored.experience,
         stored_navigation: stored.navigation,
@@ -326,6 +351,19 @@ pub fn probe_personal_experience_preferences(failures: &mut Vec<String>) {
             "preferences: an organization limit must not replace owner-declared optionality".into(),
         );
     }
+    if personal_preferences_view(
+        stored.clone(),
+        Some(&config),
+        std::slice::from_ref(&optional),
+    )
+    .experience_omittable_sections
+        != vec![optional.clone()]
+        || !personal_preferences_view(stored.clone(), Some(&config), &[])
+            .experience_omittable_sections
+            .is_empty()
+    {
+        failures.push("preferences: omission choices must intersect policy, profile sources and active owner declarations".into());
+    }
     let mut mandatory = stored.clone();
     mandatory.experience.record_detail.as_mut().unwrap().hidden = vec![required];
     let mut mandatory_command = command.clone();
@@ -384,6 +422,7 @@ pub fn probe_personal_experience_preferences(failures: &mut Vec<String>) {
         || view.effective.locale != stored.locale
         || view.effective.keyboard_shortcuts != stored.keyboard_shortcuts
         || view.experience_diagnostics.is_empty()
+        || !view.experience_omittable_sections.is_empty()
     {
         failures.push("preferences: revocation must retain saved references, ignore blocked choices and preserve unrelated values".into());
     }

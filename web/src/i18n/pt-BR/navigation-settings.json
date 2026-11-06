@@ -29,5 +29,7 @@
   },
   "save": "Salvar navegação",
   "saved": "Navegação salva",
-  "saveError": "Não foi possível salvar as preferências"
+  "saveError": "Não foi possível salvar as preferências",
+  "policyBlocked": "A política da organização bloqueou ajustes pessoais de página inicial e navegação. Os valores salvos são preservados; a restauração continua permitida.",
+  "resetNavigation": "Restaurar somente minha página inicial e navegação"
 }

@@ -13264,6 +13264,7 @@ export interface components {
             data: {
                 experience: components["schemas"]["ExperiencePreferences"];
                 experience_diagnostics: components["schemas"]["ExperiencePreferenceDiagnostic"][];
+                experience_omittable_sections: components["schemas"]["ExperienceSection"][];
                 keyboard_shortcuts: boolean;
                 /** @example en */
                 locale?: string | null;
@@ -20218,6 +20219,7 @@ export interface components {
         PreferencesResponse: {
             experience: components["schemas"]["ExperiencePreferences"];
             experience_diagnostics: components["schemas"]["ExperiencePreferenceDiagnostic"][];
+            experience_omittable_sections: components["schemas"]["ExperienceSection"][];
             keyboard_shortcuts: boolean;
             /** @example en */
             locale?: string | null;
@@ -51403,7 +51405,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. Effective profile identity is not verification of frontend provider availability. */
+            /** @description Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. experience_omittable_sections projects the existing active owner declarations intersected with organization policy and the effective profile sources; it does not grant record access or prove context visibility. Effective profile identity is not verification of frontend provider availability. */
             200: {
                 headers: {
                     [name: string]: unknown;
