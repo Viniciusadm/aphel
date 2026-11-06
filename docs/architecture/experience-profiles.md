@@ -267,3 +267,7 @@ Account settings at `/account/experience` now expose permitted selection, source
 ## Acceptance gate
 
 The [acceptance evidence and remaining gate](experience-validation.md) consolidates A/B/I source trace, the public SDK authoring simulation, proposed request budget and the runtime checks still requiring an authorized environment. Source review and compilation do not complete those behavior criteria.
+
+## Future scope decision
+
+The [future decisions](experience-future-decisions.md) retain the current increment without approving further features. Named dashboards, backend-provider coexistence, less-trusted UI and any semantic field-policy migration require separately justified increments; the remaining options have no demonstrated need now. This documentary closure does not complete the outstanding acceptance gate.
