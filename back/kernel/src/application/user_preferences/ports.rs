@@ -1,10 +1,6 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 
-use super::ExperiencePreferences;
-use crate::application::organization_profile::{
-    ExperienceSection, OrganizationExperiencesRepository,
-};
 use crate::application::security::Clock;
 use crate::application::shared::TransactionManager;
 use crate::domain::UserId;
@@ -24,7 +20,7 @@ pub struct UserPreferences {
     pub keyboard_shortcuts: bool,
     pub locale: Option<String>,
     pub navigation: NavigationPreferences,
-    pub experience: ExperiencePreferences,
+    pub ui_plugin: Option<String>,
 }
 
 impl Default for UserPreferences {
@@ -33,9 +29,21 @@ impl Default for UserPreferences {
             keyboard_shortcuts: true,
             locale: None,
             navigation: NavigationPreferences::default(),
-            experience: ExperiencePreferences::default(),
+            ui_plugin: None,
         }
     }
+}
+
+#[async_trait]
+pub trait UiPluginDefaults: Send + Sync {
+    async fn find(&self) -> Result<Option<String>, AppError>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UserPreferencesView {
+    pub preferences: UserPreferences,
+    pub ui_plugin_default: Option<String>,
+    pub effective_ui_plugin: Option<String>,
 }
 
 #[async_trait]
@@ -62,12 +70,11 @@ pub type UserPreferencesTx<P> =
 pub trait UserPreferencesPorts: Send + Sync {
     type Transactions: TransactionManager;
     type Preferences: UserPreferencesRepository<Tx = UserPreferencesTx<Self>>;
-    type Experiences: OrganizationExperiencesRepository<Tx = UserPreferencesTx<Self>>;
+    type UiDefaults: UiPluginDefaults;
     type Clock: Clock;
 
     fn transactions(&self) -> &Self::Transactions;
-    fn experiences(&self) -> &Self::Experiences;
-    fn omittable_sections(&self) -> Vec<ExperienceSection>;
+    fn ui_defaults(&self) -> &Self::UiDefaults;
     fn preferences(&self) -> &Self::Preferences;
     fn clock(&self) -> &Self::Clock;
 }

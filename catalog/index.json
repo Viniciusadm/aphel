@@ -381,25 +381,6 @@
         "key": "proposals",
         "install_notes": "Já incluído no build padrão (back/aphel.modules.toml). Para um build enxuto, mantenha a linha `proposals` nesse arquivo, rode make modules, compile e habilite em Configurações > Módulos."
       }
-    },
-    {
-      "id": "aphel.slate",
-      "kind": "theme",
-      "name": "Slate",
-      "description": "Visual sóbrio e arredondado: botões em pílula, cartões sem sombra e azul-ardósia como cor principal.",
-      "author": "Aphel",
-      "version": "1.0.0",
-      "min_aphel_version": "0.1.0",
-      "license": "AGPL-3.0-or-later",
-      "tags": [
-        "tema"
-      ],
-      "locale": "pt-BR",
-      "package": {
-        "url": "packages/aphel.slate-1.0.0.json",
-        "sha256": "70c6cd26665016b07bef970f404218eb73b9ede40e6c5a3781dc5278b7246aee",
-        "size": 1686
-      }
     }
   ]
 }

@@ -9,7 +9,6 @@ export interface RecordSectionSource {
 
 export interface RecordTab {
   source?: RecordSectionSource
-  personallyOmittable?: boolean
   permission?: PermissionRequirement
   key: string
   label: string

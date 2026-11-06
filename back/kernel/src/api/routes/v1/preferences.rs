@@ -33,7 +33,7 @@ fn preferences_use_cases(
     operation_id = "preferences_get",
     security(("session_cookie" = [])),
     responses(
-        (status = 200, description = "Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. experience_omittable_sections projects the existing active owner declarations intersected with organization policy and the effective profile sources; it does not grant record access or prove context visibility. Effective profile identity is not verification of frontend provider availability.", body = Data<PreferencesResponse>),
+        (status = 200, description = "Personal preferences of the authenticated current user. ui_plugin is the saved choice (null follows the organization default), ui_plugin_default is the organization default and effective_ui_plugin is the plugin that applies now, or null for the core interface when the saved choice and the default are unavailable. Defaults when never saved.", body = Data<PreferencesResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
     )
 )]
@@ -53,9 +53,9 @@ async fn get_preferences(
     security(("session_cookie" = [])),
     request_body = UpdatePreferencesRequest,
     responses(
-        (status = 200, description = "Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). experience changes profile selection and record-detail order/hidden source pairs within organization policy. Omitted experience fields stay unchanged; experience.profile = null resets only selection, experience.record_detail = null resets only composition, and experience = null clears both. Resetting navigation uses its empty replacement object. Blocked non-reset writes, unsupported surfaces/sources and omission without owner-declared optionality are rejected on this same endpoint. Saved blocked choices are retained but not applied. Policy and user rows are locked in one transaction; old payloads do not clear new fields. Personal preferences: no domain event or audit entry", body = Data<PreferencesResponse>),
+        (status = 200, description = "Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). `ui_plugin` selects the interface plugin (the key of an enabled plugin that declares an interface; `null` follows the organization default). Personal preferences: no domain event or audit entry", body = Data<PreferencesResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
-        (status = 422, description = "Invalid body, unsupported locale, unsafe navigation or organization-policy violations in navigation/experience (validation_error with field paths)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid body, unsupported locale, unsafe navigation or an interface plugin that is not available (validation_error with field paths)", body = ErrorEnvelope),
     )
 )]
 async fn update_preferences(

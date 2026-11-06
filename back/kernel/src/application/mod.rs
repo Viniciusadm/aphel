@@ -22,5 +22,3 @@ pub mod security;
 pub mod shared;
 pub mod system;
 pub(crate) mod user_preferences;
-
-pub use user_preferences::probe_personal_experience_preferences;

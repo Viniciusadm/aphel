@@ -75,7 +75,7 @@ Components never depend on i18n. Texts that belong to the library (close button,
 
 ## Tokens
 
-Tokens are CSS custom properties on `:root` (and `[data-theme='dark']`). They are generated from `back/modules/themes/tokens.json` into `web/src/sdk/tokens.css` by `make modules`; the full list with defaults is in [`tokens.md`](tokens.md). Components read them, so changing a token changes every component that uses the library, in Aphel and in plugins. An installation changes them with a [theme](../themes/README.md).
+Tokens are CSS custom properties on `:root` (and `[data-theme='dark']`). They are generated from `back/modules/wasm_runtime/tokens.json` into `web/src/sdk/tokens.css` by `make modules`; the full list with defaults is in [`tokens.md`](tokens.md). Components read them, so changing a token changes every component that uses the library, in Aphel and in plugins. An interface plugin changes them (see [UI plugins](../architecture/ui-plugins.md)).
 
 | Group | Tokens |
 | --- | --- |
@@ -88,10 +88,10 @@ Tokens are CSS custom properties on `:root` (and `[data-theme='dark']`). They ar
 
 The organization color overrides `--primary*` through `--org-primary*`, on top of the theme.
 
-A public web app of a plugin (`/p/<key>/`) also links the active theme's stylesheet:
+A public web app of a plugin (`/p/<key>/`) also links the organization default's stylesheet:
 
 ```html
-<link rel="stylesheet" href="/api/v1/public/themes/active.css" />
+<link rel="stylesheet" href="/api/v1/public/ui/default.css" />
 ```
 
 ## Stability

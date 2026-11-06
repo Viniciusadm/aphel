@@ -1,6 +1,5 @@
 import { createElement, useMemo, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { composeRecordSections, type RecordComposition } from '@/features/experiences/resolution'
 import { useRecordCommands } from '@/features/command-palette/useRecordCommands'
 import { useModuleRecordTabs } from '@/kernel/modules/contributions'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
@@ -30,7 +29,6 @@ export interface RecordPageModelOptions {
   actions?: ReactNode
   back?: RecordBackLink
   tabs?: RecordTabsConfig
-  composition?: RecordComposition
   timeline?: TimelineSource
 }
 
@@ -59,7 +57,6 @@ export function useRecordPageModel({
   back,
   tabs,
   timeline,
-  composition,
 }: RecordPageModelOptions) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -89,8 +86,7 @@ export function useRecordPageModel({
         summary: tab.summary ? createElement(RecordSectionBoundary, boundary, tab.summary) : undefined,
       }
     }), [filteredTabs, current, allowed, recordType, record.id])
-  const composed = useMemo(() => composeRecordSections(resolvedTabs, composition), [resolvedTabs, composition])
-  const commandTabs = useMemo(() => composed.tabs.map(({ key, label }) => ({ key, label })), [composed.tabs])
+  const commandTabs = useMemo(() => resolvedTabs.map(({ key, label }) => ({ key, label })), [resolvedTabs])
   useRecordCommands({ recordType, recordId: record.id, tabs: commandTabs })
   const viewLayout = savedLayout(useFormLayout(recordType, 'view').data)
   const fields = useMemo(
@@ -125,10 +121,7 @@ export function useRecordPageModel({
     edit,
     saveField,
     isSaving,
-    uncomposedTabs: resolvedTabs,
-    tabs: composed.tabs,
-    mainSections: composed.mainSections,
-    compositionDiagnostics: composed.diagnostics,
+    tabs: resolvedTabs,
     slotProps,
     sectionContext,
     actions,

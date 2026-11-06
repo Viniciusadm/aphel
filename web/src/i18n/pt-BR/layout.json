@@ -43,17 +43,7 @@
     "retry": "Tentar de novo",
     "retrying": "Aplicando..."
   },
-  "experience": {
-    "loading": "Carregando experiência…",
-    "loadFailed": "Não foi possível carregar as configurações da experiência. A interface padrão está disponível.",
-    "profileIgnored": "A escolha salva “{{identity}}” não é mais permitida. Usando o padrão da organização ou a interface padrão.",
-    "formatUnsupported": "O formato de “{{identity}}” não é compatível. Usando a interface padrão.",
-    "frameUnavailable": "A moldura “{{identity}}” está indisponível, tem provedores conflitantes ou falhou. Usando a moldura padrão.",
-    "presentationUnavailable": "A apresentação “{{identity}}” está indisponível, tem provedores conflitantes ou falhou. Usando o detalhe padrão.",
-    "sectionUnavailable": "A seção “{{identity}}” está indisponível, sem permissão ou ambígua. Sua referência salva foi preservada.",
-    "sectionIgnored": "O ajuste da seção “{{identity}}” não pode ser aplicado.",
-    "compositionUnsupported": "A apresentação “{{identity}}” não declara suporte a este registro ou composição. Usando o detalhe padrão.",
-    "recordTypeUnavailable": "O tipo de registro “{{identity}}” está indisponível. Esta experiência não pode ser aplicada por completo.",
-    "navigationIgnored": "Suas escolhas de navegação estão bloqueadas pela política da organização e foram preservadas sem aplicação."
+  "ui": {
+    "loading": "Carregando interface…"
   }
 }

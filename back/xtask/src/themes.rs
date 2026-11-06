@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::{Failure, Generated, back_dir, write_if_changed};
 
-const TOKENS_FILE: &str = "modules/themes/tokens.json";
+const TOKENS_FILE: &str = "modules/wasm_runtime/tokens.json";
 const WEB_TOKENS_CSS: &str = "../web/src/sdk/tokens.css";
 const WEB_TOKENS_TS: &str = "../web/src/sdk/tokens.generated.ts";
 const TOKENS_DOC: &str = "../docs/ui/tokens.md";
@@ -141,7 +141,7 @@ fn quoted(value: &str) -> Result<String, Failure> {
 
 fn tokens_markdown(tokens: &[Token]) -> String {
     let mut markdown = String::from(
-        "# Design tokens\n\nGenerated from `back/modules/themes/tokens.json` by `make modules`. Do not edit by hand.\n\n\
+        "# Design tokens\n\nGenerated from `back/modules/wasm_runtime/tokens.json` by `make modules`. Do not edit by hand.\n\n\
          | Token | Group | Kind | Default | Dark |\n| --- | --- | --- | --- | --- |\n",
     );
     for token in tokens {

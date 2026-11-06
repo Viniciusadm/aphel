@@ -1,39 +1,37 @@
 import { useState } from 'react'
-import { ExperienceNotice } from '@/features/experiences/ExperienceNotice'
-import { useRecordExperience } from '@/features/experiences/use-record-experience'
 import { useTranslation } from 'react-i18next'
 import { ErrorBoundary } from '@/components/feedback/ErrorBoundary'
 import { Alert } from '@/components/ui/alert'
+import { RECORD_PRESENTATION_CONTRACT, type RecordPresentationProps } from '@/kernel/modules/record-presentation'
+import { useSurface } from '@/kernel/modules/ui-plugin-context'
 import { DisplayRecordProvider } from '../display/display-record'
 import { DefaultRecordPresentation } from './DefaultRecordPresentation'
 import { useRecordPageModel, type RecordPageModelOptions } from './use-record-page-model'
 
-export interface RecordPageLayoutProps extends Omit<RecordPageModelOptions, 'composition'> {
+export interface RecordPageLayoutProps extends RecordPageModelOptions {
   defaultTab?: string
   className?: string
 }
 
 export function RecordPageLayout({ defaultTab, className, ...options }: RecordPageLayoutProps) {
-  const experience = useRecordExperience(options.recordType)
-  const failureKey = `${options.recordType}:${options.record.id}:${experience.profileKey ?? ''}:${experience.requested}`
-  const [failed, setFailed] = useState<{ key: string; provider: typeof experience.Presentation; detail: typeof experience.detail } | null>(null)
-  const hasFailed = failed?.key === failureKey && failed.provider === experience.Presentation && failed.detail === experience.detail
-  const model = useRecordPageModel({ ...options, composition: hasFailed ? undefined : experience.composition })
+  const surface = useSurface<RecordPresentationProps, { recordTypes?: readonly string[] }>(RECORD_PRESENTATION_CONTRACT)
+  const supported = surface.Component && (!surface.Component.recordTypes || surface.Component.recordTypes.includes(options.recordType))
+  const [failedPlugin, setFailedPlugin] = useState<string | null>(null)
+  const plugin = surface.plugin
+  const hasFailed = failedPlugin !== null && failedPlugin === plugin
+  const Presentation = !hasFailed && supported ? surface.Component! : DefaultRecordPresentation
+  const model = useRecordPageModel(options)
   const { t } = useTranslation('records-detail')
-  const presentationModule = experience.requested
-  const Presentation = hasFailed ? DefaultRecordPresentation : experience.Presentation ?? DefaultRecordPresentation
-  const defaultModel = { ...model, tabs: model.uncomposedTabs, mainSections: undefined }
 
   return (
     <DisplayRecordProvider value={{ recordType: model.recordType, recordId: model.recordId, title: model.title }}>
-      <ExperienceNotice diagnostics={[...experience.diagnostics, ...model.compositionDiagnostics, ...(hasFailed ? [{ code: 'presentationUnavailable' as const, identity: presentationModule }] : [])]} />
       <ErrorBoundary
-        onError={() => setFailed({ key: failureKey, provider: experience.Presentation, detail: experience.detail })}
-        resetKeys={[model.recordType, model.recordId, presentationModule, Presentation, experience.detail]}
+        onError={() => setFailedPlugin(plugin)}
+        resetKeys={[model.recordType, model.recordId, Presentation]}
         fallback={() => (
           <>
-            <Alert role="alert">{t('composition.presentationFailed', { provider: presentationModule })}</Alert>
-            <DefaultRecordPresentation model={defaultModel} defaultTab={defaultTab} className={className} />
+            <Alert role="alert">{t('composition.presentationFailed', { provider: plugin ?? '' })}</Alert>
+            <DefaultRecordPresentation model={model} defaultTab={defaultTab} className={className} />
           </>
         )}
       >

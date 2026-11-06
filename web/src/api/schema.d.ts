@@ -1252,22 +1252,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/catalog/themes/{id}/download": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["catalog_theme_download"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/communication/opt-outs": {
         parameters: {
             query?: never;
@@ -4970,41 +4954,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/organization/experiences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Reads the organization-owned experience catalog and policy. Any authenticated member can read. A null configuration preserves the existing application baseline. Provider availability is not inferred from configuration: required provider and optional section diagnostics identify the checks the frontend host must perform. This endpoint does not select a personal profile or execute frontend code. */
-        get: operations["organization_experiences_get"];
-        /** @description Atomically replaces the catalog, default and organization customization limits. Requires settings.manage and an exact If-Match from GET; stale configuration returns version_conflict. Duplicate/unsupported/unknown properties and dangling default/allowlist references are rejected. Remove or disable a profile together with its policy/default references in the same request; personal references are not deleted. Writes organization.experiences_updated and audit in the same transaction. Preserves unrelated organization settings and does not install/enable plugins or apply a personal selection. */
-        put: operations["organization_experiences_replace"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/organization/experiences/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description Validates a proposed declarative catalog without writing it. Requires settings.manage. Rejects unsupported profile formats and unknown properties. Reports unavailable record types and required frontend provider/section verification; it does not install code or certify frontend compatibility. The returned updated_at is the current organization version, not a reservation for a later PUT. */
-        post: operations["organization_experiences_validate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/organization/logo": {
         parameters: {
             query?: never;
@@ -5068,6 +5017,23 @@ export interface paths {
         get: operations["two_factor_policy"];
         /** @description Changes who must use two-factor authentication in the organization: `none`, `admins` (members with the system administrator role) or `everyone`. Members covered by the policy without a second factor can only reach their security settings until they enable it (`403 two_factor_setup_required`); API tokens are not affected. Publishes `organization.two_factor_policy_changed` with audit. Requires `settings.manage`. */
         put: operations["two_factor_update_policy"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organization/ui-plugin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Sets the interface plugin used by everyone who has not chosen one, and by pages shown before sign-in. Requires settings.manage. The value is the key of an enabled plugin that declares an interface, or null for the core interface. Writes organization.ui_plugin_updated and audit in the same transaction. It does not install or enable code. */
+        put: operations["organization_ui_plugin_set"];
         post?: never;
         delete?: never;
         options?: never;
@@ -6197,32 +6163,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/public/themes/active.css": {
+    "/api/v1/public/ui/{file}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description Stylesheet of the active theme, linked by the web app before it renders. Public: it only holds design tokens. Empty when no theme is active. Uses an ETag that changes whenever the active theme does */
-        get: operations["themes_active_stylesheet"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/public/themes/fonts/{file}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description A font file of an installed theme, addressed by the SHA-256 of its content (`<sha256>.woff2`), so it can be cached forever */
-        get: operations["themes_font"];
+        /** @description Serves the colors and fonts of an interface plugin as a stylesheet, from the tokens declared in its manifest (`<key>.css`). `default.css` serves the plugin chosen as the organization default, or an empty stylesheet when there is none. Public, because it is loaded before sign-in. The organization brand color still wins over these tokens. */
+        get: operations["ui_plugin_stylesheet"];
         put?: never;
         post?: never;
         delete?: never;
@@ -6238,7 +6187,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Public: plugin bundles are code, not data. */
+        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. */
         get: operations["plugins_web"];
         put?: never;
         post?: never;
@@ -7722,86 +7671,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/themes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["themes_list"];
-        put?: never;
-        post: operations["themes_install"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/themes/activation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["themes_activate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/themes/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["themes_validate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/themes/{key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["themes_save"];
-        post?: never;
-        delete: operations["themes_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/themes/{key}/package": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["themes_export"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/timeline": {
         parameters: {
             query?: never;
@@ -7992,6 +7861,23 @@ export interface paths {
         put?: never;
         /** @description Starts (or restarts) the activation: generates a new TOTP secret and answers it with the `otpauth://` URI and an SVG QR code. Two-factor authentication is only enabled after `POST /two-factor/confirm` with a valid code. */
         post: operations["two_factor_setup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ui-plugins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the enabled plugins that declare an interface (`[ui]`), which any signed-in user can choose in their preferences. Returns only the label, a short description, whether the plugin ships screens or colors, and a few preview colors, never the full token set. */
+        get: operations["ui_plugins_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -8683,9 +8569,6 @@ export interface components {
             label: string;
             record_types: string[];
             secret_fields: string[];
-        };
-        ActivationRequest: {
-            key?: string | null;
         };
         ActivityCallResponse: {
             direction: components["schemas"]["CallDirection"];
@@ -9933,7 +9816,7 @@ export interface components {
             [key: string]: unknown;
         };
         /** @enum {string} */
-        CatalogEntryKindResponse: "template" | "theme" | "module";
+        CatalogEntryKindResponse: "template" | "module";
         CatalogEntryResponse: {
             author: string;
             compatible: boolean;
@@ -13092,15 +12975,6 @@ export interface components {
                 updated_at: string;
             };
         };
-        Data_OrganizationExperiencesView: {
-            data: {
-                configuration?: null | components["schemas"]["OrganizationExperiences"];
-                diagnostics: components["schemas"]["ExperienceDiagnostic"][];
-                requires_host_resolution: boolean;
-                /** Format: date-time */
-                updated_at: string;
-            };
-        };
         Data_OrganizationResponse: {
             data: {
                 /** @example BRL */
@@ -13262,15 +13136,13 @@ export interface components {
         };
         Data_PreferencesResponse: {
             data: {
-                experience: components["schemas"]["ExperiencePreferences"];
-                experience_diagnostics: components["schemas"]["ExperiencePreferenceDiagnostic"][];
-                experience_omittable_sections: components["schemas"]["ExperienceSection"][];
+                effective_ui_plugin?: string | null;
                 keyboard_shortcuts: boolean;
                 /** @example en */
                 locale?: string | null;
                 navigation: components["schemas"]["NavigationPreferencesDto"];
-                stored_experience: components["schemas"]["ExperiencePreferences"];
-                stored_navigation: components["schemas"]["NavigationPreferencesDto"];
+                ui_plugin?: string | null;
+                ui_plugin_default?: string | null;
             };
         };
         Data_PreviewEmailResponse: {
@@ -13279,15 +13151,6 @@ export interface components {
                 missing_variables: string[];
                 subject: string;
                 text: string;
-            };
-        };
-        Data_PreviewResponse: {
-            data: {
-                fonts: components["schemas"]["PreviewFontResponse"][];
-                installed_version?: string | null;
-                issues: components["schemas"]["IssueResponse"][];
-                token_count: number;
-                warnings: components["schemas"]["IssueResponse"][];
             };
         };
         Data_PriceListResponse: {
@@ -14073,30 +13936,6 @@ export interface components {
                 updated_at: string;
             };
         };
-        Data_ThemeListResponse: {
-            data: {
-                active_key?: string | null;
-                themes: components["schemas"]["ThemeResponse"][];
-            };
-        };
-        Data_ThemeResponse: {
-            data: {
-                active: boolean;
-                author: string;
-                checksum: string;
-                created_at: string;
-                description?: string | null;
-                font_count: number;
-                key: string;
-                license: string;
-                min_aphel_version?: string | null;
-                name: string;
-                source: string;
-                tokens: components["schemas"]["TokenSets"];
-                updated_at: string;
-                version: string;
-            };
-        };
         Data_TrackingObjectionResponse: {
             data: {
                 created_at: string;
@@ -14152,6 +13991,11 @@ export interface components {
                 pending_setup: boolean;
                 /** Format: int32 */
                 recovery_codes_remaining: number;
+            };
+        };
+        Data_UiPluginDefaultResponse: {
+            data: {
+                ui_plugin?: string | null;
             };
         };
         Data_UnreadCountResponse: {
@@ -15103,6 +14947,18 @@ export interface components {
                 record_type: string;
             }[];
         };
+        Data_Vec_UiPluginResponse: {
+            data: {
+                description?: string | null;
+                has_colors: boolean;
+                has_screens: boolean;
+                key: string;
+                label: string;
+                preview: {
+                    [key: string]: string;
+                };
+            }[];
+        };
         Data_Vec_ValidationRuleResponse: {
             data: {
                 applies_on: components["schemas"]["ValidationRuleTiming"];
@@ -15140,6 +14996,7 @@ export interface components {
                     [key: string]: string;
                 };
                 style?: string | null;
+                ui: boolean;
                 version: string;
             }[];
         };
@@ -15885,57 +15742,6 @@ export interface components {
             parent_id?: string | null;
             trigger: string;
         };
-        ExperienceCustomization: {
-            navigation: boolean;
-            profile_selection: boolean;
-            section_hidden: components["schemas"]["ExperienceSection"][];
-            section_order: boolean;
-        };
-        ExperienceDiagnostic: {
-            code: string;
-            path: string;
-            profile_key: string;
-            required: boolean;
-        };
-        ExperienceEntry: {
-            enabled: boolean;
-            profile: components["schemas"]["ExperienceProfile"];
-        };
-        ExperiencePolicy: {
-            allowed_profiles: string[];
-            customization: components["schemas"]["ExperienceCustomization"];
-        };
-        ExperiencePreferenceDiagnostic: {
-            code: string;
-            path: string;
-        };
-        ExperiencePreferences: {
-            profile?: string | null;
-            record_detail?: null | components["schemas"]["RecordDetailPreferences"];
-        };
-        ExperienceProfile: {
-            /** Format: int32 */
-            format_version: number;
-            frame: components["schemas"]["ExperienceProvider"];
-            key: string;
-            label: string;
-            record_detail: components["schemas"]["ExperienceRecordDetail"];
-        };
-        ExperienceProvider: {
-            module: string;
-        };
-        ExperienceRecordDetail: {
-            presentation: components["schemas"]["ExperienceProvider"];
-            record_type: string;
-            regions?: components["schemas"]["ExperienceRegions"];
-        };
-        ExperienceRegions: {
-            main: components["schemas"]["ExperienceSection"][];
-        };
-        ExperienceSection: {
-            key: string;
-            module: string;
-        };
         /** @enum {string} */
         ExportFormatDto: "csv" | "xlsx";
         ExportJobResponse: {
@@ -16161,14 +15967,6 @@ export interface components {
             /** @example deals.deal */
             record_type: string;
             title?: string | null;
-        };
-        FontFile: {
-            data: string;
-            family: string;
-            format?: string;
-            style?: string;
-            /** Format: int32 */
-            weight: number;
         };
         ForecastBucketResponse: {
             /** @example 120000.00 */
@@ -16908,10 +16706,6 @@ export interface components {
             /** @example bia@example.com */
             email: string;
             role_id: string;
-        };
-        IssueResponse: {
-            message: string;
-            path: string;
         };
         IssuedIncomingWebhookResponse: components["schemas"]["IncomingWebhookResponse"] & {
             /** @example /api/v1/hooks/whk_3f9a1c2b9c1e0d7a4b2f6e8d0a1b3c5d7e9f1a2b4c6d8e0f1a3b5c7d9e1f2a4b6c */
@@ -18193,18 +17987,6 @@ export interface components {
             records: {
                 [key: string]: number;
             };
-        };
-        OrganizationExperiences: {
-            default_profile?: string | null;
-            policy: components["schemas"]["ExperiencePolicy"];
-            profiles: components["schemas"]["ExperienceEntry"][];
-        };
-        OrganizationExperiencesView: {
-            configuration?: null | components["schemas"]["OrganizationExperiences"];
-            diagnostics: components["schemas"]["ExperienceDiagnostic"][];
-            requires_host_resolution: boolean;
-            /** Format: date-time */
-            updated_at: string;
         };
         OrganizationResponse: {
             /** @example BRL */
@@ -20157,6 +19939,7 @@ export interface components {
             routes: string[];
             schedules: string[];
             secrets: string[];
+            ui?: string | null;
             unique_fields: string[];
             widgets: string[];
         };
@@ -20217,15 +20000,13 @@ export interface components {
             value: Record<string, never>;
         };
         PreferencesResponse: {
-            experience: components["schemas"]["ExperiencePreferences"];
-            experience_diagnostics: components["schemas"]["ExperiencePreferenceDiagnostic"][];
-            experience_omittable_sections: components["schemas"]["ExperienceSection"][];
+            effective_ui_plugin?: string | null;
             keyboard_shortcuts: boolean;
             /** @example en */
             locale?: string | null;
             navigation: components["schemas"]["NavigationPreferencesDto"];
-            stored_experience: components["schemas"]["ExperiencePreferences"];
-            stored_navigation: components["schemas"]["NavigationPreferencesDto"];
+            ui_plugin?: string | null;
+            ui_plugin_default?: string | null;
         };
         PreviewEmailRequest: {
             body_html?: string | null;
@@ -20239,25 +20020,11 @@ export interface components {
             subject: string;
             text: string;
         };
-        PreviewFontResponse: {
-            bytes: number;
-            family: string;
-            style: string;
-            /** Format: int32 */
-            weight: number;
-        };
         PreviewProposalRequest: {
             body?: string | null;
             deal_id?: string | null;
             quote_id?: string | null;
             template_id?: string | null;
-        };
-        PreviewResponse: {
-            fonts: components["schemas"]["PreviewFontResponse"][];
-            installed_version?: string | null;
-            issues: components["schemas"]["IssueResponse"][];
-            token_count: number;
-            warnings: components["schemas"]["IssueResponse"][];
         };
         /** @enum {string} */
         PriceListAppliesTo: "all" | "segment" | "organizations";
@@ -20996,11 +20763,6 @@ export interface components {
             required_pending: number;
             stage_id: string;
             stage_name: string;
-        };
-        RecordDetailPreferences: {
-            hidden: components["schemas"]["ExperienceSection"][];
-            order: components["schemas"]["ExperienceSection"][];
-            record_type: string;
         };
         RecordFollowerResponse: {
             followed_at: string;
@@ -21890,6 +21652,10 @@ export interface components {
         SetDiscountLimitsRequest: {
             limits: components["schemas"]["DiscountLimitRequest"][];
         };
+        SetUiPluginRequest: {
+            /** @example midnight */
+            ui_plugin?: string | null;
+        };
         SettingOption: {
             label: string;
             value: string;
@@ -22151,40 +21917,6 @@ export interface components {
         TestIntegrationRequest: {
             send_test_email?: boolean;
         };
-        ThemeListResponse: {
-            active_key?: string | null;
-            themes: components["schemas"]["ThemeResponse"][];
-        };
-        ThemePackage: {
-            author: string;
-            description?: string | null;
-            fonts?: components["schemas"]["FontFile"][];
-            format: string;
-            /** Format: int32 */
-            format_version: number;
-            id: string;
-            license: string;
-            min_aphel_version?: string | null;
-            name: string;
-            tokens?: components["schemas"]["TokenSets"];
-            version: string;
-        };
-        ThemeResponse: {
-            active: boolean;
-            author: string;
-            checksum: string;
-            created_at: string;
-            description?: string | null;
-            font_count: number;
-            key: string;
-            license: string;
-            min_aphel_version?: string | null;
-            name: string;
-            source: string;
-            tokens: components["schemas"]["TokenSets"];
-            updated_at: string;
-            version: string;
-        };
         /** @enum {string} */
         TimeGranularity: "day" | "week" | "month" | "quarter" | "year";
         TimelineActorResponse: {
@@ -22226,11 +21958,6 @@ export interface components {
         };
         TokenRequest: {
             token: string;
-        };
-        TokenSets: {
-            dark?: Record<string, never>;
-            light?: Record<string, never>;
-            shared?: Record<string, never>;
         };
         TrackingObjectionResponse: {
             created_at: string;
@@ -22308,6 +22035,19 @@ export interface components {
             pending_setup: boolean;
             /** Format: int32 */
             recovery_codes_remaining: number;
+        };
+        UiPluginDefaultResponse: {
+            ui_plugin?: string | null;
+        };
+        UiPluginResponse: {
+            description?: string | null;
+            has_colors: boolean;
+            has_screens: boolean;
+            key: string;
+            label: string;
+            preview: {
+                [key: string]: string;
+            };
         };
         UnreadCountResponse: {
             /** Format: int64 */
@@ -22423,10 +22163,6 @@ export interface components {
             /** @example 5.4321 */
             rate?: string | null;
         };
-        UpdateExperiencePreferencesDto: {
-            profile?: string | null;
-            record_detail?: null | components["schemas"]["RecordDetailPreferences"];
-        };
         UpdateFieldRequest: {
             config?: Record<string, never> | null;
             field_type?: null | components["schemas"]["FieldType"];
@@ -22531,11 +22267,12 @@ export interface components {
             team_ids?: string[] | null;
         };
         UpdatePreferencesRequest: {
-            experience?: null | components["schemas"]["UpdateExperiencePreferencesDto"];
             keyboard_shortcuts?: boolean | null;
             /** @example en */
             locale?: string | null;
             navigation?: null | components["schemas"]["NavigationPreferencesDto"];
+            /** @example midnight */
+            ui_plugin?: string | null;
         };
         UpdateProposalTemplateRequest: {
             body?: string | null;
@@ -22783,6 +22520,7 @@ export interface components {
                 [key: string]: string;
             };
             style?: string | null;
+            ui: boolean;
             version: string;
         };
         WebhookDeliveryDetailResponse: components["schemas"]["WebhookDeliveryResponse"] & {
@@ -29200,86 +28938,6 @@ export interface operations {
                 };
             };
             /** @description Module entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    catalog_theme_download: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Catalog entry id of a theme, such as `aphel.slate` */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Downloads the theme package, checks its SHA-256, the minimum Aphel version and that it matches the entry, and returns it unchanged. Nothing is installed: send it to `POST /themes/validate` and `POST /themes` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Missing or invalid session */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Catalog turned off (`catalog_disabled`) or unknown entry (`catalog_entry_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not a theme entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -48720,215 +48378,6 @@ export interface operations {
             };
         };
     };
-    organization_experiences_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Configuration and organization-row updated_at for If-Match */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_OrganizationExperiencesView"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Organization not installed */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    organization_experiences_replace: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description Required exact organization updated_at in RFC3339 from GET */
-                "If-Match": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OrganizationExperiences"];
-            };
-        };
-        responses: {
-            /** @description Saved configuration */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_OrganizationExperiencesView"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing settings.manage */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Organization not installed */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Stale If-Match (version_conflict) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid format, catalog, default, policy or missing If-Match */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    organization_experiences_validate: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OrganizationExperiences"];
-            };
-        };
-        responses: {
-            /** @description Proposed configuration and dependency diagnostics; nothing saved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_OrganizationExperiencesView"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing settings.manage */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Organization not installed */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid or unsupported catalog. `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     organization_logo: {
         parameters: {
             query?: never;
@@ -49244,6 +48693,66 @@ export interface operations {
             };
             /** @description Invalid policy */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    organization_ui_plugin_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetUiPluginRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved default */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_UiPluginDefaultResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing settings.manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The plugin is not an enabled interface plugin */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -51405,7 +50914,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. experience_omittable_sections projects the existing active owner declarations intersected with organization policy and the effective profile sources; it does not grant record access or prove context visibility. Effective profile identity is not verification of frontend provider availability. */
+            /** @description Personal preferences of the authenticated current user. ui_plugin is the saved choice (null follows the organization default), ui_plugin_default is the organization default and effective_ui_plugin is the plugin that applies now, or null for the core interface when the saved choice and the default are unavailable. Defaults when never saved. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51447,7 +50956,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). experience changes profile selection and record-detail order/hidden source pairs within organization policy. Omitted experience fields stay unchanged; experience.profile = null resets only selection, experience.record_detail = null resets only composition, and experience = null clears both. Resetting navigation uses its empty replacement object. Blocked non-reset writes, unsupported surfaces/sources and omission without owner-declared optionality are rejected on this same endpoint. Saved blocked choices are retained but not applied. Policy and user rows are locked in one transaction; old payloads do not clear new fields. Personal preferences: no domain event or audit entry */
+            /** @description Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). `ui_plugin` selects the interface plugin (the key of an enabled plugin that declares an interface; `null` follows the organization default). Personal preferences: no domain event or audit entry */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51465,7 +50974,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid body, unsupported locale, unsafe navigation or organization-policy violations in navigation/experience (validation_error with field paths) */
+            /** @description Invalid body, unsupported locale, unsafe navigation or an interface plugin that is not available (validation_error with field paths) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -55246,16 +54755,19 @@ export interface operations {
             };
         };
     };
-    themes_active_stylesheet: {
+    ui_plugin_stylesheet: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description `<plugin key>.css` or `default.css` */
+                file: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description CSS with the theme tokens and its font faces */
+            /** @description Stylesheet */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -55264,37 +54776,7 @@ export interface operations {
                     "text/css": string;
                 };
             };
-            /** @description The active theme did not change */
-            304: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    themes_font: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description `<sha256>.woff2` */
-                file: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The woff2 file */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "font/woff2": number[];
-                };
-            };
-            /** @description Unknown font (`theme_font_not_found`) */
+            /** @description No enabled interface plugin with that key */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -55307,7 +54789,9 @@ export interface operations {
     };
     plugins_web: {
         parameters: {
-            query?: never;
+            query?: {
+                ui?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -64278,475 +63762,6 @@ export interface operations {
             };
         };
     };
-    themes_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Installed themes and the active one. The default look is always available and is selected with no active theme */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ThemeListResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    themes_install: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ThemePackage"];
-            };
-        };
-        responses: {
-            /** @description Theme installed, or replaced when the id is already installed. An active theme stays active */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ThemeResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Limit of 20 themes reached (`theme_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid package (`theme_invalid`, with `details.fields`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    themes_activate: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivationRequest"];
-            };
-        };
-        responses: {
-            /** @description Theme activated for the whole installation, public pages included. A null `key` goes back to the default look */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ThemeListResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Theme not installed (`theme_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    themes_validate: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ThemePackage"];
-            };
-        };
-        responses: {
-            /** @description Validation report without installing: blocking `issues`, `warnings` such as ignored tokens, the fonts and the installed version of the same id */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_PreviewResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    themes_save: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Theme id, equal to `id` in the body */
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ThemePackage"];
-            };
-        };
-        responses: {
-            /** @description Theme created or updated from the editor */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_ThemeResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Limit of 20 themes reached (`theme_limit_reached`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid package (`theme_invalid`) or an id different from the path (`theme_key_mismatch`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    themes_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Theme id */
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Theme removed with its fonts */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Theme not installed (`theme_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The theme is active (`theme_active`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    themes_export: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Theme id */
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The theme as an `aphel-theme` package with its fonts, ready to be installed elsewhere */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ThemePackage"];
-                };
-            };
-            /** @description Missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `themes.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Theme not installed (`theme_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     timeline_list: {
         parameters: {
             query: {
@@ -65527,6 +64542,44 @@ export interface operations {
             };
             /** @description `APP_ENCRYPTION_KEY` is not configured (`configuration_error`) */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ui_plugins_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Interface plugins that can be chosen */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_UiPluginResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

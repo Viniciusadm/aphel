@@ -1,0 +1,12 @@
+{
+  "title": "Appearance",
+  "description": "Choose how Aphel looks and is laid out for you. Plugins can change colors, fonts and whole screens.",
+  "followOrganization": "Follow the organization default",
+  "followOrganizationHint": "Currently: {{name}}.",
+  "coreName": "Aphel original",
+  "coreHint": "The standard interface that comes with Aphel.",
+  "runsCode": "Includes screens from a plugin, which run code with your session.",
+  "organizationDefault": "Organization default",
+  "organizationDefaultHint": "Used by everyone who has not chosen one, and on the sign-in page.",
+  "saveError": "Could not save the appearance"
+}

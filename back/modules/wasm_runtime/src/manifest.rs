@@ -119,6 +119,8 @@ pub struct PluginManifest {
     #[serde(default)]
     pub menu: MenuSpec,
     #[serde(default)]
+    pub ui: Option<crate::ui::UiSpec>,
+    #[serde(default)]
     pub settings_permission: Option<String>,
 }
 
@@ -1162,6 +1164,15 @@ impl PluginManifest {
             ));
         }
         self.validate_menu(&mut violations);
+        if let Some(ui) = &self.ui {
+            ui.validate(&mut violations);
+            if self.key == crate::ui_http::DEFAULT_CSS || self.key == "core" {
+                violations.push(FieldViolation::new(
+                    "key",
+                    "is reserved for interface plugins",
+                ));
+            }
+        }
         if violations.is_empty() {
             Ok(())
         } else {

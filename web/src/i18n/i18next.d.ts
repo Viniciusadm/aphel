@@ -1,6 +1,7 @@
 import 'i18next'
 import type aiNamespace from '../modules/ai/i18n/pt-BR.json'
 import type apiTokensNamespace from './pt-BR/api-tokens.json'
+import type appearanceNamespace from './pt-BR/appearance.json'
 import type approvalsNamespace from '../modules/approvals/i18n/pt-BR.json'
 import type assignmentNamespace from '../modules/assignment/i18n/pt-BR.json'
 import type auditNamespace from './pt-BR/audit.json'
@@ -23,7 +24,6 @@ import type duplicatesNamespace from '../modules/duplicates/i18n/pt-BR.json'
 import type emailNamespace from '../modules/email/i18n/pt-BR.json'
 import type enrichmentNamespace from '../modules/enrichment/i18n/pt-BR.json'
 import type esignNamespace from '../modules/esign/i18n/pt-BR.json'
-import type experiencesSettingsNamespace from './pt-BR/experiences-settings.json'
 import type exportsNamespace from '../modules/exports/i18n/pt-BR.json'
 import type favoritesNamespace from '../modules/favorites/i18n/pt-BR.json'
 import type fieldPermissionsNamespace from './pt-BR/field-permissions.json'
@@ -60,7 +60,6 @@ import type orgExportNamespace from '../modules/org_export/i18n/pt-BR.json'
 import type organizationSettingsNamespace from './pt-BR/organization-settings.json'
 import type organizationsNamespace from '../modules/organizations/i18n/pt-BR.json'
 import type peopleNamespace from '../modules/people/i18n/pt-BR.json'
-import type personalExperienceNamespace from './pt-BR/personal-experience.json'
 import type pricingNamespace from '../modules/pricing/i18n/pt-BR.json'
 import type privacyNamespace from '../modules/privacy/i18n/pt-BR.json'
 import type proposalsNamespace from '../modules/proposals/i18n/pt-BR.json'
@@ -86,7 +85,6 @@ import type systemNamespace from './pt-BR/system.json'
 import type taggingNamespace from '../modules/tagging/i18n/pt-BR.json'
 import type tasksNamespace from '../modules/tasks/i18n/pt-BR.json'
 import type telephonyNamespace from '../modules/telephony/i18n/pt-BR.json'
-import type themesNamespace from '../modules/themes/i18n/pt-BR.json'
 import type timelineNamespace from '../modules/timeline/i18n/pt-BR.json'
 import type trashNamespace from '../modules/trash/i18n/pt-BR.json'
 import type twoFactorNamespace from './pt-BR/two-factor.json'
@@ -101,6 +99,7 @@ declare module 'i18next' {
     resources: {
       ai: typeof aiNamespace
       'api-tokens': typeof apiTokensNamespace
+      appearance: typeof appearanceNamespace
       approvals: typeof approvalsNamespace
       assignment: typeof assignmentNamespace
       audit: typeof auditNamespace
@@ -123,7 +122,6 @@ declare module 'i18next' {
       email: typeof emailNamespace
       enrichment: typeof enrichmentNamespace
       esign: typeof esignNamespace
-      'experiences-settings': typeof experiencesSettingsNamespace
       exports: typeof exportsNamespace
       favorites: typeof favoritesNamespace
       'field-permissions': typeof fieldPermissionsNamespace
@@ -160,7 +158,6 @@ declare module 'i18next' {
       'organization-settings': typeof organizationSettingsNamespace
       organizations: typeof organizationsNamespace
       people: typeof peopleNamespace
-      'personal-experience': typeof personalExperienceNamespace
       pricing: typeof pricingNamespace
       privacy: typeof privacyNamespace
       proposals: typeof proposalsNamespace
@@ -186,7 +183,6 @@ declare module 'i18next' {
       tagging: typeof taggingNamespace
       tasks: typeof tasksNamespace
       telephony: typeof telephonyNamespace
-      themes: typeof themesNamespace
       timeline: typeof timelineNamespace
       trash: typeof trashNamespace
       'two-factor': typeof twoFactorNamespace

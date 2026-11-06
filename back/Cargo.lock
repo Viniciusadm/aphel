@@ -210,7 +210,6 @@ dependencies = [
  "aphel-mod-tagging",
  "aphel-mod-tasks",
  "aphel-mod-telephony",
- "aphel-mod-themes",
  "aphel-mod-timeline",
  "aphel-mod-trash",
  "aphel-mod-validation-rules",
@@ -1861,27 +1860,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aphel-mod-themes"
-version = "0.1.0"
-dependencies = [
- "aphel-kernel",
- "aphel-sdk",
- "async-trait",
- "axum",
- "base64 0.22.1",
- "chrono",
- "regex",
- "semver",
- "serde",
- "serde_json",
- "sha2 0.11.1",
- "sqlx",
- "utoipa",
- "utoipa-axum",
- "uuid",
-]
-
-[[package]]
 name = "aphel-mod-timeline"
 version = "0.1.0"
 dependencies = [
@@ -1955,6 +1933,7 @@ dependencies = [
  "form_urlencoded",
  "futures",
  "libc",
+ "regex",
  "reqwest",
  "semver",
  "serde",

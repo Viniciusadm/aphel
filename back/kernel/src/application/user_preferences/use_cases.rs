@@ -1,15 +1,14 @@
-use super::{
-    UpdateExperiencePreferences, UserPreferencesView, personal_preferences_view,
-    validate_personal_experience_update,
+use crate::application::organization_profile::{
+    CORE_UI_PLUGIN, effective_ui_plugin, is_ui_plugin_key, ui_plugin_available,
 };
-use crate::application::organization_profile::OrganizationExperiencesRepository;
 use crate::application::security::Clock;
 use crate::application::shared::TransactionManager;
 use crate::domain::UserId;
 use crate::errors::{AppError, FieldViolation};
 
 use super::ports::{
-    NavigationPreferences, SUPPORTED_LOCALES, UserPreferencesPorts, UserPreferencesRepository,
+    NavigationPreferences, SUPPORTED_LOCALES, UiPluginDefaults, UserPreferences,
+    UserPreferencesPorts, UserPreferencesRepository, UserPreferencesView,
 };
 
 const MAX_NAVIGATION_ITEMS: usize = 100;
@@ -21,7 +20,7 @@ pub struct UpdateUserPreferencesCommand {
     pub keyboard_shortcuts: Option<bool>,
     pub locale: Option<Option<String>>,
     pub navigation: Option<NavigationPreferences>,
-    pub experience: Option<Option<UpdateExperiencePreferences>>,
+    pub ui_plugin: Option<Option<String>>,
 }
 
 pub struct UserPreferencesUseCases<P: UserPreferencesPorts> {
@@ -33,6 +32,20 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
         Self { ports }
     }
 
+    async fn view(&self, preferences: UserPreferences) -> Result<UserPreferencesView, AppError> {
+        let ui_plugin_default = self.ports.ui_defaults().find().await?;
+        let effective_ui_plugin = effective_ui_plugin(
+            preferences.ui_plugin.as_deref(),
+            ui_plugin_default.as_deref(),
+        )
+        .await?;
+        Ok(UserPreferencesView {
+            preferences,
+            ui_plugin_default,
+            effective_ui_plugin,
+        })
+    }
+
     pub async fn get(&self, user_id: &UserId) -> Result<UserPreferencesView, AppError> {
         let stored = self
             .ports
@@ -40,12 +53,7 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
             .find(user_id)
             .await?
             .unwrap_or_default();
-        let configuration = self.ports.experiences().find().await?.configuration;
-        Ok(personal_preferences_view(
-            stored,
-            configuration.as_ref(),
-            &self.ports.omittable_sections(),
-        ))
+        self.view(stored).await
     }
 
     pub async fn update(
@@ -62,6 +70,15 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
                 format!("must be one of {}", SUPPORTED_LOCALES.join(", ")),
             ));
         }
+        if let Some(Some(key)) = &command.ui_plugin
+            && key != CORE_UI_PLUGIN
+            && (!is_ui_plugin_key(key) || !ui_plugin_available(key).await?)
+        {
+            violations.push(FieldViolation::new(
+                "ui_plugin",
+                "must be an enabled plugin that provides an interface",
+            ));
+        }
         let mut command = command;
         if let Some(navigation) = command.navigation.take() {
             command.navigation = Some(normalize_navigation(navigation, &mut violations));
@@ -70,12 +87,6 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
             return Err(AppError::invalid_fields("invalid preferences", violations));
         }
         let mut tx = self.ports.transactions().begin().await?;
-        let configuration = self
-            .ports
-            .experiences()
-            .lock_shared(&mut tx)
-            .await?
-            .configuration;
         let current = self
             .ports
             .preferences()
@@ -92,39 +103,15 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
         if let Some(value) = &command.navigation {
             next.navigation = value.clone();
         }
-        if let Some(change) = &command.experience {
-            match change {
-                None => next.experience = Default::default(),
-                Some(change) => {
-                    if let Some(value) = &change.profile {
-                        next.experience.profile = value.clone();
-                    }
-                    if let Some(value) = &change.record_detail {
-                        next.experience.record_detail = value.clone();
-                    }
-                }
-            }
-        }
-        let omittable = self.ports.omittable_sections();
-        let violations = validate_personal_experience_update(
-            &command,
-            &next,
-            configuration.as_ref(),
-            &omittable,
-        );
-        if !violations.is_empty() {
-            return Err(AppError::invalid_fields("invalid preferences", violations));
+        if let Some(value) = &command.ui_plugin {
+            next.ui_plugin = value.clone();
         }
         self.ports
             .preferences()
             .save(&mut tx, user_id, &next, self.ports.clock().now())
             .await?;
         self.ports.transactions().commit(tx).await?;
-        Ok(personal_preferences_view(
-            next,
-            configuration.as_ref(),
-            &omittable,
-        ))
+        self.view(next).await
     }
 }
 

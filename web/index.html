@@ -14,7 +14,13 @@
     <meta name="apple-mobile-web-app-title" content="Aphel" />
     <meta name="application-name" content="Aphel" />
     <title>Aphel</title>
-    <link id="aphel-theme" rel="stylesheet" href="/api/v1/public/themes/active.css" />
+    <link id="aphel-theme" rel="stylesheet" href="/api/v1/public/ui/default.css" />
+    <script>
+      try {
+        var choice = window.localStorage.getItem('aphel.ui')
+        if (choice) document.getElementById('aphel-theme').href = '/api/v1/public/ui/' + encodeURIComponent(choice) + '.css'
+      } catch (error) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -5,6 +5,7 @@ const DECLARATIONS = [
   ['requires', (plugin: PluginDeclarations) => plugin.requires],
   ['optionalRequires', (plugin: PluginDeclarations) => plugin.optional_requires],
   ['replaces', (plugin: PluginDeclarations) => plugin.replaces],
+  ['ui', (plugin: PluginDeclarations) => (plugin.ui ? [plugin.ui] : [])],
   ['permissions', (plugin: PluginDeclarations) => plugin.permissions.map((permission) => permission.label)],
   ['allowedHosts', (plugin: PluginDeclarations) => plugin.allowed_hosts],
   ['publicRoutes', (plugin: PluginDeclarations) => plugin.public_routes],

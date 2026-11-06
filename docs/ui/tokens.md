@@ -1,6 +1,6 @@
 # Design tokens
 
-Generated from `back/modules/themes/tokens.json` by `make modules`. Do not edit by hand.
+Generated from `back/modules/wasm_runtime/tokens.json` by `make modules`. Do not edit by hand.
 
 | Token | Group | Kind | Default | Dark |
 | --- | --- | --- | --- | --- |

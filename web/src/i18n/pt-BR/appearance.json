@@ -1,0 +1,12 @@
+{
+  "title": "Aparência",
+  "description": "Escolha como o Aphel se parece e se organiza para você. Plugins podem mudar cores, fontes e telas inteiras.",
+  "followOrganization": "Seguir o padrão da organização",
+  "followOrganizationHint": "Atualmente: {{name}}.",
+  "coreName": "Aphel original",
+  "coreHint": "A interface padrão que vem com o Aphel.",
+  "runsCode": "Inclui telas de um plugin, que executa código com a sua sessão.",
+  "organizationDefault": "Padrão da organização",
+  "organizationDefaultHint": "Usado por quem não escolheu uma opção e na página de login.",
+  "saveError": "Não foi possível salvar a aparência"
+}

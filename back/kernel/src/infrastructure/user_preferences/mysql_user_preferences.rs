@@ -1,19 +1,15 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use sqlx::{MySqlPool, Row, mysql::MySqlRow, types::Json};
+use sqlx::{MySqlPool, Row, mysql::MySqlRow};
 
-use crate::application::organization_profile::{
-    ExperienceSection, PersonallyOmittableRecordSection,
-};
 use crate::application::user_preferences::{
-    ExperiencePreferences, NavigationPreferences, UserPreferences, UserPreferencesPorts,
-    UserPreferencesRepository,
+    NavigationPreferences, UserPreferences, UserPreferencesPorts, UserPreferencesRepository,
 };
 use crate::database::transaction::MySqlTx;
 use crate::domain::UserId;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
-use crate::infrastructure::organization_profile::MySqlOrganizationExperiencesRepository;
+use crate::infrastructure::organization_profile::MySqlUiPluginDefaults;
 use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::transactions::MySqlTransactionManager;
 
@@ -30,7 +26,6 @@ impl MySqlUserPreferencesRepository {
 
 fn decode(row: MySqlRow) -> Result<UserPreferences, AppError> {
     let navigation: Option<serde_json::Value> = row.try_get("navigation")?;
-    let experience: Option<Json<ExperiencePreferences>> = row.try_get("experience")?;
     Ok(UserPreferences {
         keyboard_shortcuts: row
             .try_get::<Option<bool>, _>("keyboard_shortcuts")?
@@ -39,7 +34,7 @@ fn decode(row: MySqlRow) -> Result<UserPreferences, AppError> {
         navigation: navigation
             .map(|value| navigation_from_json(&value))
             .unwrap_or_default(),
-        experience: experience.map(|value| value.0).unwrap_or_default(),
+        ui_plugin: row.try_get("ui_plugin")?,
     })
 }
 
@@ -48,7 +43,7 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
     type Tx = MySqlTx;
 
     async fn find(&self, user_id: &UserId) -> Result<Option<UserPreferences>, AppError> {
-        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.navigation, p.experience FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ?")
+        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ?")
             .bind(user_id.as_str()).fetch_optional(&self.pool).await?.map(decode).transpose()
     }
 
@@ -57,7 +52,7 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
         tx: &mut MySqlTx,
         user_id: &UserId,
     ) -> Result<Option<UserPreferences>, AppError> {
-        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.navigation, p.experience FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ? FOR UPDATE")
+        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ? FOR UPDATE")
             .bind(user_id.as_str()).fetch_optional(&mut **tx).await?.map(decode).transpose()
     }
 
@@ -69,8 +64,8 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
         let navigation = navigation_to_json(&preferences.navigation);
-        sqlx::query("INSERT INTO user_preferences (user_id, keyboard_shortcuts, navigation, experience, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) AS new ON DUPLICATE KEY UPDATE keyboard_shortcuts = new.keyboard_shortcuts, navigation = new.navigation, experience = new.experience, updated_at = new.updated_at")
-            .bind(user_id.as_str()).bind(preferences.keyboard_shortcuts).bind(&navigation).bind(Json(&preferences.experience))
+        sqlx::query("INSERT INTO user_preferences (user_id, keyboard_shortcuts, navigation, ui_plugin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) AS new ON DUPLICATE KEY UPDATE keyboard_shortcuts = new.keyboard_shortcuts, navigation = new.navigation, ui_plugin = new.ui_plugin, updated_at = new.updated_at")
+            .bind(user_id.as_str()).bind(preferences.keyboard_shortcuts).bind(&navigation).bind(&preferences.ui_plugin)
             .bind(mapper::naive(at)).bind(mapper::naive(at)).execute(&mut **tx).await?;
         sqlx::query("UPDATE users SET locale = ? WHERE id = ?")
             .bind(&preferences.locale)
@@ -115,7 +110,7 @@ fn navigation_from_json(value: &serde_json::Value) -> NavigationPreferences {
 pub(crate) struct MySqlUserPreferencesPorts {
     transactions: MySqlTransactionManager,
     preferences: MySqlUserPreferencesRepository,
-    experiences: MySqlOrganizationExperiencesRepository,
+    ui_defaults: MySqlUiPluginDefaults,
 }
 
 impl MySqlUserPreferencesPorts {
@@ -123,7 +118,7 @@ impl MySqlUserPreferencesPorts {
         Self {
             transactions: MySqlTransactionManager::new(pool.clone()),
             preferences: MySqlUserPreferencesRepository::new(pool.clone()),
-            experiences: MySqlOrganizationExperiencesRepository::new(pool),
+            ui_defaults: MySqlUiPluginDefaults::new(pool),
         }
     }
 }
@@ -131,33 +126,19 @@ impl MySqlUserPreferencesPorts {
 impl UserPreferencesPorts for MySqlUserPreferencesPorts {
     type Transactions = MySqlTransactionManager;
     type Preferences = MySqlUserPreferencesRepository;
-    type Experiences = MySqlOrganizationExperiencesRepository;
+    type UiDefaults = MySqlUiPluginDefaults;
     type Clock = SystemClock;
 
     fn transactions(&self) -> &Self::Transactions {
         &self.transactions
     }
-    fn experiences(&self) -> &Self::Experiences {
-        &self.experiences
+    fn ui_defaults(&self) -> &Self::UiDefaults {
+        &self.ui_defaults
     }
     fn preferences(&self) -> &Self::Preferences {
         &self.preferences
     }
     fn clock(&self) -> &Self::Clock {
         &SystemClock
-    }
-    fn omittable_sections(&self) -> Vec<ExperienceSection> {
-        crate::modules::try_app()
-            .map(|app| {
-                app.all_contributions::<PersonallyOmittableRecordSection>()
-                    .into_iter()
-                    .filter(|(owner, _)| app.is_enabled(owner))
-                    .map(|(owner, section)| ExperienceSection {
-                        module: owner.to_owned(),
-                        key: section.key.clone(),
-                    })
-                    .collect()
-            })
-            .unwrap_or_default()
     }
 }

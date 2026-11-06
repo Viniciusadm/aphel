@@ -71,12 +71,6 @@ Every error comes out in the `{ "error": { "code", "message", "details" } }` env
 | `export_not_found` | 404 | exports |
 | `export_not_supported` | 422 | exports |
 | `export_too_large` | 422 | exports |
-| `theme_invalid` | 422 | themes (`details.fields[]` lists the paths that failed) |
-| `theme_key_mismatch` | 422 | themes |
-| `theme_not_found` | 404 | themes |
-| `theme_font_not_found` | 404 | themes |
-| `theme_active` | 409 | themes |
-| `theme_limit_reached` | 409 | themes |
 | `favorite_already_exists` | 409 | favorites |
 | `favorite_limit_reached` | 409 | favorites |
 | `favorite_not_found` | 404 | favorites |

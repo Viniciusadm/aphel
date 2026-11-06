@@ -47,8 +47,7 @@
     "general": "General",
     "outgoingEmail": "Outgoing email",
     "storage": "File storage",
-    "experiences": "Experiences",
-    "personalExperience": "My experience"
+    "appearance": "Appearance"
   },
   "noAccess": {
     "title": "No permission",
@@ -437,11 +436,8 @@
     "storage": {
       "description": "Local disk or S3 compatible storage for attachments and exports."
     },
-    "experiences": {
-      "description": "Manage the organization catalog, shared default and permitted personal options."
-    },
-    "personalExperience": {
-      "description": "Choose an organization-permitted experience and adjust your record sections."
+    "appearance": {
+      "description": "Choose the interface plugin you use."
     }
   },
   "areas": {

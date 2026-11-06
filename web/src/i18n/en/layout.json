@@ -43,17 +43,7 @@
     "retry": "Try again",
     "retrying": "Applying..."
   },
-  "experience": {
-    "loading": "Loading experience…",
-    "loadFailed": "Your experience settings could not be loaded. The standard interface is available.",
-    "profileIgnored": "The saved choice “{{identity}}” is no longer permitted. Using the organization default or standard interface.",
-    "formatUnsupported": "The format of “{{identity}}” is unsupported. Using the standard interface.",
-    "frameUnavailable": "The frame “{{identity}}” is unavailable, ambiguous or failed. Using the standard frame.",
-    "presentationUnavailable": "The presentation “{{identity}}” is unavailable, ambiguous or failed. Using the standard record view.",
-    "sectionUnavailable": "The section “{{identity}}” is unavailable, denied or ambiguous. Its saved reference has been kept.",
-    "sectionIgnored": "The section adjustment for “{{identity}}” cannot be applied.",
-    "compositionUnsupported": "The presentation “{{identity}}” does not declare support for this record or composition. Using the standard view.",
-    "recordTypeUnavailable": "The record type “{{identity}}” is unavailable. This experience cannot be fully applied.",
-    "navigationIgnored": "Your saved navigation choices are blocked by organization policy and have been kept without applying them."
+  "ui": {
+    "loading": "Loading interface…"
   }
 }

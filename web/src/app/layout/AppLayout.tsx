@@ -3,14 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
 import { ErrorBoundary } from '@/components/feedback/ErrorBoundary'
 import { PageLoader } from '@/components/feedback/PageLoader'
-import { ExperienceProvider } from '@/features/experiences/ExperienceProvider'
-import { useExperience } from '@/features/experiences/experience-context'
-import { ExperienceNotice } from '@/features/experiences/ExperienceNotice'
 import { CommandPaletteProvider, useCommandPalette } from '@/features/command-palette'
 import { MobileShell } from '@/features/mobile/MobileShell'
 import { useSettingsArea } from '@/features/settings/lib/area-handle'
 import { OrganizationTheme } from '@/features/settings/organization/OrganizationTheme'
 import { TwoFactorGate } from '@/features/settings/security/two-factor/TwoFactorGate'
+import { useNavigationPreferences } from '@/features/settings/navigation/api'
+import { APP_FRAME_CONTRACT, type AppFrameProps } from '@/kernel/modules/app-frame'
+import { UiPluginProvider } from '@/kernel/modules/ui-plugin'
+import { useSurface, useUiPlugin } from '@/kernel/modules/ui-plugin-context'
 import { useNavigationEntries } from '@/kernel/modules/navigation'
 import { Slot } from '@/kernel/modules/Slot'
 import { cn } from '@/lib/utils'
@@ -28,9 +29,10 @@ applyStoredLanguage()
 
 function AppFrameContent() {
   const { t } = useTranslation('layout')
-  const experience = useExperience()!
-  const Frame = experience.Frame ?? DefaultAppFrame
-  const navigation = arrangeSidebarEntries(useNavigationEntries(), experience.navigation)
+  const { ready } = useUiPlugin()
+  const surface = useSurface<AppFrameProps>(APP_FRAME_CONTRACT)
+  const Frame = surface.Component ?? DefaultAppFrame
+  const navigation = arrangeSidebarEntries(useNavigationEntries(), useNavigationPreferences())
   const commands = useCommandPalette()
   const settingsArea = useSettingsArea()
   const location = useLocation()
@@ -40,7 +42,7 @@ function AppFrameContent() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const frameProps = { navigation, commands, settingsArea, returnPath, mobileNavOpen, onMobileNavOpenChange: setMobileNavOpen }
-  const content = experience.ready ? <><BlueprintNotice /><Outlet /></> : <PageLoader label={t('experience.loading')} />
+  const content = ready ? <><BlueprintNotice /><Outlet /></> : <PageLoader label={t('ui.loading')} />
 
   return (
     <MobileShell onOpenMenu={() => setMobileNavOpen(true)}>
@@ -51,14 +53,12 @@ function AppFrameContent() {
         <LanguageSync />
         <ExtensionLoadNotice />
         <HomeRedirect />
-        <ErrorBoundary resetKeys={[Frame, experience.requestedFrame, experience.profile?.key]} fallback={() => (
+        <ErrorBoundary resetKeys={[Frame, surface.plugin]} fallback={() => (
           <DefaultAppFrame {...frameProps}>
-            <ExperienceNotice diagnostics={[...experience.diagnostics, { code: 'frameUnavailable', identity: experience.requestedFrame }]} />
             {content}
           </DefaultAppFrame>
         )}>
           <Frame {...frameProps}>
-            <ExperienceNotice diagnostics={experience.ready ? experience.diagnostics : []} />
             {content}
           </Frame>
         </ErrorBoundary>
@@ -71,10 +71,10 @@ function AppFrameContent() {
 
 export function AppLayout() {
   return (
-    <ExperienceProvider>
+    <UiPluginProvider>
       <CommandPaletteProvider>
         <AppFrameContent />
       </CommandPaletteProvider>
-    </ExperienceProvider>
+    </UiPluginProvider>
   )
 }

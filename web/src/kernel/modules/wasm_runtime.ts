@@ -8,6 +8,7 @@ export interface PluginMenu {
 interface WebPluginEntry {
   key: string
   name: string
+  ui: boolean
   menu: PluginMenu
   role_homes?: Record<string, string>
   version: string
@@ -18,6 +19,7 @@ interface WebPluginEntry {
 const PLUGINS_URL = '/api/v1/public/wasm-runtime'
 
 let loaded: WebModule[] = []
+let loadedUi: string | null = null
 let failedNames: string[] = []
 let menus: ReadonlyMap<string, PluginMenu> = new Map()
 let roleHomes: ReadonlyMap<string, string> = new Map()
@@ -41,7 +43,9 @@ async function importPlugin(plugin: WebPluginEntry): Promise<WebModule> {
 
 export async function loadWebPlugins(): Promise<void> {
   try {
-    const response = await fetch(PLUGINS_URL, { headers: { Accept: 'application/json' } })
+    const chosen = readUiChoice()
+    const url = chosen ? `${PLUGINS_URL}?ui=${encodeURIComponent(chosen)}` : PLUGINS_URL
+    const response = await fetch(url, { headers: { Accept: 'application/json' } })
     if (!response.ok) return
     const body = (await response.json()) as { data: WebPluginEntry[] }
     const results = await Promise.allSettled(body.data.map(importPlugin))
@@ -61,12 +65,36 @@ export async function loadWebPlugins(): Promise<void> {
       return []
     })
     failedNames = failures
+    loadedUi = body.data.find((plugin) => plugin.ui && loaded.some((module) => module.key === plugin.key))?.key ?? null
     menus = loadedMenus
     roleHomes = loadedHomes
     names = loadedNames
   } catch (error) {
     console.error(error)
   }
+}
+
+export const UI_STORAGE_KEY = 'aphel.ui'
+
+export function readUiChoice(): string | null {
+  try {
+    return window.localStorage.getItem(UI_STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function writeUiChoice(value: string | null) {
+  try {
+    if (value) window.localStorage.setItem(UI_STORAGE_KEY, value)
+    else window.localStorage.removeItem(UI_STORAGE_KEY)
+  } catch {
+    return
+  }
+}
+
+export function loadedUiPlugin(): string | null {
+  return loadedUi
 }
 
 export function webPlugins(): WebModule[] {

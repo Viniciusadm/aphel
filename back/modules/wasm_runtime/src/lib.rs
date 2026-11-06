@@ -26,6 +26,9 @@ pub mod schedule;
 pub mod schema;
 pub mod store;
 pub mod takeover;
+pub mod ui;
+mod ui_http;
+mod ui_tokens;
 pub mod widgets;
 
 use std::sync::Arc;
@@ -115,9 +118,9 @@ impl Module for WasmRuntimeModule {
             if let Ok(pool) = state.db() {
                 registry::spawn_refresh(pool);
             }
-            http::router()
+            http::router().merge(ui_http::router())
         })
-        .public_routes(|_| http::public_router())
+        .public_routes(|_| http::public_router().merge(ui_http::public_router()))
         .root_routes(|_| http::root_router());
         app.contribute::<dyn aphel_sdk::platform::modules::toggle_guard::ModuleToggleGuard>(
             Arc::new(modules::PluginModuleGuard),
@@ -133,7 +136,10 @@ impl Module for WasmRuntimeModule {
         ));
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
             .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers))
-            .provide::<dyn PluginHookDispatcher>(Arc::new(bridge::Dispatcher));
+            .provide::<dyn PluginHookDispatcher>(Arc::new(bridge::Dispatcher))
+            .provide::<dyn aphel_sdk::platform::application::organization_profile::UiPluginDirectory>(Arc::new(
+                ui_http::PluginUiDirectory,
+            ));
         app.contribute::<dyn aphel_sdk::catalog::CatalogContributor>(Arc::new(
             catalog::PluginCatalog,
         ));

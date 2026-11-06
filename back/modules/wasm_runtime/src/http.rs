@@ -35,6 +35,9 @@ use aphel_sdk::platform::application::secrets::MAX_SECRET_BYTES;
 use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
+use aphel_sdk::platform::infrastructure::organization_profile::{
+    clear_ui_plugin, find_ui_plugin_default,
+};
 use aphel_sdk::platform::infrastructure::repositories::runtime_permissions::{
     RuntimeGrant, remove_runtime_permissions, replace_runtime_permissions,
     set_runtime_permissions_active,
@@ -234,6 +237,7 @@ pub(crate) struct PluginDeclarations {
     unique_fields: Vec<String>,
     menu: crate::manifest::MenuSpec,
     replaces: Vec<String>,
+    ui: Option<String>,
     has_web: bool,
 }
 
@@ -364,6 +368,7 @@ impl From<&PluginManifest> for PluginDeclarations {
                 .collect(),
             menu: manifest.menu.clone(),
             replaces: crate::modules::held_modules(manifest),
+            ui: manifest.ui.as_ref().map(|ui| ui.label.clone()),
             has_web: manifest.web.is_some(),
         }
     }
@@ -983,6 +988,7 @@ async fn uninstall_plugin(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
     store::delete(&mut tx, &key).await?;
+    clear_ui_plugin(&mut tx, &key).await?;
     remove_runtime_permissions(&mut tx, &permissions_owner(&key)).await?;
     for setting in plugin.manifest.secret_settings() {
         state
@@ -1320,8 +1326,14 @@ pub(crate) struct WebPluginResponse {
     version: String,
     menu: crate::manifest::MenuSpec,
     role_homes: std::collections::BTreeMap<String, String>,
+    ui: bool,
     entry: String,
     style: Option<String>,
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+struct WebPluginsQuery {
+    ui: Option<String>,
 }
 
 #[utoipa::path(
@@ -1329,15 +1341,29 @@ pub(crate) struct WebPluginResponse {
     path = "/public/wasm-runtime",
     tag = TAG,
     operation_id = "plugins_web",
-    description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Public: plugin bundles are code, not data.",
+    description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data.",
+    params(WebPluginsQuery),
     responses(
         (status = 200, description = "Web bundles to load", body = Data<Vec<WebPluginResponse>>),
     )
 )]
 async fn web_plugins(
     State(state): State<AppState>,
+    Query(query): Query<WebPluginsQuery>,
 ) -> Result<Json<Data<Vec<WebPluginResponse>>>, ApiError> {
-    let plugins = store::list(&state.db()?).await?;
+    let pool = state.db()?;
+    let plugins = store::list(&pool).await?;
+    let chosen_ui = {
+        let requested = query.ui.filter(|key| {
+            plugins
+                .iter()
+                .any(|plugin| plugin.enabled && plugin.key == *key && plugin.manifest.ui.is_some())
+        });
+        match requested {
+            Some(key) => Some(key),
+            None => find_ui_plugin_default(&pool).await?,
+        }
+    };
     let asset = |plugin: &InstalledPlugin, path: &str| {
         format!(
             "/api/v1/public/wasm-runtime/{}/{path}?v={}",
@@ -1349,6 +1375,9 @@ async fn web_plugins(
         plugins
             .iter()
             .filter(|plugin| plugin.enabled)
+            .filter(|plugin| {
+                plugin.manifest.ui.is_none() || chosen_ui.as_deref() == Some(plugin.key.as_str())
+            })
             .filter_map(|plugin| {
                 let web = plugin.manifest.web.as_ref()?;
                 Some(WebPluginResponse {
@@ -1362,6 +1391,7 @@ async fn web_plugins(
                         .iter()
                         .filter_map(|preset| Some((preset.key.clone(), preset.home.clone()?)))
                         .collect(),
+                    ui: plugin.manifest.ui.is_some(),
                     entry: asset(plugin, &web.entry),
                     style: web.style.as_deref().map(|style| asset(plugin, style)),
                 })

@@ -53,7 +53,7 @@ function main() {
   const index = JSON.parse(readFileSync(options.index, 'utf8'))
   const problems = []
   for (const entry of index.entries) {
-    if (entry.kind !== 'template' && entry.kind !== 'theme') continue
+    if (entry.kind !== 'template') continue
     const fileName = `${entry.id}-${entry.version}.json`
     const packagePath = join(catalogDir, 'packages', fileName)
     const generated = builtinPackage(entry)

@@ -2,8 +2,9 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { mobileHomePath } from '@/features/mobile/lib/home'
-import { useExperience } from '@/features/experiences/experience-context'
+import { useNavigationPreferences } from '@/features/settings/navigation/api'
 import { useInstalledBlueprint } from '@/kernel/modules/blueprint'
+import { useUiPlugin } from '@/kernel/modules/ui-plugin-context'
 import { pluginRoleHome } from '@/kernel/modules/wasm_runtime'
 
 const HOME_REDIRECT_KEY = 'aphel.home.redirected'
@@ -27,11 +28,12 @@ function markRedirected(): void {
 export function HomeRedirect() {
   const location = useLocation()
   const navigate = useNavigate()
-  const experience = useExperience()!
+  const { ready } = useUiPlugin()
+  const navigation = useNavigationPreferences()
   const { me } = useSession()
   const blueprint = useInstalledBlueprint()
   const blueprintHome = blueprint.data?.home && blueprint.data.home !== '/' ? blueprint.data.home : null
-  const home = experience.navigation.home ?? pluginRoleHome(me.role_key) ?? blueprintHome ?? mobileHomePath()
+  const home = navigation.home ?? pluginRoleHome(me.role_key) ?? blueprintHome ?? mobileHomePath()
 
   useEffect(
     () => () => {
@@ -50,10 +52,10 @@ export function HomeRedirect() {
       markRedirected()
       return
     }
-    if (!experience.ready || blueprint.isPending) return
+    if (!ready || blueprint.isPending) return
     markRedirected()
     if (home && home !== '/') void navigate(home, { replace: true })
-  }, [home, location.pathname, navigate, experience.ready, blueprint.isPending])
+  }, [home, location.pathname, navigate, ready, blueprint.isPending])
 
   return null
 }

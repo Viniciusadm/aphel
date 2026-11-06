@@ -14,6 +14,7 @@ import {
   Send,
   ShieldAlert,
   ShieldCheck,
+  Palette,
   SlidersHorizontal,
   TextCursorInput,
   UserCog,
@@ -82,7 +83,7 @@ function registerNavigation(app: ModuleApp) {
 
 function registerSettings(app: ModuleApp) {
   settings(app, 'account', [
-    { group: 'profile', path: 'experience', label: 'personalExperience', icon: SlidersHorizontal, lazy: page(() => import('@/features/settings/personal-experience/PersonalExperiencePage'), 'PersonalExperiencePage') },
+    { group: 'profile', path: 'appearance', label: 'appearance', icon: Palette, lazy: page(() => import('@/features/settings/appearance/AppearancePage'), 'AppearancePage') },
     {
       group: 'profile',
       path: 'preferences',
@@ -121,7 +122,6 @@ function registerSettings(app: ModuleApp) {
   ])
 
   settings(app, 'organization', [
-    { group: 'organization', path: 'experiences', label: 'experiences', icon: SlidersHorizontal, permission: SETTINGS_MANAGE, lazy: page(() => import('@/features/settings/experiences/ExperiencesSettingsPage'), 'ExperiencesSettingsPage') },
     { group: 'organization', path: 'outgoing-email', label: 'outgoingEmail', icon: Send, permission: SETTINGS_MANAGE, lazy: page(() => import('@/features/settings/email/OutgoingEmailPage'), 'OutgoingEmailPage') },
     {
       group: 'organization',

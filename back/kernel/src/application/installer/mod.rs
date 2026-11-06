@@ -13,7 +13,6 @@ pub trait InstallerBlueprintSource: Send + Sync {
     fn packages(&self, business: Option<&serde_json::Value>) -> Vec<String>;
     fn identity(&self, key: &str) -> Option<modules::InstallerIdentity>;
     fn roles(&self, business: Option<&serde_json::Value>) -> Vec<modules::InstallerRole>;
-    fn theme(&self, business: Option<&serde_json::Value>) -> Option<serde_json::Value>;
     fn validate(
         &self,
         input: Option<serde_json::Value>,
@@ -53,27 +52,12 @@ pub async fn apply_blueprint_configuration(
 ) -> Result<(), crate::errors::AppError> {
     let app = crate::modules::app();
     let configurators = app.contributions::<dyn BlueprintConfigurator>();
-    let themes = app.contributions::<dyn BlueprintThemeInstaller>();
     for source in app.contributions::<dyn InstallerBlueprintSource>() {
         for template in source.packages(business) {
             for configurator in &configurators {
                 configurator.apply_template(ctx, &template).await?;
             }
         }
-        if let Some(theme) = source.theme(business) {
-            for installer in &themes {
-                installer.apply_theme(ctx, theme.clone()).await?;
-            }
-        }
     }
     Ok(())
-}
-
-#[async_trait::async_trait]
-pub trait BlueprintThemeInstaller: Send + Sync {
-    async fn apply_theme(
-        &self,
-        ctx: &crate::Ctx<'_>,
-        package: serde_json::Value,
-    ) -> Result<(), crate::errors::AppError>;
 }

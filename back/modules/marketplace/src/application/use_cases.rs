@@ -22,7 +22,6 @@ pub const CATALOG_APHEL_TOO_OLD: &str = "aphel_too_old";
 pub const CATALOG_CHECKSUM_MISMATCH: &str = "checksum_mismatch";
 pub const CATALOG_PACKAGE_MISMATCH: &str = "catalog_package_mismatch";
 pub const CATALOG_INVALID_PACKAGE: &str = "invalid_package";
-pub const MAX_THEME_PACKAGE_BYTES: usize = 3 * 1024 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CatalogEntryView {
@@ -168,7 +167,7 @@ where
         let bytes = self
             .ports
             .fetcher()
-            .fetch(&package_url, self.ports.settings(), package_limit(expected))
+            .fetch(&package_url, self.ports.settings(), MAX_PACKAGE_BYTES)
             .await
             .map_err(|error| unavailable("could not download the package", &error))?;
         let checksum: String = Sha256::digest(&bytes)
@@ -235,13 +234,6 @@ where
             installed.entry(package_id).or_insert(version);
         }
         Ok(installed)
-    }
-}
-
-fn package_limit(kind: CatalogEntryKind) -> usize {
-    match kind {
-        CatalogEntryKind::Theme => MAX_THEME_PACKAGE_BYTES,
-        _ => MAX_PACKAGE_BYTES,
     }
 }
 

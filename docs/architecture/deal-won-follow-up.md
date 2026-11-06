@@ -1,6 +1,6 @@
 # Won deal follow-up
 
-This integration reuses the ordinary `automations` plugin, the `deal.won` trigger contributed by deals, and the `create_task` action contributed by tasks. The [request template](examples/deal-won-follow-up.json) is a draft for the existing `POST /api/v1/automations` endpoint. It is not installed or published automatically, and is independent of experience selection. Replace `activity_type_id` with the UUID of an active activity type before submitting it. The Portuguese task title is scenario configuration, not a new UI translation.
+This integration reuses the ordinary `automations` plugin, the `deal.won` trigger contributed by deals, and the `create_task` action contributed by tasks. The [request template](examples/deal-won-follow-up.json) is a draft for the existing `POST /api/v1/automations` endpoint. It is not installed or published automatically, and is independent of interface plugins. Replace `activity_type_id` with the UUID of an active activity type before submitting it. The Portuguese task title is scenario configuration, not a new UI translation.
 
 ## Contracts and authority
 

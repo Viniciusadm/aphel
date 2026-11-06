@@ -3,9 +3,7 @@ use utoipa::ToSchema;
 
 use crate::api::dto::common::double_option;
 use crate::application::user_preferences::{
-    ExperiencePreferenceDiagnostic, ExperiencePreferences, NavigationPreferences,
-    RecordDetailPreferences, UpdateExperiencePreferences, UpdateUserPreferencesCommand,
-    UserPreferencesView,
+    NavigationPreferences, UpdateUserPreferencesCommand, UserPreferencesView,
 };
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
@@ -44,26 +42,6 @@ impl From<NavigationPreferences> for NavigationPreferencesDto {
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
-pub struct UpdateExperiencePreferencesDto {
-    #[serde(default, deserialize_with = "double_option")]
-    #[schema(value_type = Option<String>, nullable = true)]
-    pub profile: Option<Option<String>>,
-    #[serde(default, deserialize_with = "double_option")]
-    #[schema(value_type = Option<RecordDetailPreferences>, nullable = true)]
-    pub record_detail: Option<Option<RecordDetailPreferences>>,
-}
-
-impl From<UpdateExperiencePreferencesDto> for UpdateExperiencePreferences {
-    fn from(value: UpdateExperiencePreferencesDto) -> Self {
-        Self {
-            profile: value.profile,
-            record_detail: value.record_detail,
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-#[serde(deny_unknown_fields)]
 pub struct UpdatePreferencesRequest {
     pub keyboard_shortcuts: Option<bool>,
     #[serde(default, deserialize_with = "double_option")]
@@ -71,8 +49,8 @@ pub struct UpdatePreferencesRequest {
     pub locale: Option<Option<String>>,
     pub navigation: Option<NavigationPreferencesDto>,
     #[serde(default, deserialize_with = "double_option")]
-    #[schema(value_type = Option<UpdateExperiencePreferencesDto>, nullable = true)]
-    pub experience: Option<Option<UpdateExperiencePreferencesDto>>,
+    #[schema(value_type = Option<String>, nullable = true, example = "midnight")]
+    pub ui_plugin: Option<Option<String>>,
 }
 
 impl From<UpdatePreferencesRequest> for UpdateUserPreferencesCommand {
@@ -81,7 +59,7 @@ impl From<UpdatePreferencesRequest> for UpdateUserPreferencesCommand {
             keyboard_shortcuts: request.keyboard_shortcuts,
             locale: request.locale,
             navigation: request.navigation.map(Into::into),
-            experience: request.experience.map(|value| value.map(Into::into)),
+            ui_plugin: request.ui_plugin,
         }
     }
 }
@@ -92,26 +70,21 @@ pub struct PreferencesResponse {
     #[schema(example = "en")]
     pub locale: Option<String>,
     pub navigation: NavigationPreferencesDto,
-    pub experience: ExperiencePreferences,
-    pub stored_experience: ExperiencePreferences,
-    pub stored_navigation: NavigationPreferencesDto,
-    pub experience_diagnostics: Vec<ExperiencePreferenceDiagnostic>,
-    pub experience_omittable_sections:
-        Vec<crate::application::organization_profile::ExperienceSection>,
+    pub ui_plugin: Option<String>,
+    pub ui_plugin_default: Option<String>,
+    pub effective_ui_plugin: Option<String>,
 }
 
 impl From<UserPreferencesView> for PreferencesResponse {
     fn from(view: UserPreferencesView) -> Self {
-        let preferences = view.effective;
+        let preferences = view.preferences;
         Self {
             keyboard_shortcuts: preferences.keyboard_shortcuts,
             locale: preferences.locale,
             navigation: preferences.navigation.into(),
-            experience: preferences.experience,
-            stored_experience: view.stored_experience,
-            stored_navigation: view.stored_navigation.into(),
-            experience_diagnostics: view.experience_diagnostics,
-            experience_omittable_sections: view.experience_omittable_sections,
+            ui_plugin: preferences.ui_plugin,
+            ui_plugin_default: view.ui_plugin_default,
+            effective_ui_plugin: view.effective_ui_plugin,
         }
     }
 }

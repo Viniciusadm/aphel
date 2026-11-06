@@ -161,6 +161,7 @@
       "entityScopes": "Default visibility",
       "uniqueFields": "Unique fields",
       "optionalRequires": "Optional permissions",
+      "ui": "Replaces the interface (colors and screens)",
       "replaces": "Replaces modules"
     },
     "checking": "Checking the package…",

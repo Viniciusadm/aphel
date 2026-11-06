@@ -16,7 +16,7 @@ The current classification is:
 - `FieldDefinition.is_required`, field types and constraints, field access policies, workflow stage entry/exit requirements and required checklist items are enforced rules. Changing navigation or presentation does not change them.
 - `required_when` in a create/edit layout is an organization-owned form policy with server validation effects. Its effective requirement is `visible_when` matching (or absent) **and** `required_when` matching. Consequently, changing `visible_when` can also change server validation; these conditions cannot be treated as personal display preferences. The business intent of an installed condition must be reviewed before any future separation from layout storage.
 - `visible_when` in a view layout controls display. View layouts reject `required_when` and are not a source of conditional write requirements. The shared frontend resolver keeps placed unconditionally required fields visible. Field visibility is not a data authorization mechanism; field access policies remain authoritative.
-- Frame arrangement, record section order, omission of optional content such as notes, and the standard presentation's eight-field summary are presentation choices. They do not update field definitions, layout conditions or workflow policies. Theme and navigation preferences retain their existing owners.
+- Frame arrangement and the standard presentation's eight-field summary are presentation choices of the selected interface plugin. They do not update field definitions, layout conditions or workflow policies. Navigation preferences retain their existing owner.
 
 ### Existing write semantics
 
@@ -30,7 +30,7 @@ The edit form reads its own edit layout, whereas server writes can fall back to 
 
 ### Personalization limit
 
-The initial experience/profile contract is limited to external composition and references to existing resources. Personal overrides of `visible_when`, `required_when`, `is_required`, field access/read-only restrictions, validation rules or workflow requirements are excluded, including equivalent nested options passed to a presentation. A preference or profile reset must not save/reset a field layout or remove a business rule. This is a constraint for the upcoming profile implementation; there is no profile DTO or profile policy validator yet.
+An interface plugin only changes how screens look and are arranged. It cannot override `visible_when`, `required_when`, `is_required`, field access/read-only restrictions, validation rules or workflow requirements, including equivalent options passed to a presentation, and choosing or resetting a plugin must not save or reset a field layout or remove a business rule. The server keeps enforcing all of them.
 
 No rule migration is needed for the current presentations: both reuse the existing fields, layouts, editors and write paths. A future request to personalize field conditions requires a separately reviewed design: classify the installed rules and their dependencies, define their owner and effective create/update semantics, preserve their server enforcement and field error paths, and specify a bounded migration before modifying storage or execution. It must not silently drop a condition because a field or section was moved or hidden.
 

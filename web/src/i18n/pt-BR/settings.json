@@ -47,8 +47,7 @@
     "general": "Geral",
     "outgoingEmail": "E-mail de envio",
     "storage": "Armazenamento de arquivos",
-    "experiences": "Experiências",
-    "personalExperience": "Minha experiência"
+    "appearance": "Aparência"
   },
   "noAccess": {
     "title": "Sem permissão",
@@ -437,11 +436,8 @@
     "storage": {
       "description": "Disco local ou S3 compatível para anexos e exportações."
     },
-    "experiences": {
-      "description": "Gerencie o catálogo da organização, o padrão compartilhado e as opções pessoais permitidas."
-    },
-    "personalExperience": {
-      "description": "Escolha uma experiência permitida pela organização e ajuste suas seções de registro."
+    "appearance": {
+      "description": "Escolha o plugin de interface que você usa."
     }
   },
   "areas": {

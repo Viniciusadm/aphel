@@ -10,7 +10,6 @@ use crate::application::{
 #[serde(rename_all = "snake_case")]
 pub enum CatalogEntryKindResponse {
     Template,
-    Theme,
     Module,
 }
 
@@ -18,7 +17,6 @@ impl From<CatalogEntryKind> for CatalogEntryKindResponse {
     fn from(kind: CatalogEntryKind) -> Self {
         match kind {
             CatalogEntryKind::Template => Self::Template,
-            CatalogEntryKind::Theme => Self::Theme,
             CatalogEntryKind::Module => Self::Module,
         }
     }

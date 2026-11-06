@@ -161,6 +161,7 @@
       "entityScopes": "Visibilidade padrão",
       "uniqueFields": "Campos únicos",
       "optionalRequires": "Permissões opcionais",
+      "ui": "Substitui a interface (cores e telas)",
       "replaces": "Substitui os módulos"
     },
     "checking": "Verificando o pacote…",

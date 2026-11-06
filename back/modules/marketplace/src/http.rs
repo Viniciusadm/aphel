@@ -3,7 +3,7 @@ use axum::extract::{Path, State};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-use crate::application::{CatalogEntryKind, CatalogSettings, CatalogUseCases};
+use crate::application::{CatalogSettings, CatalogUseCases};
 use crate::dto::CatalogResponse;
 use crate::infrastructure::MySqlCatalogPorts;
 use aphel_kernel::Ctx;
@@ -24,7 +24,6 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(get_catalog))
         .routes(routes!(compare_catalog_template))
         .routes(routes!(apply_catalog_template))
-        .routes(routes!(download_catalog_theme))
 }
 
 fn settings(state: &AppState) -> CatalogSettings {
@@ -131,30 +130,4 @@ async fn apply_catalog_template(
         )
         .await?;
     Ok(Json(Data::new(result.into())))
-}
-
-#[utoipa::path(
-    post,
-    path = "/catalog/themes/{id}/download",
-    tag = TAG,
-    operation_id = "catalog_theme_download",
-    security(("session_cookie" = [])),
-    params(("id" = String, Path, description = "Catalog entry id of a theme, such as `aphel.slate`")),
-    responses(
-        (status = 200, description = "Downloads the theme package, checks its SHA-256, the minimum Aphel version and that it matches the entry, and returns it unchanged. Nothing is installed: send it to `POST /themes/validate` and `POST /themes`", body = serde_json::Value),
-        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
-        (status = 404, description = "Catalog turned off (`catalog_disabled`) or unknown entry (`catalog_entry_not_found`)", body = ErrorEnvelope),
-        (status = 422, description = "Not a theme entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`)", body = ErrorEnvelope),
-    )
-)]
-async fn download_catalog_theme(
-    State(state): State<AppState>,
-    tenant: AuthContext,
-    Path(id): Path<String>,
-) -> Result<Json<serde_json::Value>, ApiError> {
-    let downloaded = catalog_use_cases(&state)?
-        .download_package(&tenant.scope, &id, CatalogEntryKind::Theme)
-        .await?;
-    Ok(Json(downloaded.package))
 }

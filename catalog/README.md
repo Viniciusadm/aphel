@@ -10,7 +10,6 @@ This directory is the official catalog: a JSON index (`index.json`) with busines
 - Remote index: HTTPS only. To test a local index in development, use `CATALOG_ALLOW_HTTP=true` (never in production). Timeout configurable in `CATALOG_TIMEOUT_SECS` (default 10 s); the index can be up to 1 MiB and each package up to 2 MiB.
 - Each entry is validated; invalid entries appear as "ignored" on the screen without bringing down the others.
 - **Templates** (`kind: "template"`) are versioned `aphel-config` packages. Before installing, Aphel downloads the package, checks the **SHA-256 of the file's exact bytes**, the **minimum Aphel version** and whether the package's `id`/`version` match the entry; then it shows the comparison with the installed version (conflicts with local changes) and installs through the versioning flow (Settings > Configuration packages > Versions).
-- **Themes** (`kind: "theme"`) are `aphel-theme` packages ([`docs/themes`](../docs/themes/README.md)), up to 3 MiB because they can carry fonts. They go through the same SHA-256, minimum version and `id`/`version` checks, and the Themes block of this screen shows the validation report before installing. Installing a theme does not activate it.
 - **Modules** (`kind: "module"`) are **never downloaded or executed**. The screen only shows the description and the instructions: modules are Rust crates declared in `back/aphel.modules.toml` and compiled into the binary (see [`docs/modules/README.md`](../docs/modules/README.md)).
 
 ## Index format
@@ -59,7 +58,7 @@ This directory is the official catalog: a JSON index (`index.json`) with busines
 }
 ```
 
-Required fields for every entry: `id` (stable, lowercase letters, digits and `.`/`-`/`_`), `kind`, `name`, `author`, `version` (SemVer), `min_aphel_version` (`X.Y.Z`) and `license` (SPDX). Templates and themes require `package` (`url` HTTPS or relative to the index, and `sha256`); modules require `module` (`key`) and cannot have `package`. The full specification is in [`schema/index.schema.json`](schema/index.schema.json).
+Required fields for every entry: `id` (stable, lowercase letters, digits and `.`/`-`/`_`), `kind`, `name`, `author`, `version` (SemVer), `min_aphel_version` (`X.Y.Z`) and `license` (SPDX). Templates require `package` (`url` HTTPS or relative to the index, and `sha256`); modules require `module` (`key`) and cannot have `package`. The full specification is in [`schema/index.schema.json`](schema/index.schema.json).
 
 ## Publishing a template
 

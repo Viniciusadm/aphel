@@ -19,7 +19,6 @@ recommended = [
   "dashboard",
   "reminders",
   "favorites",
-  "themes",
   "followers",
   "onboarding",
   "imports",

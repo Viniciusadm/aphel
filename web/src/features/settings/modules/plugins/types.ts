@@ -43,6 +43,7 @@ export interface PluginDeclarations {
   secrets: string[]
   actions: string[]
   emits: string[]
+  ui: string | null
   notifications: string[]
   widgets: string[]
   operations: string[]

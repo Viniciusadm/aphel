@@ -8,7 +8,7 @@ export const TASKS_TAB_KEY = 'tasks'
 export function withActivitiesTab(tabs: RecordTab[], { recordType, record, readOnly }: FilterContext<'records.detailTabs'>) {
   return tabs.map((tab) =>
     tab.key === TASKS_TAB_KEY
-      ? { ...tab, personallyOmittable: true, source: { module: 'tasks', key: TASKS_TAB_KEY }, permission: 'tasks.read', summary: createElement(ActivitiesTab, { recordType, recordId: record.id, readOnly, summary: true }), content: createElement(ActivitiesTab, { recordType, recordId: record.id, readOnly }) }
+      ? { ...tab, source: { module: 'tasks', key: TASKS_TAB_KEY }, permission: 'tasks.read', summary: createElement(ActivitiesTab, { recordType, recordId: record.id, readOnly, summary: true }), content: createElement(ActivitiesTab, { recordType, recordId: record.id, readOnly }) }
       : tab,
   )
 }

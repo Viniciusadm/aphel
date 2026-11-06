@@ -50,8 +50,6 @@ pub struct Role {
 pub struct Configuration {
     #[serde(default)]
     pub packages: Vec<String>,
-    #[serde(default)]
-    pub theme: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -258,11 +256,6 @@ impl Catalog {
                 &mut configuration.packages,
                 &blueprint.configuration.packages,
             );
-            if blueprint.configuration.theme.is_some() {
-                configuration
-                    .theme
-                    .clone_from(&blueprint.configuration.theme);
-            }
         }
         recommended.retain(|plugin| !required.contains(plugin));
         Ok(ResolvedBlueprint {
@@ -298,7 +291,6 @@ fn push_unique(target: &mut Vec<String>, additions: &[String]) {
 #[derive(rust_embed::RustEmbed)]
 #[folder = "../../blueprints/"]
 #[include = "*/blueprint.toml"]
-#[include = "*/themes/*.json"]
 struct EmbeddedFiles;
 
 pub fn embedded_file(path: &str) -> Option<String> {

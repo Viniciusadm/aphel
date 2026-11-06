@@ -17,5 +17,5 @@ declare module './contract-components' {
 }
 
 export type RecordPresentationComponent = ComponentType<RecordPresentationProps> & {
-  experience?: { recordTypes: readonly string[]; regions: readonly 'main'[] }
+  recordTypes?: readonly string[]
 }
