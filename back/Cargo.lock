@@ -216,6 +216,7 @@ dependencies = [
  "aphel-mod-wasm-runtime",
  "aphel-mod-webhooks",
  "aphel-mod-workflow",
+ "aphel-plugin",
  "axum",
  "base64 0.22.1",
  "chrono",
@@ -1990,6 +1991,14 @@ dependencies = [
  "utoipa",
  "utoipa-axum",
  "uuid",
+]
+
+[[package]]
+name = "aphel-plugin"
+version = "0.1.0"
+dependencies = [
+ "toml",
+ "zip",
 ]
 
 [[package]]

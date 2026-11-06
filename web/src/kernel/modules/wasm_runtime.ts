@@ -65,7 +65,7 @@ export async function loadWebPlugins(): Promise<void> {
       return []
     })
     failedNames = failures
-    loadedUi = body.data.find((plugin) => plugin.ui && loaded.some((module) => module.key === plugin.key))?.key ?? null
+    loadedUi = response.headers.get('x-aphel-ui-plugin')
     menus = loadedMenus
     roleHomes = loadedHomes
     names = loadedNames

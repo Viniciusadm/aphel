@@ -31,6 +31,7 @@ use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo};
 use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::application::organization_profile::CORE_UI_PLUGIN;
 use aphel_sdk::platform::application::secrets::MAX_SECRET_BYTES;
 use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
 use aphel_sdk::platform::database::transaction::MySqlTx;
@@ -45,6 +46,7 @@ use aphel_sdk::platform::infrastructure::repositories::runtime_permissions::{
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
 pub const TAG: &str = "plugins";
+const UI_PLUGIN_HEADER: &str = "x-aphel-ui-plugin";
 const PLUGIN_NOT_FOUND: &str = "plugin_not_found";
 const PLUGIN_ROUTE_NOT_FOUND: &str = "plugin_route_not_found";
 const INVALID_SETTINGS: &str = "plugin_settings_invalid";
@@ -1341,7 +1343,7 @@ struct WebPluginsQuery {
     path = "/public/wasm-runtime",
     tag = TAG,
     operation_id = "plugins_web",
-    description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data.",
+    description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none.",
     params(WebPluginsQuery),
     responses(
         (status = 200, description = "Web bundles to load", body = Data<Vec<WebPluginResponse>>),
@@ -1350,20 +1352,28 @@ struct WebPluginsQuery {
 async fn web_plugins(
     State(state): State<AppState>,
     Query(query): Query<WebPluginsQuery>,
-) -> Result<Json<Data<Vec<WebPluginResponse>>>, ApiError> {
+) -> Result<Response, ApiError> {
     let pool = state.db()?;
     let plugins = store::list(&pool).await?;
-    let chosen_ui = {
-        let requested = query.ui.filter(|key| {
-            plugins
-                .iter()
-                .any(|plugin| plugin.enabled && plugin.key == *key && plugin.manifest.ui.is_some())
-        });
-        match requested {
-            Some(key) => Some(key),
-            None => find_ui_plugin_default(&pool).await?,
+    let chosen_ui = match query.ui.as_deref() {
+        Some(CORE_UI_PLUGIN) => None,
+        requested => {
+            let valid = requested.filter(|key| {
+                plugins.iter().any(|plugin| {
+                    plugin.enabled && plugin.key == *key && plugin.manifest.ui.is_some()
+                })
+            });
+            match valid {
+                Some(key) => Some(key.to_owned()),
+                None => find_ui_plugin_default(&pool).await?,
+            }
         }
     };
+    let chosen_ui = chosen_ui.filter(|key| {
+        plugins
+            .iter()
+            .any(|plugin| plugin.enabled && plugin.key == *key && plugin.manifest.ui.is_some())
+    });
     let asset = |plugin: &InstalledPlugin, path: &str| {
         format!(
             "/api/v1/public/wasm-runtime/{}/{path}?v={}",
@@ -1371,33 +1381,40 @@ async fn web_plugins(
             &plugin.checksum[..12]
         )
     };
-    Ok(Json(Data::new(
-        plugins
-            .iter()
-            .filter(|plugin| plugin.enabled)
-            .filter(|plugin| {
-                plugin.manifest.ui.is_none() || chosen_ui.as_deref() == Some(plugin.key.as_str())
+    let listed: Vec<WebPluginResponse> = plugins
+        .iter()
+        .filter(|plugin| plugin.enabled)
+        .filter(|plugin| {
+            plugin.manifest.ui.is_none() || chosen_ui.as_deref() == Some(plugin.key.as_str())
+        })
+        .filter_map(|plugin| {
+            let web = plugin.manifest.web.as_ref()?;
+            Some(WebPluginResponse {
+                key: plugin.key.clone(),
+                name: plugin.manifest.name.clone(),
+                version: plugin.version.clone(),
+                menu: plugin.manifest.menu.clone(),
+                role_homes: plugin
+                    .manifest
+                    .role_presets
+                    .iter()
+                    .filter_map(|preset| Some((preset.key.clone(), preset.home.clone()?)))
+                    .collect(),
+                ui: plugin.manifest.ui.is_some(),
+                entry: asset(plugin, &web.entry),
+                style: web.style.as_deref().map(|style| asset(plugin, style)),
             })
-            .filter_map(|plugin| {
-                let web = plugin.manifest.web.as_ref()?;
-                Some(WebPluginResponse {
-                    key: plugin.key.clone(),
-                    name: plugin.manifest.name.clone(),
-                    version: plugin.version.clone(),
-                    menu: plugin.manifest.menu.clone(),
-                    role_homes: plugin
-                        .manifest
-                        .role_presets
-                        .iter()
-                        .filter_map(|preset| Some((preset.key.clone(), preset.home.clone()?)))
-                        .collect(),
-                    ui: plugin.manifest.ui.is_some(),
-                    entry: asset(plugin, &web.entry),
-                    style: web.style.as_deref().map(|style| asset(plugin, style)),
-                })
-            })
-            .collect(),
-    )))
+        })
+        .collect();
+    let mut response = Json(Data::new(listed)).into_response();
+    if let Some(key) = chosen_ui.as_deref()
+        && let Ok(value) = HeaderValue::from_str(key)
+    {
+        response
+            .headers_mut()
+            .insert(HeaderName::from_static(UI_PLUGIN_HEADER), value);
+    }
+    Ok(response)
 }
 
 async fn web_asset(

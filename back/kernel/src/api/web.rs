@@ -12,6 +12,9 @@ struct WebAssets;
 
 const INDEX_FILE: &str = "index.html";
 const HASHED_ASSETS_PREFIX: &str = "assets/";
+const DOCS_PREFIX: &str = "docs";
+const DOCS_HASHED_ASSETS_PREFIX: &str = "docs/_astro/";
+const DOCS_NOT_FOUND_FILE: &str = "docs/404.html";
 const SERVICE_WORKER_FILE: &str = "sw.js";
 const MANIFEST_FILE: &str = "manifest.webmanifest";
 
@@ -25,6 +28,10 @@ pub async fn serve_web(uri: Uri) -> Response {
     let requested_file = if path.is_empty() { INDEX_FILE } else { path };
     if let Some(response) = embedded_file(requested_file) {
         return response;
+    }
+
+    if is_docs_path(path) {
+        return docs_page(path);
     }
 
     if looks_like_file(path) {
@@ -47,11 +54,12 @@ fn embedded_file(path: &str) -> Option<Response> {
         SERVICE_WORKER_FILE => "text/javascript; charset=utf-8".to_owned(),
         _ => file.metadata.mimetype().to_owned(),
     };
-    let cache_control = if path.starts_with(HASHED_ASSETS_PREFIX) {
-        "public, max-age=31536000, immutable"
-    } else {
-        "no-cache"
-    };
+    let cache_control =
+        if path.starts_with(HASHED_ASSETS_PREFIX) || path.starts_with(DOCS_HASHED_ASSETS_PREFIX) {
+            "public, max-age=31536000, immutable"
+        } else {
+            "no-cache"
+        };
 
     let mut response = (
         [
@@ -68,6 +76,21 @@ fn embedded_file(path: &str) -> Option<Response> {
         );
     }
     Some(response)
+}
+
+fn is_docs_path(path: &str) -> bool {
+    path == DOCS_PREFIX || path.starts_with("docs/")
+}
+
+fn docs_page(path: &str) -> Response {
+    let directory = path.trim_end_matches('/');
+    if let Some(response) = embedded_file(&format!("{directory}/index.html")) {
+        return response;
+    }
+    let mut response =
+        embedded_file(DOCS_NOT_FOUND_FILE).unwrap_or_else(|| StatusCode::NOT_FOUND.into_response());
+    *response.status_mut() = StatusCode::NOT_FOUND;
+    response
 }
 
 fn looks_like_file(path: &str) -> bool {

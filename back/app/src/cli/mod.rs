@@ -83,9 +83,20 @@ pub(crate) enum Command {
     )]
     Catalog(CatalogArgs),
     #[command(
+        about = "Create, build and pack runtime plugins: new, build and pack",
+        disable_help_flag = true
+    )]
+    Plugin(PluginArgs),
+    #[command(
         about = "Check the platform invariants of this build: access filters, hook order, registry, operations, event actors (no database)"
     )]
     Probe,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Args)]
+pub(crate) struct PluginArgs {
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    pub(crate) args: Vec<String>,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Args)]
@@ -114,6 +125,16 @@ pub(crate) async fn run() -> CliResult {
     let matches = command.get_matches();
     if matches.subcommand_name() == Some("probe") {
         return probe::run();
+    }
+    if let Some(("plugin", arguments)) = matches.subcommand() {
+        let args = arguments
+            .get_many::<String>("args")
+            .map(|values| values.cloned().collect::<Vec<_>>())
+            .unwrap_or_default();
+        return match aphel_plugin::run("aphel plugin", &args) {
+            code if code == std::process::ExitCode::SUCCESS => Ok(()),
+            _ => Err(Box::new(AlreadyReported)),
+        };
     }
     let dotenv_result = dotenvy::dotenv();
     init_tracing();
@@ -148,6 +169,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Modules(command) => modules::run(config, command).await,
         Command::Catalog(args) => catalog::run(args),
         Command::Probe => unreachable!("the probe runs before configuration is loaded"),
+        Command::Plugin(_) => unreachable!("plugin commands run before configuration is loaded"),
     }
 }
 
