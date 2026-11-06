@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { mobileHomePath } from '@/features/mobile/lib/home'
-import { usePersonalPreferences } from '@/features/settings/navigation/api'
+import { useExperience } from '@/features/experiences/experience-context'
 import { useInstalledBlueprint } from '@/kernel/modules/blueprint'
 import { pluginRoleHome } from '@/kernel/modules/wasm_runtime'
 
@@ -27,11 +27,11 @@ function markRedirected(): void {
 export function HomeRedirect() {
   const location = useLocation()
   const navigate = useNavigate()
-  const preferences = usePersonalPreferences()
+  const experience = useExperience()!
   const { me } = useSession()
   const blueprint = useInstalledBlueprint()
   const blueprintHome = blueprint.data?.home && blueprint.data.home !== '/' ? blueprint.data.home : null
-  const home = preferences.data?.navigation.home ?? pluginRoleHome(me.role_key) ?? blueprintHome ?? mobileHomePath()
+  const home = experience.navigation.home ?? pluginRoleHome(me.role_key) ?? blueprintHome ?? mobileHomePath()
 
   useEffect(
     () => () => {
@@ -50,10 +50,10 @@ export function HomeRedirect() {
       markRedirected()
       return
     }
-    if (preferences.isPending || blueprint.isPending) return
+    if (!experience.ready || blueprint.isPending) return
     markRedirected()
     if (home && home !== '/') void navigate(home, { replace: true })
-  }, [home, location.pathname, navigate, preferences.isPending, blueprint.isPending])
+  }, [home, location.pathname, navigate, experience.ready, blueprint.isPending])
 
   return null
 }

@@ -1,7 +1,16 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import type { PermissionRequirement } from '@/kernel/modules/define'
+
+export interface RecordSectionSource {
+  module: string
+  key: string
+}
 
 export interface RecordTab {
+  source?: RecordSectionSource
+  personallyOmittable?: boolean
+  permission?: PermissionRequirement
   key: string
   label: string
   summary?: ReactNode

@@ -15,6 +15,7 @@ export function normalizePreferences(preferences: PreferencesResponse | undefine
   return {
     keyboard_shortcuts: preferences?.keyboard_shortcuts ?? true,
     locale: preferences?.locale ?? null,
+    experience: preferences?.experience ?? { profile: null, record_detail: null },
     navigation: {
       order: preferences?.navigation?.order ?? [],
       hidden: preferences?.navigation?.hidden ?? [],

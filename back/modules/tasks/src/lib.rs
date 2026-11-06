@@ -287,6 +287,9 @@ impl Module for TasksModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(Arc::new(aphel_sdk::platform::application::organization_profile::PersonallyOmittableRecordSection {
+            key: KEY.to_owned(),
+        }));
         app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
             dataset_seed::TasksSeed,
         ));

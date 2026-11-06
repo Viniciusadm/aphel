@@ -19,6 +19,8 @@ pub const AUTOMATION_MESSAGE: &str = "automation.message";
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TaskSpec {
+    pub run_id: Uuid,
+    pub step_id: String,
     pub title: String,
     pub description: Option<String>,
     pub activity_type_id: Option<String>,

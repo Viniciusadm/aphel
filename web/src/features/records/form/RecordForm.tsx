@@ -166,7 +166,7 @@ export function RecordForm({
     } catch (error) {
       const mapped = mapRecordApiError(
         error,
-        formFields.map((field) => field.key),
+        formFields.filter((field) => ruleStates[field.key]?.visible !== false).map((field) => field.key),
         t,
         knownFields,
       )

@@ -77,6 +77,8 @@ export function useModuleRecordTabs(recordType: string, recordId: string, readOn
         .filter((_, index) => visible[index])
         .map(({ module, value: { tab } }) => ({
           key: tab.key,
+          source: { module, key: tab.key },
+          permission: tab.permission,
           label: translate(module, tab.label),
           icon: tab.icon,
           group: tab.group,

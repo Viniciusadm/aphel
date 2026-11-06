@@ -4970,6 +4970,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organization/experiences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Reads the organization-owned experience catalog and policy. Any authenticated member can read. A null configuration preserves the existing application baseline. Provider availability is not inferred from configuration: required provider and optional section diagnostics identify the checks the frontend host must perform. This endpoint does not select a personal profile or execute frontend code. */
+        get: operations["organization_experiences_get"];
+        /** @description Atomically replaces the catalog, default and organization customization limits. Requires settings.manage and an exact If-Match from GET; stale configuration returns version_conflict. Duplicate/unsupported/unknown properties and dangling default/allowlist references are rejected. Remove or disable a profile together with its policy/default references in the same request; personal references are not deleted. Writes organization.experiences_updated and audit in the same transaction. Preserves unrelated organization settings and does not install/enable plugins or apply a personal selection. */
+        put: operations["organization_experiences_replace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organization/logo": {
         parameters: {
             query?: never;
@@ -13057,6 +13075,15 @@ export interface components {
                 updated_at: string;
             };
         };
+        Data_OrganizationExperiencesView: {
+            data: {
+                configuration?: null | components["schemas"]["OrganizationExperiences"];
+                diagnostics: components["schemas"]["ExperienceDiagnostic"][];
+                requires_host_resolution: boolean;
+                /** Format: date-time */
+                updated_at: string;
+            };
+        };
         Data_OrganizationResponse: {
             data: {
                 /** @example BRL */
@@ -13218,10 +13245,14 @@ export interface components {
         };
         Data_PreferencesResponse: {
             data: {
+                experience: components["schemas"]["ExperiencePreferences"];
+                experience_diagnostics: components["schemas"]["ExperiencePreferenceDiagnostic"][];
                 keyboard_shortcuts: boolean;
                 /** @example en */
                 locale?: string | null;
                 navigation: components["schemas"]["NavigationPreferencesDto"];
+                stored_experience: components["schemas"]["ExperiencePreferences"];
+                stored_navigation: components["schemas"]["NavigationPreferencesDto"];
             };
         };
         Data_PreviewEmailResponse: {
@@ -15836,6 +15867,57 @@ export interface components {
             parent_id?: string | null;
             trigger: string;
         };
+        ExperienceCustomization: {
+            navigation: boolean;
+            profile_selection: boolean;
+            section_hidden: components["schemas"]["ExperienceSection"][];
+            section_order: boolean;
+        };
+        ExperienceDiagnostic: {
+            code: string;
+            path: string;
+            profile_key: string;
+            required: boolean;
+        };
+        ExperienceEntry: {
+            enabled: boolean;
+            profile: components["schemas"]["ExperienceProfile"];
+        };
+        ExperiencePolicy: {
+            allowed_profiles: string[];
+            customization: components["schemas"]["ExperienceCustomization"];
+        };
+        ExperiencePreferenceDiagnostic: {
+            code: string;
+            path: string;
+        };
+        ExperiencePreferences: {
+            profile?: string | null;
+            record_detail?: null | components["schemas"]["RecordDetailPreferences"];
+        };
+        ExperienceProfile: {
+            /** Format: int32 */
+            format_version: number;
+            frame: components["schemas"]["ExperienceProvider"];
+            key: string;
+            label: string;
+            record_detail: components["schemas"]["ExperienceRecordDetail"];
+        };
+        ExperienceProvider: {
+            module: string;
+        };
+        ExperienceRecordDetail: {
+            presentation: components["schemas"]["ExperienceProvider"];
+            record_type: string;
+            regions?: components["schemas"]["ExperienceRegions"];
+        };
+        ExperienceRegions: {
+            main: components["schemas"]["ExperienceSection"][];
+        };
+        ExperienceSection: {
+            key: string;
+            module: string;
+        };
         /** @enum {string} */
         ExportFormatDto: "csv" | "xlsx";
         ExportJobResponse: {
@@ -18094,6 +18176,18 @@ export interface components {
                 [key: string]: number;
             };
         };
+        OrganizationExperiences: {
+            default_profile?: string | null;
+            policy: components["schemas"]["ExperiencePolicy"];
+            profiles: components["schemas"]["ExperienceEntry"][];
+        };
+        OrganizationExperiencesView: {
+            configuration?: null | components["schemas"]["OrganizationExperiences"];
+            diagnostics: components["schemas"]["ExperienceDiagnostic"][];
+            requires_host_resolution: boolean;
+            /** Format: date-time */
+            updated_at: string;
+        };
         OrganizationResponse: {
             /** @example BRL */
             currency: string;
@@ -20105,10 +20199,14 @@ export interface components {
             value: Record<string, never>;
         };
         PreferencesResponse: {
+            experience: components["schemas"]["ExperiencePreferences"];
+            experience_diagnostics: components["schemas"]["ExperiencePreferenceDiagnostic"][];
             keyboard_shortcuts: boolean;
             /** @example en */
             locale?: string | null;
             navigation: components["schemas"]["NavigationPreferencesDto"];
+            stored_experience: components["schemas"]["ExperiencePreferences"];
+            stored_navigation: components["schemas"]["NavigationPreferencesDto"];
         };
         PreviewEmailRequest: {
             body_html?: string | null;
@@ -20409,6 +20507,7 @@ export interface components {
             discount_total: string;
             rows: components["schemas"]["ProposalTableRow"][];
             subtotal: string;
+            tax_total: string;
             total: string;
         };
         ProposalPreview: {
@@ -20878,6 +20977,11 @@ export interface components {
             required_pending: number;
             stage_id: string;
             stage_name: string;
+        };
+        RecordDetailPreferences: {
+            hidden: components["schemas"]["ExperienceSection"][];
+            order: components["schemas"]["ExperienceSection"][];
+            record_type: string;
         };
         RecordFollowerResponse: {
             followed_at: string;
@@ -22300,6 +22404,10 @@ export interface components {
             /** @example 5.4321 */
             rate?: string | null;
         };
+        UpdateExperiencePreferencesDto: {
+            profile?: string | null;
+            record_detail?: null | components["schemas"]["RecordDetailPreferences"];
+        };
         UpdateFieldRequest: {
             config?: Record<string, never> | null;
             field_type?: null | components["schemas"]["FieldType"];
@@ -22404,6 +22512,7 @@ export interface components {
             team_ids?: string[] | null;
         };
         UpdatePreferencesRequest: {
+            experience?: null | components["schemas"]["UpdateExperiencePreferencesDto"];
             keyboard_shortcuts?: boolean | null;
             /** @example en */
             locale?: string | null;
@@ -48592,6 +48701,134 @@ export interface operations {
             };
         };
     };
+    organization_experiences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Configuration and organization-row updated_at for If-Match */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_OrganizationExperiencesView"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Organization not installed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    organization_experiences_replace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required exact organization updated_at in RFC3339 from GET */
+                "If-Match": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationExperiences"];
+            };
+        };
+        responses: {
+            /** @description Saved configuration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_OrganizationExperiencesView"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing settings.manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Organization not installed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Stale If-Match (version_conflict) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid format, catalog, default, policy or missing If-Match */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     organization_logo: {
         parameters: {
             query?: never;
@@ -51068,7 +51305,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Personal preferences of the current user (the same in every organization); defaults when never saved */
+            /** @description Personal preferences of the authenticated current user. Navigation and experience contain policy-permitted values; stored_navigation and stored_experience retain saved choices, including ignored/revoked references, with experience_diagnostics. Defaults when never saved. Effective profile identity is not verification of frontend provider availability. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51110,7 +51347,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). A personal preference: no domain event or audit entry */
+            /** @description Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). experience changes profile selection and record-detail order/hidden source pairs within organization policy. Omitted experience fields stay unchanged; experience.profile = null resets only selection, experience.record_detail = null resets only composition, and experience = null clears both. Resetting navigation uses its empty replacement object. Blocked non-reset writes, unsupported surfaces/sources and omission without owner-declared optionality are rejected on this same endpoint. Saved blocked choices are retained but not applied. Policy and user rows are locked in one transaction; old payloads do not clear new fields. Personal preferences: no domain event or audit entry */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51128,7 +51365,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid body, unsupported `locale`, invalid navigation keys or a `home` that is not an internal path (`validation_error`) */
+            /** @description Invalid body, unsupported locale, unsafe navigation or organization-policy violations in navigation/experience (validation_error with field paths) */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight, History, Plus, SquareCheck } from 'lucide-re
 import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
@@ -26,12 +27,14 @@ export function ActivitiesTab({ recordType, recordId, readOnly = false, summary 
   const { hasPermission } = useSession()
   const titleId = useId()
   const target = useMemo<RecordTarget>(() => ({ recordType, recordId }), [recordType, recordId])
-  const tasks = useRecordActivities(target)
+  const active = useIsModuleActive('tasks')
+  const canRead = active && hasPermission('tasks.read')
+  const tasks = useRecordActivities(target, { enabled: canRead })
   const toggle = useToggleActivity(target)
   const [dialog, setDialog] = useState<ActivityFormMode | null>(null)
   const [showDone, setShowDone] = useState(false)
-  const canCreate = !readOnly && hasPermission('tasks.create')
-  const canUpdate = !readOnly && hasPermission('tasks.update')
+  const canCreate = canRead && !readOnly && hasPermission('tasks.create')
+  const canUpdate = canRead && !readOnly && hasPermission('tasks.update')
 
   const items = useMemo(() => tasks.data?.data ?? [], [tasks.data])
   const open = items.filter((activity) => activity.status === 'open')
@@ -51,6 +54,8 @@ export function ActivitiesTab({ recordType, recordId, readOnly = false, summary 
     )
   }
   const pendingId = toggle.isPending ? toggle.variables?.id : undefined
+
+  if (!canRead) return null
 
   return (
     <section aria-labelledby={titleId} className={cn('flex flex-col gap-4', className)}>

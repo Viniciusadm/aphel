@@ -1,4 +1,11 @@
 {
+  "composition": {
+    "sectionFailed": "Could not display {{label}}",
+    "sectionSource": "Section {{identity}}. You can retry or continue using the other sections.",
+    "presentationUnavailable": "The selected record presentation ({{provider}}) is unavailable or registered more than once. Using the default presentation.",
+    "presentationFailed": "The record presentation {{provider}} failed. Showing the default presentation.",
+    "unavailable": "Section {{identity}} is unavailable for this record or your permissions."
+  },
   "header": {
     "owner": "Owner",
     "back": "Back",

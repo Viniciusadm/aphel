@@ -3,7 +3,9 @@ use utoipa::ToSchema;
 
 use crate::api::dto::common::double_option;
 use crate::application::user_preferences::{
-    NavigationPreferences, UpdateUserPreferencesCommand, UserPreferences,
+    ExperiencePreferenceDiagnostic, ExperiencePreferences, NavigationPreferences,
+    RecordDetailPreferences, UpdateExperiencePreferences, UpdateUserPreferencesCommand,
+    UserPreferencesView,
 };
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
@@ -42,12 +44,35 @@ impl From<NavigationPreferences> for NavigationPreferencesDto {
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
+pub struct UpdateExperiencePreferencesDto {
+    #[serde(default, deserialize_with = "double_option")]
+    #[schema(value_type = Option<String>, nullable = true)]
+    pub profile: Option<Option<String>>,
+    #[serde(default, deserialize_with = "double_option")]
+    #[schema(value_type = Option<RecordDetailPreferences>, nullable = true)]
+    pub record_detail: Option<Option<RecordDetailPreferences>>,
+}
+
+impl From<UpdateExperiencePreferencesDto> for UpdateExperiencePreferences {
+    fn from(value: UpdateExperiencePreferencesDto) -> Self {
+        Self {
+            profile: value.profile,
+            record_detail: value.record_detail,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(deny_unknown_fields)]
 pub struct UpdatePreferencesRequest {
     pub keyboard_shortcuts: Option<bool>,
     #[serde(default, deserialize_with = "double_option")]
     #[schema(value_type = Option<String>, example = "en")]
     pub locale: Option<Option<String>>,
     pub navigation: Option<NavigationPreferencesDto>,
+    #[serde(default, deserialize_with = "double_option")]
+    #[schema(value_type = Option<UpdateExperiencePreferencesDto>, nullable = true)]
+    pub experience: Option<Option<UpdateExperiencePreferencesDto>>,
 }
 
 impl From<UpdatePreferencesRequest> for UpdateUserPreferencesCommand {
@@ -56,6 +81,7 @@ impl From<UpdatePreferencesRequest> for UpdateUserPreferencesCommand {
             keyboard_shortcuts: request.keyboard_shortcuts,
             locale: request.locale,
             navigation: request.navigation.map(Into::into),
+            experience: request.experience.map(|value| value.map(Into::into)),
         }
     }
 }
@@ -66,14 +92,23 @@ pub struct PreferencesResponse {
     #[schema(example = "en")]
     pub locale: Option<String>,
     pub navigation: NavigationPreferencesDto,
+    pub experience: ExperiencePreferences,
+    pub stored_experience: ExperiencePreferences,
+    pub stored_navigation: NavigationPreferencesDto,
+    pub experience_diagnostics: Vec<ExperiencePreferenceDiagnostic>,
 }
 
-impl From<UserPreferences> for PreferencesResponse {
-    fn from(preferences: UserPreferences) -> Self {
+impl From<UserPreferencesView> for PreferencesResponse {
+    fn from(view: UserPreferencesView) -> Self {
+        let preferences = view.effective;
         Self {
             keyboard_shortcuts: preferences.keyboard_shortcuts,
             locale: preferences.locale,
             navigation: preferences.navigation.into(),
+            experience: preferences.experience,
+            stored_experience: view.stored_experience,
+            stored_navigation: view.stored_navigation.into(),
+            experience_diagnostics: view.experience_diagnostics,
         }
     }
 }

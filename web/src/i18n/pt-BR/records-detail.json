@@ -1,4 +1,11 @@
 {
+  "composition": {
+    "sectionFailed": "Não foi possível exibir {{label}}",
+    "sectionSource": "Seção {{identity}}. Você pode tentar novamente ou continuar usando as outras seções.",
+    "presentationUnavailable": "A apresentação selecionada ({{provider}}) está indisponível ou registrada mais de uma vez. Usando a apresentação padrão.",
+    "presentationFailed": "A apresentação {{provider}} falhou. Exibindo a apresentação padrão.",
+    "unavailable": "A seção {{identity}} está indisponível para este registro ou suas permissões."
+  },
   "header": {
     "owner": "Responsável",
     "back": "Voltar",

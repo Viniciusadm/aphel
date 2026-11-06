@@ -7,6 +7,33 @@ The two guards are registered by the `workflow` module (checklist, priority 20) 
 - `StageChecklistGuard` (`modules/workflow/hooks.rs`);
 - `ValidationRuleGuard` (`kernel/application/fields/validation_rules/guard.rs`).
 
+## Record layouts and presentation boundaries
+
+`record_layouts` owns the organization's field layouts and conditions. These are separate from the record pipeline guards above: the module contributes `LayoutConditionalRules` through `ConditionalRulesFactory`, and `CustomFieldWriter` evaluates those conditions against the proposed system and custom values before completing the write. Native field requirements, field access policies, validation rules and workflow requirements still apply through their existing owners.
+
+The current classification is:
+
+- `FieldDefinition.is_required`, field types and constraints, field access policies, workflow stage entry/exit requirements and required checklist items are enforced rules. Changing navigation or presentation does not change them.
+- `required_when` in a create/edit layout is an organization-owned form policy with server validation effects. Its effective requirement is `visible_when` matching (or absent) **and** `required_when` matching. Consequently, changing `visible_when` can also change server validation; these conditions cannot be treated as personal display preferences. The business intent of an installed condition must be reviewed before any future separation from layout storage.
+- `visible_when` in a view layout controls display. View layouts reject `required_when` and are not a source of conditional write requirements. The shared frontend resolver keeps placed unconditionally required fields visible. Field visibility is not a data authorization mechanism; field access policies remain authoritative.
+- Frame arrangement, record section order, omission of optional content such as notes, and the standard presentation's eight-field summary are presentation choices. They do not update field definitions, layout conditions or workflow policies. Theme and navigation preferences retain their existing owners.
+
+### Existing write semantics
+
+Creation selects the `create` layout. Updates prefer the first stored `edit` layout, falling back to `create` only when no edit layout exists; conditions from the two layouts are not combined. An existing edit layout without required rules does not fall back to the create rules. This is the current organization policy and must remain unchanged by presentation selection. The server uses the organization's time zone, the current actor and proposed values; it does not receive or consult a frame or record-presentation identifier. Comparing presentations requires the same actor, values, operation, effective time, configuration and enabled modules: disabling a rules provider changes the actual policy, not just its presentation.
+
+Fields marked unconditionally required remain subject to their normal field validators. Layout saving rejects `visible_when` on such fields in create/edit layouts and rejects `required_when` in view layouts; missing required fields are appended to a saved create layout. Saving/resetting layouts requires `settings.manage` and follows the existing event/audit path. An experience selection does not call those endpoints.
+
+Inline editing in either record presentation uses the same `model.saveField`, payload conversion and PATCH path. Full create/edit pages retain `RecordFormDialogBody` and `RecordForm`. A rejected write is propagated to `InlineFieldEditor` or the form: errors for rendered controls stay on those fields, while violations for omitted or conditionally hidden controls are shown as a general error. Conditional requirements on other fields can reject an inline edit; the view layout is not a replacement for the server's create/edit policy.
+
+The edit form reads its own edit layout, whereas server writes can fall back to create-layout rules. Inline editors validate the individual field locally and rely on the server for cross-field conditional rules. Those differences predate presentation selection. They do not authorize changing server fallback or copying create/edit conditions into a personal profile.
+
+### Personalization limit
+
+The initial experience/profile contract is limited to external composition and references to existing resources. Personal overrides of `visible_when`, `required_when`, `is_required`, field access/read-only restrictions, validation rules or workflow requirements are excluded, including equivalent nested options passed to a presentation. A preference or profile reset must not save/reset a field layout or remove a business rule. This is a constraint for the upcoming profile implementation; there is no profile DTO or profile policy validator yet.
+
+No rule migration is needed for the current presentations: both reuse the existing fields, layouts, editors and write paths. A future request to personalize field conditions requires a separately reviewed design: classify the installed rules and their dependencies, define their owner and effective create/update semantics, preserve their server enforcement and field error paths, and specify a bounded migration before modifying storage or execution. It must not silently drop a condition because a field or section was moved or hidden.
+
 ## Validation rules
 
 Code: `kernel/application/fields/validation_rules` (model, ports, use cases, guard, evaluation and package section), `kernel/infrastructure/fields/validation_rules` (MySQL), API `/api/v1/validation-rules` (`kernel/api/routes/v1/validation_rules.rs`), web `web/src/features/settings/validation-rules` (route `/settings/validation-rules`). Table `validation_rules` (migration `2550`).

@@ -85,6 +85,8 @@ impl CreateTask {
             .and_then(Value::as_bool)
             .unwrap_or(true);
         Ok(TaskSpec {
+            run_id: context.run_id,
+            step_id: context.step_id.to_owned(),
             title: text(config, "title")
                 .ok_or_else(|| invalid("the task title is empty"))?
                 .chars()
@@ -131,6 +133,10 @@ impl AutomationAction for CreateTask {
     fn supports(&self, record_type: &str) -> bool {
         is_automatable(record_type)
     }
+    fn retry_safe(&self, _config: &Value) -> bool {
+        true
+    }
+
     fn required_permissions(&self, _record_type: &str, _config: &Value) -> Vec<Permission> {
         vec![Permission::TASKS_CREATE]
     }

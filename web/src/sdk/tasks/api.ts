@@ -107,10 +107,11 @@ export function useActivityTypes(includeInactive = false) {
   })
 }
 
-export function useRecordActivities(target: RecordTarget) {
+export function useRecordActivities(target: RecordTarget, { enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: activitiesKeys.forRecord(target),
     queryFn: () => activitiesApi.listForRecord(target),
+    enabled,
   })
 }
 

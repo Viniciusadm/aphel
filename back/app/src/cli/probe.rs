@@ -348,6 +348,78 @@ fn event_envelope(failures: &mut Vec<String>) {
     }
 }
 
+fn experience_configuration(failures: &mut Vec<String>) {
+    use aphel_kernel::application::organization_profile::{
+        OrganizationExperiences, validate_organization_experiences,
+    };
+    use serde_json::json;
+
+    let base = json!({
+        "profiles": [{ "enabled": true, "profile": {
+            "format_version": 1, "key": "probe.standard", "label": "Probe",
+            "frame": { "module": "kernel" },
+            "record_detail": { "record_type": "probe.record", "presentation": { "module": "kernel" } }
+        }}],
+        "default_profile": "probe.standard",
+        "policy": { "allowed_profiles": ["probe.standard"], "customization": {
+            "profile_selection": true, "navigation": true, "section_order": false, "section_hidden": []
+        }}
+    });
+    let accepts = |value| {
+        serde_json::from_value::<OrganizationExperiences>(value)
+            .is_ok_and(|config| validate_organization_experiences(&config).is_empty())
+    };
+    if !accepts(base.clone()) {
+        failures.push("experiences: a valid catalog must be accepted".into());
+    }
+    let mut dormant = base.clone();
+    dormant["profiles"][0]["profile"]["frame"]["module"] = json!("absent_provider");
+    if !accepts(dormant) {
+        failures.push("experiences: dormant provider references must not be discarded or rejected as invalid format".into());
+    }
+    let mut invalid = Vec::new();
+    let mut value = base.clone();
+    value["profiles"][0]["profile"]["format_version"] = json!(2);
+    invalid.push(("unsupported version", value));
+    let mut value = base.clone();
+    value["default_profile"] = json!("probe.missing");
+    invalid.push(("dangling default", value));
+    let mut value = base.clone();
+    value["profiles"][0]["enabled"] = json!(false);
+    invalid.push(("allowlisted disabled profile", value));
+    let mut value = base.clone();
+    value["profiles"] = json!([base["profiles"][0], base["profiles"][0]]);
+    invalid.push(("duplicate catalog key", value));
+    let mut value = base.clone();
+    value["profiles"][0]["profile"]["record_detail"]["required_when"] = json!(false);
+    invalid.push(("nested field policy", value));
+    let mut value = base.clone();
+    value["profiles"][0]["profile"]["record_detail"]["regions"] = json!(null);
+    invalid.push(("explicitly null regions", value));
+    let mut value = base.clone();
+    value["profiles"][0]["profile"]["frame"]["module"] = json!("https://example.invalid/frame.js");
+    invalid.push(("executable provider URL", value));
+    let mut value = base.clone();
+    value["profiles"][0]["profile"]["record_detail"]["regions"] = json!({"main": []});
+    invalid.push(("regions on standard presentation", value));
+    let mut value = base.clone();
+    value["profiles"][0]["profile"]["record_detail"]["presentation"]["module"] =
+        json!("probe_presentation");
+    value["profiles"][0]["profile"]["record_detail"]["regions"] = json!({"main": [
+        {"module": "probe", "key": "section"}, {"module": "probe", "key": "section"}
+    ]});
+    invalid.push(("duplicate section source", value));
+    let mut value = base;
+    value["policy"]["customization"]["section_hidden"] =
+        json!([{"module": "probe", "key": "missing"}]);
+    invalid.push(("dangling policy source", value));
+    for (name, value) in invalid {
+        if accepts(value) {
+            failures.push(format!("experiences: {name} must be rejected"));
+        }
+    }
+}
+
 pub(crate) fn run() -> CliResult {
     let mut failures = Vec::new();
     access_scope_filters(&mut failures);
@@ -359,6 +431,8 @@ pub(crate) fn run() -> CliResult {
     provided_contributions(&mut failures);
     contract_resolution(&mut failures);
     event_envelope(&mut failures);
+    experience_configuration(&mut failures);
+    aphel_kernel::application::probe_personal_experience_preferences(&mut failures);
     if failures.is_empty() {
         return Ok(());
     }

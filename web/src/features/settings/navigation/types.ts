@@ -12,4 +12,5 @@ export interface PersonalPreferences {
   keyboard_shortcuts: boolean
   locale: string | null
   navigation: NavigationPreferences
+  experience: Schemas['ExperiencePreferences']
 }

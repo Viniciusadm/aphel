@@ -10,6 +10,7 @@ pub(crate) mod installer;
 pub mod members;
 pub(crate) mod modules;
 pub(crate) mod organization;
+pub(crate) mod organization_experiences;
 pub(crate) mod organization_settings;
 pub(crate) mod platform_catalog;
 pub(crate) mod preferences;

@@ -5,7 +5,7 @@ import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useNavigationPreferences } from '@/features/settings/navigation/api'
+import { useExperienceNavigation } from '@/features/experiences/experience-context'
 import { cn } from '@/lib/utils'
 import { DEFAULT_NAV_SECTION, useNavSections } from '@/kernel/modules/navigation'
 import { arrangeSidebarEntries, useAvailableSidebarEntries, type SidebarEntry } from './sidebar-entries'
@@ -129,7 +129,7 @@ function GroupSection({
 export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const { t } = useTranslation('layout')
   const [query, setQuery] = useState('')
-  const preferences = useNavigationPreferences()
+  const preferences = useExperienceNavigation()
   const entries = arrangeSidebarEntries(useAvailableSidebarEntries(), preferences)
   const filtered = entries.filter((entry) => !query || `${entry.label} ${entry.group?.label ?? ''}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
   const sections = useNavSections()

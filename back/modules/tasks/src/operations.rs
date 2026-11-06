@@ -1,5 +1,10 @@
+use aphel_contract_crm::CrmPermissions;
+use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::receipt::{self, MutationReceipt};
+use aphel_sdk::platform::domain::access::Permission;
 use async_trait::async_trait;
 use serde_json::Map;
+use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
 use crate::domain::CreateActivityCommand;
@@ -16,6 +21,20 @@ pub(crate) struct AutomationTasks;
 #[async_trait]
 impl TaskOperations for AutomationTasks {
     async fn create_task(&self, ctx: &Ctx<'_>, task: TaskSpec) -> Result<Uuid, AppError> {
+        ctx.scope.require(&Permission::TASKS_CREATE)?;
+        let digest = Sha256::digest(format!(
+            "automation:create_task:{}:{}",
+            task.run_id, task.step_id
+        ));
+        let mut bytes = [0u8; 16];
+        bytes[..6].copy_from_slice(&task.run_id.as_bytes()[..6]);
+        bytes[6..].copy_from_slice(&digest[..10]);
+        bytes[6] = (bytes[6] & 0x0f) | 0x70;
+        bytes[8] = (bytes[8] & 0x3f) | 0x80;
+        let id = Uuid::from_bytes(bytes);
+        if receipt::applied(ctx.pool(), id).await? {
+            return Ok(id);
+        }
         let activity_type_id = match task.activity_type_id {
             Some(id) => id,
             None => default_task_type(ctx).await?,
@@ -43,7 +62,20 @@ impl TaskOperations for AutomationTasks {
             custom_fields: Map::new(),
             ip: None,
         };
-        Ok(service::create(ctx, command).await?.activity.id)
+        let mut prepared = service::prepare_create(ctx, command, Default::default()).await?;
+        prepared.id = id;
+        let result = MutationReceipt::scope(id, async {
+            let mut tx = ctx.begin().await?;
+            service::insert_prepared(ctx, &mut tx, &prepared).await?;
+            tx.commit().await?;
+            Ok::<_, AppError>(id)
+        })
+        .await;
+        match result {
+            Ok(id) => Ok(id),
+            Err(_) if receipt::applied(ctx.pool(), id).await? => Ok(id),
+            Err(error) => Err(error),
+        }
     }
 }
 

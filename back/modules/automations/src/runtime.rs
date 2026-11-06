@@ -480,9 +480,18 @@ impl AutomationRunHandler {
     ) -> Result<(), AppError> {
         let system = ctx.scope;
         let runs = AutomationRunStore::of(ctx);
-        if run.attempts == 0
-            && let Some(reason) = self.protection(ctx, automation, run).await?
-        {
+        *run = runs.find_run(run.id).await?.ok_or_else(|| {
+            AppError::Internal("automation run disappeared while acquiring its lock".to_owned())
+        })?;
+        if run.status.is_finished() || run.status == RunStatus::Waiting {
+            return Ok(());
+        }
+        let Some(current) = AutomationStore::of(ctx).find(automation.id).await? else {
+            return self
+                .skip(ctx, automation, run, SkipReason::AutomationInactive)
+                .await;
+        };
+        if let Some(reason) = self.protection(ctx, &current, run).await? {
             return self.skip(ctx, automation, run, reason).await;
         }
         run.attempts += 1;

@@ -1,3 +1,7 @@
+import { DefaultRecordPresentation } from '@/features/records/detail/DefaultRecordPresentation'
+import { RECORD_PRESENTATION_CONTRACT } from '@/kernel/modules/record-presentation'
+import { DefaultAppFrame } from '@/app/layout/DefaultAppFrame'
+import { APP_FRAME_CONTRACT } from '@/kernel/modules/app-frame'
 import {
   Building2,
   Database,
@@ -220,6 +224,8 @@ const kernelModule = defineModule({
   required: true,
   namespaces: KERNEL_TRANSLATIONS,
   register(app) {
+    app.provideComponent(APP_FRAME_CONTRACT, DefaultAppFrame)
+    app.provideComponent(RECORD_PRESENTATION_CONTRACT, DefaultRecordPresentation)
     app.publicRoutes([...setupRoutes, { element: <InstallerGate />, children: authRoutes }])
     app.routes([
       ...customRecordsRoutes,

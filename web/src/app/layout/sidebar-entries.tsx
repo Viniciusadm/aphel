@@ -64,11 +64,11 @@ export function useAvailableSidebarEntries(): SidebarEntry[] {
   return [...leading, ...customObjects, ...trailing, ...locked]
 }
 
-export function arrangeSidebarEntries(
-  entries: SidebarEntry[],
+export function arrangeSidebarEntries<T extends { key: string; locked?: boolean }>(
+  entries: T[],
   preferences: NavigationPreferences,
   includeHidden = false,
-): SidebarEntry[] {
+): T[] {
   const position = new Map(preferences.order.map((key, index) => [key, index]))
   const hidden = new Set(preferences.hidden)
   const ordered = entries

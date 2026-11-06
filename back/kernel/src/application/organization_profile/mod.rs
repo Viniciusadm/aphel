@@ -1,4 +1,5 @@
 pub(crate) mod commands;
+pub(crate) mod experiences;
 pub(crate) mod ports;
 pub(crate) mod preferences;
 pub(crate) mod registration;
@@ -11,3 +12,5 @@ pub use preferences::*;
 pub use registration::*;
 pub use settings::*;
 pub use use_cases::*;
+
+pub use experiences::*;

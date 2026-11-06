@@ -6,6 +6,10 @@ export type UserPreferences = components['schemas']['PreferencesResponse']
 export type UpdateUserPreferences = components['schemas']['UpdatePreferencesRequest']
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
+  experience: { profile: null, record_detail: null },
+  stored_experience: { profile: null, record_detail: null },
+  stored_navigation: { order: [], hidden: [], home: null },
+  experience_diagnostics: [],
   keyboard_shortcuts: true,
   locale: null,
   navigation: { order: [], hidden: [], home: null },
