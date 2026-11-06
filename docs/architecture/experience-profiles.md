@@ -263,3 +263,7 @@ The organization settings page at `/settings/experiences` now manages the existi
 ## Personal settings
 
 Account settings at `/account/experience` now expose permitted selection, source ordering/omission and independent resets through the existing preference PATCH. Read-only omission choices reuse the server's active owner declarations and current profile/policy intersection. See [personal experiences](personal-experiences.md) for policy changes, retained references, the existing navigation editor and validation limits.
+
+## Acceptance gate
+
+The [acceptance evidence and remaining gate](experience-validation.md) consolidates A/B/I source trace, the public SDK authoring simulation, proposed request budget and the runtime checks still requiring an authorized environment. Source review and compilation do not complete those behavior criteria.
