@@ -94,6 +94,10 @@ pub enum Command {
     },
     Http {
         #[serde(default)]
+        on_response: Option<String>,
+        #[serde(default = "empty_object")]
+        context: Value,
+        #[serde(default)]
         client_identity: Option<String>,
         method: String,
         url: String,
@@ -298,8 +302,16 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
             method,
             url,
             client_identity,
+            on_response,
             ..
         } => {
+            if on_response.as_ref().is_some_and(|event| {
+                event.is_empty() || event.len() > 128 || !plugin.manifest.events.contains(event)
+            }) {
+                return Err(AppError::Validation(
+                    "on_response must be an event declared in the plugin manifest".to_owned(),
+                ));
+            }
             if let Some(name) = client_identity {
                 let parsed = reqwest::Url::parse(url)
                     .map_err(|_| AppError::Validation("the URL is invalid".to_owned()))?;
@@ -509,6 +521,8 @@ async fn execute(
             }
         }
         Command::Http {
+            on_response,
+            context,
             client_identity,
             method,
             url,
@@ -517,9 +531,13 @@ async fn execute(
         } => {
             headers.retain(|(name, _)| !name.eq_ignore_ascii_case("idempotency-key"));
             headers.push(("Idempotency-Key".to_owned(), effect_id.to_string()));
-            let response = crate::net::fetch(
+            return execute_http_with_result(
+                pool,
                 plugin,
-                std::time::Instant::now() + HTTP_EFFECT_TIMEOUT,
+                scope,
+                effect_id,
+                on_response.as_deref(),
+                context,
                 crate::runtime::wit::HttpRequest {
                     client_identity,
                     method,
@@ -528,16 +546,7 @@ async fn execute(
                     body: body.map(String::into_bytes),
                 },
             )
-            .await?;
-            if !(200..300).contains(&response.status) {
-                return Err(AppError::unavailable_code(
-                    "plugin_http_effect_failed",
-                    format!(
-                        "the remote service answered {}; the request will be retried with the same Idempotency-Key",
-                        response.status
-                    ),
-                ));
-            }
+            .await;
         }
         Command::Create {
             record_type,
@@ -658,4 +667,115 @@ async fn execute(
 
 fn empty_object() -> Value {
     Value::Object(serde_json::Map::new())
+}
+
+/// Result access is scoped to the calling plugin, never another plugin's effects.
+pub async fn result(pool: &MySqlPool, plugin: &str, id: &str) -> Result<Option<String>, AppError> {
+    let value: Option<Option<Json<Value>>> =
+        sqlx::query_scalar("SELECT result FROM plugins_effects WHERE id = ? AND plugin_key = ?")
+            .bind(id)
+            .bind(plugin)
+            .fetch_optional(pool)
+            .await?;
+    Ok(value.flatten().map(|Json(value)| value.to_string()))
+}
+
+fn http_result(response: Result<crate::runtime::wit::HttpResponse, AppError>) -> Value {
+    match response {
+        Ok(response) => {
+            json!({"outcome": "response", "status": response.status, "headers": response.headers, "body": response.body})
+        }
+        // Never include a transport error string: URLs may contain sensitive parameters.
+        Err(_) => {
+            json!({"outcome": "unknown", "status": null, "headers": [], "body": [], "error": "plugin_http_outcome_unknown"})
+        }
+    }
+}
+
+async fn execute_http_with_result(
+    pool: &MySqlPool,
+    plugin: &LoadedPlugin,
+    scope: &AccessScope,
+    effect_id: Uuid,
+    event: Option<&str>,
+    context: Value,
+    request: crate::runtime::wit::HttpRequest,
+) -> Result<(), AppError> {
+    let parent = ExecutionContext::current()
+        .ok_or_else(|| AppError::Internal("missing effect execution context".to_owned()))?;
+    if event.is_some() && parent.chain.len() >= 16 {
+        return Err(AppError::Validation(
+            "HTTP continuation chain exceeds 16 entries".to_owned(),
+        ));
+    }
+    // A committed sending marker prevents a worker restart from silently repeating a POST.
+    let claimed = sqlx::query(
+        "UPDATE plugins_effects SET status = 'sending' WHERE id = ? AND status = 'pending'",
+    )
+    .bind(effect_id.to_string())
+    .execute(pool)
+    .await?
+    .rows_affected()
+        == 1;
+    let response = if claimed {
+        http_result(
+            crate::net::fetch(
+                plugin,
+                std::time::Instant::now() + HTTP_EFFECT_TIMEOUT,
+                request,
+            )
+            .await,
+        )
+    } else {
+        http_result(Err(AppError::Internal(
+            "previous HTTP attempt has an unknown outcome".to_owned(),
+        )))
+    };
+    let mut tx = receipt::begin(pool).await?;
+    sqlx::query("UPDATE plugins_effects SET result = ?, status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
+        .bind(Json(&response)).bind(effect_id.to_string()).execute(&mut *tx).await?;
+    if let Some(event) = event {
+        // Continue the plugin without acquiring the installer's authority.
+        let mut execution = parent.clone();
+        execution.id = Uuid::now_v7();
+        execution.parent_id = Some(parent.id);
+        execution.trigger = "http_response".to_owned();
+        execution.chain.push(plugin.key.clone());
+        let actor = aphel_sdk::platform::application::shared::Actor::from_scope(scope);
+        let input = json!({"id": effect_id, "event_type": event, "actor_type": actor.kind(), "actor_id": actor.id(),
+            "record_type": null, "record_id": null, "occurred_at": chrono::Utc::now().to_rfc3339(),
+            "payload": {"effect_id": effect_id, "context": context, "response": response},
+            "authority": Authority::capture(scope)});
+        sqlx::query("INSERT INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
+            .bind(execution.id.to_string()).bind(&plugin.key).bind(format!("http:{effect_id}"))
+            .bind(Json(input)).bind(Json(&execution)).execute(&mut *tx).await?;
+        MySqlJobQueue::new(pool.clone())
+            .enqueue(
+                &mut tx,
+                Job::new(crate::events::RUN_JOB, json!({"id": execution.id}))
+                    .with_unique_key(format!("plugin.http.response:{effect_id}")),
+            )
+            .await?;
+    }
+    tx.commit().await?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod result_tests {
+    use super::*;
+    #[test]
+    fn http_status_is_not_business_success() {
+        let response = http_result(Ok(crate::runtime::wit::HttpResponse {
+            status: 422,
+            headers: vec![("content-type".into(), "application/json".into())],
+            body: b"rejected".to_vec(),
+        }));
+        assert_eq!(response["outcome"], "response");
+        assert_eq!(response["status"], 422);
+        assert_eq!(response["body"], json!(b"rejected".to_vec()));
+        let unknown = http_result(Err(AppError::Internal("secret transport error".into())));
+        assert_eq!(unknown["outcome"], "unknown");
+        assert!(!unknown.to_string().contains("secret"));
+    }
 }

@@ -7,6 +7,7 @@ CREATE TABLE plugins_effects (
   authority JSON NOT NULL,
   execution JSON NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  result JSON NULL,
   last_error TEXT NULL,
   created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   completed_at DATETIME(6) NULL,

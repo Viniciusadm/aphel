@@ -239,6 +239,9 @@ export const ctx = Object.freeze({
   emit(name, record, payload) {
     call(() => host.emit(name, record?.type, record?.id, JSON.stringify(payload ?? {})))
   },
+  effectResult(id) {
+    return parse(call(() => host.effectResult(id)))
+  },
   deferEffect(key, command) {
     return call(() => host.deferEffect(key, JSON.stringify(command)))
   },

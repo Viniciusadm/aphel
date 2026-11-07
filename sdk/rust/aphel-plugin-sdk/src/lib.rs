@@ -354,6 +354,10 @@ impl Ctx {
             .map_err(|error| PluginError::new("invalid_response", error.to_string()))
     }
 
+    pub fn effect_result(&self, id: &str) -> Result<Option<Value>> {
+        adapter::effect_result(id)?.map(|value| serde_json::from_str(&value).map_err(|error| PluginError::internal(error.to_string()))).transpose()
+    }
+
     pub fn defer_effect(&self, key: &str, command: impl Serialize) -> Result<String> {
         let command = serde_json::to_value(command)
             .map_err(|error| PluginError::new("invalid_input", error.to_string()))?;

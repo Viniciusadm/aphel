@@ -165,7 +165,24 @@ impl JobHandler for Run {
             occurred_at: text("occurred_at"),
             payload_json: input["payload"].to_string(),
         };
-        match on_event(plugin, &call, execution).await {
+        let outcome = if let Some(authority) = input.get("authority") {
+            let authority: crate::effects::Authority = serde_json::from_value(authority.clone())
+                .map_err(|_| AppError::Internal("invalid continuation authority".to_owned()))?;
+            let scope = authority
+                .resolve(&self.pool)
+                .await?
+                .restricted(|permission| plugin.manifest.allows(permission))
+                .acting_as("plugin", &plugin.key);
+            if !plugin.manifest.events.contains(&call.event_type) {
+                return Err(AppError::Validation(
+                    "HTTP continuation event is no longer declared".to_owned(),
+                ));
+            }
+            crate::runtime::on_event_with_scope(plugin, &call, execution, scope).await
+        } else {
+            on_event(plugin, &call, execution).await
+        };
+        match outcome {
             Ok(()) => {
                 sqlx::query("UPDATE plugins_executions SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?").bind(id).execute(&mut *tx).await?;
             }

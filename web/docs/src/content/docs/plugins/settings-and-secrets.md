@@ -202,4 +202,4 @@ ctx.deferEffect('send-document', {
 })
 ```
 
-The job stores only the reference and checks the current declaration, destination and credential on every attempt. HTTP effects retain their existing 30-second per-attempt timeout and retry behavior. A timeout can leave the remote outcome unknown: implement reconciliation and use idempotency supported by the destination. The HTTP effect adds its existing stable `Idempotency-Key`; a remote endpoint must honor it for deduplication.
+The job stores only the reference and checks the current declaration, destination and credential on every attempt. HTTP effects have a 30-second attempt timeout and persist the result. Non-2xx responses and unknown outcomes must be handled explicitly by polling or a continuation. A timeout can leave the remote outcome unknown: implement reconciliation and use idempotency supported by the destination. The HTTP effect adds its existing stable `Idempotency-Key`; a remote endpoint must honor it for deduplication.

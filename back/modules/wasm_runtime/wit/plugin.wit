@@ -171,6 +171,7 @@ interface host {
   kv-set-if-absent: func(collection: string, id: string, value-json: string) -> result<bool, plugin-error>;
   next-number: func(sequence: string) -> result<u64, plugin-error>;
 
+  effect-result: func(id: string) -> result<option<string>, plugin-error>;
   http-fetch: func(request: http-request) -> result<http-response, plugin-error>;
 
   notify: func(notification: notification) -> result<_, plugin-error>;

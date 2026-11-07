@@ -942,6 +942,17 @@ impl Host for CallState {
         )
     }
 
+    async fn effect_result(&mut self, id: String) -> HostResult<Option<String>> {
+        answer(
+            crate::effects::result(
+                &runtime_pool().map_err(|error| to_plugin_error(&error))?,
+                &self.plugin.key,
+                &id,
+            )
+            .await,
+        )
+    }
+
     async fn http_fetch(&mut self, request: wit::HttpRequest) -> HostResult<wit::HttpResponse> {
         if let Err(error) = outside_transaction(self) {
             return answer(Err(error));

@@ -235,7 +235,7 @@ export type EffectCommand =
   | { kind: 'notify'; name: string; recipient_user_id: string; title: string; body?: string | null; record_type?: string | null; record_id?: string | null; link?: string | null; data: JsonObject; dedupe_key?: string | null }
   | { kind: 'invoke'; operation: string; input: JsonObject }
   | { kind: 'email'; to: string; to_name?: string | null; subject: string; text: string; html?: string | null; purpose?: 'transactional' | 'marketing' }
-  | { kind: 'http'; client_identity?: string; method: string; url: string; headers?: [string, string][]; body?: string | null }
+  | { kind: 'http'; on_response?: string; context?: Json; client_identity?: string; method: string; url: string; headers?: [string, string][]; body?: string | null }
 
 export interface Ctx {
   readonly records: Records
@@ -249,6 +249,7 @@ export interface Ctx {
   notify(notification: Notification): void
   emit(name: string, record: RecordRef | null | undefined, payload?: JsonObject): void
   invoke<T extends Json = Json>(operation: string, input?: JsonObject): T
+  effectResult(id: string): Json | null
   deferEffect(key: string, command: EffectCommand): string
   nextNumber(sequence: string): number
   setAuditReason(reason: string | null): void

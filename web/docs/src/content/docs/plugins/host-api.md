@@ -331,7 +331,7 @@ A command is checked when you defer it and again when it runs. A failing effect 
 | `notify` | `name`, `recipient_user_id`, `title`, `body?`, `record_type?`, `record_id?`, `link?`, `data?`, `dedupe_key?` | Name must be declared (`403 plugin_notification_not_declared`). |
 | `invoke` | `operation`, `input` | The operation must be listed in `operations` and be durable (`422 plugin_effect_not_supported`). |
 | `email` | `to`, `to_name?`, `subject`, `text`, `html?`, `purpose?` | Needs `emails.send` in `requires` (`403 plugin_email_not_allowed`). `purpose` is `transactional` (default) or `marketing`. Subject one line of up to 200 characters; bodies up to 100 KiB. Recipients on the opt-out list are skipped. At most 120 e-mails per minute per plugin. Without `html`, `text` is escaped and used as the HTML body. |
-| `http` | `method`, `url`, `headers?`, `body?` | The host must be in `allowed_hosts` (`403 plugin_host_not_allowed`). Sent with an `Idempotency-Key` header equal to the effect id and a 30 second limit. A non-2xx answer fails the effect with `503 plugin_http_effect_failed` and it is retried with the same key. |
+| `http` | `method`, `url`, `headers?`, `body?`, `client_identity?`, `on_response?`, `context?` | The host must be in `allowed_hosts` (`403 plugin_host_not_allowed`). Sent with an `Idempotency-Key` header equal to the effect id and a 30 second limit. Every response is saved; network interruption produces an unknown outcome. See durable HTTP results below. |
 
 The Rust SDK type `EffectCommand` covers the record, key-value, `emit`, `notify` and `invoke` kinds; for `email` and `http` send a JSON value built with `json!`.
 
@@ -384,3 +384,10 @@ The directory functions (`list-users`, `list-roles`, `list-teams`) and `organiza
 | `plugin_owner_inactive` | 503 | The installer is no longer an active member. |
 
 Errors from the record API (`permission_denied`, `validation_error`, `field_not_accessible`, ...) are described in [Errors](/docs/reference/errors/).
+
+
+### Durable HTTP results and continuations
+
+Set `on_response` to an event listed in the plugin manifest's `events`, and optionally supply a JSON `context`, on a deferred HTTP command. Every HTTP response, including non-2xx, is persisted and delivered to the same plugin through `onEvent` / `on_event`. The payload is `{ effect_id, context, response: { outcome, status, headers, body } }`; `body` is a byte array. Interpret the response body to decide business success. Use `ctx.effectResult(id)` / `ctx.effect_result(id)` to read the saved result; another plugin's result is never exposed.
+
+Transport failure, timeout or a worker restart after sending produces `outcome: "unknown"`, a null status and `error: "plugin_http_outcome_unknown"`. This does not repeat the HTTP request automatically: reconcile the remote state from the continuation. A crash before storing a received response is also unknown. Saving the result and enqueuing the continuation share a transaction. Continuations retry independently, use a stable execution namespace and retain the originating authority; use deferred effects inside them. Sequential continuations are capped at 16 execution-chain entries. Without `on_response`, the result is still saved for polling, but no continuation is scheduled. HTTP responses are terminal transport results, including non-2xx; retry or reconcile explicitly from plugin logic. Response data may contain sensitive business information and is stored in the database; do not use this channel to fetch secrets.

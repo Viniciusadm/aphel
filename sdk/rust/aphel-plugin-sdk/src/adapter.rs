@@ -264,6 +264,10 @@ pub(crate) fn list_teams() -> Result<Value, PluginError> {
     Ok(value(&host::list_teams()?))
 }
 
+pub(crate) fn effect_result(id: &str) -> Result<Option<String>, PluginError> {
+    Ok(host::effect_result(id)?)
+}
+
 pub(crate) fn http_fetch(request: HttpRequest) -> Result<HttpResponse, PluginError> {
     let response = host::http_fetch(&wit::HttpRequest {
         client_identity: request.client_identity,

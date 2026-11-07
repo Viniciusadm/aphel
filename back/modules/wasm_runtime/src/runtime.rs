@@ -489,6 +489,15 @@ pub async fn on_event(
     execution: ExecutionContext,
 ) -> Result<(), AppError> {
     let scope = plugin_scope(plugin).await?;
+    on_event_with_scope(plugin, event, execution, scope).await
+}
+
+pub async fn on_event_with_scope(
+    plugin: &Arc<LoadedPlugin>,
+    event: &wit::Event,
+    execution: ExecutionContext,
+    scope: AccessScope,
+) -> Result<(), AppError> {
     let (mut store, bindings) = instantiate(plugin, scope, EVENT_TIMEOUT, false).await?;
     store.data_mut().retryable = true;
     execution
