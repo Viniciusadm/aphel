@@ -29,7 +29,7 @@ function initialDraft(settings: PluginSetting[]): Draft {
   return Object.fromEntries(
     settings.map((setting) => {
       if (setting.type === 'boolean') return [setting.key, setting.value === true]
-      if (setting.type === 'secret' || setting.value === null || setting.value === undefined) return [setting.key, '']
+      if ((setting.type === 'secret' || setting.type === 'tls_identity') || setting.value === null || setting.value === undefined) return [setting.key, '']
       return [setting.key, String(setting.value)]
     }),
   )
@@ -39,7 +39,7 @@ function toPayload(settings: PluginSetting[], draft: Draft, cleared: string[]): 
   const payload: Record<string, unknown> = {}
   for (const setting of settings) {
     const value = draft[setting.key]
-    if (setting.type === 'secret') {
+    if (setting.type === 'secret' || setting.type === 'tls_identity') {
       if (cleared.includes(setting.key)) payload[setting.key] = null
       else if (typeof value === 'string' && value !== '') payload[setting.key] = value
     } else if (setting.type === 'boolean') {
@@ -135,12 +135,29 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                 </Field>,
               ]
             }
-            const isSecret = setting.type === 'secret'
+            const isSecret = (setting.type === 'secret' || setting.type === 'tls_identity')
             const willClear = cleared.includes(setting.key)
             return [
               headingNode,
               <Field key={setting.key} id={inputId} label={setting.label}>
-                <Input placeholder={t('placeholders.value')}
+                {setting.type === 'tls_identity' ? (
+                  <Input
+                    id={inputId}
+                    type="file"
+                    accept=".pem"
+                    disabled={willClear || saving}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0]
+                      if (!file) return
+                      if (file.size > 8192) {
+                        event.target.value = ''
+                        notifyError(new Error('TLS identity must have at most 8192 bytes'))
+                        return
+                      }
+                      void file.text().then((pem) => setDraft((previous) => ({ ...previous, [setting.key]: pem }))).catch(notifyError)
+                    }}
+                  />
+                ) : <Input placeholder={t('placeholders.value')}
                   id={inputId}
                   type={isSecret ? 'password' : setting.type === 'number' ? 'number' : 'text'}
                   autoComplete={isSecret ? 'new-password' : undefined}
@@ -149,7 +166,7 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                   disabled={willClear}
                   value={typeof value === 'string' ? value : ''}
                   onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                />
+                />}
                 {setting.help && <p className="text-xs text-muted-foreground">{setting.help}</p>}
                 {isSecret && (
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

@@ -1,0 +1,1 @@
+These are public, test-only TLS credentials for the loopback mTLS integration test. They contain no production identity. The CA signs the server and client certificates; certificates expire in November 2036. Never use them for real services.

@@ -45,6 +45,14 @@ pub const SECRET_OWNER_TYPE: &str = "plugin";
 
 type HostResult<T> = Result<T, wit::PluginError>;
 
+pub fn setting_secret_key(plugin: &str, setting: &crate::manifest::SettingSpec) -> SecretKey {
+    if setting.kind == crate::manifest::SETTING_TLS_IDENTITY {
+        SecretKey::new("plugin_tls", plugin, &setting.key)
+    } else {
+        secret_key(plugin, &setting.key)
+    }
+}
+
 pub fn secret_key(plugin: &str, name: &str) -> SecretKey {
     SecretKey::new(SECRET_OWNER_TYPE, plugin, name)
 }
@@ -1009,11 +1017,9 @@ impl Host for CallState {
         let plugin = self.plugin.clone();
         answer(
             async {
-                if !plugin
-                    .manifest
-                    .secret_settings()
-                    .any(|setting| setting.key == key)
-                {
+                if !plugin.manifest.secret_settings().any(|setting| {
+                    setting.key == key && setting.kind == crate::manifest::SETTING_SECRET
+                }) {
                     return Err(AppError::not_found_code(
                         "plugin_secret_not_declared",
                         format!("the plugin does not declare a secret setting {key}"),

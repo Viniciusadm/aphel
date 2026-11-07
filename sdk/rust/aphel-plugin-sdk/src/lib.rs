@@ -581,6 +581,7 @@ impl Kv<'_> {
 
 #[derive(Debug, Clone, Default)]
 pub struct HttpRequest {
+    pub client_identity: Option<String>,
     pub method: String,
     pub url: String,
     pub headers: Vec<(String, String)>,
@@ -598,6 +599,11 @@ impl HttpRequest {
 
     pub fn header(mut self, name: &str, value: impl Into<String>) -> Self {
         self.headers.push((name.to_owned(), value.into()));
+        self
+    }
+
+    pub fn client_identity(mut self, name: impl Into<String>) -> Self {
+        self.client_identity = Some(name.into());
         self
     }
 

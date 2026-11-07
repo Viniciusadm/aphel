@@ -93,6 +93,8 @@ pub enum Command {
         purpose: String,
     },
     Http {
+        #[serde(default)]
+        client_identity: Option<String>,
         method: String,
         url: String,
         #[serde(default)]
@@ -292,7 +294,17 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
                 ));
             }
         }
-        Command::Http { method, url, .. } => {
+        Command::Http {
+            method,
+            url,
+            client_identity,
+            ..
+        } => {
+            if let Some(name) = client_identity {
+                let parsed = reqwest::Url::parse(url)
+                    .map_err(|_| AppError::Validation("the URL is invalid".to_owned()))?;
+                crate::net::identity_setting(&plugin.manifest, name, &parsed)?;
+            }
             if !["GET", "POST", "PUT", "PATCH", "DELETE"].contains(&method.as_str()) {
                 return Err(AppError::validation_code(
                     "plugin_effect_invalid",
@@ -497,6 +509,7 @@ async fn execute(
             }
         }
         Command::Http {
+            client_identity,
             method,
             url,
             mut headers,
@@ -508,6 +521,7 @@ async fn execute(
                 plugin,
                 std::time::Instant::now() + HTTP_EFFECT_TIMEOUT,
                 crate::runtime::wit::HttpRequest {
+                    client_identity,
                     method,
                     url,
                     headers,

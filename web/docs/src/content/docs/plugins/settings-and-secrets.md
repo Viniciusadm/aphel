@@ -138,3 +138,68 @@ Use a `secret` setting for anything you must not expose: API keys, tokens, signi
 Handle secrets in plugin code with care. The plugin is trusted with its own secrets: it can send them to any host in `[http] allowed_hosts` or return them in a route response. A deferred effect stores its command as JSON in the database until it completes, so a secret that you put in the header of a deferred `http` effect is stored there in clear. Prefer calling the external service from a route (where `http-fetch` is allowed) when a request needs a secret and its result can wait.
 
 The vault is covered in [Security model](/docs/plugins/security-model/) and for operators in [Security](/docs/admin/security/).
+
+
+## Client certificates (mTLS)
+
+Use a `tls_identity` setting when an HTTPS endpoint requires a client certificate. The backend uses the identity on behalf of the plugin; `ctx.secret` cannot read it.
+
+```toml
+[http]
+allowed_hosts = ["api.example.com"]
+
+[[settings]]
+key = "partner_certificate"
+label = "Partner client certificate (PEM)"
+type = "tls_identity"
+tls_origins = ["https://api.example.com"]
+```
+
+`tls_origins` must contain at least one exact HTTPS origin, including a port if it differs from 443. Wildcards, credentials, paths other than `/`, queries and fragments are not accepted. The request must also pass `http.allowed_hosts` and the installation's outbound network policy. Redirects remain disabled.
+
+An operator with access to the plugin settings uploads a `.pem` file in the settings dialog, or sends its contents as the setting value to `PUT /wasm-runtime/{key}/settings`. The PEM must contain the client certificate chain (leaf first) and its matching unencrypted private key, up to 8 KiB total. The backend validates that it can configure a TLS client before saving. No default is allowed. As with secrets, omitting the key preserves it, a string replaces it, and `null` revokes it. API responses only return `configured`; the material is encrypted at rest, with audit values redacted.
+
+The credential uses a separate vault owner, `plugin_tls` / plugin key, so changing a setting to `secret` cannot expose a previously stored private key. It is never included in settings or job payloads and is removed on uninstall. Each request resolves the credential again and constructs its own TLS client: replacement or removal affects subsequent requests and job attempts without restarting. An already established connection is not revoked retroactively. Certificate expiry and acceptance are checked during TLS negotiation with the remote server; there is no expiry-alert UI in this implementation.
+
+PFX/PKCS#12 files are not accepted directly by the current rustls-based client. Convert an A1 to PEM before upload; OpenSSL prompts for the PFX password:
+
+```sh
+openssl pkcs12 -in certificado.pfx -out identidade.pem -nodes
+```
+
+Keep the resulting private-key file restricted to the operator and remove it when no longer needed. This configures connection authentication, not XML/document signing.
+
+JavaScript:
+
+```js
+const response = ctx.http.send({
+  method: 'POST',
+  url: 'https://api.example.com/documents',
+  clientIdentity: 'partner_certificate',
+  body: xml,
+})
+```
+
+Rust:
+
+```rust
+let response = ctx.http().send(
+    HttpRequest::new("POST", "https://api.example.com/documents")
+        .client_identity("partner_certificate")
+        .body(xml),
+)?;
+```
+
+For durable HTTP effects, use the snake-case JSON field `client_identity`:
+
+```js
+ctx.deferEffect('send-document', {
+  kind: 'http',
+  method: 'POST',
+  url: 'https://api.example.com/documents',
+  client_identity: 'partner_certificate',
+  body: xml,
+})
+```
+
+The job stores only the reference and checks the current declaration, destination and credential on every attempt. HTTP effects retain their existing 30-second per-attempt timeout and retry behavior. A timeout can leave the remote outcome unknown: implement reconciliation and use idempotency supported by the destination. The HTTP effect adds its existing stable `Idempotency-Key`; a remote endpoint must honor it for deduplication.

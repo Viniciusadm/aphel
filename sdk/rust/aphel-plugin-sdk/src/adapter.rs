@@ -266,6 +266,7 @@ pub(crate) fn list_teams() -> Result<Value, PluginError> {
 
 pub(crate) fn http_fetch(request: HttpRequest) -> Result<HttpResponse, PluginError> {
     let response = host::http_fetch(&wit::HttpRequest {
+        client_identity: request.client_identity,
         method: request.method,
         url: request.url,
         headers: request.headers,

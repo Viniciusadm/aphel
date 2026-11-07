@@ -172,3 +172,6 @@ A panic, an out-of-bounds access or running out of memory traps the instance. Th
 - Each call starts a new instance, so global state does not persist. Use records or key-value storage.
 - The SDK is synchronous, like the host API. Do not use threads or async runtimes.
 - The target is `wasm32-wasip2`. Crates that need operating system threads, sockets or a file system will not work, because the sandbox is empty.
+
+
+HTTP requests support mTLS through a declared `tls_identity` setting: call `.client_identity(name)` on `HttpRequest`. Deferred HTTP effects use `client_identity`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.

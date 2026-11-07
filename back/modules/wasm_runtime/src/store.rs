@@ -30,6 +30,9 @@ impl InstalledPlugin {
     pub fn effective_settings(&self) -> Map<String, Value> {
         let mut settings = self.manifest.setting_defaults();
         settings.extend(self.settings.clone());
+        for setting in self.manifest.secret_settings() {
+            settings.remove(&setting.key);
+        }
         settings
     }
 }

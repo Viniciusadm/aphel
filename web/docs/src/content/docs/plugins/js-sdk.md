@@ -180,3 +180,6 @@ Point the build script at the `.ts` entry: `aphel-plugin-js src/plugin.ts -o bac
 - Every call instantiates a new engine. Hooks have two seconds in total, so keep their work small and avoid large dependencies.
 - Avoid loading the whole table: use `perPage` and filters, or `iterate`.
 - Memory is limited to 64 MB per call. Large JSON values and big `Uint8Array` bodies count against it.
+
+
+HTTP requests support mTLS through a declared `tls_identity` setting: pass `clientIdentity` to `ctx.http.send`. Deferred HTTP effects use `client_identity`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.

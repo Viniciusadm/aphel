@@ -163,6 +163,8 @@ Collection names have 1 to 64 characters and ids 1 to 128, otherwise `422`. In J
 
 ## HTTP
 
+The HTTP request WIT contract now includes `client-identity`. Rebuild plugin components with the updated SDK before loading them in this runtime; there is no compatibility adapter for the previous contract.
+
 `http-fetch(request) -> response` (JavaScript `ctx.http.send` and `ctx.http.get`, Rust `ctx.http().send` and `.get`). Effect: yes (so only in routes, and operations with a write or external effect; elsewhere use an `http` deferred effect).
 
 | Request field | Description |
@@ -171,6 +173,7 @@ Collection names have 1 to 64 characters and ids 1 to 128, otherwise `422`. In J
 | `url` | Absolute URL. |
 | `headers` | List of name/value pairs. |
 | `body` | Optional bytes, up to 5 MiB. |
+| `client-identity` | Optional name of a declared `tls_identity` setting; JS `clientIdentity`, Rust `.client_identity(name)`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls). |
 
 The response has `status`, `headers` and `body` (bytes, up to 5 MiB). A non-2xx status is returned as a normal response, not as an error. The JavaScript response also has `ok`, `text()`, `json()` and `header(name)`; the request accepts `json` as a shortcut for a JSON body.
 

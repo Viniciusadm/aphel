@@ -82,6 +82,37 @@ pub async fn fetch(
             ),
         ));
     }
+    let identity_client = if let Some(name) = request.client_identity.as_deref() {
+        let setting = identity_setting(&plugin.manifest, name, &url)?;
+        let pem = state
+            .secrets()
+            .reveal(
+                &aphel_sdk::platform::domain::access::AccessScope::system(),
+                &crate::host::setting_secret_key(&plugin.key, setting),
+            )
+            .await?
+            .ok_or_else(|| {
+                AppError::Configuration("client identity is not configured".to_owned())
+            })?;
+        // Build per request: renewal/revocation takes effect without a shared identity cache.
+        Some(
+            Client::builder()
+                .dns_resolver(GuardedResolver::shared(OutboundNetworkPolicy::new(
+                    config.allow_private_networks,
+                    false,
+                )))
+                .redirect(reqwest::redirect::Policy::none())
+                .no_proxy()
+                .connect_timeout(MAX_CONNECT_TIMEOUT)
+                .identity(parse_identity(pem.expose())?)
+                .build()
+                .map_err(|_| {
+                    AppError::Configuration("could not build the mTLS client".to_owned())
+                })?,
+        )
+    } else {
+        None
+    };
     let remaining = deadline.saturating_duration_since(Instant::now());
     if remaining < MIN_REMAINING {
         return Err(failed(
@@ -90,9 +121,11 @@ pub async fn fetch(
     }
     let method = Method::from_bytes(request.method.to_ascii_uppercase().as_bytes())
         .map_err(|_| AppError::Validation("the HTTP method is invalid".to_owned()))?;
-    let mut builder = client(config.allow_private_networks)?
-        .request(method, url)
-        .timeout(remaining);
+    let selected_client = match identity_client.as_ref() {
+        Some(client) => client,
+        None => client(config.allow_private_networks)?,
+    };
+    let mut builder = selected_client.request(method, url).timeout(remaining);
     for (name, value) in &request.headers {
         let name = HeaderName::from_bytes(name.as_bytes())
             .map_err(|_| AppError::Validation(format!("the header name {name} is invalid")))?;
@@ -144,4 +177,193 @@ pub async fn fetch(
         headers,
         body,
     })
+}
+
+/// Input is a PEM certificate chain followed by an unencrypted private key.
+pub fn parse_identity(pem: &str) -> Result<reqwest::Identity, AppError> {
+    let invalid = || {
+        AppError::Validation(
+            "invalid TLS identity: expected a PEM certificate chain and matching private key"
+                .to_owned(),
+        )
+    };
+    let identity = reqwest::Identity::from_pem(pem.as_bytes()).map_err(|_| invalid())?;
+    Client::builder()
+        .identity(identity.clone())
+        .build()
+        .map_err(|_| invalid())?;
+    Ok(identity)
+}
+
+pub fn valid_tls_origin(origin: &str) -> bool {
+    reqwest::Url::parse(origin).is_ok_and(|url| {
+        url.scheme() == "https"
+            && url.host_str().is_some_and(|host| !host.contains('*'))
+            && url.username().is_empty()
+            && url.password().is_none()
+            && url.path() == "/"
+            && url.query().is_none()
+            && url.fragment().is_none()
+    })
+}
+
+pub(crate) fn identity_setting<'a>(
+    manifest: &'a crate::manifest::PluginManifest,
+    name: &str,
+    url: &reqwest::Url,
+) -> Result<&'a crate::manifest::SettingSpec, AppError> {
+    let setting = manifest
+        .settings
+        .iter()
+        .find(|setting| {
+            setting.key == name && setting.kind == crate::manifest::SETTING_TLS_IDENTITY
+        })
+        .ok_or_else(|| {
+            AppError::forbidden_code(
+                "plugin_tls_identity_not_declared",
+                "client identity is not declared",
+            )
+        })?;
+    authorize_identity(url, &setting.tls_origins)?;
+    Ok(setting)
+}
+
+fn authorize_identity(url: &reqwest::Url, origins: &[String]) -> Result<(), AppError> {
+    if url.scheme() == "https"
+        && origins.iter().any(|origin| {
+            valid_tls_origin(origin)
+                && reqwest::Url::parse(origin).is_ok_and(|allowed| allowed.origin() == url.origin())
+        })
+    {
+        return Ok(());
+    }
+    Err(AppError::forbidden_code(
+        "plugin_tls_origin_not_allowed",
+        "client identity is not allowed for this HTTPS origin",
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn identity_is_bound_to_exact_https_origin() {
+        let origins = vec!["https://api.example.com".to_owned()];
+        for allowed in ["https://api.example.com/a", "https://api.example.com:443/b"] {
+            assert!(authorize_identity(&reqwest::Url::parse(allowed).unwrap(), &origins).is_ok());
+        }
+        for denied in [
+            "http://api.example.com",
+            "https://api.example.com:444",
+            "https://other.example.com",
+            "https://api.example.com.evil.test",
+        ] {
+            assert!(authorize_identity(&reqwest::Url::parse(denied).unwrap(), &origins).is_err());
+        }
+    }
+    #[test]
+    fn rejects_invalid_credentials_and_origin_declarations() {
+        assert!(parse_identity("not a certificate").is_err());
+        for origin in [
+            "http://example.com",
+            "https://user@example.com",
+            "https://example.com/path",
+            "https://example.com?x=1",
+            "https://example.com#fragment",
+            "https://*.example.com",
+        ] {
+            assert!(!valid_tls_origin(origin), "{origin}");
+        }
+    }
+}
+
+#[cfg(test)]
+mod mtls_integration_tests {
+    use super::*;
+    use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
+    use std::sync::Arc;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    #[tokio::test]
+    async fn server_requires_a_valid_client_certificate() {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let mut roots = rustls::RootCertStore::empty();
+        roots
+            .add(CertificateDer::from(
+                include_bytes!("../tests/fixtures/mtls/ca.der").to_vec(),
+            ))
+            .unwrap();
+        let verifier = rustls::server::WebPkiClientVerifier::builder(Arc::new(roots))
+            .build()
+            .unwrap();
+        let config = rustls::ServerConfig::builder()
+            .with_client_cert_verifier(verifier)
+            .with_single_cert(
+                vec![CertificateDer::from(
+                    include_bytes!("../tests/fixtures/mtls/server.der").to_vec(),
+                )],
+                PrivateKeyDer::Pkcs8(PrivatePkcs8KeyDer::from(
+                    include_bytes!("../tests/fixtures/mtls/server-key.der").to_vec(),
+                )),
+            )
+            .unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let acceptor = tokio_rustls::TlsAcceptor::from(Arc::new(config));
+            let mut authenticated = 0;
+            for _ in 0..2 {
+                let (stream, _) = listener.accept().await.unwrap();
+                if let Ok(mut stream) = acceptor.accept(stream).await {
+                    let mut buffer = [0u8; 2048];
+                    stream.read(&mut buffer).await.unwrap();
+                    stream
+                        .write_all(
+                            b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok",
+                        )
+                        .await
+                        .unwrap();
+                    authenticated += 1;
+                }
+            }
+            authenticated
+        });
+        let root = reqwest::Certificate::from_pem(include_bytes!("../tests/fixtures/mtls/ca.pem"))
+            .unwrap();
+        let url = format!("https://{address}/");
+        let anonymous = Client::builder()
+            .no_proxy()
+            .add_root_certificate(root.clone())
+            .timeout(Duration::from_secs(5))
+            .build()
+            .unwrap();
+        assert!(anonymous.get(&url).send().await.is_err());
+        let identity =
+            parse_identity(include_str!("../tests/fixtures/mtls/client-identity.pem")).unwrap();
+        let authenticated = Client::builder()
+            .no_proxy()
+            .add_root_certificate(root)
+            .identity(identity)
+            .timeout(Duration::from_secs(5))
+            .build()
+            .unwrap();
+        assert_eq!(
+            authenticated
+                .get(&url)
+                .send()
+                .await
+                .unwrap()
+                .text()
+                .await
+                .unwrap(),
+            "ok"
+        );
+        assert_eq!(
+            tokio::time::timeout(Duration::from_secs(5), server)
+                .await
+                .unwrap()
+                .unwrap(),
+            1
+        );
+    }
 }

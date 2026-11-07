@@ -32,8 +32,19 @@ pub const RECORD_HOOKS: &[&str] = &[
 ];
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
 pub const SETTING_SECRET: &str = "secret";
+pub const SETTING_TLS_IDENTITY: &str = "tls_identity";
+pub fn is_sensitive_setting(kind: &str) -> bool {
+    matches!(kind, SETTING_SECRET | SETTING_TLS_IDENTITY)
+}
 pub const PLUGIN_EVENT_PREFIX: &str = "plugin.";
-const SETTING_KINDS: &[&str] = &["number", "boolean", "text", "select", SETTING_SECRET];
+const SETTING_KINDS: &[&str] = &[
+    "number",
+    "boolean",
+    "text",
+    "select",
+    SETTING_SECRET,
+    SETTING_TLS_IDENTITY,
+];
 pub const SETTING_SELECT: &str = "select";
 const MAX_SCHEDULES: usize = 10;
 const MAX_ACTIONS: usize = 20;
@@ -323,6 +334,9 @@ pub struct RouteSpec {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SettingSpec {
+    /// Exact HTTPS origins allowed to receive this client identity.
+    #[serde(default)]
+    pub tls_origins: Vec<String>,
     pub key: String,
     pub label: String,
     #[serde(rename = "type")]
@@ -543,7 +557,7 @@ impl PluginManifest {
     pub fn secret_settings(&self) -> impl Iterator<Item = &SettingSpec> {
         self.settings
             .iter()
-            .filter(|setting| setting.kind == SETTING_SECRET)
+            .filter(|setting| is_sensitive_setting(&setting.kind))
     }
 
     pub fn subscribes(&self, hook: &str, record_type: &str) -> Option<i32> {
@@ -1112,6 +1126,21 @@ impl PluginManifest {
             }
         }
         for (index, setting) in self.settings.iter().enumerate() {
+            if setting.kind == SETTING_TLS_IDENTITY {
+                if setting.tls_origins.is_empty()
+                    || setting
+                        .tls_origins
+                        .iter()
+                        .any(|origin| !crate::net::valid_tls_origin(origin))
+                {
+                    violations.push(FieldViolation::new(format!("settings[{index}].tls_origins"), "must contain exact HTTPS origins without paths, credentials, queries or fragments"));
+                }
+            } else if !setting.tls_origins.is_empty() {
+                violations.push(FieldViolation::new(
+                    format!("settings[{index}].tls_origins"),
+                    "is only allowed for tls_identity settings",
+                ));
+            }
             if !is_key(&setting.key, 64) {
                 violations.push(FieldViolation::new(
                     format!("settings[{index}].key"),
@@ -1145,7 +1174,7 @@ impl PluginManifest {
                     "is only allowed for select settings",
                 ));
             }
-            if setting.kind == SETTING_SECRET && setting.default.is_some() {
+            if is_sensitive_setting(&setting.kind) && setting.default.is_some() {
                 violations.push(FieldViolation::new(
                     format!("settings[{index}].default"),
                     "secret settings cannot have a default",
@@ -1266,7 +1295,7 @@ impl PluginManifest {
     pub fn setting_defaults(&self) -> serde_json::Map<String, Value> {
         self.settings
             .iter()
-            .filter(|setting| setting.kind != SETTING_SECRET)
+            .filter(|setting| !is_sensitive_setting(&setting.kind))
             .filter_map(|setting| {
                 setting
                     .default

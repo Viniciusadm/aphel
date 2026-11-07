@@ -136,12 +136,14 @@ See [Schedules](/docs/plugins/schedules/).
 | --- | --- | --- | --- | --- |
 | `key` | string | yes | | Lowercase key, at most 64 characters. |
 | `label` | string | yes | | |
-| `type` | `"number"`, `"boolean"`, `"text"`, `"select"` or `"secret"` | yes | | Error: `must be one of number, boolean, text, select, secret`. |
-| `default` | any | no | none | Not allowed for `secret`. For `select`, one of the option values. |
+| `type` | `"number"`, `"boolean"`, `"text"`, `"select"` or `"secret"` / `"tls_identity"` | yes | | Error: `must be one of number, boolean, text, select, secret, tls_identity`. |
+| `default` | any | no | none | Not allowed for `secret` or `tls_identity`. For `select`, one of the option values. |
 | `min`, `max` | integer | no | none | Bounds for `number` settings. |
 | `help` | string | no | none | Help text shown under the input. |
 | `group` | string | no | none | Heading under which consecutive settings with the same group are shown. |
 | `options` | array of `{ value, label }` | for `select` | `[]` | Required for `select`, not allowed for other types. |
+
+`tls_identity` settings additionally require `tls_origins`, a list of exact HTTPS origins authorized to receive the client certificate. This field is rejected on other setting types.
 
 See [Settings and secrets](/docs/plugins/settings-and-secrets/).
 

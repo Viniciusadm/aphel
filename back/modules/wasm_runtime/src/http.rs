@@ -16,8 +16,8 @@ use utoipa_axum::routes;
 
 use crate::compiled;
 use crate::grants;
-use crate::host::secret_key;
-use crate::manifest::{HostCatalog, PluginManifest, SETTING_SECRET, match_route};
+use crate::host::setting_secret_key;
+use crate::manifest::{HostCatalog, PluginManifest, match_route};
 use crate::package::{MAX_PACKAGE_BYTES, PUBLIC_APP_INDEX, read_package};
 use crate::registry;
 use crate::runtime::{self, wit};
@@ -414,13 +414,13 @@ async fn setting_responses(
     let values = plugin.effective_settings();
     let mut settings = Vec::with_capacity(plugin.manifest.settings.len());
     for setting in &plugin.manifest.settings {
-        let configured = if setting.kind == SETTING_SECRET {
+        let configured = if crate::manifest::is_sensitive_setting(&setting.kind) {
             Some(
                 state
                     .secrets
                     .reveal(
                         &AccessScope::system(),
-                        &secret_key(&plugin.key, &setting.key),
+                        &setting_secret_key(&plugin.key, setting),
                     )
                     .await?
                     .is_some(),
@@ -437,7 +437,11 @@ async fn setting_responses(
             max: setting.max,
             group: setting.group.clone(),
             options: setting.options.clone(),
-            value: values.get(&setting.key).cloned().unwrap_or(Value::Null),
+            value: if crate::manifest::is_sensitive_setting(&setting.kind) {
+                Value::Null
+            } else {
+                values.get(&setting.key).cloned().unwrap_or(Value::Null)
+            },
             configured,
         });
     }
@@ -992,10 +996,11 @@ async fn uninstall_plugin(
     store::delete(&mut tx, &key).await?;
     clear_ui_plugin(&mut tx, &key).await?;
     remove_runtime_permissions(&mut tx, &permissions_owner(&key)).await?;
-    for setting in plugin.manifest.secret_settings() {
+    // Remove all credentials, including declarations removed by a plugin update.
+    for owner in [crate::host::SECRET_OWNER_TYPE, "plugin_tls"] {
         state
             .secrets
-            .remove(&mut tx, &tenant.scope, &secret_key(&key, &setting.key))
+            .remove_owner(&mut tx, &tenant.scope, owner, &key)
             .await?;
     }
     tx.commit().await.map_err(AppError::from)?;
@@ -1152,7 +1157,7 @@ fn validate_settings(
             violations.push(FieldViolation::new(key, "is not a setting of this plugin"));
             continue;
         };
-        if setting.kind == SETTING_SECRET {
+        if crate::manifest::is_sensitive_setting(&setting.kind) {
             continue;
         }
         let valid = match setting.kind.as_str() {
@@ -1259,6 +1264,9 @@ async fn update_plugin_settings(
             None => {}
             Some(Value::Null) => secrets.push((setting.key.clone(), None)),
             Some(Value::String(text)) if !text.is_empty() && text.len() <= MAX_SECRET_BYTES => {
+                if setting.kind == crate::manifest::SETTING_TLS_IDENTITY {
+                    crate::net::parse_identity(text)?;
+                }
                 secrets.push((setting.key.clone(), Some(Secret::new(text.clone()))))
             }
             Some(_) => violations.push(FieldViolation::new(
@@ -1285,7 +1293,13 @@ async fn update_plugin_settings(
     );
     store::set_settings(&mut tx, &key, &settings).await?;
     for (name, secret) in &secrets {
-        let secret_key = secret_key(&key, name);
+        let setting = plugin
+            .manifest
+            .settings
+            .iter()
+            .find(|setting| &setting.key == name)
+            .expect("validated setting");
+        let secret_key = setting_secret_key(&key, setting);
         match secret {
             Some(secret) => {
                 state
