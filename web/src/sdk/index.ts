@@ -60,3 +60,5 @@ export * from './ui'
 export * from './workflow'
 
 export { APP_FRAME_CONTRACT, DEFAULT_APP_FRAME, type AppFrameProps } from '@/kernel/modules/app-frame'
+export { sendLocalPrintJob, PrintDeliveryError } from './printing'
+export type { PrintBridgeConfiguration, LocalPrintJob, PrintAcknowledgement } from './printing'

@@ -395,3 +395,19 @@ It loads the record, renders loading, error and not-found states, and renders th
 - [UI plugins](/docs/plugins/ui-plugins/)
 - [UI library](/docs/plugins/ui-library/)
 - [Examples](/docs/plugins/examples/)
+
+
+## Local printing
+
+The web SDK exports `sendLocalPrintJob(configuration, job)` for execution in the cashier browser. The WASM backend must persist/authorize the domain print job and return it to the appropriate station; a remote worker cannot reach that computer via its own localhost. The helper accepts only an exact loopback origin, uses a station-local Bearer token, sends a stable `Idempotency-Key` and validates the matching job acknowledgement. It does not retry or open a browser print dialog automatically after an unknown outcome.
+
+```ts
+import { sendLocalPrintJob } from '@aphel/web-sdk'
+const ack = await sendLocalPrintJob(
+  { url: 'http://127.0.0.1:9876', token: stationToken },
+  { id: persistedJob.id, target: 'cashier', payload: receiptHtml },
+)
+// accepted/duplicate acknowledges delivery, not physical printing.
+```
+
+The local agent must implement origin-restricted CORS (including preflight), authentication, durable idempotency and job-status lookup. Browser local-network permissions must be tested on the target devices. This transport helper is not an ESC/POS driver or a backend print queue. See the installation plan for the proposed agent protocol.
