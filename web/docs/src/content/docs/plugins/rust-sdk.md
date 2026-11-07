@@ -175,3 +175,6 @@ A panic, an out-of-bounds access or running out of memory traps the instance. Th
 
 
 HTTP requests support mTLS through a declared `tls_identity` setting: call `.client_identity(name)` on `HttpRequest`. Deferred HTTP effects use `client_identity`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.
+
+
+Protected HTTP authentication, durable HTTP result continuations and byte signing are also available. See [Settings and secrets](/docs/plugins/settings-and-secrets/) and [Host API](/docs/plugins/host-api/). Payment settlement helpers are available in `payments::PaymentLedger`; callers remain responsible for authenticated provider state and atomic persistence.

@@ -136,14 +136,14 @@ See [Schedules](/docs/plugins/schedules/).
 | --- | --- | --- | --- | --- |
 | `key` | string | yes | | Lowercase key, at most 64 characters. |
 | `label` | string | yes | | |
-| `type` | `"number"`, `"boolean"`, `"text"`, `"select"` or `"secret"` / `"tls_identity"` | yes | | Error: `must be one of number, boolean, text, select, secret, tls_identity`. |
-| `default` | any | no | none | Not allowed for `secret` or `tls_identity`. For `select`, one of the option values. |
+| `type` | `"number"`, `"boolean"`, `"text"`, `"select"`, `"secret"`, `"tls_identity"`, `"http_credential"` or `"signing_identity"` | yes | | Error: `must be one of number, boolean, text, select, secret, tls_identity, http_credential, signing_identity`. |
+| `default` | any | no | none | Not allowed for any sensitive type (`secret`, `tls_identity`, `http_credential`, `signing_identity`). For `select`, one of the option values. |
 | `min`, `max` | integer | no | none | Bounds for `number` settings. |
 | `help` | string | no | none | Help text shown under the input. |
 | `group` | string | no | none | Heading under which consecutive settings with the same group are shown. |
 | `options` | array of `{ value, label }` | for `select` | `[]` | Required for `select`, not allowed for other types. |
 
-`tls_identity` settings additionally require `tls_origins`, a list of exact HTTPS origins authorized to receive the client certificate. This field is rejected on other setting types.
+`tls_identity` requires `tls_origins`; `http_credential` requires `http_origins`. Both contain exact HTTPS origins and are rejected on other setting types. `signing_identity` requires `signing_algorithms`; a TLS identity may opt into signing with the same field. Supported algorithms are `rsa_pkcs1_sha256`, `rsa_pkcs1_sha512`, `rsa_pkcs1_sha1` (explicit legacy opt-in) and `ed25519`. Signing algorithms are rejected on other types.
 
 See [Settings and secrets](/docs/plugins/settings-and-secrets/).
 

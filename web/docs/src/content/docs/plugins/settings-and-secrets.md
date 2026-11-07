@@ -75,7 +75,7 @@ An administrator with `system.manage` can always read and change settings. Set `
 
 ## Where they are edited
 
-In **Settings**, **Integrations**, **Plugins**, each installed plugin with settings has a settings dialog. Numbers use a number input with the `min` and `max`, booleans a checkbox, selects a dropdown, text a text input and secrets a password input that shows whether a value is configured and offers to clear it. Leaving a non-secret input empty restores the default.
+In **Settings**, **Integrations**, **Plugins**, each installed plugin with settings has a settings dialog. Numbers use a number input with the `min` and `max`, booleans a checkbox, selects a dropdown, text a text input, PEM identities a file input, and secrets/HTTP credentials a password input that shows whether a value is configured and offers to clear it. Leaving a non-secret input empty restores the default.
 
 ## API
 
@@ -101,7 +101,7 @@ A GET answers `{ "data": [...] }`. Each item has this shape.
 }
 ```
 
-`value` is the stored value, or the default when nothing is stored, or `null`. For a secret, `value` is always `null` and `configured` is `true` or `false`. For other types `configured` is `null`.
+`value` is the stored value, or the default when nothing is stored, or `null`. For any sensitive setting, `value` is always `null` and `configured` is `true` or `false`. For other types `configured` is `null`.
 
 A PUT validates every key you send against the declarations:
 
@@ -135,7 +135,7 @@ Use a `secret` setting for anything you must not expose: API keys, tokens, signi
 - `secret` is available in every entry point, including hooks.
 - Uninstalling the plugin deletes its secrets.
 
-Handle secrets in plugin code with care. The plugin is trusted with its own secrets: it can send them to any host in `[http] allowed_hosts` or return them in a route response. A deferred effect stores its command as JSON in the database until it completes, so a secret that you put in the header of a deferred `http` effect is stored there in clear. Prefer calling the external service from a route (where `http-fetch` is allowed) when a request needs a secret and its result can wait.
+Handle secrets in plugin code with care. The plugin is trusted with its own secrets: it can send them to any host in `[http] allowed_hosts` or return them in a route response. A deferred effect stores its command as JSON. For external authentication, use `http_credential` references, which the backend resolves at execution. Do not copy secrets into command headers, URLs, bodies or context. A plain `secret` remains appropriate when the plugin itself needs the value; protected credentials are appropriate when only the backend should use it.
 
 The vault is covered in [Security model](/docs/plugins/security-model/) and for operators in [Security](/docs/admin/security/).
 

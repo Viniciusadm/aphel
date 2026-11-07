@@ -163,7 +163,7 @@ Collection names have 1 to 64 characters and ids 1 to 128, otherwise `422`. In J
 
 ## HTTP
 
-The HTTP request WIT contract now includes `client-identity`. Rebuild plugin components with the updated SDK before loading them in this runtime; there is no compatibility adapter for the previous contract.
+The WIT contract includes HTTP `client-identity` / `authentication`, `effect-result` and `sign-bytes`. Rebuild plugin components with the updated SDK before loading them in this runtime; there is no compatibility adapter for the previous contract.
 
 `http-fetch(request) -> response` (JavaScript `ctx.http.send` and `ctx.http.get`, Rust `ctx.http().send` and `.get`). Effect: yes (so only in routes, and operations with a write or external effect; elsewhere use an `http` deferred effect).
 
@@ -173,6 +173,7 @@ The HTTP request WIT contract now includes `client-identity`. Rebuild plugin com
 | `url` | Absolute URL. |
 | `headers` | List of name/value pairs. |
 | `body` | Optional bytes, up to 5 MiB. |
+| `authentication` | Optional name of a declared `http_credential`; JS `authentication`, Rust `.authentication(name)`. Resolved in the backend for the allowed HTTPS origin. |
 | `client-identity` | Optional name of a declared `tls_identity` setting; JS `clientIdentity`, Rust `.client_identity(name)`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls). |
 
 The response has `status`, `headers` and `body` (bytes, up to 5 MiB). A non-2xx status is returned as a normal response, not as an error. The JavaScript response also has `ok`, `text()`, `json()` and `header(name)`; the request accepts `json` as a shortcut for a JSON body.
@@ -335,7 +336,7 @@ A command is checked when you defer it and again when it runs. A failing effect 
 
 The Rust SDK type `EffectCommand` covers the record, key-value, `emit`, `notify` and `invoke` kinds; for `email` and `http` send a JSON value built with `json!`.
 
-Deferred commands are stored as JSON, so do not put secrets in them unless you accept that they are stored in clear until the effect completes.
+Deferred commands are stored as JSON. Use protected credential references for authentication, never secret values in command headers, URLs, bodies or context. Standard inline authentication headers are rejected.
 
 ## Execution context
 
@@ -371,7 +372,7 @@ The directory functions (`list-users`, `list-roles`, `list-teams`) and `organiza
 | `plugin_kv_not_a_counter` | 409 | Increment of a non-integer or negative sequence. |
 | `plugin_host_not_allowed` | 403 / 422 | Host not in `allowed_hosts` / URL refused by policy. |
 | `plugin_http_failed` | 503 | Network failure, no time left, response too large. |
-| `plugin_http_effect_failed` | 503 | Deferred HTTP request answered non-2xx. |
+| `plugin_http_outcome_unknown` | Result error | No definitive HTTP result; reconcile before repeating the external operation. |
 | `plugin_event_not_declared` | 404 / 403 | `emit` of an event not in `[[emits]]` (host call / deferred). |
 | `plugin_notification_not_declared`, `plugin_notification_invalid`, `plugin_notification_recipient_invalid`, `plugin_notification_record_not_readable` | 404 / 422 / 422 / 403 | `notify` problems. |
 | `plugin_operation_not_declared`, `plugin_operation_unknown`, `plugin_operation_timeout` | 403 / 404 / 503 | `invoke` problems. |
