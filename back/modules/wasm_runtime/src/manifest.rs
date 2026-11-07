@@ -33,8 +33,12 @@ pub const RECORD_HOOKS: &[&str] = &[
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
 pub const SETTING_SECRET: &str = "secret";
 pub const SETTING_TLS_IDENTITY: &str = "tls_identity";
+pub const SETTING_HTTP_CREDENTIAL: &str = "http_credential";
 pub fn is_sensitive_setting(kind: &str) -> bool {
-    matches!(kind, SETTING_SECRET | SETTING_TLS_IDENTITY)
+    matches!(
+        kind,
+        SETTING_SECRET | SETTING_TLS_IDENTITY | SETTING_HTTP_CREDENTIAL
+    )
 }
 pub const PLUGIN_EVENT_PREFIX: &str = "plugin.";
 const SETTING_KINDS: &[&str] = &[
@@ -44,6 +48,7 @@ const SETTING_KINDS: &[&str] = &[
     "select",
     SETTING_SECRET,
     SETTING_TLS_IDENTITY,
+    SETTING_HTTP_CREDENTIAL,
 ];
 pub const SETTING_SELECT: &str = "select";
 const MAX_SCHEDULES: usize = 10;
@@ -337,6 +342,8 @@ pub struct SettingSpec {
     /// Exact HTTPS origins allowed to receive this client identity.
     #[serde(default)]
     pub tls_origins: Vec<String>,
+    #[serde(default)]
+    pub http_origins: Vec<String>,
     pub key: String,
     pub label: String,
     #[serde(rename = "type")]
@@ -1126,6 +1133,24 @@ impl PluginManifest {
             }
         }
         for (index, setting) in self.settings.iter().enumerate() {
+            if setting.kind == SETTING_HTTP_CREDENTIAL {
+                if setting.http_origins.is_empty()
+                    || setting
+                        .http_origins
+                        .iter()
+                        .any(|origin| !crate::net::valid_tls_origin(origin))
+                {
+                    violations.push(FieldViolation::new(
+                        format!("settings[{index}].http_origins"),
+                        "must contain exact HTTPS origins",
+                    ));
+                }
+            } else if !setting.http_origins.is_empty() {
+                violations.push(FieldViolation::new(
+                    format!("settings[{index}].http_origins"),
+                    "is only allowed for http_credential settings",
+                ));
+            }
             if setting.kind == SETTING_TLS_IDENTITY {
                 if setting.tls_origins.is_empty()
                     || setting

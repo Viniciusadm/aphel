@@ -99,6 +99,8 @@ pub enum Command {
         context: Value,
         #[serde(default)]
         client_identity: Option<String>,
+        #[serde(default)]
+        authentication: Option<String>,
         method: String,
         url: String,
         #[serde(default)]
@@ -302,6 +304,8 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
             method,
             url,
             client_identity,
+            authentication,
+            headers,
             on_response,
             ..
         } => {
@@ -311,6 +315,22 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
                 return Err(AppError::Validation(
                     "on_response must be an event declared in the plugin manifest".to_owned(),
                 ));
+            }
+            if headers.iter().any(|(name, _)| {
+                matches!(
+                    name.to_ascii_lowercase().as_str(),
+                    "authorization" | "proxy-authorization" | "cookie" | "x-api-key"
+                )
+            }) {
+                return Err(AppError::Validation(
+                    "deferred HTTP authentication headers must use a credential reference"
+                        .to_owned(),
+                ));
+            }
+            if let Some(name) = authentication {
+                let parsed = reqwest::Url::parse(url)
+                    .map_err(|_| AppError::Validation("the URL is invalid".to_owned()))?;
+                crate::net::authentication_setting(&plugin.manifest, name, &parsed)?;
             }
             if let Some(name) = client_identity {
                 let parsed = reqwest::Url::parse(url)
@@ -524,6 +544,7 @@ async fn execute(
             on_response,
             context,
             client_identity,
+            authentication,
             method,
             url,
             mut headers,
@@ -540,6 +561,7 @@ async fn execute(
                 context,
                 crate::runtime::wit::HttpRequest {
                     client_identity,
+                    authentication,
                     method,
                     url,
                     headers,

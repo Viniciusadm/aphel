@@ -1929,6 +1929,7 @@ dependencies = [
  "aphel-sdk",
  "async-trait",
  "axum",
+ "base64 0.22.1",
  "bytes",
  "chrono",
  "form_urlencoded",

@@ -46,7 +46,9 @@ pub const SECRET_OWNER_TYPE: &str = "plugin";
 type HostResult<T> = Result<T, wit::PluginError>;
 
 pub fn setting_secret_key(plugin: &str, setting: &crate::manifest::SettingSpec) -> SecretKey {
-    if setting.kind == crate::manifest::SETTING_TLS_IDENTITY {
+    if setting.kind == crate::manifest::SETTING_HTTP_CREDENTIAL {
+        SecretKey::new("plugin_http", plugin, &setting.key)
+    } else if setting.kind == crate::manifest::SETTING_TLS_IDENTITY {
         SecretKey::new("plugin_tls", plugin, &setting.key)
     } else {
         secret_key(plugin, &setting.key)

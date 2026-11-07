@@ -165,7 +165,7 @@ const records = Object.freeze({
 })
 
 const http = Object.freeze({
-  send({ method = 'GET', url, headers = {}, body, json, clientIdentity } = {}) {
+  send({ method = 'GET', url, headers = {}, body, json, clientIdentity, authentication } = {}) {
     const headerList = Object.entries(headers).map(([name, value]) => [name, String(value)])
     let bytes
     if (json !== undefined) {
@@ -176,7 +176,7 @@ const http = Object.freeze({
     } else if (body !== undefined) {
       bytes = body
     }
-    const response = call(() => host.httpFetch({ method, url, headers: headerList, body: bytes, clientIdentity }))
+    const response = call(() => host.httpFetch({ method, url, headers: headerList, body: bytes, clientIdentity, authentication }))
     const responseBytes = new Uint8Array(response.body)
     return {
       status: response.status,

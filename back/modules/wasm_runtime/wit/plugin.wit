@@ -129,6 +129,7 @@ interface types {
 
   record http-request {
     client-identity: option<string>,
+    authentication: option<string>,
     method: string,
     url: string,
     headers: list<tuple<string, string>>,

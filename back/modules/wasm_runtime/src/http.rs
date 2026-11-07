@@ -997,7 +997,7 @@ async fn uninstall_plugin(
     clear_ui_plugin(&mut tx, &key).await?;
     remove_runtime_permissions(&mut tx, &permissions_owner(&key)).await?;
     // Remove all credentials, including declarations removed by a plugin update.
-    for owner in [crate::host::SECRET_OWNER_TYPE, "plugin_tls"] {
+    for owner in [crate::host::SECRET_OWNER_TYPE, "plugin_tls", "plugin_http"] {
         state
             .secrets
             .remove_owner(&mut tx, &tenant.scope, owner, &key)
@@ -1266,6 +1266,9 @@ async fn update_plugin_settings(
             Some(Value::String(text)) if !text.is_empty() && text.len() <= MAX_SECRET_BYTES => {
                 if setting.kind == crate::manifest::SETTING_TLS_IDENTITY {
                     crate::net::parse_identity(text)?;
+                }
+                if setting.kind == crate::manifest::SETTING_HTTP_CREDENTIAL {
+                    crate::net::credential_header(text)?;
                 }
                 secrets.push((setting.key.clone(), Some(Secret::new(text.clone()))))
             }

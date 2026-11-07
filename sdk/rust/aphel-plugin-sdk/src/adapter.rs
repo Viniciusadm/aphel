@@ -271,6 +271,7 @@ pub(crate) fn effect_result(id: &str) -> Result<Option<String>, PluginError> {
 pub(crate) fn http_fetch(request: HttpRequest) -> Result<HttpResponse, PluginError> {
     let response = host::http_fetch(&wit::HttpRequest {
         client_identity: request.client_identity,
+        authentication: request.authentication,
         method: request.method,
         url: request.url,
         headers: request.headers,

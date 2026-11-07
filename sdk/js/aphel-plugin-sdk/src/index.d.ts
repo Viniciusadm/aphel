@@ -160,6 +160,7 @@ export interface Kv {
 
 export interface HttpRequest {
   clientIdentity?: string
+  authentication?: string
   method?: string
   url: string
   headers?: Record<string, string>
@@ -235,7 +236,7 @@ export type EffectCommand =
   | { kind: 'notify'; name: string; recipient_user_id: string; title: string; body?: string | null; record_type?: string | null; record_id?: string | null; link?: string | null; data: JsonObject; dedupe_key?: string | null }
   | { kind: 'invoke'; operation: string; input: JsonObject }
   | { kind: 'email'; to: string; to_name?: string | null; subject: string; text: string; html?: string | null; purpose?: 'transactional' | 'marketing' }
-  | { kind: 'http'; on_response?: string; context?: Json; client_identity?: string; method: string; url: string; headers?: [string, string][]; body?: string | null }
+  | { kind: 'http'; authentication?: string; on_response?: string; context?: Json; client_identity?: string; method: string; url: string; headers?: [string, string][]; body?: string | null }
 
 export interface Ctx {
   readonly records: Records

@@ -203,3 +203,16 @@ ctx.deferEffect('send-document', {
 ```
 
 The job stores only the reference and checks the current declaration, destination and credential on every attempt. HTTP effects have a 30-second attempt timeout and persist the result. Non-2xx responses and unknown outcomes must be handled explicitly by polling or a continuation. A timeout can leave the remote outcome unknown: implement reconciliation and use idempotency supported by the destination. The HTTP effect adds its existing stable `Idempotency-Key`; a remote endpoint must honor it for deduplication.
+
+
+## HTTP authentication by reference
+
+Declare a setting with `type = "http_credential"` and `http_origins = ["https://api.example.com"]`. Configure its value using the settings API or password field as a JSON string with one of these shapes:
+
+```json
+{"scheme":"basic","username":"sk_example","password":""}
+{"scheme":"bearer","token":"example"}
+{"scheme":"header","name":"X-API-Key","value":"example"}
+```
+
+The credential is encrypted under a dedicated `plugin_http` vault owner and cannot be retrieved with `ctx.secret`. Pass `authentication: "setting_key"` in JavaScript direct requests or deferred HTTP commands; Rust requests use `.authentication("setting_key")`. Only the reference is persisted in the job, and the credential and exact HTTPS origin are checked again at execution. Rotation/removal affects subsequent calls. Caller headers cannot override the header supplied by the credential. Standard inline authentication headers (`Authorization`, `Proxy-Authorization`, `Cookie`, `X-API-Key`) are rejected in deferred commands; use a reference for other secret headers as well. Network policy, host allowlists and disabled redirects still apply. mTLS and HTTP authentication references can be used together.

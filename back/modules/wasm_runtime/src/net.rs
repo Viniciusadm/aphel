@@ -125,15 +125,42 @@ pub async fn fetch(
         Some(client) => client,
         None => client(config.allow_private_networks)?,
     };
+    let authentication = if let Some(name) = request.authentication.as_deref() {
+        let setting = authentication_setting(&plugin.manifest, name, &url)?;
+        let credential = state
+            .secrets()
+            .reveal(
+                &aphel_sdk::platform::domain::access::AccessScope::system(),
+                &crate::host::setting_secret_key(&plugin.key, setting),
+            )
+            .await?
+            .ok_or_else(|| {
+                AppError::Configuration("HTTP credential is not configured".to_owned())
+            })?;
+        Some(credential_header(credential.expose())?)
+    } else {
+        None
+    };
     let mut builder = selected_client.request(method, url).timeout(remaining);
     for (name, value) in &request.headers {
         let name = HeaderName::from_bytes(name.as_bytes())
             .map_err(|_| AppError::Validation(format!("the header name {name} is invalid")))?;
+        if authentication
+            .as_ref()
+            .is_some_and(|(protected, _)| protected == name)
+        {
+            return Err(AppError::Validation(
+                "request headers cannot override a credential header".to_owned(),
+            ));
+        }
         if WITHHELD_HEADERS.contains(&name.as_str()) {
             continue;
         }
         let value = HeaderValue::from_str(value)
             .map_err(|_| AppError::Validation(format!("the header {name} has an invalid value")))?;
+        builder = builder.header(name, value);
+    }
+    if let Some((name, value)) = authentication {
         builder = builder.header(name, value);
     }
     if let Some(body) = request.body {
@@ -365,5 +392,90 @@ mod mtls_integration_tests {
                 .unwrap(),
             1
         );
+    }
+}
+
+#[derive(serde::Deserialize)]
+#[serde(tag = "scheme", rename_all = "snake_case", deny_unknown_fields)]
+enum HttpCredential {
+    Bearer { token: String },
+    Basic { username: String, password: String },
+    Header { name: String, value: String },
+}
+
+pub fn credential_header(json: &str) -> Result<(HeaderName, HeaderValue), AppError> {
+    use base64::Engine;
+    let invalid = || AppError::Validation("invalid HTTP credential".to_owned());
+    let credential: HttpCredential = serde_json::from_str(json).map_err(|_| invalid())?;
+    let (name, value) = match credential {
+        HttpCredential::Bearer { token }
+            if !token.is_empty() && !token.chars().any(char::is_whitespace) =>
+        {
+            ("authorization".to_owned(), format!("Bearer {token}"))
+        }
+        HttpCredential::Basic { username, password }
+            if !username.is_empty() && !username.contains(':') =>
+        {
+            (
+                "authorization".to_owned(),
+                format!(
+                    "Basic {}",
+                    base64::engine::general_purpose::STANDARD
+                        .encode(format!("{username}:{password}"))
+                ),
+            )
+        }
+        HttpCredential::Header { name, value } if !value.is_empty() => (name, value),
+        _ => return Err(invalid()),
+    };
+    let name = HeaderName::from_bytes(name.as_bytes()).map_err(|_| invalid())?;
+    if WITHHELD_HEADERS.contains(&name.as_str()) || name == "idempotency-key" {
+        return Err(invalid());
+    }
+    let mut value = HeaderValue::from_str(&value).map_err(|_| invalid())?;
+    value.set_sensitive(true);
+    Ok((name, value))
+}
+
+pub(crate) fn authentication_setting<'a>(
+    manifest: &'a crate::manifest::PluginManifest,
+    name: &str,
+    url: &reqwest::Url,
+) -> Result<&'a crate::manifest::SettingSpec, AppError> {
+    let setting = manifest
+        .settings
+        .iter()
+        .find(|setting| {
+            setting.key == name && setting.kind == crate::manifest::SETTING_HTTP_CREDENTIAL
+        })
+        .ok_or_else(|| {
+            AppError::forbidden_code(
+                "plugin_http_credential_not_declared",
+                "HTTP credential is not declared",
+            )
+        })?;
+    authorize_identity(url, &setting.http_origins)?;
+    Ok(setting)
+}
+
+#[cfg(test)]
+mod credential_tests {
+    use super::*;
+    #[test]
+    fn authentication_formats_and_header_injection() {
+        let (_, bearer) = credential_header(r#"{"scheme":"bearer","token":"token"}"#).unwrap();
+        assert_eq!(bearer, "Bearer token");
+        assert!(bearer.is_sensitive());
+        let (_, basic) =
+            credential_header(r#"{"scheme":"basic","username":"key","password":""}"#).unwrap();
+        assert_eq!(basic, "Basic a2V5Og==");
+        for input in [
+            r#"{"scheme":"header","name":"host","value":"evil.test"}"#,
+            r#"{"scheme":"header","name":"idempotency-key","value":"replace"}"#,
+            r#"{"scheme":"bearer","token":"bad\r\nheader"}"#,
+            r#"{"scheme":"basic","username":"bad:name","password":""}"#,
+        ] {
+            assert!(credential_header(input).is_err());
+        }
     }
 }
