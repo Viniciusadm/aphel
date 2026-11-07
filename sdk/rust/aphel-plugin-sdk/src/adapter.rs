@@ -445,6 +445,7 @@ pub fn on_route<P: Plugin>(
         query: pairs(request.query),
         headers: request.headers,
         body: value(&request.body_json),
+        body_raw: request.body_raw,
         actor: actor(request.actor),
     };
     let response = plugin.on_route(&Ctx::new(), &request)?;

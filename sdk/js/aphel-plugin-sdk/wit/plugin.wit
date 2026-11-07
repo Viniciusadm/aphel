@@ -68,6 +68,7 @@ interface types {
     query: list<tuple<string, string>>,
     headers: list<tuple<string, string>>,
     body-json: string,
+    body-raw: list<u8>,
     actor: actor,
   }
 

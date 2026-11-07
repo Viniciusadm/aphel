@@ -87,6 +87,7 @@ export interface Request {
   query: Record<string, string>
   headers: [string, string][]
   body: Json
+  bodyRaw: Uint8Array
   actor: Actor
   is(method: string, route: string): boolean
   header(name: string): string | null

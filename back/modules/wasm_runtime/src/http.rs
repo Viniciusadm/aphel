@@ -1636,8 +1636,16 @@ pub(crate) async fn serve_route(
             .map(|(name, value)| (name, value.as_str().unwrap_or_default().to_owned()))
             .collect(),
         query: query.as_deref().map(form_pairs).unwrap_or_default(),
-        headers: forwarded_headers(&headers),
+        headers: forwarded_headers(
+            &headers,
+            if caller.is_none() {
+                &route.forward_headers
+            } else {
+                &[]
+            },
+        ),
         body_json,
+        body_raw: body.to_vec(),
         actor,
     };
     let result = runtime::on_route(&plugin, scope, &request).await?;
@@ -1729,10 +1737,15 @@ async fn public_dispatch(
     Ok(serve_route(&state, call, None).await?)
 }
 
-fn forwarded_headers(headers: &HeaderMap) -> Vec<(String, String)> {
+fn forwarded_headers(headers: &HeaderMap, forwarded: &[String]) -> Vec<(String, String)> {
     headers
         .iter()
-        .filter(|(name, _)| !WITHHELD_HEADERS.contains(name))
+        .filter(|(name, _)| {
+            !WITHHELD_HEADERS.contains(name)
+                || forwarded
+                    .iter()
+                    .any(|allowed| allowed.eq_ignore_ascii_case(name.as_str()))
+        })
         .filter_map(|(name, value)| {
             value
                 .to_str()

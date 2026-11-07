@@ -206,6 +206,8 @@ pub struct Request {
     pub headers: Vec<(String, String)>,
     #[serde(default)]
     pub body: Value,
+    #[serde(default)]
+    pub body_raw: Vec<u8>,
     pub actor: Actor,
 }
 

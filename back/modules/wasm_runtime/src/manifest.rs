@@ -31,6 +31,7 @@ pub const RECORD_HOOKS: &[&str] = &[
     HOOK_PURGED,
 ];
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
+const FORWARDABLE_HEADERS: &[&str] = &["authorization"];
 pub const SETTING_SECRET: &str = "secret";
 pub const SETTING_TLS_IDENTITY: &str = "tls_identity";
 pub const SETTING_SIGNING_IDENTITY: &str = "signing_identity";
@@ -337,6 +338,8 @@ pub struct RouteSpec {
     pub permission: Option<String>,
     #[serde(default)]
     pub public: bool,
+    #[serde(default)]
+    pub forward_headers: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -765,6 +768,20 @@ impl PluginManifest {
                     }
                 }
                 (None, _) => {}
+            }
+            if !route.forward_headers.is_empty() && !route.public {
+                violations.push(FieldViolation::new(
+                    format!("routes[{index}].forward_headers"),
+                    "only public routes can forward sensitive headers",
+                ));
+            }
+            for (header_index, header) in route.forward_headers.iter().enumerate() {
+                if !FORWARDABLE_HEADERS.contains(&header.as_str()) {
+                    violations.push(FieldViolation::new(
+                        format!("routes[{index}].forward_headers[{header_index}]"),
+                        format!("must be one of {}", FORWARDABLE_HEADERS.join(", ")),
+                    ));
+                }
             }
         }
         for (index, required) in self.requires.iter().enumerate() {

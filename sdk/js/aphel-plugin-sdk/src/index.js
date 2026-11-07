@@ -380,6 +380,7 @@ export function definePlugin(plugin) {
           query: pairs(raw.query),
           headers: raw.headers,
           body: parse(raw.bodyJson),
+          bodyRaw: raw.bodyRaw,
           actor: actor(raw.actor),
           is(method, route) {
             return this.method === method && this.route === route
