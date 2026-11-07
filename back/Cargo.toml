@@ -87,6 +87,7 @@ rust_xlsxwriter = "0.100"
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 aes-gcm = "0.10"
 base64 = "0.22"
+openssl = "0.10"
 hmac = "0.13"
 ring = "0.17"
 reqwest = { version = "0.13", default-features = false, features = ["rustls", "json", "form", "query"] }

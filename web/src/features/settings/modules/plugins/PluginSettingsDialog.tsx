@@ -29,7 +29,7 @@ function initialDraft(settings: PluginSetting[]): Draft {
   return Object.fromEntries(
     settings.map((setting) => {
       if (setting.type === 'boolean') return [setting.key, setting.value === true]
-      if ((setting.type === 'secret' || setting.type === 'tls_identity' || setting.type === 'http_credential') || setting.value === null || setting.value === undefined) return [setting.key, '']
+      if ((setting.type === 'secret' || (setting.type === 'tls_identity' || setting.type === 'signing_identity') || setting.type === 'http_credential') || setting.value === null || setting.value === undefined) return [setting.key, '']
       return [setting.key, String(setting.value)]
     }),
   )
@@ -39,7 +39,7 @@ function toPayload(settings: PluginSetting[], draft: Draft, cleared: string[]): 
   const payload: Record<string, unknown> = {}
   for (const setting of settings) {
     const value = draft[setting.key]
-    if (setting.type === 'secret' || setting.type === 'tls_identity' || setting.type === 'http_credential') {
+    if (setting.type === 'secret' || (setting.type === 'tls_identity' || setting.type === 'signing_identity') || setting.type === 'http_credential') {
       if (cleared.includes(setting.key)) payload[setting.key] = null
       else if (typeof value === 'string' && value !== '') payload[setting.key] = value
     } else if (setting.type === 'boolean') {
@@ -135,12 +135,12 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                 </Field>,
               ]
             }
-            const isSecret = (setting.type === 'secret' || setting.type === 'tls_identity' || setting.type === 'http_credential')
+            const isSecret = (setting.type === 'secret' || (setting.type === 'tls_identity' || setting.type === 'signing_identity') || setting.type === 'http_credential')
             const willClear = cleared.includes(setting.key)
             return [
               headingNode,
               <Field key={setting.key} id={inputId} label={setting.label}>
-                {setting.type === 'tls_identity' ? (
+                {(setting.type === 'tls_identity' || setting.type === 'signing_identity') ? (
                   <Input
                     id={inputId}
                     type="file"

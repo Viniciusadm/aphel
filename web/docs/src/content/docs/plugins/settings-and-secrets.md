@@ -216,3 +216,12 @@ Declare a setting with `type = "http_credential"` and `http_origins = ["https://
 ```
 
 The credential is encrypted under a dedicated `plugin_http` vault owner and cannot be retrieved with `ctx.secret`. Pass `authentication: "setting_key"` in JavaScript direct requests or deferred HTTP commands; Rust requests use `.authentication("setting_key")`. Only the reference is persisted in the job, and the credential and exact HTTPS origin are checked again at execution. Rotation/removal affects subsequent calls. Caller headers cannot override the header supplied by the credential. Standard inline authentication headers (`Authorization`, `Proxy-Authorization`, `Cookie`, `X-API-Key`) are rejected in deferred commands; use a reference for other secret headers as well. Network policy, host allowlists and disabled redirects still apply. mTLS and HTTP authentication references can be used together.
+
+
+## Signing without exposing private keys
+
+Use `type = "signing_identity"` and an explicit `signing_algorithms = ["rsa_pkcs1_sha256"]` list. Upload the same PEM format as mTLS. A `tls_identity` may also declare `signing_algorithms` to use its existing certificate for both purposes; mTLS alone never grants signing access. Standalone signing credentials have the separate vault owner `plugin_signing` and cannot be read with `ctx.secret`.
+
+Call `ctx.signBytes('identity_key', 'rsa_pkcs1_sha256', data)` in JavaScript, or `ctx.sign_bytes("identity_key", "rsa_pkcs1_sha256", bytes)` in Rust. The result contains signature bytes in `value` and the public DER certificate chain in `certificates`. Input is capped at 1 MiB. Signing work runs off the async executor with bounded concurrency. Supported deterministic algorithms are RSA PKCS#1 v1.5 with SHA-256 or SHA-512, Ed25519, and explicitly enabled `rsa_pkcs1_sha1` for legacy protocols. SHA-1 is never enabled implicitly. The key must match the first certificate and all declared algorithms.
+
+This API signs exact bytes. The fiscal plugin must still canonicalize XML, construct XML-DSig, calculate the reference digest and validate the resulting document against the relevant schema. The API does not claim to produce a complete fiscal document or validate its legal acceptability. The backend build needs OpenSSL development libraries; runtime images include libssl3.

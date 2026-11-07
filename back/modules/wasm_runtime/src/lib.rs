@@ -24,6 +24,7 @@ pub mod registry;
 pub mod runtime;
 pub mod schedule;
 pub mod schema;
+pub mod signing;
 pub mod store;
 pub mod takeover;
 pub mod ui;

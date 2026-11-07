@@ -33,11 +33,12 @@ pub const RECORD_HOOKS: &[&str] = &[
 const METHODS: &[&str] = &["GET", "POST", "PUT", "PATCH", "DELETE"];
 pub const SETTING_SECRET: &str = "secret";
 pub const SETTING_TLS_IDENTITY: &str = "tls_identity";
+pub const SETTING_SIGNING_IDENTITY: &str = "signing_identity";
 pub const SETTING_HTTP_CREDENTIAL: &str = "http_credential";
 pub fn is_sensitive_setting(kind: &str) -> bool {
     matches!(
         kind,
-        SETTING_SECRET | SETTING_TLS_IDENTITY | SETTING_HTTP_CREDENTIAL
+        SETTING_SECRET | SETTING_TLS_IDENTITY | SETTING_HTTP_CREDENTIAL | SETTING_SIGNING_IDENTITY
     )
 }
 pub const PLUGIN_EVENT_PREFIX: &str = "plugin.";
@@ -49,6 +50,7 @@ const SETTING_KINDS: &[&str] = &[
     SETTING_SECRET,
     SETTING_TLS_IDENTITY,
     SETTING_HTTP_CREDENTIAL,
+    SETTING_SIGNING_IDENTITY,
 ];
 pub const SETTING_SELECT: &str = "select";
 const MAX_SCHEDULES: usize = 10;
@@ -344,6 +346,8 @@ pub struct SettingSpec {
     pub tls_origins: Vec<String>,
     #[serde(default)]
     pub http_origins: Vec<String>,
+    #[serde(default)]
+    pub signing_algorithms: Vec<String>,
     pub key: String,
     pub label: String,
     #[serde(rename = "type")]
@@ -1133,6 +1137,26 @@ impl PluginManifest {
             }
         }
         for (index, setting) in self.settings.iter().enumerate() {
+            if !setting.signing_algorithms.is_empty()
+                && (!matches!(
+                    setting.kind.as_str(),
+                    SETTING_TLS_IDENTITY | SETTING_SIGNING_IDENTITY
+                ) || setting
+                    .signing_algorithms
+                    .iter()
+                    .any(|algorithm| !crate::signing::ALGORITHMS.contains(&algorithm.as_str())))
+            {
+                violations.push(FieldViolation::new(
+                    format!("settings[{index}].signing_algorithms"),
+                    "must list supported algorithms on a TLS or signing identity",
+                ));
+            }
+            if setting.kind == SETTING_SIGNING_IDENTITY && setting.signing_algorithms.is_empty() {
+                violations.push(FieldViolation::new(
+                    format!("settings[{index}].signing_algorithms"),
+                    "is required for a signing identity",
+                ));
+            }
             if setting.kind == SETTING_HTTP_CREDENTIAL {
                 if setting.http_origins.is_empty()
                     || setting

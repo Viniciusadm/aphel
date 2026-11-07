@@ -239,6 +239,11 @@ export const ctx = Object.freeze({
   emit(name, record, payload) {
     call(() => host.emit(name, record?.type, record?.id, JSON.stringify(payload ?? {})))
   },
+  signBytes(identity, algorithm, data) {
+    const bytes = typeof data === 'string' ? encoder.encode(data) : data
+    const signature = call(() => host.signBytes(identity, algorithm, bytes))
+    return { value: new Uint8Array(signature.value), certificates: signature.certificates.map((cert) => new Uint8Array(cert)) }
+  },
   effectResult(id) {
     return parse(call(() => host.effectResult(id)))
   },

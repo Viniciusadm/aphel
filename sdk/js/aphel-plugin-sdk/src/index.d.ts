@@ -250,6 +250,7 @@ export interface Ctx {
   notify(notification: Notification): void
   emit(name: string, record: RecordRef | null | undefined, payload?: JsonObject): void
   invoke<T extends Json = Json>(operation: string, input?: JsonObject): T
+  signBytes(identity: string, algorithm: 'rsa_pkcs1_sha256' | 'rsa_pkcs1_sha512' | 'rsa_pkcs1_sha1' | 'ed25519', data: Uint8Array | string): { value: Uint8Array; certificates: Uint8Array[] }
   effectResult(id: string): Json | null
   deferEffect(key: string, command: EffectCommand): string
   nextNumber(sequence: string): number

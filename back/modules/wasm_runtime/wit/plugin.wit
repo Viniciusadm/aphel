@@ -127,6 +127,11 @@ interface types {
     actor: actor,
   }
 
+  record signature {
+    value: list<u8>,
+    certificates: list<list<u8>>,
+  }
+
   record http-request {
     client-identity: option<string>,
     authentication: option<string>,
@@ -144,7 +149,7 @@ interface types {
 }
 
 interface host {
-  use types.{plugin-error, list-query, page, record-mutation, http-request, http-response, notification};
+  use types.{plugin-error, list-query, page, record-mutation, http-request, http-response, notification, signature};
 
   get-record: func(record-type: string, id: string) -> result<option<string>, plugin-error>;
   list-records: func(record-type: string, query: list-query) -> result<page, plugin-error>;
@@ -172,6 +177,7 @@ interface host {
   kv-set-if-absent: func(collection: string, id: string, value-json: string) -> result<bool, plugin-error>;
   next-number: func(sequence: string) -> result<u64, plugin-error>;
 
+  sign-bytes: func(identity: string, algorithm: string, data: list<u8>) -> result<signature, plugin-error>;
   effect-result: func(id: string) -> result<option<string>, plugin-error>;
   http-fetch: func(request: http-request) -> result<http-response, plugin-error>;
 

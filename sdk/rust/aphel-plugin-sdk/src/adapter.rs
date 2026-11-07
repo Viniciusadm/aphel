@@ -264,6 +264,11 @@ pub(crate) fn list_teams() -> Result<Value, PluginError> {
     Ok(value(&host::list_teams()?))
 }
 
+pub(crate) fn sign_bytes(identity: &str, algorithm: &str, data: &[u8]) -> Result<crate::Signature, PluginError> {
+    let signature = host::sign_bytes(identity, algorithm, data)?;
+    Ok(crate::Signature { value: signature.value, certificates: signature.certificates })
+}
+
 pub(crate) fn effect_result(id: &str) -> Result<Option<String>, PluginError> {
     Ok(host::effect_result(id)?)
 }

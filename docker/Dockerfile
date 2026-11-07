@@ -20,6 +20,7 @@ COPY --from=modules /src/web/modules.aliases.json /src/web/tsconfig.modules.json
 RUN npm run build
 
 FROM rust:1.99.0-bookworm AS back
+RUN apt-get update && apt-get install -y --no-install-recommends libssl-dev pkg-config && rm -rf /var/lib/apt/lists/*
 WORKDIR /src/back
 COPY rust-toolchain.toml /src/rust-toolchain.toml
 ENV SQLX_OFFLINE=true
@@ -38,7 +39,7 @@ COPY --from=back /usr/local/bin/aphel /aphel
 
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates tzdata \
+    && apt-get install -y --no-install-recommends ca-certificates tzdata libssl3 \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --system --gid 10001 aphel \
     && useradd --system --uid 10001 --gid aphel --home-dir /app --shell /usr/sbin/nologin aphel \

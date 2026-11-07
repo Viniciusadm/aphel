@@ -354,6 +354,10 @@ impl Ctx {
             .map_err(|error| PluginError::new("invalid_response", error.to_string()))
     }
 
+    pub fn sign_bytes(&self, identity: &str, algorithm: &str, data: &[u8]) -> Result<Signature> {
+        adapter::sign_bytes(identity, algorithm, data)
+    }
+
     pub fn effect_result(&self, id: &str) -> Result<Option<Value>> {
         adapter::effect_result(id)?.map(|value| serde_json::from_str(&value).map_err(|error| PluginError::internal(error.to_string()))).transpose()
     }
@@ -581,6 +585,13 @@ impl Kv<'_> {
             &serde_json::to_value(value).unwrap_or(Value::Null),
         )
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct Signature {
+    pub value: Vec<u8>,
+    /// Certificate chain in DER, leaf first; never includes a private key.
+    pub certificates: Vec<Vec<u8>>,
 }
 
 #[derive(Debug, Clone, Default)]

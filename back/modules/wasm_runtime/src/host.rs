@@ -46,7 +46,9 @@ pub const SECRET_OWNER_TYPE: &str = "plugin";
 type HostResult<T> = Result<T, wit::PluginError>;
 
 pub fn setting_secret_key(plugin: &str, setting: &crate::manifest::SettingSpec) -> SecretKey {
-    if setting.kind == crate::manifest::SETTING_HTTP_CREDENTIAL {
+    if setting.kind == crate::manifest::SETTING_SIGNING_IDENTITY {
+        SecretKey::new("plugin_signing", plugin, &setting.key)
+    } else if setting.kind == crate::manifest::SETTING_HTTP_CREDENTIAL {
         SecretKey::new("plugin_http", plugin, &setting.key)
     } else if setting.kind == crate::manifest::SETTING_TLS_IDENTITY {
         SecretKey::new("plugin_tls", plugin, &setting.key)
@@ -942,6 +944,15 @@ impl Host for CallState {
             }
             .await,
         )
+    }
+
+    async fn sign_bytes(
+        &mut self,
+        identity: String,
+        algorithm: String,
+        data: Vec<u8>,
+    ) -> HostResult<wit::Signature> {
+        answer(crate::signing::sign(&self.plugin, &identity, &algorithm, data).await)
     }
 
     async fn effect_result(&mut self, id: String) -> HostResult<Option<String>> {

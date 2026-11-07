@@ -77,7 +77,7 @@ export interface ModuleConflictPlan {
 export interface PluginSetting {
   key: string
   label: string
-  type: 'number' | 'boolean' | 'text' | 'select' | 'secret' | 'tls_identity' | 'http_credential'
+  type: 'number' | 'boolean' | 'text' | 'select' | 'secret' | 'tls_identity' | 'http_credential' | 'signing_identity'
   help: string | null
   group?: string | null
   options?: { value: string; label: string }[]
