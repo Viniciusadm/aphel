@@ -1,3 +1,4 @@
+pub mod payments;
 mod execution;
 pub use execution::{
     AutomationExecution, EffectCommand, ExecutionActor, ExecutionContext, HookState, RecordSnapshot,
