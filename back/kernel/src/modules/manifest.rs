@@ -323,7 +323,7 @@ pub fn is_identifier(value: &str) -> bool {
             .all(|character| character.is_ascii_lowercase() || character == '_')
 }
 
-fn is_table_name(value: &str) -> bool {
+pub fn is_table_name(value: &str) -> bool {
     (1..=64).contains(&value.len())
         && value.starts_with(|character: char| character.is_ascii_lowercase())
         && value.chars().all(|character| {

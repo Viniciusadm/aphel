@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::application::shared::ensure_version;
 use crate::database::transaction::MySqlTx;
 use crate::errors::AppError;
-use crate::modules::manifest::is_identifier;
+use crate::modules::manifest::is_table_name;
 
 pub async fn lock_version(
     tx: &mut MySqlTx,
@@ -15,7 +15,7 @@ pub async fn lock_version(
     if expected.is_none() {
         return Ok(());
     }
-    if !is_identifier(table) {
+    if !is_table_name(table) {
         return Err(AppError::Internal(format!("invalid table name {table}")));
     }
     let current: Option<NaiveDateTime> = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
