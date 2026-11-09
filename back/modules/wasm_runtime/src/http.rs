@@ -193,6 +193,7 @@ pub(crate) struct PluginSettingResponse {
     group: Option<String>,
     options: Vec<crate::manifest::SettingOption>,
     options_from: Option<crate::manifest::SettingOptionsSource>,
+    mask: Option<String>,
     #[schema(value_type = Object)]
     value: Value,
     configured: Option<bool>,
@@ -454,6 +455,7 @@ async fn setting_responses(
             group: setting.group.clone(),
             options: setting.options.clone(),
             options_from: setting.options_from.clone(),
+            mask: setting.mask.clone(),
             value: if crate::manifest::is_sensitive_setting(&setting.kind) {
                 Value::Null
             } else {
@@ -1701,23 +1703,35 @@ fn validate_settings(
         if crate::manifest::is_sensitive_setting(&setting.kind) {
             continue;
         }
-        let valid = match setting.kind.as_str() {
-            "number" => value.as_i64().is_some_and(|number| {
-                setting.min.is_none_or(|min| number >= min)
-                    && setting.max.is_none_or(|max| number <= max)
-            }),
-            "boolean" => value.is_boolean(),
+        let accepted_value = match setting.kind.as_str() {
+            "number" => value
+                .as_i64()
+                .is_some_and(|number| {
+                    setting.min.is_none_or(|min| number >= min)
+                        && setting.max.is_none_or(|max| number <= max)
+                })
+                .then(|| value.clone()),
+            "boolean" => value.is_boolean().then(|| value.clone()),
             crate::manifest::SETTING_SELECT => value
                 .as_str()
-                .is_some_and(|text| setting.options.iter().any(|option| option.value == text)),
-            _ => value.as_str().is_some_and(|text| text.len() <= 1000),
+                .is_some_and(|text| setting.options.iter().any(|option| option.value == text))
+                .then(|| value.clone()),
+            _ => value
+                .as_str()
+                .and_then(|text| setting.normalize_text(text))
+                .map(Value::String),
         };
-        if valid || value.is_null() {
-            accepted.insert(key.clone(), value.clone());
+        if value.is_null() {
+            accepted.insert(key.clone(), Value::Null);
+        } else if let Some(accepted_value) = accepted_value {
+            accepted.insert(key.clone(), accepted_value);
         } else {
             violations.push(FieldViolation::new(
                 key,
-                format!("must be a valid {}", setting.kind),
+                format!(
+                    "must be a valid {}",
+                    setting.mask.as_deref().unwrap_or(&setting.kind)
+                ),
             ));
         }
     }

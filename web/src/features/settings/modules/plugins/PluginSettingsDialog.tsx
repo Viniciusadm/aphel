@@ -14,6 +14,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { MaskedInput } from '@/components/ui/masked-input'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
+import { isTextMaskKind, isTextMaskValid } from '@/lib/text-mask'
 import { NativeSelect } from '@/components/ui/native-select'
 import { PLUGINS_PATH, type InstalledPlugin, type PluginSetting } from './types'
 import { Field } from '@/components/ui/field'
@@ -92,13 +95,29 @@ function toPayload(settings: PluginSetting[], draft: Draft, cleared: string[]): 
 
 export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSettingsDialogProps) {
   const { t } = useTranslation('modules')
+  const { t: tForm } = useTranslation('records-form')
   const formId = useId()
   const [draft, setDraft] = useState<Draft>(() => initialDraft(plugin.settings))
   const [cleared, setCleared] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [invalid, setInvalid] = useState<Record<string, string>>({})
+
+  const maskIssues = () => {
+    const issues: Record<string, string> = {}
+    for (const setting of plugin.settings) {
+      const value = draft[setting.key]
+      if (isTextMaskKind(setting.mask) && typeof value === 'string' && value.trim() !== '' && !isTextMaskValid(value, setting.mask)) {
+        issues[setting.key] = tForm('validation.mask', { context: setting.mask })
+      }
+    }
+    return issues
+  }
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
+    const issues = maskIssues()
+    setInvalid(issues)
+    if (Object.keys(issues).length > 0) return
     setSaving(true)
     try {
       await api.put(`${PLUGINS_PATH}/${plugin.key}/settings`, toPayload(plugin.settings, draft, cleared))
@@ -174,7 +193,7 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
             const willClear = cleared.includes(setting.key)
             return [
               headingNode,
-              <Field key={setting.key} id={inputId} label={setting.label}>
+              <Field key={setting.key} id={inputId} label={setting.label} error={invalid[setting.key]}>
                 {(setting.type === 'tls_identity' || setting.type === 'signing_identity') ? (
                   <Input
                     id={inputId}
@@ -208,12 +227,26 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                       />
                     }
                   />
+                ) : setting.type === 'text' && isTextMaskKind(setting.mask) ? (
+                  <MaskedInput
+                    id={inputId}
+                    mask={setting.mask}
+                    aria-invalid={invalid[setting.key] ? true : undefined}
+                    value={typeof value === 'string' ? value : ''}
+                    onValueChange={(next) => setDraft({ ...draft, [setting.key]: next })}
+                  />
+                ) : setting.type === 'number' ? (
+                  <NumberMaskInput
+                    id={inputId}
+                    kind={setting.min !== null && setting.min >= 0 ? 'integer' : 'signedInteger'}
+                    placeholder={t('placeholders.value')}
+                    value={typeof value === 'string' ? value : ''}
+                    onValueChange={(next) => setDraft({ ...draft, [setting.key]: next })}
+                  />
                 ) : <Input placeholder={t('placeholders.value')}
                   id={inputId}
-                  type={isSecret ? 'password' : setting.type === 'number' ? 'number' : 'text'}
+                  type={isSecret ? 'password' : 'text'}
                   autoComplete={isSecret ? 'new-password' : undefined}
-                  min={setting.min ?? undefined}
-                  max={setting.max ?? undefined}
                   disabled={willClear}
                   value={typeof value === 'string' ? value : ''}
                   onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}

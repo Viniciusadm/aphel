@@ -17,6 +17,7 @@ import {
   textLengthLimit,
   type FieldType,
 } from './field-types'
+import { isTextMaskKind, isTextMaskValid } from '@/lib/text-mask'
 import { isValidKey, optionValuesFromLabels } from './identifiers'
 import {
   DEFAULT_FORMULA_CURRENCY,
@@ -41,6 +42,7 @@ export interface ConfigValues {
   currency: string
   maxLength: string
   pattern: string
+  mask: string
   defaultCountry: string
   targetRecordType: string
   defaultValue: string
@@ -87,6 +89,7 @@ export function emptyConfig(): ConfigValues {
     currency: '',
     maxLength: '',
     pattern: '',
+    mask: '',
     defaultCountry: '',
     targetRecordType: '',
     defaultValue: '',
@@ -152,6 +155,7 @@ export function formValuesFromField(field: Field): FieldFormValues {
       currency: asText(config.currency),
       maxLength: asText(config.max_length),
       pattern: asText(config.pattern),
+      mask: asText(config.mask),
       defaultCountry: asText(config.default_country),
       targetRecordType: asText(config.target_record_type),
       defaultValue: defaultValueText(field.field_type, defaultValue),
@@ -207,6 +211,7 @@ function typeRules(fieldType: FieldType): Partial<Record<TextConfigKey, typeof t
         pattern: text
           .max(PATTERN_MAX_LENGTH, 'validation.pattern')
           .refine((value) => value === '' || compiles(value), 'validation.pattern'),
+        mask: text.refine((value) => value === '' || isTextMaskKind(value), 'validation.mask'),
       }
     case 'long_text':
       return { maxLength: optionalInteger(1, textLengthLimit(fieldType), 'validation.maxLengthLongText') }
@@ -243,6 +248,7 @@ function configSchema(fieldType: FieldType, system: boolean) {
     currency: text,
     maxLength: text,
     pattern: text,
+    mask: text,
     defaultCountry: text,
     targetRecordType: text,
     defaultValue: text,
@@ -293,6 +299,10 @@ function refineValues(values: FieldFormValues, context: FieldFormContext, ctx: z
     const pattern = config.pattern.trim()
     if (fieldType === 'text' && pattern !== '' && compiles(pattern) && !new RegExp(pattern).test(defaultValue)) {
       issue(['config', 'defaultValue'], 'validation.defaultPattern')
+    }
+    const mask = config.mask
+    if (fieldType === 'text' && isTextMaskKind(mask) && !isTextMaskValid(defaultValue, mask)) {
+      issue(['config', 'defaultValue'], 'validation.defaultMask')
     }
   }
 
@@ -391,6 +401,7 @@ export function buildConfig(values: FieldFormValues): ConfigPayload {
   if (fieldType === 'currency') set('currency', config.currency.trim().toUpperCase())
   if (supportsMaxLength(fieldType)) set('max_length', numberOrUndefined(config.maxLength))
   if (fieldType === 'text') set('pattern', config.pattern.trim())
+  if (fieldType === 'text') set('mask', config.mask)
   if (fieldType === 'phone') set('default_country', config.defaultCountry.trim().toUpperCase())
   if (fieldType === 'record') set('target_record_type', config.targetRecordType.trim())
   if (supportsDefaultValue(fieldType)) set('default_value', defaultValuePayload(values))

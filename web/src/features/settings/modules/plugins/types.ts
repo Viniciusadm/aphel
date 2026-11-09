@@ -82,6 +82,7 @@ export interface PluginSetting {
   group?: string | null
   options?: { value: string; label: string }[]
   options_from?: { entity: string; value: string; label: string } | null
+  mask?: string | null
   min: number | null
   max: number | null
   value: unknown

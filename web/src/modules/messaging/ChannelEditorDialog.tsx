@@ -17,6 +17,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { MaskedInput } from '@/components/ui/masked-input'
+import { PhoneFieldInput } from '@/components/fields/LazyPhoneFieldInput'
+import { useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { MESSAGING_KEY, messagingApi, type Channel, type ChannelBody, type ChannelKind, type ChannelDefinition, useChannelProviders, channelText } from './api'
 import { Field } from '@/components/ui/field'
@@ -95,6 +98,7 @@ function ChannelForm({
   const [isActive, setIsActive] = useState(channel?.is_active ?? true)
   const [actingUserId, setActingUserId] = useState<string | null>(channel?.acting_user_id ?? null)
   const [config, setConfig] = useState<Record<string, string>>(() => initialConfig(editing, provider))
+  const formatting = useRecordFormatting()
   const [secrets, setSecrets] = useState<Record<string, string>>({})
   const [clearSecrets, setClearSecrets] = useState<string[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -178,6 +182,24 @@ function ChannelForm({
               <NativeSelect id={`${prefix}-${field.key}`} value={config[field.key] ?? ''} onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}>
                 {field.options.map((option) => <option key={option.value} value={option.value}>{channelText(option.label)}</option>)}
               </NativeSelect>
+            ) : field.input_type === 'tel' ? (
+              <PhoneFieldInput
+                id={`${prefix}-${field.key}`}
+                locale={formatting.locale}
+                fieldLabel={channelText(field.label)}
+                invalid={Boolean(errors[`config.${field.key}`])}
+                value={config[field.key] || null}
+                onChange={(value) => setConfig((current) => ({ ...current, [field.key]: value ?? '' }))}
+              />
+            ) : field.input_type === 'digits' ? (
+              <MaskedInput
+                id={`${prefix}-${field.key}`}
+                mask="digits"
+                value={config[field.key] ?? ''}
+                required={field.required}
+                onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}
+                aria-invalid={errors[`config.${field.key}`] ? true : undefined}
+              />
             ) : (
             <Input placeholder={t('editor.valuePlaceholder')}
               id={`${prefix}-${field.key}`}

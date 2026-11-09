@@ -43,6 +43,7 @@ export { UiLabelsProvider } from '@/components/ui/labels'
 export { useUiLabels, type UiLabels } from '@/components/ui/labels-context'
 export { MoneyInput, type MoneyInputProps } from '@/components/ui/money-input'
 export { NumberMaskInput, type NumberMaskInputProps } from '@/components/ui/number-mask-input'
+export { MaskedInput, type MaskedInputProps } from '@/components/ui/masked-input'
 export { OptionCard } from '@/components/ui/option-card'
 export { Page, PageSection, type PageProps, type PageWidth } from '@/components/ui/page'
 export { PageHeader, type PageHeaderBack, type PageHeaderProps } from '@/components/ui/page-header'
@@ -95,6 +96,15 @@ export { cn } from '@/lib/utils'
 export { DECIMAL_SEPARATOR_CHARS, parseDecimalSeparator, type DecimalSeparator } from '@/lib/decimal-separator'
 export { moneySeparatorsFromSetting, type MoneySeparators } from '@/lib/money'
 export { type NumberMaskKind } from '@/lib/number-mask'
+export {
+  TEXT_MASK_KINDS,
+  cleanTextMask,
+  formatStoredTextMask,
+  formatTextMask,
+  isTextMaskKind,
+  isTextMaskValid,
+  type TextMaskKind,
+} from '@/lib/text-mask'
 export { FieldError } from '@/components/ui/field-error'
 export { DialogForm, type DialogFormProps } from '@/components/ui/dialog-form'
 export { PageTitle } from '@/components/ui/page-title'

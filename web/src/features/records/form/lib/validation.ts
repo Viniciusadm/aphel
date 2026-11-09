@@ -4,6 +4,7 @@ import { countDecimals, toNumber } from '@/components/fields/lib/number'
 import { DEFAULT_CURRENCY_DECIMALS } from '@/components/fields/lib/currency'
 import { fieldConfig } from '../../fields'
 import type { FieldDefinition } from '../../types'
+import { isTextMaskKind, isTextMaskValid } from '@/lib/text-mask'
 
 export const DEFAULT_TEXT_MAX_LENGTH = 1024
 
@@ -19,6 +20,7 @@ export type ValidationCode =
   | 'email'
   | 'url'
   | 'phone'
+  | 'mask'
   | 'date'
   | 'datetime'
   | 'option'
@@ -104,6 +106,9 @@ function validateText(field: FieldDefinition, value: unknown): ValidationIssue |
   if (typeof value !== 'string') return { code: 'invalid' }
   const config = fieldConfig(field)
   const trimmed = value.trim()
+  if (field.field_type === 'text' && isTextMaskKind(config.mask)) {
+    return isTextMaskValid(trimmed, config.mask) ? null : { code: 'mask', values: { context: config.mask } }
+  }
   const limit = config.max_length ?? (field.field_type === 'text' ? DEFAULT_TEXT_MAX_LENGTH : null)
   if (limit !== null && [...trimmed].length > limit) return { code: 'tooLong', values: { max: limit } }
   if (field.field_type === 'text' && config.pattern && !matchesPattern(config.pattern, trimmed)) {

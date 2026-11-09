@@ -1,4 +1,9 @@
+use std::sync::LazyLock;
+
+use base64::Engine;
+use base64::engine::general_purpose::STANDARD;
 use serde_json::{Map, Value, json};
+use sha2::{Digest, Sha256};
 
 use crate::model::{HONEYPOT_FIELD, LeadFormFieldKind};
 use crate::store::{StoredForm, public_path};
@@ -75,9 +80,18 @@ fn is_checked(values: &Map<String, Value>, key: &str) -> bool {
     }
 }
 
+pub(crate) const PHONE_MASK_SCRIPT: &str = r"document.querySelectorAll('input[type=tel]').forEach(function(i){i.addEventListener('input',function(){var v=i.value;if(v.trim().charAt(0)==='+')return;var d=v.replace(/\D/g,'').slice(0,11);var f=d;if(d.length>2){f='('+d.slice(0,2)+') '+(d.length>10?d.slice(2,7)+'-'+d.slice(7):d.length>6?d.slice(2,6)+'-'+d.slice(6):d.slice(2));}else if(d.length>0){f='('+d;}i.value=f;});});";
+
+pub(crate) static PHONE_MASK_SCRIPT_HASH: LazyLock<String> = LazyLock::new(|| {
+    format!(
+        "'sha256-{}'",
+        STANDARD.encode(Sha256::digest(PHONE_MASK_SCRIPT.as_bytes()))
+    )
+});
+
 fn document(title: &str, body: &str) -> String {
     format!(
-        "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta name=\"robots\" content=\"noindex\"><title>{}</title><style>{STYLE}</style></head><body><main>{body}</main></body></html>",
+        "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta name=\"robots\" content=\"noindex\"><title>{}</title><style>{STYLE}</style></head><body><main>{body}</main><script>{PHONE_MASK_SCRIPT}</script></body></html>",
         escape(title)
     )
 }
@@ -213,6 +227,7 @@ pub(crate) fn page(form: &StoredForm, state: &PageState<'_>) -> String {
 }
 
 const EMBED_SCRIPT: &str = r#"(function () {
+  var maskPhone = function(i){i.addEventListener('input',function(){var v=i.value;if(v.trim().charAt(0)==='+')return;var d=v.replace(/\D/g,'').slice(0,11);var f=d;if(d.length>2){f='('+d.slice(0,2)+') '+(d.length>10?d.slice(2,7)+'-'+d.slice(7):d.length>6?d.slice(2,6)+'-'+d.slice(6):d.slice(2));}else if(d.length>0){f='('+d;}i.value=f;});};
   var config = __APHEL_CONFIG__;
   var script = document.currentScript;
   var base = script && script.src ? new URL(script.src, window.location.href).origin : '';
@@ -269,6 +284,7 @@ const EMBED_SCRIPT: &str = r#"(function () {
         } else {
           var type = field.kind === 'email' ? 'email' : field.kind === 'phone' ? 'tel' : 'text';
           input = element('input', { type: type, id: id, name: field.key });
+          if (field.kind === 'phone') maskPhone(input);
         }
         if (field.kind !== 'select') input.setAttribute('maxlength', String(field.max_length));
         if (field.placeholder && field.kind !== 'select') input.setAttribute('placeholder', field.placeholder);

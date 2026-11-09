@@ -11,6 +11,8 @@ import {
   DialogContent,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { PhoneFieldInput } from '@/components/fields/LazyPhoneFieldInput'
+import { useRecordFormatting } from '@/sdk'
 import { Textarea } from '@/components/ui/textarea'
 import { useDistributionRules, useSaveMeetingType } from '../api'
 import { matchServerField, serverFieldViolations } from '../lib/errors'
@@ -79,6 +81,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
     defaultValues: defaultValues(meetingType),
   })
   const locationKind = useWatch({ control, name: 'locationKind' })
+  const formatting = useRecordFormatting()
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -190,11 +193,29 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
             {locationKind !== 'none' && (
               <Field label={t(`locationValueLabels.${locationKind}`)}>
                 {(fieldControl) => <>
-                  <Input placeholder={t('placeholders.locationValue')}
-                  id={fieldControl.id}
-                  aria-invalid={errors.locationValue ? true : undefined}
-                  {...register('locationValue')}
-                />
+                  {locationKind === 'phone' ? (
+                    <Controller
+                      control={control}
+                      name="locationValue"
+                      render={({ field }) => (
+                        <PhoneFieldInput
+                          id={fieldControl.id}
+                          locale={formatting.locale}
+                          fieldLabel={t('locationValueLabels.phone')}
+                          invalid={Boolean(errors.locationValue)}
+                          value={field.value || null}
+                          onBlur={field.onBlur}
+                          onChange={(next) => field.onChange(next ?? '')}
+                        />
+                      )}
+                    />
+                  ) : (
+                    <Input placeholder={t('placeholders.locationValue')}
+                      id={fieldControl.id}
+                      aria-invalid={errors.locationValue ? true : undefined}
+                      {...register('locationValue')}
+                    />
+                  )}
                 <p className="text-xs text-muted-foreground">{t('meetingTypes.form.locationValueHint')}</p>
                 <FieldMessage message={errors.locationValue?.message} />
                 </>}

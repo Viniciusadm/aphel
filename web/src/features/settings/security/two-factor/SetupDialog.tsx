@@ -132,11 +132,12 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
           <TextField
             label={t('setup.codeLabel')}
             value={code}
-            onChange={(event) => setCode(event.target.value)}
+            onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
             error={error}
             inputMode="numeric"
             placeholder="123456"
             {...codeInputProps}
+            maxLength={6}
           />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

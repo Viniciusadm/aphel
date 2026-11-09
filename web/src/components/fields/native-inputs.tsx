@@ -1,6 +1,7 @@
 import { FieldValueDisplay } from '@/features/records/display/FieldValueDisplay'
 import { fieldConfig } from '@/features/records/fields'
 import { useRecordFormatting } from '@/features/records/formatting'
+import { isTextMaskKind } from '@/lib/text-mask'
 import { cn } from '@/lib/utils'
 import { CheckboxFieldInput } from './CheckboxFieldInput'
 import { CurrencyFieldInput } from './CurrencyFieldInput'
@@ -30,8 +31,9 @@ function split({ field, value, initialValue, ...base }: FieldInputProps) {
 }
 
 export function NativeTextInput(props: FieldInputProps) {
-  const { value, base, maxLength } = split(props)
-  return <TextFieldInput {...base} value={normalizeText(value)} maxLength={maxLength} />
+  const { value, base, maxLength, config } = split(props)
+  const mask = isTextMaskKind(config.mask) ? config.mask : null
+  return <TextFieldInput {...base} value={normalizeText(value)} maxLength={mask && mask !== 'digits' ? undefined : maxLength} mask={mask} />
 }
 
 export function NativeUrlInput(props: FieldInputProps) {

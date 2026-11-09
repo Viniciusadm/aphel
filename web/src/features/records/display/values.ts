@@ -1,6 +1,7 @@
 import { asValueField, fieldConfig, isFormulaField } from '../fields'
 import { formatCurrency, formatDate, formatDateTime, formatNumber, type RecordFormatting } from '../formatting'
 import type { FieldDefinition, FieldOption } from '../types'
+import { formatStoredTextMask, isTextMaskKind } from '@/lib/text-mask'
 
 export function isEmptyValue(value: unknown): boolean {
   if (value === null || value === undefined) return true
@@ -32,6 +33,8 @@ export function formatFieldText(field: FieldDefinition, value: unknown, formatti
       return Array.isArray(value)
         ? value.map((item) => optionFor(field, item)?.label ?? String(item)).join(', ')
         : String(value)
+    case 'text':
+      return isTextMaskKind(config.mask) ? formatStoredTextMask(String(value), config.mask) : String(value)
     default:
       return String(value)
   }

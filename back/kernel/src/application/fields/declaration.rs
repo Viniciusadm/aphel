@@ -59,6 +59,8 @@ pub struct FieldDef {
     #[serde(default)]
     pub pattern: Option<String>,
     #[serde(default)]
+    pub mask: Option<String>,
+    #[serde(default)]
     pub currency: Option<String>,
     #[serde(default)]
     pub default: Option<Value>,
@@ -86,6 +88,7 @@ impl FieldDef {
         put("decimals", self.decimals.map(Value::from));
         put("max_length", self.max_length.map(Value::from));
         put("pattern", self.pattern.clone().map(Value::String));
+        put("mask", self.mask.clone().map(Value::String));
         put("currency", self.currency.clone().map(Value::String));
         put("default_value", self.default.clone());
         put("target_record_type", self.target.clone().map(Value::String));

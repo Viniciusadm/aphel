@@ -138,7 +138,8 @@ fn html_response(status: StatusCode, body: String, ancestors: &str) -> Response 
         HeaderValue::from_static("strict-origin-when-cross-origin"),
     );
     let policy = format!(
-        "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors {ancestors}"
+        "default-src 'none'; style-src 'unsafe-inline'; script-src {}; base-uri 'none'; frame-ancestors {ancestors}",
+        *crate::render::PHONE_MASK_SCRIPT_HASH
     );
     if let Ok(value) = HeaderValue::from_str(&policy) {
         headers.insert(header::CONTENT_SECURITY_POLICY, value);

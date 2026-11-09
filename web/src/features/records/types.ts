@@ -31,6 +31,7 @@ export interface FieldConfig {
   max_length?: number | null
   currency?: string | null
   pattern?: string | null
+  mask?: string | null
   default_country?: string | null
   target_record_type?: string | null
   default_value?: unknown

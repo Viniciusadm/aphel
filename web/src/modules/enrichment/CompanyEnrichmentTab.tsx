@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useFieldSchema, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
@@ -22,7 +21,8 @@ import {
   type EnrichmentLookup,
   type EnrichmentProposalItem,
 } from './api'
-import { normalizeCnpj } from './cnpj'
+import { formatStoredTextMask, normalizeCnpj } from '@/lib/text-mask'
+import { MaskedInput } from '@/components/ui/masked-input'
 import { Field } from '@/components/ui/field'
 
 const KNOWN_ERRORS = [
@@ -132,16 +132,13 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
         <form onSubmit={(event) => void search(event)}>
           <Field id="enrichment-cnpj" label={t('company.cnpj')}>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Input
+            <MaskedInput
               id="enrichment-cnpj"
-              inputMode="text"
-              autoComplete="off"
-              maxLength={18}
-              placeholder="00.000.000/0000-00"
+              mask="cnpj"
               value={cnpj}
               aria-invalid={cnpj.trim() !== '' && !valid}
               disabled={searching}
-              onChange={(event) => setTypedCnpj(event.target.value)}
+              onValueChange={setTypedCnpj}
               className="sm:max-w-xs"
             />
             <Button type="submit" disabled={!valid || searching}>
@@ -158,7 +155,7 @@ export function CompanyEnrichmentTab({ recordId, readOnly }: RecordTabRenderProp
       {lookup && (
         <div className="grid gap-3 rounded-md border bg-card p-3">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium">{t('lookup.title', { cnpj: lookup.cnpj })}</p>
+            <p className="text-sm font-medium">{t('lookup.title', { cnpj: formatStoredTextMask(lookup.cnpj, 'cnpj') })}</p>
             <Badge variant="secondary">{t(`sources.${lookup.source}`)}</Badge>
             <span className="text-xs text-muted-foreground">{formatDateTime(lookup.fetched_at, formatting)}</span>
           </div>

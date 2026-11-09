@@ -105,7 +105,7 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
         <FieldMessage message={errors.timezone?.message} />
         </>}
       </Field>
-      <WeeklyHoursEditor control={control} register={register} errors={errors} />
+      <WeeklyHoursEditor control={control} errors={errors} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {numberField(
           'minNoticeMinutes',

@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { notifyError } from '@/components/feedback/notify'
 import { Input } from '@/components/ui/input'
+import { PhoneFieldInput } from '@/components/fields/LazyPhoneFieldInput'
+import { useRecordFormatting } from '@/sdk'
 import { emitModuleEvent } from '@/kernel/modules/events'
 import { FormActions, FormBody, type QuickFormProps, type RecordItem, recordsKeys, useOutboxFeedback } from '@/sdk'
 import { submitWithOutbox } from '@/pwa/offline/outbox'
@@ -23,6 +25,7 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
   const queryClient = useQueryClient()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const formatting = useRecordFormatting()
   const [email, setEmail] = useState('')
   const [touched, setTouched] = useState(false)
   const nameMissing = name.trim() === ''
@@ -73,14 +76,13 @@ export function ContactQuickForm({ onDone }: QuickFormProps) {
         </>}
       </Field>
       <Field label={t('contact.phone')}>
-        {(control) => <Input placeholder={t('placeholders.phone')}
+        {(control) => <PhoneFieldInput
           {...control}
-          type="tel"
-          inputMode="tel"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          autoComplete="tel"
-          className="h-11 text-base"
+          locale={formatting.locale}
+          fieldLabel={t('contact.phone')}
+          value={phone || null}
+          onChange={(next) => setPhone(next ?? '')}
+          className="text-base"
         />}
       </Field>
       <Field label={t('contact.email')}>

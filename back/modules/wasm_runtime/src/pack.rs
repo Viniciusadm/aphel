@@ -307,9 +307,16 @@ fn setting_problem(
         crate::manifest::SETTING_SELECT => value
             .as_str()
             .is_some_and(|text| setting.options.iter().any(|option| option.value == text)),
-        _ => value.as_str().is_some_and(|text| text.len() <= 1000),
+        _ => value
+            .as_str()
+            .is_some_and(|text| setting.normalize_text(text).is_some()),
     };
-    (!valid).then(|| format!("must be a valid {}", setting.kind))
+    (!valid).then(|| {
+        format!(
+            "must be a valid {}",
+            setting.mask.as_deref().unwrap_or(&setting.kind)
+        )
+    })
 }
 
 fn dependencies(members: &[PackMember]) -> Vec<BTreeSet<usize>> {

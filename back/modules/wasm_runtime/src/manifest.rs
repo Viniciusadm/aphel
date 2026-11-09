@@ -5,7 +5,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::platform::application::jobs::CronSchedule;
 use aphel_sdk::platform::domain::access::{Permission, RecordScope, is_known_permission};
 use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
-use aphel_sdk::platform::domain::fields::FieldType;
+use aphel_sdk::platform::domain::fields::{FieldType, TextMask};
 
 pub const API_VERSION: u32 = 1;
 pub const INVALID_MANIFEST: &str = "plugin_manifest_invalid";
@@ -371,6 +371,25 @@ pub struct SettingSpec {
     pub options: Vec<SettingOption>,
     #[serde(default)]
     pub options_from: Option<SettingOptionsSource>,
+    #[serde(default)]
+    pub mask: Option<String>,
+}
+
+impl SettingSpec {
+    pub fn text_mask(&self) -> Option<TextMask> {
+        self.mask.as_deref().and_then(TextMask::parse)
+    }
+
+    pub fn normalize_text(&self, text: &str) -> Option<String> {
+        if text.len() > 1000 {
+            return None;
+        }
+        match self.text_mask() {
+            Some(_) if text.trim().is_empty() => Some(String::new()),
+            Some(mask) => mask.normalize(text).ok(),
+            None => Some(text.to_owned()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
@@ -1324,6 +1343,17 @@ impl PluginManifest {
                         "needs a text setting, an entity such as plugin.entity and the value and label field keys",
                     ));
                 }
+            }
+            if let Some(mask) = &setting.mask
+                && (setting.kind != "text" || TextMask::parse(mask).is_none())
+            {
+                violations.push(FieldViolation::new(
+                    format!("settings[{index}].mask"),
+                    format!(
+                        "needs a text setting and one of {}",
+                        TextMask::ALL.map(|mask| mask.as_str()).join(", ")
+                    ),
+                ));
             }
             if is_sensitive_setting(&setting.kind) && setting.default.is_some() {
                 violations.push(FieldViolation::new(

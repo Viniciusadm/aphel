@@ -1,22 +1,21 @@
 import { Plus, Trash2 } from 'lucide-react'
-import { useFieldArray, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
+import { Controller, useFieldArray, type Control, type FieldErrors } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { MaskedInput } from '@/components/ui/masked-input'
 import { FieldMessage } from '../lib/FieldMessage'
 import { WEEKDAYS } from '../types'
 import { MAX_INTERVALS, type AvailabilityFormValues } from './form'
 
 interface WeeklyHoursEditorProps {
   control: Control<AvailabilityFormValues>
-  register: UseFormRegister<AvailabilityFormValues>
   errors: FieldErrors<AvailabilityFormValues>
 }
 
 const DEFAULT_START = '09:00'
 const DEFAULT_END = '18:00'
 
-export function WeeklyHoursEditor({ control, register, errors }: WeeklyHoursEditorProps) {
+export function WeeklyHoursEditor({ control, errors }: WeeklyHoursEditorProps) {
   const { t } = useTranslation('booking')
   const intervals = useFieldArray({ control, name: 'intervals' })
   const full = intervals.fields.length >= MAX_INTERVALS
@@ -43,22 +42,36 @@ export function WeeklyHoursEditor({ control, register, errors }: WeeklyHoursEdit
                   return (
                     <div key={field.id} className="grid gap-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Input
-                          className="w-24"
-                          inputMode="numeric"
-                          placeholder="HH:MM"
-                          aria-label={t('availability.start')}
-                          aria-invalid={intervalErrors?.start ? true : undefined}
-                          {...register(`intervals.${index}.start`)}
+                        <Controller
+                          control={control}
+                          name={`intervals.${index}.start`}
+                          render={({ field }) => (
+                            <MaskedInput
+                              mask="time"
+                              className="w-24"
+                              aria-label={t('availability.start')}
+                              aria-invalid={intervalErrors?.start ? true : undefined}
+                              value={field.value}
+                              onBlur={field.onBlur}
+                              onValueChange={field.onChange}
+                            />
+                          )}
                         />
                         <span className="text-sm text-muted-foreground">{t('availability.until')}</span>
-                        <Input
-                          className="w-24"
-                          inputMode="numeric"
-                          placeholder="HH:MM"
-                          aria-label={t('availability.end')}
-                          aria-invalid={intervalErrors?.end ? true : undefined}
-                          {...register(`intervals.${index}.end`)}
+                        <Controller
+                          control={control}
+                          name={`intervals.${index}.end`}
+                          render={({ field }) => (
+                            <MaskedInput
+                              mask="time"
+                              className="w-24"
+                              aria-label={t('availability.end')}
+                              aria-invalid={intervalErrors?.end ? true : undefined}
+                              value={field.value}
+                              onBlur={field.onBlur}
+                              onValueChange={field.onChange}
+                            />
+                          )}
                         />
                         <Button
                           type="button"

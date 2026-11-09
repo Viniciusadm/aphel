@@ -1,6 +1,10 @@
-import { Controller, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
+import { Controller, useWatch, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
+import { MaskedInput } from '@/components/ui/masked-input'
+import { PhoneFieldInput } from '@/components/fields/LazyPhoneFieldInput'
+import { useRecordFormatting } from '@/features/records/formatting'
+import { TEXT_MASK_KINDS, isTextMaskKind } from '@/lib/text-mask'
 import { useRecordTypeOptions } from '../lib/record-types'
 import {
   hasOptions,
@@ -26,7 +30,6 @@ interface TypeSettingsProps {
 const DEFAULT_INPUT_TYPES: Partial<Record<FieldType, string>> = {
   email: 'email',
   url: 'url',
-  phone: 'tel',
   date: 'date',
   datetime: 'datetime-local',
 }
@@ -44,7 +47,7 @@ export function TypeSettings({ fieldType, control, register, errors, optionChoic
   if (!hasSettings) return null
 
   const textInput = (
-    name: 'min' | 'max' | 'decimals' | 'currency' | 'maxLength' | 'pattern' | 'defaultCountry',
+    name: 'min' | 'max' | 'decimals' | 'currency' | 'maxLength' | 'pattern',
     label: string,
     hint?: string,
     inputMode?: 'decimal' | 'numeric',
@@ -84,7 +87,51 @@ export function TypeSettings({ fieldType, control, register, errors, optionChoic
             'numeric',
           )}
         {fieldType === 'text' && textInput('pattern', t('config.pattern'), t('config.patternHint'))}
-        {fieldType === 'phone' && textInput('defaultCountry', t('config.defaultCountry'), t('config.defaultCountryHint'))}
+        {fieldType === 'text' && (
+          <Controller
+            control={control}
+            name="config.mask"
+            render={({ field, fieldState }) => (
+              <FormField id="field-config-mask" label={t('config.mask')} hint={t('config.maskHint')} error={fieldState.error?.message}>
+                <ChoiceSelect
+                  id="field-config-mask"
+                  value={field.value}
+                  noneLabel={t('config.maskNone')}
+                  choices={TEXT_MASK_KINDS.map((mask) => ({ value: mask, label: t(`config.masks.${mask}`) }))}
+                  invalid={Boolean(fieldState.error)}
+                  describedBy={describedBy('field-config-mask', fieldState.error?.message, t('config.maskHint'))}
+                  onChange={field.onChange}
+                />
+              </FormField>
+            )}
+          />
+        )}
+        {fieldType === 'phone' && (
+          <Controller
+            control={control}
+            name="config.defaultCountry"
+            render={({ field, fieldState }) => (
+              <FormField
+                id="field-config-defaultCountry"
+                label={t('config.defaultCountry')}
+                hint={t('config.defaultCountryHint')}
+                error={fieldState.error?.message}
+              >
+                <Input
+                  id="field-config-defaultCountry"
+                  placeholder="BR"
+                  maxLength={2}
+                  autoComplete="off"
+                  aria-invalid={fieldState.error ? true : undefined}
+                  aria-describedby={describedBy('field-config-defaultCountry', fieldState.error?.message, t('config.defaultCountryHint'))}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChange={(event) => field.onChange(event.target.value.replace(/[^A-Za-z]/g, '').toUpperCase())}
+                />
+              </FormField>
+            )}
+          />
+        )}
         {fieldType === 'record' && (
           <Controller
             control={control}
@@ -120,6 +167,9 @@ export function TypeSettings({ fieldType, control, register, errors, optionChoic
 
 function DefaultValueInput({ fieldType, control, register, errors, optionChoices }: TypeSettingsProps) {
   const { t } = useTranslation('fields')
+  const formatting = useRecordFormatting()
+  const mask = useWatch({ control, name: 'config.mask' })
+  const defaultCountry = useWatch({ control, name: 'config.defaultCountry' })
   const id = 'field-config-default'
   const hint = t('config.defaultValueHint')
   const error = errors.config?.defaultValue?.message
@@ -193,6 +243,42 @@ function DefaultValueInput({ fieldType, control, register, errors, optionChoices
               describedBy={describedBy(id, error, hint)}
               onChange={field.onChange}
             />
+          </FormField>
+        )}
+      />
+    )
+  }
+
+  if (fieldType === 'phone' || (fieldType === 'text' && isTextMaskKind(mask))) {
+    return (
+      <Controller
+        control={control}
+        name="config.defaultValue"
+        render={({ field }) => (
+          <FormField id={id} label={t('config.defaultValue')} hint={hint} error={error}>
+            {fieldType === 'phone' ? (
+              <PhoneFieldInput
+                id={id}
+                locale={formatting.locale}
+                defaultCountry={defaultCountry || null}
+                fieldLabel={t('config.defaultValue')}
+                invalid={Boolean(error)}
+                aria-describedby={describedBy(id, error, hint)}
+                value={field.value || null}
+                onBlur={field.onBlur}
+                onChange={(next) => field.onChange(next ?? '')}
+              />
+            ) : (
+              <MaskedInput
+                id={id}
+                mask={isTextMaskKind(mask) ? mask : 'digits'}
+                aria-invalid={error ? true : undefined}
+                aria-describedby={describedBy(id, error, hint)}
+                value={field.value}
+                onBlur={field.onBlur}
+                onValueChange={field.onChange}
+              />
+            )}
           </FormField>
         )}
       />

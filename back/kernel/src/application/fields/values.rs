@@ -7,7 +7,7 @@ use serde_json::{Map, Number, Value};
 
 use crate::domain::fields::{
     ConfigProperty, FieldConfig, FieldDefinition, FieldValue, FormulaResultType, FormulaSettings,
-    RawValue,
+    RawValue, TextMask,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -120,6 +120,16 @@ pub fn config_from_json(value: &Value) -> Result<FieldConfig, Vec<ConfigError>> 
             "max_length" => config.max_length = u32_property(property, value, &mut errors),
             "currency" => config.currency = string_property(property, value, &mut errors),
             "pattern" => config.pattern = string_property(property, value, &mut errors),
+            "mask" => match value.as_str().and_then(TextMask::parse) {
+                Some(mask) => config.mask = Some(mask),
+                None => errors.push(ConfigError::new(
+                    property,
+                    format!(
+                        "must be one of {}",
+                        TextMask::ALL.map(|mask| mask.as_str()).join(", ")
+                    ),
+                )),
+            },
             "default_country" => {
                 config.default_country = string_property(property, value, &mut errors)
             }
@@ -172,6 +182,9 @@ pub fn config_to_json(config: &FieldConfig) -> Value {
             ConfigProperty::Currency => config.currency.clone().map(Value::String),
             ConfigProperty::MaxLength => config.max_length.map(Value::from),
             ConfigProperty::Pattern => config.pattern.clone().map(Value::String),
+            ConfigProperty::Mask => config
+                .mask
+                .map(|mask| Value::String(mask.as_str().to_owned())),
             ConfigProperty::DefaultCountry => config.default_country.clone().map(Value::String),
             ConfigProperty::TargetRecordType => {
                 config.target_record_type.clone().map(Value::String)

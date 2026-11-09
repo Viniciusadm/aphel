@@ -6,7 +6,9 @@ use rust_decimal::Decimal;
 use uuid::Uuid;
 
 use crate::domain::UserId;
-use crate::domain::fields::{FieldDefinition, FieldType, MAX_TEXT_LENGTH, PATTERN_SIZE_LIMIT};
+use crate::domain::fields::{
+    FieldDefinition, FieldType, MAX_TEXT_LENGTH, PATTERN_SIZE_LIMIT, TextMask,
+};
 
 pub const MAX_NUMBER_ABS: i64 = 1_000_000_000_000_000_000;
 pub const MAX_EMAIL_LENGTH: usize = 254;
@@ -47,6 +49,7 @@ pub enum FieldValueError {
     InvalidEmail,
     InvalidUrl,
     InvalidPhone,
+    InvalidMasked(TextMask),
     InvalidDate,
     InvalidDateTime,
     BelowMinimum(Decimal),
@@ -75,6 +78,7 @@ impl FieldValueError {
             Self::InvalidEmail => "must be a valid email address".to_owned(),
             Self::InvalidUrl => "must be a valid http or https URL".to_owned(),
             Self::InvalidPhone => "must be a valid phone number".to_owned(),
+            Self::InvalidMasked(mask) => format!("must be a valid {} value", mask.as_str()),
             Self::InvalidDate => "must be a date in the format YYYY-MM-DD".to_owned(),
             Self::InvalidDateTime => "must be an RFC 3339 date and time".to_owned(),
             Self::BelowMinimum(min) => format!("must be greater than or equal to {min}"),
@@ -134,6 +138,12 @@ pub fn validate_native_value(
     let value = match field_type.base_type() {
         FieldType::Text | FieldType::LongText => {
             let text = expect_text(raw)?.trim().to_owned();
+            let text = match config.mask {
+                Some(mask) => mask
+                    .normalize(&text)
+                    .map_err(|_| FieldValueError::InvalidMasked(mask))?,
+                None => text,
+            };
             let limit = config.max_text_length(field_type);
             if text.chars().count() > limit as usize {
                 return Err(FieldValueError::TooLong(limit));

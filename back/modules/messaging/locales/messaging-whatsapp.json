@@ -7,7 +7,7 @@
   "fields": [
     {
       "key": "phone_number_id",
-      "input_type": "text",
+      "input_type": "digits",
       "required": true,
       "label": {
         "en": "Phone number ID",
@@ -21,7 +21,7 @@
     },
     {
       "key": "business_account_id",
-      "input_type": "text",
+      "input_type": "digits",
       "required": false,
       "label": {
         "en": "WhatsApp Business Account ID",
@@ -35,7 +35,7 @@
     },
     {
       "key": "display_phone_number",
-      "input_type": "text",
+      "input_type": "tel",
       "required": false,
       "label": {
         "en": "Displayed number",

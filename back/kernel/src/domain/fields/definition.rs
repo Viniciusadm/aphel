@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::domain::fields::{
     FORMULA_FIELD_TYPE, FieldKey, FieldType, FormulaSettings, MAX_FORMULA_LENGTH, RawValue,
+    TextMask,
 };
 
 pub const MAX_TEXT_LENGTH: u32 = 1024;
@@ -32,6 +33,7 @@ pub struct FieldConfig {
     pub currency: Option<String>,
     pub max_length: Option<u32>,
     pub pattern: Option<String>,
+    pub mask: Option<TextMask>,
     pub default_country: Option<String>,
     pub target_record_type: Option<String>,
     pub default_value: Option<RawValue>,
@@ -46,6 +48,7 @@ pub enum ConfigProperty {
     Currency,
     MaxLength,
     Pattern,
+    Mask,
     DefaultCountry,
     TargetRecordType,
     DefaultValue,
@@ -62,6 +65,7 @@ impl ConfigProperty {
             Self::Currency => "currency",
             Self::MaxLength => "max_length",
             Self::Pattern => "pattern",
+            Self::Mask => "mask",
             Self::DefaultCountry => "default_country",
             Self::TargetRecordType => "target_record_type",
             Self::DefaultValue => "default_value",
@@ -79,7 +83,7 @@ impl ConfigProperty {
             }
             Self::Currency => field_type == Currency,
             Self::MaxLength => matches!(field_type, Text | LongText),
-            Self::Pattern => field_type == Text,
+            Self::Pattern | Self::Mask => field_type == Text,
             Self::DefaultCountry => field_type == Phone,
             Self::TargetRecordType => field_type == Record,
             Self::DefaultValue => !matches!(field_type, User | Record),
@@ -114,6 +118,7 @@ impl FieldConfig {
             (self.currency.is_some(), ConfigProperty::Currency),
             (self.max_length.is_some(), ConfigProperty::MaxLength),
             (self.pattern.is_some(), ConfigProperty::Pattern),
+            (self.mask.is_some(), ConfigProperty::Mask),
             (
                 self.default_country.is_some(),
                 ConfigProperty::DefaultCountry,

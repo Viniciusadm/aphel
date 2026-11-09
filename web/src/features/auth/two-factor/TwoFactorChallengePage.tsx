@@ -111,13 +111,13 @@ export function TwoFactorChallengePage() {
             {...control}
             key={mode}
             value={code}
-            onChange={(event) => setCode(event.target.value)}
+            onChange={(event) => setCode(recovery ? event.target.value : event.target.value.replace(/\D/g, '').slice(0, 6))}
             autoFocus
             autoComplete={recovery ? 'off' : 'one-time-code'}
             inputMode={recovery ? 'text' : 'numeric'}
             spellCheck={false}
             autoCapitalize="none"
-            maxLength={recovery ? 16 : 7}
+            maxLength={recovery ? 16 : 6}
             placeholder={recovery ? 'xxxxx-xxxxx' : '123456'}
             className="font-mono tracking-widest"
             aria-invalid={error ? true : undefined}

@@ -6,6 +6,8 @@ import { api } from '@/api'
 import { RecordFieldInput } from '@/components/fields/RecordFieldInput'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { MaskedInput } from '@/components/ui/masked-input'
+import { isTextMaskKind } from '@/lib/text-mask'
 import { recordsKeys, useOrganizationUsers } from '../api'
 import { getRecordResource, recordPath, recordTitle } from '../resources'
 import type { RecordItem } from '../types'
@@ -185,7 +187,19 @@ function ScalarInput({ field, value, label, onChange }: ScalarInputProps) {
           onChange={(event) => onChange(event.target.value)}
         />
       )
-    default:
+    default: {
+      const mask = valueFieldType(field) === 'text' ? fieldConfig(field).mask : null
+      if (isTextMaskKind(mask)) {
+        return (
+          <MaskedInput
+            mask={mask}
+            aria-label={label}
+            className="w-full sm:w-48"
+            value={textOf(value)}
+            onValueChange={onChange}
+          />
+        )
+      }
       return (
         <Input placeholder={t('filters.valuePlaceholder')}
           aria-label={label}
@@ -194,6 +208,7 @@ function ScalarInput({ field, value, label, onChange }: ScalarInputProps) {
           onChange={(event) => onChange(event.target.value)}
         />
       )
+    }
   }
 }
 

@@ -11,6 +11,7 @@ const SERVER_MESSAGES: Array<[RegExp, (match: RegExpExecArray) => ValidationIssu
   [/^must be a valid email address$/, () => ({ code: 'email' })],
   [/^must be a valid http or https URL$/, () => ({ code: 'url' })],
   [/^must be a valid phone number$/, () => ({ code: 'phone' })],
+  [/^must be a valid ([a-z_]+) value$/, (match) => ({ code: 'mask', values: { context: match[1] } })],
   [/^must be a date in the format/, () => ({ code: 'date' })],
   [/^must be an RFC 3339 date and time$/, () => ({ code: 'datetime' })],
   [/^must be greater than or equal to (.+)$/, (match) => ({ code: 'min', values: { min: match[1] } })],
