@@ -10,6 +10,8 @@ export type UpdatePersonalPreferences = Schemas['UpdatePreferencesRequest']
 
 export interface PersonalPreferences {
   keyboard_shortcuts: boolean
+  keybindings: Record<string, string[]>
+  keybindings_default: Record<string, string[]>
   locale: string | null
   navigation: NavigationPreferences
 }

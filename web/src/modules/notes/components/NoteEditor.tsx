@@ -3,6 +3,7 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Slot } from '@/kernel/modules/Slot'
+import { chordText, useActionKeys, useKeybindingProps } from '@/kernel/keybindings'
 import { type ComposerSubject } from '@/kernel/modules/slots'
 import { ContractComponent, NativeSelect, type ContractComponentProps } from '@/sdk'
 import { Textarea } from '@/components/ui/textarea'
@@ -61,6 +62,8 @@ export function NoteEditor({
       setPreview(false)
     }
   }
+  const submitKeys = useKeybindingProps<HTMLTextAreaElement>({ 'notes.save': () => void submit() })
+  const submitChord = useActionKeys('notes.save')[0]
 
   return (
     <form
@@ -107,17 +110,12 @@ export function NoteEditor({
           aria-invalid={tooLong ? true : undefined}
           aria-describedby={`${id}-hint`}
           onChange={(event) => setBody(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-              event.preventDefault()
-              void submit()
-            }
-          }}
+          onKeyDown={submitKeys.onKeyDown}
         />
       )}
       </Field>
       <p id={`${id}-hint`} className={tooLong ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
-        {tooLong ? t('editor.tooLong') : t('editor.hint')}
+        {tooLong ? t('editor.tooLong') : submitChord ? t('editor.hintKeys', { keys: chordText(submitChord) }) : t('editor.hint')}
       </p>
       <div className="flex flex-wrap items-center justify-between gap-2">
         {allowVisibility ? (

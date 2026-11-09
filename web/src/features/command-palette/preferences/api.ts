@@ -10,6 +10,8 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   ui_plugin_default: null,
   effective_ui_plugin: null,
   keyboard_shortcuts: true,
+  keybindings: {},
+  keybindings_default: {},
   locale: null,
   navigation: { order: [], hidden: [], home: null },
 }

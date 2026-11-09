@@ -14,14 +14,15 @@
   "editor": {
     "label": "Nota",
     "placeholder": "Escreva em Markdown: **negrito**, *itálico*, listas e links.",
-    "hint": "Aceita Markdown. Ctrl+Enter salva.",
+    "hint": "Aceita Markdown.",
     "tooLong": "A nota pode ter no máximo 50.000 caracteres.",
     "preview": "Visualizar",
     "write": "Escrever",
     "previewLabel": "Pré-visualização da nota",
     "previewEmpty": "Nada para visualizar.",
     "visibility": "Visibilidade",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "hintKeys": "Aceita Markdown. {{keys}} salva."
   },
   "visibility": {
     "team": "Equipe",
@@ -67,5 +68,8 @@
     "events": {
       "created": "adicionou uma nota em"
     }
+  },
+  "keybindings": {
+    "save": "Salvar a nota"
   }
 }

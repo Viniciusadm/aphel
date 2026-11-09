@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 
+use crate::application::keybindings::Keybindings;
 use crate::application::security::Clock;
 use crate::application::shared::TransactionManager;
 use crate::domain::UserId;
@@ -18,6 +19,7 @@ pub struct NavigationPreferences {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserPreferences {
     pub keyboard_shortcuts: bool,
+    pub keybindings: Keybindings,
     pub locale: Option<String>,
     pub navigation: NavigationPreferences,
     pub ui_plugin: Option<String>,
@@ -27,6 +29,7 @@ impl Default for UserPreferences {
     fn default() -> Self {
         Self {
             keyboard_shortcuts: true,
+            keybindings: Keybindings::new(),
             locale: None,
             navigation: NavigationPreferences::default(),
             ui_plugin: None,
@@ -39,11 +42,17 @@ pub trait UiPluginDefaults: Send + Sync {
     async fn find(&self) -> Result<Option<String>, AppError>;
 }
 
+#[async_trait]
+pub trait KeybindingDefaults: Send + Sync {
+    async fn find(&self) -> Result<Keybindings, AppError>;
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserPreferencesView {
     pub preferences: UserPreferences,
     pub ui_plugin_default: Option<String>,
     pub effective_ui_plugin: Option<String>,
+    pub keybindings_default: Keybindings,
 }
 
 #[async_trait]
@@ -71,10 +80,12 @@ pub trait UserPreferencesPorts: Send + Sync {
     type Transactions: TransactionManager;
     type Preferences: UserPreferencesRepository<Tx = UserPreferencesTx<Self>>;
     type UiDefaults: UiPluginDefaults;
+    type KeybindingDefaults: KeybindingDefaults;
     type Clock: Clock;
 
     fn transactions(&self) -> &Self::Transactions;
     fn ui_defaults(&self) -> &Self::UiDefaults;
+    fn keybinding_defaults(&self) -> &Self::KeybindingDefaults;
     fn preferences(&self) -> &Self::Preferences;
     fn clock(&self) -> &Self::Clock;
 }

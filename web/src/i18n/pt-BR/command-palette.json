@@ -62,41 +62,12 @@
   "commands": {
     "goTo": "Ir para {{page}}",
     "shortcuts": "Ver atalhos de teclado",
-    "preferences": "Preferências pessoais",
     "openFavorite": "Abrir favorito",
     "addNote": "Adicionar nota",
     "openTab": "Abrir aba {{tab}}",
     "copyLink": "Copiar link deste registro",
     "linkCopied": "Link copiado",
-    "allResults": "Ver todos os resultados para “{{query}}”"
-  },
-  "help": {
-    "title": "Atalhos de teclado",
-    "description": "Os atalhos de uma tecla não funcionam enquanto você digita em um campo.",
-    "disabled": "Os atalhos de uma tecla estão desligados nas suas preferências. Ctrl+K continua funcionando.",
-    "manage": "Gerenciar nas preferências",
-    "then": "depois",
-    "sections": {
-      "general": "Geral",
-      "navigation": "Navegação"
-    },
-    "items": {
-      "palette": "Abrir ou fechar a paleta de comandos",
-      "create": "Criar no contexto da página (ou abrir o menu de criação)",
-      "help": "Mostrar esta lista de atalhos",
-      "go": "Ir para {{page}}"
-    }
-  },
-  "preferences": {
-    "tab": "Preferências",
-    "title": "Preferências pessoais",
-    "description": "Ajustes que valem só para você, em todas as organizações.",
-    "shortcuts": {
-      "label": "Atalhos de teclado",
-      "description": "Atalhos de uma tecla, como “g c” para contatos, “c” para criar e “?” para a ajuda. Ctrl+K (ou Cmd+K) continua abrindo a paleta mesmo com eles desligados.",
-      "showList": "Ver a lista de atalhos"
-    },
-    "saved": "Preferências salvas",
-    "saveError": "Não foi possível salvar as preferências"
+    "allResults": "Ver todos os resultados para “{{query}}”",
+    "keyboard": "Personalizar atalhos de teclado"
   }
 }

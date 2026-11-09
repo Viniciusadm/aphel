@@ -11,7 +11,7 @@ export interface PaletteCommand {
   group: CommandGroup
   icon?: LucideIcon
   keywords?: string[]
-  shortcut?: string[]
+  keybinding?: string
   run: () => void
 }
 

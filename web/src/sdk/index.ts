@@ -1,6 +1,9 @@
 export { NAV_ORDER, defineModule } from '@/kernel/modules/define'
 export type {
   CommandContribution,
+  KeybindingContribution,
+  KeybindingScopeContribution,
+  KeybindingScopeKind,
   ModuleApp,
   ModuleTranslations,
   NavContribution,
@@ -18,6 +21,23 @@ export type {
 } from '@/kernel/modules/define'
 export { useModuleTranslation, type ModuleTranslate } from '@/kernel/modules/i18n'
 export { Slot } from '@/kernel/modules/Slot'
+export {
+  KeybindingHint,
+  KeybindingKeys,
+  ariaKeyShortcut,
+  chordText,
+  formatChord,
+  isEditableTarget,
+  useActionKeys,
+  useKeybinding,
+  useKeybindingHandlers,
+  useKeybindingProps,
+  useKeybindingScope,
+  type KeybindingHandler,
+  type KeybindingHintProps,
+  type KeybindingKeysProps,
+  type UseKeybindingOptions,
+} from '@/kernel/keybindings'
 export {
   useContractComponent,
   useHasContractComponent,

@@ -10,7 +10,7 @@ Personal settings affect only you. To open them, use the user menu in the top ba
 | Group | Item | What it is for |
 | --- | --- | --- |
 | Profile and preferences | **Appearance** | Choose the interface |
-| Profile and preferences | **Preferences** | Keyboard shortcuts |
+| Profile and preferences | **Keyboard shortcuts** | Turn shortcuts on or off and change their keys |
 | Profile and preferences | **Navigation and language** | Language, home screen and menu order |
 | Profile and preferences | **Notifications** | Which alerts you get and where (needs the `notifications` module) |
 | Security | **Account security** | Password, two-factor authentication, sessions |
@@ -19,13 +19,21 @@ Personal settings affect only you. To open them, use the user menu in the top ba
 
 Everyone who is signed in can open these items; none needs a special permission, except the extra parts noted below.
 
-## Preferences and keyboard shortcuts
+## Keyboard shortcuts
 
-Open **My account**, then **Preferences**. There is one setting: **Keyboard shortcuts**. It turns the single-key shortcuts on or off. `Ctrl+K` (`Cmd+K` on Mac) keeps opening the command palette even when they are off. Click **Show the list of shortcuts** to see them all.
+Open **My account**, then **Keyboard shortcuts**.
 
-### Keyboard shortcuts
+- **Use keyboard shortcuts** turns the shortcuts on or off. `Ctrl+K` (`Cmd+K` on Mac) keeps opening the command palette, and shortcuts inside text boxes (such as `Ctrl+Enter` to send) keep working, even when they are off.
+- The list shows every action you can use, grouped by where it applies: everywhere, on a specific screen (such as the register) or inside text boxes. Search by name or by key.
+- **Change** opens a box where you press the new combination. For a sequence such as `G` then `D`, press the two keys one after the other. Turn on **Keep the current shortcut too** to add an alternative instead of replacing it.
+- If the keys are already used by another action in the same place, the box says so, and **Replace and save** moves them to this action. Keys usually taken by the browser, such as `Ctrl+W`, show a warning.
+- **Turn off** removes the shortcut of an action, and **Reset** brings back the company default. The badge on each row says where the keys come from: **Default**, **Company** or **You**.
 
-Single-key shortcuts do not fire while you type in a field or when a dialog is open. Press `?` anywhere to show the list.
+Administrators set the defaults for everyone in **Settings > Keyboard shortcuts** (needs `settings.manage`), for example to use the same register keys on every terminal. Each person can still change their own.
+
+### Default shortcuts
+
+Single-key shortcuts do not fire while you type in a field or when a dialog is open. Press `?` anywhere to see the list with your current keys.
 
 | Keys | Action |
 | --- | --- |
@@ -42,6 +50,7 @@ Single-key shortcuts do not fire while you type in a field or when a dialog is o
 | `G` then `A` | Go to Calendar |
 | `G` then `R` | Go to Reports |
 | `G` then `P` | Go to Products |
+| `Ctrl+Enter` / `Cmd+Enter` | Send a reply, save a note or run the assistant, inside their text boxes |
 
 For "go to" shortcuts, press `G`, then the second key within about a second. A shortcut only works if the page is in your menu, which depends on enabled modules and your permissions.
 

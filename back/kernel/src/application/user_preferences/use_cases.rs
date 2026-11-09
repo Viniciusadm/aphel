@@ -1,3 +1,4 @@
+use crate::application::keybindings::{Keybindings, normalize_keybindings};
 use crate::application::organization_profile::{
     CORE_UI_PLUGIN, effective_ui_plugin, is_ui_plugin_key, ui_plugin_available,
 };
@@ -7,8 +8,8 @@ use crate::domain::UserId;
 use crate::errors::{AppError, FieldViolation};
 
 use super::ports::{
-    NavigationPreferences, SUPPORTED_LOCALES, UiPluginDefaults, UserPreferences,
-    UserPreferencesPorts, UserPreferencesRepository, UserPreferencesView,
+    KeybindingDefaults, NavigationPreferences, SUPPORTED_LOCALES, UiPluginDefaults,
+    UserPreferences, UserPreferencesPorts, UserPreferencesRepository, UserPreferencesView,
 };
 
 const MAX_NAVIGATION_ITEMS: usize = 100;
@@ -18,6 +19,7 @@ const MAX_HOME_LENGTH: usize = 200;
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct UpdateUserPreferencesCommand {
     pub keyboard_shortcuts: Option<bool>,
+    pub keybindings: Option<Keybindings>,
     pub locale: Option<Option<String>>,
     pub navigation: Option<NavigationPreferences>,
     pub ui_plugin: Option<Option<String>>,
@@ -39,10 +41,12 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
             ui_plugin_default.as_deref(),
         )
         .await?;
+        let keybindings_default = self.ports.keybinding_defaults().find().await?;
         Ok(UserPreferencesView {
             preferences,
             ui_plugin_default,
             effective_ui_plugin,
+            keybindings_default,
         })
     }
 
@@ -83,6 +87,13 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
         if let Some(navigation) = command.navigation.take() {
             command.navigation = Some(normalize_navigation(navigation, &mut violations));
         }
+        if let Some(keybindings) = command.keybindings.take() {
+            command.keybindings = Some(normalize_keybindings(
+                "keybindings",
+                keybindings,
+                &mut violations,
+            ));
+        }
         if !violations.is_empty() {
             return Err(AppError::invalid_fields("invalid preferences", violations));
         }
@@ -96,6 +107,9 @@ impl<P: UserPreferencesPorts> UserPreferencesUseCases<P> {
         let mut next = current;
         if let Some(value) = command.keyboard_shortcuts {
             next.keyboard_shortcuts = value;
+        }
+        if let Some(value) = &command.keybindings {
+            next.keybindings = value.clone();
         }
         if let Some(value) = &command.locale {
             next.locale = value.clone();

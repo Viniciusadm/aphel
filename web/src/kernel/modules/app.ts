@@ -3,13 +3,13 @@ import type { WidgetRenderer } from '@/kernel/widgets/types'
 import type { TimelineRenderer } from '@/features/records/timeline/registry'
 import {
   NAV_ORDER,
+  type KeybindingContribution,
   type ModuleApp,
   type RecordSectionContribution,
   type SettingsAreaContribution,
 } from './define'
 import type { RecordTypeSelector } from './record-types'
 import type { FieldTypeRenderers } from './field-types'
-import { registerGoShortcut } from '@/app/shortcuts'
 import { registerRuleError } from '@/components/feedback/rule-errors'
 import { contractBucket } from './contract-components'
 import { contribute } from './registry'
@@ -32,10 +32,7 @@ export function createModuleApp(key: string): ModuleApp {
     key,
     routes: (routes, options) => contribute<RouteEntry>('routes', key, { routes, layout: options?.layout ?? 'app' }),
     publicRoutes: (routes) => contribute<RouteObject[]>('publicRoutes', key, routes),
-    nav: (item) => {
-      if (item.shortcut) registerGoShortcut({ key: item.shortcut, to: item.to })
-      contribute('nav', key, item, item.order ?? NAV_ORDER.modules)
-    },
+    nav: (item) => contribute('nav', key, item, item.order ?? NAV_ORDER.modules),
     ruleError: (code, formatter) => registerRuleError(code, formatter),
     traitListView: (view) => contribute('traitListViews', key, view),
     navSection: (section) => contribute('navSections', key, section, section.order),
@@ -56,7 +53,21 @@ export function createModuleApp(key: string): ModuleApp {
     timelineRenderer: (kind, renderer) => contribute<TimelineRenderer>(`timeline:${kind}`, key, renderer),
     eventRenderer: (eventType, renderer) => contribute<TimelineRenderer>(`event:${eventType}`, key, renderer),
     widget: (widgetKey, renderer) => contribute<WidgetRenderer>(`widget:${widgetKey}`, key, renderer),
-    command: (command) => contribute('commands', key, command),
+    command: (command) => {
+      contribute('commands', key, command)
+      if (command.keys) {
+        contribute<KeybindingContribution>('keybindings', key, {
+          id: command.id,
+          label: command.label,
+          keys: command.keys,
+          permission: command.permission,
+          to: command.to,
+          run: command.run,
+        })
+      }
+    },
+    keybinding: (keybinding) => contribute('keybindings', key, keybinding),
+    keybindingScope: (scope) => contribute('keybindingScopes', key, scope),
     createAction: (action) => contribute('createActions', key, action, action.order),
     quickAdd: (action) => contribute('quickAdd', key, action, action.order),
     referenceOptions: (kind, provider) => contribute(`reference:${kind}`, key, provider),

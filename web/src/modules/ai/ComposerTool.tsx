@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
+import { useKeybindingProps } from '@/kernel/keybindings'
 import type { ComposerContext, SlotProps } from '@/kernel/modules/slots'
 import { AI_KEY, AI_RECORD_TYPES, aiApi, useAiStatus } from './api'
 import { AiErrorMessage, AiFooter } from './AiNotice'
@@ -81,6 +82,7 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
     const trimmed = text.trim()
     if (trimmed) compose.mutate(trimmed)
   }
+  const runKeys = useKeybindingProps<HTMLTextAreaElement>({ 'ai.compose_run': () => run(instruction) })
 
   const apply = (mode: 'replace' | 'insert') => {
     if (!compose.data) return
@@ -123,12 +125,7 @@ function ComposerDialog({ context, subject, value, onChange, onOpenChange }: Com
               placeholder={t(hasDraft ? 'compose.placeholderDraft' : 'compose.placeholderEmpty')}
               value={instruction}
               onChange={(event) => setInstruction(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-                  event.preventDefault()
-                  run(instruction)
-                }
-              }}
+              onKeyDown={runKeys.onKeyDown}
             />}
           </Field>
           {subjectSupported && (

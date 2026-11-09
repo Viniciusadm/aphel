@@ -58,7 +58,8 @@ const dealsModule = defineModule({
     app.routes(dealReportRoutes)
     app.slot('reports.library', { key: 'sales', permission: 'deals.read', render: DealReportLibraryCards })
     app.routes(dealsRoutes)
-    app.nav({ section: 'records', shortcut: 'd', mobile: true, to: DEALS_PATH, label: 'nav.deals', icon: Briefcase, permission: ['deals.read'], order: 50 })
+    app.nav({ section: 'records', mobile: true, to: DEALS_PATH, label: 'nav.deals', icon: Briefcase, permission: ['deals.read'], order: 50 })
+    app.keybinding({ id: 'deals.go', label: 'nav.deals', to: DEALS_PATH, keys: ['g d'], permission: ['deals.read'] })
     app.createAction({
       id: 'deal',
       label: 'createAction.label',

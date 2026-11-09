@@ -25,6 +25,7 @@ const messagingModule = defineModule({
   key: MESSAGING_KEY,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.keybinding({ id: 'messaging.send', label: 'keybindings.send', scope: 'editor', keys: ['mod+enter'] })
     app.routes([
       {
         path: 'messaging',

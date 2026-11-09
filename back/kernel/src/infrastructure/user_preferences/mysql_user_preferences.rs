@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use sqlx::{MySqlPool, Row, mysql::MySqlRow};
 
+use crate::application::keybindings::{keybindings_from_json, keybindings_to_json};
 use crate::application::user_preferences::{
     NavigationPreferences, UserPreferences, UserPreferencesPorts, UserPreferencesRepository,
 };
@@ -9,7 +10,7 @@ use crate::database::transaction::MySqlTx;
 use crate::domain::UserId;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
-use crate::infrastructure::organization_profile::MySqlUiPluginDefaults;
+use crate::infrastructure::organization_profile::{MySqlKeybindingDefaults, MySqlUiPluginDefaults};
 use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::transactions::MySqlTransactionManager;
 
@@ -26,10 +27,14 @@ impl MySqlUserPreferencesRepository {
 
 fn decode(row: MySqlRow) -> Result<UserPreferences, AppError> {
     let navigation: Option<serde_json::Value> = row.try_get("navigation")?;
+    let keybindings: Option<serde_json::Value> = row.try_get("keybindings")?;
     Ok(UserPreferences {
         keyboard_shortcuts: row
             .try_get::<Option<bool>, _>("keyboard_shortcuts")?
             .unwrap_or(true),
+        keybindings: keybindings
+            .map(|value| keybindings_from_json(&value))
+            .unwrap_or_default(),
         locale: row.try_get("locale")?,
         navigation: navigation
             .map(|value| navigation_from_json(&value))
@@ -43,7 +48,7 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
     type Tx = MySqlTx;
 
     async fn find(&self, user_id: &UserId) -> Result<Option<UserPreferences>, AppError> {
-        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ?")
+        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.keybindings, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ?")
             .bind(user_id.as_str()).fetch_optional(&self.pool).await?.map(decode).transpose()
     }
 
@@ -52,7 +57,7 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
         tx: &mut MySqlTx,
         user_id: &UserId,
     ) -> Result<Option<UserPreferences>, AppError> {
-        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ? FOR UPDATE")
+        sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.keybindings, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ? FOR UPDATE")
             .bind(user_id.as_str()).fetch_optional(&mut **tx).await?.map(decode).transpose()
     }
 
@@ -64,8 +69,9 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
         let navigation = navigation_to_json(&preferences.navigation);
-        sqlx::query("INSERT INTO user_preferences (user_id, keyboard_shortcuts, navigation, ui_plugin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) AS new ON DUPLICATE KEY UPDATE keyboard_shortcuts = new.keyboard_shortcuts, navigation = new.navigation, ui_plugin = new.ui_plugin, updated_at = new.updated_at")
-            .bind(user_id.as_str()).bind(preferences.keyboard_shortcuts).bind(&navigation).bind(&preferences.ui_plugin)
+        let keybindings = keybindings_to_json(&preferences.keybindings);
+        sqlx::query("INSERT INTO user_preferences (user_id, keyboard_shortcuts, keybindings, navigation, ui_plugin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) AS new ON DUPLICATE KEY UPDATE keyboard_shortcuts = new.keyboard_shortcuts, keybindings = new.keybindings, navigation = new.navigation, ui_plugin = new.ui_plugin, updated_at = new.updated_at")
+            .bind(user_id.as_str()).bind(preferences.keyboard_shortcuts).bind(&keybindings).bind(&navigation).bind(&preferences.ui_plugin)
             .bind(mapper::naive(at)).bind(mapper::naive(at)).execute(&mut **tx).await?;
         sqlx::query("UPDATE users SET locale = ? WHERE id = ?")
             .bind(&preferences.locale)
@@ -111,6 +117,7 @@ pub(crate) struct MySqlUserPreferencesPorts {
     transactions: MySqlTransactionManager,
     preferences: MySqlUserPreferencesRepository,
     ui_defaults: MySqlUiPluginDefaults,
+    keybinding_defaults: MySqlKeybindingDefaults,
 }
 
 impl MySqlUserPreferencesPorts {
@@ -118,7 +125,8 @@ impl MySqlUserPreferencesPorts {
         Self {
             transactions: MySqlTransactionManager::new(pool.clone()),
             preferences: MySqlUserPreferencesRepository::new(pool.clone()),
-            ui_defaults: MySqlUiPluginDefaults::new(pool),
+            ui_defaults: MySqlUiPluginDefaults::new(pool.clone()),
+            keybinding_defaults: MySqlKeybindingDefaults::new(pool),
         }
     }
 }
@@ -127,6 +135,7 @@ impl UserPreferencesPorts for MySqlUserPreferencesPorts {
     type Transactions = MySqlTransactionManager;
     type Preferences = MySqlUserPreferencesRepository;
     type UiDefaults = MySqlUiPluginDefaults;
+    type KeybindingDefaults = MySqlKeybindingDefaults;
     type Clock = SystemClock;
 
     fn transactions(&self) -> &Self::Transactions {
@@ -134,6 +143,9 @@ impl UserPreferencesPorts for MySqlUserPreferencesPorts {
     }
     fn ui_defaults(&self) -> &Self::UiDefaults {
         &self.ui_defaults
+    }
+    fn keybinding_defaults(&self) -> &Self::KeybindingDefaults {
+        &self.keybinding_defaults
     }
     fn preferences(&self) -> &Self::Preferences {
         &self.preferences

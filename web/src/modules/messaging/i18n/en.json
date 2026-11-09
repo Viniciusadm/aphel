@@ -123,11 +123,13 @@
     "readOnly": "You can read this conversation but cannot reply.",
     "channelInactive": "The channel of this conversation is inactive; activate it to reply.",
     "label": "Reply",
-    "placeholder": "Write the reply (Ctrl+Enter sends)",
-    "emailPlaceholder": "Write the reply e-mail (Ctrl+Enter sends)",
+    "placeholder": "Write the reply ({{keys}} sends)",
+    "emailPlaceholder": "Write the reply e-mail ({{keys}} sends)",
     "windowUntil": "WhatsApp window until {{date}}",
     "send": "Send",
-    "windowClosed": "The reply window has closed. Use an approved template to continue."
+    "windowClosed": "The reply window has closed. Use an approved template to continue.",
+    "placeholderPlain": "Write the reply",
+    "emailPlaceholderPlain": "Write the reply e-mail"
   },
   "errors": {
     "whatsapp_window_closed": "More than 24 hours passed since the customer's last message. WhatsApp only accepts approved template messages until the customer writes again.",
@@ -224,5 +226,8 @@
       "status_changed": "Conversation with {{peer}} marked as {{status}}",
       "linked": "Conversation with {{peer}} linked"
     }
+  },
+  "keybindings": {
+    "send": "Send the reply"
   }
 }

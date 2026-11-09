@@ -14,6 +14,7 @@ import { formatDateTime, useOrganizationUsers, useRecordFormatting } from '@/sdk
 import { cn } from '@/lib/utils'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { Slot } from '@/kernel/modules/Slot'
+import { chordText, useActionKeys, useKeybindingProps } from '@/kernel/keybindings'
 import {
   CONVERSATION_STATUSES,
   MESSAGING_KEY,
@@ -277,19 +278,6 @@ function Composer({ conversation }: { conversation: Conversation }) {
     return () => clearInterval(timer)
   }, [])
 
-  if (!hasPermission(REPLY_PERMISSION)) {
-    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.readOnly')}</p>
-  }
-  if (!conversation.channel.is_active || !conversation.channel.available) {
-    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.channelInactive')}</p>
-  }
-  const windowEnd = conversation.reply_window_ends_at ? Date.parse(conversation.reply_window_ends_at) : null
-  const windowClosed = conversation.channel.reply_window_seconds !== null && (windowEnd === null || windowEnd < now)
-  if (windowClosed) {
-    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.windowClosed')}</p>
-  }
-  const contact = conversation.contact?.accessible ? conversation.contact : null
-
   const send = async () => {
     if (!value.trim()) return
     setSending(true)
@@ -307,6 +295,22 @@ function Composer({ conversation }: { conversation: Conversation }) {
     }
   }
 
+  const sendKeys = useKeybindingProps<HTMLTextAreaElement>({ 'messaging.send': () => void send() })
+  const sendChord = useActionKeys('messaging.send')[0]
+
+  if (!hasPermission(REPLY_PERMISSION)) {
+    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.readOnly')}</p>
+  }
+  if (!conversation.channel.is_active || !conversation.channel.available) {
+    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.channelInactive')}</p>
+  }
+  const windowEnd = conversation.reply_window_ends_at ? Date.parse(conversation.reply_window_ends_at) : null
+  const windowClosed = conversation.channel.reply_window_seconds !== null && (windowEnd === null || windowEnd < now)
+  if (windowClosed) {
+    return <p className="border-t p-3 text-sm text-muted-foreground">{t('composer.windowClosed')}</p>
+  }
+  const contact = conversation.contact?.accessible ? conversation.contact : null
+
   return (
     <form
       className="grid gap-2 border-t p-3"
@@ -321,14 +325,13 @@ function Composer({ conversation }: { conversation: Conversation }) {
         value={value}
         rows={3}
         maxLength={conversation.channel.max_body_chars}
-        placeholder={t(conversation.channel.uses_references ? 'composer.emailPlaceholder' : 'composer.placeholder')}
+        placeholder={
+          sendChord
+            ? t(conversation.channel.uses_references ? 'composer.emailPlaceholder' : 'composer.placeholder', { keys: chordText(sendChord) })
+            : t(conversation.channel.uses_references ? 'composer.emailPlaceholderPlain' : 'composer.placeholderPlain')
+        }
         onChange={(event) => setValue(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
-            event.preventDefault()
-            void send()
-          }
-        }}
+        onKeyDown={sendKeys.onKeyDown}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `reply-error-${conversation.id}` : undefined}
       />

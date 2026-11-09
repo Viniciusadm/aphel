@@ -8,6 +8,7 @@ import {
   Gauge,
   History,
   KeyRound,
+  Keyboard,
   Languages,
   Puzzle,
   Server,
@@ -15,7 +16,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Palette,
-  SlidersHorizontal,
   TextCursorInput,
   UserCog,
   Users,
@@ -67,7 +67,7 @@ function settings(app: ModuleApp, area: SettingsAreaKey, items: SettingsItem[]) 
 
 function registerNavigation(app: ModuleApp) {
   app.navSection({ key: 'work', label: 'layout:nav.groups.work', order: 10 })
-  app.navSection({ key: 'records', label: 'layout:nav.groups.crm', order: 20 })
+  app.navSection({ key: 'records', label: 'layout:nav.groups.records', order: 20 })
   app.navSection({ key: 'operations', label: 'layout:nav.groups.operations', order: 30 })
   app.navSection({ key: 'analysis', label: 'layout:nav.groups.analysis', order: 40 })
   app.navSection({ key: 'administration', label: 'layout:nav.groups.administration', order: 50 })
@@ -81,15 +81,24 @@ function registerNavigation(app: ModuleApp) {
   })
 }
 
+function registerKeybindings(app: ModuleApp) {
+  app.keybinding({ id: 'core.palette', label: 'keybindings:actions.palette', keys: ['mod+k'], always: true, allowInEditable: true })
+  app.keybinding({ id: 'core.create', label: 'keybindings:actions.create', keys: ['c'] })
+  app.keybinding({ id: 'core.help', label: 'keybindings:actions.help', keys: ['?'] })
+  app.keybinding({ id: 'core.go.home', label: 'keybindings:pages.home', to: '/', keys: ['g h'] })
+  app.keybinding({ id: 'core.go.settings', label: 'layout:nav.settings', to: '/settings', keys: ['g s'] })
+  app.keybindingScope({ id: 'editor', label: 'keybindings:scopes.editor', description: 'keybindings:scopes.editorDescription', kind: 'isolated' })
+}
+
 function registerSettings(app: ModuleApp) {
   settings(app, 'account', [
     { group: 'profile', path: 'appearance', label: 'appearance', icon: Palette, lazy: page(() => import('@/features/settings/appearance/AppearancePage'), 'AppearancePage') },
     {
       group: 'profile',
-      path: 'preferences',
-      label: 'preferences',
-      icon: SlidersHorizontal,
-      lazy: page(() => import('@/features/command-palette/preferences/PreferencesPage'), 'PreferencesPage'),
+      path: 'keyboard',
+      label: 'keyboard',
+      icon: Keyboard,
+      lazy: page(() => import('@/features/keybindings/UserKeyboardPage'), 'UserKeyboardPage'),
     },
     {
       group: 'profile',
@@ -138,6 +147,14 @@ function registerSettings(app: ModuleApp) {
       icon: Gauge,
       permission: SETTINGS_MANAGE,
       lazy: page(() => import('@/features/settings/general/GeneralSettingsPage'), 'GeneralSettingsPage'),
+    },
+    {
+      group: 'organization',
+      path: 'keyboard',
+      label: 'organizationKeyboard',
+      icon: Keyboard,
+      permission: SETTINGS_MANAGE,
+      lazy: page(() => import('@/features/keybindings/OrganizationKeyboardPage'), 'OrganizationKeyboardPage'),
     },
     {
       group: 'organization',
@@ -236,6 +253,7 @@ const kernelModule = defineModule({
     PLATFORM_SETTINGS_AREAS.forEach((area) => app.settingsArea(area))
     registerNavigation(app)
     registerSettings(app)
+    registerKeybindings(app)
     registerCustomRecordContributions(app)
   },
 })

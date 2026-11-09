@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
+use std::collections::BTreeMap;
+
 use crate::api::dto::common::double_option;
 use crate::application::user_preferences::{
     NavigationPreferences, UpdateUserPreferencesCommand, UserPreferencesView,
@@ -44,6 +46,8 @@ impl From<NavigationPreferences> for NavigationPreferencesDto {
 #[serde(deny_unknown_fields)]
 pub struct UpdatePreferencesRequest {
     pub keyboard_shortcuts: Option<bool>,
+    #[schema(example = json!({ "pos.pay": ["f10"], "core.create": [] }))]
+    pub keybindings: Option<BTreeMap<String, Vec<String>>>,
     #[serde(default, deserialize_with = "double_option")]
     #[schema(value_type = Option<String>, example = "en")]
     pub locale: Option<Option<String>>,
@@ -57,6 +61,7 @@ impl From<UpdatePreferencesRequest> for UpdateUserPreferencesCommand {
     fn from(request: UpdatePreferencesRequest) -> Self {
         Self {
             keyboard_shortcuts: request.keyboard_shortcuts,
+            keybindings: request.keybindings,
             locale: request.locale,
             navigation: request.navigation.map(Into::into),
             ui_plugin: request.ui_plugin,
@@ -67,6 +72,10 @@ impl From<UpdatePreferencesRequest> for UpdateUserPreferencesCommand {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct PreferencesResponse {
     pub keyboard_shortcuts: bool,
+    #[schema(example = json!({ "pos.pay": ["f10"] }))]
+    pub keybindings: BTreeMap<String, Vec<String>>,
+    #[schema(example = json!({ "pos.pay": ["f9"] }))]
+    pub keybindings_default: BTreeMap<String, Vec<String>>,
     #[schema(example = "en")]
     pub locale: Option<String>,
     pub navigation: NavigationPreferencesDto,
@@ -80,6 +89,8 @@ impl From<UserPreferencesView> for PreferencesResponse {
         let preferences = view.preferences;
         Self {
             keyboard_shortcuts: preferences.keyboard_shortcuts,
+            keybindings: preferences.keybindings,
+            keybindings_default: view.keybindings_default,
             locale: preferences.locale,
             navigation: preferences.navigation.into(),
             ui_plugin: preferences.ui_plugin,

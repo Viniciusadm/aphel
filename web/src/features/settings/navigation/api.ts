@@ -14,6 +14,8 @@ export const personalPreferencesApi = {
 export function normalizePreferences(preferences: PreferencesResponse | undefined): PersonalPreferences {
   return {
     keyboard_shortcuts: preferences?.keyboard_shortcuts ?? true,
+    keybindings: preferences?.keybindings ?? {},
+    keybindings_default: preferences?.keybindings_default ?? {},
     locale: preferences?.locale ?? null,
     navigation: {
       order: preferences?.navigation?.order ?? [],

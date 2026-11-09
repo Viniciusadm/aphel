@@ -1,5 +1,10 @@
+pub(crate) mod keybindings;
 pub(crate) mod settings;
 pub(crate) mod ui_plugin;
+
+pub use keybindings::{
+    MySqlKeybindingDefaults, find_organization_keybindings, save_organization_keybindings,
+};
 
 pub use settings::{
     MySqlOrganizationConfigPorts, MySqlOrganizationConfigRepository, MySqlOrganizationConfigSource,

@@ -273,5 +273,8 @@
   },
   "settingsPanel": {
     "intro": "Antes de habilitar, confira o que cada recurso envia ao provedor escolhido."
+  },
+  "keybindings": {
+    "composeRun": "Gerar texto com o assistente"
   }
 }

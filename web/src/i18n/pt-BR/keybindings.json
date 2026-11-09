@@ -1,0 +1,71 @@
+{
+  "goTo": "Ir para {{page}}",
+  "or": "ou",
+  "then": "depois",
+  "none": "Sem atalho",
+  "search": "Buscar atalho ou ação",
+  "empty": "Nenhum atalho encontrado.",
+  "change": "Alterar",
+  "disable": "Desativar",
+  "reset": "Restaurar",
+  "resetAll": "Restaurar todos",
+  "saved": "Atalhos salvos",
+  "saveError": "Não foi possível salvar os atalhos",
+  "conflictSummary_one": "{{count}} ação tem um atalho em conflito. Ela pode não funcionar como esperado.",
+  "conflictSummary_other": "{{count}} ações têm atalhos em conflito. Elas podem não funcionar como esperado.",
+  "source": {
+    "default": "Padrão",
+    "organization": "Empresa",
+    "user": "Você"
+  },
+  "conflicts": {
+    "duplicate": "{{keys}} já é usado por “{{other}}”.",
+    "prefix": "{{keys}} se sobrepõe a {{otherKeys}} de “{{other}}”: um começa com o outro.",
+    "shadow": "{{keys}} também é usado por “{{other}}” ({{scope}}). Onde os dois valem, o mais específico ganha.",
+    "reserved": "{{keys}} costuma ser usado pelo navegador ou pelo sistema e pode não chegar ao Aphel."
+  },
+  "scopes": {
+    "global": "Em todo o sistema",
+    "globalDescription": "Funcionam em qualquer tela, menos enquanto você digita em um campo.",
+    "editor": "Editores de texto",
+    "editorDescription": "Funcionam dentro das caixas de texto de mensagens, notas e assistente."
+  },
+  "pages": {
+    "home": "Início"
+  },
+  "actions": {
+    "palette": "Abrir ou fechar a paleta de comandos",
+    "create": "Criar no contexto da página",
+    "help": "Mostrar a lista de atalhos"
+  },
+  "help": {
+    "title": "Atalhos de teclado",
+    "description": "Os atalhos de uma tecla não funcionam enquanto você digita em um campo.",
+    "disabled": "Os atalhos estão desligados nas suas preferências. {{keys}} continua funcionando.",
+    "customize": "Personalizar atalhos"
+  },
+  "recorder": {
+    "title": "Atalho para “{{action}}”",
+    "description": "Pressione a combinação de teclas que você quer usar.",
+    "label": "Nova combinação",
+    "hint": "Clique aqui e pressione as teclas. Para uma sequência, como G e depois D, pressione as duas em seguida.",
+    "placeholder": "Aguardando teclas…",
+    "append": "Manter o atalho atual também",
+    "appendHint": "A nova combinação vira uma alternativa, sem substituir a atual.",
+    "replaceHint": "Ao salvar, a combinação sai da outra ação.",
+    "clear": "Limpar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "replace": "Substituir e salvar"
+  },
+  "user": {
+    "title": "Atalhos de teclado",
+    "description": "Personalize os atalhos só para você. O que você não mudar segue o padrão da empresa.",
+    "enabled": "Usar atalhos de teclado",
+    "enabledHint": "Desligado, só {{keys}} (paleta de comandos) e os atalhos dentro de editores continuam funcionando."
+  },
+  "organization": {
+    "title": "Atalhos de teclado da empresa",
+    "description": "Defina os atalhos padrão de todos, como as teclas do caixa em todos os terminais. Cada pessoa ainda pode mudar os seus."
+  }
+}

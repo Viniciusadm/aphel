@@ -15,7 +15,8 @@ const productsModule = defineModule({
   register(app) {
     app.slot('line_items.catalogPicker', { key: 'catalog', render: ({ currency, disabled, onSelect }) => React.createElement(ProductPicker, { currency, disabled, onSelect: (product) => onSelect(product.id) }) })
     app.routes(productsRoutes)
-    app.nav({ shortcut: 'p', to: '/catalog-items', label: 'nav.catalog_items', icon: Package, permission: ['catalog_items.read'], order: 60 })
+    app.nav({ to: '/catalog-items', label: 'nav.catalog_items', icon: Package, permission: ['catalog_items.read'], order: 60 })
+    app.keybinding({ id: 'catalog_items.go', label: 'nav.catalog_items', to: '/catalog-items', keys: ['g p'], permission: ['catalog_items.read'] })
   },
 })
 

@@ -62,41 +62,12 @@
   "commands": {
     "goTo": "Go to {{page}}",
     "shortcuts": "Show keyboard shortcuts",
-    "preferences": "Personal preferences",
     "openFavorite": "Open favorite",
     "addNote": "Add a note",
     "openTab": "Open the {{tab}} tab",
     "copyLink": "Copy the link of this record",
     "linkCopied": "Link copied",
-    "allResults": "See every result for “{{query}}”"
-  },
-  "help": {
-    "title": "Keyboard shortcuts",
-    "description": "Single-key shortcuts do not fire while you type in a field.",
-    "disabled": "Single-key shortcuts are turned off in your preferences. Ctrl+K still works.",
-    "manage": "Manage in preferences",
-    "then": "then",
-    "sections": {
-      "general": "General",
-      "navigation": "Navigation"
-    },
-    "items": {
-      "palette": "Open or close the command palette",
-      "create": "Create in the context of the page (or open the create menu)",
-      "help": "Show this list of shortcuts",
-      "go": "Go to {{page}}"
-    }
-  },
-  "preferences": {
-    "tab": "Preferences",
-    "title": "Personal preferences",
-    "description": "Settings that apply only to you, in every organization.",
-    "shortcuts": {
-      "label": "Keyboard shortcuts",
-      "description": "Single-key shortcuts such as “g c” for people, “c” to create and “?” for help. Ctrl+K (or Cmd+K) keeps opening the palette when they are off.",
-      "showList": "Show the list of shortcuts"
-    },
-    "saved": "Preferences saved",
-    "saveError": "Could not save the preferences"
+    "allResults": "See every result for “{{query}}”",
+    "keyboard": "Customize keyboard shortcuts"
   }
 }

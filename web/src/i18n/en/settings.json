@@ -47,7 +47,9 @@
     "general": "General",
     "outgoingEmail": "Outgoing email",
     "storage": "File storage",
-    "appearance": "Appearance"
+    "appearance": "Appearance",
+    "keyboard": "Keyboard shortcuts",
+    "organizationKeyboard": "Keyboard shortcuts"
   },
   "noAccess": {
     "title": "No permission",
@@ -438,6 +440,12 @@
     },
     "appearance": {
       "description": "Choose the interface plugin you use."
+    },
+    "keyboard": {
+      "description": "Change the keys of each action just for you."
+    },
+    "organizationKeyboard": {
+      "description": "Set the default keys for everyone in the company."
     }
   },
   "areas": {

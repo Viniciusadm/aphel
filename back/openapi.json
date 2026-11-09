@@ -9086,114 +9086,6 @@
         "x-aphel-module": "marketplace"
       }
     },
-    "/api/v1/catalog/themes/{id}/download": {
-      "post": {
-        "tags": [
-          "catalog"
-        ],
-        "operationId": "catalog_theme_download",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Catalog entry id of a theme, such as `aphel.slate`",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Downloads the theme package, checks its SHA-256, the minimum Aphel version and that it matches the entry, and returns it unchanged. Nothing is installed: send it to `POST /themes/validate` and `POST /themes`",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid session",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Catalog turned off (`catalog_disabled`) or unknown entry (`catalog_entry_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Not a theme entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "marketplace"
-      }
-    },
     "/api/v1/communication/opt-outs": {
       "get": {
         "tags": [
@@ -36632,6 +36524,86 @@
         "x-aphel-module": "org_export"
       }
     },
+    "/api/v1/organization/keybindings": {
+      "put": {
+        "tags": [
+          "organization"
+        ],
+        "description": "Replaces the organization keyboard shortcuts that apply to everyone who has not overridden an action. Requires settings.manage. The body maps action ids to key combinations (`mod+k`, `alt+d`, `f9`, `g h`); `[]` disables the action and actions not listed use their own default. Everyone reads the result as `keybindings_default` in GET /preferences. Writes organization.keybindings_updated and audit in the same transaction.",
+        "operationId": "organization_keybindings_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetKeybindingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved organization shortcuts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_KeybindingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing settings.manage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid action id or key combination (validation_error with field paths)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/organization/logo": {
       "get": {
         "tags": [
@@ -37045,6 +37017,86 @@
         "security": [
           {
             "session_cookie": []
+          }
+        ],
+        "x-aphel-module": "kernel"
+      }
+    },
+    "/api/v1/organization/ui-plugin": {
+      "put": {
+        "tags": [
+          "organization"
+        ],
+        "description": "Sets the interface plugin used by everyone who has not chosen one, and by pages shown before sign-in. Requires settings.manage. The value is the key of an enabled plugin that declares an interface, or null for the core interface. Writes organization.ui_plugin_updated and audit in the same transaction. It does not install or enable code.",
+        "operationId": "organization_ui_plugin_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUiPluginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved default",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_UiPluginDefaultResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing settings.manage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The plugin is not an enabled interface plugin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
           }
         ],
         "x-aphel-module": "kernel"
@@ -40150,7 +40202,7 @@
         "operationId": "preferences_get",
         "responses": {
           "200": {
-            "description": "Personal preferences of the current user (the same in every organization); defaults when never saved",
+            "description": "Personal preferences of the authenticated current user. ui_plugin is the saved choice (null follows the organization default), ui_plugin_default is the organization default and effective_ui_plugin is the plugin that applies now, or null for the core interface when the saved choice and the default are unavailable. Defaults when never saved.",
             "content": {
               "application/json": {
                 "schema": {
@@ -40207,7 +40259,7 @@
         },
         "responses": {
           "200": {
-            "description": "Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). A personal preference: no domain event or audit entry",
+            "description": "Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the global and page keyboard shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `keybindings` replaces the user's key overrides: a map from action id to key combinations (`mod+k`, `alt+d`, `f9`, `g h`; `[]` disables the action); actions not listed follow the organization (`keybindings_default`) and then the action's own default. `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). `ui_plugin` selects the interface plugin (the key of an enabled plugin that declares an interface; `null` follows the organization default). Personal preferences: no domain event or audit entry",
             "content": {
               "application/json": {
                 "schema": {
@@ -40227,7 +40279,7 @@
             }
           },
           "422": {
-            "description": "Invalid body, unsupported `locale`, invalid navigation keys or a `home` that is not an internal path (`validation_error`)",
+            "description": "Invalid body, unsupported locale, unsafe navigation or an interface plugin that is not available (validation_error with field paths)",
             "content": {
               "application/json": {
                 "schema": {
@@ -45471,43 +45523,18 @@
         "x-aphel-module": "sso"
       }
     },
-    "/api/v1/public/themes/active.css": {
+    "/api/v1/public/ui/{file}": {
       "get": {
         "tags": [
-          "themes"
+          "plugins"
         ],
-        "description": "Stylesheet of the active theme, linked by the web app before it renders. Public: it only holds design tokens. Empty when no theme is active. Uses an ETag that changes whenever the active theme does",
-        "operationId": "themes_active_stylesheet",
-        "responses": {
-          "200": {
-            "description": "CSS with the theme tokens and its font faces",
-            "content": {
-              "text/css": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "The active theme did not change"
-          }
-        },
-        "x-aphel-module": "themes"
-      }
-    },
-    "/api/v1/public/themes/fonts/{file}": {
-      "get": {
-        "tags": [
-          "themes"
-        ],
-        "description": "A font file of an installed theme, addressed by the SHA-256 of its content (`<sha256>.woff2`), so it can be cached forever",
-        "operationId": "themes_font",
+        "description": "Serves the colors and fonts of an interface plugin as a stylesheet, from the tokens declared in its manifest (`<key>.css`). `default.css` serves the plugin chosen as the organization default, or an empty stylesheet when there is none. Public, because it is loaded before sign-in. The organization brand color still wins over these tokens.",
+        "operationId": "ui_plugin_stylesheet",
         "parameters": [
           {
             "name": "file",
             "in": "path",
-            "description": "`<sha256>.woff2`",
+            "description": "`<plugin key>.css` or `default.css`",
             "required": true,
             "schema": {
               "type": "string"
@@ -45516,22 +45543,17 @@
         ],
         "responses": {
           "200": {
-            "description": "The woff2 file",
+            "description": "Stylesheet",
             "content": {
-              "font/woff2": {
+              "text/css": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "integer",
-                    "format": "int32",
-                    "minimum": 0
-                  }
+                  "type": "string"
                 }
               }
             }
           },
           "404": {
-            "description": "Unknown font (`theme_font_not_found`)",
+            "description": "No enabled interface plugin with that key",
             "content": {
               "application/json": {
                 "schema": {
@@ -45541,7 +45563,7 @@
             }
           }
         },
-        "x-aphel-module": "themes"
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/public/wasm-runtime": {
@@ -45549,8 +45571,21 @@
         "tags": [
           "plugins"
         ],
-        "description": "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Public: plugin bundles are code, not data.",
+        "description": "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none.",
         "operationId": "plugins_web",
+        "parameters": [
+          {
+            "name": "ui",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Web bundles to load",
@@ -58607,637 +58642,6 @@
         "x-aphel-module": "telephony"
       }
     },
-    "/api/v1/themes": {
-      "get": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_list",
-        "responses": {
-          "200": {
-            "description": "Installed themes and the active one. The default look is always available and is selected with no active theme",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_ThemeListResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      },
-      "post": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_install",
-        "parameters": [
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ThemePackage"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Theme installed, or replaced when the id is already installed. An active theme stays active",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_ThemeResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Limit of 20 themes reached (`theme_limit_reached`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid package (`theme_invalid`, with `details.fields`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      }
-    },
-    "/api/v1/themes/activation": {
-      "post": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_activate",
-        "parameters": [
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ActivationRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Theme activated for the whole installation, public pages included. A null `key` goes back to the default look",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_ThemeListResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Theme not installed (`theme_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      }
-    },
-    "/api/v1/themes/validate": {
-      "post": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_validate",
-        "parameters": [
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "maxLength": 255
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ThemePackage"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Validation report without installing: blocking `issues`, `warnings` such as ignored tokens, the fonts and the installed version of the same id",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_PreviewResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      }
-    },
-    "/api/v1/themes/{key}": {
-      "put": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_save",
-        "parameters": [
-          {
-            "name": "key",
-            "in": "path",
-            "description": "Theme id, equal to `id` in the body",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ThemePackage"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Theme created or updated from the editor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_ThemeResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Limit of 20 themes reached (`theme_limit_reached`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid package (`theme_invalid`) or an id different from the path (`theme_key_mismatch`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      },
-      "delete": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_delete",
-        "parameters": [
-          {
-            "name": "key",
-            "in": "path",
-            "description": "Theme id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Theme removed with its fonts"
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Theme not installed (`theme_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The theme is active (`theme_active`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      }
-    },
-    "/api/v1/themes/{key}/package": {
-      "get": {
-        "tags": [
-          "themes"
-        ],
-        "operationId": "themes_export",
-        "parameters": [
-          {
-            "name": "key",
-            "in": "path",
-            "description": "Theme id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The theme as an `aphel-theme` package with its fonts, ready to be installed elsewhere",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ThemePackage"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `themes.manage` (`permission_denied`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Theme not installed (`theme_not_found`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "themes"
-      }
-    },
     "/api/v1/timeline": {
       "get": {
         "tags": [
@@ -60382,6 +59786,56 @@
           }
         ],
         "x-aphel-module": "kernel"
+      }
+    },
+    "/api/v1/ui-plugins": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Lists the enabled plugins that declare an interface (`[ui]`), which any signed-in user can choose in their preferences. Returns only the label, a short description, whether the plugin ships screens or colors, and a few preview colors, never the full token set.",
+        "operationId": "ui_plugins_list",
+        "responses": {
+          "200": {
+            "description": "Interface plugins that can be chosen",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_UiPluginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "wasm_runtime"
       }
     },
     "/api/v1/users": {
@@ -61804,7 +61258,7 @@
         "tags": [
           "plugins"
         ],
-        "description": "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Publishes `plugin.installed`.",
+        "description": "Installs or upgrades a plugin from an `.aphelplugin` package sent as the multipart field `package` (permission `system.manage`). The package is a zip with `plugin.toml`, an optional `backend.wasm` built with aphel-plugin-sdk and an optional `web/` bundle. Declared entities become custom objects managed by the plugin, declared fields become managed custom fields, declared permissions enter the role catalog, and hooks, events, schedules and routes start working without restarting Aphel. The plugin acts with what it `requires` intersected with the permissions of whoever installs it, so the installer gives consent: call first with `dry_run=true` to get what the package asks for (status 200, nothing is installed). Integrated frontend code runs with the browser session, independently of backend capabilities; packages with web code require acknowledge_web_version=<manifest version> on each install or upgrade, including upgrades kept disabled. Dry runs need no admission. Publishes `plugin.installed`.",
         "operationId": "plugins_install",
         "parameters": [
           {
@@ -61821,6 +61275,17 @@
             "required": false,
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_web_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           {
@@ -61882,7 +61347,7 @@
             }
           },
           "409": {
-            "description": "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "A custom object, field or permission with the same key already exists (`plugin_object_conflict`, `plugin_field_conflict`, `permission_already_registered`), integrated frontend code was not admitted (`plugin_web_unacknowledged`), or the plugin overlaps with another installed plugin and `acknowledge_conflicts` was not sent (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -62372,7 +61837,7 @@
         "tags": [
           "plugins"
         ],
-        "description": "Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Publishes `plugin.enabled`.",
+        "description": "Enables an installed plugin (permission `system.manage`): its entities, fields, hooks, events, routes and web bundle come back. Integrated frontend code requires acknowledge_web_version=<manifest version> before reactivation. Publishes `plugin.enabled`.",
         "operationId": "plugins_enable",
         "parameters": [
           {
@@ -62390,6 +61855,17 @@
             "required": false,
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_web_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           {
@@ -62435,7 +61911,7 @@
             }
           },
           "409": {
-            "description": "The plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "Integrated frontend code was not admitted (`plugin_web_unacknowledged`), or the plugin overlaps with another enabled plugin and the overlap was not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -65530,18 +65006,6 @@
             }
           }
         }
-      },
-      "ActivationRequest": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "additionalProperties": false
       },
       "ActivityCallResponse": {
         "type": "object",
@@ -70486,7 +69950,6 @@
         "type": "string",
         "enum": [
           "template",
-          "theme",
           "module"
         ]
       },
@@ -81045,6 +80508,34 @@
           }
         }
       },
+      "Data_KeybindingsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "keybindings"
+            ],
+            "properties": {
+              "keybindings": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_LeadActionResponse": {
         "type": "object",
         "required": [
@@ -83710,9 +83201,51 @@
             "type": "object",
             "required": [
               "keyboard_shortcuts",
+              "keybindings",
+              "keybindings_default",
               "navigation"
             ],
             "properties": {
+              "effective_ui_plugin": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "keybindings": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "propertyNames": {
+                  "type": "string"
+                },
+                "example": {
+                  "pos.pay": [
+                    "f10"
+                  ]
+                }
+              },
+              "keybindings_default": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "propertyNames": {
+                  "type": "string"
+                },
+                "example": {
+                  "pos.pay": [
+                    "f9"
+                  ]
+                }
+              },
               "keyboard_shortcuts": {
                 "type": "boolean"
               },
@@ -83725,6 +83258,18 @@
               },
               "navigation": {
                 "$ref": "#/components/schemas/NavigationPreferencesDto"
+              },
+              "ui_plugin": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ui_plugin_default": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }
@@ -83759,53 +83304,6 @@
               },
               "text": {
                 "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "Data_PreviewResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "issues",
-              "warnings",
-              "token_count",
-              "fonts"
-            ],
-            "properties": {
-              "fonts": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/PreviewFontResponse"
-                }
-              },
-              "installed_version": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "issues": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/IssueResponse"
-                }
-              },
-              "token_count": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/IssueResponse"
-                }
               }
             }
           }
@@ -86894,110 +86392,6 @@
           }
         }
       },
-      "Data_ThemeListResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "themes"
-            ],
-            "properties": {
-              "active_key": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "themes": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ThemeResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "Data_ThemeResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "key",
-              "name",
-              "version",
-              "author",
-              "license",
-              "source",
-              "active",
-              "font_count",
-              "tokens",
-              "checksum",
-              "created_at",
-              "updated_at"
-            ],
-            "properties": {
-              "active": {
-                "type": "boolean"
-              },
-              "author": {
-                "type": "string"
-              },
-              "checksum": {
-                "type": "string"
-              },
-              "created_at": {
-                "type": "string"
-              },
-              "description": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "font_count": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "key": {
-                "type": "string"
-              },
-              "license": {
-                "type": "string"
-              },
-              "min_aphel_version": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "name": {
-                "type": "string"
-              },
-              "source": {
-                "type": "string"
-              },
-              "tokens": {
-                "$ref": "#/components/schemas/TokenSets"
-              },
-              "updated_at": {
-                "type": "string"
-              },
-              "version": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "Data_TrackingObjectionResponse": {
         "type": "object",
         "required": [
@@ -87200,6 +86594,25 @@
                 "type": "integer",
                 "format": "int32",
                 "minimum": 0
+              }
+            }
+          }
+        }
+      },
+      "Data_UiPluginDefaultResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "ui_plugin": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }
@@ -90831,6 +90244,56 @@
           }
         }
       },
+      "Data_Vec_UiPluginResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "has_screens",
+                "has_colors",
+                "preview"
+              ],
+              "properties": {
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "has_colors": {
+                  "type": "boolean"
+                },
+                "has_screens": {
+                  "type": "boolean"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "preview": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_ValidationRuleResponse": {
         "type": "object",
         "required": [
@@ -90936,6 +90399,7 @@
                 "version",
                 "menu",
                 "role_homes",
+                "ui",
                 "entry"
               ],
               "properties": {
@@ -90965,6 +90429,9 @@
                     "string",
                     "null"
                   ]
+                },
+                "ui": {
+                  "type": "boolean"
                 },
                 "version": {
                   "type": "string"
@@ -94733,34 +94200,6 @@
           }
         }
       },
-      "FontFile": {
-        "type": "object",
-        "required": [
-          "family",
-          "weight",
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "string"
-          },
-          "family": {
-            "type": "string"
-          },
-          "format": {
-            "type": "string"
-          },
-          "style": {
-            "type": "string"
-          },
-          "weight": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        },
-        "additionalProperties": false
-      },
       "ForecastBucketResponse": {
         "type": "object",
         "required": [
@@ -97486,21 +96925,6 @@
           }
         }
       },
-      "IssueResponse": {
-        "type": "object",
-        "required": [
-          "path",
-          "message"
-        ],
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "path": {
-            "type": "string"
-          }
-        }
-      },
       "IssuedIncomingWebhookResponse": {
         "allOf": [
           {
@@ -97636,6 +97060,26 @@
             "type": "integer",
             "format": "int64",
             "minimum": 0
+          }
+        }
+      },
+      "KeybindingsResponse": {
+        "type": "object",
+        "required": [
+          "keybindings"
+        ],
+        "properties": {
+          "keybindings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string"
+            }
           }
         }
       },
@@ -110231,6 +109675,12 @@
               "type": "string"
             }
           },
+          "ui": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "unique_fields": {
             "type": "array",
             "items": {
@@ -110515,9 +109965,51 @@
         "type": "object",
         "required": [
           "keyboard_shortcuts",
+          "keybindings",
+          "keybindings_default",
           "navigation"
         ],
         "properties": {
+          "effective_ui_plugin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "keybindings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string"
+            },
+            "example": {
+              "pos.pay": [
+                "f10"
+              ]
+            }
+          },
+          "keybindings_default": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string"
+            },
+            "example": {
+              "pos.pay": [
+                "f9"
+              ]
+            }
+          },
           "keyboard_shortcuts": {
             "type": "boolean"
           },
@@ -110530,6 +110022,18 @@
           },
           "navigation": {
             "$ref": "#/components/schemas/NavigationPreferencesDto"
+          },
+          "ui_plugin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ui_plugin_default": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -110593,32 +110097,6 @@
           }
         }
       },
-      "PreviewFontResponse": {
-        "type": "object",
-        "required": [
-          "family",
-          "weight",
-          "style",
-          "bytes"
-        ],
-        "properties": {
-          "bytes": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "family": {
-            "type": "string"
-          },
-          "style": {
-            "type": "string"
-          },
-          "weight": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        }
-      },
       "PreviewProposalRequest": {
         "type": "object",
         "properties": {
@@ -110645,45 +110123,6 @@
               "string",
               "null"
             ]
-          }
-        }
-      },
-      "PreviewResponse": {
-        "type": "object",
-        "required": [
-          "issues",
-          "warnings",
-          "token_count",
-          "fonts"
-        ],
-        "properties": {
-          "fonts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PreviewFontResponse"
-            }
-          },
-          "installed_version": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueResponse"
-            }
-          },
-          "token_count": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueResponse"
-            }
           }
         }
       },
@@ -111730,6 +111169,7 @@
           "rows",
           "subtotal",
           "discount_total",
+          "tax_total",
           "total"
         ],
         "properties": {
@@ -111749,6 +111189,9 @@
             }
           },
           "subtotal": {
+            "type": "string"
+          },
+          "tax_total": {
             "type": "string"
           },
           "total": {
@@ -116968,6 +116411,46 @@
           }
         }
       },
+      "SetKeybindingsRequest": {
+        "type": "object",
+        "required": [
+          "keybindings"
+        ],
+        "properties": {
+          "keybindings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string"
+            },
+            "example": {
+              "core.create": [],
+              "pos.pay": [
+                "f10"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetUiPluginRequest": {
+        "type": "object",
+        "properties": {
+          "ui_plugin": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "midnight"
+          }
+        },
+        "additionalProperties": false
+      },
       "SettingOption": {
         "type": "object",
         "required": [
@@ -117924,153 +117407,6 @@
         },
         "additionalProperties": false
       },
-      "ThemeListResponse": {
-        "type": "object",
-        "required": [
-          "themes"
-        ],
-        "properties": {
-          "active_key": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "themes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ThemeResponse"
-            }
-          }
-        }
-      },
-      "ThemePackage": {
-        "type": "object",
-        "required": [
-          "format",
-          "format_version",
-          "id",
-          "name",
-          "version",
-          "author",
-          "license"
-        ],
-        "properties": {
-          "author": {
-            "type": "string"
-          },
-          "description": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "fonts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FontFile"
-            }
-          },
-          "format": {
-            "type": "string"
-          },
-          "format_version": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "id": {
-            "type": "string"
-          },
-          "license": {
-            "type": "string"
-          },
-          "min_aphel_version": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "tokens": {
-            "$ref": "#/components/schemas/TokenSets"
-          },
-          "version": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ThemeResponse": {
-        "type": "object",
-        "required": [
-          "key",
-          "name",
-          "version",
-          "author",
-          "license",
-          "source",
-          "active",
-          "font_count",
-          "tokens",
-          "checksum",
-          "created_at",
-          "updated_at"
-        ],
-        "properties": {
-          "active": {
-            "type": "boolean"
-          },
-          "author": {
-            "type": "string"
-          },
-          "checksum": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string"
-          },
-          "description": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "font_count": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "key": {
-            "type": "string"
-          },
-          "license": {
-            "type": "string"
-          },
-          "min_aphel_version": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "source": {
-            "type": "string"
-          },
-          "tokens": {
-            "$ref": "#/components/schemas/TokenSets"
-          },
-          "updated_at": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          }
-        }
-      },
       "TimeGranularity": {
         "type": "string",
         "enum": [
@@ -118243,21 +117579,6 @@
             "type": "string"
           }
         }
-      },
-      "TokenSets": {
-        "type": "object",
-        "properties": {
-          "dark": {
-            "type": "object"
-          },
-          "light": {
-            "type": "object"
-          },
-          "shared": {
-            "type": "object"
-          }
-        },
-        "additionalProperties": false
       },
       "TrackingObjectionResponse": {
         "type": "object",
@@ -118534,6 +117855,56 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0
+          }
+        }
+      },
+      "UiPluginDefaultResponse": {
+        "type": "object",
+        "properties": {
+          "ui_plugin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "UiPluginResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "has_screens",
+          "has_colors",
+          "preview"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "has_colors": {
+            "type": "boolean"
+          },
+          "has_screens": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
           }
         }
       },
@@ -119540,6 +118911,27 @@
       "UpdatePreferencesRequest": {
         "type": "object",
         "properties": {
+          "keybindings": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string"
+            },
+            "example": {
+              "core.create": [],
+              "pos.pay": [
+                "f10"
+              ]
+            }
+          },
           "keyboard_shortcuts": {
             "type": [
               "boolean",
@@ -119562,6 +118954,13 @@
                 "$ref": "#/components/schemas/NavigationPreferencesDto"
               }
             ]
+          },
+          "ui_plugin": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "midnight"
           }
         },
         "additionalProperties": false
@@ -120632,6 +120031,7 @@
           "version",
           "menu",
           "role_homes",
+          "ui",
           "entry"
         ],
         "properties": {
@@ -120661,6 +120061,9 @@
               "string",
               "null"
             ]
+          },
+          "ui": {
+            "type": "boolean"
           },
           "version": {
             "type": "string"
@@ -121406,11 +120809,6 @@
       "name": "telephony",
       "description": "Call logging as tasks, call outcomes, call sessions over saved views and the calls report",
       "x-aphel-module": "telephony"
-    },
-    {
-      "name": "themes",
-      "description": "Installable visual themes: design tokens and fonts applied to the whole installation",
-      "x-aphel-module": "themes"
     },
     {
       "name": "timeline",

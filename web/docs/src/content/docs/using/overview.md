@@ -109,7 +109,7 @@ Open **My account > Navigation and language**. The changes apply only to you, in
 New entries that appear later (for example after a module is enabled) are added at the end of your order. **Reset only my home and navigation** clears just this part of your preferences.
 
 :::tip
-Press Ctrl+K (Cmd+K on a Mac) to open the command palette. It searches records and jumps to any screen, so you rarely need the sidebar for entries you hide. Single-key shortcuts such as "g c" for contacts, "c" to create and "?" for help can be turned off under **My account > Preferences**.
+Press Ctrl+K (Cmd+K on a Mac) to open the command palette. It searches records and jumps to any screen, so you rarely need the sidebar for entries you hide. Single-key shortcuts such as "g c" for contacts, "c" to create and "?" for help can be changed or turned off under **My account > Keyboard shortcuts**.
 :::
 
 ## Where you land after signing in

@@ -39,6 +39,7 @@ import type importsNamespace from '../modules/imports/i18n/pt-BR.json'
 import type insightsNamespace from '../modules/insights/i18n/pt-BR.json'
 import type integrationCardNamespace from './pt-BR/integration-card.json'
 import type integrationsNamespace from '../modules/integrations/i18n/pt-BR.json'
+import type keybindingsNamespace from './pt-BR/keybindings.json'
 import type layoutNamespace from './pt-BR/layout.json'
 import type layoutsNamespace from './pt-BR/layouts.json'
 import type leadProNamespace from '../modules/lead_pro/i18n/pt-BR.json'
@@ -137,6 +138,7 @@ declare module 'i18next' {
       insights: typeof insightsNamespace
       'integration-card': typeof integrationCardNamespace
       integrations: typeof integrationsNamespace
+      keybindings: typeof keybindingsNamespace
       layout: typeof layoutNamespace
       layouts: typeof layoutsNamespace
       lead_pro: typeof leadProNamespace

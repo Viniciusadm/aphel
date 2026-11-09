@@ -9,6 +9,7 @@ pub mod files;
 pub(crate) mod idempotency;
 pub mod installer;
 pub mod jobs;
+pub(crate) mod keybindings;
 pub mod mail;
 pub(crate) mod module_admin;
 pub mod organization_admin;

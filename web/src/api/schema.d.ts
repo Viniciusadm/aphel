@@ -4954,6 +4954,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organization/keybindings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Replaces the organization keyboard shortcuts that apply to everyone who has not overridden an action. Requires settings.manage. The body maps action ids to key combinations (`mod+k`, `alt+d`, `f9`, `g h`); `[]` disables the action and actions not listed use their own default. Everyone reads the result as `keybindings_default` in GET /preferences. Writes organization.keybindings_updated and audit in the same transaction. */
+        put: operations["organization_keybindings_set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organization/logo": {
         parameters: {
             query?: never;
@@ -6187,7 +6204,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. */
+        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none. */
         get: operations["plugins_web"];
         put?: never;
         post?: never;
@@ -12451,6 +12468,13 @@ export interface components {
                 scheduled: number;
             };
         };
+        Data_KeybindingsResponse: {
+            data: {
+                keybindings: {
+                    [key: string]: string[];
+                };
+            };
+        };
         Data_LeadActionResponse: {
             data: {
                 contact_id: string;
@@ -13137,6 +13161,26 @@ export interface components {
         Data_PreferencesResponse: {
             data: {
                 effective_ui_plugin?: string | null;
+                /**
+                 * @example {
+                 *       "pos.pay": [
+                 *         "f10"
+                 *       ]
+                 *     }
+                 */
+                keybindings: {
+                    [key: string]: string[];
+                };
+                /**
+                 * @example {
+                 *       "pos.pay": [
+                 *         "f9"
+                 *       ]
+                 *     }
+                 */
+                keybindings_default: {
+                    [key: string]: string[];
+                };
                 keyboard_shortcuts: boolean;
                 /** @example en */
                 locale?: string | null;
@@ -16747,6 +16791,11 @@ export interface components {
             /** Format: int64 */
             scheduled: number;
         };
+        KeybindingsResponse: {
+            keybindings: {
+                [key: string]: string[];
+            };
+        };
         LayoutColumn: {
             fields: components["schemas"]["LayoutField"][];
         };
@@ -20001,6 +20050,26 @@ export interface components {
         };
         PreferencesResponse: {
             effective_ui_plugin?: string | null;
+            /**
+             * @example {
+             *       "pos.pay": [
+             *         "f10"
+             *       ]
+             *     }
+             */
+            keybindings: {
+                [key: string]: string[];
+            };
+            /**
+             * @example {
+             *       "pos.pay": [
+             *         "f9"
+             *       ]
+             *     }
+             */
+            keybindings_default: {
+                [key: string]: string[];
+            };
             keyboard_shortcuts: boolean;
             /** @example en */
             locale?: string | null;
@@ -21652,6 +21721,19 @@ export interface components {
         SetDiscountLimitsRequest: {
             limits: components["schemas"]["DiscountLimitRequest"][];
         };
+        SetKeybindingsRequest: {
+            /**
+             * @example {
+             *       "core.create": [],
+             *       "pos.pay": [
+             *         "f10"
+             *       ]
+             *     }
+             */
+            keybindings: {
+                [key: string]: string[];
+            };
+        };
         SetUiPluginRequest: {
             /** @example midnight */
             ui_plugin?: string | null;
@@ -22267,6 +22349,17 @@ export interface components {
             team_ids?: string[] | null;
         };
         UpdatePreferencesRequest: {
+            /**
+             * @example {
+             *       "core.create": [],
+             *       "pos.pay": [
+             *         "f10"
+             *       ]
+             *     }
+             */
+            keybindings?: {
+                [key: string]: string[];
+            } | null;
             keyboard_shortcuts?: boolean | null;
             /** @example en */
             locale?: string | null;
@@ -48378,6 +48471,66 @@ export interface operations {
             };
         };
     };
+    organization_keybindings_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetKeybindingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved organization shortcuts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_KeybindingsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing settings.manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid action id or key combination (validation_error with field paths) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     organization_logo: {
         parameters: {
             query?: never;
@@ -50956,7 +51109,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the single-key shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). `ui_plugin` selects the interface plugin (the key of an enabled plugin that declares an interface; `null` follows the organization default). Personal preferences: no domain event or audit entry */
+            /** @description Saved preferences; omitted properties stay unchanged. `keyboard_shortcuts = false` turns off the global and page keyboard shortcuts of the web interface (`Ctrl/Cmd+K` keeps working). `keybindings` replaces the user's key overrides: a map from action id to key combinations (`mod+k`, `alt+d`, `f9`, `g h`; `[]` disables the action); actions not listed follow the organization (`keybindings_default`) and then the action's own default. `locale` (`pt-BR` or `en`, `null` = follow the organization) sets the language of the interface and of the e-mails sent to the user. `navigation` replaces the sidebar order, the hidden items (item keys; items the user cannot see stay hidden and unknown items are appended by the client) and the home screen (an internal path such as `/deals`). `ui_plugin` selects the interface plugin (the key of an enabled plugin that declares an interface; `null` follows the organization default). Personal preferences: no domain event or audit entry */
             200: {
                 headers: {
                     [name: string]: unknown;

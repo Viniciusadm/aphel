@@ -11,6 +11,7 @@ const notesModule = defineModule({
   register(app) {
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('note.') ? createElement(NotesDashboardEventLabel, { event }) : label)
     app.filter('records.detailTabs', withNotesTab)
+    app.keybinding({ id: 'notes.save', label: 'keybindings.save', scope: 'editor', keys: ['mod+enter'] })
     app.quickAdd({
       key: 'note',
       label: 'quickAdd.options.note',

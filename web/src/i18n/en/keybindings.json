@@ -1,0 +1,71 @@
+{
+  "goTo": "Go to {{page}}",
+  "or": "or",
+  "then": "then",
+  "none": "No shortcut",
+  "search": "Search shortcut or action",
+  "empty": "No shortcut found.",
+  "change": "Change",
+  "disable": "Turn off",
+  "reset": "Reset",
+  "resetAll": "Reset all",
+  "saved": "Shortcuts saved",
+  "saveError": "Could not save the shortcuts",
+  "conflictSummary_one": "{{count}} action has a conflicting shortcut. It may not work as expected.",
+  "conflictSummary_other": "{{count}} actions have conflicting shortcuts. They may not work as expected.",
+  "source": {
+    "default": "Default",
+    "organization": "Company",
+    "user": "You"
+  },
+  "conflicts": {
+    "duplicate": "{{keys}} is already used by “{{other}}”.",
+    "prefix": "{{keys}} overlaps {{otherKeys}} of “{{other}}”: one starts with the other.",
+    "shadow": "{{keys}} is also used by “{{other}}” ({{scope}}). Where both apply, the more specific one wins.",
+    "reserved": "{{keys}} is usually taken by the browser or the system and may not reach Aphel."
+  },
+  "scopes": {
+    "global": "Everywhere",
+    "globalDescription": "Work on any screen, except while you type in a field.",
+    "editor": "Text editors",
+    "editorDescription": "Work inside the message, note and assistant text boxes."
+  },
+  "pages": {
+    "home": "Home"
+  },
+  "actions": {
+    "palette": "Open or close the command palette",
+    "create": "Create in the page context",
+    "help": "Show the list of shortcuts"
+  },
+  "help": {
+    "title": "Keyboard shortcuts",
+    "description": "Single-key shortcuts do not work while you type in a field.",
+    "disabled": "Shortcuts are turned off in your preferences. {{keys}} still works.",
+    "customize": "Customize shortcuts"
+  },
+  "recorder": {
+    "title": "Shortcut for “{{action}}”",
+    "description": "Press the key combination you want to use.",
+    "label": "New combination",
+    "hint": "Click here and press the keys. For a sequence, such as G then D, press both one after the other.",
+    "placeholder": "Waiting for keys…",
+    "append": "Keep the current shortcut too",
+    "appendHint": "The new combination becomes an alternative instead of replacing the current one.",
+    "replaceHint": "Saving removes the combination from the other action.",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "save": "Save",
+    "replace": "Replace and save"
+  },
+  "user": {
+    "title": "Keyboard shortcuts",
+    "description": "Customize shortcuts just for you. Anything you leave unchanged follows the company default.",
+    "enabled": "Use keyboard shortcuts",
+    "enabledHint": "When off, only {{keys}} (command palette) and the shortcuts inside editors keep working."
+  },
+  "organization": {
+    "title": "Company keyboard shortcuts",
+    "description": "Set everyone's default shortcuts, such as the register keys on every terminal. Each person can still change their own."
+  }
+}

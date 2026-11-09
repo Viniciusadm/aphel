@@ -51,6 +51,8 @@ Plugin entities have record types of the form `<plugin key>.<entity>`. A contrib
 | `timelineSource(factory)` | Replace the data source of record timelines. |
 | `widget(key, renderer)` | Render a dashboard widget declared in the manifest. |
 | `command(command)` | Add a command palette entry. |
+| `keybinding(keybinding)` | Add a keyboard shortcut action. |
+| `keybindingScope(scope)` | Declare where a group of shortcuts applies. |
 | `createAction(action)` | Add an entry to the create menu. |
 | `quickAdd(action)` | Add a mobile quick-add action. |
 | `referenceOptions(kind, provider)` | Provide options for a reference kind. |
@@ -97,7 +99,6 @@ navSection(section: { key: string; label: string; order?: number }): void
 | `order` | `number` | Default `600` (`NAV_ORDER.modules`). `NAV_ORDER` also has `customObjects: 500` and `administration: 900`. Entries below 500 appear before the custom object entries. |
 | `group` | `{ key, label, icon }` | Collapsible group that holds several entries with the same group key. |
 | `section` | `string` | Section of the sidebar. Built-in sections: `work`, `records`, `operations` (default), `analysis`, `administration`. A blueprint can move a plugin into its own section. |
-| `shortcut` | `string` | One key for the "go to" shortcut (press `g` and then the key). Ignored when the key or the path is already taken. |
 | `mobile` | `boolean` | Pin this entry in the mobile bottom bar. Only the first entry with `mobile: true` is used. |
 
 If two entries share a label, the group name is prefixed to tell them apart. The plugin manifest option `[menu] flat = true` removes your entries from groups. Users can reorder or hide entries in their preferences; the "Settings" entry is always last and cannot be hidden.
@@ -312,7 +313,7 @@ fieldType(type: string, renderers: { Input?: ComponentType<FieldInputProps>; Dis
 | `eventRenderer(eventType, renderer)` | Same, keyed by the event type. It takes priority over the renderer of the kind. |
 | `timelineSource(factory)` | `factory(recordType, recordId)` returns `{ fetchPage({ cursor, kinds }), kindOptions?, fetchKindOptions? }`. The last registration wins. |
 | `widget(key, { render(data), isEmpty?(data), settings? })` | Renders a dashboard widget. The key is `<plugin key>_<widget name>` from the manifest. `settings` lists `{ kind: 'integer', key, label, min, max }` or `{ kind: 'boolean', key, label }` entries. |
-| `command({ id, label, icon?, keywords?, permission?, to?, run?(helpers) })` | A command palette entry. Use `to` to navigate or `run({ navigate })` to act. |
+| `command({ id, label, icon?, keywords?, permission?, to?, run?(helpers), keys? })` | A command palette entry. Use `to` to navigate or `run({ navigate })` to act. `keys` also registers a keyboard shortcut with the command `id` (see [Keyboard shortcuts](#keyboard-shortcuts)) and shows it next to the entry. |
 | `createAction({ id, label, icon, permission?, recordType?, targetRecordTypes?, linkedLabel?, order?, render({ open, target?, onClose }) })` | An entry in the create menu. `render` draws your dialog. `recordType` makes it the contextual action on that type's list page. `targetRecordTypes` also offers it on matching record pages, labelled `linkedLabel`, with `target` set to that record. |
 | `quickAdd({ key, label, title?, icon, permission?, order?, linksRecord?, recordShortcut?, render({ initialRecord, onDone }) })` | An action in the mobile quick-add sheet. `linksRecord` defaults to true. |
 | `referenceOptions(kind, { use(context), queryKey? })` | Provides `{ options: { value, label, group? }[], isLoading? }` for a kind such as `tag`, `pipeline_stage` or `sequence`. `use` is a hook called for every provider. The last active provider wins. |
@@ -320,6 +321,59 @@ fieldType(type: string, renderers: { Input?: ComponentType<FieldInputProps>; Dis
 | `ruleError(code, formatter)` | `formatter(messages)` returns the text for an API error with that code and field messages. |
 | `setupStep(...)`, `setupTask(...)` | Contribute to the installation wizard. Plugins are installed after the wizard has finished. |
 | `on('record.created', handler)` | `handler({ recordType, record })`. Fired when a record is created through the record form dialog and the contact quick form, not for every creation. |
+
+### Keyboard shortcuts
+
+Every shortcut in Aphel, from the core and from plugins, goes through one registry and one key listener. People change them in **My account > Keyboard shortcuts**, administrators set company defaults in **Settings > Keyboard shortcuts**, and both screens warn about conflicts. A plugin declares *actions* with default keys; it never listens to `keydown` on `window` itself.
+
+```tsx
+register(app) {
+  app.keybindingScope({ id: 'deal_watch.board', label: 'keys.scope', kind: 'overlay' })
+  app.keybinding({ id: 'deal_watch.go', label: 'nav.board', to: '/deal-watch', keys: ['g w'] })
+  app.keybinding({ id: 'deal_watch.refresh', label: 'keys.refresh', scope: 'deal_watch.board', keys: ['f5', 'r'] })
+}
+```
+
+| `KeybindingContribution` property | Type | Meaning |
+| --- | --- | --- |
+| `id` | `string` | Required. Stable id, prefixed with your plugin key. Users' and the company's overrides are stored under it. |
+| `label` | `string` | Required. Translation key. With `to`, the settings screen shows it as "Go to {label}". |
+| `keys` | `string[]` | Required. Default key combinations. `[]` ships the action without a default. |
+| `scope` | `string` | Where the action applies. Default `global`. |
+| `description` | `string` | Translation key shown under the label in settings. |
+| `permission` | `PermissionRequirement` | Hide the action without it. |
+| `to` | `string` | Navigate to this path. No handler needed. |
+| `run` | `({ navigate }) => void` | Static handler. Use it or `to` when the action does not depend on screen state. |
+| `allowInEditable` | `boolean` | Also fire while the focus is in a text field. Keys with `Ctrl`/`Cmd`/`Alt` and `F1`–`F24` always do. |
+| `repeat` | `boolean` | Fire again while the key is held down. |
+| `always` | `boolean` | Fire even with shortcuts turned off and inside dialogs. Reserved for the command palette. |
+
+Key combinations are lower case, modifiers first, joined by `+`: `mod+k`, `alt+d`, `shift+f2`, `f9`, `delete`, `arrowup`, `plus`, `?`. `mod` is `Cmd` on a Mac and `Ctrl` elsewhere. A space separates the two steps of a sequence such as `g w` (press `g`, then `w` within about a second). Named keys: `enter`, `escape`, `space`, `tab`, `backspace`, `delete`, `insert`, `home`, `end`, `pageup`, `pagedown`, `arrowup`, `arrowdown`, `arrowleft`, `arrowright`, `plus` and `f1`–`f24`.
+
+**Scopes.** `global` actions work on every screen. A scope of kind `overlay` is active while a screen calls `useKeybindingScope(id)`; its actions win over global ones with the same keys. A scope of kind `isolated` belongs to one element, such as a text box or a dialog, and its actions only fire when that element handles the event through `useKeybindingProps`. The kernel declares the isolated scope `editor` for text boxes that send or save with `mod+enter`.
+
+**Handlers.** Import the hooks from `@aphel/web-sdk`:
+
+| Hook or component | Use |
+| --- | --- |
+| `useKeybindingScope(scope, enabled?)` | Activate an overlay scope while the component is mounted. |
+| `useKeybinding(id, handler, { enabled? })` | Run `handler(event)` for a global or overlay action. |
+| `useKeybindingHandlers({ [id]: handler }, { enabled? })` | The same for several actions. |
+| `useKeybindingProps({ [id]: handler })` | Returns `{ onKeyDown }` to spread on the element of an isolated scope. |
+| `useActionKeys(id)` | The keys that apply now, after the company and user overrides. |
+| `<KeybindingHint action="id" />` / `<KeybindingKeys keys={[...]} />` | Show the current keys with the shared `Kbd` style. `chordText(chord)` gives plain text such as `Ctrl+Enter` or `⌘↵`. |
+
+A handler that returns `false` lets the key go through, for example when the cart is empty or the user is typing. Any other return value consumes the key.
+
+```tsx
+function Board() {
+  useKeybindingScope('deal_watch.board')
+  useKeybinding('deal_watch.refresh', () => void refetch())
+  return <Button onClick={() => void refetch()}>{t('refresh')} <KeybindingHint action="deal_watch.refresh" /></Button>
+}
+```
+
+**Conflicts.** The same keys in the same scope, or keys where one starts the other (`g` and `g w`), are errors: the settings screens flag them and, in development, the console warns when defaults collide. An overlay or isolated action that reuses a global key is only a warning, because the more specific scope wins where both apply. Keys usually taken by the browser, such as `mod+w` or `f5`, are also warnings.
 
 ## Building blocks for record screens
 

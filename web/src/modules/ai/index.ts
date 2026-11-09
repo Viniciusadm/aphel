@@ -13,6 +13,7 @@ const aiModule = defineModule({
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   settingsPanel: AiSettingsPanel,
   register(app) {
+    app.keybinding({ id: 'ai.compose_run', label: 'keybindings.composeRun', scope: 'editor', keys: ['mod+enter'] })
     app.routes([
       {
         path: 'ai',

@@ -15,7 +15,8 @@ const contactsModule = defineModule({
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('contact.') ? createElement(PeopleDashboardEventLabel, { event }) : label)
     app.slot('dashboard.source', { key: 'people.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'people.summary' ? createElement(PeopleSummary, { data: data as Record<string, unknown> }) : null })
     app.routes(contactsRoutes)
-    app.nav({ section: 'records', shortcut: 'c', to: CONTACTS_PATH, label: 'nav.people', icon: Users, permission: ['people.read'], order: 20 })
+    app.nav({ section: 'records', to: CONTACTS_PATH, label: 'nav.people', icon: Users, permission: ['people.read'], order: 20 })
+    app.keybinding({ id: 'people.go', label: 'nav.people', to: CONTACTS_PATH, keys: ['g c'], permission: ['people.read'] })
     app.createAction({
       id: 'contact',
       label: 'createAction.label',

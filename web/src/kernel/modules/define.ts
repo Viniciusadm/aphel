@@ -45,7 +45,6 @@ export interface NavContribution {
   order?: number
   group?: NavGroup
   section?: string
-  shortcut?: string
   mobile?: boolean
 }
 
@@ -146,6 +145,30 @@ export interface CommandContribution {
   icon?: LucideIcon
   keywords?: string[]
   permission?: PermissionRequirement
+  to?: string
+  run?: (helpers: CommandHelpers) => void
+  keys?: string[]
+}
+
+export type KeybindingScopeKind = 'overlay' | 'isolated'
+
+export interface KeybindingScopeContribution {
+  id: string
+  label: string
+  description?: string
+  kind: KeybindingScopeKind
+}
+
+export interface KeybindingContribution {
+  id: string
+  label: string
+  description?: string
+  scope?: string
+  keys: string[]
+  permission?: PermissionRequirement
+  allowInEditable?: boolean
+  always?: boolean
+  repeat?: boolean
   to?: string
   run?: (helpers: CommandHelpers) => void
 }
@@ -299,6 +322,8 @@ export interface ModuleApp {
   eventRenderer(eventType: string, renderer: TimelineRenderer): void
   widget(key: string, renderer: WidgetRenderer): void
   command(command: CommandContribution): void
+  keybinding(keybinding: KeybindingContribution): void
+  keybindingScope(scope: KeybindingScopeContribution): void
   createAction(action: CreateActionContribution): void
   quickAdd(action: QuickAddContribution): void
   referenceOptions(kind: string, provider: ReferenceOptionsProvider): void

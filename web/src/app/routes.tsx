@@ -5,6 +5,7 @@ import { buildSettingsRoutes } from '@/features/settings/routes'
 import { HomeFallback } from '@/kernel/modules/HomeFallback'
 import { modulePublicRoutes, moduleRoutes } from '@/kernel/modules/routes'
 import { AppLayout } from './layout/AppLayout'
+import { KeybindingOutlet } from './layout/KeybindingOutlet'
 import './modules'
 import { RequireAuth } from './session/RequireAuth'
 import { UnknownRouteShell } from './UnknownRouteShell'
@@ -15,13 +16,18 @@ export function createRoutes(): RouteObject[] {
     {
       element: <RequireAuth />,
       children: [
-        ...moduleRoutes('bare'),
         {
-          element: <AppLayout />,
+          element: <KeybindingOutlet />,
           children: [
+            ...moduleRoutes('bare'),
             {
-              errorElement: <RouteErrorBoundary />,
-              children: [...moduleRoutes('app'), ...buildSettingsRoutes(), { path: 'records/:recordType/new', lazy: async () => ({ Component: (await import('@/features/records/form/RecordCreatePage')).RecordCreatePage }) }, { path: 'records/:recordType/:recordId/edit', lazy: async () => ({ Component: (await import('@/features/records/form/RecordEditPage')).RecordEditPage }) }, { index: true, element: <HomeFallback /> }],
+              element: <AppLayout />,
+              children: [
+                {
+                  errorElement: <RouteErrorBoundary />,
+                  children: [...moduleRoutes('app'), ...buildSettingsRoutes(), { path: 'records/:recordType/new', lazy: async () => ({ Component: (await import('@/features/records/form/RecordCreatePage')).RecordCreatePage }) }, { path: 'records/:recordType/:recordId/edit', lazy: async () => ({ Component: (await import('@/features/records/form/RecordEditPage')).RecordEditPage }) }, { index: true, element: <HomeFallback /> }],
+                },
+              ],
             },
           ],
         },

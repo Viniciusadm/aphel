@@ -1,9 +1,11 @@
 import { useIsModuleActive } from '@/kernel/modules/registry'
-import { ArrowLeft, CornerDownLeft, Keyboard, Loader2, Search, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, CornerDownLeft, Keyboard, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { GO_SHORTCUTS } from '@/app/shortcuts'
+import { KEYBOARD_SETTINGS_PATH } from './ShortcutsHelpDialog'
+import { Kbd } from '@/components/ui/kbd'
+import { KeybindingKeys, useKeybindings, type KeybindingAction } from '@/kernel/keybindings'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { recordDetailHref, recordTypeIcon } from '@/features/records/links'
 import { SEARCH_MIN_LENGTH, useGlobalSearch, type SearchGroup } from '@/modules/search/ui'
@@ -19,7 +21,6 @@ import type { CommandGroup, PaletteCommand, PaletteMode } from './types'
 
 const SEARCH_DEBOUNCE_MS = 200
 const SEARCH_LIMIT = 5
-const PREFERENCES_PATH = '/account/preferences'
 const SEARCH_PATH = '/search'
 const GROUP_ORDER: CommandGroup[] = ['context', 'create', 'favorites', 'navigation', 'general']
 
@@ -28,7 +29,7 @@ interface PaletteOption {
   label: string
   description?: string
   icon?: LucideIcon
-  shortcut?: string[]
+  keys?: string[]
   run: () => void
 }
 
@@ -54,16 +55,9 @@ function useDebouncedValue(value: string, delay: number) {
   return debounced
 }
 
-function Kbd({ children }: { children: string }) {
-  return (
-    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border bg-muted px-1 font-mono text-[11px] text-muted-foreground">
-      {children}
-    </kbd>
-  )
-}
-
-function commandOption(command: PaletteCommand): PaletteOption {
-  return { id: command.id, label: command.label, icon: command.icon, shortcut: command.shortcut, run: command.run }
+function commandOption(command: PaletteCommand, actions: KeybindingAction[]): PaletteOption {
+  const keys = command.keybinding ? actions.find((action) => action.id === command.keybinding)?.keys : undefined
+  return { id: command.id, label: command.label, icon: command.icon, keys, run: command.run }
 }
 
 function filterCommands(commands: PaletteCommand[], query: string): PaletteCommand[] {
@@ -99,6 +93,7 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
   const navigate = useNavigate()
   const navigationEntries = useNavigationEntries()
   const moduleCommands = useModuleCommands()
+  const { actions: keyActions } = useKeybindings()
   const controls = useCommandPalette()
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
@@ -138,14 +133,14 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
     }))
     const navigation: PaletteCommand[] = navigationEntries.map((item) => {
       const page = qualifiedLabel(item, navigationEntries)
-      const shortcut = GO_SHORTCUTS.find((candidate) => candidate.to === item.to)
+      const keybinding = keyActions.find((action) => action.to === item.to)
       return {
         id: `nav:${item.to}`,
         label: t('commands.goTo', { page }),
         group: 'navigation',
         icon: item.icon,
         keywords: [page],
-        shortcut: shortcut ? ['G', shortcut.key.toUpperCase()] : undefined,
+        keybinding: keybinding?.id,
         run: () => navigate(item.to),
       }
     })
@@ -155,6 +150,7 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
       group: command.to ? 'navigation' : 'general',
       icon: command.icon,
       keywords: command.keywords,
+      keybinding: command.keys ? command.id : undefined,
       run: () => {
         if (command.to) navigate(command.to)
         command.run?.({ navigate: (to) => void navigate(to) })
@@ -166,19 +162,19 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
         label: t('commands.shortcuts'),
         group: 'general',
         icon: Keyboard,
-        shortcut: ['?'],
+        keybinding: 'core.help',
         run: controls.openHelp,
       },
       {
         id: 'general:preferences',
-        label: t('commands.preferences'),
+        label: t('commands.keyboard'),
         group: 'general',
-        icon: SlidersHorizontal,
-        run: () => navigate(PREFERENCES_PATH),
+        icon: Keyboard,
+        run: () => navigate(KEYBOARD_SETTINGS_PATH),
       },
     ]
     return [...contextCommands, ...create, ...navigation, ...contributed, ...general]
-  }, [contextCommands, controls, createActions, moduleCommands, navigate, navigationEntries, t])
+  }, [contextCommands, controls, createActions, keyActions, moduleCommands, navigate, navigationEntries, t])
   const commands = useFilters('commands', baseCommands, NO_FILTER_CONTEXT)
 
   const settled = searchEnabled && trimmed.length >= SEARCH_MIN_LENGTH && debouncedQuery.trim() === trimmed
@@ -220,7 +216,7 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
       .map((group) => ({
         id: `group:${group}`,
         label: groupLabels[group],
-        options: filtered.filter((command) => command.group === group).map(commandOption),
+        options: filtered.filter((command) => command.group === group).map((command) => commandOption(command, keyActions)),
       }))
       .filter((section) => section.options.length > 0)
     if (searchEnabled && trimmed.length >= SEARCH_MIN_LENGTH) {
@@ -238,7 +234,7 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
       })
     }
     return [...resultSections, ...commandSections]
-  }, [commands, mode, navigate, recordTypeLabel, searchEnabled, searchGroups, t, trimmed])
+  }, [commands, keyActions, mode, navigate, recordTypeLabel, searchEnabled, searchGroups, t, trimmed])
 
   const options = useMemo(() => sections.flatMap((section) => section.options), [sections])
   const optionDomId = (index: number) => `${baseId}-option-${index}`
@@ -366,11 +362,9 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
                         <span className="truncate text-xs text-muted-foreground">{option.description}</span>
                       )}
                     </span>
-                    {option.shortcut && (
-                      <span className="hidden shrink-0 items-center gap-1 sm:flex" aria-hidden>
-                        {option.shortcut.map((key) => (
-                          <Kbd key={key}>{key}</Kbd>
-                        ))}
+                    {option.keys && option.keys.length > 0 && (
+                      <span className="hidden shrink-0 sm:flex" aria-hidden>
+                        <KeybindingKeys keys={option.keys} limit={1} />
                       </span>
                     )}
                     {active && <CornerDownLeft className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />}

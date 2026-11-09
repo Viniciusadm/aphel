@@ -14,14 +14,15 @@
   "editor": {
     "label": "Note",
     "placeholder": "Write in Markdown: **bold**, *italic*, lists and links.",
-    "hint": "Markdown supported. Ctrl+Enter saves.",
+    "hint": "Markdown supported.",
     "tooLong": "A note can have at most 50,000 characters.",
     "preview": "Preview",
     "write": "Write",
     "previewLabel": "Note preview",
     "previewEmpty": "Nothing to preview.",
     "visibility": "Visibility",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "hintKeys": "Markdown supported. {{keys}} saves."
   },
   "visibility": {
     "team": "Team",
@@ -67,5 +68,8 @@
     "events": {
       "created": "added a note to"
     }
+  },
+  "keybindings": {
+    "save": "Save the note"
   }
 }

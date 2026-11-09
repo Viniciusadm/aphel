@@ -48,7 +48,7 @@ The palette is more than search. Open it and you can:
 - **Create** a record. Press `C` for a create action based on the page you are on, or type what you want to create. Choose **Create new** from the create menu for the full list.
 - Run actions for the page you are on, such as adding a note, opening a tab of the current record or copying its link.
 - Open **Favorites**, add the current record to favorites or remove it.
-- Open **Personal preferences** or **Show keyboard shortcuts**.
+- Open **Customize keyboard shortcuts** or **Show keyboard shortcuts**.
 
 Use the arrow keys to move and `Enter` to run. The full list of shortcuts is in [Personal settings](/docs/using/personal-settings/#keyboard-shortcuts).
 

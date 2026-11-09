@@ -123,11 +123,13 @@
     "readOnly": "Você pode ler esta conversa, mas não tem permissão para responder.",
     "channelInactive": "O canal desta conversa está inativo; ative-o para responder.",
     "label": "Resposta",
-    "placeholder": "Escreva a resposta (Ctrl+Enter envia)",
-    "emailPlaceholder": "Escreva o e-mail de resposta (Ctrl+Enter envia)",
+    "placeholder": "Escreva a resposta ({{keys}} envia)",
+    "emailPlaceholder": "Escreva o e-mail de resposta ({{keys}} envia)",
     "windowUntil": "Janela do WhatsApp até {{date}}",
     "send": "Enviar",
-    "windowClosed": "A janela de resposta foi encerrada. Use um modelo aprovado para continuar."
+    "windowClosed": "A janela de resposta foi encerrada. Use um modelo aprovado para continuar.",
+    "placeholderPlain": "Escreva a resposta",
+    "emailPlaceholderPlain": "Escreva o e-mail de resposta"
   },
   "errors": {
     "whatsapp_window_closed": "Passaram mais de 24 horas desde a última mensagem do cliente. O WhatsApp só aceita mensagens de modelo aprovadas até o cliente escrever de novo.",
@@ -224,5 +226,8 @@
       "status_changed": "Conversa com {{peer}} marcada como {{status}}",
       "linked": "Conversa com {{peer}} vinculada"
     }
+  },
+  "keybindings": {
+    "send": "Enviar a resposta"
   }
 }

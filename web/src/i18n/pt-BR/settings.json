@@ -47,7 +47,9 @@
     "general": "Geral",
     "outgoingEmail": "E-mail de envio",
     "storage": "Armazenamento de arquivos",
-    "appearance": "Aparência"
+    "appearance": "Aparência",
+    "keyboard": "Atalhos de teclado",
+    "organizationKeyboard": "Atalhos de teclado"
   },
   "noAccess": {
     "title": "Sem permissão",
@@ -438,6 +440,12 @@
     },
     "appearance": {
       "description": "Escolha o plugin de interface que você usa."
+    },
+    "keyboard": {
+      "description": "Mude as teclas de cada ação só para você."
+    },
+    "organizationKeyboard": {
+      "description": "Defina as teclas padrão de todos na empresa."
     }
   },
   "areas": {

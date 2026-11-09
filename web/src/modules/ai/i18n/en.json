@@ -273,5 +273,8 @@
   },
   "settingsPanel": {
     "intro": "Before enabling, check what each feature sends to the chosen provider."
+  },
+  "keybindings": {
+    "composeRun": "Generate text with the assistant"
   }
 }
