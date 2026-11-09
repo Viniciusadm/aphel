@@ -9,7 +9,7 @@ const WASM_TARGET: &str = "wasm32-wasip2";
 const JS_BUILD_SCRIPT: &str = "build:backend";
 fn usage(program: &str) -> String {
     format!(
-        "usage:\n  {program} new <key> [--js] [--sdk <path to aphel-plugin-sdk>]\n  {program} build [dir]\n  {program} pack [dir] [-o file.aphelplugin]"
+        "usage:\n  {program} new <key> [--js] [--sdk <path to aphel-plugin-sdk>]\n  {program} build [dir]\n  {program} pack [dir] [-o file.aphelplugin]\n  {program} bundle [dir with pack.toml] [-o file.aphelpack]"
     )
 }
 
@@ -22,6 +22,7 @@ pub fn run(program: &str, args: &[String]) -> ExitCode {
         Some("pack") => {
             build(&dir(&args[1..])).and_then(|()| pack(&dir(&args[1..]), output(&args[1..])))
         }
+        Some("bundle") => bundle(&dir(&args[1..]), output(&args[1..])),
         _ => {
             eprintln!("{}", usage(program));
             return ExitCode::FAILURE;
@@ -162,6 +163,71 @@ fn pack(dir: &Path, output: Option<PathBuf>) -> Result<(), Failure> {
     }
     archive.finish()?;
     println!("packed {}", output.display());
+    Ok(())
+}
+
+fn bundle(dir: &Path, output: Option<PathBuf>) -> Result<(), Failure> {
+    let mut source: toml::Table = fs::read_to_string(dir.join("pack.toml"))?.parse()?;
+    let text = |key: &str| {
+        source
+            .get(key)
+            .and_then(toml::Value::as_str)
+            .map(str::to_owned)
+            .ok_or_else(|| format!("pack.toml needs {key}"))
+    };
+    let key = text("key")?;
+    let version = text("version")?;
+    let plugins = source
+        .get_mut("plugins")
+        .and_then(toml::Value::as_array_mut)
+        .ok_or("pack.toml needs [[plugins]] entries")?;
+    let staging = std::env::temp_dir().join(format!("aphel-bundle-{key}-{}", std::process::id()));
+    fs::create_dir_all(&staging)?;
+    let mut packages = Vec::new();
+    for entry in plugins.iter_mut() {
+        let table = entry
+            .as_table_mut()
+            .ok_or("each [[plugins]] entry must be a table")?;
+        let path = table
+            .remove("path")
+            .and_then(|value| value.as_str().map(str::to_owned))
+            .ok_or("each [[plugins]] entry needs path")?;
+        let plugin_dir = dir.join(&path);
+        let plugin = manifest(&plugin_dir)?;
+        let field = |name: &str| {
+            plugin
+                .get(name)
+                .and_then(toml::Value::as_str)
+                .map(str::to_owned)
+                .ok_or_else(|| format!("{path}/plugin.toml needs {name}"))
+        };
+        let file = format!(
+            "plugins/{}-{}.aphelplugin",
+            field("key")?,
+            field("version")?
+        );
+        let staged = staging.join(file.trim_start_matches("plugins/"));
+        build(&plugin_dir)?;
+        pack(&plugin_dir, Some(staged.clone()))?;
+        table.insert("file".to_owned(), toml::Value::String(file.clone()));
+        packages.push((file, staged));
+    }
+    let output = output.unwrap_or_else(|| dir.join(format!("{key}-{version}.aphelpack")));
+    let mut archive = zip::ZipWriter::new(File::create(&output)?);
+    let options = SimpleFileOptions::default();
+    archive.start_file("pack.toml", options)?;
+    archive.write_all(toml::to_string(&source)?.as_bytes())?;
+    for (file, staged) in &packages {
+        archive.start_file(file.as_str(), options)?;
+        archive.write_all(&fs::read(staged)?)?;
+    }
+    archive.finish()?;
+    fs::remove_dir_all(&staging)?;
+    println!(
+        "bundled {} with {} plugins",
+        output.display(),
+        packages.len()
+    );
     Ok(())
 }
 

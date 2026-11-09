@@ -101,7 +101,8 @@
       "plugin_disabled": "Este recurso foi desativado. Atualize a página.",
       "plugin_conflicts_unacknowledged": "Há extensões que se sobrepõem. Confirme para continuar.",
       "plugin_module_conflict_blocked": "Um módulo em uso impede esta ação.",
-      "module_held_by_extension": "Este módulo está sendo mantido desativado por uma extensão instalada."
+      "module_held_by_extension": "Este módulo está sendo mantido desativado por uma extensão instalada.",
+      "entity_unique_conflict": "Já existe um registro igual a este. Altere os dados ou edite o existente."
     }
   },
   "pageLoader": "Carregando página…",

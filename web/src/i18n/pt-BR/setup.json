@@ -76,6 +76,10 @@
         "label": "Vendas B2B",
         "description": "Equipe comercial vendendo produtos ou serviços para empresas."
       },
+      "retail": {
+        "label": "Varejo e ponto de venda",
+        "description": "Lojas, lanchonetes e espaços que vendem no caixa: catálogo, preços e vendas."
+      },
       "other": {
         "label": "Outro",
         "description": "Nenhuma das opções acima descreve bem o seu negócio."

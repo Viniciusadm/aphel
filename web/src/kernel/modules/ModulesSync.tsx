@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
-import { useModules } from './api'
+import { useModules, usePublicModules } from './api'
 import { preloadModuleTranslations } from './i18n'
-import { serverModuleState, setServerModules } from './registry'
+import { serverModuleState, setServerModules, type ServerModule } from './registry'
 
-export function ModulesSync() {
-  const { data, isError } = useModules()
+function useServerModulesSync(data: ServerModule[] | undefined, isError: boolean) {
   useEffect(() => {
     if (!data && !isError) return
     const list = data ?? null
@@ -18,5 +17,16 @@ export function ModulesSync() {
       current = false
     }
   }, [data, isError])
+}
+
+export function ModulesSync() {
+  const { data, isError } = useModules()
+  useServerModulesSync(data, isError)
+  return null
+}
+
+export function PublicModulesSync() {
+  const { data, isError } = usePublicModules()
+  useServerModulesSync(data, isError)
   return null
 }

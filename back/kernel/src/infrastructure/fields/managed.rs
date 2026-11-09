@@ -21,6 +21,25 @@ pub fn column_type(field_type: FieldType) -> &'static str {
     }
 }
 
+const LIVE_COLUMN: &str = "_live";
+
+fn live_column(definition: &EntityDefinition) -> Option<String> {
+    definition.deleted_column.as_ref().map(|deleted| {
+        format!("`{LIVE_COLUMN}` TINYINT AS (IF(`{deleted}` IS NULL, 1, NULL)) STORED")
+    })
+}
+
+fn index_columns(
+    definition: &EntityDefinition,
+    unique: bool,
+    mut columns: Vec<String>,
+) -> Vec<String> {
+    if unique && definition.deleted_column.is_some() {
+        columns.push(LIVE_COLUMN.to_owned());
+    }
+    columns
+}
+
 fn field_column_type(field: &crate::application::fields::SystemField) -> String {
     if field.field_type.base_type() == FieldType::Text {
         format!("VARCHAR({})", field.config.max_length.unwrap_or(1024))
@@ -83,6 +102,7 @@ pub fn managed_schema(definition: &EntityDefinition) -> Result<Vec<String>, AppE
     {
         columns.push(format!("`{column}` DATETIME(6) NULL"));
     }
+    columns.extend(live_column(definition));
     let mut statements = vec![format!(
         "CREATE TABLE IF NOT EXISTS `{}` ({}) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         definition.table,
@@ -128,9 +148,13 @@ pub fn managed_schema(definition: &EntityDefinition) -> Result<Vec<String>, AppE
                     FieldType::Phone => 32,
                     _ => 16,
                 };
-                Ok(format!("`{}`", field.column))
+                Ok(field.column.clone())
             })
             .collect::<Result<Vec<_>, AppError>>()?;
+        let columns = index_columns(definition, index.unique, columns)
+            .iter()
+            .map(|column| format!("`{column}`"))
+            .collect::<Vec<_>>();
         if width > 768 {
             return Err(AppError::Configuration(format!(
                 "index {} exceeds the storage key limit; declare bounded text fields",
@@ -226,6 +250,16 @@ async fn reconcile(
             .await?;
         }
     }
+    if let Some(live) = live_column(definition)
+        && !stored.contains_key(LIVE_COLUMN)
+    {
+        sqlx::raw_sql(sqlx::AssertSqlSafe(format!(
+            "ALTER TABLE `{}` ADD COLUMN {live}",
+            definition.table
+        )))
+        .execute(&mut *connection)
+        .await?;
+    }
     for (index, statement) in definition.indexes.iter().zip(&statements[1..]) {
         let rows = sqlx::query("SELECT COLUMN_NAME, NON_UNIQUE FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? ORDER BY SEQ_IN_INDEX")
                 .bind(&definition.table).bind(&index.key).fetch_all(&mut *connection).await?;
@@ -238,17 +272,21 @@ async fn reconcile(
                 .iter()
                 .map(|row| row.try_get::<String, _>("COLUMN_NAME"))
                 .collect::<Result<Vec<_>, _>>()?;
-            let expected = index
-                .fields
-                .iter()
-                .map(|key| {
-                    definition
-                        .system_field_by_key(key)
-                        .expect("validated index")
-                        .column
-                        .clone()
-                })
-                .collect::<Vec<_>>();
+            let expected = index_columns(
+                definition,
+                index.unique,
+                index
+                    .fields
+                    .iter()
+                    .map(|key| {
+                        definition
+                            .system_field_by_key(key)
+                            .expect("validated index")
+                            .column
+                            .clone()
+                    })
+                    .collect(),
+            );
             let non_unique: i64 = rows[0].try_get("NON_UNIQUE")?;
             if columns != expected || (non_unique == 0) != index.unique {
                 return Err(AppError::Configuration(format!(

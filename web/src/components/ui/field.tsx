@@ -31,7 +31,7 @@ export function Field({ id: providedId, label, description, error, required, hid
   const describedBy = [description ? descriptionId : null, error ? errorId : null].filter(Boolean).join(' ')
 
   return (
-    <div data-slot="field" data-field={dataField} className={cn(inline ? 'flex flex-wrap items-center gap-2' : 'grid gap-2', className)}>
+    <div data-slot="field" data-field={dataField} className={cn(inline ? 'flex flex-wrap items-center gap-2' : 'grid content-start gap-2', className)}>
       {(() => {
         const text = (
           <Label htmlFor={id} className={hideLabel ? 'sr-only' : undefined}>

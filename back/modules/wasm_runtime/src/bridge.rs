@@ -303,7 +303,7 @@ pub(crate) async fn invoke(
     let state = aphel_sdk::runtime()?;
     let ctx = state.ctx(scope).await?;
     let remaining = deadline.saturating_duration_since(Instant::now());
-    if found.external_query {
+    if found.external_query && !found.idempotent {
         return external_query(plugin, &ctx, &found, input, remaining).await;
     }
     let output = tokio::time::timeout(remaining, found.invoke(&ctx, input))

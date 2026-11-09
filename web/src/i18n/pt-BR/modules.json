@@ -125,8 +125,8 @@
     "noDeclarations": "Este plugin não declara recursos adicionais.",
     "catalogLoading": "Carregando o catálogo de plugins…",
     "title": "Plugins",
-    "description": "Extensões de terceiros instaladas a partir de um pacote .aphelplugin, sem recompilar nem reiniciar o Aphel. Elas rodam isoladas e só acessam o que a API de plugins permite.",
-    "upload": "Instalar plugin",
+    "description": "Extensões de terceiros instaladas a partir de um arquivo .aphelplugin ou de um pacote .aphelpack com vários plugins, sem recompilar nem reiniciar o Aphel. Elas rodam isoladas e só acessam o que a API de plugins permite.",
+    "upload": "Instalar plugin ou pacote",
     "uploading": "Instalando…",
     "installed": "Plugin {{name}} instalado. Recarregando…",
     "updated": "Plugin atualizado. Recarregando…",
@@ -134,7 +134,7 @@
     "backendFailed": "Falha ao carregar",
     "backendFailedDescription": "O backend deste plugin não carrega mais, então as gravações nos tipos de registro que ele observa estão bloqueadas. Reinstale o pacote do plugin para liberar.",
     "emptyTitle": "Nenhum plugin instalado",
-    "emptyDescription": "Envie um arquivo .aphelplugin para adicionar entidades, campos, regras e telas ao Aphel.",
+    "emptyDescription": "Envie um arquivo .aphelplugin ou um pacote .aphelpack para adicionar entidades, campos, regras e telas ao Aphel.",
     "enable": "Ativar",
     "disable": "Desativar",
     "uninstall": "Desinstalar",
@@ -209,9 +209,47 @@
     "webPresent": "Código de interface integrado",
     "webWarning": "Esta interface executa dentro do Aphel com o acesso de cada usuário autenticado que a abrir. Pode observar a interface e entradas, usar o armazenamento do navegador e chamar APIs permitidas à sessão. As capacidades do backend não restringem este JavaScript.",
     "webRecovery": "Admita somente código e versões em que confia como código da aplicação. Desativar impede novos carregamentos; recarregue as páginas abertas para remover o código carregado. Isso não desfaz efeitos concluídos. Esta revisão não verifica a identidade do fornecedor nem a segurança do código.",
-    "webAdmission": "Confio nesta versão para executar como código integrado da aplicação."
+    "webAdmission": "Confio nesta versão para executar como código integrado da aplicação.",
+    "packConsentTitle": "Instalar o pacote {{name}} {{version}}?",
+    "packConsentUpgradeTitle": "Atualizar o pacote {{name}} de {{from}} para {{version}}?",
+    "packConsentDescription": "Vários plugins de uma vez, instalados na ordem certa.",
+    "packOrderTitle": "Plugins do pacote",
+    "packOrderDescription": "Instalados nesta ordem: quem depende de outro vem depois dele. Toque em um plugin para ver o que ele pede. Nada é instalado se algum tiver problema.",
+    "packHasErrors_one": "1 plugin tem problema e impede a instalação do pacote. Veja abaixo.",
+    "packHasErrors_other": "{{count}} plugins têm problema e impedem a instalação do pacote. Veja abaixo.",
+    "packNothingChanges": "Todos os plugins deste pacote já estão instalados nesta versão. Não há nada para atualizar.",
+    "packActions": {
+      "install": "Novo",
+      "upgrade": "Atualiza",
+      "unchanged": "Sem mudança"
+    },
+    "packError": "Com problema",
+    "packFromTo": "{{from}} → {{to}}",
+    "packSettingsTitle": "Configurações que o pacote preenche",
+    "packSettingsDescription": "Só entram onde ainda não há valor; o que já foi configurado aqui não muda.",
+    "packUnchangedDescription": "Este plugin já está instalado nesta versão e não será mexido.",
+    "packCancel": "Cancelar",
+    "packConfirm_one": "Instalar 1 plugin",
+    "packConfirm_other": "Instalar {{count}} plugins",
+    "packInstalling": "Instalando…",
+    "packInstalled": "Pacote {{name}} instalado. Recarregando…",
+    "packResultTitle": "O pacote {{name}} não terminou de instalar",
+    "packResultDescription": "Um plugin falhou e os seguintes não foram instalados. Corrija o problema e envie o pacote de novo: ele continua de onde parou.",
+    "packResultClose": "Entendi",
+    "packStatus": {
+      "installed": "Instalado",
+      "upgraded": "Atualizado",
+      "unchanged": "Sem mudança",
+      "failed": "Falhou",
+      "skipped": "Não instalado"
+    },
+    "packLabel_one": "pacote · versão {{version}} · 1 plugin",
+    "packLabel_other": "pacote · versão {{version}} · {{count}} plugins",
+    "looseTitle": "Plugins avulsos",
+    "packPresetsDescription": "O pacote já marcou os papéis que sugere. Desmarque o que não quiser criar; papéis que já existem só recebem as permissões que faltam."
   },
   "placeholders": {
+    "none": "Nenhum",
     "value": "Digite o valor"
   }
 }

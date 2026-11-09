@@ -22,9 +22,10 @@ The binary is `sdk/cli/target/release/aphel-plugin`. It needs `cargo` and the `w
 aphel-plugin new <key> [--js] [--sdk <path to aphel-plugin-sdk>]
 aphel-plugin build [dir]
 aphel-plugin pack [dir] [-o file.aphelplugin]
+aphel-plugin bundle [dir with pack.toml] [-o file.aphelpack]
 ```
 
-The `aphel` binary embeds the same commands as `aphel plugin new|build|pack`, with identical arguments, so a separate build of the CLI is optional. `dir` defaults to the current directory. Unknown commands print the usage and exit with an error. There is no `--help` flag.
+`bundle` builds a [plugin pack](/docs/plugins/packs/) from a `pack.toml`. The `aphel` binary embeds the same commands as `aphel plugin new|build|pack|bundle`, with identical arguments, so a separate build of the CLI is optional. `dir` defaults to the current directory. Unknown commands print the usage and exit with an error. There is no `--help` flag.
 
 ### `new`
 
@@ -142,6 +143,7 @@ Other endpoints, all needing `system.manage`:
 
 ## Related pages
 
+- [Plugin packs](/docs/plugins/packs/)
 - [Testing and debugging](/docs/plugins/testing-and-debugging/)
 - [Lifecycle](/docs/plugins/lifecycle/)
 - [First plugin](/docs/plugins/first-plugin/)

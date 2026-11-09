@@ -9,7 +9,7 @@ import { useNavigationEntries } from './navigation'
 import { useModuleState } from './registry'
 
 const HOME_PATH = '/'
-const MODULES_PATH = '/settings/modules'
+const MODULES_PATH = '/integrations/modules'
 const SETTINGS_PATH = '/settings'
 
 export function HomeFallback() {

@@ -61,7 +61,7 @@ pub fn secret_key(plugin: &str, name: &str) -> SecretKey {
     SecretKey::new(SECRET_OWNER_TYPE, plugin, name)
 }
 
-fn outside_transaction(state: &CallState) -> Result<(), AppError> {
+fn writable(state: &CallState) -> Result<(), AppError> {
     if state.read_only {
         return Err(AppError::forbidden_code(
             "plugin_read_only",
@@ -74,11 +74,52 @@ fn outside_transaction(state: &CallState) -> Result<(), AppError> {
             "plugins cannot execute side effects inside a record hook; use a durable event handler",
         ));
     }
+    Ok(())
+}
+
+fn outside_transaction(state: &CallState) -> Result<(), AppError> {
+    writable(state)?;
     if state.retryable {
-        return Err(AppError::conflict_code(
-            "plugin_effect_required",
-            "retryable plugin handlers must use defer-effect for side effects",
-        ));
+        return Err(effect_required());
+    }
+    Ok(())
+}
+
+fn effect_required() -> AppError {
+    AppError::conflict_code(
+        "plugin_effect_required",
+        "retryable plugin handlers write directly only retry-safe changes (conditional updates, creates of the plugin's own entities carrying a unique key, idempotent operations); use defer-effect for the rest",
+    )
+}
+
+fn retry_safe_create(
+    state: &CallState,
+    record_type: &str,
+    values_json: &str,
+) -> Result<(), AppError> {
+    writable(state)?;
+    if state.retryable
+        && !state
+            .plugin
+            .manifest
+            .creates_by_unique_key(record_type, &parse(values_json)?)
+    {
+        return Err(effect_required());
+    }
+    Ok(())
+}
+
+fn retry_safe_batch(state: &CallState, mutations: &[wit::RecordMutation]) -> Result<(), AppError> {
+    writable(state)?;
+    if !state.retryable {
+        return Ok(());
+    }
+    for mutation in mutations {
+        match (&mutation.id, &mutation.expected_updated_at) {
+            (Some(_), Some(_)) => {}
+            (None, None) => retry_safe_create(state, &mutation.record_type, &mutation.values_json)?,
+            _ => return Err(effect_required()),
+        }
     }
     Ok(())
 }
@@ -678,7 +719,7 @@ impl Host for CallState {
         record_type: String,
         values_json: String,
     ) -> HostResult<String> {
-        if let Err(error) = outside_transaction(self) {
+        if let Err(error) = retry_safe_create(self, &record_type, &values_json) {
             return answer(Err(error));
         }
         let scope = self.scope.clone();
@@ -734,7 +775,7 @@ impl Host for CallState {
         expected_updated_at: String,
         values_json: String,
     ) -> HostResult<String> {
-        if let Err(error) = outside_transaction(self) {
+        if let Err(error) = writable(self) {
             return answer(Err(error));
         }
         let scope = self.scope.clone();
@@ -758,7 +799,7 @@ impl Host for CallState {
         &mut self,
         mutations: Vec<wit::RecordMutation>,
     ) -> HostResult<Vec<String>> {
-        if let Err(error) = outside_transaction(self) {
+        if let Err(error) = retry_safe_batch(self, &mutations) {
             return answer(Err(error));
         }
         let scope = self.scope.clone();
@@ -1014,13 +1055,13 @@ impl Host for CallState {
                 .contributions::<aphel_kernel::modules::PluginOperation>()
                 .iter()
                 .any(|candidate| {
-                    candidate.key == operation && candidate.writes && !candidate.external_query
+                    candidate.key == operation
+                        && candidate.writes
+                        && !candidate.external_query
+                        && !candidate.idempotent
                 })
         {
-            return answer(Err(AppError::conflict_code(
-                "plugin_effect_required",
-                "retryable plugin handlers must defer writing operations",
-            )));
+            return answer(Err(effect_required()));
         }
         let plugin = self.plugin.clone();
         let scope = self.scope.clone();

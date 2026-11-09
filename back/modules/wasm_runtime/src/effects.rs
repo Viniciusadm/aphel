@@ -756,13 +756,17 @@ async fn execute_http_with_result(
     let mut tx = receipt::begin(pool).await?;
     sqlx::query("UPDATE plugins_effects SET result = ?, status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
         .bind(Json(&response)).bind(effect_id.to_string()).execute(&mut *tx).await?;
-    if let Some(event) = event {
+    let continuation = event.and_then(|event| {
+        match parent.external_response(&plugin.key, Uuid::now_v7()) {
+            Ok(execution) => Some((event, execution)),
+            Err(error) => {
+                tracing::warn!(plugin = %plugin.key, %effect_id, "HTTP response not delivered: {}", error.client_message());
+                None
+            }
+        }
+    });
+    if let Some((event, execution)) = continuation {
         // Continue the plugin without acquiring the installer's authority.
-        let mut execution = parent.clone();
-        execution.id = Uuid::now_v7();
-        execution.parent_id = Some(parent.id);
-        execution.trigger = "http_response".to_owned();
-        execution.chain.push(plugin.key.clone());
         let actor = aphel_sdk::platform::application::shared::Actor::from_scope(scope);
         let input = json!({"id": effect_id, "event_type": event, "actor_type": actor.kind(), "actor_id": actor.id(),
             "record_type": null, "record_id": null, "occurred_at": chrono::Utc::now().to_rfc3339(),

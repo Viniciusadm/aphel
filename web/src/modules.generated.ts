@@ -29,6 +29,7 @@ import followersModule from '@modules/followers'
 import dashboardModule from '@modules/dashboard'
 import reportsModule from '@modules/reports'
 import onboardingModule from '@modules/onboarding'
+import demoModule from '@modules/demo'
 import assignmentModule from '@modules/assignment'
 import taggingModule from '@modules/tagging'
 import segmentsModule from '@modules/segments'
@@ -95,6 +96,7 @@ export const MODULES: WebModule[] = [
   dashboardModule,
   reportsModule,
   onboardingModule,
+  demoModule,
   assignmentModule,
   taggingModule,
   segmentsModule,

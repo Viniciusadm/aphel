@@ -24,6 +24,7 @@ pub struct InstalledPlugin {
     pub installed_by: Option<String>,
     pub installed_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub pack_key: Option<String>,
 }
 
 impl InstalledPlugin {
@@ -38,7 +39,7 @@ impl InstalledPlugin {
 }
 
 const SELECT: &str = "SELECT plugin_key, name, version, description, manifest, checksum, enabled, \
-     settings, installed_by, installed_at, updated_at FROM plugins_installed";
+     settings, installed_by, installed_at, updated_at, pack_key FROM plugins_installed";
 
 fn from_row(row: &MySqlRow) -> Result<InstalledPlugin, AppError> {
     let Json(manifest): Json<PluginManifest> = row.try_get("manifest")?;
@@ -55,6 +56,7 @@ fn from_row(row: &MySqlRow) -> Result<InstalledPlugin, AppError> {
         installed_by: row.try_get("installed_by")?,
         installed_at: instant(row, "installed_at")?,
         updated_at: instant(row, "updated_at")?,
+        pack_key: row.try_get("pack_key")?,
     })
 }
 
@@ -96,15 +98,16 @@ pub async fn save(
     tx: &mut MySqlTx,
     package: &PluginPackage,
     installed_by: Option<&UserId>,
+    pack_key: Option<&str>,
 ) -> Result<(), AppError> {
     let manifest = &package.manifest;
     sqlx::query(
         "INSERT INTO plugins_installed (plugin_key, name, version, description, manifest, \
-         checksum, enabled, settings, installed_by) VALUES (?, ?, ?, ?, ?, ?, TRUE, JSON_OBJECT(), ?) \
+         checksum, enabled, settings, installed_by, pack_key) VALUES (?, ?, ?, ?, ?, ?, TRUE, JSON_OBJECT(), ?, ?) \
          ON DUPLICATE KEY UPDATE name = VALUES(name), version = VALUES(version), \
          description = VALUES(description), manifest = VALUES(manifest), \
          checksum = VALUES(checksum), installed_by = VALUES(installed_by), \
-         updated_at = CURRENT_TIMESTAMP(6)",
+         pack_key = VALUES(pack_key), updated_at = CURRENT_TIMESTAMP(6)",
     )
     .bind(&manifest.key)
     .bind(&manifest.name)
@@ -113,6 +116,7 @@ pub async fn save(
     .bind(Json(manifest))
     .bind(&package.checksum)
     .bind(installed_by.map(UserId::as_str))
+    .bind(pack_key)
     .execute(&mut **tx)
     .await?;
     sqlx::query("DELETE FROM plugins_files WHERE plugin_key = ?")
@@ -336,4 +340,72 @@ pub async fn kv_set_if_absent(
     .await?
     .rows_affected()
         == 1)
+}
+
+#[derive(Debug, Clone)]
+pub struct InstalledPack {
+    pub key: String,
+    pub name: String,
+    pub version: String,
+    pub description: Option<String>,
+    pub installed_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+pub async fn save_pack(
+    tx: &mut MySqlTx,
+    manifest: &crate::pack::PackManifest,
+    installed_by: Option<&UserId>,
+) -> Result<(), AppError> {
+    sqlx::query(
+        "INSERT INTO plugins_packs (pack_key, name, version, description, manifest, installed_by) \
+         VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), \
+         version = VALUES(version), description = VALUES(description), manifest = VALUES(manifest), \
+         installed_by = VALUES(installed_by), updated_at = CURRENT_TIMESTAMP(6)",
+    )
+    .bind(&manifest.key)
+    .bind(&manifest.name)
+    .bind(&manifest.version)
+    .bind(&manifest.description)
+    .bind(Json(manifest))
+    .bind(installed_by.map(UserId::as_str))
+    .execute(&mut **tx)
+    .await?;
+    Ok(())
+}
+
+pub async fn list_packs(pool: &MySqlPool) -> Result<Vec<InstalledPack>, AppError> {
+    let rows = sqlx::query(
+        "SELECT pack_key, name, version, description, installed_at, updated_at FROM plugins_packs ORDER BY name",
+    )
+    .fetch_all(pool)
+    .await?;
+    rows.iter()
+        .map(|row| {
+            Ok(InstalledPack {
+                key: row.try_get("pack_key")?,
+                name: row.try_get("name")?,
+                version: row.try_get("version")?,
+                description: row.try_get("description")?,
+                installed_at: instant(row, "installed_at")?,
+                updated_at: instant(row, "updated_at")?,
+            })
+        })
+        .collect()
+}
+
+pub async fn find_pack(pool: &MySqlPool, key: &str) -> Result<Option<InstalledPack>, AppError> {
+    Ok(list_packs(pool)
+        .await?
+        .into_iter()
+        .find(|pack| pack.key == key))
+}
+
+pub async fn set_pack(pool: &MySqlPool, plugin: &str, pack: &str) -> Result<(), AppError> {
+    sqlx::query("UPDATE plugins_installed SET pack_key = ? WHERE plugin_key = ?")
+        .bind(pack)
+        .bind(plugin)
+        .execute(pool)
+        .await?;
+    Ok(())
 }

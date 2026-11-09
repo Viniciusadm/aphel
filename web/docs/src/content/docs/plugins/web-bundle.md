@@ -108,7 +108,7 @@ In development builds of Aphel the import map points at the source files of the 
 ## When and how bundles load
 
 1. The browser loads the shell and the import map.
-2. Before it builds the router, the app calls `GET /api/v1/public/wasm-runtime`. The response lists, for each enabled plugin that declares `[web]`: `key`, `name`, `version`, `menu`, `role_homes`, `ui` (true for interface plugins), `entry` and `style`.
+2. Before it builds the router, the app calls `GET /api/v1/public/wasm-runtime`. The response lists, for each enabled plugin that declares `[web]`, `[menu]` or a role preset `home`: `key`, `name`, `version`, `menu`, `role_homes`, `ui` (true for interface plugins), `entry` and `style`. `entry` is null for a plugin without a bundle; its menu and role homes still apply.
 3. For each listed plugin, the app appends a `<link rel="stylesheet">` for `style` and imports `entry`. All bundles load in parallel and a failure in one does not stop the others.
 4. After the imports settle, the app registers the built-in modules first and then the plugin modules, calling `register` for each. Contributions with the same `order` keep that registration order.
 5. The router, the navigation and the translations are built from those registrations.

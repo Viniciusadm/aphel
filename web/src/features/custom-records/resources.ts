@@ -1,4 +1,5 @@
 import { registerRecordResource } from '@/features/records/resources'
+import type { EntityDescriptor } from '@/sdk/entities'
 import type { components } from '@/api/schema'
 
 export type CustomObject = components['schemas']['CustomObjectResponse']
@@ -45,17 +46,25 @@ export function objectPermission(object: Pick<CustomObject, 'record_type'>, acti
   return `${object.record_type}.${action}`
 }
 
-export function registerCustomObjectResources(objects: CustomObject[]) {
+export function managedEntitiesApiPath(recordType: string): string {
+  return `/v1/entities/${encodeURIComponent(recordType)}/records`
+}
+
+export function registerCustomObjectResources(objects: CustomObject[], entities: EntityDescriptor[] = []) {
   objectKeys.clear()
+  const managed = new Map(
+    entities.filter((entity) => entity.storage === 'managed').map((entity) => [entity.record_type, entity]),
+  )
   for (const object of objects) {
     objectKeys.set(object.record_type, object.key)
+    const entity = managed.get(object.record_type)
     registerRecordResource({
       recordType: object.record_type,
       traits: object.traits,
       createPermission: objectPermission(object, 'create'),
       updatePermission: objectPermission(object, 'update'),
-      basePath: customRecordsApiPath(object.key),
-      titleField: CUSTOM_RECORD_TITLE_FIELD,
+      basePath: entity ? managedEntitiesApiPath(object.record_type) : customRecordsApiPath(object.key),
+      titleField: entity?.title_field ?? CUSTOM_RECORD_TITLE_FIELD,
       detailPath: (id) => customRecordPath(object.key, id),
     })
   }

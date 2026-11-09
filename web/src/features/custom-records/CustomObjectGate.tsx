@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { PageLoader } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
+import { useEntities } from '@/sdk/entities'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { useCustomObjects } from './api'
@@ -17,11 +18,12 @@ export function CustomObjectGate({ children }: CustomObjectGateProps) {
   const { t } = useTranslation('objects')
   const { key = '' } = useParams()
   const objects = useCustomObjects()
+  const entities = useEntities()
 
-  if (objects.isPending) return <PageLoader label={t('records.loading')} />
+  if (objects.isPending || entities.isPending) return <PageLoader label={t('records.loading')} />
   if (objects.isError) return <ErrorState title={t('records.loadError')} onRetry={() => void objects.refetch()} />
 
-  registerCustomObjectResources(objects.data)
+  registerCustomObjectResources(objects.data, entities.data ?? [])
   const object = objects.data.find((item) => item.key === key)
   if (!object) {
     return (

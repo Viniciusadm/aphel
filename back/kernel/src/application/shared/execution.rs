@@ -50,6 +50,17 @@ pub struct ExecutionContext {
     pub initiator: Option<ExecutionActor>,
     pub trigger: String,
     pub chain: Vec<String>,
+    #[serde(default)]
+    pub depth: u32,
+}
+
+pub const MAX_EXECUTION_DEPTH: u32 = 64;
+
+fn too_deep() -> AppError {
+    AppError::conflict_code(
+        "plugin_execution_cycle",
+        "the plugin execution chain is cyclic or exceeds its depth",
+    )
 }
 
 tokio::task_local! {
@@ -73,6 +84,7 @@ impl ExecutionContext {
                 Actor::Service { kind, id } if kind == Actor::PLUGIN => vec![id.clone()],
                 _ => vec![],
             },
+            depth: 0,
         }
     }
 
@@ -97,11 +109,12 @@ impl ExecutionContext {
         let mut chain = parent
             .map(|parent| parent.chain.clone())
             .unwrap_or_default();
-        if chain.iter().any(|key| key == executor) || chain.len() >= 16 {
-            return Err(AppError::conflict_code(
-                "plugin_execution_cycle",
-                "the plugin execution chain is cyclic or exceeds 16 entries",
-            ));
+        let depth = parent.map(|parent| parent.depth + 1).unwrap_or_default();
+        if chain.iter().any(|key| key == executor)
+            || chain.len() >= 16
+            || depth >= MAX_EXECUTION_DEPTH
+        {
+            return Err(too_deep());
         }
         chain.push(executor.to_owned());
         Ok(Self {
@@ -119,6 +132,24 @@ impl ExecutionContext {
                 .or_else(|| initiator.map(ExecutionActor::from)),
             trigger: trigger.to_owned(),
             chain,
+            depth,
+        })
+    }
+
+    pub fn external_response(&self, executor: &str, execution_id: Uuid) -> Result<Self, AppError> {
+        let depth = self.depth + 1;
+        if depth >= MAX_EXECUTION_DEPTH {
+            return Err(too_deep());
+        }
+        Ok(Self {
+            id: execution_id,
+            parent_id: Some(self.id),
+            executor: executor.to_owned(),
+            executor_kind: "plugin".to_owned(),
+            trigger: "http_response".to_owned(),
+            chain: vec![executor.to_owned()],
+            depth,
+            ..self.clone()
         })
     }
 

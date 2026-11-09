@@ -29,6 +29,7 @@ pub struct PluginOperation {
     pub writes: bool,
     pub durable: bool,
     pub external_query: bool,
+    pub idempotent: bool,
     handler: Arc<dyn OperationHandler>,
 }
 
@@ -49,6 +50,7 @@ impl PluginOperation {
             writes,
             durable: false,
             external_query: false,
+            idempotent: false,
             handler,
         }
     }
@@ -59,6 +61,11 @@ impl PluginOperation {
 
     pub const fn with_durable_mutations(mut self) -> Self {
         self.durable = true;
+        self
+    }
+
+    pub const fn with_idempotent_retries(mut self) -> Self {
+        self.idempotent = true;
         self
     }
 

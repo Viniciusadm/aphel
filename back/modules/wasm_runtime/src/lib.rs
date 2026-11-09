@@ -19,6 +19,7 @@ pub mod manifest;
 pub mod modules;
 pub mod net;
 pub mod notify;
+pub mod pack;
 pub mod package;
 pub mod registry;
 pub mod runtime;
@@ -72,6 +73,7 @@ impl Module for WasmRuntimeModule {
             .migration(Migration::new(5, "external operation query results", include_str!("../migrations/0005_external_queries.sql")))
             .migration(Migration::new(6, "plugin change feed", include_str!("../migrations/0006_create_plugins_changes.sql")))
             .migration(Migration::new(7, "plugin module conflicts", include_str!("../migrations/0007_create_plugins_module_conflicts.sql")))
+            .migration(Migration::new(8, "plugin packs", include_str!("../migrations/0008_create_plugins_packs.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

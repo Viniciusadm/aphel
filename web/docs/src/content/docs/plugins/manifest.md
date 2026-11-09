@@ -60,7 +60,8 @@ Declares a record type owned by the plugin. The record type is `<plugin key>.<en
 | `owner_enabled` | boolean | no | `true` | Whether records have an owner. |
 | `permission_scope` | `"own"`, `"team"` or `"organization"` | no | none | Scope of the default grants to the `manager` and `member` roles. Error: `must be own, team or organization`. Without it, `manager` gets `team` and `member` gets `own`. |
 | `internal` | boolean | no | `false` | Hides the record type from people-facing lists. |
-| `indexes` | array of tables | no | `[]` | Managed storage only. Each has `key` (string), `fields` (array of field keys) and `unique` (boolean, default `false`). With dynamic storage: `entity indexes require managed storage`. |
+| `title_field` | string | no | `name`, else the first `text` or `email` field | Field shown as the record's title in lists, links and pickers. Error: `unknown title field`. |
+| `indexes` | array of tables | no | `[]` | Managed storage only. Each has `key` (string), `fields` (array of field keys) and `unique` (boolean, default `false`). A unique index only counts records that are not deleted, so a value is free again once its record goes to the trash; a write that breaks it fails with 409 `entity_unique_conflict`, and so does restoring a record whose value was taken meanwhile. With dynamic storage: `entity indexes require managed storage`. |
 | `references` | array of tables | no | `[]` | Soft references between records. Each has `field` (a `record` field key of the entity), `target` and `on_delete`. `target` is `{ kind = "entity", entity = "<record type>" }` or `{ kind = "trait", trait_key = "<trait>", type_field = "<field key>" }`. `on_delete` is `"restrict"` (default), `"clear"` or `"cascade"`. A required field cannot use `clear`. A reference to a record type of another owner needs that type's read permission in the plugin's capabilities (`plugin_reference_permission_required`). |
 | `traits` | table | no | `{}` | Open map of capability traits merged into the entity. |
 | `bulk_fields` | array of strings | no | `[]` | Fields that bulk actions may edit. |
@@ -88,6 +89,7 @@ Both tables use the same keys. In `[[fields]]` (top-level) there is one more key
 | `currency` | string | no | none | `currency` only. Three uppercase letters (ISO 4217). |
 | `default` | any | no | none | Not allowed for `user` and `record`. |
 | `target` | string | for `record` | none | Record type the field points to. Error: `is required for record fields`. Targets outside the plugin need the target's read permission in the capabilities. |
+| `read_only` | boolean | no | `false` | Managed entities only. People see the field but cannot change it (422 `field_read_only`); only the plugin's own backend writes it. Use it for totals, statuses and keys that the plugin's operations keep consistent. |
 | `options` | array of tables | for `select`, `multi_select` | `[]` | Each has `value` (string), `label` (string) and `color` (optional string). Error: `is required for select fields`. |
 
 A property that the field type does not support is rejected with `is not supported by <type> fields`.
@@ -142,6 +144,7 @@ See [Schedules](/docs/plugins/schedules/).
 | `help` | string | no | none | Help text shown under the input. |
 | `group` | string | no | none | Heading under which consecutive settings with the same group are shown. |
 | `options` | array of `{ value, label }` | for `select` | `[]` | Required for `select`, not allowed for other types. |
+| `options_from` | `{ entity, value, label }` | no | none | `text` settings only. The settings dialog lists the records of `entity` (a record type such as `printing.template`), storing the `value` field and showing the `label` field. Falls back to a text input when the person cannot read the entity. The value is not checked against the records. |
 
 `tls_identity` requires `tls_origins`; `http_credential` requires `http_origins`. Both contain exact HTTPS origins and are rejected on other setting types. `signing_identity` requires `signing_algorithms`; a TLS identity may opt into signing with the same field. Supported algorithms are `rsa_pkcs1_sha256`, `rsa_pkcs1_sha512`, `rsa_pkcs1_sha1` (explicit legacy opt-in) and `ed25519`. Signing algorithms are rejected on other types.
 
@@ -212,7 +215,7 @@ See [Automation and widgets](/docs/plugins/automation-and-widgets/).
 | Key | Type | Default | Rules |
 | --- | --- | --- | --- |
 | `menu.flat` | boolean | `false` | Read by the web navigation. See [Web screens](/docs/plugins/web-screens/). |
-| `menu.own_entities` | `"visible"` or `"hidden"` | none | `"hidden"` hides the plugin's own entities from the navigation. Error: `must be one of visible, hidden`. |
+| `menu.own_entities` | `"visible"` or `"hidden"` | none | `"hidden"` hides the plugin's own entities from the navigation, with or without a web bundle. Error: `must be one of visible, hidden`. |
 | `privacy.subject_data` | boolean | `false` | When `true`, the backend answers data subject requests. Requires a backend. |
 
 ## `[web]`

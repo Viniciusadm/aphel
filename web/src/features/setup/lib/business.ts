@@ -1,4 +1,4 @@
-export const BUSINESS_TYPES = ['freelancer', 'agency', 'real_estate', 'consultancy', 'saas', 'sales', 'other'] as const
+export const BUSINESS_TYPES = ['freelancer', 'agency', 'real_estate', 'consultancy', 'saas', 'sales', 'retail', 'other'] as const
 export const OFFERINGS = ['product', 'service', 'recurring'] as const
 export const TEAM_SIZES = ['solo', 'small', 'medium', 'large'] as const
 

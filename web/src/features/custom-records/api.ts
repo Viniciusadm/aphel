@@ -4,6 +4,7 @@ import type { components } from '@/api/schema'
 import { recordsKeys } from '@/features/records/api'
 
 import type { Page } from '@/features/records/types'
+import type { EntityDescriptor } from '@/sdk/entities'
 import { registerCustomObjectResources, type CustomObject } from './resources'
 
 type Schemas = components['schemas']
@@ -41,8 +42,11 @@ function relationsPath(recordType: string, recordId: string, suffix = '') {
 
 export const customRecordsApi = {
   objects: async () => {
-    const objects = await api.get<CustomObject[]>('/v1/objects')
-    registerCustomObjectResources(objects)
+    const [objects, entities] = await Promise.all([
+      api.get<CustomObject[]>('/v1/objects'),
+      api.get<EntityDescriptor[]>('/v1/entities').catch(() => [] as EntityDescriptor[]),
+    ])
+    registerCustomObjectResources(objects, entities)
     return objects
   },
   schema: (key: string) => api.get<ObjectSchema>(`/v1/objects/${encodeURIComponent(key)}/schema`),

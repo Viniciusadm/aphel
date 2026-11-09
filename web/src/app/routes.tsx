@@ -6,6 +6,7 @@ import { HomeFallback } from '@/kernel/modules/HomeFallback'
 import { modulePublicRoutes, moduleRoutes } from '@/kernel/modules/routes'
 import { AppLayout } from './layout/AppLayout'
 import { KeybindingOutlet } from './layout/KeybindingOutlet'
+import { BareLayout } from './layout/BareLayout'
 import './modules'
 import { RequireAuth } from './session/RequireAuth'
 import { UnknownRouteShell } from './UnknownRouteShell'
@@ -19,7 +20,7 @@ export function createRoutes(): RouteObject[] {
         {
           element: <KeybindingOutlet />,
           children: [
-            ...moduleRoutes('bare'),
+            { element: <BareLayout />, children: moduleRoutes('bare') },
             {
               element: <AppLayout />,
               children: [

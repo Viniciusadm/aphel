@@ -45212,6 +45212,28 @@
         "x-aphel-module": "microsoft"
       }
     },
+    "/api/v1/public/modules": {
+      "get": {
+        "tags": [
+          "modules"
+        ],
+        "description": "Public. The key of every module compiled into this build and whether it is enabled, so the web app can leave out the screens and calls of disabled modules before anyone signs in. Nothing else about the modules is returned.",
+        "operationId": "modules_list_public",
+        "responses": {
+          "200": {
+            "description": "Compiled modules and their state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_PublicModuleResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/public/quotes/{token}": {
       "get": {
         "tags": [
@@ -45571,7 +45593,7 @@
         "tags": [
           "plugins"
         ],
-        "description": "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none.",
+        "description": "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins without a bundle are listed too when they declare `[menu]` or a role preset `home`, with `entry` null, so the web app applies their menu and role homes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none.",
         "operationId": "plugins_web",
         "parameters": [
           {
@@ -61418,6 +61440,209 @@
           },
           "403": {
             "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "wasm_runtime"
+      }
+    },
+    "/api/v1/wasm-runtime/packs": {
+      "get": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Lists the plugin packs installed in this Aphel with the plugins that still belong to each (permission `system.manage`).",
+        "operationId": "plugin_packs_list",
+        "responses": {
+          "200": {
+            "description": "Installed packs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_InstalledPackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "wasm_runtime"
+      },
+      "post": {
+        "tags": [
+          "plugins"
+        ],
+        "description": "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. Publishes `plugin.pack_installed`.",
+        "operationId": "plugin_packs_install",
+        "parameters": [
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_conflicts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_web_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Field `package` with the .aphelpack file and optional `role_presets` (comma separated)",
+          "content": {
+            "multipart/form-data": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dry run: the pack, its plugins in install order and what each asks for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPackConsentResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Pack installed or upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPackResponse"
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "A plugin failed while installing; the response says which ones were installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `system.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Integrated frontend code was not admitted (`plugin_web_unacknowledged`) or overlaps were not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid pack (`plugin_pack_invalid`, `plugin_pack_setting_invalid`, `plugin_pack_dependency_cycle`, `plugin_pack_missing_dependency`) or a plugin of the pack is invalid (`plugin_pack_plugins_invalid`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -83112,6 +83337,107 @@
           }
         }
       },
+      "Data_PluginPackConsentResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "key",
+              "name",
+              "version",
+              "role_presets",
+              "web",
+              "plugins"
+            ],
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "installed_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "plugins": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PackPluginConsentResponse"
+                }
+              },
+              "role_presets": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "version": {
+                "type": "string"
+              },
+              "web": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "Data_PluginPackResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "key",
+              "name",
+              "version",
+              "complete",
+              "plugins"
+            ],
+            "properties": {
+              "complete": {
+                "type": "boolean"
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "plugins": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PackPluginResultResponse"
+                }
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "Data_PluginResponse": {
         "type": "object",
         "required": [
@@ -83166,6 +83492,16 @@
                   },
                   "name": {
                     "type": "string"
+                  },
+                  "pack": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/PackReference"
+                      }
+                    ]
                   },
                   "settings": {
                     "type": "array",
@@ -88082,6 +88418,57 @@
           }
         }
       },
+      "Data_Vec_InstalledPackResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "name",
+                "version",
+                "plugins",
+                "installed_at",
+                "updated_at"
+              ],
+              "properties": {
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "installed_at": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "plugins": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "updated_at": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_InstalledVersionResponse": {
         "type": "object",
         "required": [
@@ -88889,6 +89276,16 @@
                     "name": {
                       "type": "string"
                     },
+                    "pack": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "$ref": "#/components/schemas/PackReference"
+                        }
+                      ]
+                    },
                     "settings": {
                       "type": "array",
                       "items": {
@@ -88975,6 +89372,16 @@
                   "items": {
                     "$ref": "#/components/schemas/SettingOption"
                   }
+                },
+                "options_from": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SettingOptionsSource"
+                    }
+                  ]
                 },
                 "type": {
                   "type": "string"
@@ -89258,6 +89665,33 @@
                 "type": {
                   "type": "string",
                   "example": "deal.stage_changed"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_PublicModuleResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "key": {
+                  "type": "string",
+                  "example": "demo"
                 }
               }
             }
@@ -90399,12 +90833,14 @@
                 "version",
                 "menu",
                 "role_homes",
-                "ui",
-                "entry"
+                "ui"
               ],
               "properties": {
                 "entry": {
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "key": {
                   "type": "string"
@@ -93278,6 +93714,11 @@
           },
           "correlation_id": {
             "type": "string"
+          },
+          "depth": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           },
           "event_id": {
             "type": [
@@ -96420,6 +96861,46 @@
             "example": "proposals"
           },
           "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "InstalledPackResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "version",
+          "plugins",
+          "installed_at",
+          "updated_at"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "installed_at": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updated_at": {
             "type": "string"
           },
           "version": {
@@ -101911,6 +102392,147 @@
           "id": {
             "type": "string"
           }
+        }
+      },
+      "PackPluginConsentResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "version",
+          "action",
+          "settings"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "consent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PluginConsentResponse"
+              }
+            ]
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PackPluginError"
+              }
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackSettingResponse"
+            }
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "PackPluginError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "fields"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PackPluginResultResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "version",
+          "action",
+          "status"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PackPluginError"
+              }
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "PackReference": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "version"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "PackSettingResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {}
         }
       },
       "PackageIdentityResponse": {
@@ -109547,6 +110169,7 @@
           "notifications",
           "widgets",
           "operations",
+          "optional_operations",
           "role_presets",
           "entity_scopes",
           "unique_fields",
@@ -109616,6 +110239,12 @@
             }
           },
           "operations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "optional_operations": {
             "type": "array",
             "items": {
               "type": "string"
@@ -109768,6 +110397,91 @@
           }
         }
       },
+      "PluginPackConsentResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "version",
+          "role_presets",
+          "web",
+          "plugins"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "installed_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackPluginConsentResponse"
+            }
+          },
+          "role_presets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "version": {
+            "type": "string"
+          },
+          "web": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PluginPackResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "version",
+          "complete",
+          "plugins"
+        ],
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackPluginResultResponse"
+            }
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
       "PluginPermissionResponse": {
         "type": "object",
         "required": [
@@ -109844,6 +110558,16 @@
               },
               "name": {
                 "type": "string"
+              },
+              "pack": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PackReference"
+                  }
+                ]
               },
               "settings": {
                 "type": "array",
@@ -109952,6 +110676,16 @@
             "items": {
               "$ref": "#/components/schemas/SettingOption"
             }
+          },
+          "options_from": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SettingOptionsSource"
+              }
+            ]
           },
           "type": {
             "type": "string"
@@ -111660,6 +112394,22 @@
           "timezone": {
             "type": "string",
             "example": "America/Sao_Paulo"
+          }
+        }
+      },
+      "PublicModuleResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string",
+            "example": "demo"
           }
         }
       },
@@ -116466,6 +117216,26 @@
           }
         }
       },
+      "SettingOptionsSource": {
+        "type": "object",
+        "required": [
+          "entity",
+          "value",
+          "label"
+        ],
+        "properties": {
+          "entity": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "ShareGranteeResponse": {
         "type": "object",
         "required": [
@@ -120031,12 +120801,14 @@
           "version",
           "menu",
           "role_homes",
-          "ui",
-          "entry"
+          "ui"
         ],
         "properties": {
           "entry": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "key": {
             "type": "string"

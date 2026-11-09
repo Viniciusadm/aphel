@@ -118,6 +118,13 @@ impl From<DependencyStatus> for ModuleDependencyResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+pub struct PublicModuleResponse {
+    #[schema(example = "demo")]
+    pub key: String,
+    pub enabled: bool,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
 pub struct ModuleResponse {
     #[schema(example = "proposals")]
     pub key: String,

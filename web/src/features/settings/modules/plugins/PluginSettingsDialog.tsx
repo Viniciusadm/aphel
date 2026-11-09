@@ -1,4 +1,5 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/api'
 import { notifyError, notifySuccess } from '@/components/feedback'
@@ -16,6 +17,40 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { PLUGINS_PATH, type InstalledPlugin, type PluginSetting } from './types'
 import { Field } from '@/components/ui/field'
+
+interface EntityOptionsProps {
+  id: string
+  source: NonNullable<PluginSetting['options_from']>
+  value: string
+  placeholder: string
+  onChange: (value: string) => void
+  fallback: ReactNode
+}
+
+function EntityOptionsSelect({ id, source, value, placeholder, onChange, fallback }: EntityOptionsProps) {
+  const records = useQuery({
+    queryKey: ['plugin-setting-options', source.entity],
+    queryFn: () =>
+      api.get<{ data: Record<string, unknown>[] }>(`/v1/entities/${source.entity}/records`, { query: { per_page: '100' } }),
+    retry: false,
+  })
+  if (records.isError) return <>{fallback}</>
+  const options = (records.data?.data ?? [])
+    .map((record) => ({ value: String(record[source.value] ?? ''), label: String(record[source.label] ?? record[source.value] ?? '') }))
+    .filter((option) => option.value)
+  const known = !value || options.some((option) => option.value === value)
+  return (
+    <NativeSelect id={id} value={value} disabled={records.isPending} onValueChange={onChange}>
+      <option value="">{placeholder}</option>
+      {!known && <option value={value}>{value}</option>}
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </NativeSelect>
+  )
+}
 
 interface PluginSettingsDialogProps {
   plugin: InstalledPlugin
@@ -156,6 +191,22 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
                       }
                       void file.text().then((pem) => setDraft((previous) => ({ ...previous, [setting.key]: pem }))).catch(notifyError)
                     }}
+                  />
+                ) : setting.options_from && setting.type === 'text' ? (
+                  <EntityOptionsSelect
+                    id={inputId}
+                    source={setting.options_from}
+                    value={typeof value === 'string' ? value : ''}
+                    placeholder={t('placeholders.none')}
+                    onChange={(next) => setDraft({ ...draft, [setting.key]: next })}
+                    fallback={
+                      <Input
+                        placeholder={t('placeholders.value')}
+                        id={inputId}
+                        value={typeof value === 'string' ? value : ''}
+                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
+                      />
+                    }
                   />
                 ) : <Input placeholder={t('placeholders.value')}
                   id={inputId}

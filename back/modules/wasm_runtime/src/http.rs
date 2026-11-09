@@ -69,6 +69,11 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
             routes!(list_plugins, install_plugin)
                 .layer(DefaultBodyLimit::max(MAX_PACKAGE_BYTES + 1024 * 1024)),
         )
+        .routes(
+            routes!(list_packs, install_pack).layer(DefaultBodyLimit::max(
+                crate::pack::MAX_PACK_BYTES + 1024 * 1024,
+            )),
+        )
         .routes(routes!(uninstall_plugin))
         .routes(routes!(enable_plugin))
         .routes(routes!(disable_plugin))
@@ -187,6 +192,7 @@ pub(crate) struct PluginSettingResponse {
     max: Option<i64>,
     group: Option<String>,
     options: Vec<crate::manifest::SettingOption>,
+    options_from: Option<crate::manifest::SettingOptionsSource>,
     #[schema(value_type = Object)]
     value: Value,
     configured: Option<bool>,
@@ -234,6 +240,7 @@ pub(crate) struct PluginDeclarations {
     notifications: Vec<String>,
     widgets: Vec<String>,
     operations: Vec<String>,
+    optional_operations: Vec<String>,
     role_presets: Vec<PluginRolePresetResponse>,
     entity_scopes: Vec<PluginEntityScopeResponse>,
     unique_fields: Vec<String>,
@@ -324,6 +331,7 @@ impl From<&PluginManifest> for PluginDeclarations {
                 .map(|widget| widget.title.clone())
                 .collect(),
             operations: manifest.operations.clone(),
+            optional_operations: manifest.optional_operations.clone(),
             role_presets: manifest
                 .role_presets
                 .iter()
@@ -391,6 +399,14 @@ pub(crate) struct PluginResponse {
     ungranted_roles: Vec<String>,
     installed_at: String,
     updated_at: String,
+    pack: Option<PackReference>,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+pub(crate) struct PackReference {
+    key: String,
+    name: String,
+    version: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -437,6 +453,7 @@ async fn setting_responses(
             max: setting.max,
             group: setting.group.clone(),
             options: setting.options.clone(),
+            options_from: setting.options_from.clone(),
             value: if crate::manifest::is_sensitive_setting(&setting.kind) {
                 Value::Null
             } else {
@@ -450,6 +467,16 @@ async fn setting_responses(
 
 async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResponse, AppError> {
     let snapshot = registry::current(&state.db()?).await?;
+    let pack = match &plugin.pack_key {
+        Some(key) => store::find_pack(&state.db()?, key)
+            .await?
+            .map(|pack| PackReference {
+                key: pack.key,
+                name: pack.name,
+                version: pack.version,
+            }),
+        None => None,
+    };
     let settings = setting_responses(state, &plugin).await?;
     let grants = grants::status(&state.db()?, &plugin.manifest).await?;
     let ungranted_roles = grants
@@ -465,6 +492,7 @@ async fn respond(state: &AppState, plugin: InstalledPlugin) -> Result<PluginResp
         settings,
         installed_at: plugin.installed_at.to_rfc3339(),
         updated_at: plugin.updated_at.to_rfc3339(),
+        pack,
         key: plugin.key,
         name: plugin.name,
         version: plugin.version,
@@ -621,6 +649,39 @@ async fn install_plugin(
     scope.require(&Permission::SYSTEM_MANAGE)?;
     let (bytes, presets) = package_bytes(multipart).await?;
     let package = read_package(&bytes)?;
+    let prepared = prepare_install(&state, scope, package, &[], &[]).await?;
+    let presets = grants::selected_presets(&prepared.package.manifest, &presets)?;
+    if params.dry_run {
+        return Ok(Json(Data::new(consent_of(&state, &prepared).await?)).into_response());
+    }
+    require_web_admission(
+        &prepared.package.manifest,
+        params.acknowledge_web_version.as_deref(),
+    )?;
+    crate::conflicts::require_acknowledged(&prepared.conflicts, params.acknowledge_conflicts)?;
+    crate::modules::ensure_unblocked(&prepared.module_conflicts)?;
+    let plugin = apply_install(&state, scope, client.0.ip, &prepared, &presets, None).await?;
+    Ok((
+        StatusCode::CREATED,
+        Json(Data::new(respond(&state, plugin).await?)),
+    )
+        .into_response())
+}
+
+pub(crate) struct PreparedInstall {
+    pub package: crate::package::PluginPackage,
+    pub previous: Option<InstalledPlugin>,
+    pub conflicts: Vec<crate::conflicts::PluginConflict>,
+    pub module_conflicts: Vec<crate::modules::ModuleConflictPlan>,
+}
+
+pub(crate) async fn prepare_install(
+    state: &AppState,
+    scope: &AccessScope,
+    package: crate::package::PluginPackage,
+    extra_operations: &[String],
+    pack: &[PluginManifest],
+) -> Result<PreparedInstall, AppError> {
     let compiled: Vec<String> = state
         .app
         .modules()
@@ -628,109 +689,584 @@ async fn install_plugin(
         .map(|module| module.manifest.key.to_owned())
         .collect();
     let catalog = crate::bridge::host_catalog();
+    let mut operations: Vec<&str> = catalog.operations.clone();
+    operations.extend(extra_operations.iter().map(String::as_str));
     package.manifest.validate(
         &compiled,
         APHEL_VERSION,
         HostCatalog {
             hooks: &catalog.hooks,
-            operations: &catalog.operations,
+            operations: &operations,
         },
     )?;
     if package.manifest.needs_backend() && package.backend().is_none() {
         return Err(AppError::validation_code(
             "plugin_backend_missing",
             "the plugin declares runtime callbacks but has no backend.wasm",
-        )
-        .into());
+        ));
     }
     if let Some(backend) = package.backend() {
         runtime::validate(backend.content.clone()).await?;
     }
     let pool = state.db()?;
     let previous = store::find(&pool, &package.manifest.key).await?;
-    let presets = grants::selected_presets(&package.manifest, &presets)?;
     if previous.as_ref().is_some_and(|plugin| plugin.enabled) {
         crate::dependents::ensure_none_broken(
-            &state,
+            state,
             &package.manifest.key,
             Some(&package.manifest),
         )
         .await?;
     }
-    schema::check(&state, &package.manifest).await?;
+    schema::check_with(state, &package.manifest, pack).await?;
     let conflicts = crate::conflicts::detect_for(&pool, &package.manifest).await?;
-    let module_conflicts = crate::modules::plan(&state, scope, &package.manifest).await?;
-    if params.dry_run {
-        let manifest = &package.manifest;
-        let consent = PluginConsentResponse {
-            key: manifest.key.clone(),
-            name: manifest.name.clone(),
-            version: manifest.version.clone(),
-            description: manifest.description.clone(),
-            installed_version: previous.map(|plugin| plugin.version),
-            declares: PluginDeclarations::from(manifest),
-            grants: grants::status(&pool, manifest).await?,
-            conflicts,
-            module_conflicts,
-        };
-        return Ok(Json(Data::new(consent)).into_response());
-    }
-    require_web_admission(&package.manifest, params.acknowledge_web_version.as_deref())?;
-    crate::conflicts::require_acknowledged(&conflicts, params.acknowledge_conflicts)?;
-    crate::modules::ensure_unblocked(&module_conflicts)?;
-    let enabled = previous.as_ref().is_none_or(|plugin| plugin.enabled);
+    let module_conflicts = crate::modules::plan(state, scope, &package.manifest).await?;
+    Ok(PreparedInstall {
+        package,
+        previous,
+        conflicts,
+        module_conflicts,
+    })
+}
+
+pub(crate) async fn consent_of(
+    state: &AppState,
+    prepared: &PreparedInstall,
+) -> Result<PluginConsentResponse, AppError> {
+    let manifest = &prepared.package.manifest;
+    Ok(PluginConsentResponse {
+        key: manifest.key.clone(),
+        name: manifest.name.clone(),
+        version: manifest.version.clone(),
+        description: manifest.description.clone(),
+        installed_version: prepared
+            .previous
+            .as_ref()
+            .map(|plugin| plugin.version.clone()),
+        declares: PluginDeclarations::from(manifest),
+        grants: grants::status(&state.db()?, manifest).await?,
+        conflicts: prepared.conflicts.clone(),
+        module_conflicts: prepared.module_conflicts.clone(),
+    })
+}
+
+pub(crate) async fn apply_install(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    prepared: &PreparedInstall,
+    presets: &[String],
+    pack_key: Option<&str>,
+) -> Result<InstalledPlugin, AppError> {
+    let package = &prepared.package;
+    let pool = state.db()?;
+    let enabled = prepared
+        .previous
+        .as_ref()
+        .is_none_or(|plugin| plugin.enabled);
     let mut held: Vec<String> = Vec::new();
     let outcome: Result<InstalledPlugin, AppError> = async {
-        schema::apply(&state, scope, &package.manifest).await?;
+        schema::apply(state, scope, &package.manifest).await?;
         let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
             pool.begin().await.map_err(AppError::from)?,
         );
-        store::save(&mut tx, &package, Some(scope.user_id())).await?;
+        store::save(&mut tx, package, Some(scope.user_id()), pack_key).await?;
         sync_permissions(&mut tx, &package.manifest, enabled).await?;
-        let report = grants::reconcile(&mut tx, &package.manifest, &presets).await?;
+        let report = grants::reconcile(&mut tx, &package.manifest, presets).await?;
         let mut changes = vec![FieldChange::new(
             "version",
-            json!(previous.map(|plugin| plugin.version)),
+            json!(
+                prepared
+                    .previous
+                    .as_ref()
+                    .map(|plugin| plugin.version.clone())
+            ),
             json!(package.manifest.version),
         )];
         changes.extend(grant_changes(&report));
         record_in(
             &mut tx,
-            &state,
+            state,
             scope,
             "plugin.installed",
             &package.manifest.key,
             changes,
-            client.0.ip,
+            ip,
         )
         .await?;
         tx.commit().await.map_err(AppError::from)?;
         if enabled {
-            held = crate::modules::hold(&state, scope, &package.manifest).await?;
+            held = crate::modules::hold(state, scope, &package.manifest).await?;
         }
         registry::invalidate().await;
-        if let Err(error) = prune_compiled(&state).await {
+        if let Err(error) = prune_compiled(state).await {
             tracing::warn!(error = %error, "could not prune precompiled plugin backends");
         }
-        let plugin = installed(&state, &package.manifest.key).await?;
+        let plugin = installed(state, &package.manifest.key).await?;
         if !plugin.enabled {
-            schema::set_active(&state, &plugin.manifest, false).await?;
+            schema::set_active(state, &plugin.manifest, false).await?;
         }
         Ok(plugin)
     }
     .await;
-    let plugin = match outcome {
-        Ok(plugin) => plugin,
+    match outcome {
+        Ok(plugin) => Ok(plugin),
         Err(error) => {
-            crate::modules::release_modules(&state, scope, &package.manifest.key, &held).await;
-            return Err(error.into());
+            crate::modules::release_modules(state, scope, &package.manifest.key, &held).await;
+            Err(error)
         }
+    }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PackPluginConsentResponse {
+    key: String,
+    name: String,
+    version: String,
+    action: &'static str,
+    settings: Vec<PackSettingResponse>,
+    consent: Option<PluginConsentResponse>,
+    error: Option<crate::pack::PackPluginError>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PackSettingResponse {
+    key: String,
+    label: String,
+    value: Value,
+}
+
+fn labeled_settings(
+    manifest: &PluginManifest,
+    values: Map<String, Value>,
+) -> Vec<PackSettingResponse> {
+    values
+        .into_iter()
+        .map(|(key, value)| PackSettingResponse {
+            label: manifest
+                .settings
+                .iter()
+                .find(|setting| setting.key == key)
+                .map(|setting| setting.label.clone())
+                .unwrap_or_else(|| key.clone()),
+            key,
+            value,
+        })
+        .collect()
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginPackConsentResponse {
+    key: String,
+    name: String,
+    version: String,
+    description: Option<String>,
+    installed_version: Option<String>,
+    role_presets: Vec<String>,
+    web: bool,
+    plugins: Vec<PackPluginConsentResponse>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PackPluginResultResponse {
+    key: String,
+    version: String,
+    action: &'static str,
+    status: &'static str,
+    error: Option<crate::pack::PackPluginError>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct PluginPackResponse {
+    key: String,
+    name: String,
+    version: String,
+    description: Option<String>,
+    complete: bool,
+    plugins: Vec<PackPluginResultResponse>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct InstalledPackResponse {
+    key: String,
+    name: String,
+    version: String,
+    description: Option<String>,
+    plugins: Vec<String>,
+    installed_at: String,
+    updated_at: String,
+}
+
+const ACTION_INSTALL: &str = "install";
+const ACTION_UPGRADE: &str = "upgrade";
+const ACTION_UNCHANGED: &str = "unchanged";
+
+fn pack_action(prepared: &PreparedInstall) -> &'static str {
+    match &prepared.previous {
+        None => ACTION_INSTALL,
+        Some(previous) if previous.checksum == prepared.package.checksum => ACTION_UNCHANGED,
+        Some(_) => ACTION_UPGRADE,
+    }
+}
+
+fn pending_settings(
+    member: &crate::pack::PackMember,
+    previous: Option<&InstalledPlugin>,
+) -> Map<String, Value> {
+    member
+        .settings
+        .iter()
+        .filter(|(key, _)| previous.is_none_or(|plugin| !plugin.settings.contains_key(*key)))
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .collect()
+}
+
+#[utoipa::path(
+    get,
+    path = "/wasm-runtime/packs",
+    tag = TAG,
+    operation_id = "plugin_packs_list",
+    security(("session_cookie" = [])),
+    description = "Lists the plugin packs installed in this Aphel with the plugins that still belong to each (permission `system.manage`).",
+    responses(
+        (status = 200, description = "Installed packs", body = Data<Vec<InstalledPackResponse>>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
+    )
+)]
+async fn list_packs(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<Vec<InstalledPackResponse>>>, ApiError> {
+    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    let pool = state.db()?;
+    let plugins = store::list(&pool).await?;
+    let packs = store::list_packs(&pool)
+        .await?
+        .into_iter()
+        .filter_map(|pack| {
+            let members: Vec<String> = plugins
+                .iter()
+                .filter(|plugin| plugin.pack_key.as_deref() == Some(pack.key.as_str()))
+                .map(|plugin| plugin.key.clone())
+                .collect();
+            (!members.is_empty()).then(|| InstalledPackResponse {
+                key: pack.key,
+                name: pack.name,
+                version: pack.version,
+                description: pack.description,
+                plugins: members,
+                installed_at: pack.installed_at.to_rfc3339(),
+                updated_at: pack.updated_at.to_rfc3339(),
+            })
+        })
+        .collect();
+    Ok(Json(Data::new(packs)))
+}
+
+#[utoipa::path(
+    post,
+    path = "/wasm-runtime/packs",
+    tag = TAG,
+    operation_id = "plugin_packs_install",
+    security(("session_cookie" = [])),
+    description = "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. Publishes `plugin.pack_installed`.",
+    params(InstallParams),
+    request_body(content_type = "multipart/form-data", description = "Field `package` with the .aphelpack file and optional `role_presets` (comma separated)"),
+    responses(
+        (status = 200, description = "Dry run: the pack, its plugins in install order and what each asks for", body = Data<PluginPackConsentResponse>),
+        (status = 201, description = "Pack installed or upgraded", body = Data<PluginPackResponse>),
+        (status = 207, description = "A plugin failed while installing; the response says which ones were installed", body = Data<PluginPackResponse>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `system.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 409, description = "Integrated frontend code was not admitted (`plugin_web_unacknowledged`) or overlaps were not acknowledged (`plugin_conflicts_unacknowledged`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid pack (`plugin_pack_invalid`, `plugin_pack_setting_invalid`, `plugin_pack_dependency_cycle`, `plugin_pack_missing_dependency`) or a plugin of the pack is invalid (`plugin_pack_plugins_invalid`)", body = ErrorEnvelope),
+    )
+)]
+async fn install_pack(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Query(params): Query<InstallParams>,
+    multipart: Result<Multipart, MultipartRejection>,
+) -> Result<Response, ApiError> {
+    let scope = &tenant.scope;
+    scope.require(&Permission::SYSTEM_MANAGE)?;
+    let (bytes, presets) = package_bytes(multipart).await?;
+    let pack = crate::pack::read_pack(&bytes)?;
+    let catalog = crate::bridge::host_catalog();
+    crate::pack::ensure_dependencies(&pack, &catalog.operations)?;
+    let provided = pack.provided_operations();
+    let keys = pack.keys();
+    let manifests: Vec<PluginManifest> = pack
+        .members
+        .iter()
+        .map(|member| member.package.manifest.clone())
+        .collect();
+    let selected: Vec<String> = if presets.is_empty() && params.dry_run {
+        pack.manifest.role_presets.clone()
+    } else {
+        presets
+    };
+    let mut prepared = Vec::with_capacity(pack.members.len());
+    for member in &pack.members {
+        let outcome = prepare_install(&state, scope, member.package.clone(), &provided, &manifests)
+            .await
+            .and_then(|mut ready| {
+                ready
+                    .conflicts
+                    .retain(|conflict| !keys.contains(&conflict.other_plugin));
+                let own: Vec<String> = selected
+                    .iter()
+                    .filter(|preset| {
+                        ready
+                            .package
+                            .manifest
+                            .role_presets
+                            .iter()
+                            .any(|candidate| &&candidate.key == preset)
+                    })
+                    .cloned()
+                    .collect();
+                grants::selected_presets(&ready.package.manifest, &own).map(|own| (ready, own))
+            });
+        prepared.push(outcome);
+    }
+    let previous_pack = store::find_pack(&state.db()?, &pack.manifest.key).await?;
+    if params.dry_run {
+        let mut plugins = Vec::with_capacity(pack.members.len());
+        for (member, outcome) in pack.members.iter().zip(&prepared) {
+            let manifest = &member.package.manifest;
+            let (action, consent, error, settings) = match outcome {
+                Ok((ready, _)) => (
+                    pack_action(ready),
+                    Some(consent_of(&state, ready).await?),
+                    None,
+                    pending_settings(member, ready.previous.as_ref()),
+                ),
+                Err(error) => (
+                    ACTION_INSTALL,
+                    None,
+                    Some(crate::pack::PackPluginError::from_error(error)),
+                    member.settings.clone(),
+                ),
+            };
+            plugins.push(PackPluginConsentResponse {
+                key: manifest.key.clone(),
+                name: manifest.name.clone(),
+                version: manifest.version.clone(),
+                action,
+                settings: labeled_settings(manifest, settings),
+                consent,
+                error,
+            });
+        }
+        let consent = PluginPackConsentResponse {
+            key: pack.manifest.key.clone(),
+            name: pack.manifest.name.clone(),
+            version: pack.manifest.version.clone(),
+            description: pack.manifest.description.clone(),
+            installed_version: previous_pack.map(|existing| existing.version),
+            role_presets: pack.manifest.role_presets.clone(),
+            web: pack
+                .members
+                .iter()
+                .any(|member| member.package.manifest.web.is_some()),
+            plugins,
+        };
+        return Ok(Json(Data::new(consent)).into_response());
+    }
+    let failures: Vec<Value> = pack
+        .members
+        .iter()
+        .zip(&prepared)
+        .filter_map(|(member, outcome)| {
+            outcome.as_ref().err().map(|error| {
+                json!({
+                    "plugin": member.package.manifest.key,
+                    "error": crate::pack::PackPluginError::from_error(error),
+                })
+            })
+        })
+        .collect();
+    if !failures.is_empty() {
+        return Err(AppError::with_details(
+            aphel_kernel::errors::CodedKind::Validation,
+            crate::pack::PACK_PLUGINS_INVALID,
+            "some plugins of the pack are invalid; nothing was installed",
+            json!({ "plugins": failures }),
+        )
+        .into());
+    }
+    let ready: Vec<(PreparedInstall, Vec<String>)> = prepared
+        .into_iter()
+        .map(|outcome| outcome.expect("checked"))
+        .collect();
+    let admitted =
+        params.acknowledge_web_version.as_deref() == Some(pack.manifest.version.as_str());
+    for (plan, _) in &ready {
+        if pack_action(plan) == ACTION_UNCHANGED {
+            continue;
+        }
+        if plan.package.manifest.web.is_some() && !admitted {
+            return Err(AppError::conflict_code(
+                "plugin_web_unacknowledged",
+                "the pack has integrated frontend code; send acknowledge_web_version=<pack version> after reviewing its session-level access",
+            )
+            .into());
+        }
+        crate::conflicts::require_acknowledged(&plan.conflicts, params.acknowledge_conflicts)?;
+        crate::modules::ensure_unblocked(&plan.module_conflicts)?;
+    }
+    let pool = state.db()?;
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+        pool.begin().await.map_err(AppError::from)?,
+    );
+    store::save_pack(&mut tx, &pack.manifest, Some(scope.user_id())).await?;
+    tx.commit().await.map_err(AppError::from)?;
+    let mut results = Vec::with_capacity(ready.len());
+    let mut failed = false;
+    for (member, (plan, own)) in pack.members.iter().zip(&ready) {
+        let manifest = &member.package.manifest;
+        let action = pack_action(plan);
+        if failed {
+            results.push(PackPluginResultResponse {
+                key: manifest.key.clone(),
+                version: manifest.version.clone(),
+                action,
+                status: "skipped",
+                error: None,
+            });
+            continue;
+        }
+        let outcome: Result<&'static str, AppError> = async {
+            if action == ACTION_UNCHANGED {
+                store::set_pack(&pool, &manifest.key, &pack.manifest.key).await?;
+            } else {
+                apply_install(
+                    &state,
+                    scope,
+                    client.0.ip.clone(),
+                    plan,
+                    own,
+                    Some(&pack.manifest.key),
+                )
+                .await?;
+            }
+            apply_pack_settings(&state, scope, client.0.ip.clone(), member).await?;
+            Ok(match action {
+                ACTION_INSTALL => "installed",
+                ACTION_UPGRADE => "upgraded",
+                _ => "unchanged",
+            })
+        }
+        .await;
+        match outcome {
+            Ok(status) => results.push(PackPluginResultResponse {
+                key: manifest.key.clone(),
+                version: manifest.version.clone(),
+                action,
+                status,
+                error: None,
+            }),
+            Err(error) => {
+                failed = true;
+                results.push(PackPluginResultResponse {
+                    key: manifest.key.clone(),
+                    version: manifest.version.clone(),
+                    action,
+                    status: "failed",
+                    error: Some(crate::pack::PackPluginError::from_error(&error)),
+                });
+            }
+        }
+    }
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+        pool.begin().await.map_err(AppError::from)?,
+    );
+    record_in(
+        &mut tx,
+        &state,
+        scope,
+        "plugin.pack_installed",
+        &pack.manifest.key,
+        vec![
+            FieldChange::new(
+                "version",
+                json!(previous_pack.map(|existing| existing.version)),
+                json!(pack.manifest.version),
+            ),
+            FieldChange::new(
+                "plugins",
+                Value::Null,
+                json!(
+                    results
+                        .iter()
+                        .map(|result| json!({ "plugin": result.key, "status": result.status }))
+                        .collect::<Vec<_>>()
+                ),
+            ),
+        ],
+        client.0.ip,
+    )
+    .await?;
+    tx.commit().await.map_err(AppError::from)?;
+    registry::invalidate().await;
+    let status = if failed {
+        StatusCode::MULTI_STATUS
+    } else {
+        StatusCode::CREATED
     };
     Ok((
-        StatusCode::CREATED,
-        Json(Data::new(respond(&state, plugin).await?)),
+        status,
+        Json(Data::new(PluginPackResponse {
+            key: pack.manifest.key.clone(),
+            name: pack.manifest.name.clone(),
+            version: pack.manifest.version.clone(),
+            description: pack.manifest.description.clone(),
+            complete: !failed,
+            plugins: results,
+        })),
     )
         .into_response())
+}
+
+async fn apply_pack_settings(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    member: &crate::pack::PackMember,
+) -> Result<(), AppError> {
+    if member.settings.is_empty() {
+        return Ok(());
+    }
+    let plugin = installed(state, &member.package.manifest.key).await?;
+    let pending = pending_settings(member, Some(&plugin));
+    if pending.is_empty() {
+        return Ok(());
+    }
+    let mut settings = plugin.settings.clone();
+    settings.extend(pending);
+    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+        state.db()?.begin().await.map_err(AppError::from)?,
+    );
+    store::set_settings(&mut tx, &plugin.key, &settings).await?;
+    record_in(
+        &mut tx,
+        state,
+        scope,
+        "plugin.settings_updated",
+        &plugin.key,
+        vec![FieldChange::new(
+            "settings",
+            Value::Object(plugin.settings),
+            Value::Object(settings),
+        )],
+        ip,
+    )
+    .await?;
+    tx.commit().await.map_err(AppError::from)?;
+    Ok(())
 }
 
 #[derive(Debug, Deserialize, IntoParams)]
@@ -1359,7 +1895,7 @@ pub(crate) struct WebPluginResponse {
     menu: crate::manifest::MenuSpec,
     role_homes: std::collections::BTreeMap<String, String>,
     ui: bool,
-    entry: String,
+    entry: Option<String>,
     style: Option<String>,
 }
 
@@ -1373,7 +1909,7 @@ struct WebPluginsQuery {
     path = "/public/wasm-runtime",
     tag = TAG,
     operation_id = "plugins_web",
-    description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none.",
+    description = "Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins without a bundle are listed too when they declare `[menu]` or a role preset `home`, with `entry` null, so the web app applies their menu and role homes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none.",
     params(WebPluginsQuery),
     responses(
         (status = 200, description = "Web bundles to load", body = Data<Vec<WebPluginResponse>>),
@@ -1418,21 +1954,27 @@ async fn web_plugins(
             plugin.manifest.ui.is_none() || chosen_ui.as_deref() == Some(plugin.key.as_str())
         })
         .filter_map(|plugin| {
-            let web = plugin.manifest.web.as_ref()?;
+            let web = plugin.manifest.web.as_ref();
+            let role_homes: std::collections::BTreeMap<String, String> = plugin
+                .manifest
+                .role_presets
+                .iter()
+                .filter_map(|preset| Some((preset.key.clone(), preset.home.clone()?)))
+                .collect();
+            if web.is_none() && plugin.manifest.menu.is_empty() && role_homes.is_empty() {
+                return None;
+            }
             Some(WebPluginResponse {
                 key: plugin.key.clone(),
                 name: plugin.manifest.name.clone(),
                 version: plugin.version.clone(),
                 menu: plugin.manifest.menu.clone(),
-                role_homes: plugin
-                    .manifest
-                    .role_presets
-                    .iter()
-                    .filter_map(|preset| Some((preset.key.clone(), preset.home.clone()?)))
-                    .collect(),
+                role_homes,
                 ui: plugin.manifest.ui.is_some(),
-                entry: asset(plugin, &web.entry),
-                style: web.style.as_deref().map(|style| asset(plugin, style)),
+                entry: web.map(|web| asset(plugin, &web.entry)),
+                style: web
+                    .and_then(|web| web.style.as_deref())
+                    .map(|style| asset(plugin, style)),
             })
         })
         .collect();

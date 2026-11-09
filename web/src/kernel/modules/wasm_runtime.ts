@@ -12,7 +12,7 @@ interface WebPluginEntry {
   menu: PluginMenu
   role_homes?: Record<string, string>
   version: string
-  entry: string
+  entry: string | null
   style: string | null
 }
 
@@ -32,8 +32,9 @@ function injectStyle(href: string) {
   document.head.append(link)
 }
 
-async function importPlugin(plugin: WebPluginEntry): Promise<WebModule> {
+async function importPlugin(plugin: WebPluginEntry): Promise<WebModule | null> {
   if (plugin.style) injectStyle(plugin.style)
+  if (!plugin.entry) return null
   const imported = (await import(/* @vite-ignore */ plugin.entry)) as { default?: WebModule }
   if (!imported.default || imported.default.key !== plugin.key) {
     throw new Error(`plugin ${plugin.key} does not export its module as default`)
@@ -58,7 +59,7 @@ export async function loadWebPlugins(): Promise<void> {
         loadedMenus.set(body.data[index].key, body.data[index].menu)
         loadedNames.set(body.data[index].key, body.data[index].name)
         for (const [role, path] of Object.entries(body.data[index].role_homes ?? {})) loadedHomes.set(role, path)
-        return [result.value]
+        return result.value ? [result.value] : []
       }
       console.error(result.reason)
       failures.push(body.data[index].name)

@@ -73,7 +73,7 @@ Routes are React Router 7 `RouteObject`s. Write paths without a leading slash (`
 | Registration | Requires sign-in | Chrome |
 | --- | --- | --- |
 | `routes(r)` or `routes(r, { layout: 'app' })` | Yes | Rendered inside the application frame (navigation, top bar). |
-| `routes(r, { layout: 'bare' })` | Yes | No frame, for full-screen pages. |
+| `routes(r, { layout: 'bare' })` | Yes | No frame, for full-screen pages. The organization theme and the `app.shell` slot still render, so background contributions keep running. |
 | `publicRoutes(r)` | No | No frame and no session. |
 
 Plugin routes are listed before the built-in settings routes, so avoid paths that already exist. Route errors are caught by an error boundary around the application area.
@@ -153,7 +153,7 @@ Both register the same kind of entry. `RecordSectionContribution` adds an option
 | `icon` | `LucideIcon` | Optional. |
 | `permission` | `PermissionRequirement` | Hide the tab without it. |
 | `order` | `number` | Sort order among module tabs. |
-| `group` | `string` | Optional grouping label. |
+| `group` | `string` | Optional grouping label. `"primary"` shows the tab in the tab bar next to the overview and timeline; other tabs are listed under "Sections". |
 | `useVisible` | `(props: RecordTabVisibilityProps) => boolean` | A hook that decides visibility. See below. |
 | `render` | `ComponentType<RecordTabRenderProps>` | Required. The tab content. |
 | `summary` | `ComponentType<RecordTabRenderProps>` | Sections only. |

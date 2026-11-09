@@ -125,8 +125,8 @@
     "noDeclarations": "This plugin declares no additional resources.",
     "catalogLoading": "Loading the plugin catalog…",
     "title": "Plugins",
-    "description": "Third-party extensions installed from an .aphelplugin package, without rebuilding or restarting Aphel. They run isolated and only reach what the plugin API allows.",
-    "upload": "Install plugin",
+    "description": "Third-party extensions installed from an .aphelplugin file or an .aphelpack pack with several plugins, without rebuilding or restarting Aphel. They run isolated and only reach what the plugin API allows.",
+    "upload": "Install plugin or pack",
     "uploading": "Installing…",
     "installed": "Plugin {{name}} installed. Reloading…",
     "updated": "Plugin updated. Reloading…",
@@ -134,7 +134,7 @@
     "backendFailed": "Failed to load",
     "backendFailedDescription": "This plugin's backend no longer loads, so writes to the record types it hooks are blocked. Reinstall the plugin package to unblock them.",
     "emptyTitle": "No plugins installed",
-    "emptyDescription": "Upload an .aphelplugin file to add entities, fields, rules and screens to Aphel.",
+    "emptyDescription": "Upload an .aphelplugin file or an .aphelpack pack to add entities, fields, rules and screens to Aphel.",
     "enable": "Enable",
     "disable": "Disable",
     "uninstall": "Uninstall",
@@ -209,9 +209,47 @@
     "webPresent": "Integrated frontend code",
     "webWarning": "This frontend runs inside Aphel with the access of each signed-in user who opens it. It can observe the interface and inputs, use browser storage, and call APIs allowed by that session. Backend capabilities do not restrict this JavaScript.",
     "webRecovery": "Only admit code and versions you trust as application code. Disabling stops future loading; reload open pages to clear loaded code. It does not undo completed effects. Supplier identity and code safety are not verified by this review.",
-    "webAdmission": "I trust this version to run as integrated application code."
+    "webAdmission": "I trust this version to run as integrated application code.",
+    "packConsentTitle": "Install the {{name}} {{version}} pack?",
+    "packConsentUpgradeTitle": "Upgrade the {{name}} pack from {{from}} to {{version}}?",
+    "packConsentDescription": "Several plugins at once, installed in the right order.",
+    "packOrderTitle": "Plugins in the pack",
+    "packOrderDescription": "Installed in this order: a plugin that depends on another comes after it. Tap a plugin to see what it asks for. Nothing is installed if any of them has a problem.",
+    "packHasErrors_one": "1 plugin has a problem and blocks the pack. See below.",
+    "packHasErrors_other": "{{count}} plugins have problems and block the pack. See below.",
+    "packNothingChanges": "Every plugin of this pack is already installed in this version. There is nothing to update.",
+    "packActions": {
+      "install": "New",
+      "upgrade": "Upgrade",
+      "unchanged": "No change"
+    },
+    "packError": "Problem",
+    "packFromTo": "{{from}} → {{to}}",
+    "packSettingsTitle": "Settings the pack fills in",
+    "packSettingsDescription": "Only where there is no value yet; what was already configured here does not change.",
+    "packUnchangedDescription": "This plugin is already installed in this version and will not be touched.",
+    "packCancel": "Cancel",
+    "packConfirm_one": "Install 1 plugin",
+    "packConfirm_other": "Install {{count}} plugins",
+    "packInstalling": "Installing…",
+    "packInstalled": "Pack {{name}} installed. Reloading…",
+    "packResultTitle": "The {{name}} pack did not finish installing",
+    "packResultDescription": "A plugin failed and the following ones were not installed. Fix the problem and send the pack again: it continues from where it stopped.",
+    "packResultClose": "Got it",
+    "packStatus": {
+      "installed": "Installed",
+      "upgraded": "Upgraded",
+      "unchanged": "No change",
+      "failed": "Failed",
+      "skipped": "Not installed"
+    },
+    "packLabel_one": "pack · version {{version}} · 1 plugin",
+    "packLabel_other": "pack · version {{version}} · {{count}} plugins",
+    "looseTitle": "Standalone plugins",
+    "packPresetsDescription": "The pack already checked the roles it suggests. Uncheck what you do not want created; existing roles only get the missing permissions."
   },
   "placeholders": {
+    "none": "None",
     "value": "Enter the value"
   }
 }

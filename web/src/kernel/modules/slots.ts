@@ -45,6 +45,7 @@ export interface SlotPropsMap {
   'app.topbar': Record<string, never>
   'modules.settings': Record<string, never>
   'app.shell': Record<string, never>
+  'app.banner': Record<string, never>
   'app.sidebar': { collapsed?: boolean; onNavigate?: () => void }
 }
 

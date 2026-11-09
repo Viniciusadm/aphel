@@ -153,6 +153,17 @@ impl FieldAccessPolicy {
                 _ => FieldAccess::ReadOnly,
             };
         }
+        if field
+            .system
+            .as_ref()
+            .is_some_and(|system| system.owner_managed)
+            && !owner_is_writing(record_type)
+        {
+            return match self.access_of(field.definition.id) {
+                FieldAccess::Hidden => FieldAccess::Hidden,
+                _ => FieldAccess::ReadOnly,
+            };
+        }
         if is_access_locked(record_type, field) {
             return FieldAccess::Editable;
         }
@@ -348,4 +359,10 @@ pub fn query_error(message: &str, violations: Vec<FieldViolation>) -> AppError {
         return AppError::invalid_fields_code(FIELD_READ_ONLY, message.to_owned(), violations);
     }
     AppError::invalid_fields(message.to_owned(), violations)
+}
+
+fn owner_is_writing(record_type: &RecordType) -> bool {
+    let owner = record_type.as_str().split('.').next().unwrap_or_default();
+    crate::application::shared::ExecutionContext::current()
+        .is_some_and(|execution| execution.executor_kind == "plugin" && execution.executor == owner)
 }

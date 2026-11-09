@@ -101,7 +101,8 @@
       "plugin_disabled": "This feature was turned off. Reload the page.",
       "plugin_conflicts_unacknowledged": "Some extensions overlap. Confirm to continue.",
       "plugin_module_conflict_blocked": "A module in use prevents this action.",
-      "module_held_by_extension": "This module is kept disabled by an installed extension."
+      "module_held_by_extension": "This module is kept disabled by an installed extension.",
+      "entity_unique_conflict": "A matching record already exists. Change the data or edit the existing one."
     }
   },
   "pageLoader": "Loading page…",

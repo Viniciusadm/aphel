@@ -105,6 +105,7 @@ impl Module for KernelModule {
                 "Modules compiled into this build: manifest, compatibility, enabling, settings and data removal",
             )
             .root_routes(|_| health::router())
+            .public_routes(|_| v1::modules::public_router())
             .routes(|_| routes());
         for (name, description) in TAGS {
             app.openapi_tag(name, description);

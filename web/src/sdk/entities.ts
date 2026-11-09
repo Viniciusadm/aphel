@@ -15,6 +15,8 @@ export interface EntityDescriptor {
     export?: string | null
   }
   bulk_fields?: string[]
+  storage?: string
+  title_field?: string
   access: { read: boolean; create: boolean; update: boolean }
   traits: Record<string, unknown>
 }

@@ -184,6 +184,7 @@ impl OperationEntry {
         );
         operation.durable = self.spec.durable;
         operation.external_query = self.spec.effect == Effect::External;
+        operation.idempotent = self.spec.idempotent;
         operation
     }
 }

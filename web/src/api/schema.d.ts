@@ -6097,6 +6097,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Public. The key of every module compiled into this build and whether it is enabled, so the web app can leave out the screens and calls of disabled modules before anyone signs in. Nothing else about the modules is returned. */
+        get: operations["modules_list_public"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/quotes/{token}": {
         parameters: {
             query?: never;
@@ -6204,7 +6221,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none. */
+        /** @description Lists the web bundles of the enabled plugins, loaded by the Aphel web app before it builds its routes. Plugins without a bundle are listed too when they declare `[menu]` or a role preset `home`, with `entry` null, so the web app applies their menu and role homes. Plugins that declare an interface (`[ui]`) are listed only when they are the one requested in `ui` (an enabled interface plugin) or, without a valid `ui`, the organization default. Public: plugin bundles are code, not data. The `x-aphel-ui-plugin` response header names the interface plugin that applies, when there is one; `ui=core` asks for none. */
         get: operations["plugins_web"];
         put?: never;
         post?: never;
@@ -8063,6 +8080,24 @@ export interface paths {
         get: operations["plugins_host_catalog"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wasm-runtime/packs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists the plugin packs installed in this Aphel with the plugins that still belong to each (permission `system.manage`). */
+        get: operations["plugin_packs_list"];
+        put?: never;
+        /** @description Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. Publishes `plugin.pack_installed`. */
+        post: operations["plugin_packs_install"];
         delete?: never;
         options?: never;
         head?: never;
@@ -13143,6 +13178,28 @@ export interface components {
                 version: string;
             };
         };
+        Data_PluginPackConsentResponse: {
+            data: {
+                description?: string | null;
+                installed_version?: string | null;
+                key: string;
+                name: string;
+                plugins: components["schemas"]["PackPluginConsentResponse"][];
+                role_presets: string[];
+                version: string;
+                web: boolean;
+            };
+        };
+        Data_PluginPackResponse: {
+            data: {
+                complete: boolean;
+                description?: string | null;
+                key: string;
+                name: string;
+                plugins: components["schemas"]["PackPluginResultResponse"][];
+                version: string;
+            };
+        };
         Data_PluginResponse: {
             data: components["schemas"]["PluginDeclarations"] & {
                 backend_error?: string | null;
@@ -13152,6 +13209,7 @@ export interface components {
                 installed_at: string;
                 key: string;
                 name: string;
+                pack?: null | components["schemas"]["PackReference"];
                 settings: components["schemas"]["PluginSettingResponse"][];
                 ungranted_roles: string[];
                 updated_at: string;
@@ -14431,6 +14489,17 @@ export interface components {
                 type: components["schemas"]["IncomingWebhookActionType"];
             }[];
         };
+        Data_Vec_InstalledPackResponse: {
+            data: {
+                description?: string | null;
+                installed_at: string;
+                key: string;
+                name: string;
+                plugins: string[];
+                updated_at: string;
+                version: string;
+            }[];
+        };
         Data_Vec_InstalledVersionResponse: {
             data: {
                 id: string;
@@ -14624,6 +14693,7 @@ export interface components {
                 installed_at: string;
                 key: string;
                 name: string;
+                pack?: null | components["schemas"]["PackReference"];
                 settings: components["schemas"]["PluginSettingResponse"][];
                 ungranted_roles: string[];
                 updated_at: string;
@@ -14642,6 +14712,7 @@ export interface components {
                 /** Format: int64 */
                 min?: number | null;
                 options: components["schemas"]["SettingOption"][];
+                options_from?: null | components["schemas"]["SettingOptionsSource"];
                 type: string;
                 value: Record<string, never>;
             }[];
@@ -14720,6 +14791,13 @@ export interface components {
                 resource: string;
                 /** @example deal.stage_changed */
                 type: string;
+            }[];
+        };
+        Data_Vec_PublicModuleResponse: {
+            data: {
+                enabled: boolean;
+                /** @example demo */
+                key: string;
             }[];
         };
         Data_Vec_QuoteResponse: {
@@ -15032,7 +15110,7 @@ export interface components {
         };
         Data_Vec_WebPluginResponse: {
             data: {
-                entry: string;
+                entry?: string | null;
                 key: string;
                 menu: components["schemas"]["MenuSpec"];
                 name: string;
@@ -15778,6 +15856,8 @@ export interface components {
             automation?: null | components["schemas"]["AutomationExecution"];
             chain: string[];
             correlation_id: string;
+            /** Format: int32 */
+            depth?: number;
             event_id?: string | null;
             executor: string;
             executor_kind?: string;
@@ -16618,6 +16698,15 @@ export interface components {
             /** @example proposals */
             key: string;
             name: string;
+            version: string;
+        };
+        InstalledPackResponse: {
+            description?: string | null;
+            installed_at: string;
+            key: string;
+            name: string;
+            plugins: string[];
+            updated_at: string;
             version: string;
         };
         InstalledVersionResponse: {
@@ -18068,6 +18157,37 @@ export interface components {
         OwnerResponse: {
             display_name: string;
             id: string;
+        };
+        PackPluginConsentResponse: {
+            action: string;
+            consent?: null | components["schemas"]["PluginConsentResponse"];
+            error?: null | components["schemas"]["PackPluginError"];
+            key: string;
+            name: string;
+            settings: components["schemas"]["PackSettingResponse"][];
+            version: string;
+        };
+        PackPluginError: {
+            code: string;
+            fields: string[];
+            message: string;
+        };
+        PackPluginResultResponse: {
+            action: string;
+            error?: null | components["schemas"]["PackPluginError"];
+            key: string;
+            status: string;
+            version: string;
+        };
+        PackReference: {
+            key: string;
+            name: string;
+            version: string;
+        };
+        PackSettingResponse: {
+            key: string;
+            label: string;
+            value: unknown;
         };
         PackageIdentityResponse: {
             author?: string | null;
@@ -19979,6 +20099,7 @@ export interface components {
             menu: components["schemas"]["MenuSpec"];
             notifications: string[];
             operations: string[];
+            optional_operations: string[];
             optional_requires: string[];
             permissions: components["schemas"]["PluginPermissionResponse"][];
             public_routes: string[];
@@ -20008,6 +20129,24 @@ export interface components {
             runtime: string;
             version: string;
         };
+        PluginPackConsentResponse: {
+            description?: string | null;
+            installed_version?: string | null;
+            key: string;
+            name: string;
+            plugins: components["schemas"]["PackPluginConsentResponse"][];
+            role_presets: string[];
+            version: string;
+            web: boolean;
+        };
+        PluginPackResponse: {
+            complete: boolean;
+            description?: string | null;
+            key: string;
+            name: string;
+            plugins: components["schemas"]["PackPluginResultResponse"][];
+            version: string;
+        };
         PluginPermissionResponse: {
             description?: string | null;
             grant_to: string[];
@@ -20022,6 +20161,7 @@ export interface components {
             installed_at: string;
             key: string;
             name: string;
+            pack?: null | components["schemas"]["PackReference"];
             settings: components["schemas"]["PluginSettingResponse"][];
             ungranted_roles: string[];
             updated_at: string;
@@ -20045,6 +20185,7 @@ export interface components {
             /** Format: int64 */
             min?: number | null;
             options: components["schemas"]["SettingOption"][];
+            options_from?: null | components["schemas"]["SettingOptionsSource"];
             type: string;
             value: Record<string, never>;
         };
@@ -20487,6 +20628,11 @@ export interface components {
             spam_protection: boolean;
             /** @example America/Sao_Paulo */
             timezone: string;
+        };
+        PublicModuleResponse: {
+            enabled: boolean;
+            /** @example demo */
+            key: string;
         };
         PublicQuoteItemResponse: {
             components: components["schemas"]["QuoteItemComponentResponse"][];
@@ -21742,6 +21888,11 @@ export interface components {
             label: string;
             value: string;
         };
+        SettingOptionsSource: {
+            entity: string;
+            label: string;
+            value: string;
+        };
         ShareGranteeResponse: {
             id: string;
             name?: string | null;
@@ -22605,7 +22756,7 @@ export interface components {
         /** @enum {string} */
         ViewVisibility: "private" | "team" | "organization";
         WebPluginResponse: {
-            entry: string;
+            entry?: string | null;
             key: string;
             menu: components["schemas"]["MenuSpec"];
             name: string;
@@ -54692,6 +54843,26 @@ export interface operations {
             };
         };
     };
+    modules_list_public: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Compiled modules and their state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_PublicModuleResponse"];
+                };
+            };
+        };
+    };
     quotes_public_get: {
         parameters: {
             query?: never;
@@ -65855,6 +66026,148 @@ export interface operations {
             };
             /** @description Missing `system.manage` (`permission_denied`) */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugin_packs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installed packs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_InstalledPackResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    plugin_packs_install: {
+        parameters: {
+            query?: {
+                dry_run?: boolean;
+                acknowledge_conflicts?: boolean;
+                acknowledge_web_version?: string | null;
+            };
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Field `package` with the .aphelpack file and optional `role_presets` (comma separated) */
+        requestBody?: {
+            content: {
+                "multipart/form-data": unknown;
+            };
+        };
+        responses: {
+            /** @description Dry run: the pack, its plugins in install order and what each asks for */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPackConsentResponse"];
+                };
+            };
+            /** @description Pack installed or upgraded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPackResponse"];
+                };
+            };
+            /** @description A plugin failed while installing; the response says which ones were installed */
+            207: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPackResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `system.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Integrated frontend code was not admitted (`plugin_web_unacknowledged`) or overlaps were not acknowledged (`plugin_conflicts_unacknowledged`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pack (`plugin_pack_invalid`, `plugin_pack_setting_invalid`, `plugin_pack_dependency_cycle`, `plugin_pack_missing_dependency`) or a plugin of the pack is invalid (`plugin_pack_plugins_invalid`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

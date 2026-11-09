@@ -261,7 +261,19 @@ impl TrashStore {
             .push_bind(record_id.to_string())
             .push(format!(" AND {deleted} IS NOT NULL"));
         push_partition(&mut builder, definition, "r");
-        let result = builder.build().execute(&mut **tx).await?;
+        let result = builder.build().execute(&mut **tx).await.map_err(|error| {
+            if error
+                .as_database_error()
+                .is_some_and(|error| error.is_unique_violation())
+            {
+                AppError::conflict_code(
+                    "entity_unique_conflict",
+                    "record violates a unique entity index",
+                )
+            } else {
+                AppError::from(error)
+            }
+        })?;
         Ok(result.rows_affected() > 0)
     }
 

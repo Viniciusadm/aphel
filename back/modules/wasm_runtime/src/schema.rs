@@ -47,6 +47,23 @@ pub async fn validate_dependencies(
     state: &AppState,
     manifest: &PluginManifest,
 ) -> Result<(), AppError> {
+    validate_dependencies_with(state, manifest, &[]).await
+}
+
+fn pack_entity(pack: &[PluginManifest], target: &str) -> bool {
+    pack.iter().any(|other| {
+        other
+            .entity_record_types()
+            .iter()
+            .any(|record_type| record_type == target)
+    })
+}
+
+pub async fn validate_dependencies_with(
+    state: &AppState,
+    manifest: &PluginManifest,
+    pack: &[PluginManifest],
+) -> Result<(), AppError> {
     let registry = state.registry().await?;
     let mut provided: Vec<String> = state
         .app
@@ -66,6 +83,11 @@ pub async fn validate_dependencies(
     for other in &crate::registry::current(&state.db()?).await?.plugins {
         if other.key != manifest.key {
             provided.extend(other.manifest.provides.contracts.clone());
+        }
+    }
+    for other in pack {
+        if other.key != manifest.key {
+            provided.extend(other.provides.contracts.clone());
         }
     }
     let unmet = manifest.uses.unmet(&provided);
@@ -100,6 +122,18 @@ pub async fn validate_dependencies(
             if manifest.entity_record_types().contains(target) {
                 continue;
             }
+            if pack_entity(pack, target) {
+                let permission = aphel_sdk::platform::domain::access::Permission::parse(format!(
+                    "{target}.read"
+                ))?;
+                if !manifest.allows(&permission) {
+                    return Err(AppError::validation_code(
+                        "plugin_reference_permission_required",
+                        format!("reference {} requires {permission}", reference.field),
+                    ));
+                }
+                continue;
+            }
             let target = registry.require(target)?;
             if !manifest.allows(&target.read_permission) {
                 return Err(AppError::validation_code(
@@ -126,6 +160,20 @@ pub async fn validate_dependencies(
         {
             continue;
         }
+        if pack_entity(pack, target) {
+            let permission =
+                aphel_sdk::platform::domain::access::Permission::parse(format!("{target}.read"))?;
+            if !manifest.allows(&permission) {
+                return Err(AppError::validation_code(
+                    "plugin_reference_permission_required",
+                    format!(
+                        "field {} references {target}; declare {permission} in requires",
+                        field.key
+                    ),
+                ));
+            }
+            continue;
+        }
         let definition = registry.require(target)?;
         if !manifest.allows(&definition.read_permission) {
             return Err(AppError::validation_code(
@@ -141,6 +189,14 @@ pub async fn validate_dependencies(
 }
 
 pub async fn check(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
+    check_with(state, manifest, &[]).await
+}
+
+pub async fn check_with(
+    state: &AppState,
+    manifest: &PluginManifest,
+    pack: &[PluginManifest],
+) -> Result<(), AppError> {
     for entity in &manifest.entities {
         if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Dynamic
             && !entity.indexes.is_empty()
@@ -162,7 +218,7 @@ pub async fn check(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
             aphel_sdk::platform::infrastructure::fields::managed_schema(&definition)?;
         }
     }
-    validate_dependencies(state, manifest).await?;
+    validate_dependencies_with(state, manifest, pack).await?;
     let pool = state.db()?;
     ensure_compatible(&pool, manifest).await?;
     preflight(&pool, manifest).await?;
@@ -514,7 +570,7 @@ async fn preflight(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), Ap
     Ok(())
 }
 
-fn declared_fields(manifest: &PluginManifest) -> Vec<(String, &FieldDef)> {
+pub(crate) fn declared_fields(manifest: &PluginManifest) -> Vec<(String, &FieldDef)> {
     let mut fields: Vec<(String, &FieldDef)> = Vec::new();
     for entity in &manifest.entities {
         let record_type = manifest.entity_record_type(&entity.key);

@@ -1,0 +1,37 @@
+key = "retail"
+name = "Retail and point of sale"
+version = "1.0.0"
+description = "Shops, snack bars and venues that sell at a register: catalog, prices, sales and the plugins that complete each sale."
+
+[plugins]
+required = [
+  "catalog_items",
+  "objects",
+  "wasm_runtime",
+]
+recommended = [
+  "money",
+  "documents",
+  "notifications",
+  "search",
+  "exports",
+  "saved_views",
+  "privacy",
+  "trash",
+]
+
+[navigation]
+home = "/pendencias"
+
+[[navigation.sections]]
+key = "operations"
+label = { "pt-BR" = "Operação", en = "Operations" }
+
+[[navigation.sections]]
+key = "sales"
+label = { "pt-BR" = "Vendas", en = "Sales" }
+
+[[navigation.sections]]
+key = "records"
+label = { "pt-BR" = "Cadastros", en = "Records" }
+items = ["catalog_items"]

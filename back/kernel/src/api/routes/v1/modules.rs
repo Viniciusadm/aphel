@@ -5,7 +5,8 @@ use utoipa_axum::routes;
 
 use crate::api::dto::common::{Data, ErrorEnvelope};
 use crate::api::dto::modules::{
-    ModuleDataExportResponse, ModuleResponse, PurgeModuleDataRequest, UpdateModuleSettingsRequest,
+    ModuleDataExportResponse, ModuleResponse, PublicModuleResponse, PurgeModuleDataRequest,
+    UpdateModuleSettingsRequest,
 };
 use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, JsonBody};
@@ -23,6 +24,36 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(update_module_settings))
         .routes(routes!(export_module_data))
         .routes(routes!(purge_module_data))
+}
+
+pub fn public_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new().routes(routes!(list_public_modules))
+}
+
+#[utoipa::path(
+    get,
+    path = "/public/modules",
+    tag = TAG,
+    operation_id = "modules_list_public",
+    description = "Public. The key of every module compiled into this build and whether it is enabled, so the web app can leave out the screens and calls of disabled modules before anyone signs in. Nothing else about the modules is returned.",
+    responses(
+        (status = 200, description = "Compiled modules and their state", body = Data<Vec<PublicModuleResponse>>),
+    )
+)]
+async fn list_public_modules(
+    State(state): State<AppState>,
+) -> Json<Data<Vec<PublicModuleResponse>>> {
+    Json(Data::new(
+        state
+            .app
+            .modules()
+            .iter()
+            .map(|module| PublicModuleResponse {
+                key: module.key().to_owned(),
+                enabled: state.app.is_enabled(module.key()),
+            })
+            .collect(),
+    ))
 }
 
 #[utoipa::path(

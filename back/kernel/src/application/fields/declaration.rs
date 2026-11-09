@@ -27,6 +27,8 @@ pub struct EntityDeclaration {
     #[serde(default)]
     pub internal: bool,
     #[serde(default)]
+    pub title_field: Option<String>,
+    #[serde(default)]
     pub fields: Vec<FieldDef>,
 }
 
@@ -62,6 +64,8 @@ pub struct FieldDef {
     pub default: Option<Value>,
     #[serde(default)]
     pub target: Option<String>,
+    #[serde(default)]
+    pub read_only: bool,
     #[serde(default)]
     pub options: Vec<OptionDef>,
 }
@@ -206,6 +210,7 @@ impl EntityDeclaration {
                 system.searchable = field.searchable;
                 system.personal = field.personal;
                 system.sensitive = field.sensitive;
+                system.owner_managed = field.read_only;
                 system.config = field.config().map_err(|_| {
                     crate::errors::AppError::Configuration(format!(
                         "invalid configuration for {}",
@@ -255,7 +260,14 @@ impl EntityDeclaration {
                 .read_only(),
             );
             definition.indexes.extend(self.indexes.clone());
-            if let Some(field) = self
+            if let Some(title) = &self.title_field {
+                if !self.fields.iter().any(|field| &field.key == title) {
+                    return Err(crate::errors::AppError::Configuration(format!(
+                        "unknown title field {title}"
+                    )));
+                }
+                definition.title_field = Some(title.clone());
+            } else if let Some(field) = self
                 .fields
                 .iter()
                 .find(|field| field.key == "name")

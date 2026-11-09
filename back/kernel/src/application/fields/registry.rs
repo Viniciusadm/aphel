@@ -56,6 +56,7 @@ pub struct SystemField {
     pub options: Vec<SystemFieldOption>,
     pub computed: Option<ComputedColumn>,
     pub contributed_by: Option<&'static str>,
+    pub owner_managed: bool,
 }
 
 impl SystemField {
@@ -86,7 +87,13 @@ impl SystemField {
             options: Vec::new(),
             computed: None,
             contributed_by: None,
+            owner_managed: false,
         })
+    }
+
+    pub fn owner_managed(mut self) -> Self {
+        self.owner_managed = true;
+        self
     }
 
     pub fn read_only(mut self) -> Self {

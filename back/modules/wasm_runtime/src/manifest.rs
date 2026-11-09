@@ -130,6 +130,8 @@ pub struct PluginManifest {
     #[serde(default)]
     pub operations: Vec<String>,
     #[serde(default)]
+    pub optional_operations: Vec<String>,
+    #[serde(default)]
     pub role_presets: Vec<RolePresetSpec>,
     #[serde(default)]
     pub privacy: PrivacySpec,
@@ -367,6 +369,16 @@ pub struct SettingSpec {
     pub group: Option<String>,
     #[serde(default)]
     pub options: Vec<SettingOption>,
+    #[serde(default)]
+    pub options_from: Option<SettingOptionsSource>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(deny_unknown_fields)]
+pub struct SettingOptionsSource {
+    pub entity: String,
+    pub value: String,
+    pub label: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
@@ -473,6 +485,32 @@ impl PluginManifest {
             .iter()
             .map(|entity| self.entity_record_type(&entity.key))
             .collect()
+    }
+
+    pub fn creates_by_unique_key(&self, record_type: &str, values: &Value) -> bool {
+        let Some(entity) = self
+            .entities
+            .iter()
+            .find(|entity| self.entity_record_type(&entity.key) == record_type)
+        else {
+            return false;
+        };
+        let present = |field: &str| {
+            values.get(field).is_some_and(|value| match value {
+                Value::Null => false,
+                Value::String(text) => !text.trim().is_empty(),
+                _ => true,
+            })
+        };
+        entity
+            .fields
+            .iter()
+            .any(|field| field.unique && present(&field.key))
+            || entity.indexes.iter().any(|index| {
+                index.unique
+                    && !index.fields.is_empty()
+                    && index.fields.iter().all(|field| present(field))
+            })
     }
 
     pub fn allows(&self, permission: &Permission) -> bool {
@@ -598,7 +636,10 @@ impl PluginManifest {
     }
 
     pub fn uses_operation(&self, operation: &str) -> bool {
-        self.operations.iter().any(|declared| declared == operation)
+        self.operations
+            .iter()
+            .chain(&self.optional_operations)
+            .any(|declared| declared == operation)
     }
 
     pub fn validate(
@@ -1022,6 +1063,32 @@ impl PluginManifest {
                 ));
             }
         }
+        if self.operations.len() + self.optional_operations.len() > MAX_OPERATIONS {
+            violations.push(FieldViolation::new(
+                "optional_operations",
+                format!("operations and optional_operations can list at most {MAX_OPERATIONS} operations together"),
+            ));
+        }
+        for (index, operation) in self.optional_operations.iter().enumerate() {
+            let well_formed = !operation.is_empty()
+                && operation.len() <= 128
+                && operation.contains('.')
+                && operation.chars().all(|character| {
+                    character.is_ascii_lowercase()
+                        || character.is_ascii_digit()
+                        || character == '_'
+                        || character == '.'
+                });
+            if !well_formed
+                || self.operations.contains(operation)
+                || self.optional_operations[..index].contains(operation)
+            {
+                violations.push(FieldViolation::new(
+                    format!("optional_operations[{index}]"),
+                    "must be a unique operation key not listed in operations",
+                ));
+            }
+        }
         for (index, emit) in self.emits.iter().enumerate() {
             if !is_key(&emit.name, 64)
                 || self.emits[..index]
@@ -1239,6 +1306,24 @@ impl PluginManifest {
                     format!("settings[{index}].options"),
                     "is only allowed for select settings",
                 ));
+            }
+            if let Some(source) = &setting.options_from {
+                let entity_valid = source
+                    .entity
+                    .split_once('.')
+                    .is_some_and(|(owner, entity)| {
+                        is_key(owner, MAX_KEY_LENGTH) && is_key(entity, 64)
+                    });
+                if setting.kind != "text"
+                    || !entity_valid
+                    || !is_key(&source.value, 64)
+                    || !is_key(&source.label, 64)
+                {
+                    violations.push(FieldViolation::new(
+                        format!("settings[{index}].options_from"),
+                        "needs a text setting, an entity such as plugin.entity and the value and label field keys",
+                    ));
+                }
             }
             if is_sensitive_setting(&setting.kind) && setting.default.is_some() {
                 violations.push(FieldViolation::new(

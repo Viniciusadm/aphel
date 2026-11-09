@@ -46,5 +46,13 @@ recommended = [
 [navigation]
 home = "/"
 
+[[navigation.sections]]
+key = "work"
+label = { "pt-BR" = "Meu trabalho", en = "My work" }
+
+[[navigation.sections]]
+key = "records"
+label = "CRM"
+
 [configuration]
 packages = ["crm"]

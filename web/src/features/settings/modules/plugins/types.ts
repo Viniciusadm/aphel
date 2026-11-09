@@ -81,6 +81,7 @@ export interface PluginSetting {
   help: string | null
   group?: string | null
   options?: { value: string; label: string }[]
+  options_from?: { entity: string; value: string; label: string } | null
   min: number | null
   max: number | null
   value: unknown
@@ -97,6 +98,13 @@ export interface InstalledPlugin extends PluginDeclarations {
   settings: PluginSetting[]
   grants: RoleGrantStatus[]
   ungranted_roles: string[]
+  pack: PackReference | null
+}
+
+export interface PackReference {
+  key: string
+  name: string
+  version: string
 }
 
 export interface PluginConsent extends PluginDeclarations {
@@ -110,5 +118,46 @@ export interface PluginConsent extends PluginDeclarations {
   module_conflicts: ModuleConflictPlan[]
 }
 
+export type PackAction = 'install' | 'upgrade' | 'unchanged'
+
+export interface PackPluginError {
+  code: string
+  message: string
+  fields: string[]
+}
+
+export interface PackPluginConsent {
+  key: string
+  name: string
+  version: string
+  action: PackAction
+  settings: { key: string; label: string; value: unknown }[]
+  consent: PluginConsent | null
+  error: PackPluginError | null
+}
+
+export interface PluginPackConsent {
+  key: string
+  name: string
+  version: string
+  description: string | null
+  installed_version: string | null
+  role_presets: string[]
+  web: boolean
+  plugins: PackPluginConsent[]
+}
+
+export type PackPluginStatus = 'installed' | 'upgraded' | 'unchanged' | 'failed' | 'skipped'
+
+export interface PluginPackResult {
+  key: string
+  name: string
+  version: string
+  description: string | null
+  complete: boolean
+  plugins: { key: string; version: string; action: PackAction; status: PackPluginStatus; error: PackPluginError | null }[]
+}
+
 export const PLUGINS_PATH = '/v1/wasm-runtime'
 export const pluginsKey = ['plugins'] as const
+export const PACKS_PATH = `${PLUGINS_PATH}/packs`

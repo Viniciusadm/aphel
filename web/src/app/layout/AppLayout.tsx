@@ -45,6 +45,8 @@ function AppFrameContent() {
   const content = ready ? <><BlueprintNotice /><Outlet /></> : <PageLoader label={t('ui.loading')} />
 
   return (
+    <>
+    <Slot name="app.banner" props={{}} />
     <MobileShell onOpenMenu={() => setMobileNavOpen(true)}>
       <div className={cn('flex min-h-dvh bg-background text-foreground', !settingsArea && 'h-full')}>
         <OrganizationTheme />
@@ -66,6 +68,7 @@ function AppFrameContent() {
         <OfflineShell />
       </div>
     </MobileShell>
+    </>
   )
 }
 

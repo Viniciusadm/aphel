@@ -76,6 +76,10 @@
         "label": "B2B sales",
         "description": "A sales team selling products or services to other organizations."
       },
+      "retail": {
+        "label": "Retail and point of sale",
+        "description": "Shops, snack bars and venues that sell at a register: catalog, prices and sales."
+      },
       "other": {
         "label": "Other",
         "description": "None of the options above describes your business well."

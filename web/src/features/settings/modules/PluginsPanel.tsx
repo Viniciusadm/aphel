@@ -19,17 +19,38 @@ import { PluginConsentDialog } from './plugins/PluginConsentDialog'
 import { PluginDeclarationList } from './plugins/PluginDeclarationList'
 import { PluginGrantStatus } from './plugins/PluginGrantStatus'
 import { PluginSettingsDialog } from './plugins/PluginSettingsDialog'
+import { PluginPackConsentDialog } from './plugins/PluginPackConsentDialog'
+import { PluginPackResultDialog } from './plugins/PluginPackResultDialog'
 import {
+  PACKS_PATH,
   PLUGINS_PATH,
   pluginsKey,
   type InstalledPlugin,
   type PluginConflict,
   type PluginConsent,
+  type PluginPackConsent,
+  type PluginPackResult,
 } from './plugins/types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
 const PACKAGE_EXTENSION = '.aphelplugin'
+const PACK_EXTENSION = '.aphelpack'
+
+function groupByPack(plugins: InstalledPlugin[]) {
+  const groups = new Map<string, { pack: InstalledPlugin['pack']; plugins: InstalledPlugin[] }>()
+  for (const plugin of plugins) {
+    const key = plugin.pack?.key ?? ''
+    const group = groups.get(key) ?? { pack: plugin.pack, plugins: [] }
+    group.plugins.push(plugin)
+    groups.set(key, group)
+  }
+  return [...groups.values()].sort((left, right) => {
+    if (!left.pack) return 1
+    if (!right.pack) return -1
+    return left.pack.name.localeCompare(right.pack.name)
+  })
+}
 
 function reloadApp() {
   window.location.reload()
@@ -67,6 +88,8 @@ function PluginsPanelContent() {
   const [overlapping, setOverlapping] = useState<{ plugin: InstalledPlugin; conflicts: PluginConflict[]; webVersion?: string } | null>(null)
   const [admitting, setAdmitting] = useState<InstalledPlugin | null>(null)
   const [webAdmitted, setWebAdmitted] = useState(false)
+  const [pendingPack, setPendingPack] = useState<{ file: File; pack: PluginPackConsent } | null>(null)
+  const [packResult, setPackResult] = useState<PluginPackResult | null>(null)
   const readiness = useQuery({
     queryKey: [...pluginsKey, 'readiness'],
     queryFn: () => api.get<{ state: 'loading' | 'ready' | 'degraded'; version: number | null }>(`${PLUGINS_PATH}/readiness`),
@@ -94,6 +117,30 @@ function PluginsPanelContent() {
         .post<PluginConsent>(`${PLUGINS_PATH}?dry_run=true`, packageForm(file))
         .then((consent) => ({ file, consent })),
     onSuccess: (result) => setPending(result),
+    onError: (error) => notifyError(error),
+  })
+  const reviewPack = useMutation({
+    mutationFn: (file: File) =>
+      api
+        .post<PluginPackConsent>(`${PACKS_PATH}?dry_run=true`, packageForm(file))
+        .then((pack) => ({ file, pack })),
+    onSuccess: (result) => setPendingPack(result),
+    onError: (error) => notifyError(error),
+  })
+  const installPack = useMutation({
+    mutationFn: ({ file, rolePresets, acknowledge, webVersion }: { file: File; rolePresets: string[]; acknowledge: boolean; webVersion?: string }) =>
+      api.post<PluginPackResult>(
+        `${PACKS_PATH}?${new URLSearchParams({ acknowledge_conflicts: String(acknowledge), ...(webVersion ? { acknowledge_web_version: webVersion } : {}) })}`,
+        packageForm(file, rolePresets),
+      ),
+    onSuccess: (result) => {
+      setPendingPack(null)
+      if (result.complete) changed(t('plugins.packInstalled', { name: result.name }))
+      else {
+        setPackResult(result)
+        void queryClient.invalidateQueries({ queryKey: pluginsKey })
+      }
+    },
     onError: (error) => notifyError(error),
   })
   const install = useMutation({
@@ -151,23 +198,30 @@ function PluginsPanelContent() {
     onError: (error) => notifyError(error),
   })
 
+  const busy = review.isPending || install.isPending || reviewPack.isPending || installPack.isPending
+
   const upload = (
     <>
       <input
         ref={input}
         type="file"
-        accept={PACKAGE_EXTENSION}
+        accept={`${PACKAGE_EXTENSION},${PACK_EXTENSION}`}
         className="sr-only"
         aria-label={t('plugins.upload')}
         onChange={(event) => {
           const file = event.target.files?.[0]
-          if (file) review.mutate(file)
+          if (file?.name.toLowerCase().endsWith(PACK_EXTENSION)) reviewPack.mutate(file)
+          else if (file) review.mutate(file)
           event.target.value = ''
         }}
       />
-      <Button size="sm" onClick={() => input.current?.click()} disabled={review.isPending || install.isPending}>
+      <Button size="sm" onClick={() => input.current?.click()} disabled={busy}>
         <PackagePlus aria-hidden="true" />
-        {review.isPending ? t('plugins.checking') : install.isPending ? t('plugins.uploading') : t('plugins.upload')}
+        {review.isPending || reviewPack.isPending
+          ? t('plugins.checking')
+          : install.isPending || installPack.isPending
+            ? t('plugins.uploading')
+            : t('plugins.upload')}
       </Button>
     </>
   )
@@ -189,51 +243,63 @@ function PluginsPanelContent() {
       ) : plugins.data.length === 0 ? (
         <EmptyState icon={Plug} title={t('plugins.emptyTitle')} description={t('plugins.emptyDescription')} />
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2">
-          {plugins.data.map((plugin) => (
-          <li key={plugin.key} className="flex h-80 flex-col gap-3 overflow-hidden rounded-md border bg-card p-4">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="grid gap-1">
-                  <span className="font-semibold">{plugin.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {plugin.key} · {t('version', { version: plugin.version })}
-                  </span>
+        <div className="grid gap-6">
+          {groupByPack(plugins.data).map((group) => (
+            <section key={group.pack?.key ?? 'loose'} className="grid gap-3" aria-label={group.pack ? group.pack.name : t('plugins.looseTitle')}>
+              {(group.pack || plugins.data.some((plugin) => plugin.pack)) && (
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <h3 className="text-base font-semibold">{group.pack ? group.pack.name : t('plugins.looseTitle')}</h3>
+                  {group.pack && <span className="text-xs text-muted-foreground">{t('plugins.packLabel', { version: group.pack.version, count: group.plugins.length })}</span>}
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {plugin.backend_error && <Badge variant="destructive">{t('plugins.backendFailed')}</Badge>}
-                  <Badge variant={plugin.enabled ? 'success' : 'secondary'}>
-                    {plugin.enabled ? t('status.enabled') : t('status.disabled')}
-                  </Badge>
-                </div>
-              </div>
-              {plugin.description && <p className="line-clamp-2 text-sm text-muted-foreground">{plugin.description}</p>}
-              <PluginDeclarationList plugin={plugin} compact />
-              <div className="mt-auto flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={() => setDetails(plugin)}>
-                  <Info aria-hidden="true" />
-                  {t('plugins.viewDetails')}
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => {
-                  if (!plugin.enabled && plugin.has_web) { setWebAdmitted(false); setAdmitting(plugin) }
-                  else toggle.mutate({ plugin })
-                }} disabled={toggle.isPending}>
-                  {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
-                  {plugin.enabled ? t('plugins.disable') : t('plugins.enable')}
-                </Button>
-                {plugin.settings.length > 0 && (
-                  <Button size="sm" variant="outline" onClick={() => setConfiguring(plugin)}>
-                    <Settings2 aria-hidden="true" />
-                    {t('plugins.settings')}
-                  </Button>
-                )}
-                <Button size="sm" variant="outline" onClick={() => setRemoving(plugin)}>
-                  <Trash2 aria-hidden="true" />
-                  {t('plugins.uninstall')}
-                </Button>
-              </div>
-            </li>
+              )}
+              <ul className="grid gap-3 md:grid-cols-2">
+                {group.plugins.map((plugin) => (
+                  <li key={plugin.key} className="flex h-80 flex-col gap-3 overflow-hidden rounded-md border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="grid gap-1">
+                        <span className="font-semibold">{plugin.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {plugin.key} · {t('version', { version: plugin.version })}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {plugin.backend_error && <Badge variant="destructive">{t('plugins.backendFailed')}</Badge>}
+                        <Badge variant={plugin.enabled ? 'success' : 'secondary'}>
+                          {plugin.enabled ? t('status.enabled') : t('status.disabled')}
+                        </Badge>
+                      </div>
+                    </div>
+                    {plugin.description && <p className="line-clamp-2 text-sm text-muted-foreground">{plugin.description}</p>}
+                    <PluginDeclarationList plugin={plugin} compact />
+                    <div className="mt-auto flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setDetails(plugin)}>
+                        <Info aria-hidden="true" />
+                        {t('plugins.viewDetails')}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => {
+                        if (!plugin.enabled && plugin.has_web) { setWebAdmitted(false); setAdmitting(plugin) }
+                        else toggle.mutate({ plugin })
+                      }} disabled={toggle.isPending}>
+                        {plugin.enabled ? <PowerOff aria-hidden="true" /> : <Power aria-hidden="true" />}
+                        {plugin.enabled ? t('plugins.disable') : t('plugins.enable')}
+                      </Button>
+                      {plugin.settings.length > 0 && (
+                        <Button size="sm" variant="outline" onClick={() => setConfiguring(plugin)}>
+                          <Settings2 aria-hidden="true" />
+                          {t('plugins.settings')}
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => setRemoving(plugin)}>
+                        <Trash2 aria-hidden="true" />
+                        {t('plugins.uninstall')}
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       )}
       <Dialog open={details !== null} onOpenChange={(open) => { if (!open) setDetails(null) }}>
         {details && (
@@ -249,6 +315,18 @@ function PluginsPanelContent() {
           </DialogContent>
         )}
       </Dialog>
+      {pendingPack && (
+        <PluginPackConsentDialog
+          key={`${pendingPack.pack.key}@${pendingPack.pack.version}`}
+          pack={pendingPack.pack}
+          pending={installPack.isPending}
+          onCancel={() => setPendingPack(null)}
+          onConfirm={(rolePresets, acknowledge, admitWeb) =>
+            installPack.mutate({ file: pendingPack.file, rolePresets, acknowledge, webVersion: admitWeb ? pendingPack.pack.version : undefined })
+          }
+        />
+      )}
+      {packResult && <PluginPackResultDialog result={packResult} onClose={() => { setPackResult(null); reloadApp() }} />}
       <PluginConsentDialog
         key={pending ? `${pending.consent.key}@${pending.consent.version}` : "no-package"}
         consent={pending?.consent ?? null}

@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { FlaskConical } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { api, type components } from '@/api'
+import { useModuleTranslation } from '@/kernel/modules/i18n'
 
 type DemoStatus = components['schemas']['DemoStatusResponse']
 
 export function DemoBanner() {
-  const { t } = useTranslation('demo')
+  const t = useModuleTranslation('demo')
   const status = useQuery({
     queryKey: ['demo', 'status'],
     queryFn: () => api.get<DemoStatus>('/v1/demo'),
