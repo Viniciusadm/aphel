@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::Ctx;
 use crate::application::access::Authorizer;
 use crate::application::audit::{DiffOptions, diff_values};
+use crate::application::fields::CustomFieldValueRepository;
 use crate::application::fields::permissions::check_record_writes;
 use crate::application::fields::{
     CustomFieldPorts, CustomFieldWriter, EntityDefinition, FieldSet, RecordDraft, RecordPipeline,
@@ -334,7 +335,7 @@ impl GenericRecordHandler {
                     normalized.insert(field.key().to_owned(), Value::Null);
                 }
                 Ok(Some(value)) => {
-                    self.check_reference(&ctx, &field.definition, &value)
+                    self.check_reference(&ctx, tx, &field.definition, &value)
                         .await?;
                     normalized.insert(
                         field.key().to_owned(),
@@ -435,6 +436,7 @@ impl GenericRecordHandler {
     async fn check_reference(
         &self,
         ctx: &Ctx<'_>,
+        tx: &mut MySqlTx,
         field: &crate::domain::fields::FieldDefinition,
         value: &FieldValue,
     ) -> Result<(), AppError> {
@@ -451,11 +453,18 @@ impl GenericRecordHandler {
                 })?;
                 let target = ctx.registry().require(key)?;
                 let visibility = ctx.scope.record_filter(&target.read_permission)?;
-                !fields
-                    .references()
-                    .existing_records(ctx.scope, target, &visibility, &[*id])
+                match fields
+                    .values()
+                    .existing_records_in(tx, ctx.scope, target, &visibility, &[*id])
                     .await?
-                    .is_empty()
+                {
+                    Some(found) => !found.is_empty(),
+                    None => !fields
+                        .references()
+                        .existing_records(ctx.scope, target, &visibility, &[*id])
+                        .await?
+                        .is_empty(),
+                }
             }
             _ => true,
         };
