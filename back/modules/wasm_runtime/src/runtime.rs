@@ -859,6 +859,9 @@ pub fn to_plugin_error(error: &AppError) -> wit::PluginError {
             .collect(),
         _ => Vec::new(),
     };
+    if status == 500 {
+        tracing::error!(error = ?error, "plugin host call failed");
+    }
     let message = if status == 500 {
         INTERNAL_MESSAGE
     } else {
