@@ -8,6 +8,9 @@ mod modules;
 
 use cli::AlreadyReported;
 
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[tokio::main]
 async fn main() -> ExitCode {
     match modules::build() {

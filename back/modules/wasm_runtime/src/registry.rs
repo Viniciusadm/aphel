@@ -13,7 +13,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications as intern;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
-const REFRESH_INTERVAL: Duration = Duration::from_secs(5);
+const REFRESH_INTERVAL: Duration = Duration::from_secs(1);
 
 pub struct LoadedPlugin {
     pub key: String,
@@ -137,6 +137,27 @@ fn cache() -> &'static Mutex<Cache> {
     })
 }
 
+fn verified_at() -> &'static RwLock<Option<Instant>> {
+    static VERIFIED_AT: OnceLock<RwLock<Option<Instant>>> = OnceLock::new();
+    VERIFIED_AT.get_or_init(|| RwLock::new(None))
+}
+
+fn mark_verified(at: Option<Instant>) {
+    if let Ok(mut verified) = verified_at().write() {
+        *verified = at;
+    }
+}
+
+pub fn has_event_consumers(event_type: &str) -> Option<bool> {
+    let fresh = verified_at()
+        .read()
+        .ok()
+        .and_then(|verified| *verified)
+        .is_some_and(|verified| verified.elapsed() < CHECK_INTERVAL);
+    let snapshot = cached();
+    (fresh && snapshot.version.is_some()).then(|| !snapshot.event_consumers(event_type).is_empty())
+}
+
 fn published() -> &'static RwLock<Arc<Snapshot>> {
     static PUBLISHED: OnceLock<RwLock<Arc<Snapshot>>> = OnceLock::new();
     PUBLISHED.get_or_init(|| RwLock::new(Arc::new(Snapshot::default())))
@@ -179,6 +200,8 @@ pub fn cached() -> Arc<Snapshot> {
 }
 
 pub async fn invalidate() {
+    aphel_sdk::platform::application::access::invalidate_access_catalog();
+    mark_verified(None);
     cache().lock().await.checked_at = None;
 }
 
@@ -204,7 +227,9 @@ async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
     }
     let version = store::version(pool).await?;
     if snapshot.version == Some(version) {
-        cache.checked_at = Some(Instant::now());
+        let now = Instant::now();
+        cache.checked_at = Some(now);
+        mark_verified(Some(now));
         return Ok(snapshot);
     }
     let installed_plugins = store::list(pool).await?;
@@ -262,7 +287,8 @@ async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
             "the plugin catalog changed while loading; retry the request",
         ));
     }
-    cache.checked_at = Some(Instant::now());
+    let verified = Instant::now();
+    cache.checked_at = Some(verified);
     let snapshot = Arc::new(Snapshot {
         version: Some(version),
         plugins,
@@ -271,6 +297,7 @@ async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
     if let Ok(mut published) = published().write() {
         *published = snapshot.clone();
     }
+    mark_verified(Some(verified));
     Ok(snapshot)
 }
 

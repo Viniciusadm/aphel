@@ -736,9 +736,13 @@ impl<'a> Compiler<'a> {
                 .push(format!(" ESCAPE '{LIKE_ESCAPE}'"));
         }
         if !search.custom_field_ids.is_empty() {
-            builder.push(" OR EXISTS (SELECT 1 FROM custom_field_values sv WHERE ");
-            self.push_value_owner(builder, "sv");
-            builder.push(" AND sv.field_id IN (");
+            builder
+                .push(format!(
+                    " OR {}.id IN (SELECT sv.record_id FROM custom_field_values sv WHERE sv.record_type = ",
+                    self.alias
+                ))
+                .push_bind(self.record_type.to_owned())
+                .push(" AND sv.field_id IN (");
             let mut ids = builder.separated(", ");
             for id in &search.custom_field_ids {
                 ids.push_bind(id.to_string());

@@ -86,6 +86,10 @@ pub trait SessionRepository: Send + Sync {
     async fn create(&self, session: NewSession) -> Result<(), AppError>;
     async fn find_by_token_hash(&self, token_hash: &str)
     -> Result<Option<SessionRecord>, AppError>;
+    async fn find_with_user_by_token_hash(
+        &self,
+        token_hash: &str,
+    ) -> Result<Option<(SessionRecord, User)>, AppError>;
     async fn touch(&self, id: &SessionId, at: DateTime<Utc>) -> Result<(), AppError>;
     async fn revoke(&self, id: &SessionId, at: DateTime<Utc>) -> Result<(), AppError>;
     async fn record_two_factor_failure(&self, id: &SessionId) -> Result<u32, AppError>;

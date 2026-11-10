@@ -58,6 +58,7 @@ impl RecordTypeCatalog {
     }
 
     pub fn invalidate(&self) {
+        crate::application::access::invalidate_access_catalog();
         if let Ok(mut cache) = self.cache.write() {
             *cache = None;
         }

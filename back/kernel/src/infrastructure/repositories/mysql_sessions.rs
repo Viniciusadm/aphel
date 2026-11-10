@@ -1,11 +1,16 @@
+use std::sync::LazyLock;
+
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use sqlx::{MySqlPool, Row};
+use sqlx::mysql::MySqlRow;
+use sqlx::{AssertSqlSafe, MySqlPool, Row};
 
 use crate::application::auth::{NewSession, SessionRecord, SessionRepository, SessionStage};
+use crate::domain::users::User;
 use crate::domain::{SessionId, UserId};
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
+use crate::infrastructure::repositories::mysql_users::{USER_COLUMNS, user_from_row};
 
 #[derive(Clone)]
 pub struct MySqlSessionRepository {
@@ -16,6 +21,22 @@ impl MySqlSessionRepository {
     pub(crate) fn new(pool: MySqlPool) -> Self {
         Self { pool }
     }
+}
+
+fn session_from_row(row: &MySqlRow, prefix: &str) -> Result<SessionRecord, AppError> {
+    let column = |name: &str| format!("{prefix}{name}");
+    let revoked_at: Option<NaiveDateTime> = row.try_get(column("revoked_at").as_str())?;
+    let stage: String = row.try_get(column("stage").as_str())?;
+    Ok(SessionRecord {
+        id: mapper::typed_id(row.try_get(column("id").as_str())?, SessionId::new)?,
+        user_id: mapper::typed_id(row.try_get(column("user_id").as_str())?, UserId::new)?,
+        stage: SessionStage::parse(&stage)
+            .ok_or_else(|| mapper::invalid_column("sessions.stage", &stage))?,
+        two_factor_attempts: row.try_get(column("two_factor_attempts").as_str())?,
+        last_seen_at: mapper::utc(row.try_get(column("last_seen_at").as_str())?),
+        expires_at: mapper::utc(row.try_get(column("expires_at").as_str())?),
+        revoked_at: revoked_at.map(mapper::utc),
+    })
 }
 
 #[async_trait]
@@ -49,21 +70,36 @@ impl SessionRepository for MySqlSessionRepository {
         .fetch_optional(&self.pool)
         .await?;
 
-        row.map(|row| {
-            let revoked_at: Option<NaiveDateTime> = row.try_get("revoked_at")?;
-            let stage: String = row.try_get("stage")?;
-            Ok(SessionRecord {
-                id: mapper::typed_id(row.try_get("id")?, SessionId::new)?,
-                user_id: mapper::typed_id(row.try_get("user_id")?, UserId::new)?,
-                stage: SessionStage::parse(&stage)
-                    .ok_or_else(|| mapper::invalid_column("sessions.stage", &stage))?,
-                two_factor_attempts: row.try_get("two_factor_attempts")?,
-                last_seen_at: mapper::utc(row.try_get("last_seen_at")?),
-                expires_at: mapper::utc(row.try_get("expires_at")?),
-                revoked_at: revoked_at.map(mapper::utc),
-            })
-        })
-        .transpose()
+        row.as_ref()
+            .map(|row| session_from_row(row, ""))
+            .transpose()
+    }
+
+    async fn find_with_user_by_token_hash(
+        &self,
+        token_hash: &str,
+    ) -> Result<Option<(SessionRecord, User)>, AppError> {
+        static SQL: LazyLock<String> = LazyLock::new(|| {
+            let user_columns = USER_COLUMNS
+                .split(", ")
+                .map(|column| format!("u.{column}"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!(
+                "SELECT s.id AS session_id, s.user_id AS session_user_id, s.stage AS session_stage, \
+                 s.two_factor_attempts AS session_two_factor_attempts, \
+                 s.last_seen_at AS session_last_seen_at, s.expires_at AS session_expires_at, \
+                 s.revoked_at AS session_revoked_at, {user_columns} \
+                 FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
+            )
+        });
+        let row = sqlx::query(AssertSqlSafe(SQL.as_str()))
+            .bind(token_hash)
+            .fetch_optional(&self.pool)
+            .await?;
+        row.as_ref()
+            .map(|row| Ok((session_from_row(row, "session_")?, user_from_row(row)?)))
+            .transpose()
     }
 
     async fn touch(&self, id: &SessionId, at: DateTime<Utc>) -> Result<(), AppError> {

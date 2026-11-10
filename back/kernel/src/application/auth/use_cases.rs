@@ -225,19 +225,14 @@ where
 
     pub async fn authenticate(&self, token: &str) -> Result<AuthenticatedRequest, AppError> {
         let now = self.now();
-        let session = self
+        let (session, user) = self
             .ports
             .sessions()
-            .find_by_token_hash(&self.ports.secrets().digest(token))
+            .find_with_user_by_token_hash(&self.ports.secrets().digest(token))
             .await?
-            .filter(|session| session.is_valid_at(now) && session.stage == SessionStage::Full)
-            .ok_or_else(invalid_session)?;
-        let user = self
-            .ports
-            .users()
-            .find_by_id(&session.user_id)
-            .await?
-            .filter(User::is_active)
+            .filter(|(session, user)| {
+                session.is_valid_at(now) && session.stage == SessionStage::Full && user.is_active()
+            })
             .ok_or_else(invalid_session)?;
 
         if now - session.last_seen_at >= self.settings.session_touch_interval {

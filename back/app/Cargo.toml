@@ -32,6 +32,7 @@ uuid.workspace = true
 getrandom.workspace = true
 base64.workspace = true
 reqwest.workspace = true
+mimalloc.workspace = true
 
 module-objects = { optional = true, package = "aphel-mod-objects", path = "../modules/objects" }
 module-notifications = { optional = true, package = "aphel-mod-notifications", path = "../modules/notifications" }

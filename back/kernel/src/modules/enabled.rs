@@ -62,8 +62,11 @@ impl EnabledModules {
             .into_iter()
             .filter(|key| self.compiled.contains(key.as_str()))
             .collect();
-        if let Ok(mut enabled) = self.enabled.write() {
+        if let Ok(mut enabled) = self.enabled.write()
+            && *enabled != keys
+        {
             *enabled = keys;
+            crate::application::access::invalidate_access_catalog();
         }
     }
 

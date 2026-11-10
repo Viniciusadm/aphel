@@ -1,5 +1,6 @@
-use axum::Json;
 use axum::Router;
+use axum::body::Bytes;
+use axum::http::header;
 use axum::routing::get;
 use utoipa::Modify;
 use utoipa::OpenApi;
@@ -133,13 +134,19 @@ pub fn router<S>(openapi: utoipa::openapi::OpenApi) -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
 {
-    let document = openapi.clone();
+    let document = match serde_json::to_vec(&openapi) {
+        Ok(document) => Bytes::from(document),
+        Err(error) => {
+            tracing::error!("could not serialize the OpenAPI document: {error}");
+            Bytes::new()
+        }
+    };
     Router::new()
         .route(
             OPENAPI_PATH,
             get(move || {
                 let document = document.clone();
-                async move { Json(document) }
+                async move { ([(header::CONTENT_TYPE, "application/json")], document) }
             }),
         )
         .merge(Scalar::with_url(DOCS_PATH, openapi))

@@ -28,8 +28,8 @@ impl EventConsumer for PluginEventsConsumer {
         EVENTS_CONSUMER
     }
 
-    fn accepts(&self, _event_type: &str) -> bool {
-        true
+    fn accepts(&self, event_type: &str) -> bool {
+        registry::has_event_consumers(event_type).unwrap_or(true)
     }
 
     async fn consume(&self, event: &DomainEvent) -> Result<(), AppError> {
