@@ -20,7 +20,7 @@ Each record type has a family of permissions named `<type>.<action>`. Contacts u
 | `<type>.delete` | Delete records. |
 | `<type>.export` | Export records. |
 
-Roles can also limit how far a permission reaches (for example your own records, your team's records or the whole organization). If a list looks shorter than a colleague's, the read scope of your role is the usual reason. See [Roles and permissions](/docs/admin/roles-and-permissions/).
+Roles can also limit how far a permission reaches (for example your own records, your team's records or the whole organization). If a list looks shorter than a colleague's, the read scope of your role is the usual reason. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
 
 ## Lists
 
@@ -28,7 +28,7 @@ A list shows records of one type as a table. The toolbar, from left to right, ho
 
 ### Search
 
-The search box filters the list by text. It looks at the fields marked **Searchable** in the field settings. See [Custom fields](/docs/using/custom-fields/). To search across all record types at once, use the command palette (Ctrl+K or Cmd+K) or the Search page, described in [Search and collaboration](/docs/using/search-and-collaboration/).
+The search box filters the list by text. It looks at the fields marked **Searchable** in the field settings. See [Custom fields](/_aphel/docs/using/custom-fields/). To search across all record types at once, use the command palette (Ctrl+K or Cmd+K) or the Search page, described in [Search and collaboration](/_aphel/docs/using/search-and-collaboration/).
 
 ### Sorting and paging
 
@@ -125,7 +125,7 @@ When you open a list without a link or filters, Aphel opens a default view if on
 
 If you open a link to a view that was deleted or that you cannot see, the list shows a notice that the linked view no longer exists or you do not have access to it.
 
-Views can also arrive through configuration packages, so a new workspace often starts with a few ready-made views. See [Configuration packages](/docs/admin/config-packages/).
+Views can also arrive through configuration packages, so a new workspace often starts with a few ready-made views. See [Configuration packages](/_aphel/docs/admin/config-packages/).
 
 ### Sharing a view by link
 
@@ -142,21 +142,21 @@ Record types that have at least one filterable date or date-and-time field offer
 - Filters, search and the archived option apply to the calendar too. Page size, columns and density apply only to the table.
 - Saving a view while in Calendar layout stores the layout and the date field, so the view reopens as a calendar.
 
-A separate calendar for tasks, meetings and connected calendars is described in [Tasks and calendar](/docs/using/tasks-and-calendar/).
+A separate calendar for tasks, meetings and connected calendars is described in [Tasks and calendar](/_aphel/docs/using/tasks-and-calendar/).
 
 ## Board layout
 
-Some lists offer a **Kanban** board instead of a table. Deals open as a board by default, grouped by pipeline stage, with a **Table** option next to it. Custom objects that have single-select fields offer a **Display mode** with **List** and **Kanban**, where you choose the **Group by** field. Views saved from a board remember the board layout. Pipelines and stages are covered in [Deals and pipelines](/docs/using/deals-and-pipelines/).
+Some lists offer a **Kanban** board instead of a table. Deals open as a board by default, grouped by pipeline stage, with a **Table** option next to it. Custom objects that have single-select fields offer a **Display mode** with **List** and **Kanban**, where you choose the **Group by** field. Views saved from a board remember the board layout. Pipelines and stages are covered in [Deals and pipelines](/_aphel/docs/using/deals-and-pipelines/).
 
 ## Selecting records
 
 Tick the box in a row to select it, or the header box to select the current page. When a page is selected, **Select all N matching records** extends the selection to every record that matches your filters, not just the page. **Clear selection** resets it. Changing the filters, search, view or archived mode clears the selection.
 
-With a selection, the toolbar offers the bulk actions that your enabled modules provide. See [Data tools](/docs/using/data-tools/).
+With a selection, the toolbar offers the bulk actions that your enabled modules provide. See [Data tools](/_aphel/docs/using/data-tools/).
 
 ## Creating and editing records
 
-**New** (for example **New deal**) opens a form dialog with the fields of that type. Required fields are marked **required**. The dialog offers **Continue in full form** to move to a full-page form when you need more room. The form follows the layout your administrator defined for creating records. Layouts, conditional visibility and conditional required rules are described in [Custom fields](/docs/using/custom-fields/#record-layouts).
+**New** (for example **New deal**) opens a form dialog with the fields of that type. Required fields are marked **required**. The dialog offers **Continue in full form** to move to a full-page form when you need more room. The form follows the layout your administrator defined for creating records. Layouts, conditional visibility and conditional required rules are described in [Custom fields](/_aphel/docs/using/custom-fields/#record-layouts).
 
 On a record page, select **Edit** for the full form, or click a field value to edit it in place when the field is editable. Leaving a form with unsaved changes asks whether to **Keep editing** or **Leave without saving**.
 
@@ -189,7 +189,7 @@ Other modules add their own: for example Revenue and Team on deals, Proposals, E
 
 If one section fails to load, the page shows a message for that section and the rest keeps working.
 
-The layout of the fields panel, including tabs, sections and columns of the view, is controlled by the "View" form layout of the record type. See [Custom fields](/docs/using/custom-fields/#record-layouts).
+The layout of the fields panel, including tabs, sections and columns of the view, is controlled by the "View" form layout of the record type. See [Custom fields](/_aphel/docs/using/custom-fields/#record-layouts).
 
 ## Sharing a record
 
@@ -248,5 +248,5 @@ The confirmation text when deleting a contact says the record can no longer be u
 Build a few views for the questions you ask every day, such as "My open deals closing this month" with a filter on **Owner is Me**, and set one as your default. Share the ones your team needs with **My team**.
 :::
 
-- A hidden or read-only field in a form is a field permission set by your administrator, not a bug. See [Custom fields](/docs/using/custom-fields/#field-permissions).
+- A hidden or read-only field in a form is a field permission set by your administrator, not a bug. See [Custom fields](/_aphel/docs/using/custom-fields/#field-permissions).
 - Selecting **Save changes** is only offered on views you can edit. On a view you cannot edit, use **Save as new view** to keep your version.

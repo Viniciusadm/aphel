@@ -5,7 +5,7 @@ sidebar:
   order: 8
 ---
 
-Aphel connects to outside services through modules. Each integration is a module you enable, and its credentials are module settings or per-user connections. Settings that hold secrets are encrypted with `APP_ENCRYPTION_KEY`, so set that key before configuring any of them. See [Security](/docs/admin/security/).
+Aphel connects to outside services through modules. Each integration is a module you enable, and its credentials are module settings or per-user connections. Settings that hold secrets are encrypted with `APP_ENCRYPTION_KEY`, so set that key before configuring any of them. See [Security](/_aphel/docs/admin/security/).
 
 All of this needs the `settings.manage` permission, except mailboxes, which each user connects for themselves.
 
@@ -35,7 +35,7 @@ System messages (invitations, password resets, notifications, reports, security 
 2. Fill the SMTP host, port (default 587), connection security (`starttls`, `tls` or `none`), user name, sender address and password. Host and sender are required together.
 3. Use Test to check the connection. Tick the option to send a test message to yourself.
 
-The password goes to the secret vault. You can also provide the values with the `SMTP_*` environment variables, which act as a fallback. See [Configuration](/docs/admin/configuration/#which-setting-wins). Until it is configured, links for invitations and password resets are shown on screen so you can copy them.
+The password goes to the secret vault. You can also provide the values with the `SMTP_*` environment variables, which act as a fallback. See [Configuration](/_aphel/docs/admin/configuration/#which-setting-wins). Until it is configured, links for invitations and password resets are shown on screen so you can copy them.
 
 ## Email mailboxes
 
@@ -47,7 +47,7 @@ Each user connects their own mailbox to read and send email from records. Open M
 | Gmail | Consent on Google's screen (read and send access to Gmail). Requires the Google module to be configured. |
 | Outlook | Consent on Microsoft's screen. Requires the Microsoft module to be configured. |
 
-Synchronization runs as a scheduled job on the worker. Tuning variables (`EMAIL_SYNC_*`) are in [Configuration](/docs/admin/configuration/). By default the server refuses to connect to private-network addresses. Set `EMAIL_ALLOW_PRIVATE_NETWORKS` to allow an internal mail server. Credentials are never returned by the API, only whether they are configured.
+Synchronization runs as a scheduled job on the worker. Tuning variables (`EMAIL_SYNC_*`) are in [Configuration](/_aphel/docs/admin/configuration/). By default the server refuses to connect to private-network addresses. Set `EMAIL_ALLOW_PRIVATE_NETWORKS` to allow an internal mail server. Credentials are never returned by the API, only whether they are configured.
 
 ## Google
 
@@ -74,7 +74,7 @@ The `sso` module connects any OpenID Connect provider (Okta, Keycloak, Auth0, En
 2. In Settings, Modules, configure Single sign-on: the issuer address or discovery document URL (an `https://` address), the client ID and secret, a label for the button, the email domains that use it, and optionally whether password sign-in is refused for those domains.
 3. Enable the module.
 
-Users whose email domain matches are offered the sign-in button. Sign-in attempts through single sign-on are rate limited to 30 per 5 minutes. See [Security](/docs/admin/security/).
+Users whose email domain matches are offered the sign-in button. Sign-in attempts through single sign-on are rate limited to 30 per 5 minutes. See [Security](/_aphel/docs/admin/security/).
 
 ## Telephony
 
@@ -117,11 +117,11 @@ For WhatsApp, a channel needs the phone number ID and three secrets: the access 
 
 ## Webhooks
 
-The `webhooks` module has two directions. See [Webhooks and events](/docs/reference/webhooks-and-events/) for payloads and signatures.
+The `webhooks` module has two directions. See [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/) for payloads and signatures.
 
 - **Outgoing** webhooks call your URL when events happen. Delivery behavior (https required, timeout, failures before disabling, history retention) is set in Settings, Outgoing webhooks, Delivery. Targets on private networks are blocked unless `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` is set.
 - **Incoming** webhooks give you a URL with a token (`/api/v1/hooks/{token}`) that outside systems call. A signing secret can be set and the token regenerated.
 
 ## Check an integration
 
-The System screen lists recent failures of automations, outgoing webhooks and integrations. See [Operations](/docs/admin/operations/). Plugins can add their own integrations, see [Plugins overview](/docs/plugins/overview/).
+The System screen lists recent failures of automations, outgoing webhooks and integrations. See [Operations](/_aphel/docs/admin/operations/). Plugins can add their own integrations, see [Plugins overview](/_aphel/docs/plugins/overview/).

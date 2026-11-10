@@ -5,13 +5,13 @@ sidebar:
   order: 13
 ---
 
-`@aphel/plugin-sdk` lets you write the backend of a plugin in JavaScript or TypeScript. You export handlers with `definePlugin`, call the [host API](/docs/plugins/host-api/) through a `ctx` object, and build the result into `backend.wasm` with `aphel-plugin-js`.
+`@aphel/plugin-sdk` lets you write the backend of a plugin in JavaScript or TypeScript. You export handlers with `definePlugin`, call the [host API](/_aphel/docs/plugins/host-api/) through a `ctx` object, and build the result into `backend.wasm` with `aphel-plugin-js`.
 
 The package lives in the Aphel repository at `sdk/js/aphel-plugin-sdk` and is used through a `file:` dependency. It is not published to npm.
 
 ## Setup
 
-1. Build the command line tool once (see [Your first plugin](/docs/plugins/first-plugin/)).
+1. Build the command line tool once (see [Your first plugin](/_aphel/docs/plugins/first-plugin/)).
 2. Scaffold a project:
 
 ```bash
@@ -137,7 +137,7 @@ Response helpers: `ok(body)` (200), `created(body)` (201) and `respond(status, b
 
 Bodies for `ctx.http` accept strings and `Uint8Array`; `json` serializes a value and sets `content-type: application/json`. The response has `status`, `ok`, `headers`, `header(name)`, `body` (bytes), `text()` and `json()`.
 
-Which functions are allowed in which handler is explained in [Host API](/docs/plugins/host-api/#where-side-effects-are-allowed). The types of every shape are in `src/index.d.ts` of the SDK: `Ctx`, `HookCall`, `PluginEvent`, `Request`, `Response`, `ActionCall`, `WidgetRequest`, `EffectCommand` and the rest.
+Which functions are allowed in which handler is explained in [Host API](/_aphel/docs/plugins/host-api/#where-side-effects-are-allowed). The types of every shape are in `src/index.d.ts` of the SDK: `Ctx`, `HookCall`, `PluginEvent`, `Request`, `Response`, `ActionCall`, `WidgetRequest`, `EffectCommand` and the rest.
 
 ## Errors
 
@@ -153,7 +153,7 @@ throw PluginError.forbidden('not_allowed', 'You cannot do that.')
 ```
 
 - Errors raised by the host (a denied permission, a failed validation, `plugin_write_in_hook`) are thrown as `PluginError` with the host's code, status and fields. You can catch and inspect them: `error.code`, `error.status`, `error.fields`.
-- An error that you let escape is returned to the caller as it is. See the mapping in [Hooks](/docs/plugins/hooks/#rejecting-with-errors).
+- An error that you let escape is returned to the caller as it is. See the mapping in [Hooks](/_aphel/docs/plugins/hooks/#rejecting-with-errors).
 - Any other exception, for example a `TypeError` from a bug, is converted into `PluginError('plugin_error', message)` with status `422`. Fix the bug instead of relying on it.
 - Codes must be 1 to 64 characters of lowercase letters, digits and `_`, otherwise the caller sees `plugin_error`.
 
@@ -182,7 +182,7 @@ Point the build script at the `.ts` entry: `aphel-plugin-js src/plugin.ts -o bac
 - Memory is limited to 64 MB per call. Large JSON values and big `Uint8Array` bodies count against it.
 
 
-HTTP requests support mTLS through a declared `tls_identity` setting: pass `clientIdentity` to `ctx.http.send`. Deferred HTTP effects use `client_identity`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.
+HTTP requests support mTLS through a declared `tls_identity` setting: pass `clientIdentity` to `ctx.http.send`. Deferred HTTP effects use `client_identity`. See [Client certificates](/_aphel/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.
 
 
-Protected HTTP authentication, durable HTTP result continuations and byte signing are also available. See [Settings and secrets](/docs/plugins/settings-and-secrets/) and [Host API](/docs/plugins/host-api/). Payment settlement helpers are available in `PaymentLedger`; callers remain responsible for authenticated provider state and atomic persistence.
+Protected HTTP authentication, durable HTTP result continuations and byte signing are also available. See [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/) and [Host API](/_aphel/docs/plugins/host-api/). Payment settlement helpers are available in `PaymentLedger`; callers remain responsible for authenticated provider state and atomic persistence.

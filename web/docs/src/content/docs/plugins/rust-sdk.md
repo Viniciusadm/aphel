@@ -158,11 +158,11 @@ Constants: `hooks::{SAVING, VALIDATING, SAVED, DELETING, ARCHIVING, COMMITTED, D
 | `ctx.hook_state()`, `ctx.execution_context()` | context |
 | `ctx.now()`, `ctx.log(level, message)`, `ctx.info(message)` | `now`, `log` |
 
-Which calls are allowed where is in [Host API](/docs/plugins/host-api/#where-side-effects-are-allowed).
+Which calls are allowed where is in [Host API](/_aphel/docs/plugins/host-api/#where-side-effects-are-allowed).
 
 ## Errors
 
-`PluginError` has `code`, `message`, `status: Option<u16>` and `fields: Vec<FieldError>`. Constructors: `PluginError::new(code, message)`, `field(code, field, message)`, `not_found`, `forbidden`, `with_status(status)` and `internal(message)` (code `plugin_error`). Host errors come back as `Err(PluginError)` with the host's code and status; return them with `?` to pass them on. The mapping of codes and statuses to the caller is in [Hooks](/docs/plugins/hooks/#rejecting-with-errors).
+`PluginError` has `code`, `message`, `status: Option<u16>` and `fields: Vec<FieldError>`. Constructors: `PluginError::new(code, message)`, `field(code, field, message)`, `not_found`, `forbidden`, `with_status(status)` and `internal(message)` (code `plugin_error`). Host errors come back as `Err(PluginError)` with the host's code and status; return them with `?` to pass them on. The mapping of codes and statuses to the caller is in [Hooks](/_aphel/docs/plugins/hooks/#rejecting-with-errors).
 
 A panic, an out-of-bounds access or running out of memory traps the instance. The caller receives `503 plugin_failed`; the details are written to the server log. Return errors instead of panicking.
 
@@ -174,7 +174,7 @@ A panic, an out-of-bounds access or running out of memory traps the instance. Th
 - The target is `wasm32-wasip2`. Crates that need operating system threads, sockets or a file system will not work, because the sandbox is empty.
 
 
-HTTP requests support mTLS through a declared `tls_identity` setting: call `.client_identity(name)` on `HttpRequest`. Deferred HTTP effects use `client_identity`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.
+HTTP requests support mTLS through a declared `tls_identity` setting: call `.client_identity(name)` on `HttpRequest`. Deferred HTTP effects use `client_identity`. See [Client certificates](/_aphel/docs/plugins/settings-and-secrets/#client-certificates-mtls) for configuration and examples.
 
 
-Protected HTTP authentication, durable HTTP result continuations and byte signing are also available. See [Settings and secrets](/docs/plugins/settings-and-secrets/) and [Host API](/docs/plugins/host-api/). Payment settlement helpers are available in `payments::PaymentLedger`; callers remain responsible for authenticated provider state and atomic persistence.
+Protected HTTP authentication, durable HTTP result continuations and byte signing are also available. See [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/) and [Host API](/_aphel/docs/plugins/host-api/). Payment settlement helpers are available in `payments::PaymentLedger`; callers remain responsible for authenticated provider state and atomic persistence.

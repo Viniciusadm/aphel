@@ -313,6 +313,6 @@ An object with records cannot be deleted. The dialog offers **Deactivate**, whic
 
 - Plan keys before creating fields, because keys are permanent. Names can be changed at any time.
 - The Fields screen offers deactivation, not deletion. Nothing is lost, and you can activate a field again.
-- Use configuration packages to copy fields, layouts, views and pipelines between environments. See [Configuration packages](/docs/admin/config-packages/).
-- For the full list of permission keys, see the [permissions catalog](/docs/reference/permissions-catalog/). To work with fields over the API, see the [records API](/docs/reference/records-api/).
-- Related reading: [Records and views](/docs/using/records-and-views/) and [Roles and permissions](/docs/admin/roles-and-permissions/).
+- Use configuration packages to copy fields, layouts, views and pipelines between environments. See [Configuration packages](/_aphel/docs/admin/config-packages/).
+- For the full list of permission keys, see the [permissions catalog](/_aphel/docs/reference/permissions-catalog/). To work with fields over the API, see the [records API](/_aphel/docs/reference/records-api/).
+- Related reading: [Records and views](/_aphel/docs/using/records-and-views/) and [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).

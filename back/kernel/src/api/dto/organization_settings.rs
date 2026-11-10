@@ -116,6 +116,10 @@ pub struct OrganizationSettingsResponse {
     #[schema(example = "https://app.example.com")]
     pub public_base_url: Option<String>,
     pub effective_public_base_url: String,
+    #[schema(example = "/app")]
+    pub app_base_path: String,
+    #[schema(example = "https://app.example.com/app")]
+    pub app_base_url: String,
     pub secure_cookies: bool,
     pub max_upload_mb: u64,
     pub storage: StorageSettingsDto,
@@ -133,6 +137,8 @@ impl From<OrganizationConfigView> for OrganizationSettingsResponse {
         let config = view.config;
         Self {
             effective_public_base_url: config.public_base_url().to_owned(),
+            app_base_url: config.app_base_url(),
+            app_base_path: config.mounts.app.base_path.clone(),
             secure_cookies: config.secure_cookies(),
             public_base_url: config.public_base_url,
             max_upload_mb: config.max_upload_mb,
@@ -150,6 +156,8 @@ impl From<OrganizationConfigView> for OrganizationSettingsResponse {
 #[derive(Deserialize, ToSchema)]
 pub struct UpdateOrganizationSettingsRequest {
     pub public_base_url: Option<String>,
+    #[schema(example = "/app")]
+    pub app_base_path: Option<String>,
     #[schema(minimum = 1, maximum = 4096)]
     pub max_upload_mb: Option<u64>,
     pub storage: Option<StorageSettingsDto>,
@@ -175,6 +183,7 @@ impl UpdateOrganizationSettingsRequest {
         };
         UpdateOrganizationConfig {
             public_base_url: self.public_base_url,
+            app_base_path: self.app_base_path,
             max_upload_mb: self.max_upload_mb,
             storage: self.storage.map(Into::into),
             storage_secret,

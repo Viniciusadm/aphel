@@ -64,13 +64,13 @@ async fn get_settings(
     path = "/organization/settings",
     tag = TAG,
     operation_id = "organization_settings_update",
-    description = "Updates the sections that are present; omitted sections keep their value. `storage_secret_access_key` stores the S3 secret key in the vault (`null` or an empty string removes it). Changes apply without restarting the server or the worker. Publishes `organization.settings_updated` (payload with the names of the changed settings, never values of secrets) and writes the audit entry with secrets as `\"[redacted]\"`. Changing the storage driver does not copy existing files.",
+    description = "Updates the sections that are present; omitted sections keep their value. `storage_secret_access_key` stores the S3 secret key in the vault (`null` or an empty string removes it). Changes apply without restarting the server or the worker. Publishes `organization.settings_updated` (payload with the names of the changed settings, never values of secrets) and writes the audit entry with secrets as `\"[redacted]\"`. Changing the storage driver does not copy existing files. `app_base_path` moves the internal app (`/` or a single segment such as `/app`) and also requires `system.manage`; the app always stays reachable at `/_aphel/app/`.",
     security(("session_cookie" = [])),
     request_body = UpdateOrganizationSettingsRequest,
     responses(
         (status = 200, description = "Updated settings", body = Data<OrganizationSettingsResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage`, or `system.manage` when changing `app_base_path` (`permission_denied`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid fields", body = ErrorEnvelope),
     )
 )]

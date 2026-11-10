@@ -16,14 +16,14 @@ In the menu they appear as **Contacts** and **Companies**. Behind them are the `
 | Contacts | `people` | Required by the base CRM blueprint, so it is on in every blueprint |
 | Companies | `organizations` | Required by the base CRM blueprint, so it is on in every blueprint |
 | Duplicate detection and merge | `duplicates` | Recommended by the base CRM blueprint; an administrator can switch it off |
-| Lifecycle stage and the lead inbox | `leads` | Optional. See [Leads](/docs/using/leads/) |
-| Score | `scoring` | Optional. See [Leads](/docs/using/leads/) |
+| Lifecycle stage and the lead inbox | `leads` | Optional. See [Leads](/_aphel/docs/using/leads/) |
+| Score | `scoring` | Optional. See [Leads](/_aphel/docs/using/leads/) |
 
-If something described here is missing for you, the module is disabled or you lack the permission listed for it. See [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/).
+If something described here is missing for you, the module is disabled or you lack the permission listed for it. See [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## Contacts
 
-Open **Contacts** in the menu (or press `g` then `c`). You see the contacts your role allows you to read, with the search box, filters, saved views and the archived filter described in [Records and views](/docs/using/records-and-views/).
+Open **Contacts** in the menu (or press `g` then `c`). You see the contacts your role allows you to read, with the search box, filters, saved views and the archived filter described in [Records and views](/_aphel/docs/using/records-and-views/).
 
 ### Fields
 
@@ -41,7 +41,7 @@ Open **Contacts** in the menu (or press `g` then `c`). You see the contacts your
 | Source | Where the contact came from. Up to 140 characters. |
 | Notes | Free text. |
 
-Email tracking adds read-only fields such as **Last contact**, **Last email received**, **Last email sent**, **Email interactions** and **Last contacted by**. The [Leads](/docs/using/leads/) module adds **Lifecycle stage** and the scoring module adds **Score**. Administrators can add more fields; see [Custom fields](/docs/using/custom-fields/).
+Email tracking adds read-only fields such as **Last contact**, **Last email received**, **Last email sent**, **Email interactions** and **Last contacted by**. The [Leads](/_aphel/docs/using/leads/) module adds **Lifecycle stage** and the scoring module adds **Score**. Administrators can add more fields; see [Custom fields](/_aphel/docs/using/custom-fields/).
 
 ### Create a contact
 
@@ -184,7 +184,7 @@ You need permission to update the primary record and to delete the duplicate (`p
 | `people.export`, `organizations.export` | Export records. Not granted to the Member role by default. |
 | `settings.manage` | Edit duplicate detection rules, run the check, restore records from the trash. |
 
-Each record permission also has a scope: own records, the records of your teams, or every record. By default Members see their own records, Managers see their teams' records and Admins see everything. See [Roles and permissions](/docs/admin/roles-and-permissions/) to adjust this.
+Each record permission also has a scope: own records, the records of your teams, or every record. By default Members see their own records, Managers see their teams' records and Admins see everything. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/) to adjust this.
 
 ## Gotchas
 

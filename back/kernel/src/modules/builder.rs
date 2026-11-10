@@ -46,6 +46,7 @@ pub enum RouteMount {
     Api,
     Public,
     Root,
+    App,
 }
 
 impl RouteMount {
@@ -54,13 +55,14 @@ impl RouteMount {
             Self::Api => "api",
             Self::Public => "public",
             Self::Root => "root",
+            Self::App => "app",
         }
     }
 
     pub fn prefix(&self) -> &'static str {
         match self {
             Self::Api | Self::Public => "/api/v1",
-            Self::Root => "",
+            Self::Root | Self::App => "",
         }
     }
 }
@@ -210,6 +212,13 @@ impl AppBuilder {
         F: Fn(&AppState) -> OpenApiRouter<AppState> + Send + Sync + 'static,
     {
         self.route(RouteMount::Root, Arc::new(factory))
+    }
+
+    pub fn app_routes<F>(&mut self, factory: F) -> &mut Self
+    where
+        F: Fn(&AppState) -> OpenApiRouter<AppState> + Send + Sync + 'static,
+    {
+        self.route(RouteMount::App, Arc::new(factory))
     }
 
     pub fn on<K, F>(&mut self, hook: K, priority: i32, handler: F) -> &mut Self

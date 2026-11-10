@@ -137,7 +137,7 @@ Use a `secret` setting for anything you must not expose: API keys, tokens, signi
 
 Handle secrets in plugin code with care. The plugin is trusted with its own secrets: it can send them to any host in `[http] allowed_hosts` or return them in a route response. A deferred effect stores its command as JSON. For external authentication, use `http_credential` references, which the backend resolves at execution. Do not copy secrets into command headers, URLs, bodies or context. A plain `secret` remains appropriate when the plugin itself needs the value; protected credentials are appropriate when only the backend should use it.
 
-The vault is covered in [Security model](/docs/plugins/security-model/) and for operators in [Security](/docs/admin/security/).
+The vault is covered in [Security model](/_aphel/docs/plugins/security-model/) and for operators in [Security](/_aphel/docs/admin/security/).
 
 
 ## Client certificates (mTLS)

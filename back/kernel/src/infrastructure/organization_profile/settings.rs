@@ -9,9 +9,11 @@ use sqlx::{MySqlPool, Row};
 
 use crate::application::organization_profile::{
     OrganizationConfig, OrganizationConfigCatalog, OrganizationConfigPorts,
-    OrganizationConfigRepository, OrganizationConfigSource,
+    OrganizationConfigRepository, OrganizationConfigSource, OrganizationConfigUseCases, ROOT_PATH,
+    SecretChange, UpdateOrganizationConfig,
 };
 use crate::database::transaction::MySqlTx;
+use crate::domain::access::AccessScope;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
 use crate::infrastructure::mail::SmtpMailerProvider;
@@ -81,6 +83,36 @@ pub fn organization_config_catalog(pool: &MySqlPool) -> Arc<OrganizationConfigCa
             )))
         })
         .clone()
+}
+
+pub async fn reset_app_mount(
+    pool: MySqlPool,
+    secrets: SharedSecretVault,
+    events: SharedEventPublisher,
+    audit: SharedAuditLog,
+    catalog: Arc<OrganizationConfigCatalog>,
+) -> Result<String, AppError> {
+    let use_cases = OrganizationConfigUseCases::new(MySqlOrganizationConfigPorts::new(
+        pool, secrets, events, audit, catalog,
+    ));
+    let view = use_cases
+        .update(
+            &AccessScope::system(),
+            UpdateOrganizationConfig {
+                public_base_url: None,
+                app_base_path: Some(ROOT_PATH.to_owned()),
+                max_upload_mb: None,
+                storage: None,
+                storage_secret: SecretChange::Keep,
+                mail: None,
+                mail_secret: SecretChange::Keep,
+                api_tokens: None,
+                extensions: Default::default(),
+                ip: None,
+            },
+        )
+        .await?;
+    Ok(view.config.app_base_url())
 }
 
 pub fn spawn_config_refresh(

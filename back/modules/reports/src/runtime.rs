@@ -87,7 +87,7 @@ impl JobHandler for ReportDeliveryHandler {
             &ctx,
             &request,
             self.mailer.as_ref(),
-            &self.public_url.get(),
+            &self.public_url.app_root(),
             context.attempt >= context.max_attempts,
         )
         .await

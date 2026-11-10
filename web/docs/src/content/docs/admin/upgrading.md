@@ -19,7 +19,7 @@ To make sure nobody upgrades by simply starting a new binary, set `RUN_MIGRATION
 
 ## Upgrade steps
 
-1. **Back up** the database and the uploaded files, right before the upgrade. See [Backup and restore](/docs/admin/backup-and-restore/).
+1. **Back up** the database and the uploaded files, right before the upgrade. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 2. **Put the new binary or image in place**, keeping the old one for rollback. The running server can stay up for now.
 3. **Check.** Run the upgrade in check mode with the new binary. It reports the requirements and the pending migrations, and changes nothing.
 
@@ -34,7 +34,7 @@ To make sure nobody upgrades by simply starting a new binary, set `RUN_MIGRATION
    aphel upgrade --backup-confirmed
    ```
 
-6. **Start** the new `aphel serve` and `aphel worker`, then check `/health/ready` or the System screen.
+6. **Start** the new `aphel serve` and `aphel worker`, then check `/_aphel/health/ready` or the System screen.
 
 ### With Docker Compose
 
@@ -78,16 +78,16 @@ The flag is a statement of fact. Aphel does not verify the backup.
 
 ## After the upgrade
 
-On success the command prints how many migrations were applied and from which version to which. It synchronizes system fields and custom-object fields, and writes a record of the upgrade (versions, applied migrations, host, outcome) in the `system_upgrades` table. It then asks you to restart `aphel serve` and `aphel worker` and to check `/health/ready`.
+On success the command prints how many migrations were applied and from which version to which. It synchronizes system fields and custom-object fields, and writes a record of the upgrade (versions, applied migrations, host, outcome) in the `system_upgrades` table. It then asks you to restart `aphel serve` and `aphel worker` and to check `/_aphel/health/ready`.
 
-The System screen shows the migration state and warns when migrations are pending. Modules whose version is newer than the version installed for the organization show "Update pending" on the Modules screen. See [Modules](/docs/admin/modules/).
+The System screen shows the migration state and warns when migrations are pending. Modules whose version is newer than the version installed for the organization show "Update pending" on the Modules screen. See [Modules](/_aphel/docs/admin/modules/).
 
 ## When an upgrade fails
 
 MySQL commits schema changes one by one, so a failed upgrade can leave the database partially migrated. The command records the failure and prints the migrations that were applied before it stopped. To recover:
 
 1. Stop every Aphel process.
-2. Restore the backup taken before the upgrade, with `restore.sh`. See [Backup and restore](/docs/admin/backup-and-restore/).
+2. Restore the backup taken before the upgrade, with `restore.sh`. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 3. Put the previous binary or image back and start it.
 4. Run `aphel doctor` and attach its report if you open an issue.
 

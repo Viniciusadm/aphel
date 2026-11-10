@@ -5,13 +5,13 @@ sidebar:
   order: 12
 ---
 
-The host API is the only way a backend reaches Aphel. It is the `host` interface of the WebAssembly contract `aphel:plugin@1.0.0`. The [JavaScript SDK](/docs/plugins/js-sdk/) and the [Rust SDK](/docs/plugins/rust-sdk/) wrap it; this page describes the functions at the contract level and gives the SDK names.
+The host API is the only way a backend reaches Aphel. It is the `host` interface of the WebAssembly contract `aphel:plugin@1.0.0`. The [JavaScript SDK](/_aphel/docs/plugins/js-sdk/) and the [Rust SDK](/_aphel/docs/plugins/rust-sdk/) wrap it; this page describes the functions at the contract level and gives the SDK names.
 
 ## Conventions
 
 - Complex values travel as **JSON strings**. The SDKs parse and stringify for you. Record ids are UUID strings. Timestamps are RFC 3339.
 - A function that fails returns a **plugin error**: `{ code, message, status, fields }`. The JavaScript SDK throws a `PluginError`, the Rust SDK returns `Err(PluginError)`. Host errors keep the HTTP status and code that the REST API would use, so a plugin that does not catch them propagates them to the caller. Internal failures (HTTP 500) are reported with the code `internal_error` and the message `internal error`. A database deadlock or lock timeout is reported as `409 version_conflict`.
-- Every record function uses the permissions of the current call: the actor's permissions intersected with the plugin's capabilities. See [Permissions and roles](/docs/plugins/permissions-and-roles/).
+- Every record function uses the permissions of the current call: the actor's permissions intersected with the plugin's capabilities. See [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/).
 
 ### Where side effects are allowed
 
@@ -30,7 +30,7 @@ The functions guarded by this table are `create-record`, `update-record`, `delet
 
 ## Records
 
-Record type keys are strings such as `library.book` or `people.person`. Records are JSON objects as described in [Entities and fields](/docs/plugins/entities-and-fields/#record-shape).
+Record type keys are strings such as `library.book` or `people.person`. Records are JSON objects as described in [Entities and fields](/_aphel/docs/plugins/entities-and-fields/#record-shape).
 
 ### get-record
 
@@ -78,7 +78,7 @@ Runs an aggregation with the caller's read scope.
 }
 ```
 
-Keys: `record_type` (required), `filter`, `group_by` (list of `{ field, granularity? }`), `metrics` (list of `{ fn, field?, to?, unit? }` with `fn` one of `count`, `sum`, `avg`, `min`, `max`), `compare_to_previous`, `period` (`{ field, preset?, from?, to? }`), `sort`, `limit` and `archived` (`exclude`, `include` or `only`). Unknown keys fail with `422`. The result has the same shape as the aggregate endpoint described in [Records API](/docs/reference/records-api/).
+Keys: `record_type` (required), `filter`, `group_by` (list of `{ field, granularity? }`), `metrics` (list of `{ fn, field?, to?, unit? }` with `fn` one of `count`, `sum`, `avg`, `min`, `max`), `compare_to_previous`, `period` (`{ field, preset?, from?, to? }`), `sort`, `limit` and `archived` (`exclude`, `include` or `only`). Unknown keys fail with `422`. The result has the same shape as the aggregate endpoint described in [Records API](/_aphel/docs/reference/records-api/).
 
 ### iterate-records
 
@@ -134,7 +134,7 @@ Sets a free-text reason (trimmed; empty clears it) that is stored with the audit
 | --- | --- |
 | `upload-file(record-type, record-id, filename, body) -> string` | Stores a file attached to a record. Returns the file as a JSON string: `{ id, name, content_type, size, checksum, created_at, download_path }`. The upload limits and permissions of the files API apply. Effect: yes. JavaScript `ctx.uploadFile`, Rust `ctx.upload_file`. |
 | `read-file(file-id) -> (file-json, bytes)` | Reads a file the caller may download. Fails with `413 plugin_file_too_large` above 10 MiB. JavaScript `ctx.readFile` returns `{ file, body }`. |
-| `respond-bytes(content-type, filename?, body)` | Makes the route answer with a file. Routes only. See [Routes](/docs/plugins/routes/#downloads-and-raw-bodies). |
+| `respond-bytes(content-type, filename?, body)` | Makes the route answer with a file. Routes only. See [Routes](/_aphel/docs/plugins/routes/#downloads-and-raw-bodies). |
 
 ## Authorization
 
@@ -174,7 +174,7 @@ The WIT contract includes HTTP `client-identity` / `authentication`, `effect-res
 | `headers` | List of name/value pairs. |
 | `body` | Optional bytes, up to 5 MiB. |
 | `authentication` | Optional name of a declared `http_credential`; JS `authentication`, Rust `.authentication(name)`. Resolved in the backend for the allowed HTTPS origin. |
-| `client-identity` | Optional name of a declared `tls_identity` setting; JS `clientIdentity`, Rust `.client_identity(name)`. See [Client certificates](/docs/plugins/settings-and-secrets/#client-certificates-mtls). |
+| `client-identity` | Optional name of a declared `tls_identity` setting; JS `clientIdentity`, Rust `.client_identity(name)`. See [Client certificates](/_aphel/docs/plugins/settings-and-secrets/#client-certificates-mtls). |
 
 The response has `status`, `headers` and `body` (bytes, up to 5 MiB). A non-2xx status is returned as a normal response, not as an error. The JavaScript response also has `ok`, `text()`, `json()` and `header(name)`; the request accepts `json` as a shortcut for a JSON body.
 
@@ -190,7 +190,7 @@ Policy:
 
 | Function | Description |
 | --- | --- |
-| `notify(notification)` | Sends an in-app/email/push notification of a declared kind to a user. Effect: yes. Fields and errors in [Automation and widgets](/docs/plugins/automation-and-widgets/#notifications). JavaScript `ctx.notify({ kind, recipientUserId, title, body, record, link, data, dedupeKey })`. |
+| `notify(notification)` | Sends an in-app/email/push notification of a declared kind to a user. Effect: yes. Fields and errors in [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/#notifications). JavaScript `ctx.notify({ kind, recipientUserId, title, body, record, link, data, dedupeKey })`. |
 | `emit(name, record-type?, record-id?, payload-json)` | Publishes `plugin.<key>.<name>`. The name must be declared in `[[emits]]` (`404 plugin_event_not_declared`), the payload a JSON object of at most 64 KiB, and the record, if given, readable. Writes an audit entry. Effect: yes. JavaScript `ctx.emit(name, { type, id } | null, payload)`. |
 
 ## Module operations
@@ -342,11 +342,11 @@ Deferred commands are stored as JSON. Use protected credential references for au
 
 | Function | Description |
 | --- | --- |
-| `hook-state-json() -> string` | The record snapshot of the current hook, or `null` outside hooks. See [Hooks](/docs/plugins/hooks/#payload). JavaScript `ctx.hookState()`. |
+| `hook-state-json() -> string` | The record snapshot of the current hook, or `null` outside hooks. See [Hooks](/_aphel/docs/plugins/hooks/#payload). JavaScript `ctx.hookState()`. |
 | `execution-context-json() -> string` | Identity of the current execution: `{ id, correlation_id, parent_id, event_id, executor, executor_kind, automation, initiator, trigger, chain }`. `trigger` is `hook`, `committed`, `event`, `schedule`, `automation`, `route`, `widget`, `operation`, `contribution` or `privacy`. `automation` is `{ automation_id, run_id, step_id }` inside automation actions. `chain` lists the plugins already in the call chain (at most 16). JavaScript `ctx.executionContext()`. |
-| `settings-json() -> string` | Effective settings, without secrets. See [Settings and secrets](/docs/plugins/settings-and-secrets/). |
+| `settings-json() -> string` | Effective settings, without secrets. See [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/). |
 | `secret(key) -> string?` | A declared `secret` setting. `404 plugin_secret_not_declared` for other keys. |
-| `organization-json() -> string` | `{ name, locale, time_zone, currency, primary_color }`. `404 organization_not_installed` before setup. |
+| `organization-json() -> string` | `{ name, locale, time_zone, currency, primary_color, public_base_url, app_base_url }`. `app_base_url` is the public address plus the app base path: build links to app screens from it, never from `public_base_url`. `404 organization_not_installed` before setup. |
 | `list-users(query-json) -> string` | Active users: `{ data: [{ id, name, email, role: { key, name }, teams: [{ id, name }] }], total }`. Query keys: `search` (up to 100 characters, matches name or email), `role` (role key), `team_id`, `ids` (up to 100), `page`, `per_page` (1 to 100, default 50). Unknown keys fail with `422`. Fails with `403 plugin_directory_unavailable` when there is neither a signed-in actor nor the installer's identity. |
 | `list-roles() -> string` | `[{ key, name, is_system }]`. |
 | `list-teams() -> string` | `[{ id, name, parent_id }]`. |
@@ -384,7 +384,7 @@ The directory functions (`list-users`, `list-roles`, `list-teams`) and `organiza
 | `plugin_failed` | 503 | The plugin trapped, timed out, ran out of memory or its backend does not load. |
 | `plugin_owner_inactive` | 503 | The installer is no longer an active member. |
 
-Errors from the record API (`permission_denied`, `validation_error`, `field_not_accessible`, ...) are described in [Errors](/docs/reference/errors/).
+Errors from the record API (`permission_denied`, `validation_error`, `field_not_accessible`, ...) are described in [Errors](/_aphel/docs/reference/errors/).
 
 
 ### Durable HTTP results and continuations

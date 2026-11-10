@@ -5,10 +5,10 @@ sidebar:
   order: 50
 ---
 
-The web side of a plugin is an ES module that the Aphel web app imports while it starts. The module registers screens, navigation entries, record tabs and other contributions through a small API. This page covers everything around that module: the package layout, what the host shares with your code, how and when the bundle loads, translations and CSS. The registration API itself is documented in [Screens and contributions](/docs/plugins/web-screens/).
+The web side of a plugin is an ES module that the Aphel web app imports while it starts. The module registers screens, navigation entries, record tabs and other contributions through a small API. This page covers everything around that module: the package layout, what the host shares with your code, how and when the bundle loads, translations and CSS. The registration API itself is documented in [Screens and contributions](/_aphel/docs/plugins/web-screens/).
 
 :::caution
-A web bundle runs inside the page with the session of every signed-in user who opens it. The backend capabilities of the plugin (`requires`) do not limit it. Administrators must acknowledge each version before it can be installed or enabled. See [Security model](/docs/plugins/security-model/).
+A web bundle runs inside the page with the session of every signed-in user who opens it. The backend capabilities of the plugin (`requires`) do not limit it. Administrators must acknowledge each version before it can be installed or enabled. See [Security model](/_aphel/docs/plugins/security-model/).
 :::
 
 ## Package layout
@@ -26,7 +26,7 @@ public = "web/app"
 | --- | --- | --- |
 | `entry` | `web/index.js` | The ES module that default-exports `defineModule(...)`. |
 | `style` | none | An optional stylesheet linked into the page before the entry is imported. |
-| `public` | none | A directory with a static web app served at `/p/<key>/`. See [Public web apps](/docs/plugins/public-web-apps/). |
+| `public` | none | A directory with a static web app served at `/p/<key>/`. See [Public web apps](/_aphel/docs/plugins/public-web-apps/). |
 
 Rules that the installer and the server enforce:
 
@@ -36,7 +36,7 @@ Rules that the installer and the server enforce:
 - Assets are sent with `Cache-Control: public, max-age=31536000, immutable`. The entry and style URLs carry a `?v=` parameter derived from the package checksum, so a new package always loads a new entry. Other files are cached for a year under their own URL. Give every chunk, image and font a content hash in its file name (Vite does this by default), otherwise browsers can keep serving the old file after an upgrade.
 - File types are detected by extension. `.js`, `.mjs`, `.css`, `.json`, `.wasm`, `.html`, `.svg`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.ico`, `.txt` and `.woff2` get a proper content type. Anything else is sent as `application/octet-stream`.
 
-The `aphel-plugin` CLI packs the contents of `web/dist/` of your project as `web/` inside the package. A project therefore keeps its build output in `web/dist/`, and `entry = "web/index.js"` corresponds to `web/dist/index.js` on disk. See [Packaging](/docs/plugins/packaging/).
+The `aphel-plugin` CLI packs the contents of `web/dist/` of your project as `web/` inside the package. A project therefore keeps its build output in `web/dist/`, and `entry = "web/index.js"` corresponds to `web/dist/index.js` on disk. See [Packaging](/_aphel/docs/plugins/packaging/).
 
 ## The module contract
 
@@ -85,7 +85,7 @@ The page contains an import map. Your bundle must not ship its own copy of these
 
 Everything else is yours to bundle, including `lucide-react`. The host does not provide an icon package to plugins, and navigation entries and tabs take a `LucideIcon` component, so import icons from `lucide-react` (named imports are tree-shaken) or pass any component that accepts `className` and `size`.
 
-In development builds of Aphel the import map points at the source files of the web app. In production builds it points at stable files served under `/shared/`. Your code imports the same specifiers in both cases.
+In development builds of Aphel the import map points at the source files of the web app. In production builds it points at stable files served under `/_aphel/shared/`. Your code imports the same specifiers in both cases.
 
 ### What `@aphel/web-sdk` exports
 
@@ -103,7 +103,7 @@ In development builds of Aphel the import map points at the source files of the 
 | Settings helpers | `useRoles`, `useTeams`, `useAllMembers`, `useFields`, `useOrganizationConfiguration`, `RequirePermission`, `NoAccess`, `SortableList`, `FormRow`, `ChoiceSelect`, `FormField` |
 | Files | `AttachmentsPanel`, `uploadFile`, `fileDownloadUrl`, `useAttachments` |
 | Command palette | `useRegisterCommands`, `PaletteCommand` |
-| UI library | Everything in `@aphel/ui`. See [UI library](/docs/plugins/ui-library/). |
+| UI library | Everything in `@aphel/ui`. See [UI library](/_aphel/docs/plugins/ui-library/). |
 
 ## When and how bundles load
 
@@ -117,7 +117,7 @@ Consequences:
 
 - A plugin takes effect only after a page reload. The Plugins page reloads the application a moment after an install, upgrade, enable, disable or removal. When you install through the API you reload the page yourself.
 - A bundle that fails to load (network error, syntax error, missing default export, key mismatch) is logged with `console.error` and the user sees a notice titled "Part of the system did not load" naming the plugin. The rest of the application keeps working.
-- Interface plugins (`[ui]`) are listed only when they are the one chosen for the current user or the organization default. See [UI plugins](/docs/plugins/ui-plugins/).
+- Interface plugins (`[ui]`) are listed only when they are the one chosen for the current user or the organization default. See [UI plugins](/_aphel/docs/plugins/ui-plugins/).
 - If the list request itself does not succeed, no plugin bundle loads.
 - A plugin module is active as soon as the module list of the installation has loaded, and disabled plugins are never listed, so enablement is controlled entirely by enabling or disabling the plugin.
 
@@ -305,7 +305,7 @@ Type checking and bundling are separate. Vite does not type check, so run `npm r
 
 Plugin CSS is added to the page after the CSS of the application. Follow these rules so it neither breaks nor is broken by the host:
 
-- Prefer the design tokens (`var(--border)`, `var(--card)`, `var(--primary)`, `var(--button-radius)` and the rest listed in [Design tokens](/docs/reference/design-tokens/)) over fixed colors, so your screens follow the chosen interface and the organization brand color.
+- Prefer the design tokens (`var(--border)`, `var(--card)`, `var(--primary)`, `var(--button-radius)` and the rest listed in [Design tokens](/_aphel/docs/reference/design-tokens/)) over fixed colors, so your screens follow the chosen interface and the organization brand color.
 - Never import Tailwind's preflight or any reset. The host already applies one, and a second reset overrides the host styles. Unlayered CSS also beats every layered rule of the host.
 - If you use Tailwind, give your utilities a prefix, for example `eq`, and write the classes as `eq:flex`, `eq:p-4`, `eq:dark:bg-card` (the prefix always comes first). Without a prefix your utilities collide with the utilities of the host, which compiles only the classes it uses.
 - The layer order of the page is `theme, base, components, plugin-ui, utilities`. Put your theme in `theme` and your utilities in `utilities`.
@@ -329,7 +329,7 @@ With the Tailwind plugin for Vite (`@tailwindcss/vite`) added to `plugins` in `v
 
 ## Related pages
 
-- [Screens and contributions](/docs/plugins/web-screens/) for the `app` registration API.
-- [UI plugins](/docs/plugins/ui-plugins/) for plugins that change colors or replace whole screens.
-- [Packaging](/docs/plugins/packaging/) for `aphel-plugin` and installation.
-- [Testing and debugging](/docs/plugins/testing-and-debugging/) for diagnosing a bundle that does not load.
+- [Screens and contributions](/_aphel/docs/plugins/web-screens/) for the `app` registration API.
+- [UI plugins](/_aphel/docs/plugins/ui-plugins/) for plugins that change colors or replace whole screens.
+- [Packaging](/_aphel/docs/plugins/packaging/) for `aphel-plugin` and installation.
+- [Testing and debugging](/_aphel/docs/plugins/testing-and-debugging/) for diagnosing a bundle that does not load.

@@ -8,7 +8,7 @@ sidebar:
 This page covers everything between "the deal needs a price" and "the customer signed": the product catalog, price lists, deal items, quotes with versions and approval, PDF proposals and electronic signature.
 
 :::note
-These are optional modules, suggested by blueprints as follows. Quotes: Agency, Consultancy, Freelancer, Other business. Products (catalog): Agency, Consultancy, Freelancer, Other business. Price lists: Agency. Deal items (line items): Agency, Consultancy, SaaS. Proposals: Agency, Consultancy. Electronic signature: Agency, Consultancy, Real Estate. Approvals: Consultancy, B2B Sales. Currencies (money) and the shared documents engine come from the base CRM blueprint. Turn modules on or off in **Settings > Modules**; dependencies are enabled with them. See [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/).
+These are optional modules, suggested by blueprints as follows. Quotes: Agency, Consultancy, Freelancer, Other business. Products (catalog): Agency, Consultancy, Freelancer, Other business. Price lists: Agency. Deal items (line items): Agency, Consultancy, SaaS. Proposals: Agency, Consultancy. Electronic signature: Agency, Consultancy, Real Estate. Approvals: Consultancy, B2B Sales. Currencies (money) and the shared documents engine come from the base CRM blueprint. Turn modules on or off in **Settings > Modules**; dependencies are enabled with them. See [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 :::
 
 ## Permissions
@@ -28,7 +28,7 @@ These are optional modules, suggested by blueprints as follows. Quotes: Agency, 
 | `approvals.manage` | Manage approval policies | Administrator |
 | `settings.manage` | Quote defaults, currencies, discount limits, deal item settings | Administrator |
 
-For manager and member roles, record permissions apply to their team and their own records respectively. Assign more permissions in [Roles and permissions](/docs/admin/roles-and-permissions/).
+For manager and member roles, record permissions apply to their team and their own records respectively. Assign more permissions in [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
 
 ## Products
 
@@ -112,7 +112,7 @@ Only Draft and Approved quotes can be edited. To change a sent or closed quote, 
 
 Sending a quote that needs approval without an approved request is refused with "This quote needs approval before sending". If you do not use approvals, you can send a Draft directly.
 
-To require approval for large discounts, an administrator creates a policy in **Settings > Sales > Approvals** with record type Quote and moment **Quote sending**, using a condition on the **Discount above limit** field. Policy options are described in [Automations and webhooks](/docs/using/automations/#approvals). No such policy exists by default.
+To require approval for large discounts, an administrator creates a policy in **Settings > Sales > Approvals** with record type Quote and moment **Quote sending**, using a condition on the **Discount above limit** field. Policy options are described in [Automations and webhooks](/_aphel/docs/using/automations/#approvals). No such policy exists by default.
 
 ### Send to the customer
 

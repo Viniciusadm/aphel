@@ -430,7 +430,7 @@
       "description": "Download a full copy of the organization data."
     },
     "general": {
-      "description": "Public address and maximum upload size."
+      "description": "Public address, app path and maximum upload size."
     },
     "outgoingEmail": {
       "description": "SMTP server used for every email the system sends."
@@ -478,7 +478,9 @@
       "required": "Fill in this field.",
       "range": "Use a value between {{min}} and {{max}}.",
       "timeout": "Use a value between 1 and 120 seconds.",
-      "catalogUrl": "Enter an https URL (http only with the development option)."
+      "catalogUrl": "Enter an https URL (http only with the development option).",
+      "appPath": "Use only lowercase letters, digits and hyphens, in a single segment (e.g. app).",
+      "appPathReserved": "This path is used by the API. Choose another one, such as app."
     },
     "general": {
       "title": "General",
@@ -489,7 +491,14 @@
       "maxUploadMb": "Maximum upload size (MB)",
       "maxUploadMbHint": "Applies to attachments, imports and emails. Also adjust the reverse proxy limit.",
       "publicBaseUrlPlaceholder": "https://app.yourcompany.com",
-      "maxUploadPlaceholder": "E.g.: 25"
+      "maxUploadPlaceholder": "E.g.: 25",
+      "appPath": "App path",
+      "appPathHint": "Leave empty to open the app at the root of the address. With a path such as app, the root is left free for the public site and emailed links use the new path. If something goes wrong, the app also opens at {{recovery}}.",
+      "appPathLocked": "Only system administrators can change the path.",
+      "appPathPlaceholder": "empty = root",
+      "moveAppTitle": "Change the app address?",
+      "moveAppDescription": "The app will open at {{url}} for everyone. Old bookmarks and links stop working, and the app installed on phones must be installed again. If the new address does not open, use {{recovery}}.",
+      "moveAppConfirm": "Change address"
     },
     "mail": {
       "title": "Outgoing email",

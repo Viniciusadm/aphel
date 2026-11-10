@@ -56,7 +56,7 @@ async fn count_response(request: Request, next: Next) -> Response {
 
 #[utoipa::path(
     get,
-    path = "/health",
+    path = "/_aphel/health",
     tag = TAG,
     operation_id = "health_check",
     responses(
@@ -80,7 +80,7 @@ pub async fn readiness(state: &AppState) -> Readiness {
 
 #[utoipa::path(
     get,
-    path = "/health/ready",
+    path = "/_aphel/health/ready",
     tag = TAG,
     operation_id = "readiness_check",
     responses(
@@ -104,7 +104,7 @@ async fn readiness_check(State(state): State<AppState>) -> Response {
 
 #[utoipa::path(
     get,
-    path = "/metrics",
+    path = "/_aphel/metrics",
     tag = TAG,
     operation_id = "metrics",
     description = "Disabled unless `METRICS_TOKEN` is set; requires `Authorization: Bearer <METRICS_TOKEN>`.",

@@ -13,7 +13,7 @@ Aphel is built from modules. A module is a feature such as Contacts, Deals, Quot
 
 1. **Which modules are enabled** in your workspace. An administrator chooses them when the workspace is created and can change them later under **Integrations > Modules**.
 2. **The blueprint** the workspace started from. The blueprint is the business type chosen during setup (for example B2B sales or Freelancer). It decides which modules are suggested and which starting configuration is applied. See [Blueprints and modules](#blueprints-and-modules).
-3. **Your role.** Every menu entry is tied to a permission such as `deals.read`. If your role does not include it, the entry is hidden. See [Roles and permissions](/docs/admin/roles-and-permissions/).
+3. **Your role.** Every menu entry is tied to a permission such as `deals.read`. If your role does not include it, the entry is hidden. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
 4. **Your personal preferences.** You can reorder entries, hide the ones you do not use and choose your home screen. See [Make the menu yours](#make-the-menu-yours).
 
 If a screen described in this documentation is missing for you, one of these is the reason. Ask your administrator which one before assuming something is broken.
@@ -76,7 +76,7 @@ The Settings entry is always the last item of the menu and cannot be hidden or m
 
 ### Custom objects
 
-Custom objects are record types that your administrator created, such as Contracts or Properties (see [Custom fields](/docs/using/custom-fields/#custom-objects)). Each active object appears in the **CRM** section, after the built-in records, under its plural name and with its own icon and color. You see an object only when your role has `custom.<key>.read` for it. Inactive objects disappear from the menu while keeping their data.
+Custom objects are record types that your administrator created, such as Contracts or Properties (see [Custom fields](/_aphel/docs/using/custom-fields/#custom-objects)). Each active object appears in the **CRM** section, after the built-in records, under its plural name and with its own icon and color. You see an object only when your role has `custom.<key>.read` for it. Inactive objects disappear from the menu while keeping their data.
 
 ### Settings areas
 
@@ -89,7 +89,7 @@ Settings is split into four areas. Each area only lists the screens you are allo
 | Integrations | Connections to other services and the module list. | Modules, webhooks and the connectors you enabled |
 | Data | Import, export and data care. | Audit log, Trash, Privacy, Full export and similar |
 
-Most organization screens need `settings.manage`. Users need `users.manage`, the Audit log needs `audit.read`, and System needs `system.manage`. Administrators are covered in [Users and teams](/docs/admin/users-and-teams/) and [Roles and permissions](/docs/admin/roles-and-permissions/).
+Most organization screens need `settings.manage`. Users need `users.manage`, the Audit log needs `audit.read`, and System needs `system.manage`. Administrators are covered in [Users and teams](/_aphel/docs/admin/users-and-teams/) and [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
 
 ## Make the menu yours
 
@@ -164,7 +164,7 @@ Modules that are not in your blueprint are not gone. Administrators with `settin
 
 ### Enabling and disabling modules
 
-Disabling a module stops its screens, menus, widgets and automatic routines for the whole organization, but keeps its data. Enabling it again restores everything. A module that other enabled modules depend on cannot be disabled until those are disabled first, and modules the build marks as required cannot be disabled at all. Removing a module's data is a separate, permanent action that requires disabling and exporting first. Details are in [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/).
+Disabling a module stops its screens, menus, widgets and automatic routines for the whole organization, but keeps its data. Enabling it again restores everything. A module that other enabled modules depend on cannot be disabled until those are disabled first, and modules the build marks as required cannot be disabled at all. Removing a module's data is a separate, permanent action that requires disabling and exporting first. Details are in [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## Using Aphel on a phone
 
@@ -189,7 +189,7 @@ An item can fail because the server did not confirm it in time, validation rejec
 
 ## Related pages
 
-- [Records and views](/docs/using/records-and-views/): lists, filters, saved views and record pages.
-- [Custom fields](/docs/using/custom-fields/): fields, formulas, validation rules, layouts and custom objects.
-- [Personal settings](/docs/using/personal-settings/): your account, appearance and notifications.
-- [Concepts](/docs/start/concepts/): the model behind modules, blueprints and permissions.
+- [Records and views](/_aphel/docs/using/records-and-views/): lists, filters, saved views and record pages.
+- [Custom fields](/_aphel/docs/using/custom-fields/): fields, formulas, validation rules, layouts and custom objects.
+- [Personal settings](/_aphel/docs/using/personal-settings/): your account, appearance and notifications.
+- [Concepts](/_aphel/docs/start/concepts/): the model behind modules, blueprints and permissions.

@@ -60,7 +60,7 @@ The `app` container applies pending database migrations when it starts (`RUN_MIG
 Open `http://localhost:3001/setup` (or your own address) to run the [first-run installer](#the-first-run-installer).
 
 :::note
-`docker-compose.prod.yml` overrides `DATABASE_URL`, `HTTP_HOST` and `HTTP_PORT` for the containers. Everything else in `.env` reaches the containers through `env_file`. See [Configuration](/docs/admin/configuration/) for every variable.
+`docker-compose.prod.yml` overrides `DATABASE_URL`, `HTTP_HOST` and `HTTP_PORT` for the containers. Everything else in `.env` reaches the containers through `env_file`. See [Configuration](/_aphel/docs/admin/configuration/) for every variable.
 :::
 
 ## Install from source
@@ -142,8 +142,8 @@ On a fresh database, the sign-in page redirects to the installer at `/setup` (th
 | Step | What you provide |
 | --- | --- |
 | Organization | Organization name, time zone, currency and language. A link on this step switches to restoring a backup instead. |
-| Business | The blueprint (business type), what you offer and your team size. Shown only when the build contains blueprints. See [Blueprints](/docs/admin/blueprints/). |
-| Features | The optional modules to turn on, with the settings each one needs. The blueprint pre-selects its recommended modules that need no configuration, and always installs its required ones. Dependencies are added automatically. See [Modules](/docs/admin/modules/). |
+| Business | The blueprint (business type), what you offer and your team size. Shown only when the build contains blueprints. See [Blueprints](/_aphel/docs/admin/blueprints/). |
+| Features | The optional modules to turn on, with the settings each one needs. The blueprint pre-selects its recommended modules that need no configuration, and always installs its required ones. Dependencies are added automatically. See [Modules](/_aphel/docs/admin/modules/). |
 | Account | Name, email and password of the first administrator (8 to 128 characters). |
 | Email | Optional outgoing email (SMTP). You can skip it and set it up later. |
 | Ready | Result of the setup, including applying the blueprint's configuration packages. |
@@ -162,7 +162,7 @@ Choose the restore link on the first step to upload a full export (`aphel.organi
 - The route accepts 5 attempts per hour per IP address and 20 per hour in total.
 - It works only on an installation that is not set up yet.
 
-See [Backup and restore](/docs/admin/backup-and-restore/).
+See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 
 ### Start over
 
@@ -172,11 +172,11 @@ To discard everything and run the installer again on a test installation, stop a
 aphel db reset --confirm aphel
 ```
 
-The value after `--confirm` must be the exact database name from `DATABASE_URL`. Stored files are not deleted. See [CLI](/docs/admin/cli/).
+The value after `--confirm` must be the exact database name from `DATABASE_URL`. Stored files are not deleted. See [CLI](/_aphel/docs/admin/cli/).
 
 ## After installing
 
 1. Check `aphel doctor` or the System screen: the database, storage, worker and scheduler checks should be green.
-2. Configure the public address, file storage and outgoing email in [Configuration](/docs/admin/configuration/).
-3. Turn on two-factor authentication for administrators: see [Security](/docs/admin/security/).
-4. Schedule backups: see [Backup and restore](/docs/admin/backup-and-restore/).
+2. Configure the public address, file storage and outgoing email in [Configuration](/_aphel/docs/admin/configuration/).
+3. Turn on two-factor authentication for administrators: see [Security](/_aphel/docs/admin/security/).
+4. Schedule backups: see [Backup and restore](/_aphel/docs/admin/backup-and-restore/).

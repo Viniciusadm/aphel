@@ -105,7 +105,7 @@ What each part does:
 - The two `[[hooks.subscribe]]` tables register the backend for `record.saving` (which may change values before they are written) and `record.validating` (which may veto the write).
 - The route needs `library.book.read`, a permission that exists because the plugin declares the `book` entity.
 
-Every key and limit is described in [Manifest](/docs/plugins/manifest/).
+Every key and limit is described in [Manifest](/_aphel/docs/plugins/manifest/).
 
 ## 4. Write the backend
 
@@ -201,7 +201,7 @@ The token must belong to a user with `system.manage` and carry that scope. To se
 curl -sS "$APHEL_URL/api/v1/wasm-runtime" -H "Authorization: Bearer $APHEL_TOKEN"
 ```
 
-If the response contains `backend_error`, the backend did not load. See [Testing and debugging](/docs/plugins/testing-and-debugging/).
+If the response contains `backend_error`, the backend did not load. See [Testing and debugging](/_aphel/docs/plugins/testing-and-debugging/).
 
 ## 8. See it working
 
@@ -235,17 +235,17 @@ curl -sS "$APHEL_URL/api/v1/p/library/summary" -H "Authorization: Bearer $APHEL_
 
 The answer is `{"total":1}`.
 
-The system roles `manager` and `member` received the `library.book.*` permissions with organization scope when the plugin was installed (`member` does not get `export`). To change who can do what, edit the roles as described in [Roles and permissions](/docs/admin/roles-and-permissions/).
+The system roles `manager` and `member` received the `library.book.*` permissions with organization scope when the plugin was installed (`member` does not get `export`). To change who can do what, edit the roles as described in [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
 
 ## 9. Upgrade
 
-Change something, raise `version` to `0.1.1` in `plugin.toml`, run `aphel-plugin pack` again and install the new package the same way. Installing a package with the same key is an upgrade: fields you stopped declaring are deactivated (their data is kept), a changed field type is refused with `plugin_field_type_changed`, and settings and stored data are kept. The details are in [Lifecycle](/docs/plugins/lifecycle/).
+Change something, raise `version` to `0.1.1` in `plugin.toml`, run `aphel-plugin pack` again and install the new package the same way. Installing a package with the same key is an upgrade: fields you stopped declaring are deactivated (their data is kept), a changed field type is refused with `plugin_field_type_changed`, and settings and stored data are kept. The details are in [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 
 To remove the plugin, use **Uninstall** on the Plugins page or `DELETE /api/v1/wasm-runtime/library`. Add `?purge=true` to delete the `library.book` records and the table as well.
 
 ## Next steps
 
-- Add a Rust backend instead: [Rust SDK](/docs/plugins/rust-sdk/).
-- React to events and schedule work: [Events](/docs/plugins/events/), [Schedules](/docs/plugins/schedules/).
-- Let admins configure the plugin: [Settings and secrets](/docs/plugins/settings-and-secrets/).
-- Add screens: [Web bundle](/docs/plugins/web-bundle/).
+- Add a Rust backend instead: [Rust SDK](/_aphel/docs/plugins/rust-sdk/).
+- React to events and schedule work: [Events](/_aphel/docs/plugins/events/), [Schedules](/_aphel/docs/plugins/schedules/).
+- Let admins configure the plugin: [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/).
+- Add screens: [Web bundle](/_aphel/docs/plugins/web-bundle/).

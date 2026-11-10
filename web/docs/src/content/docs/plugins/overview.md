@@ -13,21 +13,21 @@ Runtime plugins are different from the built-in modules that are compiled into t
 
 | You want to | Use | Page |
 | --- | --- | --- |
-| Store your own data with real columns and indexes | `[[entities]]` with `storage = "managed"` | [Entities and fields](/docs/plugins/entities-and-fields/) |
-| Add fields to Aphel's own record types | `[[fields]]` | [Entities and fields](/docs/plugins/entities-and-fields/) |
-| Add permissions and suggest roles | `[[permissions]]`, `[[role_presets]]`, `requires` | [Permissions and roles](/docs/plugins/permissions-and-roles/) |
-| Validate, reject or rewrite a record write | `[[hooks.subscribe]]` | [Hooks](/docs/plugins/hooks/) |
-| React to something that already happened | `events` | [Events](/docs/plugins/events/) |
-| Expose an HTTP endpoint, private or public | `[[routes]]` | [Routes](/docs/plugins/routes/) |
-| Run work on a timer | `[[schedules]]` | [Schedules](/docs/plugins/schedules/) |
-| Let admins configure the plugin, store API keys | `[[settings]]` | [Settings and secrets](/docs/plugins/settings-and-secrets/) |
-| Add automation actions and triggers, notifications, dashboard widgets | `[[actions]]`, `[[emits]]`, `[[notifications]]`, `[[widgets]]` | [Automation and widgets](/docs/plugins/automation-and-widgets/) |
-| Offer operations to other plugins or replace a built-in module | `[provides]`, `[uses]`, `[[contribute]]` | [Automation and widgets](/docs/plugins/automation-and-widgets/), [Lifecycle](/docs/plugins/lifecycle/) |
-| Handle privacy requests for your data | `[privacy]` | [Automation and widgets](/docs/plugins/automation-and-widgets/) |
-| Add screens in the browser | `[web]` | [Web bundle](/docs/plugins/web-bundle/) |
-| Replace the whole interface | `[ui]` | [UI plugins](/docs/plugins/ui-plugins/) |
+| Store your own data with real columns and indexes | `[[entities]]` with `storage = "managed"` | [Entities and fields](/_aphel/docs/plugins/entities-and-fields/) |
+| Add fields to Aphel's own record types | `[[fields]]` | [Entities and fields](/_aphel/docs/plugins/entities-and-fields/) |
+| Add permissions and suggest roles | `[[permissions]]`, `[[role_presets]]`, `requires` | [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/) |
+| Validate, reject or rewrite a record write | `[[hooks.subscribe]]` | [Hooks](/_aphel/docs/plugins/hooks/) |
+| React to something that already happened | `events` | [Events](/_aphel/docs/plugins/events/) |
+| Expose an HTTP endpoint, private or public | `[[routes]]` | [Routes](/_aphel/docs/plugins/routes/) |
+| Run work on a timer | `[[schedules]]` | [Schedules](/_aphel/docs/plugins/schedules/) |
+| Let admins configure the plugin, store API keys | `[[settings]]` | [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/) |
+| Add automation actions and triggers, notifications, dashboard widgets | `[[actions]]`, `[[emits]]`, `[[notifications]]`, `[[widgets]]` | [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/) |
+| Offer operations to other plugins or replace a built-in module | `[provides]`, `[uses]`, `[[contribute]]` | [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/), [Lifecycle](/_aphel/docs/plugins/lifecycle/) |
+| Handle privacy requests for your data | `[privacy]` | [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/) |
+| Add screens in the browser | `[web]` | [Web bundle](/_aphel/docs/plugins/web-bundle/) |
+| Replace the whole interface | `[ui]` | [UI plugins](/_aphel/docs/plugins/ui-plugins/) |
 
-Everything the backend does goes through the host API: records, key-value storage, outbound HTTP, notifications, events and so on. See [Host API](/docs/plugins/host-api/).
+Everything the backend does goes through the host API: records, key-value storage, outbound HTTP, notifications, events and so on. See [Host API](/_aphel/docs/plugins/host-api/).
 
 ## Package layout
 
@@ -35,13 +35,13 @@ A package is a zip file with the extension `.aphelplugin`.
 
 | Path | Required | Content |
 | --- | --- | --- |
-| `plugin.toml` | yes | The manifest. See [Manifest](/docs/plugins/manifest/). |
-| `backend.wasm` | when the manifest declares any runtime callback | A WebAssembly component of the `aphel:plugin` world, built with the [JavaScript SDK](/docs/plugins/js-sdk/) or the [Rust SDK](/docs/plugins/rust-sdk/). |
+| `plugin.toml` | yes | The manifest. See [Manifest](/_aphel/docs/plugins/manifest/). |
+| `backend.wasm` | when the manifest declares any runtime callback | A WebAssembly component of the `aphel:plugin` world, built with the [JavaScript SDK](/_aphel/docs/plugins/js-sdk/) or the [Rust SDK](/_aphel/docs/plugins/rust-sdk/). |
 | `web/...` | no | The browser bundle. `web.entry` (default `web/index.js`), `web.style` and the optional `web.public` application must exist inside the package. |
 
 A manifest needs a backend as soon as it declares hook subscriptions, `events`, `routes`, `schedules`, `[[actions]]`, `[[widgets]]` or `[privacy] subject_data = true`. Without a backend the installer answers `plugin_backend_missing`. A plugin made only of entities, fields, permissions and settings needs no backend.
 
-The `aphel-plugin` command line tool creates, builds and packs these files for you. See [Your first plugin](/docs/plugins/first-plugin/) and [Packaging](/docs/plugins/packaging/).
+The `aphel-plugin` command line tool creates, builds and packs these files for you. See [Your first plugin](/_aphel/docs/plugins/first-plugin/) and [Packaging](/_aphel/docs/plugins/packaging/).
 
 ## Package limits
 
@@ -69,7 +69,7 @@ Every callback runs in a fresh WebAssembly instance with an empty sandbox: no fi
 | Widget | 5 seconds |
 | Privacy request | 60 seconds |
 
-A callback that exceeds its limit, traps or cannot be loaded fails with `503 plugin_failed`. See [Security model](/docs/plugins/security-model/) and [Lifecycle](/docs/plugins/lifecycle/).
+A callback that exceeds its limit, traps or cannot be loaded fails with `503 plugin_failed`. See [Security model](/_aphel/docs/plugins/security-model/) and [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 
 ## Trust model in short
 
@@ -78,20 +78,20 @@ A callback that exceeds its limit, traps or cannot be loaded fails with `503 plu
 - Events, schedules and public routes have no signed-in user. They run as the plugin itself, with the permissions of the user who installed it, limited to the plugin's capabilities.
 - A plugin web bundle is not isolated. It runs in the browser with the signed-in user's session. Installing a plugin with a web bundle needs an explicit acknowledgement for that version.
 
-The full description is in [Security model](/docs/plugins/security-model/).
+The full description is in [Security model](/_aphel/docs/plugins/security-model/).
 
 ## How plugins fit with records and permissions
 
 Plugins do not have a private database. They work with the same records, permissions and events as the rest of Aphel.
 
 - A plugin entity `book` in plugin `library` is the record type `library.book`. It gets the permissions `library.book.read`, `.create`, `.update`, `.delete`, `.archive` and `.export`, and shows up in the generic record API at `/api/v1/entities/library.book/records` like any other record type.
-- Record writes, including those made by plugin code, go through the same pipeline as writes from the UI: authorization, hooks, validation, audit and events. See [Hooks](/docs/plugins/hooks/).
-- Plugin fields added to built-in types are ordinary custom fields owned by the plugin. See [Entities and fields](/docs/plugins/entities-and-fields/).
-- Roles are not owned by plugins. A plugin declares permissions and may offer role presets, which the administrator selects at install time. See [Permissions and roles](/docs/plugins/permissions-and-roles/).
+- Record writes, including those made by plugin code, go through the same pipeline as writes from the UI: authorization, hooks, validation, audit and events. See [Hooks](/_aphel/docs/plugins/hooks/).
+- Plugin fields added to built-in types are ordinary custom fields owned by the plugin. See [Entities and fields](/_aphel/docs/plugins/entities-and-fields/).
+- Roles are not owned by plugins. A plugin declares permissions and may offer role presets, which the administrator selects at install time. See [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/).
 
 ## Where to start
 
-1. Build the smallest useful plugin in [Your first plugin](/docs/plugins/first-plugin/).
-2. Keep the [Manifest](/docs/plugins/manifest/) reference open while you design.
-3. Read [Hooks](/docs/plugins/hooks/) and [Host API](/docs/plugins/host-api/) before writing backend code, in particular the rules about side effects.
-4. Test with the guidance in [Testing and debugging](/docs/plugins/testing-and-debugging/).
+1. Build the smallest useful plugin in [Your first plugin](/_aphel/docs/plugins/first-plugin/).
+2. Keep the [Manifest](/_aphel/docs/plugins/manifest/) reference open while you design.
+3. Read [Hooks](/_aphel/docs/plugins/hooks/) and [Host API](/_aphel/docs/plugins/host-api/) before writing backend code, in particular the rules about side effects.
+4. Test with the guidance in [Testing and debugging](/_aphel/docs/plugins/testing-and-debugging/).

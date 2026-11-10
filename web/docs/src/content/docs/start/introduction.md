@@ -15,22 +15,22 @@ The current version is 0.1.
 
 | You are | Start with |
 | --- | --- |
-| A company that wants a customer relationship system it fully controls | [Quickstart](/docs/start/quickstart/), then [Using Aphel](/docs/using/overview/) |
-| An administrator running an installation | [Installation](/docs/admin/installation/) and [Configuration](/docs/admin/configuration/) |
-| A developer who needs a custom field, rule, screen or integration | [Plugins overview](/docs/plugins/overview/) and [Your first plugin](/docs/plugins/first-plugin/) |
-| An integrator who talks to Aphel from another system | [REST API](/docs/reference/rest-api/) and [Authentication](/docs/reference/authentication/) |
+| A company that wants a customer relationship system it fully controls | [Quickstart](/_aphel/docs/start/quickstart/), then [Using Aphel](/_aphel/docs/using/overview/) |
+| An administrator running an installation | [Installation](/_aphel/docs/admin/installation/) and [Configuration](/_aphel/docs/admin/configuration/) |
+| A developer who needs a custom field, rule, screen or integration | [Plugins overview](/_aphel/docs/plugins/overview/) and [Your first plugin](/_aphel/docs/plugins/first-plugin/) |
+| An integrator who talks to Aphel from another system | [REST API](/_aphel/docs/reference/rest-api/) and [Authentication](/_aphel/docs/reference/authentication/) |
 
 ## What you get
 
 - **One binary.** The backend is written in Rust. The React web application is embedded in the same executable, so one process serves both the interface and the API.
 - **One installation, one company.** Each installation serves a single organization and has its own MySQL database. To serve another company, run another installation. There is no multi-tenancy and no organization switching.
 - **MySQL 8.** All data lives in MySQL. Files go to local disk by default, or to S3-compatible storage if you configure it.
-- **Blueprints.** At first start, a setup wizard asks about the business and chooses a blueprint, or lets you start blank. See [Blueprints](/docs/admin/blueprints/).
-- **Modules.** Features compiled into the binary, such as people, deals, tasks, email, dashboards and automations. Administrators enable and disable them without restarting. See [Modules](/docs/admin/modules/).
-- **Runtime plugins.** Third parties ship `.aphelplugin` packages (a WebAssembly backend plus an optional web bundle) that administrators install from the interface or the API, with no rebuild and no restart. See [Plugins overview](/docs/plugins/overview/).
-- **Adaptable data model.** Custom fields, custom objects and relationships are configured on screen and work with filters, views, search, automations and the API. See [Custom fields](/docs/using/custom-fields/).
-- **Access control.** Roles with permissions limited to own, team or organization records, plus per-field visibility. See [Roles and permissions](/docs/admin/roles-and-permissions/).
-- **Reliable integration.** Every business change publishes a domain event and an audit entry in the same transaction. Events feed webhooks, automations and plugins. See [Events](/docs/plugins/events/) and [Webhooks and events](/docs/reference/webhooks-and-events/).
+- **Blueprints.** At first start, a setup wizard asks about the business and chooses a blueprint, or lets you start blank. See [Blueprints](/_aphel/docs/admin/blueprints/).
+- **Modules.** Features compiled into the binary, such as people, deals, tasks, email, dashboards and automations. Administrators enable and disable them without restarting. See [Modules](/_aphel/docs/admin/modules/).
+- **Runtime plugins.** Third parties ship `.aphelplugin` packages (a WebAssembly backend plus an optional web bundle) that administrators install from the interface or the API, with no rebuild and no restart. See [Plugins overview](/_aphel/docs/plugins/overview/).
+- **Adaptable data model.** Custom fields, custom objects and relationships are configured on screen and work with filters, views, search, automations and the API. See [Custom fields](/_aphel/docs/using/custom-fields/).
+- **Access control.** Roles with permissions limited to own, team or organization records, plus per-field visibility. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
+- **Reliable integration.** Every business change publishes a domain event and an audit entry in the same transaction. Events feed webhooks, automations and plugins. See [Events](/_aphel/docs/plugins/events/) and [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/).
 - **REST API.** Everything the interface does goes through `/api/v1`, documented as OpenAPI 3.1 at `/api/openapi.json` and browsable at `/api/docs`.
 - **Interface.** English and Brazilian Portuguese, responsive, light and dark themes, installable as a progressive web app with limited offline support.
 
@@ -49,10 +49,10 @@ Aphel is released under the GNU Affero General Public License, version 3. The re
 
 | Section | What it covers |
 | --- | --- |
-| [Getting started](/docs/start/quickstart/) | Quickstart, the [mental model](/docs/start/concepts/), the [architecture](/docs/start/architecture/) and a [glossary](/docs/start/glossary/). |
-| [Using Aphel](/docs/using/overview/) | Day-to-day use: [records and views](/docs/using/records-and-views/), [leads](/docs/using/leads/), [deals](/docs/using/deals-and-pipelines/), [tasks](/docs/using/tasks-and-calendar/), [email](/docs/using/email-and-sequences/), [dashboards](/docs/using/dashboards-and-reports/), [automations](/docs/using/automations/) and more. |
-| [Administration](/docs/admin/installation/) | [Installing](/docs/admin/installation/), [configuring](/docs/admin/configuration/), [users and teams](/docs/admin/users-and-teams/), [security](/docs/admin/security/), [upgrading](/docs/admin/upgrading/), [backup and restore](/docs/admin/backup-and-restore/), [operations](/docs/admin/operations/) and the [command line](/docs/admin/cli/). |
-| [Building plugins](/docs/plugins/overview/) | Everything needed to write a runtime plugin: the [manifest](/docs/plugins/manifest/), [hooks](/docs/plugins/hooks/), [events](/docs/plugins/events/), the [host API](/docs/plugins/host-api/), the [JavaScript](/docs/plugins/js-sdk/) and [Rust](/docs/plugins/rust-sdk/) SDKs, [web screens](/docs/plugins/web-screens/), [packaging](/docs/plugins/packaging/) and [examples](/docs/plugins/examples/). |
-| [Reference](/docs/reference/rest-api/) | The [REST API](/docs/reference/rest-api/), [errors](/docs/reference/errors/), [permissions](/docs/reference/permissions-catalog/), [hooks](/docs/reference/hooks-catalog/), [design tokens](/docs/reference/design-tokens/) and the [module catalog](/docs/reference/module-catalog/). |
+| [Getting started](/_aphel/docs/start/quickstart/) | Quickstart, the [mental model](/_aphel/docs/start/concepts/), the [architecture](/_aphel/docs/start/architecture/) and a [glossary](/_aphel/docs/start/glossary/). |
+| [Using Aphel](/_aphel/docs/using/overview/) | Day-to-day use: [records and views](/_aphel/docs/using/records-and-views/), [leads](/_aphel/docs/using/leads/), [deals](/_aphel/docs/using/deals-and-pipelines/), [tasks](/_aphel/docs/using/tasks-and-calendar/), [email](/_aphel/docs/using/email-and-sequences/), [dashboards](/_aphel/docs/using/dashboards-and-reports/), [automations](/_aphel/docs/using/automations/) and more. |
+| [Administration](/_aphel/docs/admin/installation/) | [Installing](/_aphel/docs/admin/installation/), [configuring](/_aphel/docs/admin/configuration/), [users and teams](/_aphel/docs/admin/users-and-teams/), [security](/_aphel/docs/admin/security/), [upgrading](/_aphel/docs/admin/upgrading/), [backup and restore](/_aphel/docs/admin/backup-and-restore/), [operations](/_aphel/docs/admin/operations/) and the [command line](/_aphel/docs/admin/cli/). |
+| [Building plugins](/_aphel/docs/plugins/overview/) | Everything needed to write a runtime plugin: the [manifest](/_aphel/docs/plugins/manifest/), [hooks](/_aphel/docs/plugins/hooks/), [events](/_aphel/docs/plugins/events/), the [host API](/_aphel/docs/plugins/host-api/), the [JavaScript](/_aphel/docs/plugins/js-sdk/) and [Rust](/_aphel/docs/plugins/rust-sdk/) SDKs, [web screens](/_aphel/docs/plugins/web-screens/), [packaging](/_aphel/docs/plugins/packaging/) and [examples](/_aphel/docs/plugins/examples/). |
+| [Reference](/_aphel/docs/reference/rest-api/) | The [REST API](/_aphel/docs/reference/rest-api/), [errors](/_aphel/docs/reference/errors/), [permissions](/_aphel/docs/reference/permissions-catalog/), [hooks](/_aphel/docs/reference/hooks-catalog/), [design tokens](/_aphel/docs/reference/design-tokens/) and the [module catalog](/_aphel/docs/reference/module-catalog/). |
 
-If you read only one page after this one, read [Concepts](/docs/start/concepts/). It explains the vocabulary the rest of the documentation relies on.
+If you read only one page after this one, read [Concepts](/_aphel/docs/start/concepts/). It explains the vocabulary the rest of the documentation relies on.

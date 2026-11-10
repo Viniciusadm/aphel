@@ -1,4 +1,53 @@
 export interface paths {
+    "/_aphel/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["health_check"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/_aphel/health/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["readiness_check"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/_aphel/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Disabled unless `METRICS_TOKEN` is set; requires `Authorization: Bearer <METRICS_TOKEN>`. */
+        get: operations["metrics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/activity-types": {
         parameters: {
             query?: never;
@@ -5002,7 +5051,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** @description Updates the sections that are present; omitted sections keep their value. `storage_secret_access_key` stores the S3 secret key in the vault (`null` or an empty string removes it). Changes apply without restarting the server or the worker. Publishes `organization.settings_updated` (payload with the names of the changed settings, never values of secrets) and writes the audit entry with secrets as `"[redacted]"`. Changing the storage driver does not copy existing files. */
+        /** @description Updates the sections that are present; omitted sections keep their value. `storage_secret_access_key` stores the S3 secret key in the vault (`null` or an empty string removes it). Changes apply without restarting the server or the worker. Publishes `organization.settings_updated` (payload with the names of the changed settings, never values of secrets) and writes the audit entry with secrets as `"[redacted]"`. Changing the storage driver does not copy existing files. `app_base_path` moves the internal app (`/` or a single segment such as `/app`) and also requires `system.manage`; the app always stays reachable at `/_aphel/app/`. */
         patch: operations["organization_settings_update"];
         trace?: never;
     };
@@ -8542,55 +8591,6 @@ export interface paths {
         };
         get?: never;
         put: operations["pipelines_reorder_stages"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["health_check"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health/ready": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["readiness_check"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/metrics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Disabled unless `METRICS_TOKEN` is set; requires `Authorization: Bearer <METRICS_TOKEN>`. */
-        get: operations["metrics"];
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -13051,6 +13051,10 @@ export interface components {
         Data_OrganizationSettingsResponse: {
             data: {
                 api_tokens: components["schemas"]["ApiTokenLimitsDto"];
+                /** @example /app */
+                app_base_path: string;
+                /** @example https://app.example.com/app */
+                app_base_url: string;
                 effective_public_base_url: string;
                 mail: components["schemas"]["MailSettings"];
                 mail_configured: boolean;
@@ -14707,6 +14711,7 @@ export interface components {
                 help?: string | null;
                 key: string;
                 label: string;
+                mask?: string | null;
                 /** Format: int64 */
                 max?: number | null;
                 /** Format: int64 */
@@ -18140,6 +18145,10 @@ export interface components {
         };
         OrganizationSettingsResponse: {
             api_tokens: components["schemas"]["ApiTokenLimitsDto"];
+            /** @example /app */
+            app_base_path: string;
+            /** @example https://app.example.com/app */
+            app_base_url: string;
             effective_public_base_url: string;
             mail: components["schemas"]["MailSettings"];
             mail_configured: boolean;
@@ -20180,6 +20189,7 @@ export interface components {
             help?: string | null;
             key: string;
             label: string;
+            mask?: string | null;
             /** Format: int64 */
             max?: number | null;
             /** Format: int64 */
@@ -22485,6 +22495,8 @@ export interface components {
         };
         UpdateOrganizationSettingsRequest: {
             api_tokens?: null | components["schemas"]["ApiTokenLimitsDto"];
+            /** @example /app */
+            app_base_path?: string | null;
             mail?: null | components["schemas"]["MailSettings"];
             mail_password?: string | null;
             /** Format: int64 */
@@ -22883,6 +22895,94 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    health_check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Service is up */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example ok */
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    readiness_check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Every check passed: database, storage, worker heartbeat, scheduler and queue delay */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessResponse"];
+                };
+            };
+            /** @description At least one check failed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessResponse"];
+                };
+            };
+        };
+    };
+    metrics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Prometheus text exposition format (version 0.0.4) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Missing or wrong `Authorization: Bearer <METRICS_TOKEN>` (`metrics_unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Metrics are disabled (`METRICS_TOKEN` not set) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     task_types_list: {
         parameters: {
             query?: {
@@ -48807,7 +48907,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `settings.manage` (`permission_denied`) */
+            /** @description Missing `settings.manage`, or `system.manage` when changing `app_base_path` (`permission_denied`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -68524,94 +68624,6 @@ export interface operations {
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
             429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    health_check: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Service is up */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example ok */
-                    "text/plain": string;
-                };
-            };
-        };
-    };
-    readiness_check: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Every check passed: database, storage, worker heartbeat, scheduler and queue delay */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReadinessResponse"];
-                };
-            };
-            /** @description At least one check failed */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReadinessResponse"];
-                };
-            };
-        };
-    };
-    metrics: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Prometheus text exposition format (version 0.0.4) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": string;
-                };
-            };
-            /** @description Missing or wrong `Authorization: Bearer <METRICS_TOKEN>` (`metrics_unauthorized`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Metrics are disabled (`METRICS_TOKEN` not set) */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };

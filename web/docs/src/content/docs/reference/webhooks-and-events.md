@@ -281,7 +281,7 @@ Each active custom object publishes these events, with `custom.<key>` replaced b
 
 ### Plugin events
 
-A runtime plugin that lists an event in `[[emits]]` of its manifest can publish `plugin.<key>.<name>` with the host `emit` call. The webhooks module recognizes every `plugin.*` event type as a public event. Plugin events are also automation triggers. How to declare and emit them is described in [Events](/docs/plugins/events/).
+A runtime plugin that lists an event in `[[emits]]` of its manifest can publish `plugin.<key>.<name>` with the host `emit` call. The webhooks module recognizes every `plugin.*` event type as a public event. Plugin events are also automation triggers. How to declare and emit them is described in [Events](/_aphel/docs/plugins/events/).
 
 ## Outgoing webhooks
 
@@ -429,7 +429,7 @@ Outgoing webhooks and the outbound HTTP calls of plugins go through the same gua
 - Redirects are never followed.
 - Only the first part of the response body is stored.
 
-To deliver to services on a private network (a staging system, an internal ERP) the operator of the installation must set the environment variable `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` to a truthy value (any value other than `0`, `false`, `no` or `off`; it is off by default). This is infrastructure configuration read from `.env`, not an organization setting, and it applies to every outbound request the guard covers, so enable it only where the network itself is trusted. See [Configuration](/docs/admin/configuration/).
+To deliver to services on a private network (a staging system, an internal ERP) the operator of the installation must set the environment variable `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` to a truthy value (any value other than `0`, `false`, `no` or `off`; it is off by default). This is infrastructure configuration read from `.env`, not an organization setting, and it applies to every outbound request the guard covers, so enable it only where the network itself is trusted. See [Configuration](/_aphel/docs/admin/configuration/).
 
 ## Incoming webhooks
 
@@ -519,4 +519,4 @@ Success answers `200` with `{ "data": { "request_id": "...", "status": "succeede
 
 ## Other callbacks
 
-Other modules receive provider callbacks on their own public routes under `/api/v1/public/` (WhatsApp Cloud API, the electronic signature provider, sign-in providers). They are tied to the module that configures them and verify the provider's own signature; see [Authentication](/docs/reference/authentication/#public-endpoints).
+Other modules receive provider callbacks on their own public routes under `/api/v1/public/` (WhatsApp Cloud API, the electronic signature provider, sign-in providers). They are tied to the module that configures them and verify the provider's own signature; see [Authentication](/_aphel/docs/reference/authentication/#public-endpoints).

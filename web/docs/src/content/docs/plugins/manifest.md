@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-`plugin.toml` sits at the root of the package. This page lists every key the installer reads. Interface plugins declare an additional `[ui]` table, documented in [UI plugins](/docs/plugins/ui-plugins/).
+`plugin.toml` sits at the root of the package. This page lists every key the installer reads. Interface plugins declare an additional `[ui]` table, documented in [UI plugins](/_aphel/docs/plugins/ui-plugins/).
 
 ## How the manifest is checked
 
@@ -18,7 +18,7 @@ The installer parses the file as TOML, then validates it. Both steps run on a dr
 | One or more rules below broken | 422 | `plugin_manifest_invalid` | `plugin.toml is invalid`, with one entry per problem in the field list. Each entry has the path (for example `routes[0].method` or `entities[1].fields[0].type`) and a message. |
 | Missing `plugin.toml` or not UTF-8 | 422 | `plugin_manifest_invalid` | `the package has no plugin.toml` / `plugin.toml is not UTF-8` |
 | Backend required but absent | 422 | `plugin_backend_missing` | `the plugin declares runtime callbacks but has no backend.wasm` |
-| Conflicts with installed state (existing object, field, permission, types) | 409 / 422 | see [Lifecycle](/docs/plugins/lifecycle/) | |
+| Conflicts with installed state (existing object, field, permission, types) | 409 / 422 | see [Lifecycle](/_aphel/docs/plugins/lifecycle/) | |
 
 Tables that reject unknown keys are `[hooks]`, `[[hooks.declare]]`, `[menu]`, `[provides]`, `[[provides.operations]]`, `[uses]` and `[[contribute]]`. Every other table silently ignores keys it does not know, so a typo in a key name is not an error there: the setting simply has no effect. Check the spelling against this page.
 
@@ -28,7 +28,7 @@ In TOML, all top-level scalar and array keys must come before the first table he
 
 | Key | Type | Required | Default | Rules |
 | --- | --- | --- | --- | --- |
-| `key` | string | yes | | 1 to 32 characters: lowercase letters, digits and `_`; starts with a letter. Not `custom`. Not the key of a module compiled into this Aphel (error `is already used by a built-in module`). If the plugin declares entities, use only letters and underscores, with no `__` and no trailing `_` (see [Entities and fields](/docs/plugins/entities-and-fields/)). |
+| `key` | string | yes | | 1 to 32 characters: lowercase letters, digits and `_`; starts with a letter. Not `custom`. Not the key of a module compiled into this Aphel (error `is already used by a built-in module`). If the plugin declares entities, use only letters and underscores, with no `__` and no trailing `_` (see [Entities and fields](/_aphel/docs/plugins/entities-and-fields/)). |
 | `name` | string | yes | | Not blank, at most 120 bytes. |
 | `version` | string | yes | | Semantic version, for example `1.2.0`. The installer does not compare versions: installing any version over an installed plugin replaces it. |
 | `description` | string | no | none | Free text, shown in the consent dialog and the plugin list. |
@@ -39,15 +39,15 @@ In TOML, all top-level scalar and array keys must come before the first table he
 | `requires` | array of strings | no | `[]` | Permissions the plugin needs. Each must be a permission known to this Aphel, or a permission of an administrator-defined custom object (`<owner>.<object>.<action>`). Error: `is not a known permission`. The permission's owning module must be enabled at install time (`plugin_dependency_unavailable`). |
 | `optional_requires` | array of strings | no | `[]` | Permissions the plugin can use when they exist. Each must be a syntactically valid permission (`is not a valid permission`). |
 | `settings_permission` | string | no | none | A permission declared in this manifest's `[[permissions]]`. Users holding it may read and change the plugin settings without `system.manage`. Error: `must be a permission declared in permissions`. |
-| `events` | array of strings | no | `[]` | Event types the backend receives. Exact names, or a prefix followed by `.*`. The installer does not validate the strings. See [Events](/docs/plugins/events/). |
-| `operations` | array of strings | no | `[]` | Host operations the backend may call with `invoke`. At most 100, no duplicates, each offered by this Aphel (`must be a unique operation offered by this Aphel`). See [Host API](/docs/plugins/host-api/). |
-| `aliases` | table of string to string | no | `{}` | Maps a built-in API path to a route of this plugin. Both sides must start with `/`. Only allowed together with `provides.contracts` that replaces a built-in module (`aliases need provides.contracts that holds a native module`). See [Lifecycle](/docs/plugins/lifecycle/). |
+| `events` | array of strings | no | `[]` | Event types the backend receives. Exact names, or a prefix followed by `.*`. The installer does not validate the strings. See [Events](/_aphel/docs/plugins/events/). |
+| `operations` | array of strings | no | `[]` | Host operations the backend may call with `invoke`. At most 100, no duplicates, each offered by this Aphel (`must be a unique operation offered by this Aphel`). See [Host API](/_aphel/docs/plugins/host-api/). |
+| `aliases` | table of string to string | no | `{}` | Maps a built-in API path to a route of this plugin. Both sides must start with `/`. Only allowed together with `provides.contracts` that replaces a built-in module (`aliases need provides.contracts that holds a native module`). See [Lifecycle](/_aphel/docs/plugins/lifecycle/). |
 
 Capabilities of a plugin are the union of `requires`, `optional_requires`, the keys of `[[permissions]]` and every `<plugin key>.<entity>.<action>` permission of its own entities.
 
 ## `[[entities]]`
 
-Declares a record type owned by the plugin. The record type is `<plugin key>.<entity key>`. Details in [Entities and fields](/docs/plugins/entities-and-fields/).
+Declares a record type owned by the plugin. The record type is `<plugin key>.<entity key>`. Details in [Entities and fields](/_aphel/docs/plugins/entities-and-fields/).
 
 | Key | Type | Required | Default | Rules |
 | --- | --- | --- | --- | --- |
@@ -108,7 +108,7 @@ A property that the field type does not support is rejected with `is not support
 | `hooks.declare[].kind` | `"veto"`, `"filter"` or `"action"` | no | `"action"` | |
 | `hooks.declare[].record_type` | string | no | `"*"` | |
 
-Declared hooks are added to the host catalog so other plugins can subscribe to them. The plugin interface has no function that fires a declared hook. See [Hooks](/docs/plugins/hooks/).
+Declared hooks are added to the host catalog so other plugins can subscribe to them. The plugin interface has no function that fires a declared hook. See [Hooks](/_aphel/docs/plugins/hooks/).
 
 ## `[[routes]]`
 
@@ -119,7 +119,7 @@ Declared hooks are added to the host catalog so other plugins can subscribe to t
 | `permission` | string | no | none | A permission known to Aphel, declared by the plugin, or one of its entity permissions. Not allowed on public routes. |
 | `public` | boolean | no | `false` | A public route needs no sign-in. Error when combined with `permission`: `public routes cannot require a permission`. |
 
-See [Routes](/docs/plugins/routes/).
+See [Routes](/_aphel/docs/plugins/routes/).
 
 ## `[[schedules]]`
 
@@ -130,7 +130,7 @@ At most 10.
 | `name` | string | yes | Unique lowercase key, at most 64 characters. |
 | `cron` | string | yes | Cron expression with seconds: `sec min hour day month weekday`. Error: `must be a cron expression with seconds (sec min hour day month weekday)`. |
 
-See [Schedules](/docs/plugins/schedules/).
+See [Schedules](/_aphel/docs/plugins/schedules/).
 
 ## `[[settings]]`
 
@@ -148,7 +148,7 @@ See [Schedules](/docs/plugins/schedules/).
 
 `tls_identity` requires `tls_origins`; `http_credential` requires `http_origins`. Both contain exact HTTPS origins and are rejected on other setting types. `signing_identity` requires `signing_algorithms`; a TLS identity may opt into signing with the same field. Supported algorithms are `rsa_pkcs1_sha256`, `rsa_pkcs1_sha512`, `rsa_pkcs1_sha1` (explicit legacy opt-in) and `ed25519`. Signing algorithms are rejected on other types.
 
-See [Settings and secrets](/docs/plugins/settings-and-secrets/).
+See [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/).
 
 ## `[[permissions]]` and `[[role_presets]]`
 
@@ -165,7 +165,7 @@ See [Settings and secrets](/docs/plugins/settings-and-secrets/).
 | `role_presets[].scope` | `"own"`, `"team"` or `"organization"` | no | `"organization"` | Scope of the granted permissions. |
 | `role_presets[].home` | string | no | none | Application path starting with a single `/`, at most 200 characters, used as the landing page of users with that role. |
 
-At most 20 role presets. See [Permissions and roles](/docs/plugins/permissions-and-roles/).
+At most 20 role presets. See [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/).
 
 ## `[http]`
 
@@ -206,7 +206,7 @@ At most 20 role presets. See [Permissions and roles](/docs/plugins/permissions-a
 | `widgets[].uses_period` | boolean | no | `true` | Whether the dashboard period selector applies. |
 | `widgets[].default_settings` | table | no | `{}` | Must be a table. |
 
-See [Automation and widgets](/docs/plugins/automation-and-widgets/).
+See [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/).
 
 ## `[menu]` and `[privacy]`
 
@@ -214,7 +214,7 @@ See [Automation and widgets](/docs/plugins/automation-and-widgets/).
 
 | Key | Type | Default | Rules |
 | --- | --- | --- | --- |
-| `menu.flat` | boolean | `false` | Read by the web navigation. See [Web screens](/docs/plugins/web-screens/). |
+| `menu.flat` | boolean | `false` | Read by the web navigation. See [Web screens](/_aphel/docs/plugins/web-screens/). |
 | `menu.own_entities` | `"visible"` or `"hidden"` | none | `"hidden"` hides the plugin's own entities from the navigation, with or without a web bundle. Error: `must be one of visible, hidden`. |
 | `privacy.subject_data` | boolean | `false` | When `true`, the backend answers data subject requests. Requires a backend. |
 
@@ -224,9 +224,9 @@ See [Automation and widgets](/docs/plugins/automation-and-widgets/).
 | --- | --- | --- | --- |
 | `web.entry` | string | `"web/index.js"` | ES module loaded by the Aphel web app. Must exist in the package. |
 | `web.style` | string | none | Stylesheet path inside the package. |
-| `web.public` | string | none | Directory of a public single-page application, inside `web/`, containing `index.html`. Served at `/p/<plugin key>/`. |
+| `web.public` | string | none | Directory of a public single-page application, inside `web/`, containing `index.html`. Served at `/p/<plugin key>/` under the app base path. |
 
-Declaring `[web]` requires an explicit acknowledgement on every install, upgrade and enable (`plugin_web_unacknowledged`). See [Web bundle](/docs/plugins/web-bundle/), [Public web apps](/docs/plugins/public-web-apps/) and [Security model](/docs/plugins/security-model/).
+Declaring `[web]` requires an explicit acknowledgement on every install, upgrade and enable (`plugin_web_unacknowledged`). See [Web bundle](/_aphel/docs/plugins/web-bundle/), [Public web apps](/_aphel/docs/plugins/public-web-apps/) and [Security model](/_aphel/docs/plugins/security-model/).
 
 ## `[provides]`, `[uses]` and `[[contribute]]`
 
@@ -247,7 +247,7 @@ These three tables reject unknown keys.
 | `contribute[].title` | string | none | |
 | `contribute[].data` | any | null | Data passed with the contribution. |
 
-An operation provided by a plugin needs a backend with `on-operation`. See [Automation and widgets](/docs/plugins/automation-and-widgets/) and [Lifecycle](/docs/plugins/lifecycle/).
+An operation provided by a plugin needs a backend with `on-operation`. See [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/) and [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 
 ## Limits at a glance
 

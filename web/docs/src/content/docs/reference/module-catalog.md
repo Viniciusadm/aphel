@@ -5,7 +5,7 @@ sidebar:
   order: 10
 ---
 
-Aphel is a modular monolith. The binary is built from the **kernel** plus the modules selected in `back/aphel.modules.toml`, and each installation enables the ones it needs. This page lists the modules shipped in the repository. For how modules are enabled and removed see [Modules](/docs/admin/modules/), and for how blueprints pick them see [Blueprints](/docs/admin/blueprints/).
+Aphel is a modular monolith. The binary is built from the **kernel** plus the modules selected in `back/aphel.modules.toml`, and each installation enables the ones it needs. This page lists the modules shipped in the repository. For how modules are enabled and removed see [Modules](/_aphel/docs/admin/modules/), and for how blueprints pick them see [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## How to read an entry
 
@@ -15,7 +15,7 @@ Aphel is a modular monolith. The binary is built from the **kernel** plus the mo
 | Layer | `capability` modules offer a generic ability (people, tasks, workflow, search) and know no business domain; `domain` modules add business behavior on top of capabilities. A capability module can require only other capabilities; a domain module can require capabilities and other domain modules. |
 | Depends on | Modules that must be enabled for this one to work. Enabling a module needs its dependencies first, and disabling one is refused while others depend on it. |
 | Optional dependencies | Modules this one integrates with when they are enabled, and works without. They are loaded before it. |
-| Permissions | Permission keys the module registers; see the [permissions catalog](/docs/reference/permissions-catalog/). |
+| Permissions | Permission keys the module registers; see the [permissions catalog](/_aphel/docs/reference/permissions-catalog/). |
 | Web package | Whether the module has its own screens in the web interface (a package under `web/src/modules`). |
 | Blueprints | Whether the blueprints name the module as required (enabled by the installer) or recommended (offered). Every blueprint other than `crm` extends `crm` and inherits its lists. |
 
@@ -898,4 +898,4 @@ Automatic renewal of won deals whose contract is ending, configured per pipeline
 
 ## Compiling the selection
 
-The selection of modules compiled into a build lives in `back/aphel.modules.toml`, one line per module (`<key> = { path = "modules/<key>" }`, or a git tag or a version), and `make modules` generates the registries from it. The same file lists the blueprints included in the build. Only the core and the official modules are compiled; third-party extensions are runtime plugins (see [Plugins overview](/docs/plugins/overview/)).
+The selection of modules compiled into a build lives in `back/aphel.modules.toml`, one line per module (`<key> = { path = "modules/<key>" }`, or a git tag or a version), and `make modules` generates the registries from it. The same file lists the blueprints included in the build. Only the core and the official modules are compiled; third-party extensions are runtime plugins (see [Plugins overview](/_aphel/docs/plugins/overview/)).

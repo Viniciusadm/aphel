@@ -696,7 +696,7 @@ Then open Account, Appearance and choose Focus, or set it as the organization de
 
 ## Related pages
 
-- [Web bundle](/docs/plugins/web-bundle/)
-- [Screens and contributions](/docs/plugins/web-screens/)
-- [UI plugins](/docs/plugins/ui-plugins/)
-- [Packaging](/docs/plugins/packaging/)
+- [Web bundle](/_aphel/docs/plugins/web-bundle/)
+- [Screens and contributions](/_aphel/docs/plugins/web-screens/)
+- [UI plugins](/_aphel/docs/plugins/ui-plugins/)
+- [Packaging](/_aphel/docs/plugins/packaging/)

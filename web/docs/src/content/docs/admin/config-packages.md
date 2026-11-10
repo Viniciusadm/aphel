@@ -110,7 +110,7 @@ In the app, the Install tab accepts an uploaded `.json` file (up to 2 MB) or a r
 
 ## Templates
 
-Templates are packages embedded in the binary, one set per blueprint (`crm`, `freelancer`, `agency`, `real_estate`, `saas`, `sales`), each in `en` and `pt-BR`. `GET /api/v1/config-packages/templates` lists them, and `GET /api/v1/config-packages/templates/{key}` returns one. If the language you ask for is not available, another one is used. The installer applies the template of the chosen blueprint automatically. See [Blueprints](/docs/admin/blueprints/).
+Templates are packages embedded in the binary, one set per blueprint (`crm`, `freelancer`, `agency`, `real_estate`, `saas`, `sales`), each in `en` and `pt-BR`. `GET /api/v1/config-packages/templates` lists them, and `GET /api/v1/config-packages/templates/{key}` returns one. If the language you ask for is not available, another one is used. The installer applies the template of the chosen blueprint automatically. See [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## History
 
@@ -132,4 +132,4 @@ A package that carries an `id` and a `version` can be installed through the vers
 - It never applies sections of modules that are disabled.
 - It never writes before you confirm: planning is read-only, and applying requires the plan fingerprint.
 
-For a full copy of an installation including its records, use a full export instead. See [Backup and restore](/docs/admin/backup-and-restore/).
+For a full copy of an installation including its records, use a full export instead. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).

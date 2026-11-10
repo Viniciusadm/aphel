@@ -124,7 +124,7 @@ impl Module for WasmRuntimeModule {
             http::router().merge(ui_http::router())
         })
         .public_routes(|_| http::public_router().merge(ui_http::public_router()))
-        .root_routes(|_| http::root_router());
+        .app_routes(|_| http::app_mount_router());
         app.contribute::<dyn aphel_sdk::platform::modules::toggle_guard::ModuleToggleGuard>(
             Arc::new(modules::PluginModuleGuard),
         );

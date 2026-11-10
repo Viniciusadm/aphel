@@ -6,6 +6,101 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/_aphel/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "operationId": "health_check",
+        "responses": {
+          "200": {
+            "description": "Service is up",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "ok"
+              }
+            }
+          }
+        },
+        "x-aphel-module": "kernel"
+      }
+    },
+    "/_aphel/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "operationId": "readiness_check",
+        "responses": {
+          "200": {
+            "description": "Every check passed: database, storage, worker heartbeat, scheduler and queue delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "At least one check failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-aphel-module": "kernel"
+      }
+    },
+    "/_aphel/metrics": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "description": "Disabled unless `METRICS_TOKEN` is set; requires `Authorization: Bearer <METRICS_TOKEN>`.",
+        "operationId": "metrics",
+        "responses": {
+          "200": {
+            "description": "Prometheus text exposition format (version 0.0.4)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or wrong `Authorization: Bearer <METRICS_TOKEN>` (`metrics_unauthorized`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Metrics are disabled (`METRICS_TOKEN` not set)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/activity-types": {
       "get": {
         "tags": [
@@ -36723,7 +36818,7 @@
         "tags": [
           "organization"
         ],
-        "description": "Updates the sections that are present; omitted sections keep their value. `storage_secret_access_key` stores the S3 secret key in the vault (`null` or an empty string removes it). Changes apply without restarting the server or the worker. Publishes `organization.settings_updated` (payload with the names of the changed settings, never values of secrets) and writes the audit entry with secrets as `\"[redacted]\"`. Changing the storage driver does not copy existing files.",
+        "description": "Updates the sections that are present; omitted sections keep their value. `storage_secret_access_key` stores the S3 secret key in the vault (`null` or an empty string removes it). Changes apply without restarting the server or the worker. Publishes `organization.settings_updated` (payload with the names of the changed settings, never values of secrets) and writes the audit entry with secrets as `\"[redacted]\"`. Changing the storage driver does not copy existing files. `app_base_path` moves the internal app (`/` or a single segment such as `/app`) and also requires `system.manage`; the app always stays reachable at `/_aphel/app/`.",
         "operationId": "organization_settings_update",
         "requestBody": {
           "content": {
@@ -36757,7 +36852,7 @@
             }
           },
           "403": {
-            "description": "Missing `settings.manage` (`permission_denied`)",
+            "description": "Missing `settings.manage`, or `system.manage` when changing `app_base_path` (`permission_denied`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -65045,101 +65140,6 @@
         ],
         "x-aphel-module": "workflow"
       }
-    },
-    "/health": {
-      "get": {
-        "tags": [
-          "health"
-        ],
-        "operationId": "health_check",
-        "responses": {
-          "200": {
-            "description": "Service is up",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "ok"
-              }
-            }
-          }
-        },
-        "x-aphel-module": "kernel"
-      }
-    },
-    "/health/ready": {
-      "get": {
-        "tags": [
-          "health"
-        ],
-        "operationId": "readiness_check",
-        "responses": {
-          "200": {
-            "description": "Every check passed: database, storage, worker heartbeat, scheduler and queue delay",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReadinessResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "At least one check failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReadinessResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-aphel-module": "kernel"
-      }
-    },
-    "/metrics": {
-      "get": {
-        "tags": [
-          "health"
-        ],
-        "description": "Disabled unless `METRICS_TOKEN` is set; requires `Authorization: Bearer <METRICS_TOKEN>`.",
-        "operationId": "metrics",
-        "responses": {
-          "200": {
-            "description": "Prometheus text exposition format (version 0.0.4)",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or wrong `Authorization: Bearer <METRICS_TOKEN>` (`metrics_unauthorized`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Metrics are disabled (`METRICS_TOKEN` not set)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "x-aphel-module": "kernel"
-      }
     }
   },
   "components": {
@@ -82865,6 +82865,8 @@
             "type": "object",
             "required": [
               "effective_public_base_url",
+              "app_base_path",
+              "app_base_url",
               "secure_cookies",
               "max_upload_mb",
               "storage",
@@ -82877,6 +82879,14 @@
             "properties": {
               "api_tokens": {
                 "$ref": "#/components/schemas/ApiTokenLimitsDto"
+              },
+              "app_base_path": {
+                "type": "string",
+                "example": "/app"
+              },
+              "app_base_url": {
+                "type": "string",
+                "example": "https://app.example.com/app"
               },
               "effective_public_base_url": {
                 "type": "string"
@@ -89352,6 +89362,12 @@
                 },
                 "label": {
                   "type": "string"
+                },
+                "mask": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "max": {
                   "type": [
@@ -102330,6 +102346,8 @@
         "type": "object",
         "required": [
           "effective_public_base_url",
+          "app_base_path",
+          "app_base_url",
           "secure_cookies",
           "max_upload_mb",
           "storage",
@@ -102342,6 +102360,14 @@
         "properties": {
           "api_tokens": {
             "$ref": "#/components/schemas/ApiTokenLimitsDto"
+          },
+          "app_base_path": {
+            "type": "string",
+            "example": "/app"
+          },
+          "app_base_url": {
+            "type": "string",
+            "example": "https://app.example.com/app"
           },
           "effective_public_base_url": {
             "type": "string"
@@ -110656,6 +110682,12 @@
           },
           "label": {
             "type": "string"
+          },
+          "mask": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "max": {
             "type": [
@@ -119607,6 +119639,13 @@
                 "$ref": "#/components/schemas/ApiTokenLimitsDto"
               }
             ]
+          },
+          "app_base_path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "/app"
           },
           "mail": {
             "oneOf": [

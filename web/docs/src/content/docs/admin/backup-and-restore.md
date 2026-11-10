@@ -72,7 +72,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 ## Manual installation
 
-With the scripts copied to `/opt/aphel/`, and the layout from [Installation](/docs/admin/installation/):
+With the scripts copied to `/opt/aphel/`, and the layout from [Installation](/_aphel/docs/admin/installation/):
 
 ```bash
 sudo -u aphel sh -c 'set -a; . /etc/aphel/aphel.env; exec /opt/aphel/backup.sh --storage-dir /var/lib/aphel/storage --output /srv/backups/aphel'
@@ -136,7 +136,7 @@ The **full export** is independent of the database schema. It writes a zip with 
 | --- | --- |
 | Export from the app | Settings, Full export. A worker builds the zip. Only one export can run at a time. Needs the `organization.export` permission |
 | Export from the command line | `aphel org export --output FILE` |
-| Restore | In the installer (see [Installation](/docs/admin/installation/)) or with `aphel org import FILE`, on an installation that is not set up yet |
+| Restore | In the installer (see [Installation](/_aphel/docs/admin/installation/)) or with `aphel org import FILE`, on an installation that is not set up yet |
 
 ```bash
 aphel org export --output /srv/backups/aphel-full.zip

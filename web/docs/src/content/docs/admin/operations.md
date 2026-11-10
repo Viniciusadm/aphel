@@ -15,15 +15,15 @@ This page covers running an installation day to day: how to tell it is healthy, 
 | Worker | `aphel worker` | Background jobs, the scheduler and the worker heartbeat |
 | Combined | `aphel serve --with-worker` | Both in one process. Ignored, with a warning, when `DATABASE_URL` is not set |
 
-Keep a worker running. Without one, queued jobs and event consumers do not run, schedules do not fire, and `/health/ready` fails. On a shutdown signal both processes stop gracefully, and the worker waits for the jobs it is running.
+Keep a worker running. Without one, queued jobs and event consumers do not run, schedules do not fire, and `/_aphel/health/ready` fails. On a shutdown signal both processes stop gracefully, and the worker waits for the jobs it is running.
 
 ## Health endpoints
 
 | Endpoint | Auth | Answer |
 | --- | --- | --- |
-| `GET /health` | none | `200` and the text `ok` when the process is up |
-| `GET /health/ready` | none | `200` when every check passes, `503` otherwise, with a JSON body and `Cache-Control: no-store` |
-| `GET /metrics` | `Authorization: Bearer <METRICS_TOKEN>` | Prometheus text. `404` when `METRICS_TOKEN` is not set, `401` for a wrong token |
+| `GET /_aphel/health` | none | `200` and the text `ok` when the process is up |
+| `GET /_aphel/health/ready` | none | `200` when every check passes, `503` otherwise, with a JSON body and `Cache-Control: no-store` |
+| `GET /_aphel/metrics` | `Authorization: Bearer <METRICS_TOKEN>` | Prometheus text. `404` when `METRICS_TOKEN` is not set, `401` for a wrong token |
 
 The readiness body has this shape:
 
@@ -52,19 +52,19 @@ The readiness body has this shape:
 When the database is down, the worker, scheduler and queue checks fail with `database_unreachable`. With `HEALTH_REQUIRE_WORKER=false`, the worker and scheduler checks are `skipped`.
 
 :::caution
-By default, an installation with only `aphel serve` (no worker) is not ready: `/health/ready` returns `503` because no worker heartbeat exists. Either run a worker or set `HEALTH_REQUIRE_WORKER=false`.
+By default, an installation with only `aphel serve` (no worker) is not ready: `/_aphel/health/ready` returns `503` because no worker heartbeat exists. Either run a worker or set `HEALTH_REQUIRE_WORKER=false`.
 :::
 
-The Docker image uses `aphel healthcheck` for the server and `aphel healthcheck --worker` for the worker. The first calls `/health` on the local address. Add `--ready` to call `/health/ready` instead. The worker check reads the heartbeat table and, when the host name is known, considers only the worker of the same host. Exit status is 0 when healthy.
+The Docker image uses `aphel healthcheck` for the server and `aphel healthcheck --worker` for the worker. The first calls `/_aphel/health` on the local address. Add `--ready` to call `/_aphel/health/ready` instead. The worker check reads the heartbeat table and, when the host name is known, considers only the worker of the same host. Exit status is 0 when healthy.
 
 ## Metrics
 
-With `METRICS_TOKEN` set, `GET /metrics` serves Prometheus text format 0.0.4. Example scrape configuration:
+With `METRICS_TOKEN` set, `GET /_aphel/metrics` serves Prometheus text format 0.0.4. Example scrape configuration:
 
 ```yaml
 scrape_configs:
   - job_name: aphel
-    metrics_path: /metrics
+    metrics_path: /_aphel/metrics
     authorization:
       credentials: replace-with-the-metrics-token
     static_configs:
@@ -83,11 +83,11 @@ scrape_configs:
 | `aphel_worker_heartbeat_age_seconds` | gauge | Seconds since the latest heartbeat |
 | `aphel_http_responses_total{class}` | counter | Responses served by this process, by class `1xx` to `5xx` |
 
-The HTTP counter belongs to the process that serves `/metrics`. The job and worker gauges come from the database and are the same from any process.
+The HTTP counter belongs to the process that serves `/_aphel/metrics`. The job and worker gauges come from the database and are the same from any process.
 
 ## The worker
 
-The worker polls the job queue, runs jobs with the handlers that enabled modules register, runs the scheduler, and records a heartbeat in the database every 15 seconds (`WORKER_HEARTBEAT_INTERVAL_SECS`). Heartbeats of workers that disappeared are cleaned up. The tuning variables are `WORKER_CONCURRENCY` (4), `WORKER_POLL_INTERVAL_MS` (1000) and `WORKER_JOB_TIMEOUT_SECS` (300). See [Configuration](/docs/admin/configuration/).
+The worker polls the job queue, runs jobs with the handlers that enabled modules register, runs the scheduler, and records a heartbeat in the database every 15 seconds (`WORKER_HEARTBEAT_INTERVAL_SECS`). Heartbeats of workers that disappeared are cleaned up. The tuning variables are `WORKER_CONCURRENCY` (4), `WORKER_POLL_INTERVAL_MS` (1000) and `WORKER_JOB_TIMEOUT_SECS` (300). See [Configuration](/_aphel/docs/admin/configuration/).
 
 Disabling a module stops its jobs and consumers: they do not run while the module is off.
 
@@ -136,15 +136,15 @@ Every request gets an `X-Request-Id` header (a UUID, or the one the client sent)
 
 ## Audit
 
-The audit log records who changed what, and security events record sign-ins and permission changes. Both are described in [Security](/docs/admin/security/). The System screen's actions on failed jobs are recorded in a separate system audit log.
+The audit log records who changed what, and security events record sign-ins and permission changes. Both are described in [Security](/_aphel/docs/admin/security/). The System screen's actions on failed jobs are recorded in a separate system audit log.
 
 ## Diagnostics
 
-`aphel doctor` prints a sanitized report you can attach to an issue: version, operating system, MySQL version, the Aphel environment variables with secrets redacted, and checks for the database, migrations, workers, scheduler, queue, storage, disk space, SMTP reachability and encryption key. See [CLI](/docs/admin/cli/).
+`aphel doctor` prints a sanitized report you can attach to an issue: version, operating system, MySQL version, the Aphel environment variables with secrets redacted, and checks for the database, migrations, workers, scheduler, queue, storage, disk space, SMTP reachability and encryption key. See [CLI](/_aphel/docs/admin/cli/).
 
 ## Routine checklist
 
-- Watch `/health/ready` or the `aphel_*` metrics, and alert on failed jobs.
+- Watch `/_aphel/health/ready` or the `aphel_*` metrics, and alert on failed jobs.
 - Check the System screen after upgrades.
-- Verify the backups are being produced and restore one now and then. See [Backup and restore](/docs/admin/backup-and-restore/).
+- Verify the backups are being produced and restore one now and then. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 - Keep free disk space above `UPGRADE_MIN_FREE_DISK_MB`.

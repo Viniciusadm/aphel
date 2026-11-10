@@ -46,7 +46,7 @@ Validation of the whole table:
 
 ### Token values
 
-A token name is the name of a CSS custom property without the leading dashes. The full list, with kinds and defaults, is in [Design tokens](/docs/reference/design-tokens/). A name that is not in the list is rejected with "is not a design token". Every value must be a string, except fonts. Values are trimmed and must not be empty.
+A token name is the name of a CSS custom property without the leading dashes. The full list, with kinds and defaults, is in [Design tokens](/_aphel/docs/reference/design-tokens/). A name that is not in the list is rejected with "is not a design token". Every value must be a string, except fonts. Values are trimmed and must not be empty.
 
 | Kind | Accepted values |
 | --- | --- |
@@ -86,7 +86,7 @@ html[data-theme='dark']{--primary:var(--org-primary-dark, #2dd4bf);}
 
 Shared tokens go to `html:root`, light tokens to `html:root:not([data-theme='dark'])` and dark tokens to `html[data-theme='dark']`. These selectors have higher specificity than the defaults of the application.
 
-The tokens `primary`, `primary-solid` and `primary-foreground` are wrapped so that the brand color of the organization still wins when an administrator has set one (`--org-primary`, `--org-primary-solid`, `--org-primary-foreground`, and `--org-primary-dark` for the dark `primary`). See [UI library](/docs/plugins/ui-library/).
+The tokens `primary`, `primary-solid` and `primary-foreground` are wrapped so that the brand color of the organization still wins when an administrator has set one (`--org-primary`, `--org-primary-solid`, `--org-primary-foreground`, and `--org-primary-dark` for the dark `primary`). See [UI library](/_aphel/docs/plugins/ui-library/).
 
 :::note
 The application currently always runs in the light theme: the `data-theme` attribute is set to `light` and there is no switch. Tokens in `[ui.tokens.dark]` are validated and served, but they have no visible effect until a dark theme is enabled. Use `shared` and `light` for what users see today.
@@ -135,7 +135,7 @@ primary = "#2dd4bf"
 border = "#1d2f3c"
 ```
 
-Pack it with `aphel-plugin pack` (see [Packaging](/docs/plugins/packaging/)). It has no `[web]`, so it contains no code and the consent dialog shows no code warning. The same file is walked through in [Examples](/docs/plugins/examples/).
+Pack it with `aphel-plugin pack` (see [Packaging](/_aphel/docs/plugins/packaging/)). It has no `[web]`, so it contains no code and the consent dialog shows no code warning. The same file is walked through in [Examples](/_aphel/docs/plugins/examples/).
 
 ## Replaceable screens
 
@@ -225,7 +225,7 @@ Rules:
 - Build the page with the exported parts: `RecordPageShell`, `RecordHeader`, `RecordFieldsPanel`, `RecordTabs`, `Slot`. They keep inline editing, permissions and tab navigation working.
 - If your presentation throws, the host shows an alert and renders the default presentation instead, and keeps using the default presentation for that page view.
 
-A complete frame and presentation are in [Examples](/docs/plugins/examples/).
+A complete frame and presentation are in [Examples](/_aphel/docs/plugins/examples/).
 
 ## How users and administrators choose an interface
 
@@ -268,11 +268,11 @@ Responses are sent with `Cache-Control: no-cache` and an `ETag` based on the pac
 
 A UI plugin without `[web]` contains only validated token values. The server rejects anything that could inject CSS: no `url()`, no `@import`, no braces, no semicolons. It is safe to install without reviewing code, and the consent dialog shows no code warning.
 
-A UI plugin with `[web]` is application code with the session of every user who selects it, the same as any web bundle. It needs the same acknowledgement (`acknowledge_web_version`) on install and enable, and the Appearance page warns users that it "runs code with your session". See [Security model](/docs/plugins/security-model/).
+A UI plugin with `[web]` is application code with the session of every user who selects it, the same as any web bundle. It needs the same acknowledgement (`acknowledge_web_version`) on install and enable, and the Appearance page warns users that it "runs code with your session". See [Security model](/_aphel/docs/plugins/security-model/).
 
 ## Related pages
 
-- [Manifest](/docs/plugins/manifest/)
-- [UI library](/docs/plugins/ui-library/)
-- [Design tokens](/docs/reference/design-tokens/)
-- [Examples](/docs/plugins/examples/)
+- [Manifest](/_aphel/docs/plugins/manifest/)
+- [UI library](/_aphel/docs/plugins/ui-library/)
+- [Design tokens](/_aphel/docs/reference/design-tokens/)
+- [Examples](/_aphel/docs/plugins/examples/)

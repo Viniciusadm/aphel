@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-This page describes how Aphel is built. It assumes you have read [Concepts](/docs/start/concepts/). You do not need it to use Aphel, but it helps when you operate an installation, debug a failure or design a plugin.
+This page describes how Aphel is built. It assumes you have read [Concepts](/_aphel/docs/start/concepts/). You do not need it to use Aphel, but it helps when you operate an installation, debug a failure or design a plugin.
 
 ## Overview
 
@@ -112,7 +112,7 @@ Key points:
 - **Errors.** Everything goes through one error type and comes out in the same envelope, with a stable `code`. Internal errors are logged and answered with a generic message.
 - **Versioning.** Updates can send `If-Match`. The version is checked again inside the transaction after locking the row, and a mismatch answers 409 `version_conflict`.
 
-If the web application has been built into the binary, it is served for every path that is not under `/api`, and static documentation, if built, is served under `/docs`.
+Aphel's own infrastructure lives under a few fixed prefixes: `/api` for the REST API and `/_aphel` for the built web assets, the shared plugin modules, the service worker, health checks, metrics and the static documentation (`/_aphel/docs`). If the web application has been built into the binary, the internal app is served at its base path, `/` by default or a single segment such as `/app` (see [Configuration](/_aphel/docs/admin/configuration/)), and it always answers at `/_aphel/app/` too. With the app outside `/`, the other paths are left free and `/` redirects to the app.
 
 ## The record pipeline
 
@@ -150,7 +150,7 @@ Rules that follow from this design:
 - Listings are built only by the query engine from a filter tree validated against the entity registry. User text is never turned into SQL.
 - Custom field values are written only by the custom field writer, so validation, layout rules and uniqueness apply everywhere.
 
-The complete list of hooks, including domain hooks of modules, is in the [Hooks catalog](/docs/reference/hooks-catalog/). Plugin authors should read [Hooks](/docs/plugins/hooks/).
+The complete list of hooks, including domain hooks of modules, is in the [Hooks catalog](/_aphel/docs/reference/hooks-catalog/). Plugin authors should read [Hooks](/_aphel/docs/plugins/hooks/).
 
 ## Events, the outbox and delivery guarantees
 
@@ -199,7 +199,7 @@ Jobs live in a MySQL table. Workers claim them with `FOR UPDATE SKIP LOCKED`, so
 - Failed jobs stay visible to administrators with `system.manage`, who can retry or delete them.
 - The scheduler creates recurring jobs from cron expressions with a seconds field. Modules register them in code, and runtime plugins declare them in the manifest.
 
-See [Operations](/docs/admin/operations/).
+See [Operations](/_aphel/docs/admin/operations/).
 
 ## File storage
 
@@ -209,11 +209,11 @@ Files go through one storage abstraction on top of the `object_store` crate. The
 
 Outgoing email uses SMTP through `lettre`. The SMTP settings are organization configuration, edited under **Settings**, **Outgoing email**, with the password in the secret vault. `SMTP_*` environment variables act as a fallback. The mailer is resolved on every send, so changes apply without a restart. Without SMTP, sending fails with `mail_not_configured` without bringing anything down, and screens that would send an invitation or password reset show the link instead. Notification emails are sent by a job. Links in emails always use the saved public address, never the `Host` header of a request.
 
-The email module can also connect personal mailboxes over IMAP and SMTP. See [Email and sequences](/docs/using/email-and-sequences/).
+The email module can also connect personal mailboxes over IMAP and SMTP. See [Email and sequences](/_aphel/docs/using/email-and-sequences/).
 
 ## Search
 
-Global search is generic over the entity registry. A record type is picked up automatically if it publishes events for its records and marks fields as searchable. The index lives in MySQL tables, including a full-text index with the `ngram` parser, and is kept current by an event consumer. `aphel search reindex` rebuilds it, optionally for one record type. See [Search and collaboration](/docs/using/search-and-collaboration/).
+Global search is generic over the entity registry. A record type is picked up automatically if it publishes events for its records and marks fields as searchable. The index lives in MySQL tables, including a full-text index with the `ngram` parser, and is kept current by an event consumer. `aphel search reindex` rebuilds it, optionally for one record type. See [Search and collaboration](/_aphel/docs/using/search-and-collaboration/).
 
 ## Caching and the entity registry
 
@@ -244,7 +244,7 @@ When the application starts, the builder sorts modules by their dependencies and
 
 Modules extend each other without importing each other: through a hook, a service, or a typed contribution defined in a contract. Cycles between crates are forbidden.
 
-Runtime plugins reach the same extension points through a narrower door. Their manifest declares entities, fields, hooks, events, routes, schedules, settings, automation actions, widgets and more, and the host registers them on the plugin's behalf. Modules can expose operations and forward domain hooks to plugins. See [Plugins overview](/docs/plugins/overview/) and [Host API](/docs/plugins/host-api/).
+Runtime plugins reach the same extension points through a narrower door. Their manifest declares entities, fields, hooks, events, routes, schedules, settings, automation actions, widgets and more, and the host registers them on the plugin's behalf. Modules can expose operations and forward domain hooks to plugins. See [Plugins overview](/_aphel/docs/plugins/overview/) and [Host API](/_aphel/docs/plugins/host-api/).
 
 ### The runtime plugin host
 
@@ -255,7 +255,7 @@ Runtime plugins reach the same extension points through a narrower door. Their m
 - If a plugin backend stops loading, it fails closed: record types it hooks answer 503 `plugin_failed`.
 - A plugin accesses data only through host calls (records, key-value storage, settings, secrets, outbound HTTP, the clock and logging), never through SQL.
 
-See [Lifecycle](/docs/plugins/lifecycle/) and [Security model](/docs/plugins/security-model/).
+See [Lifecycle](/_aphel/docs/plugins/lifecycle/) and [Security model](/_aphel/docs/plugins/security-model/).
 
 ## How the web application is assembled
 
@@ -267,9 +267,9 @@ The web application is a React 19 single-page application, built with Vite and e
 - At runtime, everything is filtered by the set of enabled modules from `/api/v1/modules`, so disabled modules disappear from navigation and their routes are blocked.
 - Screens use generic record building blocks (list, form, detail, timeline), so a new record type gets complete screens from its registry description.
 - API calls go through one client with types generated from the OpenAPI document.
-- Texts come from i18n catalogs in Brazilian Portuguese and English. Visual values come from design tokens, which are also what plugins use through the UI library. See [Design tokens](/docs/reference/design-tokens/).
+- Texts come from i18n catalogs in Brazilian Portuguese and English. Visual values come from design tokens, which are also what plugins use through the UI library. See [Design tokens](/_aphel/docs/reference/design-tokens/).
 
-Runtime plugins add screens too. Before the router is built, the application loads the web bundles of enabled plugins. Plugin bundles import React, the router, TanStack Query and the Aphel web SDK from shared entries served by the host, through an import map, so there is exactly one copy of each. See [Web bundle](/docs/plugins/web-bundle/) and [UI library](/docs/plugins/ui-library/).
+Runtime plugins add screens too. Before the router is built, the application loads the web bundles of enabled plugins. Plugin bundles import React, the router, TanStack Query and the Aphel web SDK from shared entries served by the host, through an import map, so there is exactly one copy of each. See [Web bundle](/_aphel/docs/plugins/web-bundle/) and [UI library](/_aphel/docs/plugins/ui-library/).
 
 ## Real-time, PWA and offline
 
@@ -293,12 +293,12 @@ Runtime plugins add screens too. Before the router is built, the application loa
 | Outbound requests | Webhooks and plugin HTTP calls apply SSRF protection and do not reach private networks unless `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` is set. |
 | Privacy | Fields can be marked personal or sensitive. A privacy module locates data subjects, handles requests (export, anonymize, delete) and applies retention policies. |
 
-See [Security](/docs/admin/security/) for the administrator's view, and [Authentication](/docs/reference/authentication/) and [Errors](/docs/reference/errors/) for the API contract.
+See [Security](/_aphel/docs/admin/security/) for the administrator's view, and [Authentication](/_aphel/docs/reference/authentication/) and [Errors](/_aphel/docs/reference/errors/) for the API contract.
 
 ## Health and observability
 
-- `GET /health` answers `ok` when the process is up.
-- `GET /health/ready` checks the database, storage, worker heartbeat, scheduler and queue delay, and answers 503 if one fails. `aphel healthcheck` exits 0 when the local server is healthy. With `--ready` it checks `/health/ready`, and with `--worker` it checks the heartbeat of the worker on the same host. The Docker images use it for their health checks.
-- `GET /metrics` serves Prometheus metrics only when `METRICS_TOKEN` is set, and requires it as a bearer token.
+- `GET /_aphel/health` answers `ok` when the process is up.
+- `GET /_aphel/health/ready` checks the database, storage, worker heartbeat, scheduler and queue delay, and answers 503 if one fails. `aphel healthcheck` exits 0 when the local server is healthy. With `--ready` it checks `/_aphel/health/ready`, and with `--worker` it checks the heartbeat of the worker on the same host. The Docker images use it for their health checks.
+- `GET /_aphel/metrics` serves Prometheus metrics only when `METRICS_TOKEN` is set, and requires it as a bearer token.
 - `aphel doctor` prints a diagnosis without secrets that is safe to attach to an issue.
 - Logs go to standard error and follow `RUST_LOG`.

@@ -127,7 +127,7 @@ Rules applied on creation:
 
 A scope has the form `<resource>:read` or `<resource>:write`. It is derived from permission keys: a permission `resource.read` becomes `resource:read`, and every other action (`create`, `update`, `delete`, `export`, `archive`, `manage`, and so on) becomes `resource:write`. For example `people.read` gives `people:read`, and `people.create`, `people.update`, `people.delete` and `people.export` all give `people:write`.
 
-Scopes are therefore coarser than permissions: a token with `people:write` is allowed to try every non-read action on people, but each one is still checked against the permissions of its creator. Custom objects use the resource `custom.<key>`, so the scopes are `custom.<key>:read` and `custom.<key>:write`. The [permissions catalog](/docs/reference/permissions-catalog/) lists the permission keys; `GET /api/v1/api-tokens/scopes` lists the scopes available to you.
+Scopes are therefore coarser than permissions: a token with `people:write` is allowed to try every non-read action on people, but each one is still checked against the permissions of its creator. Custom objects use the resource `custom.<key>`, so the scopes are `custom.<key>:read` and `custom.<key>:write`. The [permissions catalog](/_aphel/docs/reference/permissions-catalog/) lists the permission keys; `GET /api/v1/api-tokens/scopes` lists the scopes available to you.
 
 ### Effective permissions
 
@@ -212,7 +212,7 @@ These routes need no credential and no CSRF header. Each has its own protection.
 | --- | --- | --- |
 | `/api/v1/auth/login`, `forgot-password`, `reset-password`, `verify-email`, `invitation`, `accept-invitation`, `sso/discover` | Account entry points | Need the CSRF header; rate limited; single-use tokens |
 | `/api/v1/installer*` | First-run wizard and backup restore | Available only before the installation is complete |
-| `/api/v1/hooks/{token}` | Incoming webhooks | Secret token in the URL and optional HMAC signature, see [Webhooks and events](/docs/reference/webhooks-and-events/#incoming-webhooks) |
+| `/api/v1/hooks/{token}` | Incoming webhooks | Secret token in the URL and optional HMAC signature, see [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/#incoming-webhooks) |
 | `/api/v1/public/book/*` | Public booking pages | Signed management links for changes |
 | `/api/v1/public/quotes/{token}` | Public quote page, accept and reject | Signed link |
 | `/api/v1/public/forms/*` | Lead forms | Allowed-origin checks and a 64 KB body limit |
@@ -222,4 +222,4 @@ These routes need no credential and no CSRF header. Each has its own protection.
 | `/api/v1/public/themes/*`, `/api/v1/public/wasm-runtime` | Static design assets and the list of enabled plugin web bundles | Read-only, no secrets |
 | `/api/v1/public/p/{key}/*` | Public routes of a runtime plugin that declares them | Rate limited; run as the plugin's installer |
 
-See [Security](/docs/admin/security/) for the administrator view of sessions, tokens and two-factor policy.
+See [Security](/_aphel/docs/admin/security/) for the administrator view of sessions, tokens and two-factor policy.

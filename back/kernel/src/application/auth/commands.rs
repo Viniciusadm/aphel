@@ -125,6 +125,10 @@ impl Default for AuthSettings {
 
 impl AuthSettings {
     pub fn link(&self, path: &str, token: &Secret) -> String {
-        format!("{}?token={}", self.app_base_url.link(path), token.expose())
+        format!(
+            "{}?token={}",
+            self.app_base_url.app_link(path),
+            token.expose()
+        )
     }
 }

@@ -5,7 +5,7 @@ import { sections } from './src/sections.ts'
 
 export default defineConfig({
   site: process.env.DOCS_SITE_URL,
-  base: '/docs',
+  base: '/_aphel/docs',
   outDir: '../dist/docs',
   integrations: [
     starlight({

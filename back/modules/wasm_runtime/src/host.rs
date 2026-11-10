@@ -639,6 +639,7 @@ fn raw_body(
 async fn organization() -> Result<String, AppError> {
     use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
     let pool = runtime_pool()?;
+    let public_url = aphel_sdk::runtime()?.public_base_url();
     let organization =
         aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(pool)
             .find()
@@ -655,6 +656,8 @@ async fn organization() -> Result<String, AppError> {
         "time_zone": organization.timezone,
         "currency": organization.currency,
         "primary_color": organization.primary_color,
+        "public_base_url": public_url.get(),
+        "app_base_url": public_url.app_root(),
     })
     .to_string())
 }

@@ -19,7 +19,7 @@ Tasks are how Aphel tracks what has to happen next, and what already happened, w
 | Calendar sync | `google`, `microsoft` | Recommended in most blueprints (see [Calendar sync](#calendar-sync-with-google-and-microsoft)). |
 | Calls | `telephony` | Recommended only in the Real Estate and B2B Sales blueprints. |
 
-Modules that are recommended but not yet active can be turned on by an administrator. See [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/).
+Modules that are recommended but not yet active can be turned on by an administrator. See [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## Permissions
 
@@ -34,7 +34,7 @@ Modules that are recommended but not yet active can be turned on by an administr
 | `notes.read`, `notes.create`, `notes.update`, `notes.delete` | See, add, edit and delete notes. |
 | `settings.manage` | Create, edit, reorder, activate and deactivate activity types. |
 
-Each of the `tasks.*` and `notes.*` permissions is granted with a scope (own, team or organization) set on the role, so two people with `tasks.read` can still see different tasks. See [Roles and permissions](/docs/admin/roles-and-permissions/).
+Each of the `tasks.*` and `notes.*` permissions is granted with a scope (own, team or organization) set on the role, so two people with `tasks.read` can still see different tasks. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
 
 You also need to be able to read the linked record. A task linked to a deal is only reachable by someone who can read that deal.
 
@@ -79,7 +79,7 @@ A task has one status: **Open**, **Done** or **Canceled**. A task can be linked 
 **Tasks** has two sections.
 
 - **My tasks** lists your open tasks grouped as Overdue, Today, Upcoming and No due date. Tick the checkbox on a row to complete it, and untick it to reopen. The list loads in pages; use **Load more**.
-- **All tasks** is a full record list with the usual filters, columns and saved views (see [Records and views](/docs/using/records-and-views/)). Select several rows and use **Complete N selected** to finish them together.
+- **All tasks** is a full record list with the usual filters, columns and saved views (see [Records and views](/_aphel/docs/using/records-and-views/)). Select several rows and use **Complete N selected** to finish them together.
 
 Open a task to see its detail page. From there you can **Complete** or **Reopen** it, change its **Schedule**, **Delete** it (permanent), and use the **Notes** and **Files** tabs.
 
@@ -107,7 +107,7 @@ To change a repeating task, open it and select **Schedule**. Choose **This occur
 
 When a task has a due date, you can pick a reminder: None, At the due time, 5, 15 or 30 minutes before, 1 hour before, or 1 day before. New tasks default to 1 hour before.
 
-The task owner receives a notification at that time. In addition, owners get a "due today" notification each morning at 8:00 (organization time zone) for their open tasks due that day. Both are sent by the `reminders` module. See [Personal settings](/docs/using/personal-settings/) for notification preferences.
+The task owner receives a notification at that time. In addition, owners get a "due today" notification each morning at 8:00 (organization time zone) for their open tasks due that day. Both are sent by the `reminders` module. See [Personal settings](/_aphel/docs/using/personal-settings/) for notification preferences.
 
 Assigning a task to someone also notifies them that it was assigned.
 
@@ -145,7 +145,7 @@ Inbox shows up to 500 open tasks. If there are more, a message says "Showing N o
 :::
 
 :::caution
-If the `messaging` module is also active, it adds its own menu entry named **Inbox** for shared WhatsApp and email conversations. That is a different screen. See [Email and sequences](/docs/using/email-and-sequences/#shared-inbox-messaging).
+If the `messaging` module is also active, it adds its own menu entry named **Inbox** for shared WhatsApp and email conversations. That is a different screen. See [Email and sequences](/_aphel/docs/using/email-and-sequences/#shared-inbox-messaging).
 :::
 
 ## Calendar
@@ -182,7 +182,7 @@ You can also add a note from the quick-add menu, choosing a record.
 
 ## Timeline
 
-The **Timeline** tab of a record lists what happened to it, newest first: created and changed fields, stage changes, deal won or lost, tasks and activities, notes, files, and, when the matching modules are active, emails, calls and conversations. Use **Filter by type** to show only some event types and **Load more** for older items. You only see events of records you can read, and email events respect the conversation's visibility (see [Email and sequences](/docs/using/email-and-sequences/)).
+The **Timeline** tab of a record lists what happened to it, newest first: created and changed fields, stage changes, deal won or lost, tasks and activities, notes, files, and, when the matching modules are active, emails, calls and conversations. Use **Filter by type** to show only some event types and **Load more** for older items. You only see events of records you can read, and email events respect the conversation's visibility (see [Email and sequences](/_aphel/docs/using/email-and-sequences/)).
 
 ## Calendar sync with Google and Microsoft
 
@@ -201,7 +201,7 @@ To connect:
 
 The page shows the status (Connected, With errors or Access revoked), the last sync time and how many events were received and sent. If access is revoked, select **Reconnect calendar**.
 
-You need the `google.calendar_sync` or `microsoft.calendar_sync` permission to connect. An administrator first has to enter the provider's Client ID and Client secret in the module settings. See [Integrations](/docs/admin/integrations/).
+You need the `google.calendar_sync` or `microsoft.calendar_sync` permission to connect. An administrator first has to enter the provider's Client ID and Client secret in the module settings. See [Integrations](/_aphel/docs/admin/integrations/).
 
 ## Calls
 

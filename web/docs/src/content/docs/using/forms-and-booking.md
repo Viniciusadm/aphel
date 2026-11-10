@@ -8,7 +8,7 @@ sidebar:
 Two modules give outsiders a way into Aphel without an account: **Lead forms** turn website submissions into contacts (and optionally deals), and **Booking** lets clients pick a free time in your calendar.
 
 :::note
-Both are optional modules. Lead forms are suggested by the Real Estate blueprint. Booking is suggested by the Agency, Consultancy, Freelancer and Real Estate blueprints. An administrator can turn them on or off in **Settings > Modules**. See [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/).
+Both are optional modules. Lead forms are suggested by the Real Estate blueprint. Booking is suggested by the Agency, Consultancy, Freelancer and Real Estate blueprints. An administrator can turn them on or off in **Settings > Modules**. See [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 :::
 
 ## Permissions
@@ -18,7 +18,7 @@ Both are optional modules. Lead forms are suggested by the Real Estate blueprint
 | Lead forms | **Forms** | `forms.manage` | Administrator |
 | Booking | **Booking** | `booking.manage` | Administrator, Manager, Member |
 
-Grant `forms.manage` to other roles in [Roles and permissions](/docs/admin/roles-and-permissions/). `booking.manage` is scoped: Members manage their own links and availability, Managers also those of their team, and team links need at least team scope.
+Grant `forms.manage` to other roles in [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/). `booking.manage` is scoped: Members manage their own links and availability, Managers also those of their team, and team links need at least team scope.
 
 ## Lead forms
 
@@ -71,7 +71,7 @@ A honeypot field and rate limits protect every form: up to 5 submissions per min
 
 ### Automate on submission
 
-Lead forms provide an automation trigger fired when a form is submitted, for the Contact record type, so you can create a task or notify the owner. See [Automations and webhooks](/docs/using/automations/). Submissions also publish an event for [outgoing webhooks](/docs/reference/webhooks-and-events/).
+Lead forms provide an automation trigger fired when a form is submitted, for the Contact record type, so you can create a task or notify the owner. See [Automations and webhooks](/_aphel/docs/using/automations/). Submissions also publish an event for [outgoing webhooks](/_aphel/docs/reference/webhooks-and-events/).
 
 ## Booking
 
@@ -129,7 +129,7 @@ The **Bookings** tab lists bookings with status **Confirmed** or **Canceled**; f
 
 ### Automate on bookings
 
-Booking provides automation triggers when a meeting is booked, rescheduled or canceled, for the Contact record type. See [Automations and webhooks](/docs/using/automations/). The same events are available to outgoing webhooks.
+Booking provides automation triggers when a meeting is booked, rescheduled or canceled, for the Contact record type. See [Automations and webhooks](/_aphel/docs/using/automations/). The same events are available to outgoing webhooks.
 
 ## Gotchas
 

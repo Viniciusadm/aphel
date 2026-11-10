@@ -11,7 +11,7 @@ sidebar:
 import { Button, Card, CardContent, Page, PageHeader } from '@aphel/ui'
 ```
 
-The components do not depend on i18n, the session or the API. Their colors, radii, heights and shadows come from design tokens (CSS custom properties), so a plugin screen built with them follows the chosen [interface plugin](/docs/plugins/ui-plugins/) and the organization brand color automatically.
+The components do not depend on i18n, the session or the API. Their colors, radii, heights and shadows come from design tokens (CSS custom properties), so a plugin screen built with them follows the chosen [interface plugin](/_aphel/docs/plugins/ui-plugins/) and the organization brand color automatically.
 
 ## Components
 
@@ -87,7 +87,7 @@ The components do not depend on i18n, the session or the API. Their colors, radi
 
 ## Tokens
 
-The tokens are CSS custom properties defined on `:root`. Use them with `var(--name)` in CSS, or through Tailwind utilities when you import `@aphel/ui/theme.css` (for example `bg-card`, `text-muted-foreground`, `border-border`, `rounded-lg`). The complete list with default values for the light and dark themes is in [Design tokens](/docs/reference/design-tokens/). The groups:
+The tokens are CSS custom properties defined on `:root`. Use them with `var(--name)` in CSS, or through Tailwind utilities when you import `@aphel/ui/theme.css` (for example `bg-card`, `text-muted-foreground`, `border-border`, `rounded-lg`). The complete list with default values for the light and dark themes is in [Design tokens](/_aphel/docs/reference/design-tokens/). The groups:
 
 | Group | Tokens |
 | --- | --- |
@@ -102,9 +102,9 @@ Two tokens of each pair matter for contrast: `primary` is a text and outline col
 
 ## How plugin CSS interacts with the tokens
 
-- Read tokens, do not redefine them. Only an [interface plugin](/docs/plugins/ui-plugins/) should change token values, and it does so through `[ui.tokens]`, not through CSS in a bundle.
+- Read tokens, do not redefine them. Only an [interface plugin](/_aphel/docs/plugins/ui-plugins/) should change token values, and it does so through `[ui.tokens]`, not through CSS in a bundle.
 - Reference tokens as `var(--card)`, never as copies of their values.
-- The page layer order is `theme, base, components, plugin-ui, utilities`. The `@aphel/ui` utilities used by a public app are placed in `plugin-ui`, below `utilities`. Follow the rules in [Web bundle](/docs/plugins/web-bundle/) for prefixes and preflight.
+- The page layer order is `theme, base, components, plugin-ui, utilities`. The `@aphel/ui` utilities used by a public app are placed in `plugin-ui`, below `utilities`. Follow the rules in [Web bundle](/_aphel/docs/plugins/web-bundle/) for prefixes and preflight.
 
 ### Organization brand color
 
@@ -125,10 +125,10 @@ The application currently runs only in the light theme: the root element always 
 
 ## Using the library outside the application
 
-Static [public web apps](/docs/plugins/public-web-apps/) run outside the application shell. The host serves a prebuilt stylesheet for the library at `/shared/ui.css`, which contains the base reset, the tokens and the utilities of the components, and the module at `/shared/ui.js`. A page that imports them needs its own bundle and `UiLabelsProvider`, and must also load the interface stylesheet to follow the interface plugin.
+Static [public web apps](/_aphel/docs/plugins/public-web-apps/) run outside the application shell. The host serves a prebuilt stylesheet for the library at `/shared/ui.css`, which contains the base reset, the tokens and the utilities of the components, and the module at `/shared/ui.js`. A page that imports them needs its own bundle and `UiLabelsProvider`, and must also load the interface stylesheet to follow the interface plugin.
 
 ## Related pages
 
-- [Design tokens](/docs/reference/design-tokens/)
-- [UI plugins](/docs/plugins/ui-plugins/)
-- [Web bundle](/docs/plugins/web-bundle/)
+- [Design tokens](/_aphel/docs/reference/design-tokens/)
+- [UI plugins](/_aphel/docs/plugins/ui-plugins/)
+- [Web bundle](/_aphel/docs/plugins/web-bundle/)

@@ -55,7 +55,7 @@ onSchedule(ctx, name, slot) {
 }
 ```
 
-The handler runs as the plugin, with the permissions of the user who installed it limited to the plugin's capabilities (`503 plugin_owner_inactive` if that user is gone). It has 60 seconds. Because schedules are retried, it can only perform side effects through `defer-effect`; direct writes and `http-fetch` fail with `409 plugin_effect_required`. See [Events](/docs/plugins/events/#side-effects-in-event-handlers).
+The handler runs as the plugin, with the permissions of the user who installed it limited to the plugin's capabilities (`503 plugin_owner_inactive` if that user is gone). It has 60 seconds. Because schedules are retried, it can only perform side effects through `defer-effect`; direct writes and `http-fetch` fail with `409 plugin_effect_required`. See [Events](/_aphel/docs/plugins/events/#side-effects-in-event-handlers).
 
 ## Slot semantics
 

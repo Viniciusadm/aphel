@@ -121,10 +121,10 @@ The hook calls the latest `onChange` you passed, so you do not need to memoize i
 
 ## Backend logs
 
-Messages written with `log` in the backend and the server errors of plugin calls appear in the Aphel server logs (`RUST_LOG` controls the level). See [Operations](/docs/admin/operations/) for how to read them, and [Host API](/docs/plugins/host-api/) for `log`.
+Messages written with `log` in the backend and the server errors of plugin calls appear in the Aphel server logs (`RUST_LOG` controls the level). See [Operations](/_aphel/docs/admin/operations/) for how to read them, and [Host API](/_aphel/docs/plugins/host-api/) for `log`.
 
 ## Related pages
 
-- [Packaging](/docs/plugins/packaging/)
-- [Web bundle](/docs/plugins/web-bundle/)
-- [Errors](/docs/reference/errors/)
+- [Packaging](/_aphel/docs/plugins/packaging/)
+- [Web bundle](/_aphel/docs/plugins/web-bundle/)
+- [Errors](/_aphel/docs/reference/errors/)

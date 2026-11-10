@@ -18,7 +18,7 @@ The API reports the scope of each granted permission in `GET /api/v1/auth/me` un
 
 ## Built-in roles
 
-An installation starts with three system roles. Administrators can create more roles and edit the grants of any role except the system administrator, in **Settings, Roles** (see [Roles and permissions](/docs/admin/roles-and-permissions/)).
+An installation starts with three system roles. Administrators can create more roles and edit the grants of any role except the system administrator, in **Settings, Roles** (see [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/)).
 
 | Role key | Default grants |
 | --- | --- |
@@ -130,8 +130,8 @@ When an administrator creates the object, administrators receive all of them at 
 
 ## Permissions declared by plugins
 
-Runtime plugins declare their own permissions in the manifest as `<plugin key>.<action>`, with default grants for roles, and they can request role presets that an administrator chooses to create at install time. Entities declared by a plugin get the same six permissions as custom objects. These permissions enter the catalog while the plugin is installed. See [Permissions and roles](/docs/plugins/permissions-and-roles/) for how to declare them.
+Runtime plugins declare their own permissions in the manifest as `<plugin key>.<action>`, with default grants for roles, and they can request role presets that an administrator chooses to create at install time. Entities declared by a plugin get the same six permissions as custom objects. These permissions enter the catalog while the plugin is installed. See [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/) for how to declare them.
 
 ## API token scopes
 
-Permissions map to the scopes of [API tokens](/docs/reference/authentication/#scopes) by their resource: `<resource>.read` becomes `<resource>:read`, and every other action becomes `<resource>:write`. For example `deals.read` gives `deals:read`, and `deals.create`, `deals.update`, `deals.delete`, `deals.archive` and `deals.export` all give `deals:write`. The administrative permissions follow the same rule, so `settings.manage` becomes `settings:write` and `audit.read` becomes `audit:read`.
+Permissions map to the scopes of [API tokens](/_aphel/docs/reference/authentication/#scopes) by their resource: `<resource>.read` becomes `<resource>:read`, and every other action becomes `<resource>:write`. For example `deals.read` gives `deals:read`, and `deals.create`, `deals.update`, `deals.delete`, `deals.archive` and `deals.export` all give `deals:write`. The administrative permissions follow the same rule, so `settings.manage` becomes `settings:write` and `audit.read` becomes `audit:read`.

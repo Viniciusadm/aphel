@@ -15,7 +15,7 @@ Everything the Aphel interface does goes through the REST API, and the same API 
 | OpenAPI 3 document (JSON) | `/api/openapi.json` |
 | Interactive documentation (Scalar) | `/api/docs` |
 | Print the document from the binary | `aphel openapi` |
-| Health endpoints | `/health`, `/health/ready` and `/metrics`, outside `/api/v1` |
+| Health endpoints | `/_aphel/health`, `/_aphel/health/ready` and `/_aphel/metrics`, outside `/api/v1` |
 
 The OpenAPI document is generated from the modules compiled into the binary. It lists every route of those modules, whether or not a module is currently enabled; a request to the route of a disabled module answers `404 module_disabled`. Each tag of the document carries an `x-aphel-module` extension with the module that owns it.
 
@@ -24,22 +24,22 @@ The version is part of the path. Changes that break the contract of `/api/v1` sh
 ## Request format
 
 - Bodies of `POST`, `PUT` and `PATCH` requests are JSON and must be sent with `Content-Type: application/json` (or an `application/*+json` type). Any other content type answers `422 validation_error`.
-- Uploads use `multipart/form-data` (see [Records API](/docs/reference/records-api/#file-attachments)). The public incoming-webhook receiver also accepts `application/x-www-form-urlencoded` (see [Webhooks and events](/docs/reference/webhooks-and-events/#incoming-webhooks)).
+- Uploads use `multipart/form-data` (see [Records API](/_aphel/docs/reference/records-api/#file-attachments)). The public incoming-webhook receiver also accepts `application/x-www-form-urlencoded` (see [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/#incoming-webhooks)).
 - Body fields that a route does not know are rejected on routes that declare strict bodies (`422 validation_error` with the field in `details.fields`); do not rely on extra fields being ignored.
 - Identifiers are UUIDs (version 7) as strings.
 - Timestamps are ISO-8601 in UTC, such as `2026-10-20T13:45:00Z`. Some record `updated_at` values keep sub-second precision, such as `2026-10-20T13:45:00.123456Z`.
 - Money is a decimal string with a currency code, such as `"amount": "15000.00", "currency": "BRL"`.
 - Custom field values are returned in the `custom_fields` object of the record, keyed by field key.
-- Cross-origin requests are accepted (the server answers with a permissive CORS policy), but a browser session cookie is still subject to its `SameSite=Lax` attribute. Integrations should use [API tokens](/docs/reference/authentication/#api-tokens).
+- Cross-origin requests are accepted (the server answers with a permissive CORS policy), but a browser session cookie is still subject to its `SameSite=Lax` attribute. Integrations should use [API tokens](/_aphel/docs/reference/authentication/#api-tokens).
 
 ## Response envelopes
 
 | Shape | Used for | Example |
 | --- | --- | --- |
 | `{ "data": { ... } }` | One item | `{ "data": { "id": "0192a1b2-0000-7000-8000-000000000001", "name": "Acme" } }` |
-| `{ "data": [ ... ], "meta": { "total", "page", "per_page" } }` | Paginated lists | see [Pagination and filters](/docs/reference/pagination-and-filters/) |
+| `{ "data": [ ... ], "meta": { "total", "page", "per_page" } }` | Paginated lists | see [Pagination and filters](/_aphel/docs/reference/pagination-and-filters/) |
 | `{ "data": [ ... ], "meta": { "next_cursor" } }` | Cursor lists, such as the record timeline | `{ "data": [], "meta": { "next_cursor": null } }` |
-| `{ "error": { "code", "message", "details" } }` | Every error | see [Errors](/docs/reference/errors/) |
+| `{ "error": { "code", "message", "details" } }` | Every error | see [Errors](/_aphel/docs/reference/errors/) |
 | empty body | `204 No Content` actions, such as logout or delete | |
 
 Status codes follow the usual meaning: `200` for reads and updates, `201` for creations, `202` for work accepted into the background queue, `204` for actions with no result. Errors always use the envelope, including the ones raised before a handler runs, such as an oversized body (`413 payload_too_large`).
@@ -52,7 +52,7 @@ Status codes follow the usual meaning: `200` for reads and updates, `201` for cr
 | --- | --- | --- |
 | `Authorization: Bearer aphel_<prefix>_<secret>` | For API tokens | Authenticates the request with an API token. |
 | `Cookie: aphel_session=...` | For browser sessions | Set by `POST /api/v1/auth/login`. |
-| `X-Requested-With: aphel` | For session requests that change data | CSRF protection. Not needed with a Bearer token or on `/api/v1/public/*` and `/api/v1/hooks/*`. See [Authentication](/docs/reference/authentication/#csrf-header). |
+| `X-Requested-With: aphel` | For session requests that change data | CSRF protection. Not needed with a Bearer token or on `/api/v1/public/*` and `/api/v1/hooks/*`. See [Authentication](/_aphel/docs/reference/authentication/#csrf-header). |
 | `Content-Type: application/json` | On requests with a JSON body | |
 | `Idempotency-Key: <string>` | Optional on `POST` | Makes a creation safe to repeat. |
 | `If-Match: <updated_at>` | Optional on `PATCH` | Optimistic concurrency. |
@@ -65,7 +65,7 @@ Status codes follow the usual meaning: `200` for reads and updates, `201` for cr
 | `Retry-After` | `429` responses | Seconds to wait. |
 | `Idempotent-Replayed: true` | Replayed idempotent responses | The response was stored from the first request. |
 | `Set-Cookie: aphel_session=...` | Login, two-factor challenge, logout | Starts or clears the session cookie. |
-| `Cache-Control: no-store` | `/health/ready` and `/metrics` | |
+| `Cache-Control: no-store` | `/_aphel/health/ready` and `/_aphel/metrics` | |
 | `X-Content-Type-Options: nosniff` | File downloads | |
 
 The API does not send `ETag` headers. The version of a record is its `updated_at` value.
@@ -107,21 +107,21 @@ curl -X POST "$APHEL_URL/api/v1/organizations" \
 
 ## Rate limits
 
-Requests made with an API token are limited per token with a sliding window; the default is 600 requests per minute, configurable by an administrator between 1 and 100000 requests and between 1 and 3600 seconds (`api_tokens.limit` and `api_tokens.window_secs` in the organization settings). Session requests are not counted by this limiter, but sign-in, password reset and similar public actions have their own limits, described in [Authentication](/docs/reference/authentication/#rate-limits-and-lockout).
+Requests made with an API token are limited per token with a sliding window; the default is 600 requests per minute, configurable by an administrator between 1 and 100000 requests and between 1 and 3600 seconds (`api_tokens.limit` and `api_tokens.window_secs` in the organization settings). Session requests are not counted by this limiter, but sign-in, password reset and similar public actions have their own limits, described in [Authentication](/_aphel/docs/reference/authentication/#rate-limits-and-lockout).
 
 ## Health and metrics
 
 | Route | Auth | Answer |
 | --- | --- | --- |
-| `GET /health` | none | `200` with the text `ok` while the process is up. |
-| `GET /health/ready` | none | `200` when every check passes, `503` otherwise. The JSON body has `status`, `checked_at` and `checks[]` (`name`, `status`, and when relevant `reason`, `age_seconds`, `threshold_seconds`). Checks cover the database, storage, worker heartbeat, scheduler and queue delay. |
-| `GET /metrics` | `Authorization: Bearer <METRICS_TOKEN>` | Prometheus text format (version 0.0.4) with build information, database availability, job counts, the age of the oldest ready job, scheduler delay, live workers and HTTP responses by status class. `404 metrics_disabled` when `METRICS_TOKEN` is not set and `401 metrics_unauthorized` for a wrong token. |
+| `GET /_aphel/health` | none | `200` with the text `ok` while the process is up. |
+| `GET /_aphel/health/ready` | none | `200` when every check passes, `503` otherwise. The JSON body has `status`, `checked_at` and `checks[]` (`name`, `status`, and when relevant `reason`, `age_seconds`, `threshold_seconds`). Checks cover the database, storage, worker heartbeat, scheduler and queue delay. |
+| `GET /_aphel/metrics` | `Authorization: Bearer <METRICS_TOKEN>` | Prometheus text format (version 0.0.4) with build information, database availability, job counts, the age of the oldest ready job, scheduler delay, live workers and HTTP responses by status class. `404 metrics_disabled` when `METRICS_TOKEN` is not set and `401 metrics_unauthorized` for a wrong token. |
 
-These routes are mounted at the server root, not under `/api/v1`. See [Operations](/docs/admin/operations/) for how to use them in monitoring.
+These routes are mounted at the server root, not under `/api/v1`. See [Operations](/_aphel/docs/admin/operations/) for how to use them in monitoring.
 
 ## Route groups
 
-The table lists every tag of the OpenAPI document, the module that contributes it and the number of operations it holds in the document generated from this build. Routes of a tag exist only while its module is enabled. Per-record routes, such as `/people/{id}`, follow the conventions in [Records API](/docs/reference/records-api/).
+The table lists every tag of the OpenAPI document, the module that contributes it and the number of operations it holds in the document generated from this build. Routes of a tag exist only while its module is enabled. Per-record routes, such as `/people/{id}`, follow the conventions in [Records API](/_aphel/docs/reference/records-api/).
 
 | Tag | Module | Operations | Purpose |
 | --- | --- | --- | --- |
@@ -224,4 +224,4 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 
 ## Which credentials a route accepts
 
-Routes tagged `auth`, `api-tokens`, `installer` and `two-factor` accept only the browser session; calling them with a Bearer token answers `403 api_token_not_allowed`. The other protected routes accept either a session or an API token, and the effective permissions of a token are limited by its scopes. Public routes (`/api/v1/public/*`, `/api/v1/hooks/*` and the first-run installer) need no credential. Details in [Authentication](/docs/reference/authentication/).
+Routes tagged `auth`, `api-tokens`, `installer` and `two-factor` accept only the browser session; calling them with a Bearer token answers `403 api_token_not_allowed`. The other protected routes accept either a session or an API token, and the effective permissions of a token are limited by its scopes. Public routes (`/api/v1/public/*`, `/api/v1/hooks/*` and the first-run installer) need no credential. Details in [Authentication](/_aphel/docs/reference/authentication/).

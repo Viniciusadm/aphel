@@ -32,7 +32,7 @@ Boolean variables accept `0`, `false`, `no` and `off` as false unless the table 
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `APP_ENCRYPTION_KEY` | none | Base64 encoding of exactly 32 random bytes. Encrypts every stored secret with AES-256-GCM. Without it, saving secrets fails and the server logs a warning at start. Generate with `aphel secrets generate-key`. |
-| `APP_ENCRYPTION_PREVIOUS_KEYS` | empty | Comma-separated list of former keys, in the same format. Values encrypted with them stay readable during a key rotation. See [Security](/docs/admin/security/). |
+| `APP_ENCRYPTION_PREVIOUS_KEYS` | empty | Comma-separated list of former keys, in the same format. Values encrypted with them stay readable during a key rotation. See [Security](/_aphel/docs/admin/security/). |
 
 ### Worker and scheduler
 
@@ -48,11 +48,11 @@ Boolean variables accept `0`, `false`, `no` and `off` as false unless the table 
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `HEALTH_REQUIRE_WORKER` | `true` | When true, `/health/ready` fails if no recent worker heartbeat exists. Set to `0`, `false`, `no` (any case) for installations where the worker check should be skipped. |
+| `HEALTH_REQUIRE_WORKER` | `true` | When true, `/_aphel/health/ready` fails if no recent worker heartbeat exists. Set to `0`, `false`, `no` (any case) for installations where the worker check should be skipped. |
 | `HEALTH_WORKER_MAX_SILENCE_SECS` | `90` | Maximum age of the last worker heartbeat. Also used by `aphel healthcheck --worker`. |
 | `HEALTH_SCHEDULER_MAX_DELAY_SECS` | `120` | How late the most overdue recurring schedule may be. |
 | `HEALTH_QUEUE_MAX_DELAY_SECS` | `300` | How long the oldest ready job may wait. |
-| `METRICS_TOKEN` | none | Enables `GET /metrics` and is the bearer token it requires. Without it the endpoint answers `404`. |
+| `METRICS_TOKEN` | none | Enables `GET /_aphel/metrics` and is the bearer token it requires. Without it the endpoint answers `404`. |
 | `UPGRADE_MIN_FREE_DISK_MB` | `500` | Minimum free disk space that `aphel upgrade` and `aphel doctor` require on the file storage folder and the working directory. |
 
 ### Outbound traffic
@@ -125,6 +125,7 @@ Settings that live in the database are edited under Settings in the app. They re
 | Screen | Setting | Default | Notes |
 | --- | --- | --- | --- |
 | General | Public address | `http://localhost:5173` until set | The base of every link in email (invitations, password resets, notifications). When it starts with `https://`, the session cookie is marked `Secure`. The installer fills it with the address your browser used. |
+| General | App path | `/` | Where the internal app is served: `/` or a single segment such as `/app` (lowercase letters, digits, hyphens; not `/api` or `/_aphel`). With a segment, the other paths stay free for a public site and `/` redirects to the app. Links in email use the public address plus this path. Changing it also requires `system.manage`. The app always answers at `/_aphel/app/` too, and `aphel mounts reset` moves it back to `/`. |
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |
 | File storage | Type | Local disk, folder `./storage` | `Local disk` or `S3 compatible`. The folder is relative to the working directory of the server and the worker, which must see the same folder. |
 | File storage | S3 options | bucket `aphel`, region `us-east-1`, path-style on, plain http off | Bucket, region, optional endpoint (MinIO, SeaweedFS, R2, B2), access key, secret key. The secret key goes to the secret vault. A test button writes, reads and deletes a small object. |
@@ -145,14 +146,14 @@ The Webhooks and Catalog screens exist only when the corresponding modules are c
 
 | Topic | Rule |
 | --- | --- |
-| Public address, upload limit, file storage, API token limits, webhook delivery, catalog | Only the organization setting exists. There is no environment equivalent. |
+| Public address, app path, upload limit, file storage, API token limits, webhook delivery, catalog | Only the organization setting exists. There is no environment equivalent. |
 | Outgoing email (SMTP) | Per value, the organization setting wins when its SMTP host is set. A value left empty there falls back to the matching `SMTP_*` variable. When no host is set in the app, everything comes from the environment. The password is read from the secret vault first, then from `SMTP_PASSWORD`. |
 | Private-network webhooks | The environment variable `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` decides. The Delivery screen cannot override it. |
 | Worker, scheduler, health, lockout, email synchronization | Only the environment. |
-| Module settings | Stored per module and edited on the Modules screen. See [Modules](/docs/admin/modules/). |
+| Module settings | Stored per module and edited on the Modules screen. See [Modules](/_aphel/docs/admin/modules/). |
 
 With no outgoing email configured, Aphel keeps working: invitation and password-reset responses include a link for the administrator to copy and hand over.
 
 ## Check the result
 
-`aphel doctor` prints a diagnostic report of the configuration without revealing secrets. See [CLI](/docs/admin/cli/) and [Operations](/docs/admin/operations/).
+`aphel doctor` prints a diagnostic report of the configuration without revealing secrets. See [CLI](/_aphel/docs/admin/cli/) and [Operations](/_aphel/docs/admin/operations/).

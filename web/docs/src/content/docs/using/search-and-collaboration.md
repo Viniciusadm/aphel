@@ -20,7 +20,7 @@ This page covers the features that help you find things and stay informed: globa
 | Mentions | `notes` with `notifications` | Notes are required by the base CRM blueprint; the @ suggestion list comes from notifications |
 | Lead distribution | `assignment` | Recommended in the Real Estate and B2B Sales blueprints; optional elsewhere |
 
-Administrators switch modules on and off in [Modules](/docs/admin/modules/).
+Administrators switch modules on and off in [Modules](/_aphel/docs/admin/modules/).
 
 ## Global search
 
@@ -50,7 +50,7 @@ The palette is more than search. Open it and you can:
 - Open **Favorites**, add the current record to favorites or remove it.
 - Open **Customize keyboard shortcuts** or **Show keyboard shortcuts**.
 
-Use the arrow keys to move and `Enter` to run. The full list of shortcuts is in [Personal settings](/docs/using/personal-settings/#keyboard-shortcuts).
+Use the arrow keys to move and `Enter` to run. The full list of shortcuts is in [Personal settings](/_aphel/docs/using/personal-settings/#keyboard-shortcuts).
 
 ## Favorites
 
@@ -76,7 +76,7 @@ Following a record means you are told when something happens on it.
 
 Tags label records so you can filter, segment and bulk-edit them.
 
-- **Apply tags.** On a record page click **Tags**, search and tick the tags. You need the update permission of the record type (for example `people.update`). Tags also appear as a **Tags** column and filter in lists, and you can add or remove a tag on many records at once with the **Tags** bulk action (see [Data tools](/docs/using/data-tools/#bulk-actions)).
+- **Apply tags.** On a record page click **Tags**, search and tick the tags. You need the update permission of the record type (for example `people.update`). Tags also appear as a **Tags** column and filter in lists, and you can add or remove a tag on many records at once with the **Tags** bulk action (see [Data tools](/_aphel/docs/using/data-tools/#bulk-actions)).
 - **Manage tags.** Users with `settings.manage` open **Settings**, then **Tags**. Each tag has a name (up to 60 characters, unique), a color and the record types where it can be used; with nothing selected, it applies to all types. An organization can have up to 500 tags. The settings list shows how many records use each tag.
 - Deleting a tag removes it from every record. Narrowing the record types of a tag keeps the tags already applied.
 
@@ -101,7 +101,7 @@ Open your account menu, then **My account**, then **Notifications**. A table lis
 
 - **In Aphel**: the bell.
 - **Email**.
-- **Push**: browser or phone notifications, even when Aphel is closed (see [Personal settings](/docs/using/personal-settings/#push-notifications)).
+- **Push**: browser or phone notifications, even when Aphel is closed (see [Personal settings](/_aphel/docs/using/personal-settings/#push-notifications)).
 
 Tick or untick a box to change it; it saves immediately. A dash means the channel is not available for that notice. Preferences apply only to you.
 
@@ -151,4 +151,4 @@ Lead distribution rules pick an owner for new records automatically. A user with
 | Weighted round robin | Each member receives in proportion to their weight (1 to 100) |
 | Least loaded | Whoever has the fewest active records of that type |
 
-A rule has members (who can be marked away, with optional dates) and optional **routing by field** that sends a record to a team or users according to a field value, such as region or source. Use **Simulate** to preview who would receive the next records without saving anything, and **History** to see who received what. Rules can be used in automations, incoming webhooks, lead forms, bookings and imports (see [Data tools](/docs/using/data-tools/#relationships-and-owners)).
+A rule has members (who can be marked away, with optional dates) and optional **routing by field** that sends a record to a team or users according to a field value, such as region or source. Use **Simulate** to preview who would receive the next records without saving anything, and **History** to see who received what. Rules can be used in automations, incoming webhooks, lead forms, bookings and imports (see [Data tools](/_aphel/docs/using/data-tools/#relationships-and-owners)).

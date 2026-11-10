@@ -35,7 +35,7 @@ To serve another company, run another installation with its own database. Users 
 Do not confuse "the organization" (your company, one per installation) with the **organization record type**, which represents a customer company in the CRM. The record type is data inside the installation.
 :::
 
-The first administrator and the company are created only by the setup wizard (see the [Quickstart](/docs/start/quickstart/)).
+The first administrator and the company are created only by the setup wizard (see the [Quickstart](/_aphel/docs/start/quickstart/)).
 
 ## Blueprints
 
@@ -50,7 +50,7 @@ A blueprint can extend another one. The shipped blueprints are `crm`, and `agenc
 
 "Required" is a property of the blueprint. No module is required by the platform itself: only the kernel is always on.
 
-See [Blueprints](/docs/admin/blueprints/) and [Configuration packages](/docs/admin/config-packages/).
+See [Blueprints](/_aphel/docs/admin/blueprints/) and [Configuration packages](/_aphel/docs/admin/config-packages/).
 
 ## Modules, runtime plugins and UI plugins
 
@@ -64,13 +64,13 @@ See [Blueprints](/docs/admin/blueprints/) and [Configuration packages](/docs/adm
 
 **Modules.** The build selection lives in a file (`aphel.modules.toml`); only the core and official modules are compiled. Disabling a module stops its screens, menus, widgets and routines for the whole organization, but keeps its data. A module can depend on others, and the platform blocks disabling a module that other enabled modules use.
 
-**Runtime plugins.** A plugin package contains a `plugin.toml` manifest, a `backend.wasm` and an optional `web/` folder. Installing one shows a consent dialog that lists what it asks for. Every call a plugin makes runs with the permissions of the actor that triggered it, intersected with the capabilities the plugin declared. See [Plugins overview](/docs/plugins/overview/) and [Security model](/docs/plugins/security-model/).
+**Runtime plugins.** A plugin package contains a `plugin.toml` manifest, a `backend.wasm` and an optional `web/` folder. Installing one shows a consent dialog that lists what it asks for. Every call a plugin makes runs with the permissions of the actor that triggered it, intersected with the capabilities the plugin declared. See [Plugins overview](/_aphel/docs/plugins/overview/) and [Security model](/_aphel/docs/plugins/security-model/).
 
-**UI plugins.** A plugin that declares `[ui]` provides design tokens and optionally a web bundle with screens. It becomes an interface that every user can choose, with an organization default. See [UI plugins](/docs/plugins/ui-plugins/).
+**UI plugins.** A plugin that declares `[ui]` provides design tokens and optionally a web bundle with screens. It becomes an interface that every user can choose, with an organization default. See [UI plugins](/_aphel/docs/plugins/ui-plugins/).
 
 Governing rules for all of them: plugins depend on contracts, never on each other; each table has one owner; there are no foreign keys or SQL across plugins.
 
-See [Modules](/docs/admin/modules/) and [Module catalog](/docs/reference/module-catalog/).
+See [Modules](/_aphel/docs/admin/modules/) and [Module catalog](/_aphel/docs/reference/module-catalog/).
 
 ## Records, entities and record types
 
@@ -93,7 +93,7 @@ A **custom object** is a record type created entirely by an administrator, with 
 
 A **relationship** links two record types with a cardinality of one to one, one to many or many to many. Each end has its own label, and a relationship can be required. The `on_delete` behavior is either `restrict` (block deleting a record that still has links) or `unlink`.
 
-See [Custom fields](/docs/using/custom-fields/), [Entities and fields](/docs/plugins/entities-and-fields/) and [Records API](/docs/reference/records-api/).
+See [Custom fields](/_aphel/docs/using/custom-fields/), [Entities and fields](/_aphel/docs/plugins/entities-and-fields/) and [Records API](/_aphel/docs/reference/records-api/).
 
 ## Roles, permissions and scopes
 
@@ -115,7 +115,7 @@ Access control has three layers.
 
 Every use case receives an **access scope** (the user, role, teams and permissions) and checks it explicitly. Background work without a user runs as the system.
 
-See [Roles and permissions](/docs/admin/roles-and-permissions/), [Users and teams](/docs/admin/users-and-teams/) and [Permissions catalog](/docs/reference/permissions-catalog/).
+See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/), [Users and teams](/_aphel/docs/admin/users-and-teams/) and [Permissions catalog](/_aphel/docs/reference/permissions-catalog/).
 
 ## Events, the outbox, hooks, automations and webhooks
 
@@ -142,11 +142,11 @@ These are four different ways to react to what happens in the system.
 
 **Domain events.** Every business change publishes an event, such as `deal.amount_changed`, in the same transaction as the change. The event is stored in an **outbox** table, so it is never lost and never published for a change that was rolled back. A dispatcher in the worker then hands each event to every interested **consumer** with at-least-once delivery.
 
-**Hooks.** A hook is a synchronous extension point inside the request. There are three kinds: an *action* reacts, a *veto* can block the operation by returning an error, and a *filter* can change the data passing through. Record hooks run at fixed points of the write pipeline. Hooks run inside the transaction, so they must be quick. See [Hooks](/docs/plugins/hooks/) and the [Hooks catalog](/docs/reference/hooks-catalog/).
+**Hooks.** A hook is a synchronous extension point inside the request. There are three kinds: an *action* reacts, a *veto* can block the operation by returning an error, and a *filter* can change the data passing through. Record hooks run at fixed points of the write pipeline. Hooks run inside the transaction, so they must be quick. See [Hooks](/_aphel/docs/plugins/hooks/) and the [Hooks catalog](/_aphel/docs/reference/hooks-catalog/).
 
-**Automations.** A no-code feature for administrators: a **trigger** (a record event or a schedule), optional **conditions**, and a list of **actions** contributed by modules and plugins, such as creating or updating records. They run in the worker with the permissions of the person who published them. See [Automations](/docs/using/automations/).
+**Automations.** A no-code feature for administrators: a **trigger** (a record event or a schedule), optional **conditions**, and a list of **actions** contributed by modules and plugins, such as creating or updating records. They run in the worker with the permissions of the person who published them. See [Automations](/_aphel/docs/using/automations/).
 
-**Webhooks.** Outgoing webhooks deliver selected public events to an external URL, signed and retried. Incoming webhooks give external systems a secret URL that can trigger actions. See [Integrations](/docs/admin/integrations/) and [Webhooks and events](/docs/reference/webhooks-and-events/).
+**Webhooks.** Outgoing webhooks deliver selected public events to an external URL, signed and retried. Incoming webhooks give external systems a secret URL that can trigger actions. See [Integrations](/_aphel/docs/admin/integrations/) and [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/).
 
 ## Jobs and the worker
 
@@ -154,7 +154,7 @@ A **job** is a unit of background work stored in a MySQL queue: sending an email
 
 Jobs may run more than once, so handlers must be idempotent. A web-only process without a worker still serves requests, but anything asynchronous stays queued.
 
-See [Operations](/docs/admin/operations/) and [Schedules](/docs/plugins/schedules/).
+See [Operations](/_aphel/docs/admin/operations/) and [Schedules](/_aphel/docs/plugins/schedules/).
 
 ## The API and API tokens
 
@@ -162,13 +162,13 @@ Everything the interface does uses the REST API at `/api/v1`. Browsers authentic
 
 Responses use a consistent envelope: `{ "data": ... }` for items, `{ "data": [...], "meta": { "total", "page", "per_page" } }` for lists, and `{ "error": { "code", "message", "details" } }` for errors.
 
-See [REST API](/docs/reference/rest-api/), [Authentication](/docs/reference/authentication/), [Errors](/docs/reference/errors/) and [Pagination and filters](/docs/reference/pagination-and-filters/).
+See [REST API](/_aphel/docs/reference/rest-api/), [Authentication](/_aphel/docs/reference/authentication/), [Errors](/_aphel/docs/reference/errors/) and [Pagination and filters](/_aphel/docs/reference/pagination-and-filters/).
 
 ## Where to read next
 
 | If you want to | Read |
 | --- | --- |
-| See how the pieces are built and wired | [Architecture](/docs/start/architecture/) |
-| Look up a term | [Glossary](/docs/start/glossary/) |
-| Choose or change a blueprint | [Blueprints](/docs/admin/blueprints/) |
-| Write an extension | [Plugins overview](/docs/plugins/overview/) |
+| See how the pieces are built and wired | [Architecture](/_aphel/docs/start/architecture/) |
+| Look up a term | [Glossary](/_aphel/docs/start/glossary/) |
+| Choose or change a blueprint | [Blueprints](/_aphel/docs/admin/blueprints/) |
+| Write an extension | [Plugins overview](/_aphel/docs/plugins/overview/) |

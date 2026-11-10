@@ -61,7 +61,11 @@ where
         else {
             return Ok(EmailDelivery::Skipped);
         };
-        let message = notification_email(&recipient, &notification.view, &self.app_base_url.get());
+        let message = notification_email(
+            &recipient,
+            &notification.view,
+            &self.app_base_url.app_root(),
+        );
         self.mailer.send(message).await?;
         let now = self.ports.clock().now();
         self.ports

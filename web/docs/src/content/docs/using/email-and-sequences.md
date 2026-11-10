@@ -16,7 +16,7 @@ Aphel can sync the emails you exchange with customers onto their records, let yo
 | Gmail and Outlook mailboxes | `google`, `microsoft` (with `email`) | Most blueprints |
 | Shared inbox for WhatsApp and email | `messaging` | Real Estate |
 
-These modules are optional. An administrator can turn them on from [Modules](/docs/admin/modules/); see also [Blueprints](/docs/admin/blueprints/).
+These modules are optional. An administrator can turn them on from [Modules](/_aphel/docs/admin/modules/); see also [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## Permissions
 
@@ -156,7 +156,7 @@ Requires `sequences.enroll`. You can enroll:
 
 - One contact: open the contact, **Sequences** tab, **Enroll in sequence**. Choose an active sequence and the mailbox to send from (default: your first connected mailbox).
 - Many contacts: the **Enroll in sequence** bulk action on a list.
-- Automatically: an automation with the enroll action (see [Automations](/docs/using/automations/)). Emails go from the record owner's mailbox by default.
+- Automatically: an automation with the enroll action (see [Automations](/_aphel/docs/using/automations/)). Emails go from the record owner's mailbox by default.
 
 Enrolling fails if the sequence is inactive or empty, the contact is already in it, the contact has no email (when the sequence sends emails), the contact objected to tracking, or no mailbox is available.
 
@@ -170,7 +170,7 @@ Deleting a sequence removes its enrollments and history; emails and tasks alread
 
 ## Shared inbox (messaging)
 
-If the `messaging` module is active, **Inbox** (under **My work**, at the messaging address) shows team conversations from WhatsApp (Meta Cloud API) and email channels. This is different from the task **Inbox** described in [Tasks and calendar](/docs/using/tasks-and-calendar/#inbox).
+If the `messaging` module is active, **Inbox** (under **My work**, at the messaging address) shows team conversations from WhatsApp (Meta Cloud API) and email channels. This is different from the task **Inbox** described in [Tasks and calendar](/_aphel/docs/using/tasks-and-calendar/#inbox).
 
 - Filter by status (Open, Pending, Resolved), assignee (All, Mine, Unassigned), channel and unread.
 - Assign a conversation, change its status, and link it to a contact and a deal so new messages show on their timeline.

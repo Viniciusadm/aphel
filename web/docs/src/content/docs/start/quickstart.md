@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-This page gets you from nothing to a signed-in instance. Choose Docker if you want to run Aphel, or the source build if you want to work on it. For production hardening (HTTPS, reverse proxy, SMTP, systemd) see [Installation](/docs/admin/installation/).
+This page gets you from nothing to a signed-in instance. Choose Docker if you want to run Aphel, or the source build if you want to work on it. For production hardening (HTTPS, reverse proxy, SMTP, systemd) see [Installation](/_aphel/docs/admin/installation/).
 
 ## Option 1: Docker Compose
 
@@ -46,7 +46,7 @@ Requirements: Docker with the `docker compose` plugin.
 
    ```bash
    docker compose -f docker-compose.prod.yml ps
-   curl http://localhost:3001/health
+   curl http://localhost:3001/_aphel/health
    ```
 
    The `app` service listens on port `3001` unless you set `APP_PORT` in `.env`.
@@ -121,7 +121,7 @@ On a new database, the first visit shows the setup wizard. It is available only 
 | Step | What you provide |
 | --- | --- |
 | Company | Company name, language, time zone and default currency. |
-| Business | The kind of business: freelancer, agency, real estate, consultancy, software or SaaS, B2B sales, or other. This selects a [blueprint](/docs/admin/blueprints/). You can instead choose **Start with a blank system**. |
+| Business | The kind of business: freelancer, agency, real estate, consultancy, software or SaaS, B2B sales, or other. This selects a [blueprint](/_aphel/docs/admin/blueprints/). You can instead choose **Start with a blank system**. |
 | Features | The modules to enable. The blueprint preselects its recommended ones, and the dependencies of anything you pick are added automatically. |
 | Account | The first administrator: name, email and a password of 8 to 128 characters. |
 | Email | Optional SMTP settings. You can skip this step. |
@@ -130,7 +130,7 @@ On a new database, the first visit shows the setup wizard. It is available only 
 Notes:
 
 - Open the wizard at the address your users will use. The installer saves the origin of your browser as the public address, which Aphel uses for links in emails.
-- You can choose **Restore from a backup instead** on the first step to restore a backup exported from another installation. See [Backup and restore](/docs/admin/backup-and-restore/).
+- You can choose **Restore from a backup instead** on the first step to restore a backup exported from another installation. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 - Without SMTP, invitations and password resets show a link for you to copy and send. You can configure email later in **Settings**, under **Outgoing email**.
 - Your answers are kept as a draft in the browser while you move between steps. The password is never kept.
 
@@ -144,8 +144,8 @@ After you finish, you are signed in as the administrator. The home page depends 
 
 ## Where to go next
 
-- Learn the vocabulary in [Concepts](/docs/start/concepts/).
-- Explore day-to-day features in [Using Aphel](/docs/using/overview/).
-- Invite people and set up access in [Users and teams](/docs/admin/users-and-teams/) and [Roles and permissions](/docs/admin/roles-and-permissions/).
-- Plan a production deployment with [Installation](/docs/admin/installation/), [Configuration](/docs/admin/configuration/) and [Backup and restore](/docs/admin/backup-and-restore/).
-- Build your own extension with [Your first plugin](/docs/plugins/first-plugin/).
+- Learn the vocabulary in [Concepts](/_aphel/docs/start/concepts/).
+- Explore day-to-day features in [Using Aphel](/_aphel/docs/using/overview/).
+- Invite people and set up access in [Users and teams](/_aphel/docs/admin/users-and-teams/) and [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).
+- Plan a production deployment with [Installation](/_aphel/docs/admin/installation/), [Configuration](/_aphel/docs/admin/configuration/) and [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
+- Build your own extension with [Your first plugin](/_aphel/docs/plugins/first-plugin/).

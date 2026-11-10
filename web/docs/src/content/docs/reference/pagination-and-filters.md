@@ -245,4 +245,4 @@ Fields that the role of the caller cannot see are treated as hidden. A filter, s
 }
 ```
 
-The same code appears when a write touches a hidden field, and `field_read_only` when it touches a read-only one. Fields hidden from the role also disappear from responses and schemas. If a request is invalid for other reasons the answer is `422 validation_error`. See the [error table](/docs/reference/errors/) for both codes and [Roles and permissions](/docs/admin/roles-and-permissions/) for how field permissions are configured.
+The same code appears when a write touches a hidden field, and `field_read_only` when it touches a read-only one. Fields hidden from the role also disappear from responses and schemas. If a request is invalid for other reasons the answer is `422 validation_error`. See the [error table](/_aphel/docs/reference/errors/) for both codes and [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/) for how field permissions are configured.

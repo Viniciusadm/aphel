@@ -93,7 +93,7 @@ pub(crate) fn public_router() -> OpenApiRouter<AppState> {
         .route("/public/p/{key}/{*path}", any(public_dispatch))
 }
 
-pub(crate) fn root_router() -> OpenApiRouter<AppState> {
+pub(crate) fn app_mount_router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .route("/p/{key}", get(public_app_redirect))
         .route("/p/{key}/", get(public_app_index))
@@ -2040,7 +2040,7 @@ async fn public_app_redirect(Path(key): Path<String>) -> Result<Response, ApiErr
     {
         return Err(not_found(&key).into());
     }
-    Ok(axum::response::Redirect::permanent(&format!("/p/{key}/")).into_response())
+    Ok(axum::response::Redirect::permanent(&format!("{key}/")).into_response())
 }
 
 async fn public_app_index(

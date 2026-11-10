@@ -1,8 +1,14 @@
-use axum::http::{StatusCode, Uri, header};
-use axum::response::{IntoResponse, Response};
+use axum::Router;
+use axum::extract::Request;
+use axum::http::{HeaderValue, StatusCode, Uri, header};
+use axum::response::{IntoResponse, Redirect, Response};
 use rust_embed::Embed;
+use serde_json::Value;
+use tower::ServiceExt;
 
 use crate::api::error::app_error;
+use crate::api::state::AppState;
+use crate::application::organization_profile::{RECOVERY_APP_PATH, RESERVED_PREFIX};
 use crate::errors::AppError;
 
 #[derive(Embed)]
@@ -19,45 +25,150 @@ const LLMS_INDEX_PATH: &str = "llms.txt";
 const LLMS_FULL_PATH: &str = "llms-full.txt";
 const SERVICE_WORKER_FILE: &str = "sw.js";
 const MANIFEST_FILE: &str = "manifest.webmanifest";
+const BASE_META_PLACEHOLDER: &str = "<head>";
 
-pub async fn serve_web(uri: Uri) -> Response {
-    let path = uri.path().trim_start_matches('/');
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AppMountPrefix(pub String);
 
-    if path == "api" || path.starts_with("api/") {
+#[derive(Debug, PartialEq, Eq)]
+enum Target {
+    Reserved(String),
+    App(String),
+    Redirect(String),
+    NotFound,
+}
+
+fn mounted_under<'a>(path: &'a str, prefix: &str) -> Option<&'a str> {
+    let rest = path.strip_prefix(prefix)?;
+    (rest.is_empty() || rest.starts_with('/')).then_some(rest)
+}
+
+fn resolve(path: &str, app_prefix: &str) -> Target {
+    if mounted_under(path, RECOVERY_APP_PATH).is_some() {
+        return Target::App(RECOVERY_APP_PATH.to_owned());
+    }
+    if let Some(rest) = mounted_under(path, RESERVED_PREFIX) {
+        return Target::Reserved(rest.trim_start_matches('/').to_owned());
+    }
+    if app_prefix.is_empty() || mounted_under(path, app_prefix).is_some() {
+        return Target::App(app_prefix.to_owned());
+    }
+    if path == "/" {
+        return Target::Redirect(format!("{app_prefix}/"));
+    }
+    Target::NotFound
+}
+
+pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Response {
+    let path = request.uri().path().to_owned();
+    if path == "/api" || path.starts_with("/api/") {
         return app_error(AppError::NotFound("route was not found".to_owned()));
     }
+    let config = state.organization_config.snapshot();
+    match resolve(&path, config.app_prefix()) {
+        Target::Reserved(rest) => serve_reserved(&rest, config.app_prefix()),
+        Target::App(prefix) => serve_app(mounted, prefix, request).await,
+        Target::Redirect(location) => Redirect::temporary(&location).into_response(),
+        Target::NotFound => StatusCode::NOT_FOUND.into_response(),
+    }
+}
 
-    let requested_file = match path {
-        "" => INDEX_FILE,
-        LLMS_INDEX_PATH => "docs/llms.txt",
-        LLMS_FULL_PATH => "docs/llms-full.txt",
-        other => other,
+async fn serve_app(mounted: Router, prefix: String, mut request: Request) -> Response {
+    let uri = request.uri();
+    let rest = uri
+        .path()
+        .strip_prefix(prefix.as_str())
+        .filter(|rest| !rest.is_empty())
+        .unwrap_or("/");
+    let rewritten = match uri.query() {
+        Some(query) => format!("{rest}?{query}"),
+        None => rest.to_owned(),
     };
-    if let Some(response) = embedded_file(requested_file) {
-        return response;
+    match rewritten.parse::<Uri>() {
+        Ok(rewritten) => *request.uri_mut() = rewritten,
+        Err(_) => return StatusCode::BAD_REQUEST.into_response(),
     }
-
-    if is_docs_path(path) {
-        return docs_page(path);
+    request.extensions_mut().insert(AppMountPrefix(prefix));
+    match mounted.oneshot(request).await {
+        Ok(response) => response,
+        Err(never) => match never {},
     }
+}
 
-    if looks_like_file(path) {
+pub async fn serve_app_shell(request: Request) -> Response {
+    let prefix = request
+        .extensions()
+        .get::<AppMountPrefix>()
+        .map(|prefix| prefix.0.clone())
+        .unwrap_or_default();
+    if looks_like_file(request.uri().path()) {
         return StatusCode::NOT_FOUND.into_response();
     }
-
-    embedded_file(INDEX_FILE).unwrap_or_else(|| {
-        (
+    let Some(index) = WebAssets::get(INDEX_FILE) else {
+        return (
             StatusCode::SERVICE_UNAVAILABLE,
             "frontend build not found; run `npm run build` in web/",
         )
-            .into_response()
-    })
+            .into_response();
+    };
+    let html = String::from_utf8_lossy(&index.data).replacen(
+        BASE_META_PLACEHOLDER,
+        &format!("{BASE_META_PLACEHOLDER}<meta name=\"aphel-base\" content=\"{prefix}\" />"),
+        1,
+    );
+    (
+        [
+            (header::CONTENT_TYPE, "text/html; charset=utf-8"),
+            (header::CACHE_CONTROL, "no-cache"),
+        ],
+        html,
+    )
+        .into_response()
+}
+
+fn serve_reserved(path: &str, app_prefix: &str) -> Response {
+    let requested = match path {
+        "" => return StatusCode::NOT_FOUND.into_response(),
+        LLMS_INDEX_PATH => "docs/llms.txt",
+        LLMS_FULL_PATH => "docs/llms-full.txt",
+        MANIFEST_FILE => return manifest(app_prefix),
+        other => other,
+    };
+    if let Some(response) = embedded_file(requested) {
+        return response;
+    }
+    if is_docs_path(path) {
+        return docs_page(path);
+    }
+    StatusCode::NOT_FOUND.into_response()
+}
+
+fn manifest(app_prefix: &str) -> Response {
+    let Some(file) = WebAssets::get(MANIFEST_FILE) else {
+        return StatusCode::NOT_FOUND.into_response();
+    };
+    let Ok(mut manifest) = serde_json::from_slice::<Value>(&file.data) else {
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+    };
+    let scope = format!("{app_prefix}/");
+    if let Some(fields) = manifest.as_object_mut() {
+        for field in ["id", "start_url", "scope"] {
+            fields.insert(field.to_owned(), Value::String(scope.clone()));
+        }
+    }
+    (
+        [
+            (header::CONTENT_TYPE, "application/manifest+json"),
+            (header::CACHE_CONTROL, "no-cache"),
+        ],
+        manifest.to_string(),
+    )
+        .into_response()
 }
 
 fn embedded_file(path: &str) -> Option<Response> {
     let file = WebAssets::get(path)?;
     let content_type = match path {
-        MANIFEST_FILE => "application/manifest+json".to_owned(),
         SERVICE_WORKER_FILE => "text/javascript; charset=utf-8".to_owned(),
         _ => file.metadata.mimetype().to_owned(),
     };
@@ -79,7 +190,7 @@ fn embedded_file(path: &str) -> Option<Response> {
     if path == SERVICE_WORKER_FILE {
         response.headers_mut().insert(
             header::HeaderName::from_static("service-worker-allowed"),
-            header::HeaderValue::from_static("/"),
+            HeaderValue::from_static("/"),
         );
     }
     Some(response)

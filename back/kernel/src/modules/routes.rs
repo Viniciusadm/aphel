@@ -89,9 +89,23 @@ impl App {
             match contribution.item.mount {
                 RouteMount::Api | RouteMount::Public => api = api.merge(router),
                 RouteMount::Root => root = root.merge(router),
+                RouteMount::App => {}
             }
         }
         root.nest(RouteMount::Api.prefix(), api)
+    }
+
+    pub fn app_mount_router(&self, state: &AppState) -> OpenApiRouter<AppState> {
+        self.route_contributions()
+            .iter()
+            .filter(|contribution| contribution.item.mount == RouteMount::App)
+            .fold(OpenApiRouter::new(), |mounted, contribution| {
+                mounted.merge(self.module_router_for(
+                    Some(state),
+                    contribution.module,
+                    (contribution.item.factory)(state),
+                ))
+            })
     }
 }
 

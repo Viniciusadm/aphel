@@ -45,6 +45,8 @@ export interface MailSettings {
 export interface OrganizationConfiguration {
   public_base_url: string | null
   effective_public_base_url: string
+  app_base_path: string
+  app_base_url: string
   secure_cookies: boolean
   max_upload_mb: number
   storage: StorageSettings
@@ -61,6 +63,7 @@ export interface UpdateOrganizationConfiguration {
   mail?: MailSettings
   mail_password?: string | null
   public_base_url?: string
+  app_base_path?: string
   max_upload_mb?: number
   storage?: StorageSettings
   storage_secret_access_key?: string | null

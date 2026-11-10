@@ -9,7 +9,7 @@ Access in Aphel is a set of **permissions** granted to **roles**. Each member ha
 
 ## Permissions
 
-A permission is a dotted key such as `people.read` or `settings.manage`. Modules add their own permissions to the catalog when they are enabled. The Roles screen (and `GET /api/v1/permissions`) lists every permission available in the installation. The full list is in the [permissions catalog](/docs/reference/permissions-catalog/).
+A permission is a dotted key such as `people.read` or `settings.manage`. Modules add their own permissions to the catalog when they are enabled. The Roles screen (and `GET /api/v1/permissions`) lists every permission available in the installation. The full list is in the [permissions catalog](/_aphel/docs/reference/permissions-catalog/).
 
 There are two kinds:
 
@@ -91,4 +91,4 @@ A personal API token acts as its owner, narrowed by the token's scopes, and it c
 - Tokens cannot manage sessions, two-factor authentication, passwords or other tokens: those endpoints answer `403 api_token_not_allowed`.
 - Members revoke their own tokens. Users with `users.manage` can list and revoke every token.
 
-See [Security](/docs/admin/security/) for token rate limits and [Authentication](/docs/reference/authentication/) for how to call the API.
+See [Security](/_aphel/docs/admin/security/) for token rate limits and [Authentication](/_aphel/docs/reference/authentication/) for how to call the API.

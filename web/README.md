@@ -2,7 +2,7 @@
 
 Aphel's frontend: React 19 + TypeScript + Vite 8, Tailwind CSS v4, in-house components on top of Radix (shadcn style), React Router 7, TanStack Query 5, react-hook-form + zod and i18next (pt-BR default).
 
-The build (`web/dist`) is embedded in the backend binary via `rust-embed`. In development, Vite proxies `/api` and `/health` to `http://127.0.0.1:3001`.
+The build (`web/dist`) is embedded in the backend binary via `rust-embed`. In development, Vite proxies `/api`, `/_aphel` and `/p/` to `http://127.0.0.1:3001`.
 
 ## Scripts
 

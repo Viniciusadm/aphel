@@ -34,7 +34,7 @@ What the descriptions say about each variant:
 - **SaaS:** from trial to closed subscription, with plan, MRR, seats, trial end and renewal date.
 - **B2B Sales:** a consultative pipeline with qualification, demo, proposal and negotiation, and account industry, size and revenue.
 
-The installer always installs the blueprint's **required** modules, together with their dependencies. It pre-selects the **recommended** modules that need no settings. You can add or remove recommended modules on the Features step. Recommended modules that need credentials, such as `google` or `esign`, are left for you to enable later. See [Integrations](/docs/admin/integrations/).
+The installer always installs the blueprint's **required** modules, together with their dependencies. It pre-selects the **recommended** modules that need no settings. You can add or remove recommended modules on the Features step. Recommended modules that need credentials, such as `google` or `esign`, are left for you to enable later. See [Integrations](/_aphel/docs/admin/integrations/).
 
 ## Read a blueprint.toml
 
@@ -104,8 +104,8 @@ The blueprints that ship today define no roles and no navigation sections. Only 
 
 ## Configuration packages of a blueprint
 
-The names under `[configuration] packages` are the keys of the templates embedded in the binary. For each one, `blueprints/<package>/config/<language>.json` holds the package in `en` and `pt-BR`. The installer applies them after the modules are enabled, and creates the blueprint's roles first. If applying fails, the installation still completes, and the error is shown by `GET /api/v1/blueprint`. An administrator with `settings.manage` can apply them again with `POST /api/v1/blueprint/configuration`. Applying twice changes nothing, because packages reconcile by stable key. See [Configuration packages](/docs/admin/config-packages/).
+The names under `[configuration] packages` are the keys of the templates embedded in the binary. For each one, `blueprints/<package>/config/<language>.json` holds the package in `en` and `pt-BR`. The installer applies them after the modules are enabled, and creates the blueprint's roles first. If applying fails, the installation still completes, and the error is shown by `GET /api/v1/blueprint`. An administrator with `settings.manage` can apply them again with `POST /api/v1/blueprint/configuration`. Applying twice changes nothing, because packages reconcile by stable key. See [Configuration packages](/_aphel/docs/admin/config-packages/).
 
 :::note
-The `blueprints/` directory is compiled into the binary. To add or change a blueprint you edit the files and rebuild. See [Installation](/docs/admin/installation/).
+The `blueprints/` directory is compiled into the binary. To add or change a blueprint you edit the files and rebuild. See [Installation](/_aphel/docs/admin/installation/).
 :::

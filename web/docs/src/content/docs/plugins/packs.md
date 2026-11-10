@@ -95,6 +95,6 @@ All of them need `system.manage`. Installing publishes `plugin.pack_installed` a
 
 ## Related pages
 
-- [Packaging and installing](/docs/plugins/packaging/)
-- [Lifecycle](/docs/plugins/lifecycle/)
-- [Settings and secrets](/docs/plugins/settings-and-secrets/)
+- [Packaging and installing](/_aphel/docs/plugins/packaging/)
+- [Lifecycle](/_aphel/docs/plugins/lifecycle/)
+- [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/)

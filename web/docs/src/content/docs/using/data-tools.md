@@ -14,7 +14,7 @@ Most of these tools live in two places:
 
 ## Which modules are available
 
-All of these are modules. They can be switched on or off by an administrator (see [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/)).
+All of these are modules. They can be switched on or off by an administrator (see [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/)).
 
 | Tool | Module | Availability |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ CSV separators (comma, semicolon, tab or pipe) and the encoding are detected aut
 3. **Mapping.** For each column of your file, choose the Aphel field it belongs to, or **Ignore column**. Aphel suggests a field by comparing the column name with field names, so well-named headers match on their own. Required fields are marked **required**; you cannot start until they are all matched. Custom fields are marked **custom**. A preview shows the first rows.
 4. Set the options under **Duplicates and relationships** (see below).
 5. Click **Validate** to check every row without saving anything. The result lists rows with problems, by line. Duplicates and module rules are only checked during the real import.
-6. Click **Import N rows**. The import runs in the background; you can leave the page and you get a notification when it finishes (see [Search and collaboration](/docs/using/search-and-collaboration/) for notification preferences).
+6. Click **Import N rows**. The import runs in the background; you can leave the page and you get a notification when it finishes (see [Search and collaboration](/_aphel/docs/using/search-and-collaboration/) for notification preferences).
 7. **Result.** You see the totals: rows, created, updated, skipped and failed.
 
 ### Duplicate options
@@ -226,7 +226,7 @@ Open **Data** and then **Full export** (you need `organization.export`). It buil
 
 The package contains records of every type as JSON Lines, links between records, notes and history, attached files, a configuration package and a manifest with checksums. It gathers personal data of every record, so store it safely and delete copies you no longer need.
 
-Restoring a package is done by an administrator from the server command line into an empty organization. See [Backup and restore](/docs/admin/backup-and-restore/).
+Restoring a package is done by an administrator from the server command line into an empty organization. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 
 ## Migrate from another CRM
 

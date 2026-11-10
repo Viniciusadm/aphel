@@ -34,7 +34,7 @@ The host functions use this set for everything: record reads and writes, `can`, 
 
 `can(permission)` answers whether the intersection grants the permission, with any scope. `permissions()` returns the whole intersection as a list of permission keys. Use them to adapt behavior, not to authorize: the host already enforces permissions on every record operation.
 
-Which actor is used in each entry point is described in [Security model](/docs/plugins/security-model/).
+Which actor is used in each entry point is described in [Security model](/_aphel/docs/plugins/security-model/).
 
 ## Permissions of your entities
 
@@ -105,7 +105,7 @@ curl -sS -X POST "$APHEL_URL/api/v1/wasm-runtime" \
 - If a role with the key already exists, it is reused and receives the preset's permissions.
 - A key that is not a preset of the package fails with `422 plugin_role_preset_unknown`.
 - Presets that were not selected create nothing. If an administrator creates a role with a preset's key later, a reapply (below) grants its permissions to it.
-- Two enabled plugins that offer a preset with the same key are reported as a conflict that must be acknowledged. See [Lifecycle](/docs/plugins/lifecycle/).
+- Two enabled plugins that offer a preset with the same key are reported as a conflict that must be acknowledged. See [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 
 ## Reapplying grants
 

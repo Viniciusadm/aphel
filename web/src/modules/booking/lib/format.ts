@@ -1,4 +1,5 @@
 import { activeLocale } from '@/lib/locale'
+import { appUrl } from '@/sdk/app-base'
 
 export function formatDateTimeRange(startsAt: string, endsAt: string, timeZone?: string): string {
   const start = new Date(startsAt)
@@ -15,7 +16,7 @@ export function formatDateTimeRange(startsAt: string, endsAt: string, timeZone?:
 }
 
 export function publicBookingUrl(bookingPath: string): string {
-  return `${window.location.origin}${bookingPath}`
+  return appUrl(bookingPath)
 }
 
 export function availableTimeZones(): string[] {

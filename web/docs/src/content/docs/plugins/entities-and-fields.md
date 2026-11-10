@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-A plugin stores business data as records. It can declare its own record types (entities) and it can add fields to record types that already exist. Both use the same field declarations. Keys and limits are in [Manifest](/docs/plugins/manifest/).
+A plugin stores business data as records. It can declare its own record types (entities) and it can add fields to record types that already exist. Both use the same field declarations. Keys and limits are in [Manifest](/_aphel/docs/plugins/manifest/).
 
 ## Entities
 
@@ -77,7 +77,7 @@ Records returned by `get-record`, `list-records` and the record API have this sh
 
 `custom_fields` holds the fields that administrators or other plugins added to your entity. Fields hidden from the caller by field permissions are removed from the record before it reaches the plugin.
 
-To write a record, send only the values you want to set. To avoid overwriting a concurrent change, include `"_expected_updated_at"` with the record's `updated_at` in an update, or use `update-record-if` ([Host API](/docs/plugins/host-api/)). A stale version fails with `409 version_conflict`.
+To write a record, send only the values you want to set. To avoid overwriting a concurrent change, include `"_expected_updated_at"` with the record's `updated_at` in an update, or use `update-record-if` ([Host API](/_aphel/docs/plugins/host-api/)). A stale version fails with `409 version_conflict`.
 
 ## Field types
 
@@ -100,7 +100,7 @@ To write a record, send only the values you want to set. To avoid overwriting a 
 
 A type registered by a module through the field type registry can also be used by its key. Options that a type does not support are rejected: for example `min` on a `text` field gives `is not supported by text fields`.
 
-Common options for every type: `label`, `required`, `searchable`, `personal`, `sensitive`. Mark fields that hold personal data as `personal`; `sensitive` implies `personal` and redacts the value in audit entries. See [Manifest](/docs/plugins/manifest/) for the full table.
+Common options for every type: `label`, `required`, `searchable`, `personal`, `sensitive`. Mark fields that hold personal data as `personal`; `sensitive` implies `personal` and redacts the value in audit entries. See [Manifest](/_aphel/docs/plugins/manifest/) for the full table.
 
 ### Select options
 
@@ -168,6 +168,6 @@ When you install a new version of an installed plugin, Aphel reconciles the decl
 | Field becomes `unique` while duplicates exist | Refused with `409 plugin_field_unique_conflict`. |
 | Entity `storage` changed | Refused (`changing entity storage needs a data migration`). |
 
-The type of a field never changes, even between compatible types such as `text` and `email`: the new type string must equal the stored one. Disabling a plugin deactivates all its entities and fields until it is enabled again. Uninstalling without purge deactivates them too; `purge=true` deletes records, tables and field definitions. See [Lifecycle](/docs/plugins/lifecycle/).
+The type of a field never changes, even between compatible types such as `text` and `email`: the new type string must equal the stored one. Disabling a plugin deactivates all its entities and fields until it is enabled again. Uninstalling without purge deactivates them too; `purge=true` deletes records, tables and field definitions. See [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 
 Existing records of deactivated fields are not rewritten, so be careful when reusing a field key with a different meaning.

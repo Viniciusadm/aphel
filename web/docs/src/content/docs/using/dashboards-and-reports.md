@@ -18,11 +18,11 @@ The **Home** screen is a dashboard made of widgets. **Reports** lets you build y
 | Extra widgets (deals by source, team activity ranking, birthdays) | `insights` | Recommended in SaaS. |
 | Renewals and recurring revenue widgets | `renewals`, `deals_revenue` | Recommended in SaaS (`deals_revenue` also in Agency). |
 
-Widgets are contributed by modules, so which ones you can add depends on the active modules and your permissions. See [Modules](/docs/admin/modules/).
+Widgets are contributed by modules, so which ones you can add depends on the active modules and your permissions. See [Modules](/_aphel/docs/admin/modules/).
 
 ## The dashboard
 
-Open **Home** under **My work**. Every user has their own layout. Until you change it, you see the organization default, or, if none was configured, the built-in default. Administrators can set the organization default through configuration packages (see [Configuration packages](/docs/admin/config-packages/)).
+Open **Home** under **My work**. Every user has their own layout. Until you change it, you see the organization default, or, if none was configured, the built-in default. Administrators can set the organization default through configuration packages (see [Configuration packages](/_aphel/docs/admin/config-packages/)).
 
 ### Period
 
@@ -121,10 +121,10 @@ On a saved report, use **Schedule delivery**.
 | Recipients | Up to 50 active members who can see the report |
 | Delivery active | Turn off to pause |
 
-Each recipient receives the numbers computed with their own permissions, with a link to the report and an XLSX attachment when it is 5 MB or smaller. A report can have at most 20 schedules. Use **Show latest deliveries** to see whether each was Sent, Sending or Failed. Delivery is checked every 5 minutes. Emails are sent by the system's **Outgoing email** configuration, not by anyone's personal mailbox, so an administrator must have set that up (see [Configuration](/docs/admin/configuration/)).
+Each recipient receives the numbers computed with their own permissions, with a link to the report and an XLSX attachment when it is 5 MB or smaller. A report can have at most 20 schedules. Use **Show latest deliveries** to see whether each was Sent, Sending or Failed. Delivery is checked every 5 minutes. Emails are sent by the system's **Outgoing email** configuration, not by anyone's personal mailbox, so an administrator must have set that up (see [Configuration](/_aphel/docs/admin/configuration/)).
 
 ## Where numbers come from
 
 - Widgets and reports read live data; there is no nightly cache. Each widget shows its own error if it cannot load.
 - A widget that needs a module you do not have, or a permission you lack, is simply not offered.
-- If numbers differ from a colleague's, compare your role scope (own, team, organization) and field permissions first. See [Roles and permissions](/docs/admin/roles-and-permissions/).
+- If numbers differ from a colleague's, compare your role scope (own, team, organization) and field permissions first. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).

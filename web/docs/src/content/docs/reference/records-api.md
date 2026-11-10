@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-Everything business-related in Aphel is a **record** of some **record type**: a person, an organization, a deal, a task, a note, a record of a custom object. There are three families of routes to work with records, and they share the same conventions for authentication, errors, [pagination and filters](/docs/reference/pagination-and-filters/), versions and events.
+Everything business-related in Aphel is a **record** of some **record type**: a person, an organization, a deal, a task, a note, a record of a custom object. There are three families of routes to work with records, and they share the same conventions for authentication, errors, [pagination and filters](/_aphel/docs/reference/pagination-and-filters/), versions and events.
 
 | Family | Routes | Use for |
 | --- | --- | --- |
@@ -238,7 +238,7 @@ Relationships between record types are defined by administrators (and by modules
 | `POST /api/v1/records/{record_type}/{record_id}/relations/{relation}` | Link, with `{ "record_id": "..." }`. Linking twice is a no-op and answers `linked: false`. |
 | `DELETE /api/v1/records/{record_type}/{record_id}/relations/{relation}/{target_id}` | Unlink. |
 
-Linking needs update permission on the record and read access to the other one. Cardinality is enforced (`409 relation_limit_reached`), the last link of a required relation cannot be removed, and link changes publish `record.linked` and `record.unlinked`. You can also filter by a related record's fields (`company.industry`) and embed related records with `include`; see [Pagination and filters](/docs/reference/pagination-and-filters/). People and organizations have their own link routes (`/people/{id}/organizations`).
+Linking needs update permission on the record and read access to the other one. Cardinality is enforced (`409 relation_limit_reached`), the last link of a required relation cannot be removed, and link changes publish `record.linked` and `record.unlinked`. You can also filter by a related record's fields (`company.industry`) and embed related records with `include`; see [Pagination and filters](/_aphel/docs/reference/pagination-and-filters/). People and organizations have their own link routes (`/people/{id}/organizations`).
 
 ## Sharing
 
@@ -325,4 +325,4 @@ Rules:
 
 ## Events
 
-Every create, update, delete and archive publishes a domain event and an audit entry in the same transaction as the change. The public subset can be delivered to your systems; see [Webhooks and events](/docs/reference/webhooks-and-events/).
+Every create, update, delete and archive publishes a domain event and an audit entry in the same transaction as the change. The public subset can be delivered to your systems; see [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/).

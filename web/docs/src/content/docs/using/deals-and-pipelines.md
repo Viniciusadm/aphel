@@ -19,14 +19,14 @@ A **deal** is a sale you are working on. Each deal sits in a **stage** of a **pi
 | Revenue forecast | `forecast` | SaaS, B2B Sales |
 | Goals | `goals` | SaaS, B2B Sales |
 
-Modules not recommended by your blueprint can still be enabled by an administrator; see [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/). Leads convert into deals; see [Leads](/docs/using/leads/).
+Modules not recommended by your blueprint can still be enabled by an administrator; see [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/). Leads convert into deals; see [Leads](/_aphel/docs/using/leads/).
 
 ## The Deals page
 
 Open **Deals** in the menu (or press `g` then `d`). The page has two display modes:
 
 - **Kanban**: one column per active stage of a pipeline, with the number of deals and the total amount of each column. Drag a card to another column to move it. With the keyboard, press space or enter on a card, choose the stage with the arrow keys and press space or enter again. Columns load 20 cards at a time; use **Load more**.
-- **Table**: the standard record list with search, filters, saved views and the archived filter; see [Records and views](/docs/using/records-and-views/).
+- **Table**: the standard record list with search, filters, saved views and the archived filter; see [Records and views](/_aphel/docs/using/records-and-views/).
 
 If there is more than one pipeline, a selector lets you pick one or show all. Cards show how many days the deal has been in its current stage.
 
@@ -86,7 +86,7 @@ A stage can have a limit in days. An open deal that stays in the stage longer th
 - The **Rotting** toggle in the list toolbar shows only rotting deals.
 - The limit is set per stage in the Sales workflow settings (**Days before rotting**, from 1 to 3650, empty for no limit; open stages only).
 - Entering a new stage restarts the count.
-- Automations have a trigger **Deal rotting in stage** that runs once per stage entry; see [Automations](/docs/using/automations/).
+- Automations have a trigger **Deal rotting in stage** that runs once per stage entry; see [Automations](/_aphel/docs/using/automations/).
 
 ## Deal team
 
@@ -207,7 +207,7 @@ Permissions: everyone sees goals for themselves, their teams and the organizatio
 
 ## Reports
 
-The Reports area includes a **Conversion** report (funnel, time per stage, where and why deals are lost) and a **Performance** report (results grouped by salesperson, team, source or pipeline). They need `deals.read` and follow your permissions. See [Dashboards and reports](/docs/using/dashboards-and-reports/).
+The Reports area includes a **Conversion** report (funnel, time per stage, where and why deals are lost) and a **Performance** report (results grouped by salesperson, team, source or pipeline). They need `deals.read` and follow your permissions. See [Dashboards and reports](/_aphel/docs/using/dashboards-and-reports/).
 
 ## Permissions
 
@@ -224,4 +224,4 @@ The Reports area includes a **Conversion** report (funnel, time per stage, where
 | `goals.manage` | Create and edit goals, within its scope. |
 | `settings.manage` | Sales workflow, renewals, deal team roles, forecast settings, products and items settings. |
 
-Record permissions have a scope (own, team or organization); see [Roles and permissions](/docs/admin/roles-and-permissions/).
+Record permissions have a scope (own, team or organization); see [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/).

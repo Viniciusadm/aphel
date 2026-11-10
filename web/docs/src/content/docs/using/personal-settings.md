@@ -79,11 +79,11 @@ Open **My account**, then **Appearance**. Aphel lets you pick which interface yo
 
 A plugin can change colors and fonts, and some replace whole screens. Those show the note "Includes screens from a plugin, which run code with your session", so choose only plugins your administrator trusts. The page reloads after you choose.
 
-Users with `settings.manage` also see **Organization default** on this page. It sets the interface used by everyone who has not chosen one and by the sign-in page. It does not install or enable plugins; that is done in the plugin and module settings (see [Interface plugins](/docs/plugins/ui-plugins/)).
+Users with `settings.manage` also see **Organization default** on this page. It sets the interface used by everyone who has not chosen one and by the sign-in page. It does not install or enable plugins; that is done in the plugin and module settings (see [Interface plugins](/_aphel/docs/plugins/ui-plugins/)).
 
 ## Notifications
 
-Open **My account**, then **Notifications** to choose, for each kind of notice, whether you get it in Aphel, by email or as a push notification. The full table of notices and their defaults is in [Search and collaboration](/docs/using/search-and-collaboration/#notifications).
+Open **My account**, then **Notifications** to choose, for each kind of notice, whether you get it in Aphel, by email or as a push notification. The full table of notices and their defaults is in [Search and collaboration](/_aphel/docs/using/search-and-collaboration/#notifications).
 
 ### Push notifications
 
@@ -129,7 +129,7 @@ By default it shows **My events**. Users with `users.manage` can switch to **Org
 
 ## API tokens
 
-API tokens let another system use the Aphel API as you. Open **My account**, then **API tokens**, or use the **Manage tokens** link in **Account security**. For the technical side, see [Authentication](/docs/reference/authentication/).
+API tokens let another system use the Aphel API as you. Open **My account**, then **API tokens**, or use the **Manage tokens** link in **Account security**. For the technical side, see [Authentication](/_aphel/docs/reference/authentication/).
 
 **Create a token.**
 

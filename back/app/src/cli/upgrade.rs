@@ -270,7 +270,7 @@ pub(crate) async fn run(config: AppConfig, args: UpgradeArgs) -> CliResult {
                 println!("Warning: the upgrade could not be recorded in system_upgrades.");
             }
             println!(
-                "Start (or restart) `aphel serve` and `aphel worker`, then check /health/ready."
+                "Start (or restart) `aphel serve` and `aphel worker`, then check /_aphel/health/ready."
             );
             Ok(())
         }

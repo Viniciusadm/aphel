@@ -16,7 +16,7 @@ A lead is a contact that has not yet become an opportunity. Aphel does not keep 
 | Lead distribution | `assignment` | Real Estate, B2B Sales |
 | Hot leads and lead temperature | `lead_pro` | None. Optional plugin outside the default build |
 
-The base CRM blueprint recommends none of these, and the Freelancer and Consultancy blueprints do not list them either. An administrator can enable any of the modules on the Modules page; see [Modules](/docs/admin/modules/) and [Blueprints](/docs/admin/blueprints/).
+The base CRM blueprint recommends none of these, and the Freelancer and Consultancy blueprints do not list them either. An administrator can enable any of the modules on the Modules page; see [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## Lifecycle stages
 
@@ -32,7 +32,7 @@ The **Lifecycle stage** field exists on contacts and on companies. The stages ar
 
 A new contact has no stage unless one is set. You can set the stage by hand on the contact. Contacts created automatically from synchronized email start as **Lead**, and a form can be configured to set the stage. Every change is recorded: open the **Lifecycle** tab of a contact or company to see each stage, who or what changed it (a person or **automatic rule**), when it was entered and left, and how many days it stayed there.
 
-Only the active stage options can be chosen. The list of stages is a normal select field; administrators edit its options in the field settings (see [Custom fields](/docs/using/custom-fields/)).
+Only the active stage options can be chosen. The list of stages is a normal select field; administrators edit its options in the field settings (see [Custom fields](/_aphel/docs/using/custom-fields/)).
 
 ## The lead inbox
 
@@ -101,7 +101,7 @@ Limits: points are non-zero whole numbers from -1000 to 1000, caps up to 100000,
 
 The first model of a record type becomes its **primary** model, shown in the read-only **Score** field of lists and detail pages. You can make another model primary, deactivate it, recalculate it or delete it (deleting removes every score it calculated). The **Score** tab of a contact or company explains what made up the score. Scores are recalculated on every relevant event, when a model is saved, and once a day to apply decay.
 
-Automations can react when a score crosses into another band; see [Automations](/docs/using/automations/).
+Automations can react when a score crosses into another band; see [Automations](/_aphel/docs/using/automations/).
 
 ## Lead distribution
 

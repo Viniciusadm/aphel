@@ -6,6 +6,7 @@ import { defineConfig, type Plugin } from 'vite'
 import { serviceWorkerPlugin } from './scripts/pwa/vite-plugin.ts'
 
 const backendUrl = 'http://127.0.0.1:3001'
+const reservedBase = '/_aphel/'
 
 const fromHere = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
@@ -41,7 +42,7 @@ function pluginImportMap(): Plugin {
       const imports = Object.fromEntries(
         Object.entries(sharedEntries).map(([name, entry]) => [
           entry.specifier,
-          serving ? `/${entry.source}` : `/shared/${name}.js`,
+          serving ? `/${entry.source}` : `${reservedBase}shared/${name}.js`,
         ]),
       )
       return [
@@ -57,7 +58,8 @@ function pluginImportMap(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? reservedBase : '/',
   plugins: [pluginImportMap(), react(), tailwindcss(), serviceWorkerPlugin()],
   resolve: {
     alias: [
@@ -112,7 +114,7 @@ export default defineConfig({
     proxy: {
       '/api': backendUrl,
       '/p/': backendUrl,
-      '/health': backendUrl,
+      '/_aphel': backendUrl,
     },
   },
-})
+}))

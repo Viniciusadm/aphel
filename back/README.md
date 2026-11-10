@@ -50,7 +50,7 @@ With cargo (the workspace default member is the `aphel` binary): `cargo run -- s
 
 | Method and path | What it does |
 | --- | --- |
-| `GET /health` | Health check |
+| `GET /_aphel/health` | Health check |
 | `GET`/`POST /api/v1/installer` | First-run installation wizard: available only while `organization_settings` is empty; creates the organization (single row), its administrator (email verified), saves the public address (the origin the browser used) and starts a session. Answers 404 afterwards |
 | `POST /api/v1/installer/restore` | Alternative to the wizard while it is available: restores a full backup (multipart `file`, zip of `aphel org export`) into the empty installation and answers `201 { data: { restored: true } }`; 409 `organization_not_empty`, 422 `invalid_organization_export` |
 | `POST /api/v1/auth/login` | Starts a session (`aphel_session` cookie) |

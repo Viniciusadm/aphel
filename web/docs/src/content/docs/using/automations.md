@@ -8,7 +8,7 @@ sidebar:
 Automations run actions on records without anyone clicking: create a follow-up task when a deal reaches a stage, notify a manager when a deal stalls, call an external URL when a deal is won. Webhooks are the other half of integration: outgoing webhooks send Aphel events to other systems, and incoming webhooks let other systems create or update records in Aphel.
 
 :::note
-Automations, approvals and webhooks are modules. Automations are suggested by the Agency, Freelancer, Other business, Real Estate, SaaS and B2B Sales blueprints; webhooks by the SaaS blueprint; approvals by the Consultancy and B2B Sales blueprints. An administrator can turn any of them on or off in **Settings > Modules**. See [Blueprints](/docs/admin/blueprints/) and [Modules](/docs/admin/modules/).
+Automations, approvals and webhooks are modules. Automations are suggested by the Agency, Freelancer, Other business, Real Estate, SaaS and B2B Sales blueprints; webhooks by the SaaS blueprint; approvals by the Consultancy and B2B Sales blueprints. An administrator can turn any of them on or off in **Settings > Modules**. See [Blueprints](/_aphel/docs/admin/blueprints/) and [Modules](/_aphel/docs/admin/modules/).
 :::
 
 ## Who can use what
@@ -21,7 +21,7 @@ Automations, approvals and webhooks are modules. Automations are suggested by th
 | Approval policies | **Settings > Sales > Approvals** | `approvals.manage` |
 | Deciding on approvals | **Approvals** in the main menu | You must be an approver of the current step |
 
-By default only the Administrator role has `automations.manage`, `approvals.manage` and `settings.manage`. You can grant them to other roles in [Roles and permissions](/docs/admin/roles-and-permissions/). Without `automations.manage` the Automations screen shows "No access to automations".
+By default only the Administrator role has `automations.manage`, `approvals.manage` and `settings.manage`. You can grant them to other roles in [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/). Without `automations.manage` the Automations screen shows "No access to automations".
 
 ## How an automation works
 
@@ -190,7 +190,7 @@ Go to **Settings > Integrations > Outgoing webhooks**. Each endpoint receives a 
 5. Leave **Active** on and click **Create endpoint**.
 6. Copy the signing secret from the dialog. It is shown only once. Receivers use it to verify the `X-Aphel-Signature` header.
 
-An organization can have up to 20 endpoints. The body format and signature check are described in [Webhooks and events](/docs/reference/webhooks-and-events/).
+An organization can have up to 20 endpoints. The body format and signature check are described in [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/).
 
 ### Manage endpoints
 
@@ -232,7 +232,7 @@ For contacts, you can decide what happens when one already exists: update the on
 
 Actions run as the user who created the webhook, with that user's permissions at the time of each request. If an action fails, the earlier ones are kept and the partial result is logged. A webhook with no actions only logs requests.
 
-An organization can have up to 50 incoming webhooks. The receiver accepts JSON and form-encoded bodies up to 256 KB. A signed request needs the `X-Aphel-Signature` header, and repeating the same delivery within 24 hours is refused. Details are in [Webhooks and events](/docs/reference/webhooks-and-events/).
+An organization can have up to 50 incoming webhooks. The receiver accepts JSON and form-encoded bodies up to 256 KB. A signed request needs the `X-Aphel-Signature` header, and repeating the same delivery within 24 hours is refused. Details are in [Webhooks and events](/_aphel/docs/reference/webhooks-and-events/).
 
 ### Manage and inspect
 
@@ -251,7 +251,7 @@ Each policy has a name, a unique key (lowercase letters, digits and `_`, fixed a
 | Moment | When it applies |
 | --- | --- |
 | Stage change | Moving a record to a chosen target stage (only for types with stages, such as deals). |
-| Quote sending | Sending a quote to the customer. See [Quotes and proposals](/docs/using/quotes-and-proposals/). |
+| Quote sending | Sending a quote to the customer. See [Quotes and proposals](/_aphel/docs/using/quotes-and-proposals/). |
 | On demand | Only when someone, or an automation, requests approval. |
 
 A policy also has a **Condition** (always, when the record matches a filter, or when a formula is true), optional **Locked fields** that cannot change while a request is pending (none selected locks the whole record), an optional **Due (hours)** from 1 to 2160, and up to 10 steps. Each step names an approver (a user, a role, or the owner's team manager) and a rule: **Anyone approves** or **Everyone must approve**. Without a team manager, administrators with `approvals.manage` approve. The requester never approves their own request. The order of policies sets their priority.

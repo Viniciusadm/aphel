@@ -21,7 +21,7 @@ Descriptions that say "inside the transaction" mean the hook runs within the dat
 
 ## Subscribing from a plugin
 
-A runtime plugin subscribes to hooks of this catalog in its manifest, and its backend answers each call. Which values arrive, what it may return and the limits (a short timeout, and no record writes inside hooks, which answer `409 plugin_write_in_hook`) are described in [Hooks](/docs/plugins/hooks/) and in [Manifest](/docs/plugins/manifest/). Operations that a plugin can call are a separate catalog, described in [Host API](/docs/plugins/host-api/).
+A runtime plugin subscribes to hooks of this catalog in its manifest, and its backend answers each call. Which values arrive, what it may return and the limits (a short timeout, and no record writes inside hooks, which answer `409 plugin_write_in_hook`) are described in [Hooks](/_aphel/docs/plugins/hooks/) and in [Manifest](/_aphel/docs/plugins/manifest/). Operations that a plugin can call are a separate catalog, described in [Host API](/_aphel/docs/plugins/host-api/).
 
 A plugin sees only the hooks listed in the first part of this page. The typed hooks in the second part are Rust types used by native modules compiled into the binary; they are listed so that module authors know where to attach.
 

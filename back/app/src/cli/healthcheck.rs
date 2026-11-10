@@ -18,7 +18,7 @@ pub(crate) struct HealthcheckArgs {
     #[arg(
         long,
         conflicts_with = "worker",
-        help = "Check /health/ready (database, storage, worker and scheduler) instead of /health"
+        help = "Check /_aphel/health/ready (database, storage, worker and scheduler) instead of /_aphel/health"
     )]
     pub(crate) ready: bool,
     #[arg(
@@ -56,7 +56,11 @@ fn probe_host(host: IpAddr) -> IpAddr {
 
 async fn check_http(config: &AppConfig, ready: bool) -> Result<String, String> {
     let address = std::net::SocketAddr::new(probe_host(config.host), config.port);
-    let path = if ready { "/health/ready" } else { "/health" };
+    let path = if ready {
+        "/_aphel/health/ready"
+    } else {
+        "/_aphel/health"
+    };
     let url = format!("http://{address}{path}");
     let client = reqwest::Client::builder()
         .timeout(REQUEST_TIMEOUT)

@@ -8,7 +8,7 @@ pub use keybindings::{
 
 pub use settings::{
     MySqlOrganizationConfigPorts, MySqlOrganizationConfigRepository, MySqlOrganizationConfigSource,
-    organization_config_catalog, spawn_config_refresh,
+    organization_config_catalog, reset_app_mount, spawn_config_refresh,
 };
 
 pub use ui_plugin::{

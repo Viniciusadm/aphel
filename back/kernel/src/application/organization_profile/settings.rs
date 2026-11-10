@@ -25,6 +25,11 @@ pub const DEFAULT_LOCAL_FILES_PATH: &str = "./storage";
 pub const ORGANIZATION_SETTINGS_UPDATED: &str = "organization.settings_updated";
 pub const OBJECT_STORE_SECRET_NAME: &str = "storage_secret_access_key";
 pub const REDACTED: &str = "[redacted]";
+pub const ROOT_PATH: &str = "/";
+pub const RESERVED_PREFIX: &str = "/_aphel";
+pub const RECOVERY_APP_PATH: &str = "/_aphel/app";
+const RESERVED_MOUNT_SEGMENTS: [&str; 3] = ["api", "_aphel", ".well-known"];
+const MOUNT_SEGMENT_MAX_LEN: usize = 40;
 const UPLOAD_LIMIT_MB_CEILING: u64 = 4096;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -35,8 +40,55 @@ pub struct OrganizationConfig {
     pub storage: StorageSettings,
     pub mail: MailSettings,
     pub api_tokens: ApiTokenLimits,
+    pub mounts: MountSettings,
     #[serde(flatten)]
     pub extensions: std::collections::BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct MountSettings {
+    pub app: AppMount,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct AppMount {
+    pub base_path: String,
+}
+
+impl Default for AppMount {
+    fn default() -> Self {
+        Self {
+            base_path: ROOT_PATH.to_owned(),
+        }
+    }
+}
+
+impl AppMount {
+    pub fn prefix(&self) -> &str {
+        self.base_path.trim_end_matches('/')
+    }
+
+    pub fn is_root(&self) -> bool {
+        self.prefix().is_empty()
+    }
+}
+
+pub fn normalize_app_base_path(raw: &str) -> Option<String> {
+    let trimmed = raw.trim().trim_matches('/');
+    if trimmed.is_empty() {
+        return Some(ROOT_PATH.to_owned());
+    }
+    let segment = trimmed.to_ascii_lowercase();
+    let valid = segment.len() <= MOUNT_SEGMENT_MAX_LEN
+        && !RESERVED_MOUNT_SEGMENTS.contains(&segment.as_str())
+        && segment
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric() || character == '-')
+        && !segment.starts_with('-')
+        && !segment.ends_with('-');
+    valid.then(|| format!("/{segment}"))
 }
 
 impl Default for OrganizationConfig {
@@ -47,6 +99,7 @@ impl Default for OrganizationConfig {
             storage: StorageSettings::default(),
             mail: MailSettings::default(),
             api_tokens: ApiTokenLimits::default(),
+            mounts: MountSettings::default(),
             extensions: configuration_defaults(),
         }
     }
@@ -57,6 +110,18 @@ impl OrganizationConfig {
         self.public_base_url
             .as_deref()
             .unwrap_or(DEFAULT_PUBLIC_BASE_URL)
+    }
+
+    pub fn app_prefix(&self) -> &str {
+        self.mounts.app.prefix()
+    }
+
+    pub fn app_base_url(&self) -> String {
+        format!(
+            "{}{}",
+            self.public_base_url().trim_end_matches('/'),
+            self.app_prefix()
+        )
     }
 
     pub fn secure_cookies(&self) -> bool {
@@ -207,6 +272,14 @@ pub fn validate_config(config: &OrganizationConfig) -> Vec<FieldViolation> {
         violations.push(FieldViolation::new(
             "public_base_url",
             "must be an http(s) address without path suffixes such as ? or #",
+        ));
+    }
+    if normalize_app_base_path(&config.mounts.app.base_path).as_deref()
+        != Some(config.mounts.app.base_path.as_str())
+    {
+        violations.push(FieldViolation::new(
+            "mounts.app.base_path",
+            "must be / or a single lowercase segment such as /app (letters, digits and hyphens), other than /api and /_aphel",
         ));
     }
     check_range(
@@ -407,8 +480,15 @@ impl PublicBaseUrl {
         }
     }
 
-    pub fn link(&self, path: &str) -> String {
-        format!("{}{path}", self.get().trim_end_matches('/'))
+    pub fn app_root(&self) -> String {
+        match &self.0 {
+            BaseUrlSource::Fixed(url) => url.trim_end_matches('/').to_owned(),
+            BaseUrlSource::Live(catalog) => catalog.snapshot().app_base_url(),
+        }
+    }
+
+    pub fn app_link(&self, path: &str) -> String {
+        format!("{}{path}", self.app_root())
     }
 }
 
@@ -518,6 +598,7 @@ pub enum SecretChange {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UpdateOrganizationConfig {
     pub public_base_url: Option<String>,
+    pub app_base_path: Option<String>,
     pub max_upload_mb: Option<u64>,
     pub storage: Option<StorageSettings>,
     pub storage_secret: SecretChange,
@@ -617,6 +698,13 @@ where
         if let Some(url) = command.public_base_url {
             next.public_base_url =
                 Some(normalize_public_base_url(&url).unwrap_or_else(|| url.trim().to_owned()));
+        }
+        if let Some(base_path) = command.app_base_path {
+            next.mounts.app.base_path =
+                normalize_app_base_path(&base_path).unwrap_or_else(|| base_path.trim().to_owned());
+            if next.mounts.app != current.mounts.app {
+                scope.require(&Permission::SYSTEM_MANAGE)?;
+            }
         }
         if let Some(max_upload_mb) = command.max_upload_mb {
             next.max_upload_mb = max_upload_mb;

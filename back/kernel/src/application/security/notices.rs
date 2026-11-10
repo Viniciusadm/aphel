@@ -170,7 +170,7 @@ impl<U, M> SecurityEmailHandler<U, M> {
     }
 
     fn security_link(&self) -> String {
-        self.app_base_url.link("/settings/security")
+        self.app_base_url.app_link("/settings/security")
     }
 }
 

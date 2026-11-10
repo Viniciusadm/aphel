@@ -27,6 +27,9 @@ use state::AppState;
 pub fn router(state: AppState) -> Router {
     crate::state::install_runtime_state(state.clone());
     let (api_router, mut openapi) = openapi_router(&state).split_for_parts();
+    let mounted: Router = Router::from(state.app.app_mount_router(&state))
+        .fallback(web::serve_app_shell)
+        .with_state(state.clone());
     docs::add_api_token_security(&mut openapi);
     idempotency::document(&mut openapi);
 
@@ -43,7 +46,12 @@ pub fn router(state: AppState) -> Router {
             api_token_limit::limit,
         ))
         .merge(docs::router(openapi))
-        .fallback(web::serve_web)
+        .fallback(
+            move |axum::extract::State(state): axum::extract::State<AppState>,
+                  request: axum::extract::Request| {
+                web::dispatch(state, mounted.clone(), request)
+            },
+        )
         .with_state(state)
         .layer(CorsLayer::permissive());
 

@@ -15,8 +15,8 @@ This page follows a plugin from the first upload to its removal, with the endpoi
 | `POST /api/v1/wasm-runtime/{key}/enable` | Enable. |
 | `POST /api/v1/wasm-runtime/{key}/disable` | Disable. |
 | `DELETE /api/v1/wasm-runtime/{key}` | Uninstall (`?purge=true` deletes data). |
-| `GET`, `PUT /api/v1/wasm-runtime/{key}/settings` | Settings. See [Settings and secrets](/docs/plugins/settings-and-secrets/). |
-| `POST /api/v1/wasm-runtime/{key}/grants` | Reapply grants. See [Permissions and roles](/docs/plugins/permissions-and-roles/). |
+| `GET`, `PUT /api/v1/wasm-runtime/{key}/settings` | Settings. See [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/). |
+| `POST /api/v1/wasm-runtime/{key}/grants` | Reapply grants. See [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/). |
 | `GET /api/v1/wasm-runtime/host-catalog` | Hooks and operations this Aphel offers. |
 | `GET /api/v1/wasm-runtime/readiness` | Catalog state: `{ state, version, backend_errors }`. |
 
@@ -58,7 +58,7 @@ The installer runs these steps in order and stops at the first failure.
 | Step | Checks | Errors |
 | --- | --- | --- |
 | Package | Size, file count, paths, zip, web entry | `422 plugin_package_invalid` |
-| Manifest | Every rule in [Manifest](/docs/plugins/manifest/) | `422 plugin_manifest_invalid`, `422 plugin_backend_missing` |
+| Manifest | Every rule in [Manifest](/_aphel/docs/plugins/manifest/) | `422 plugin_manifest_invalid`, `422 plugin_backend_missing` |
 | Backend | The component compiles and has the `aphel:plugin` world | `422 plugin_backend_invalid` |
 | Presets | Every key in `role_presets` is a preset of the package | `422 plugin_role_preset_unknown` |
 | Dependents | For an enabled plugin being replaced: other plugins must not lose a contract or operation they use | `409 plugin_has_dependents` |
@@ -90,7 +90,7 @@ The installer does not compare versions, so any package with the same key replac
 | Key-value data, secrets | Kept. |
 | Enabled state | Kept. A disabled plugin stays disabled. |
 | Owner (`installed_by`) | Becomes the user who installed the upgrade. |
-| Entities, fields, options | Created, updated or deactivated as in [Entities and fields](/docs/plugins/entities-and-fields/#upgrades-deactivation-and-type-changes). |
+| Entities, fields, options | Created, updated or deactivated as in [Entities and fields](/_aphel/docs/plugins/entities-and-fields/#upgrades-deactivation-and-type-changes). |
 | Permissions | Re-registered. Removed declarations disappear from the catalog. |
 | Grants | Only added. Existing grants are never removed. |
 | Web bundle | Replaced. The browser loads the new files at its next page load. |
@@ -154,7 +154,7 @@ Background work of plugins is stored in the database and run by workers:
 - Deferred effects carry the authority captured when they were created and are re-resolved when they run. If the plugin was disabled or removed meanwhile, they fail with `503 plugin_disabled`.
 - Plugin jobs need a worker. Without one nothing runs.
 
-See [Events](/docs/plugins/events/) and [Schedules](/docs/plugins/schedules/).
+See [Events](/_aphel/docs/plugins/events/) and [Schedules](/_aphel/docs/plugins/schedules/).
 
 ## Failure modes
 
@@ -167,6 +167,6 @@ See [Events](/docs/plugins/events/) and [Schedules](/docs/plugins/schedules/).
 | The plugin catalog changes during a request | `503 plugin_catalog_changed`. Retry the request. |
 | A plugin is requested that does not exist or is disabled | `404 plugin_not_found`; routes answer `404 plugin_route_not_found` for unknown paths. |
 | A step in an automation uses an action of a plugin that is gone | `503 plugin_unavailable` |
-| A hook returns an error | The caller gets the error and the write is rolled back. See [Hooks](/docs/plugins/hooks/). |
+| A hook returns an error | The caller gets the error and the write is rolled back. See [Hooks](/_aphel/docs/plugins/hooks/). |
 
 The Plugins page shows `backend_error` and the grant status per plugin. `GET /api/v1/wasm-runtime/readiness` reports `{ state, version, backend_errors }`; it answers `loading` while the catalog is being read and `503` when the catalog is unavailable.

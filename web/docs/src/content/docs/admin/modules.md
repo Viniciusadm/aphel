@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-Everything beyond the core is a **module**. Modules are compiled into the binary, and each installation decides which ones are turned on. Contacts, deals, tasks, email, quotes, automations, webhooks and single sign-on are all modules. The [module catalog](/docs/reference/module-catalog/) describes each one.
+Everything beyond the core is a **module**. Modules are compiled into the binary, and each installation decides which ones are turned on. Contacts, deals, tasks, email, quotes, automations, webhooks and single sign-on are all modules. The [module catalog](/_aphel/docs/reference/module-catalog/) describes each one.
 
 The module list in a build comes from `back/aphel.modules.toml`. `aphel modules list` prints the modules compiled into your binary. To add or remove modules from a build you recompile; to use them you enable them.
 
@@ -41,11 +41,11 @@ A module declares its settings, and the screen builds the form from them. Fields
 - Saving validates the values against the module's schema and returns the offending fields on error.
 - The API is `PATCH /api/v1/modules/{key}/settings`.
 
-Modules that connect to outside services keep their credentials here. See [Integrations](/docs/admin/integrations/).
+Modules that connect to outside services keep their credentials here. See [Integrations](/_aphel/docs/admin/integrations/).
 
 ## What disabling does not do
 
-Disabling does not delete tables, records, files, settings or secrets. Records that belong to a disabled module stay in the database, and other modules keep their own references. Configuration package sections that belong to a disabled module are skipped when you plan or apply a package. See [Configuration packages](/docs/admin/config-packages/).
+Disabling does not delete tables, records, files, settings or secrets. Records that belong to a disabled module stay in the database, and other modules keep their own references. Configuration package sections that belong to a disabled module are skipped when you plan or apply a package. See [Configuration packages](/_aphel/docs/admin/config-packages/).
 
 ## Remove a module's data
 
@@ -61,11 +61,11 @@ The command-line equivalent disables the module, runs its uninstall step and, wi
 aphel modules uninstall insights --purge
 ```
 
-Without `--purge`, the data is kept. A required module cannot be uninstalled. See [CLI](/docs/admin/cli/).
+Without `--purge`, the data is kept. A required module cannot be uninstalled. See [CLI](/_aphel/docs/admin/cli/).
 
 ## Choosing modules at install time
 
-In the installer, the Features step lists the optional modules. Dependencies are selected automatically, modules that need configuration ask for it there, and the blueprint decides which ones are pre-selected. See [Installation](/docs/admin/installation/) and [Blueprints](/docs/admin/blueprints/).
+In the installer, the Features step lists the optional modules. Dependencies are selected automatically, modules that need configuration ask for it there, and the blueprint decides which ones are pre-selected. See [Installation](/_aphel/docs/admin/installation/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 
 ## Inspect modules
 
@@ -75,4 +75,4 @@ In the installer, the Features step lists the optional modules. Dependencies are
 | `aphel modules doctor` | What each module contributes (routes, hooks, services, catalogs, worker parts) and the conflicts between modules |
 | `GET /api/v1/modules` | The same information over the API, with settings and configured secrets for users with `settings.manage` |
 
-The System screen also lists the compiled modules with their version, compatibility and migration state. See [Operations](/docs/admin/operations/).
+The System screen also lists the compiled modules with their version, compatibility and migration state. See [Operations](/_aphel/docs/admin/operations/).

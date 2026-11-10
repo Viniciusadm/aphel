@@ -15,7 +15,7 @@ This page lists what Aphel protects by default, the controls you can tune, and t
 4. Require two-factor authentication for administrators at least.
 5. Leave `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` and `EMAIL_ALLOW_PRIVATE_NETWORKS` off unless you need them.
 6. Set `METRICS_TOKEN` only if you scrape metrics, and use a long random value.
-7. Back up the database, the files and the `.env`, and test the restore. See [Backup and restore](/docs/admin/backup-and-restore/).
+7. Back up the database, the files and the `.env`, and test the restore. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 
 ## Passwords and sign-in
 
@@ -51,7 +51,7 @@ Members covered by the policy who have not enabled it can reach only their secur
 
 ## API tokens
 
-Personal API tokens let integrations call the API as a user, narrowed by scopes. Details are in [Roles and permissions](/docs/admin/roles-and-permissions/#api-token-scopes).
+Personal API tokens let integrations call the API as a user, narrowed by scopes. Details are in [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/#api-token-scopes).
 
 - The secret is shown once, when the token is created, and cannot be shown again. Store it safely.
 - Tokens can have an expiry and can be revoked at any time. After revocation, requests answer `401 invalid_api_token`.
@@ -60,7 +60,7 @@ Personal API tokens let integrations call the API as a user, narrowed by scopes.
 
 ## Single sign-on
 
-Sign in with Google, Microsoft or any OpenID Connect provider is configured per module. See [Integrations](/docs/admin/integrations/). Each can list the email domains that use it and refuse password sign-in for those domains. Make sure at least one administrator can still sign in with a password before enforcing it.
+Sign in with Google, Microsoft or any OpenID Connect provider is configured per module. See [Integrations](/_aphel/docs/admin/integrations/). Each can list the email domains that use it and refuse password sign-in for those domains. Make sure at least one administrator can still sign in with a password before enforcing it.
 
 ## Rate limits
 
@@ -84,7 +84,7 @@ Browser sessions use a cookie, so Aphel requires the header `X-Requested-With: a
 - requests that carry an API token in `Authorization: Bearer`,
 - public routes under `/api/v1/public/` and incoming webhooks under `/api/v1/hooks/`.
 
-Clients that use API tokens therefore do not need it. Scripts using a session cookie must send it. See [Authentication](/docs/reference/authentication/).
+Clients that use API tokens therefore do not need it. Scripts using a session cookie must send it. See [Authentication](/_aphel/docs/reference/authentication/).
 
 :::note
 The server answers cross-origin requests permissively (CORS). The cookie is `SameSite=Lax` and the header requirement is what protects state-changing requests made with a session.

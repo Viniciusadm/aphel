@@ -17,7 +17,7 @@ Backends are WebAssembly components executed by Wasmtime.
 | WASI | Present with an empty configuration: no preopened directories, no environment variables, no arguments, no sockets (TCP and UDP disabled), no DNS lookups. |
 | Memory | 64 MB per instance. Allocating more traps the instance. |
 | Time | Epoch-based limits: hook 2 s, route 10 s, event 30 s, schedule 60 s, automation action 30 s, operation and contribution 30 s, widget 5 s, privacy request 60 s. The limit is enforced by interrupting the running code. |
-| Host access | Only the functions of the `host` interface, described in [Host API](/docs/plugins/host-api/). A plugin cannot run SQL, read files, spawn processes or open connections. |
+| Host access | Only the functions of the `host` interface, described in [Host API](/_aphel/docs/plugins/host-api/). A plugin cannot run SQL, read files, spawn processes or open connections. |
 | Failure | A trap, a timeout or an out-of-memory condition fails the call with `503 plugin_failed`. The detail goes to the server log, not to the caller. Host errors of kind internal are reported as `internal error`. |
 | Code integrity | The component is checked when installed (`plugin_backend_invalid`) and compiled code is cached by the SHA-256 of `backend.wasm`. |
 
@@ -71,7 +71,7 @@ Backends call the network only with `http-fetch` or a deferred `http` effect.
 
 ## Secrets
 
-Secrets (`secret` settings) live in the secrets vault, encrypted with `APP_ENCRYPTION_KEY`, scoped to the plugin. They are never returned by the API, and logs and audit entries show `[redacted]`. Only the plugin's own backend can read them, with `secret(key)`. See [Settings and secrets](/docs/plugins/settings-and-secrets/).
+Secrets (`secret` settings) live in the secrets vault, encrypted with `APP_ENCRYPTION_KEY`, scoped to the plugin. They are never returned by the API, and logs and audit entries show `[redacted]`. Only the plugin's own backend can read them, with `secret(key)`. See [Settings and secrets](/_aphel/docs/plugins/settings-and-secrets/).
 
 ## The web bundle has no isolation
 
@@ -81,7 +81,7 @@ For that reason:
 
 - A package that declares `[web]` can be installed, upgraded or enabled only after an explicit acknowledgement for the exact manifest version (`acknowledge_web_version=<version>`; the interface shows a checkbox). Every new version needs a new acknowledgement. A dry run does not need one.
 - Treat web bundles like any other code you run in your browser with your credentials: install only from authors you trust and review the bundle.
-- A public web application (`web.public`) is served at `/p/<key>/` with a restrictive content security policy: scripts, fonts, connections and frames are limited to the same origin, and the page cannot be framed. See [Public web apps](/docs/plugins/public-web-apps/).
+- A public web application (`web.public`) is served at `/p/<key>/` with a restrictive content security policy: scripts, fonts, connections and frames are limited to the same origin, and the page cannot be framed. See [Public web apps](/_aphel/docs/plugins/public-web-apps/).
 
 Plugin web files are served to anyone, even before sign-in: bundles are code, not data. Do not put secrets in them.
 

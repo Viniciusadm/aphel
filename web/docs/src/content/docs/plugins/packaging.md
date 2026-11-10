@@ -25,7 +25,7 @@ aphel-plugin pack [dir] [-o file.aphelplugin]
 aphel-plugin bundle [dir with pack.toml] [-o file.aphelpack]
 ```
 
-`bundle` builds a [plugin pack](/docs/plugins/packs/) from a `pack.toml`. The `aphel` binary embeds the same commands as `aphel plugin new|build|pack|bundle`, with identical arguments, so a separate build of the CLI is optional. `dir` defaults to the current directory. Unknown commands print the usage and exit with an error. There is no `--help` flag.
+`bundle` builds a [plugin pack](/_aphel/docs/plugins/packs/) from a `pack.toml`. The `aphel` binary embeds the same commands as `aphel plugin new|build|pack|bundle`, with identical arguments, so a separate build of the CLI is optional. `dir` defaults to the current directory. Unknown commands print the usage and exit with an error. There is no `--help` flag.
 
 ### `new`
 
@@ -85,7 +85,7 @@ A violation fails with HTTP 422 and one of `plugin_package_invalid`, `plugin_man
 | `requires_aphel` | Optional semantic version requirement, such as `">=0.1.0"`, matched against the running Aphel version. A requirement that does not match fails on `requires_aphel` with "requires Aphel ..., this is ...". An invalid requirement fails with "must be a version requirement". |
 | `version` | Semantic version of the plugin, for example `1.2.0`. |
 
-The full manifest is described in [Manifest](/docs/plugins/manifest/).
+The full manifest is described in [Manifest](/_aphel/docs/plugins/manifest/).
 
 ## Installing from the interface
 
@@ -137,13 +137,13 @@ Other endpoints, all needing `system.manage`:
 
 - Install a newer package with the same key to upgrade. The API does not compare versions, so installing the same or an older version also works. Every install needs the web acknowledgement again for the exact version being installed.
 - An upgrade replaces the manifest and all package files. It keeps the enabled state (an upgrade of a disabled plugin stays disabled) and the saved settings.
-- The cache of the browser is keyed by the package checksum, so users get the new entry file after a reload. Give chunks and assets hashed names. See [Web bundle](/docs/plugins/web-bundle/).
-- Removing a field, entity or option from the manifest deactivates it on upgrade and keeps its data. See [Lifecycle](/docs/plugins/lifecycle/).
+- The cache of the browser is keyed by the package checksum, so users get the new entry file after a reload. Give chunks and assets hashed names. See [Web bundle](/_aphel/docs/plugins/web-bundle/).
+- Removing a field, entity or option from the manifest deactivates it on upgrade and keeps its data. See [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 - If other enabled plugins depend on yours, a change that would break them fails with 409 `plugin_has_dependents`.
 
 ## Related pages
 
-- [Plugin packs](/docs/plugins/packs/)
-- [Testing and debugging](/docs/plugins/testing-and-debugging/)
-- [Lifecycle](/docs/plugins/lifecycle/)
-- [First plugin](/docs/plugins/first-plugin/)
+- [Plugin packs](/_aphel/docs/plugins/packs/)
+- [Testing and debugging](/_aphel/docs/plugins/testing-and-debugging/)
+- [Lifecycle](/_aphel/docs/plugins/lifecycle/)
+- [First plugin](/_aphel/docs/plugins/first-plugin/)

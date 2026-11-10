@@ -32,7 +32,7 @@ label = "Note"
 type = "text"
 ```
 
-The action is registered as `plugin.<plugin key>.<action key>`. See the [manifest](/docs/plugins/manifest/#actions-emits-notifications-widgets) for limits: up to 20 actions with up to 20 inputs each.
+The action is registered as `plugin.<plugin key>.<action key>`. See the [manifest](/_aphel/docs/plugins/manifest/#actions-emits-notifications-widgets) for limits: up to 20 actions with up to 20 inputs each.
 
 | Property | Behavior |
 | --- | --- |
@@ -69,7 +69,7 @@ onAction(ctx, call) {
 }
 ```
 
-The action runs with the permissions of the user who published the automation version, limited to the plugin's capabilities, as the actor `automation`. It has 30 seconds and runs in a retryable context, so side effects go through `defer-effect` (see [Events](/docs/plugins/events/#side-effects-in-event-handlers)). Use the run id in effect keys so a retried step does not repeat the effect. The execution is also recorded per automation, run and step.
+The action runs with the permissions of the user who published the automation version, limited to the plugin's capabilities, as the actor `automation`. It has 30 seconds and runs in a retryable context, so side effects go through `defer-effect` (see [Events](/_aphel/docs/plugins/events/#side-effects-in-event-handlers)). Use the run id in effect keys so a retried step does not repeat the effect. The execution is also recorded per automation, run and step.
 
 If the plugin is disabled, uninstalled or its backend cannot load, the step fails with `503 plugin_unavailable` or `503 plugin_failed`.
 
@@ -159,13 +159,13 @@ onWidget(ctx, request) {
 
 Widgets run read-only, as the viewer limited to the plugin's capabilities, with a five second limit. Writes, `notify`, `emit`, `http-fetch` and `defer-effect` fail with `403 plugin_read_only`. Widgets are registered only for plugins that have a backend.
 
-The backend returns data; the dashboard draws it with a web renderer registered for the widget key by the plugin's web bundle (see [Web screens](/docs/plugins/web-screens/)). Without a renderer the dashboard shows an unsupported-widget state.
+The backend returns data; the dashboard draws it with a web renderer registered for the widget key by the plugin's web bundle (see [Web screens](/_aphel/docs/plugins/web-screens/)). Without a renderer the dashboard shows an unsupported-widget state.
 
 ## Provided operations
 
 Aphel has a catalog of operations that modules expose, and plugins can both use them and add to them.
 
-**Using operations.** List the operations you call in the top-level `operations` array and call them with `invoke` ([Host API](/docs/plugins/host-api/#module-operations)). The plugin acts with the intersection rules, so list the permissions each operation needs in `requires`.
+**Using operations.** List the operations you call in the top-level `operations` array and call them with `invoke` ([Host API](/_aphel/docs/plugins/host-api/#module-operations)). The plugin acts with the intersection rules, so list the permissions each operation needs in `requires`.
 
 **Providing operations.** A plugin can offer an operation to other plugins and modules:
 
@@ -227,4 +227,4 @@ The backend then receives `on-action` calls named `privacy.export`, `privacy.ano
 
 Return a JSON object. Put the number of affected items in `affected`; any other keys are included in the report of the request under the plugin's key. An error is counted as a failure of that source and does not stop the other sources. The call runs as the plugin with a 60 second limit, in a retryable context.
 
-Mark fields of your entities `personal` or `sensitive` so Aphel's own privacy tooling handles them. See [Entities and fields](/docs/plugins/entities-and-fields/).
+Mark fields of your entities `personal` or `sensitive` so Aphel's own privacy tooling handles them. See [Entities and fields](/_aphel/docs/plugins/entities-and-fields/).

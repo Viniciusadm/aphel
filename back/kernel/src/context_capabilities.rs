@@ -53,4 +53,8 @@ impl Ctx<'_> {
     pub fn app_base_url(&self) -> String {
         self.state().auth_settings.app_base_url.get()
     }
+
+    pub fn app_root_url(&self) -> String {
+        self.state().auth_settings.app_base_url.app_root()
+    }
 }

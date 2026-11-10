@@ -9,7 +9,7 @@ The `aphel` binary is both the server and the administration tool. Run `aphel --
 
 Running `aphel` with no subcommand is the same as `aphel serve`.
 
-Except where noted, every command reads the same configuration as the server: environment variables and the `.env` file (see [Configuration](/docs/admin/configuration/)). Commands exit with status 0 on success and a non-zero status on failure. Output and logs go to the terminal, and logs follow `RUST_LOG`.
+Except where noted, every command reads the same configuration as the server: environment variables and the `.env` file (see [Configuration](/_aphel/docs/admin/configuration/)). Commands exit with status 0 on success and a non-zero status on failure. Output and logs go to the terminal, and logs follow `RUST_LOG`.
 
 In Docker, run a command in a one-off container with the `app` service, whose entrypoint is `aphel`:
 
@@ -37,6 +37,7 @@ docker compose -f docker-compose.prod.yml exec app aphel doctor
 | `secrets rotate` | Re-encrypt stored secrets with the current key |
 | `db reset` | Delete and recreate the database |
 | `modules list`, `modules doctor`, `modules uninstall` | Inspect and remove modules |
+| `mounts reset` | Serve the internal app at `/` again |
 | `org export`, `org import` | Full export and restore |
 | `search reindex` | Rebuild the search index |
 | `demo seed`, `demo remove`, `demo reset` | Demonstration data |
@@ -61,7 +62,7 @@ aphel serve --with-worker
 
 ## worker
 
-Runs the background job worker, the scheduler and the worker heartbeat. It needs `DATABASE_URL` and applies migrations first when `RUN_MIGRATIONS` is true. It stops gracefully on a termination signal and waits for running jobs. No flags. See [Operations](/docs/admin/operations/).
+Runs the background job worker, the scheduler and the worker heartbeat. It needs `DATABASE_URL` and applies migrations first when `RUN_MIGRATIONS` is true. It stops gracefully on a termination signal and waits for running jobs. No flags. See [Operations](/_aphel/docs/admin/operations/).
 
 ```bash
 aphel worker
@@ -77,7 +78,7 @@ aphel migrate
 
 ## upgrade
 
-Checks the requirements, lists pending migrations, asks for a backup confirmation and applies the migrations. See [Upgrading](/docs/admin/upgrading/).
+Checks the requirements, lists pending migrations, asks for a backup confirmation and applies the migrations. See [Upgrading](/_aphel/docs/admin/upgrading/).
 
 | Flag | Meaning |
 | --- | --- |
@@ -103,8 +104,8 @@ Exits 0 when healthy, and prints `healthy: ...` or `unhealthy: ...`. Meant for c
 
 | Flag | Meaning |
 | --- | --- |
-| (none) | Call `GET /health` on the local server (`HTTP_HOST` is replaced by loopback if it is `0.0.0.0`) |
-| `--ready` | Call `GET /health/ready`: database, storage, worker, scheduler and queue. Cannot be combined with `--worker` |
+| (none) | Call `GET /_aphel/health` on the local server (`HTTP_HOST` is replaced by loopback if it is `0.0.0.0`) |
+| `--ready` | Call `GET /_aphel/health/ready`: database, storage, worker, scheduler and queue. Cannot be combined with `--worker` |
 | `--worker` | Check that the worker on this host sent a heartbeat within `HEALTH_WORKER_MAX_SILENCE_SECS`. Reads the database instead of calling HTTP |
 
 ```bash
@@ -125,7 +126,7 @@ aphel secrets generate-key
 aphel secrets rotate
 ```
 
-See [Security](/docs/admin/security/#rotate-the-encryption-key) for the full rotation procedure.
+See [Security](/_aphel/docs/admin/security/#rotate-the-encryption-key) for the full rotation procedure.
 
 ## db reset
 
@@ -159,7 +160,15 @@ aphel modules uninstall insights
 aphel modules uninstall insights --purge
 ```
 
-See [Modules](/docs/admin/modules/).
+See [Modules](/_aphel/docs/admin/modules/).
+
+## mounts reset
+
+Moves the internal app back to `/` when a wrong app path (Settings → General) left it unreachable through the proxy. The change goes through the same organization settings update as the screen, so it publishes `organization.settings_updated` and writes the audit entry. Running servers pick it up without a restart. Before resorting to it, try `/_aphel/app/`, where the app always answers.
+
+```bash
+aphel mounts reset
+```
 
 ## org
 
@@ -185,7 +194,7 @@ aphel org export --output /srv/backups/aphel-light.zip --without-files --as admi
 aphel org import /srv/backups/aphel-full.zip
 ```
 
-See [Backup and restore](/docs/admin/backup-and-restore/).
+See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 
 ## search reindex
 
@@ -232,11 +241,11 @@ Prints the OpenAPI document of the API as JSON to standard output. No database n
 aphel openapi > openapi.json
 ```
 
-A running server also serves it at `/api/openapi.json`, with interactive docs at `/api/docs`. See the [REST API reference](/docs/reference/rest-api/).
+A running server also serves it at `/api/openapi.json`, with interactive docs at `/api/docs`. See the [REST API reference](/_aphel/docs/reference/rest-api/).
 
 ## catalog
 
-Lists everything the build offers to plugins: plugins, operations, hooks, events and permissions. No database needed. See [Plugins overview](/docs/plugins/overview/).
+Lists everything the build offers to plugins: plugins, operations, hooks, events and permissions. No database needed. See [Plugins overview](/_aphel/docs/plugins/overview/).
 
 | Flag | Meaning |
 | --- | --- |
@@ -264,7 +273,7 @@ Generates the DDL of a managed entity from a JSON declaration, without connectin
 aphel entity-schema --key invoice invoice.json
 ```
 
-See [Entities and fields](/docs/plugins/entities-and-fields/).
+See [Entities and fields](/_aphel/docs/plugins/entities-and-fields/).
 
 ## probe
 
@@ -289,4 +298,4 @@ aphel plugin new library --js
 aphel plugin pack aphel-library -o library.aphelplugin
 ```
 
-See [Packaging](/docs/plugins/packaging/) and [Your first plugin](/docs/plugins/first-plugin/).
+See [Packaging](/_aphel/docs/plugins/packaging/) and [Your first plugin](/_aphel/docs/plugins/first-plugin/).

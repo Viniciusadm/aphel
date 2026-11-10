@@ -430,7 +430,7 @@
       "description": "Baixe uma cópia completa dos dados da organização."
     },
     "general": {
-      "description": "Endereço público e tamanho máximo de upload."
+      "description": "Endereço público, caminho do sistema e tamanho máximo de upload."
     },
     "outgoingEmail": {
       "description": "Servidor SMTP usado em todos os e-mails do sistema."
@@ -478,7 +478,9 @@
       "required": "Preencha este campo.",
       "range": "Use um valor entre {{min}} e {{max}}.",
       "timeout": "Use um valor entre 1 e 120 segundos.",
-      "catalogUrl": "Informe uma URL https (http só com a opção de desenvolvimento)."
+      "catalogUrl": "Informe uma URL https (http só com a opção de desenvolvimento).",
+      "appPath": "Use só letras minúsculas, números e hífens, num único trecho (ex.: app).",
+      "appPathReserved": "Esse caminho é usado pela API. Escolha outro, como app."
     },
     "general": {
       "title": "Geral",
@@ -489,7 +491,14 @@
       "maxUploadMb": "Tamanho máximo de upload (MB)",
       "maxUploadMbHint": "Vale para anexos, importações e e-mails. Ajuste também o limite do proxy reverso.",
       "publicBaseUrlPlaceholder": "https://app.suaempresa.com.br",
-      "maxUploadPlaceholder": "Ex.: 25"
+      "maxUploadPlaceholder": "Ex.: 25",
+      "appPath": "Caminho do sistema",
+      "appPathHint": "Deixe vazio para o sistema abrir na raiz do endereço. Com um caminho, como app, a raiz fica livre para o site público e os links enviados por e-mail passam a usar o novo caminho. Se algo der errado, o sistema também abre em {{recovery}}.",
+      "appPathLocked": "Só quem administra o sistema pode mudar o caminho.",
+      "appPathPlaceholder": "vazio = raiz",
+      "moveAppTitle": "Mudar o endereço do sistema?",
+      "moveAppDescription": "O sistema passa a abrir em {{url}} para todos. Favoritos e links antigos param de funcionar e o app instalado no celular precisa ser instalado de novo. Se o novo endereço não abrir, use {{recovery}}.",
+      "moveAppConfirm": "Mudar endereço"
     },
     "mail": {
       "title": "E-mail de envio",

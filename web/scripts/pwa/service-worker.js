@@ -2,19 +2,21 @@ const VERSION = '__APHEL_SW_VERSION__'
 const PRECACHE_URLS = ['__APHEL_SW_PRECACHE__']
 const CACHE_PREFIX = 'aphel-shell-'
 const CACHE_NAME = `${CACHE_PREFIX}${VERSION}`
-const SHELL_URL = '/'
-const ASSETS_PREFIX = '/assets/'
-const SHARED_PREFIX = '/shared/'
+const SHELL_URL = new URL(self.registration.scope).pathname
+const RESERVED_PREFIX = '/_aphel/'
+const ASSETS_PREFIX = `${RESERVED_PREFIX}assets/`
+const SHARED_PREFIX = `${RESERVED_PREFIX}shared/`
+const ICON_URL = `${RESERVED_PREFIX}icon-192.png`
 const PLUGINS_CACHE = 'aphel-plugins'
 const PLUGINS_LIST_URL = '/api/v1/public/wasm-runtime'
 const PLUGIN_ASSETS_PREFIX = `${PLUGINS_LIST_URL}/`
-const BYPASS_PREFIXES = ['/api/', '/health', '/p/', '/docs']
+const BYPASS_PREFIXES = ['/api/', RESERVED_PREFIX, `${SHELL_URL}p/`]
 const CSRF_HEADER = 'X-Requested-With'
 const CSRF_VALUE = 'aphel'
 const SUBSCRIPTIONS_URL = '/api/v1/notifications/push/subscriptions'
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)))
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([SHELL_URL, ...PRECACHE_URLS])))
 })
 
 self.addEventListener('activate', (event) => {
@@ -132,13 +134,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(pluginAsset(request, url))
     return
   }
+  if (url.pathname.startsWith(ASSETS_PREFIX) || url.pathname.startsWith(SHARED_PREFIX)) {
+    event.respondWith(cacheFirstAsset(request))
+    return
+  }
   if (isBypassed(url)) return
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstShell(request))
-    return
-  }
-  if (url.pathname.startsWith(ASSETS_PREFIX) || url.pathname.startsWith(SHARED_PREFIX)) {
-    event.respondWith(cacheFirstAsset(request))
   }
 })
 
@@ -158,36 +160,36 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(title, {
       body: typeof payload.body === 'string' ? payload.body : undefined,
       tag: typeof payload.tag === 'string' ? payload.tag : undefined,
-      icon: '/icon-192.png',
-      data: { url: typeof payload.url === 'string' ? payload.url : SHELL_URL },
+      icon: ICON_URL,
+      data: { url: appRelativePath(payload.url) },
     }),
   )
 })
 
-function sameOriginUrl(value) {
-  try {
-    const url = new URL(value || SHELL_URL, self.location.origin)
-    return url.origin === self.location.origin ? url : new URL(SHELL_URL, self.location.origin)
-  } catch {
-    return new URL(SHELL_URL, self.location.origin)
-  }
+function appRelativePath(value) {
+  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/'
 }
 
-async function openUrl(url) {
+function isAppWindow(candidate) {
+  const url = new URL(candidate.url)
+  return url.origin === self.location.origin && url.pathname.startsWith(SHELL_URL)
+}
+
+async function openUrl(path) {
   const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-  const client = windows.find((candidate) => new URL(candidate.url).origin === self.location.origin)
+  const client = windows.find(isAppWindow)
   if (client) {
     await client.focus()
-    client.postMessage({ type: 'OPEN_URL', url: `${url.pathname}${url.search}${url.hash}` })
+    client.postMessage({ type: 'OPEN_URL', url: path })
     return
   }
-  await self.clients.openWindow(url.href)
+  await self.clients.openWindow(new URL(path.slice(1), self.registration.scope).href)
 }
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const data = event.notification.data || {}
-  event.waitUntil(openUrl(sameOriginUrl(data.url)))
+  event.waitUntil(openUrl(appRelativePath(data.url)))
 })
 
 function keyToBase64Url(buffer) {

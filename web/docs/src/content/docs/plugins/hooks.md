@@ -150,14 +150,14 @@ Built-in modules also publish hooks for their own operations. They are listed in
 
 In the call object of a domain hook, `values` carries the payload above, `custom_fields` is `{}`, `mode` is empty and `changes` is empty. Filter hooks merge the `values` you return into the payload; plugins that run later see the merged payload. For veto hooks, throw to block. For `sequence.step_running`, the sequences module treats a definitive error as a reason to remove the contact from the sequence and a transient error as a reason to retry the step.
 
-The generated catalog lists these hooks with the exact record types. The reference [Hooks catalog](/docs/reference/hooks-catalog/) lists the hooks of native modules.
+The generated catalog lists these hooks with the exact record types. The reference [Hooks catalog](/_aphel/docs/reference/hooks-catalog/) lists the hooks of native modules.
 
 ## Side effects inside hooks
 
 Hooks run inside the database transaction of the write, with a two second limit. Two rules follow from that.
 
 1. **Record writes are refused.** Calling `create-record`, `update-record`, `delete-record`, `update-record-if` or `apply-records` from an in-transaction hook fails with `409 plugin_write_in_hook`: `plugins cannot execute side effects inside a record hook; use a durable event handler`. The same code is returned for key-value writes, uploads, `notify`, `emit`, `http-fetch` and for writing operations called with `invoke`. Reads are allowed: `get-record`, `list-records`, `aggregate-records`, `kv-get`, `kv-list`, `read-file`, `secret`, `invoke` of read-only operations, and so on.
-2. **Defer effects instead.** `defer-effect` stores a command with the hook's transaction. If the write commits, a durable worker job runs the command later with the authority captured when you deferred it; if the write is rolled back (including by your own veto), the effect disappears. Effect keys make the command idempotent. See [Host API](/docs/plugins/host-api/#defer-effect).
+2. **Defer effects instead.** `defer-effect` stores a command with the hook's transaction. If the write commits, a durable worker job runs the command later with the authority captured when you deferred it; if the write is rolled back (including by your own veto), the effect disappears. Effect keys make the command idempotent. See [Host API](/_aphel/docs/plugins/host-api/#defer-effect).
 
 ```js
 onHook(ctx, call) {
@@ -188,6 +188,6 @@ When a hook is triggered by a write that the same plugin made earlier in the sam
 
 - Keep them fast. A hook has two seconds, including the time to read records.
 - Prefer `record.validating` for checks that need the final values and `record.saving` for normalization.
-- Do not depend on the order of other plugins. If two plugins change the same field in `record.saving`, the later one wins. Installing a plugin that subscribes to `record.saving`, `record.validating`, `record.deleting` or `record.archiving` for a record type that another enabled plugin also hooks requires an explicit acknowledgement; see [Lifecycle](/docs/plugins/lifecycle/).
+- Do not depend on the order of other plugins. If two plugins change the same field in `record.saving`, the later one wins. Installing a plugin that subscribes to `record.saving`, `record.validating`, `record.deleting` or `record.archiving` for a record type that another enabled plugin also hooks requires an explicit acknowledgement; see [Lifecycle](/_aphel/docs/plugins/lifecycle/).
 - Make the handler tolerate missing keys: `values` may not contain every field, and fields hidden from the actor are always absent.
 - Return an empty outcome when you have nothing to say.

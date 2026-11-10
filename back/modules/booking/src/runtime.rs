@@ -77,7 +77,7 @@ impl BookingEmailHandler {
                 .unwrap_or(organization.timezone),
         };
         let key = booking::token_key(&ctx).await?;
-        let app_base_url = self.app_base_url.get();
+        let app_base_url = self.app_base_url.app_root();
         let manage_url = ManageToken { booking_id }.url(&app_base_url, &key)?;
         let booking_url = format!(
             "{}/book/{}",

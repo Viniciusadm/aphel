@@ -5,7 +5,7 @@ sidebar:
   order: 54
 ---
 
-A public web app is a folder of static files in your package that Aphel serves at `/p/<key>/`. Use it for pages that should not look like part of the Aphel interface: a customer-facing form, a status page, a booking page or a small tool. It is separate from the [web bundle](/docs/plugins/web-bundle/), which plugs screens into the signed-in application.
+A public web app is a folder of static files in your package that Aphel serves at `/p/<key>/`. Use it for pages that should not look like part of the Aphel interface: a customer-facing form, a status page, a booking page or a small tool. It is separate from the [web bundle](/_aphel/docs/plugins/web-bundle/), which plugs screens into the signed-in application.
 
 ## Declaring it
 
@@ -21,9 +21,11 @@ The `aphel-plugin` CLI packs only the contents of `web/dist/`. To produce `web/a
 
 ## How it is served
 
+The app lives inside the internal app's base path, which is `/` by default and can be moved to a segment such as `/app` (see [Configuration](/_aphel/docs/admin/configuration/)). The paths below are relative to that base path: with the app at `/app`, `/p/<key>/` is `/app/p/<key>/`.
+
 | Request | Response |
 | --- | --- |
-| `GET /p/<key>` | Permanent redirect to `/p/<key>/`. |
+| `GET /p/<key>` | Permanent redirect to `<key>/` (relative, so it keeps the base path). |
 | `GET /p/<key>/` | `index.html`. |
 | `GET /p/<key>/<path>` | The file `<public>/<path>`. |
 | A path without a file extension that has no file | `index.html`, so client-side routing works. |
@@ -46,7 +48,7 @@ The consent dialog lists `GET /p/<key>/` among the public routes of the plugin.
 
 ## Trust
 
-The app is served from the same origin as Aphel. Its JavaScript therefore runs with the origin of the application: the browser sends the session cookie of a signed-in user with every request to `/api`, and the code can call any API that user may call. Treat a public app as application code. It needs the same version acknowledgement as a web bundle (`acknowledge_web_version`) and the same level of trust. See [Security model](/docs/plugins/security-model/).
+The app is served from the same origin as Aphel. Its JavaScript therefore runs with the origin of the application: the browser sends the session cookie of a signed-in user with every request to `/api`, and the code can call any API that user may call. Treat a public app as application code. It needs the same version acknowledgement as a web bundle (`acknowledge_web_version`) and the same level of trust. See [Security model](/_aphel/docs/plugins/security-model/).
 
 ## Linking the stylesheet
 
@@ -80,9 +82,9 @@ body {
 }
 ```
 
-The default token values themselves come from the stylesheet of the application, which a public app does not load. To use the full token set and the component styles, also link `/shared/ui.css`, which includes the base reset, the default tokens and the styles of the [UI library](/docs/plugins/ui-library/) components.
+The default token values themselves come from the stylesheet of the application, which a public app does not load. To use the full token set and the component styles, also link `/shared/ui.css`, which includes the base reset, the default tokens and the styles of the [UI library](/_aphel/docs/plugins/ui-library/) components.
 
-Use relative URLs (`./main.js`) in `index.html`, because the app lives under `/p/<key>/`.
+Use relative URLs (`./main.js`) in `index.html`, because the app lives under `<base path>/p/<key>/`. The shared stylesheet of the UI library is at `/_aphel/shared/ui.css` whatever the base path.
 
 ## Calling APIs
 
@@ -94,7 +96,7 @@ The page can call the REST API on the same origin. Two kinds of endpoints are re
 | `/api/v1/p/<key>/<path>` | Session | Private routes of your plugin. Anonymous visitors get 401. |
 | Other `/api/v1/...` endpoints | Session or bearer token | The browser sends the session cookie. Requests that change data need the header `X-Requested-With: aphel`. |
 
-Public endpoints under `/api/v1/public/` do not need the `X-Requested-With` header. Define the routes in the manifest and handle them in the backend as described in [Routes](/docs/plugins/routes/).
+Public endpoints under `/api/v1/public/` do not need the `X-Requested-With` header. Define the routes in the manifest and handle them in the backend as described in [Routes](/_aphel/docs/plugins/routes/).
 
 ```js
 const response = await fetch('/api/v1/public/p/status_page/summary')
@@ -117,4 +119,4 @@ export default defineConfig({
 })
 ```
 
-With `public = "web/app"` in the manifest, the CLI packs `web/dist/app/index.html` as `web/app/index.html`. The `entry` file (`web/dist/index.js`) must exist too. See [Packaging](/docs/plugins/packaging/).
+With `public = "web/app"` in the manifest, the CLI packs `web/dist/app/index.html` as `web/app/index.html`. The `entry` file (`web/dist/index.js`) must exist too. See [Packaging](/_aphel/docs/plugins/packaging/).

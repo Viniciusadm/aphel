@@ -150,7 +150,7 @@ fn invitation_link(state: &AppState, capture: &UndeliveredMailCapture) -> Option
         &state
             .auth_settings
             .app_base_url
-            .link("/accept-invitation?token="),
+            .app_link("/accept-invitation?token="),
     )
 }
 
@@ -304,7 +304,7 @@ async fn password_reset_link(
         &state
             .auth_settings
             .app_base_url
-            .link("/reset-password?token="),
+            .app_link("/reset-password?token="),
     );
     Ok(Json(Data::new(PasswordResetLinkResponse {
         emailed: link.is_none() && capture.undelivered().is_empty(),

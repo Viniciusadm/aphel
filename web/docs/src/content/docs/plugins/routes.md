@@ -62,7 +62,7 @@ Public routes need no sign-in. There is no caller, so the backend runs as the pl
 
 Public routes are rate limited per minute: 60 requests per plugin and client address, and 600 per plugin. Beyond that the answer is `429`. The actor of the request has the kind `anonymous`.
 
-Treat every input of a public route as hostile: validate it, authenticate the sender yourself (for example with a shared secret stored in a [secret setting](/docs/plugins/settings-and-secrets/) and compared in the handler), and keep in mind that the plugin's installer permissions are behind the route.
+Treat every input of a public route as hostile: validate it, authenticate the sender yourself (for example with a shared secret stored in a [secret setting](/_aphel/docs/plugins/settings-and-secrets/) and compared in the handler), and keep in mind that the plugin's installer permissions are behind the route.
 
 ## The request
 
@@ -102,7 +102,7 @@ onRoute(ctx, request) {
 | Case | Result |
 | --- | --- |
 | Handler returns `{ status, body }` | That status (when it is a valid HTTP status; otherwise `200`) and the body as JSON. |
-| Handler throws a plugin error | Status and body as described in [Hooks](/docs/plugins/hooks/#rejecting-with-errors), in Aphel's error envelope `{ "error": { "code", "message", "details" } }`. |
+| Handler throws a plugin error | Status and body as described in [Hooks](/_aphel/docs/plugins/hooks/#rejecting-with-errors), in Aphel's error envelope `{ "error": { "code", "message", "details" } }`. |
 | JavaScript handler returns nothing | `404 route_not_found`, so a handler can implement only some routes. |
 | Timeout (10 seconds), trap, out of memory | `503 plugin_failed`. |
 
@@ -127,4 +127,4 @@ A route runs outside any transaction and is not retried, so it may call every ho
 
 ## Routes for built-in paths
 
-When a plugin replaces a built-in module through `provides.contracts`, the `[aliases]` table can map the module's API paths to routes of the plugin. A request to the built-in path is then answered by the route. Aliases are described in [Lifecycle](/docs/plugins/lifecycle/).
+When a plugin replaces a built-in module through `provides.contracts`, the `[aliases]` table can map the module's API paths to routes of the plugin. A request to the built-in path is then answered by the route. Aliases are described in [Lifecycle](/_aphel/docs/plugins/lifecycle/).

@@ -5,7 +5,7 @@ sidebar:
   order: 51
 ---
 
-A web bundle registers everything it adds to the application inside `register(app)`. This page documents each method of `app`, the slots and filters you can use, the shared building blocks for record screens, and the rules that keep your hooks stable. Packaging, shared modules and translations are covered in [Web bundle](/docs/plugins/web-bundle/).
+A web bundle registers everything it adds to the application inside `register(app)`. This page documents each method of `app`, the slots and filters you can use, the shared building blocks for record screens, and the rules that keep your hooks stable. Packaging, shared modules and translations are covered in [Web bundle](/_aphel/docs/plugins/web-bundle/).
 
 ## Conventions used by every contribution
 
@@ -78,7 +78,7 @@ Routes are React Router 7 `RouteObject`s. Write paths without a leading slash (`
 
 Plugin routes are listed before the built-in settings routes, so avoid paths that already exist. Route errors are caught by an error boundary around the application area.
 
-A plugin whose pages are plain static files and need no sign-in can use [Public web apps](/docs/plugins/public-web-apps/) instead.
+A plugin whose pages are plain static files and need no sign-in can use [Public web apps](/_aphel/docs/plugins/public-web-apps/) instead.
 
 ### Navigation
 
@@ -280,7 +280,7 @@ A contract component is a component with a fixed props shape, identified by a ke
 | `dashboard.PeriodSelector` | `{ value: LayoutPeriod; onChange(period) }` | Reports. |
 | `dashboard.CompareToggle` | `{ checked: boolean; onChange(checked) }` | Reports. |
 
-The first two are the replaceable screens of [UI plugins](/docs/plugins/ui-plugins/). Use `useContractComponent(key, Fallback?)` or `<ContractComponent name={key} {...props} />` in your own code to render whatever is provided.
+The first two are the replaceable screens of [UI plugins](/_aphel/docs/plugins/ui-plugins/). Use `useContractComponent(key, Fallback?)` or `<ContractComponent name={key} {...props} />` in your own code to render whatever is provided.
 
 An override replaces a component that the application renders through `<Overridable id=...>`. The last registered override wins, and in development builds a console warning names the winner.
 
@@ -399,7 +399,7 @@ These are exported from `@aphel/web-sdk`.
 | `archivedFilter` | `boolean` | Let the user choose the mode through the URL. |
 | `className` | `string` | |
 
-It provides search, saved views, column choice, sorting, filters, pagination and a calendar layout when the type has date fields. The state lives in the URL. The record type must be registered, otherwise the component throws `record resource not registered`. Built-in types are registered at startup. Types that come from plugin entities and custom objects are registered when `useCustomObjects()` has loaded, so wait for it before rendering the list, as the example in [Examples](/docs/plugins/examples/) does.
+It provides search, saved views, column choice, sorting, filters, pagination and a calendar layout when the type has date fields. The state lives in the URL. The record type must be registered, otherwise the component throws `record resource not registered`. Built-in types are registered at startup. Types that come from plugin entities and custom objects are registered when `useCustomObjects()` has loaded, so wait for it before rendering the list, as the example in [Examples](/_aphel/docs/plugins/examples/) does.
 
 ### `RecordDetailPage`
 
@@ -433,22 +433,22 @@ It loads the record, renders loading, error and not-found states, and renders th
 | `Timeline` | Record timeline renderer for a `TimelineSource`. |
 | `useRecord(recordType, id)`, `useUpdateRecord(recordType, id)` | Query and mutation for one record. |
 | `useFieldSchema(recordType)` | Field schema query. |
-| `useRecordPageModel(options)`, `RecordHeader`, `RecordFieldsPanel`, `RecordTabs`, `RecordPageShell` | The parts of the record page, used to build a [custom presentation](/docs/plugins/ui-plugins/). |
-| `useChangeFeed(pluginKey, onChange, options?)` | Live change stream of a plugin. See [Testing and debugging](/docs/plugins/testing-and-debugging/). |
+| `useRecordPageModel(options)`, `RecordHeader`, `RecordFieldsPanel`, `RecordTabs`, `RecordPageShell` | The parts of the record page, used to build a [custom presentation](/_aphel/docs/plugins/ui-plugins/). |
+| `useChangeFeed(pluginKey, onChange, options?)` | Live change stream of a plugin. See [Testing and debugging](/_aphel/docs/plugins/testing-and-debugging/). |
 | `api` | `get`, `post`, `put`, `patch`, `delete`. Paths are relative to `/api`, for example `api.get('/v1/people')`. Sends the CSRF header and cookies, unwraps `{ data }` envelopes and throws `ApiError`. |
 
 ## Permissions and gating
 
 - Use `permission` on navigation, tabs, slots, commands and actions. In your own components, call `useSession()` and `hasPermission('deals.update')`, or wrap content in `RequirePermission`.
-- The permissions you reference must exist in the role catalog: built-in permissions, or those you declare in `[[permissions]]` or through your entities. See [Permissions and roles](/docs/plugins/permissions-and-roles/).
+- The permissions you reference must exist in the role catalog: built-in permissions, or those you declare in `[[permissions]]` or through your entities. See [Permissions and roles](/_aphel/docs/plugins/permissions-and-roles/).
 - Pages of a plugin are available only while it is enabled. Disabling or removing a plugin removes its routes and contributions on the next page load.
 
 ## Related pages
 
-- [Web bundle](/docs/plugins/web-bundle/)
-- [UI plugins](/docs/plugins/ui-plugins/)
-- [UI library](/docs/plugins/ui-library/)
-- [Examples](/docs/plugins/examples/)
+- [Web bundle](/_aphel/docs/plugins/web-bundle/)
+- [UI plugins](/_aphel/docs/plugins/ui-plugins/)
+- [UI library](/_aphel/docs/plugins/ui-library/)
+- [Examples](/_aphel/docs/plugins/examples/)
 
 
 ## Local printing

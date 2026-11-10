@@ -12,7 +12,7 @@ People who use an installation are **members**. You manage them under Settings, 
 | Invite, change the role of, suspend, reactivate or remove members; start a password reset; read the organization security events | `users.manage` |
 | Create, edit and delete teams; manage roles | `settings.manage` |
 
-See [Roles and permissions](/docs/admin/roles-and-permissions/) for how permissions are granted.
+See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/) for how permissions are granted.
 
 ## Statuses
 
@@ -31,7 +31,7 @@ A member always has exactly one role. The first administrator is created by the 
 3. Aphel creates the member as `invited` and emails a link to the public address of the installation. The link is valid for 7 days.
 4. The person opens the link, optionally sets a display name, chooses a password (8 to 128 characters) and becomes `active`.
 
-If outgoing email is not configured, Aphel cannot send the message. The invitation is still created and the screen shows the link to copy, so you can hand it over through another channel. See [Configuration](/docs/admin/configuration/).
+If outgoing email is not configured, Aphel cannot send the message. The invitation is still created and the screen shows the link to copy, so you can hand it over through another channel. See [Configuration](/_aphel/docs/admin/configuration/).
 
 For a pending invitation you can:
 
@@ -67,7 +67,7 @@ A team is a named group of members.
 - Deleting a team moves its sub-teams to the top level. It does not delete members.
 - Replacing the member list of a team replaces it as a whole.
 
-Teams matter for access. A role grant with the `team` scope reaches the records owned by members of the user's teams **and of their sub-teams**. See [Roles and permissions](/docs/admin/roles-and-permissions/#scopes).
+Teams matter for access. A role grant with the `team` scope reaches the records owned by members of the user's teams **and of their sub-teams**. See [Roles and permissions](/_aphel/docs/admin/roles-and-permissions/#scopes).
 
 ## Via the API
 
@@ -82,4 +82,4 @@ Teams matter for access. A role grant with the `team` scope reaches the records 
 | Password reset | `POST /api/v1/members/{user_id}/password-reset` |
 | Teams | `GET`, `POST /api/v1/teams`; `GET`, `PATCH`, `DELETE /api/v1/teams/{team_id}` |
 
-Updates accept an `If-Match` header with the `updated_at` you read. If the member or team changed meanwhile, the API answers `409 version_conflict`. See the [REST API reference](/docs/reference/rest-api/).
+Updates accept an `If-Match` header with the `updated_at` you read. If the member or team changed meanwhile, the API answers `409 version_conflict`. See the [REST API reference](/_aphel/docs/reference/rest-api/).

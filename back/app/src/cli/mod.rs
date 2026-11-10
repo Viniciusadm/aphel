@@ -5,6 +5,7 @@ mod entity_schema;
 mod healthcheck;
 mod migrate;
 mod modules;
+mod mounts;
 mod openapi;
 mod probe;
 mod secrets;
@@ -24,6 +25,7 @@ pub(crate) use catalog::CatalogArgs;
 pub(crate) use db::DbCommand;
 pub(crate) use healthcheck::HealthcheckArgs;
 pub(crate) use modules::ModulesCommand;
+pub(crate) use mounts::MountsCommand;
 pub(crate) use secrets::SecretsCommand;
 pub(crate) use upgrade::UpgradeArgs;
 
@@ -78,6 +80,8 @@ pub(crate) enum Command {
         about = "Inspect and uninstall the modules compiled into this build"
     )]
     Modules(ModulesCommand),
+    #[command(subcommand, about = "Manage where the internal app is served")]
+    Mounts(MountsCommand),
     #[command(
         about = "List everything this build offers to plugins: plugins, operations, hooks, events, permissions"
     )]
@@ -167,6 +171,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Upgrade(args) => upgrade::run(config, args).await,
         Command::Healthcheck(args) => healthcheck::run(config, args).await,
         Command::Modules(command) => modules::run(config, command).await,
+        Command::Mounts(command) => mounts::run(config, command).await,
         Command::Catalog(args) => catalog::run(args),
         Command::Probe => unreachable!("the probe runs before configuration is loaded"),
         Command::Plugin(_) => unreachable!("plugin commands run before configuration is loaded"),

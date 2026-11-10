@@ -1,3 +1,4 @@
+import { appPath } from '@/sdk/app-base'
 import { ApiError, NETWORK_ERROR_CODE, UNKNOWN_ERROR_CODE, parseErrorEnvelope } from './errors'
 
 export const API_BASE_URL = '/api'
@@ -23,8 +24,9 @@ export function onApiError(listener: ApiErrorListener): () => void {
 function redirectToTwoFactorSetup(error: ApiError): void {
   if (error.status !== 403 || error.code !== TWO_FACTOR_SETUP_REQUIRED_CODE) return
   if (typeof window === 'undefined') return
-  if (window.location.pathname.startsWith(TWO_FACTOR_SETUP_PATH)) return
-  const next = new URL(TWO_FACTOR_SETUP_PATH, window.location.origin)
+  const setupPath = appPath(TWO_FACTOR_SETUP_PATH)
+  if (window.location.pathname.startsWith(setupPath)) return
+  const next = new URL(setupPath, window.location.origin)
   next.searchParams.set('reason', TWO_FACTOR_SETUP_REQUIRED_CODE)
   window.location.assign(next.toString())
 }

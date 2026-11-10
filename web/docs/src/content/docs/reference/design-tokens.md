@@ -134,4 +134,4 @@ Values set by a UI plugin are validated when the plugin is installed. A token is
 
 A reference is written `var(--other-token)` and must point to a token of the same kind. Every value is limited to 300 characters and cannot contain `;`, braces, backslashes, quotes, angle brackets, `@`, comments, `url(` or `expression`. The generic fallbacks are `sans-serif`, `serif`, `monospace`, `system-ui`, `ui-sans-serif`, `ui-serif` and `ui-monospace`. The known system fonts are Inter, Arial, Helvetica, Georgia, Times New Roman, Courier New, Verdana, Tahoma, Trebuchet MS, Segoe UI, Roboto, Menlo, Consolas, Monaco, SF Pro Text, Helvetica Neue and Noto Sans.
 
-How to declare tokens, bundle fonts and provide screens in a UI plugin is described in [UI plugins](/docs/plugins/ui-plugins/), and the components that consume the tokens are in [UI library](/docs/plugins/ui-library/).
+How to declare tokens, bundle fonts and provide screens in a UI plugin is described in [UI plugins](/_aphel/docs/plugins/ui-plugins/), and the components that consume the tokens are in [UI library](/_aphel/docs/plugins/ui-library/).
