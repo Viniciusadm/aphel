@@ -384,7 +384,7 @@
     "subject": "Ex.: Bem-vindo à nossa empresa",
     "bodyHtml": "Escreva o conteúdo do e-mail",
     "historyDays": "Ex.: 30",
-    "username": "Ex.: voce@empresa.com",
+    "username": "Ex.: email@email.com",
     "port": "Ex.: 993"
   }
 }

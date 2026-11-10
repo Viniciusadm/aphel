@@ -201,7 +201,7 @@
   },
   "placeholders": {
     "adminName": "Ex.: Maria Silva",
-    "adminEmail": "voce@empresa.com",
+    "adminEmail": "email@email.com",
     "adminPassword": "Crie uma senha",
     "organizationName": "Ex.: Minha Empresa Ltda.",
     "value": "Digite o valor"
