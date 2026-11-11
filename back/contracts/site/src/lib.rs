@@ -12,6 +12,7 @@ pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::Contr
 
 pub const LAYOUT_TEMPLATE: &str = "layout.html";
 pub const MAX_PER_PAGE: u64 = 50;
+pub const IMAGE_WIDTHS: &[u32] = &[320, 640, 960, 1280, 1920];
 pub const ALWAYS_PUBLIC_FIELDS: &[&str] = &["id", "created_at", "updated_at"];
 const MAX_SEGMENTS: usize = 8;
 const MAX_KEY_LENGTH: usize = 40;
@@ -63,6 +64,8 @@ pub struct SiteExposure {
     pub entity: String,
     pub fields: Vec<String>,
     pub conditions: BTreeMap<String, Value>,
+    #[serde(default)]
+    pub images: bool,
 }
 
 impl SiteExposure {

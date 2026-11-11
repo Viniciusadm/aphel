@@ -10,7 +10,7 @@ use crate::api::error::app_error;
 use crate::api::state::AppState;
 use crate::application::organization_profile::{RECOVERY_APP_PATH, RESERVED_PREFIX};
 use crate::errors::AppError;
-use crate::modules::{SiteMountPrefix, SiteRequestHandler};
+use crate::modules::{SITE_RESERVED_SEGMENT, SiteMountPrefix, SiteRequestHandler};
 
 #[derive(Embed)]
 #[folder = "../../web/dist"]
@@ -112,7 +112,20 @@ pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Res
         host: config.mounts.site.host.as_deref(),
     });
     match resolve(&path, request_host.as_deref(), config.app_prefix(), site) {
-        Target::Reserved(rest) => serve_reserved(&rest, config.app_prefix()),
+        Target::Reserved(rest) => match (
+            handler,
+            mounted_under(&format!("/{rest}"), &format!("/{SITE_RESERVED_SEGMENT}")),
+        ) {
+            (Some(handler), Some(_)) => {
+                let prefix = format!("{RESERVED_PREFIX}/{SITE_RESERVED_SEGMENT}");
+                let mut request = request;
+                if let Err(status) = strip_mount(&prefix, &mut request) {
+                    return status.into_response();
+                }
+                handler.serve_reserved(&state, request).await
+            }
+            _ => serve_reserved(&rest, config.app_prefix()),
+        },
         Target::App(prefix) => serve_app(mounted, prefix, request).await,
         Target::Site(prefix) => match handler {
             Some(handler) => serve_site(&state, handler.as_ref(), prefix, request).await,

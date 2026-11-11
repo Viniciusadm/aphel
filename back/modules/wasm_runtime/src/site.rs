@@ -93,6 +93,7 @@ fn bundle_of(
                 entity: manifest.entity_record_type(&public.entity),
                 fields: public.fields.clone(),
                 conditions: public.conditions.clone(),
+                images: public.images,
             }
         })
         .collect();

@@ -26,7 +26,8 @@ where = { status = "published" }
 | --- | --- | --- |
 | `entity` | string | An entity of this plugin. |
 | `fields` | array of strings | Fields of the entity that templates receive. `id`, `created_at` and `updated_at` are always available. Other fields never reach the template. |
-| `where` | table | Equality conditions applied to every read on the site, including direct links. A field used here must also be in `fields`. |
+| `where` | table | Equality conditions applied to every read on the site, including direct links and images. A field used here must also be in `fields`. |
+| `images` | boolean | When `true`, image attachments of a public record (JPEG, PNG, WebP, GIF) become public too and reach templates as `images`. Default `false`. |
 
 A record that fails the conditions does not exist for the site: its page answers 404. The consent dialog lists the public entities and fields.
 
@@ -84,7 +85,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | --- | --- |
 | `site` | `name`, `locale`, `color`, `prefix` (the site path, empty at the root), `home`, `year` and `texts` (`previous`, `next`, `back_home` and the error page texts in the organization language). |
 | `page` | `owner`, `key`, `path`, `params` and the rendered `title`. |
-| `record` | The record of a `match` page, with the public fields only. |
+| `record` | The record of a `match` page, with the public fields only, plus `images` when the entity exposes them: a list of `{ id, name, type, url }`, at most 20. |
 | `records`, `pagination` | The records of a `list` page and `page`, `pages`, `total`, `previous_url`, `next_url`. |
 
 | Function or filter | Use |
@@ -92,6 +93,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | `url_for(key, **params)` | Address of a page of the same plugin, including the site path. |
 | `value \| markdown` | Renders Markdown and removes unsafe HTML (scripts, event handlers). |
 | `value \| date(format)` | Formats an ISO date or date-time. Default `%d/%m/%Y`. |
+| `image \| image_url(width)` | Address of an image, resized to the smallest of 320, 640, 960, 1280 or 1920 pixels that is at least `width` wide. Without `width`, the original file. |
 
 Templates are compiled when the plugin is installed: a syntax error, a missing template or a page that breaks the rules above fails the install with `422 plugin_site_invalid`, listing every problem. Templates cannot reach the network, files or the database: they only see the variables above. A render that runs too long stops and the visitor sees the theme's error page.
 
@@ -100,4 +102,18 @@ Templates are compiled when the plugin is installed: a syntax error, a missing t
 - Only `GET` and `HEAD` are answered.
 - Every response carries a content security policy that allows scripts, fonts and connections only from the same origin, and images from the same origin, `data:` and `https:`.
 - Unknown paths, records that fail the publication conditions and list pages past the last one answer 404 with the theme's page.
-- Pages are rendered on every request for now (`Cache-Control: no-cache`).
+- Rendered pages are kept in a cache in each server process. A change to a public record (create, update, delete, archive, restore, attachments) clears the pages that show it: its own page and the list pages of its entity. A change to the organization (name, color, settings) clears every page. Other server processes see the change within a few seconds. Plugin installs and upgrades start a new cache.
+- Pages carry an `ETag` and `Cache-Control: public, max-age=60, stale-while-revalidate=600`, and answer `304` to a matching `If-None-Match`. Error pages are never cached.
+- Renders (pages not in the cache) are limited to 120 per minute per client address; above that the site answers `429`.
+
+## Images
+
+With `images = true`, a template can show the images attached to a record:
+
+```html
+{% for image in record.images %}
+  <img src="{{ image | image_url(960) }}" alt="{{ image.name }}">
+{% endfor %}
+```
+
+Images are served under `/_aphel/site/files/` on any host of the installation. Every request checks that the record is still public (it exists, is not archived and meets `where`) and that the file is an image attached to it; otherwise it answers 404. Resized versions are generated on first use and kept in the file storage. Responses carry an `ETag` and `Cache-Control: public, max-age=86400`, so a browser may keep showing an image for up to a day after the record stops being public.

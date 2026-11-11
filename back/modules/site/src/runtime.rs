@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
-    LAYOUT_TEMPLATE, PathPattern, SiteBundle, SiteContentSource, SiteExposure, SitePage,
-    check_bundle, join_template_path, template_name,
+    IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle, SiteContentSource, SiteExposure,
+    SitePage, check_bundle, join_template_path, template_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::App;
@@ -29,6 +29,17 @@ pub(crate) struct SiteRuntime {
 }
 
 impl SiteRuntime {
+    pub fn revision(&self) -> &str {
+        &self.revision
+    }
+
+    pub fn image_exposure(&self, entity: &str) -> Option<&SiteExposure> {
+        self.exposures
+            .iter()
+            .find(|((_, exposed), exposure)| exposed == entity && exposure.images)
+            .map(|(_, exposure)| exposure)
+    }
+
     pub fn exposure(&self, owner: &str, entity: &str) -> Option<&SiteExposure> {
         self.exposures.get(&(owner.to_owned(), entity.to_owned()))
     }
@@ -140,6 +151,7 @@ fn base_environment() -> Environment<'static> {
     }
     environment.add_filter("markdown", markdown);
     environment.add_filter("date", date);
+    environment.add_filter("image_url", image_url);
     environment.add_function("url_for", url_for);
     environment
 }
@@ -174,6 +186,26 @@ fn date(value: Option<String>, format: Option<String>) -> String {
             }
         }
         Err(_) => value,
+    }
+}
+
+fn image_url(image: Value, width: Option<u32>) -> String {
+    let url = image
+        .get_attr("url")
+        .ok()
+        .and_then(|url| url.as_str().map(str::to_owned))
+        .unwrap_or_default();
+    let Some(width) = width else {
+        return url;
+    };
+    let chosen = IMAGE_WIDTHS
+        .iter()
+        .copied()
+        .find(|candidate| *candidate >= width)
+        .unwrap_or(IMAGE_WIDTHS[IMAGE_WIDTHS.len() - 1]);
+    match url.strip_suffix("/original") {
+        Some(base) => format!("{base}/w{chosen}"),
+        None => url,
     }
 }
 

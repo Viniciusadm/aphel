@@ -165,6 +165,8 @@ pub struct SitePublicSpec {
     pub fields: Vec<String>,
     #[serde(default, rename = "where")]
     pub conditions: std::collections::BTreeMap<String, Value>,
+    #[serde(default)]
+    pub images: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
