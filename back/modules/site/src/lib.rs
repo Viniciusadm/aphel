@@ -105,6 +105,8 @@ pub struct SiteModule;
 impl Module for SiteModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Public site", APHEL_VERSION)
+            .optional("publication")
+            .optional("tagging")
             .description(
                 "Public pages that plugins declare (blog posts, catalogs, landing pages), rendered on the server from their published records",
             )
@@ -161,6 +163,7 @@ impl Module for SiteModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contract(aphel_contract_site::DESCRIPTOR);
         appearance::register(app)?;
         app.entity(customer_entity()?.handler(Arc::new(
             aphel_kernel::records::GenericRecordHandler::new(customers::record_type()),

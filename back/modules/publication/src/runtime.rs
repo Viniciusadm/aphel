@@ -26,7 +26,7 @@ use aphel_sdk::platform::domain::access::AccessScope;
 
 const COLLECT_BATCH: u32 = 500;
 
-fn module_scope() -> AccessScope {
+pub(crate) fn module_scope() -> AccessScope {
     AccessScope::system().acting_as("module", MODULE)
 }
 

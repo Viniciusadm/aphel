@@ -1105,7 +1105,13 @@ async fn install_pack(
                 .any(|member| member.package.manifest.web.is_some()),
             plugins,
             modules_to_enable: requirements.modules_to_enable.clone(),
-            provisions: crate::provision::plan(&state, scope, &pack.manifest).await?,
+            provisions: crate::provision::plan(
+                &state,
+                scope,
+                &pack.manifest,
+                &requirements.modules_to_enable,
+            )
+            .await?,
         };
         return Ok(Json(Data::new(consent)).into_response());
     }
@@ -1128,6 +1134,22 @@ async fn install_pack(
             crate::pack::PACK_PLUGINS_INVALID,
             "some plugins of the pack are invalid; nothing was installed",
             json!({ "plugins": failures }),
+        )
+        .into());
+    }
+    let provisions = crate::provision::plan(
+        &state,
+        scope,
+        &pack.manifest,
+        &requirements.modules_to_enable,
+    )
+    .await?;
+    if provisions.iter().any(|provision| provision.error.is_some()) {
+        return Err(AppError::with_details(
+            aphel_kernel::errors::CodedKind::Validation,
+            crate::pack::PACK_INVALID,
+            "the pack needs unavailable provisioners; nothing was installed",
+            json!({ "provisions": provisions }),
         )
         .into());
     }

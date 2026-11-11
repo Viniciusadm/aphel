@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::ContractDescriptor {
-    contract: aphel_contract::contract!("site", "1.0.0"),
+    contract: aphel_contract::contract!("site", "1.1.0"),
     entries: &[],
 };
 

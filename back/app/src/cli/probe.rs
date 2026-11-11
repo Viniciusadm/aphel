@@ -123,6 +123,7 @@ fn record_validation_order(failures: &mut Vec<String>) {
         ("workflow", 20),
         ("validation_rules", 30),
         ("leads", 40),
+        ("site", 20),
     ];
     let registered: Vec<(&str, i32)> = app
         .hooks()
@@ -373,7 +374,7 @@ fn ui_plugin_selection(failures: &mut Vec<String>) {
     module_wasm_runtime::ui::probe(failures);
 }
 
-pub(crate) fn run() -> CliResult {
+pub(crate) async fn run() -> CliResult {
     let mut failures = Vec::new();
     access_scope_filters(&mut failures);
     hook_order(&mut failures);
@@ -381,6 +382,8 @@ pub(crate) fn run() -> CliResult {
     registry_integrity(&mut failures);
     #[cfg(feature = "plugins")]
     module_site::probe(&mut failures);
+    #[cfg(feature = "plugins")]
+    module_publication::probe(&mut failures).await;
     operations(&mut failures);
     provided_operations(&mut failures);
     provided_contributions(&mut failures);

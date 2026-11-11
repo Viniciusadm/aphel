@@ -158,7 +158,7 @@ pub(crate) async fn run() -> CliResult {
     }
     let matches = command.get_matches();
     if matches.subcommand_name() == Some("probe") {
-        return probe::run();
+        return probe::run().await;
     }
     if let Some(("plugin", arguments)) = matches.subcommand() {
         let args = arguments

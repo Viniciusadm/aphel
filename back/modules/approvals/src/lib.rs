@@ -98,6 +98,9 @@ impl Module for ApprovalsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::approvals::ApprovalRequirementSource>(Arc::new(
+            hooks::EngineApprovalGate,
+        ));
         app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
             dataset_seed::ApprovalsSeed,
         ));

@@ -32,7 +32,7 @@ use aphel_sdk::records::RecordCtx;
 
 const APPROVALS_MODULE: &str = "approvals";
 
-fn module_scope() -> AccessScope {
+pub(crate) fn module_scope() -> AccessScope {
     AccessScope::system().acting_as("module", MODULE)
 }
 
@@ -209,6 +209,19 @@ async fn attempt(request_id: Uuid, inline: Option<AccessScope>) -> Result<Step, 
                 .await?
                 .filter(|found| found.record == request.record)
                 .ok_or_else(revision_not_found)?;
+            if !base.app().is_enabled(APPROVALS_MODULE)
+                && aphel_sdk::approvals::approval_provider_required(
+                    &ctx,
+                    request.record.record_type.as_str(),
+                    &ApprovalMoment::from_static(ACTIVATE_MOMENT),
+                )
+                .await?
+            {
+                return Err(AppError::conflict_code(
+                    APPROVALS_UNAVAILABLE,
+                    "the record has an active approval policy; enable its approval provider before publishing",
+                ));
+            }
             if base.app().is_enabled(APPROVALS_MODULE) {
                 let gate = approval_gate(&ctx).ok_or_else(|| AppError::Coded {
                     kind: aphel_kernel::errors::CodedKind::Unavailable,

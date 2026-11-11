@@ -104,3 +104,29 @@ pub trait ApprovalGate: Send + Sync {
 pub fn approval_gate(ctx: &Ctx<'_>) -> Option<std::sync::Arc<dyn ApprovalGate>> {
     ctx.services().get::<dyn ApprovalGate>()
 }
+
+#[async_trait]
+pub trait ApprovalRequirementSource: Send + Sync {
+    async fn configured(
+        &self,
+        ctx: &Ctx<'_>,
+        record_type: &str,
+        moment: &ApprovalMoment,
+    ) -> Result<bool, AppError>;
+}
+
+pub async fn approval_provider_required(
+    ctx: &Ctx<'_>,
+    record_type: &str,
+    moment: &ApprovalMoment,
+) -> Result<bool, AppError> {
+    for (_, source) in ctx
+        .app()
+        .all_contributions::<dyn ApprovalRequirementSource>()
+    {
+        if source.configured(ctx, record_type, moment).await? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}

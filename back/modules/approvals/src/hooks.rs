@@ -107,3 +107,15 @@ pub(crate) async fn guard_write(
     );
     engine::guard(&module_ctx, ctx.tx, &args.write()).await
 }
+
+#[async_trait]
+impl aphel_sdk::approvals::ApprovalRequirementSource for EngineApprovalGate {
+    async fn configured(
+        &self,
+        ctx: &Ctx<'_>,
+        record_type: &str,
+        moment: &aphel_sdk::approvals::ApprovalMoment,
+    ) -> Result<bool, AppError> {
+        crate::store::configured_policy(ctx.pool(), record_type, moment.as_str()).await
+    }
+}

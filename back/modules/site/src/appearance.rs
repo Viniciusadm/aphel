@@ -54,6 +54,10 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
                     ..Default::default()
                 }),
             );
+        for key in ["created_at", "updated_at"] {
+            definition = definition
+                .system_field(SystemField::new(key, key, FieldType::DateTime, key)?.read_only());
+        }
         let mut mappings = vec![PublishableField {
             draft: "draft_values".into(),
             published: "values".into(),
@@ -82,9 +86,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
             ("published_at", FieldType::DateTime),
             ("revised_at", FieldType::DateTime),
         ] {
-            let mut field = SystemField::new(key, key, kind, key)?
-                .read_only()
-                .owner_managed();
+            let mut field = SystemField::new(key, key, kind, key)?.owner_managed();
             field.writers = vec!["publication".into()];
             if key == "state" {
                 for state in aphel_contract_publication::STATES {
@@ -99,7 +101,6 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
             FieldType::Text,
             "seed_key",
         )?
-        .read_only()
         .owner_managed();
         seed.writers = vec!["site".into()];
         definition = definition.system_field(seed);
@@ -497,7 +498,13 @@ impl aphel_sdk::provisioning::Provisioner for AppearanceProvisioner {
             existing
         } else {
             let scope = ctx.scope.clone().acting_as("module", "site");
-            state.as_ref().registry().await?.handler(entity)?.create(&aphel_sdk::records::RecordCtx::new(&scope, state.as_ref()), serde_json::json!({ "target": target, "draft_values": serialized, "seed_key": seed_key })).await?
+            let initiator = aphel_sdk::platform::application::shared::Actor::from_scope(ctx.scope);
+            let execution = aphel_sdk::platform::application::shared::ExecutionContext::module(
+                "site",
+                "site.appearance.provision",
+                Some(&initiator),
+            )?;
+            execution.scope(state.as_ref().registry().await?.handler(entity)?.create(&aphel_sdk::records::RecordCtx::new(&scope, state.as_ref()), serde_json::json!({ "target": target, "draft_values": serialized, "seed_key": seed_key }))).await?
         };
         let capture: aphel_sdk::OperationKey<Value, Value> =
             aphel_sdk::operation!(aphel_contract_publication::OP_CAPTURE);
@@ -544,7 +551,7 @@ pub(crate) fn probe(failures: &mut Vec<String>) {
             "revised_at",
         ] {
             if !definition.system_field_by_key(key).is_some_and(|field| {
-                !field.writable && field.owner_managed && field.writers == ["publication"]
+                field.writable && field.owner_managed && field.writers == ["publication"]
             }) {
                 failures.push(format!(
                     "appearance: {entity}.{key} must be publication-owned"

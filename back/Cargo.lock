@@ -146,7 +146,7 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
 name = "aphel"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-blueprint",
  "aphel-kernel",
@@ -238,7 +238,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-blueprint"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "rust-embed",
  "serde",
@@ -247,11 +247,11 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "aphel-contract-approvals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -261,7 +261,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-assignment"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -269,7 +269,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-automation"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-kernel",
@@ -295,14 +295,14 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-booking"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-calendar"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -312,14 +312,14 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-catalog-items"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-configuration"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -331,7 +331,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-crm"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-contract-catalog-items",
@@ -343,7 +343,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-deals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -353,7 +353,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-documents"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -361,7 +361,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-email"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -370,7 +370,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-exports"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-contract-notifications",
@@ -378,7 +378,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-imports"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -386,14 +386,14 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-leads"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-line-items"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -404,7 +404,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-messaging"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -414,7 +414,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-money"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "rust_decimal",
@@ -423,21 +423,21 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-notifications"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-organizations"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-party"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -445,14 +445,14 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-people"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-pricing"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -463,7 +463,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-privacy"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -471,7 +471,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-publication"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -480,28 +480,28 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-reminders"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-segments"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-sequences"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-site"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-kernel",
@@ -515,14 +515,14 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-sso"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-tagging"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-kernel",
@@ -532,7 +532,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-tasks"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-contract-notifications",
@@ -540,14 +540,14 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-telephony"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
 ]
 
 [[package]]
 name = "aphel-contract-timeline"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -555,7 +555,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-views"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -563,7 +563,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-webhooks"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "serde",
@@ -572,7 +572,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-contract-workflow"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "chrono",
@@ -583,7 +583,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-kernel"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aes-gcm",
  "aphel-contract",
@@ -651,7 +651,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-ai"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -671,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-approvals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -691,7 +691,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-assignment"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-kernel",
@@ -710,7 +710,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-automations"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -734,7 +734,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-booking"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -760,7 +760,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-bulk-actions"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-contract-tagging",
@@ -780,7 +780,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-calendar"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -793,7 +793,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-catalog-items"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -812,7 +812,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-config-packages"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-contract-configuration",
@@ -840,7 +840,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-dashboard"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -860,7 +860,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-deals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -882,7 +882,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-deals-revenue"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -897,7 +897,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-demo"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -917,7 +917,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-documents"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -925,7 +925,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-duplicates"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -944,7 +944,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-email"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ammonia",
  "aphel-contract-automation",
@@ -981,7 +981,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-enrichment"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1001,7 +1001,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-esign"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1027,7 +1027,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-exports"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-exports",
  "aphel-kernel",
@@ -1049,7 +1049,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-favorites"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1065,7 +1065,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-followers"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1082,7 +1082,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-forecast"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1101,7 +1101,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-forms"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1124,7 +1124,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-formulas"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1148,7 +1148,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-goals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1167,7 +1167,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-google"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1183,7 +1183,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-imports"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1208,7 +1208,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-insights"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1222,7 +1222,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-integrations"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1240,7 +1240,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-leads"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1259,7 +1259,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-line-items"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1278,7 +1278,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-marketplace"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-messaging"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1321,7 +1321,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-microsoft"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1339,7 +1339,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-migrations-assistant"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1359,7 +1359,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-money"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1380,7 +1380,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-notes"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1399,7 +1399,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-notifications"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-notifications",
@@ -1429,7 +1429,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-objects"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1454,7 +1454,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-onboarding"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1471,7 +1471,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-org-export"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1496,7 +1496,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-organizations"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1515,7 +1515,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-people"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1533,7 +1533,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-pricing"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1552,7 +1552,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-privacy"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1573,7 +1573,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-proposals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1596,7 +1596,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-publication"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-publication",
  "aphel-kernel",
@@ -1616,7 +1616,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-quotes"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1641,7 +1641,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-record-layouts"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1665,7 +1665,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-reminders"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1683,7 +1683,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-renewals"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1704,7 +1704,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-reports"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1725,7 +1725,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-saved-views"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1749,7 +1749,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-scoring"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1769,7 +1769,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-search"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1794,7 +1794,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-segments"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1811,7 +1811,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-sequences"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1832,7 +1832,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-site"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ammonia",
  "aphel-contract-publication",
@@ -1862,7 +1862,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-sso"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1885,7 +1885,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-tagging"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-tagging",
  "aphel-kernel",
@@ -1904,7 +1904,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-tasks"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -1929,7 +1929,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-telephony"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1947,7 +1947,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-timeline"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -1963,7 +1963,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-trash"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-crm",
  "aphel-kernel",
@@ -1982,7 +1982,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-validation-rules"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -2006,7 +2006,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-wasm-runtime"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
@@ -2044,7 +2044,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-webhooks"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-webhooks",
@@ -2068,7 +2068,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-mod-workflow"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-kernel",
  "aphel-sdk",
@@ -2093,7 +2093,7 @@ dependencies = [
 
 [[package]]
 name = "aphel-sdk"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-contract",
  "aphel-contract-approvals",
@@ -7348,7 +7348,7 @@ checksum = "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc"
 
 [[package]]
 name = "xtask"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aphel-blueprint",
  "serde",

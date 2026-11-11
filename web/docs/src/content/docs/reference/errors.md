@@ -155,7 +155,7 @@ The tables below list every code that the platform and the built-in modules defi
 | `permission_denied` | 403 | The caller lacks the permission, or the record is outside the caller's record scope. |
 | `plugin_authority_inactive` | 403 | The original authority is no longer active. |
 | `plugin_execution_cycle` | 409 | The plugin execution chain is cyclic or exceeds 16 entries. |
-| `publication_approvals_unavailable` | 503 | Approvals are enabled but could not be evaluated, so the publication waits. |
+| `publication_approvals_unavailable` | 409 / 503 | A configured approval provider is disabled (blocked publication), or an enabled provider cannot be evaluated (retryable). Enable or restore the provider. |
 | `publication_definition_invalid` | 409 | The publication definition of the record type does not match its fields. |
 | `publication_idempotency_conflict` | 409 | The idempotency key was already used for a different publication command. |
 | `publication_not_publishable` | 422 | The record type does not take part in publication. |

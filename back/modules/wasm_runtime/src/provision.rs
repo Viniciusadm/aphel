@@ -200,6 +200,7 @@ pub async fn plan(
     state: &AppState,
     scope: &AccessScope,
     manifest: &PackManifest,
+    modules_to_enable: &[String],
 ) -> Result<Vec<ProvisionPlanResponse>, AppError> {
     let ctx = Ctx::from_state(state, scope).await?;
     let existing = store::pack_resources(&state.db()?, &manifest.key).await?;
@@ -208,13 +209,20 @@ pub async fn plan(
         .into_iter()
         .map(|index| {
             let spec = &manifest.provision[index];
-            let error = provisioner(&ctx, &spec.kind)
-                .is_none()
-                .then(|| PackPluginError {
-                    code: PACK_PROVISIONER_UNKNOWN.to_owned(),
-                    message: format!("no enabled module provides {}", spec.kind),
-                    fields: Vec::new(),
+            let available = ctx
+                .app()
+                .all_contributions::<dyn Provisioner>()
+                .into_iter()
+                .any(|(owner, provider)| {
+                    provider.kind() == spec.kind
+                        && (ctx.app().is_enabled(owner)
+                            || modules_to_enable.iter().any(|module| module == owner))
                 });
+            let error = (!available).then(|| PackPluginError {
+                code: PACK_PROVISIONER_UNKNOWN.to_owned(),
+                message: format!("no enabled module provides {}", spec.kind),
+                fields: Vec::new(),
+            });
             let row = existing
                 .get(&spec.key)
                 .filter(|row| applied_status(&row.status));

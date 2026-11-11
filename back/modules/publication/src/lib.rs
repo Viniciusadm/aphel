@@ -85,3 +85,74 @@ impl Module for PublicationModule {
         Ok(())
     }
 }
+
+pub async fn probe(failures: &mut Vec<String>) {
+    use aphel_sdk::platform::application::fields::permissions::check_managed_writes;
+    use aphel_sdk::platform::application::shared::{Actor, ExecutionContext, FieldChange};
+    let app = aphel_sdk::platform::modules::app();
+    let registry = app.record_types();
+    for (_, definition) in
+        app.all_contributions::<aphel_contract_publication::PublishableDefinition>()
+    {
+        if let Err(error) = definitions::validate(registry, &definition) {
+            failures.push(format!(
+                "publication: invalid native definition {}: {error}",
+                definition.entity
+            ));
+            continue;
+        }
+        let entity = registry
+            .require(&definition.entity)
+            .expect("validated publication entity");
+        if entity.system_field_by_key("updated_at").is_none() {
+            failures.push(format!(
+                "publication: {} needs a readable saved draft version",
+                definition.entity
+            ));
+        }
+        for key in definition.projected_fields() {
+            let changes = [FieldChange::new(
+                key,
+                serde_json::Value::Null,
+                serde_json::json!("probe"),
+            )];
+            if check_managed_writes(entity, &[key], &changes).is_ok() {
+                failures.push(format!(
+                    "publication: generic writes must reject {}.{key}",
+                    definition.entity
+                ));
+            }
+            let execution = ExecutionContext::module(MODULE, "publication.activate", None)
+                .expect("publication probe context");
+            if execution
+                .scope(async { check_managed_writes(entity, &[key], &changes) })
+                .await
+                .is_err()
+            {
+                failures.push(format!(
+                    "publication: projection writer cannot update {}.{key}",
+                    definition.entity
+                ));
+            }
+            let other = ExecutionContext::module("probe_other", "records.import", None)
+                .expect("unrelated module probe context");
+            if other
+                .scope(async { check_managed_writes(entity, &[key], &changes) })
+                .await
+                .is_ok()
+            {
+                failures.push(format!(
+                    "publication: an unrelated writer can update {}.{key}",
+                    definition.entity
+                ));
+            }
+        }
+    }
+    for scope in [runtime::module_scope(), activation::module_scope()] {
+        if !matches!(Actor::from_scope(&scope), Actor::Service { kind, id } if kind == "module" && id == MODULE)
+        {
+            failures
+                .push("publication: background work must use its technical module actor".into());
+        }
+    }
+}

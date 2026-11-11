@@ -63,7 +63,7 @@ fn protected<'d>(entity: &'d EntityDefinition, key: &str) -> Result<&'d SystemFi
     Ok(found)
 }
 
-fn validate(
+pub(crate) fn validate(
     registry: &RecordTypeRegistry,
     definition: &PublishableDefinition,
 ) -> Result<(), AppError> {

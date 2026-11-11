@@ -72,7 +72,7 @@ Every request or withdrawal increases the record's generation and replaces the o
 
 ## Approval
 
-The module adds the approval moment `publication.activate`. A policy for that moment on your entity makes every publication wait for approval of the exact revision: the request becomes `awaiting_approval`, the approvers receive the approval request, and approval publishes it (at the scheduled time, if any). Rejection, or a change of the policy before the decision, blocks the request; publishing again starts a new approval. Without a policy, people with the permission publish directly.
+The module adds the approval moment `publication.activate`. A policy for that moment on your entity makes every publication wait for approval of the exact revision: the request becomes `awaiting_approval`, the approvers receive the approval request, and approval publishes it (at the scheduled time, if any). Rejection, or a change of the policy before the decision, blocks the request; publishing again starts a new approval. Without a policy, people with the permission publish directly. If a configured active policy still exists while its provider is disabled, publication is blocked with `publication_approvals_unavailable`; enable the provider and submit again. Requirement discovery asks the policy owner for configuration metadata even while its decision service is disabled, without reading another module’s tables.
 
 ## What happens at publication
 

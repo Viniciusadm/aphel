@@ -1301,3 +1301,17 @@ impl ApprovalDirectory {
             .collect()
     }
 }
+
+pub(crate) async fn configured_policy(
+    pool: &MySqlPool,
+    record_type: &str,
+    moment: &str,
+) -> Result<bool, AppError> {
+    let installed: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'approval_policies'").fetch_one(pool).await?;
+    if installed == 0 {
+        return Ok(false);
+    }
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM approval_policies WHERE record_type = ? AND moment = ? AND is_active = TRUE")
+        .bind(record_type).bind(moment).fetch_one(pool).await?;
+    Ok(count > 0)
+}
