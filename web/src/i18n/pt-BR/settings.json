@@ -480,9 +480,7 @@
       "timeout": "Use um valor entre 1 e 120 segundos.",
       "catalogUrl": "Informe uma URL https (http só com a opção de desenvolvimento).",
       "appPath": "Use só letras minúsculas, números e hífens, num único trecho (ex.: app).",
-      "appPathReserved": "Esse caminho é usado pela API. Escolha outro, como app.",
-      "siteHost": "Informe só o domínio, como www.suaempresa.com.br, sem http:// nem caminho.",
-      "sitePathTaken": "O sistema já usa esse caminho. Escolha outro ou informe um domínio próprio para o site."
+      "appPathReserved": "Esse caminho é usado pela API. Escolha outro, como app."
     },
     "general": {
       "title": "Geral",
@@ -500,14 +498,7 @@
       "appPathPlaceholder": "vazio = raiz",
       "moveAppTitle": "Mudar o endereço do sistema?",
       "moveAppDescription": "O sistema passa a abrir em {{url}} para todos. Favoritos e links antigos param de funcionar e o app instalado no celular precisa ser instalado de novo. Se o novo endereço não abrir, use {{recovery}}.",
-      "moveAppConfirm": "Mudar endereço",
-      "siteHost": "Domínio do site (opcional)",
-      "siteHostHint": "Use quando o site público tiver um domínio próprio, como www.suaempresa.com.br, apontado para este servidor. Vazio, o site usa o mesmo endereço do sistema.",
-      "siteHostPlaceholder": "www.suaempresa.com.br",
-      "sitePath": "Caminho do site",
-      "sitePathHint": "Onde as páginas públicas dos plugins (blog, loja) aparecem. Vazio = raiz. Sem domínio próprio, precisa ser diferente do caminho do sistema.",
-      "siteIndexing": "Deixar buscadores encontrarem o site",
-      "siteIndexingHint": "Desligado, o site continua aberto para quem tem o link, mas pede aos buscadores (Google, Bing) que não o mostrem e não publica o mapa do site. Útil enquanto o site está sendo montado."
+      "moveAppConfirm": "Mudar endereço"
     },
     "mail": {
       "title": "E-mail de envio",

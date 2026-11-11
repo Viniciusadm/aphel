@@ -1,6 +1,8 @@
+pub(crate) mod assets;
 pub(crate) mod cache;
 pub(crate) mod data;
 pub(crate) mod handler;
+pub(crate) mod http;
 pub(crate) mod images;
 pub(crate) mod invalidation;
 pub(crate) mod redirects;
@@ -43,6 +45,11 @@ impl Module for SiteModule {
             Arc::new(settings::SiteConfiguration),
         );
         app.consumer(|env| invalidation::SiteInvalidationConsumer::shared(env.pool.clone()));
+        app.openapi_tag(
+            http::TAG,
+            "Public site administration: themes, menu items, redirects and page cache",
+        )
+        .routes(|_| http::router());
         Ok(())
     }
 }

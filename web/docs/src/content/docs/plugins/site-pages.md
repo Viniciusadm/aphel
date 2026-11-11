@@ -9,7 +9,7 @@ Site pages are public HTML pages rendered on the server by the `site` module. A 
 
 Use site pages for content that visitors read: posts, products, categories, portfolios. Use a [public web app](/_aphel/docs/plugins/public-web-apps/) for an interactive single-page tool.
 
-The `site` module must be enabled. An administrator chooses where the site answers under Settings → General: its path (`/s` by default, or `/` when the app moves to a path such as `/app`) and, optionally, its own domain. Page paths in this guide are relative to that address.
+The `site` module must be enabled. An administrator chooses where the site answers under Settings → Site: its path (`/s` by default, or `/` when the app moves to a path such as `/app`) and, optionally, its own domain. Page paths in this guide are relative to that address.
 
 ## Declare what is public
 
@@ -107,6 +107,37 @@ Templates are compiled when the plugin is installed: a syntax error, a missing t
 - Pages carry an `ETag` and `Cache-Control: public, max-age=60, stale-while-revalidate=600`, and answer `304` to a matching `If-None-Match`. Error pages are never cached.
 - Renders (pages not in the cache) are limited to 120 per minute per client address; above that the site answers `429`.
 
+## Menu
+
+```toml
+[[site.menu]]
+key = "blog"
+label = "Blog"
+page = "index"
+```
+
+Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin and hides the ones it does not want; new items appear at the end. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
+
+The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).
+
+## Themes
+
+A plugin becomes a theme with `[site.theme]` and a layout in its package:
+
+```toml
+[site.theme]
+name = "Editorial"
+description = "Serif type and a centered menu."
+```
+
+| File | Role |
+| --- | --- |
+| `site/theme/layout.html` | Required. Replaces `layout.html`: every page that extends it gets this frame. Keep a `{% block content %}`; `title` and `head` blocks are recommended. |
+| `site/theme/not_found.html`, `site/theme/error.html` | Optional. Replace the 404 and error pages. They receive `site` and an empty `page`. |
+| `site/theme/assets/*` | CSS, images and fonts, served at `/_aphel/site/themes/<plugin key>/<file>`. Link them with `{{ theme_asset('style.css') }}`. |
+
+Include `{% include "aphel/seo.html" %}` in the `<head>` of the layout to keep the canonical, description, Open Graph and Twitter tags. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
+
 ## Search engines
 
 ```toml
@@ -124,7 +155,7 @@ The theme writes, for every page: `<title>`, `<link rel="canonical">` with the a
 
 - **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. It is cached and refreshed with the pages it lists.
 - **robots.txt.** When the site is at the root of a host, `/robots.txt` allows everything except `/api/`, `/_aphel/app/` and the app path, and points to the sitemap.
-- **Indexing switch.** Settings → General → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
+- **Indexing switch.** Settings → Site → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
 - **Moved records.** When the field used by a `match` page changes (a new slug), the old address answers `301` to the new one. Chains collapse (`a → b → c` becomes `a → c`, `b → c`), and a record that takes an address back stops its redirect. Redirects only apply when no public record has the old value.
 
 ## Images

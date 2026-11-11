@@ -54136,6 +54136,286 @@
         "x-aphel-module": "sequences"
       }
     },
+    "/api/v1/site": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
+        "operationId": "site_overview",
+        "responses": {
+          "200": {
+            "description": "Site overview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SiteOverviewResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/cache/purge": {
+      "post": {
+        "tags": [
+          "site"
+        ],
+        "description": "Renders every site page again on the next visit, in every server process within a few seconds. Publishes `site.cache_purged` and writes the audit entry. Requires `settings.manage`.",
+        "operationId": "site_cache_purge",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cache cleared"
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/redirects": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "Addresses that moved because the field of a record page changed (for example a new slug), newest first, up to 500. Requires `settings.manage`.",
+        "operationId": "site_redirects_list",
+        "responses": {
+          "200": {
+            "description": "Redirects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_SiteRedirectResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/redirects/{redirect_id}": {
+      "delete": {
+        "tags": [
+          "site"
+        ],
+        "description": "Stops redirecting an old address; it answers 404 again unless a record takes it. Publishes `site.redirect_deleted` and writes the audit entry. Requires `settings.manage`.",
+        "operationId": "site_redirects_delete",
+        "parameters": [
+          {
+            "name": "redirect_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Redirect removed"
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown redirect (`site_redirect_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
     "/api/v1/sso/status": {
       "get": {
         "tags": [
@@ -86391,6 +86671,51 @@
           }
         }
       },
+      "Data_SiteOverviewResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "base_url",
+              "themes",
+              "menu_items",
+              "pages"
+            ],
+            "properties": {
+              "active_theme": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "base_url": {
+                "type": "string",
+                "example": "https://www.example.com"
+              },
+              "menu_items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SiteMenuItemResponse"
+                }
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "themes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SiteThemeResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_SsoLoginStatus": {
         "type": "object",
         "required": [
@@ -90516,6 +90841,66 @@
                     "string",
                     "null"
                   ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_SiteRedirectResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "record_type",
+                "field",
+                "old_value",
+                "new_value",
+                "created_at"
+              ],
+              "properties": {
+                "created_at": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string",
+                  "example": "slug"
+                },
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                },
+                "new_path": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "example": "/blog/new-title"
+                },
+                "new_value": {
+                  "type": "string"
+                },
+                "old_path": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "example": "/blog/old-title"
+                },
+                "old_value": {
+                  "type": "string"
+                },
+                "record_type": {
+                  "type": "string",
+                  "example": "blog.post"
                 }
               }
             }
@@ -117332,6 +117717,135 @@
           }
         }
       },
+      "SiteMenuItemResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "path"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "blog.index"
+          },
+          "label": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "example": "/blog"
+          }
+        }
+      },
+      "SiteOverviewResponse": {
+        "type": "object",
+        "required": [
+          "base_url",
+          "themes",
+          "menu_items",
+          "pages"
+        ],
+        "properties": {
+          "active_theme": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "base_url": {
+            "type": "string",
+            "example": "https://www.example.com"
+          },
+          "menu_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteMenuItemResponse"
+            }
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "themes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteThemeResponse"
+            }
+          }
+        }
+      },
+      "SiteRedirectResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "record_type",
+          "field",
+          "old_value",
+          "new_value",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string",
+            "example": "slug"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "new_path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "/blog/new-title"
+          },
+          "new_value": {
+            "type": "string"
+          },
+          "old_path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "/blog/old-title"
+          },
+          "old_value": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string",
+            "example": "blog.post"
+          }
+        }
+      },
+      "SiteThemeResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string",
+            "example": "clean_theme"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "SortDirection": {
         "type": "string",
         "enum": [
@@ -121621,6 +122135,11 @@
       "name": "pricing",
       "description": "Price lists by currency, segment or company with validity periods and quantity tiers, and the maximum discount per role",
       "x-aphel-module": "pricing"
+    },
+    {
+      "name": "site",
+      "description": "Public site administration: themes, menu items, redirects and page cache",
+      "x-aphel-module": "site"
     },
     {
       "name": "sso",

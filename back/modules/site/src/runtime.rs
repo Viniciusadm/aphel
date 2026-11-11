@@ -2,8 +2,9 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
-    IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle, SiteContentSource, SiteExposure,
-    SitePage, check_bundle, join_template_path, template_name,
+    IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SEO_PARTIAL, SiteBundle, SiteContentSource,
+    SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND, check_bundle,
+    join_template_path, menu_item_id, template_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::App;
@@ -12,6 +13,7 @@ use minijinja::{Environment, Error, ErrorKind, State, Value};
 
 pub(crate) const NOT_FOUND_TEMPLATE: &str = "aphel/not_found.html";
 pub(crate) const ERROR_TEMPLATE: &str = "aphel/error.html";
+pub(crate) const THEMES_SEGMENT: &str = "themes";
 const RENDER_FUEL: u64 = 2_000_000;
 const DEFAULT_DATE_FORMAT: &str = "%d/%m/%Y";
 
@@ -21,11 +23,27 @@ pub(crate) struct Route {
     pub pattern: PathPattern,
 }
 
+pub(crate) struct MenuCandidate {
+    pub id: String,
+    pub label: String,
+    pub path: String,
+}
+
+#[derive(Clone, serde::Serialize)]
+pub(crate) struct ThemeInfo {
+    pub key: String,
+    pub name: String,
+    pub description: Option<String>,
+}
+
 pub(crate) struct SiteRuntime {
     revision: String,
     pub routes: Vec<Route>,
     exposures: BTreeMap<(String, String), SiteExposure>,
     pub environment: Environment<'static>,
+    pub menu: Vec<MenuCandidate>,
+    pub themes: Vec<ThemeInfo>,
+    pub theme: Option<String>,
 }
 
 impl SiteRuntime {
@@ -53,7 +71,7 @@ impl SiteRuntime {
 
 static CURRENT: RwLock<Option<Arc<SiteRuntime>>> = RwLock::new(None);
 
-pub(crate) async fn current(app: &App) -> Result<Arc<SiteRuntime>, AppError> {
+pub(crate) async fn current(app: &App, theme: Option<&str>) -> Result<Arc<SiteRuntime>, AppError> {
     let mut bundles = Vec::new();
     for source in app.contributions::<dyn SiteContentSource>() {
         bundles.extend(source.bundles().await?);
@@ -63,7 +81,9 @@ pub(crate) async fn current(app: &App) -> Result<Arc<SiteRuntime>, AppError> {
         .iter()
         .map(|bundle| format!("{}@{}", bundle.owner, bundle.revision))
         .collect::<Vec<_>>()
-        .join(",");
+        .join(",")
+        + "|theme="
+        + theme.unwrap_or_default();
     if let Some(runtime) = CURRENT
         .read()
         .ok()
@@ -72,15 +92,24 @@ pub(crate) async fn current(app: &App) -> Result<Arc<SiteRuntime>, AppError> {
     {
         return Ok(runtime);
     }
-    let runtime = Arc::new(build(revision, bundles));
+    let theme = theme
+        .filter(|theme| {
+            bundles
+                .iter()
+                .any(|bundle| bundle.owner == *theme && bundle.theme.is_some())
+        })
+        .map(str::to_owned);
+    let runtime = Arc::new(build(revision, bundles, theme));
     if let Ok(mut current) = CURRENT.write() {
         *current = Some(runtime.clone());
     }
     Ok(runtime)
 }
 
-fn build(revision: String, bundles: Vec<SiteBundle>) -> SiteRuntime {
-    let mut environment = base_environment();
+fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> SiteRuntime {
+    let mut environment = base_environment(theme.clone());
+    let mut menu = Vec::new();
+    let mut themes = Vec::new();
     let mut routes: Vec<Route> = Vec::new();
     let mut exposures = BTreeMap::new();
     let mut paths: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
@@ -96,6 +125,41 @@ fn build(revision: String, bundles: Vec<SiteBundle>) -> SiteRuntime {
                 template.source.clone(),
             ) {
                 tracing::warn!(owner = %bundle.owner, template = %template.name, %error, "skipping a site template");
+            }
+        }
+        if let Some(declared) = &bundle.theme {
+            themes.push(ThemeInfo {
+                key: bundle.owner.clone(),
+                name: declared.name.clone(),
+                description: declared.description.clone(),
+            });
+        }
+        if theme.as_deref() == Some(bundle.owner.as_str()) {
+            for (source, target) in [
+                (THEME_LAYOUT, LAYOUT_TEMPLATE),
+                (THEME_NOT_FOUND, NOT_FOUND_TEMPLATE),
+                (THEME_ERROR, ERROR_TEMPLATE),
+            ] {
+                let Some(template) = bundle
+                    .templates
+                    .iter()
+                    .find(|template| template.name == source)
+                else {
+                    continue;
+                };
+                if let Err(error) = environment.add_template_owned(target, template.source.clone())
+                {
+                    tracing::warn!(owner = %bundle.owner, template = %source, %error, "skipping a theme template");
+                }
+            }
+        }
+        for item in &bundle.menu {
+            if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
+                menu.push(MenuCandidate {
+                    id: menu_item_id(&bundle.owner, &item.key),
+                    label: item.label.clone(),
+                    path: page.path.clone(),
+                });
             }
         }
         for exposure in &bundle.exposures {
@@ -133,17 +197,28 @@ fn build(revision: String, bundles: Vec<SiteBundle>) -> SiteRuntime {
         routes,
         exposures,
         environment,
+        menu,
+        themes,
+        theme,
     }
 }
 
-fn base_environment() -> Environment<'static> {
+fn base_environment(theme: Option<String>) -> Environment<'static> {
     let mut environment = Environment::new();
     environment.set_fuel(Some(RENDER_FUEL));
-    environment.set_path_join_callback(|name, parent| join_template_path(name, parent).into());
+    environment.add_global(
+        "__site_theme",
+        Value::from(theme.clone().unwrap_or_default()),
+    );
+    environment.add_function("theme_asset", theme_asset);
+    environment.set_path_join_callback(move |name, parent| {
+        join_template_path(name, parent, theme.as_deref()).into()
+    });
     for (name, source) in [
         (LAYOUT_TEMPLATE, include_str!("../theme/layout.html")),
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
+        (SEO_PARTIAL, include_str!("../theme/seo.html")),
     ] {
         if let Err(error) = environment.add_template(name, source) {
             tracing::error!(template = name, %error, "the built-in site theme does not compile");
@@ -207,6 +282,20 @@ fn image_url(image: Value, width: Option<u32>) -> String {
         Some(base) => format!("{base}/w{chosen}"),
         None => url,
     }
+}
+
+fn theme_asset(state: &State, path: String) -> String {
+    let theme = state
+        .lookup("__site_theme")
+        .and_then(|theme| theme.as_str().map(str::to_owned))
+        .unwrap_or_default();
+    if theme.is_empty() {
+        return String::new();
+    }
+    format!(
+        "/_aphel/site/{THEMES_SEGMENT}/{theme}/{}",
+        path.trim_start_matches('/')
+    )
 }
 
 fn url_for(state: &State, page: String, params: Kwargs) -> Result<String, Error> {

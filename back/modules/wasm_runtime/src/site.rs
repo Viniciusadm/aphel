@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
     ALWAYS_PUBLIC_FIELDS, PageSource, PathPattern, SiteBundle, SiteContentSource, SiteExposure,
-    SitePage, SitePageSeo, SiteTemplate, check_bundle,
+    SiteMenuItem, SitePage, SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle,
 };
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::state::runtime_pool;
@@ -125,6 +125,19 @@ fn bundle_of(
         pages,
         exposures,
         templates,
+        menu: site
+            .menu
+            .iter()
+            .map(|item| SiteMenuItem {
+                key: item.key.clone(),
+                label: item.label.clone(),
+                page: item.page.clone(),
+            })
+            .collect(),
+        theme: site.theme.as_ref().map(|theme| SiteTheme {
+            name: theme.name.clone(),
+            description: theme.description.clone(),
+        }),
     };
     problems.extend(check_bundle(&bundle));
     if problems.is_empty() {
@@ -239,5 +252,25 @@ impl SiteContentSource for PluginSiteContent {
             *cached = Some((snapshot.version, bundles.clone()));
         }
         Ok(bundles.as_ref().clone())
+    }
+
+    async fn asset(&self, owner: &str, path: &str) -> Result<Option<(String, Vec<u8>)>, AppError> {
+        let path = format!("{THEME_ASSETS_DIR}/{}", path.trim_start_matches('/'));
+        if path
+            .split('/')
+            .any(|part| part.is_empty() || part == "." || part == "..")
+        {
+            return Ok(None);
+        }
+        let pool = runtime_pool()?;
+        let snapshot = registry::current(&pool).await?;
+        let is_theme = snapshot
+            .plugin(owner)
+            .and_then(|plugin| plugin.manifest.site.as_ref())
+            .is_some_and(|site| site.theme.is_some());
+        if !is_theme {
+            return Ok(None);
+        }
+        store::file(&pool, owner, &path).await
     }
 }

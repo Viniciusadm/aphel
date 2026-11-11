@@ -196,3 +196,7 @@ pub(crate) fn record_tag(record_type: &str, record_id: &str) -> String {
 pub(crate) fn entity_tag(record_type: &str) -> String {
     format!("entity:{record_type}")
 }
+
+pub(crate) fn forget_all() {
+    with_cache(|cache| cache.purge(ALL_TAG));
+}

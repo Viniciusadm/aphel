@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { z } from 'zod'
@@ -8,7 +8,6 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ToggleField } from '@/components/ui/toggle-field'
 import { MailNotConfiguredNotice } from '../email/MailNotConfiguredNotice'
 import { FormRow } from '../organization/components/FormRow'
 import { positiveInteger, useSaveConfiguration, type OrganizationConfiguration } from './api'
@@ -32,22 +31,7 @@ const schema = z.object({
     .toLowerCase()
     .regex(/^([a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?)?$/, 'configuration.errors.appPath')
     .refine((value) => !RESERVED_APP_SEGMENTS.includes(value), 'configuration.errors.appPathReserved'),
-  siteSegment: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .regex(/^([a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?)?$/, 'configuration.errors.appPath')
-    .refine((value) => !RESERVED_APP_SEGMENTS.includes(value), 'configuration.errors.appPathReserved'),
-  siteHost: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .regex(/^([a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d{1,5})?)?$/, 'configuration.errors.siteHost'),
-  siteIndexing: z.boolean(),
   maxUploadMb: z.string().refine((value) => positiveInteger(value, 1, 4096), 'configuration.errors.uploadRange'),
-}).refine((values) => values.siteHost.trim() !== '' || values.siteSegment.trim().toLowerCase() !== values.appSegment.trim().toLowerCase(), {
-  path: ['siteSegment'],
-  message: 'configuration.errors.sitePathTaken',
 })
 
 type FormValues = z.infer<typeof schema>
@@ -65,9 +49,6 @@ function toFormValues(configuration: OrganizationConfiguration): FormValues {
   return {
     publicBaseUrl: configuration.public_base_url ?? configuration.effective_public_base_url,
     appSegment: segmentOf(configuration.app_base_path),
-    siteSegment: segmentOf(configuration.site_base_path),
-    siteHost: configuration.site_host ?? '',
-    siteIndexing: configuration.site?.indexing ?? true,
     maxUploadMb: String(configuration.max_upload_mb),
   }
 }
@@ -100,10 +81,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
   } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: toFormValues(configuration) })
   const publicBaseUrl = useWatch({ control, name: 'publicBaseUrl' })
   const appSegment = useWatch({ control, name: 'appSegment' })
-  const siteHost = useWatch({ control, name: 'siteHost' })
-  const sitePrefix = siteHost.trim()
-    ? `${publicBaseUrl.trim().startsWith('https://') ? 'https' : 'http'}://${siteHost.trim().toLowerCase().replace(/\/+$/, '')}/`
-    : null
+
   const insecure = publicBaseUrl.trim().startsWith('http://')
   const addressPrefix = `${publicBaseUrl.trim().replace(/\/+$/, '')}/`
   const nextAppUrl = `${addressPrefix}${appSegment.trim().toLowerCase()}`.replace(/\/+$/, '/')
@@ -113,10 +91,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
       const saved = await save({
         public_base_url: values.publicBaseUrl.trim().replace(/\/+$/, ''),
         ...(canMoveApp ? { app_base_path: basePathOf(values.appSegment) } : {}),
-        ...(canMoveApp && configuration.site_available
-          ? { site_base_path: basePathOf(values.siteSegment), site_host: values.siteHost.trim().toLowerCase() || null }
-          : {}),
-        ...(configuration.site_available ? { site: { indexing: values.siteIndexing } } : {}),
+
         max_upload_mb: Number(values.maxUploadMb),
       })
       if (saved.app_base_path !== configuration.app_base_path) {
@@ -129,8 +104,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
       const fieldErrors = serverFieldErrors(error, {
         public_base_url: 'publicBaseUrl',
         'mounts.app.base_path': 'appSegment',
-        'mounts.site.base_path': 'siteSegment',
-        'mounts.site.host': 'siteHost',
+
         max_upload_mb: 'maxUploadMb',
       })
       for (const [field, message] of fieldErrors) setError(field as keyof FormValues, { message })
@@ -201,67 +175,6 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
             </div>
           )}
         </FormRow>
-        {configuration.site_available && (
-          <>
-            <FormRow
-              id="general-site-host"
-              label={t('configuration.general.siteHost')}
-              error={errorText(errors.siteHost?.message)}
-              hint={canMoveApp ? t('configuration.general.siteHostHint') : t('configuration.general.appPathLocked')}
-            >
-              {(describedBy) => (
-                <Input
-                  id="general-site-host"
-                  placeholder={t('configuration.general.siteHostPlaceholder')}
-                  autoComplete="off"
-                  spellCheck={false}
-                  inputMode="url"
-                  readOnly={!canMoveApp}
-                  aria-invalid={errors.siteHost ? true : undefined}
-                  aria-describedby={describedBy}
-                  {...register('siteHost')}
-                />
-              )}
-            </FormRow>
-            <FormRow
-              id="general-site-path"
-              label={t('configuration.general.sitePath')}
-              error={errorText(errors.siteSegment?.message)}
-              hint={canMoveApp ? t('configuration.general.sitePathHint') : t('configuration.general.appPathLocked')}
-            >
-              {(describedBy) => (
-                <div className="flex min-w-0 items-center rounded-md border border-input bg-muted/40 shadow-xs">
-                  <span className="truncate pl-3 text-sm text-muted-foreground">{sitePrefix ?? addressPrefix}</span>
-                  <Input
-                    id="general-site-path"
-                    className="min-w-24 flex-1 border-0 shadow-none"
-                    placeholder={t('configuration.general.appPathPlaceholder')}
-                    autoComplete="off"
-                    spellCheck={false}
-                    readOnly={!canMoveApp}
-                    aria-invalid={errors.siteSegment ? true : undefined}
-                    aria-describedby={describedBy}
-                    {...register('siteSegment')}
-                  />
-                </div>
-              )}
-            </FormRow>
-            <Controller
-              control={control}
-              name="siteIndexing"
-              render={({ field }) => (
-                <ToggleField
-                  id="general-site-indexing"
-                  type="switch"
-                  label={t('configuration.general.siteIndexing')}
-                  description={t('configuration.general.siteIndexingHint')}
-                  checked={field.value}
-                  onCheckedChange={(checked) => field.onChange(checked === true)}
-                />
-              )}
-            />
-          </>
-        )}
         <FormRow
           id="general-max-upload"
           label={t('configuration.general.maxUploadMb')}

@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "label": "Site",
+    "description": "Endereço, aparência, menu e redirecionamentos do site público."
+  },
+  "page": {
+    "title": "Site",
+    "description": "O site público mostra as páginas que os plugins publicam (blog, loja, catálogo).",
+    "open": "Abrir o site",
+    "pages_one": "{{count}} página publicada pelos plugins",
+    "pages_other": "{{count}} páginas publicadas pelos plugins",
+    "noPages": "Nenhum plugin publica páginas ainda. Instale um plugin de blog ou loja para o site ter conteúdo."
+  },
+  "address": {
+    "title": "Endereço",
+    "description": "Onde o site responde. O sistema continua no caminho definido em Geral.",
+    "host": "Domínio do site (opcional)",
+    "hostHint": "Use quando o site tiver um domínio próprio, como www.suaempresa.com.br, apontado para este servidor. Vazio, o site usa o mesmo endereço do sistema.",
+    "hostPlaceholder": "www.suaempresa.com.br",
+    "path": "Caminho do site",
+    "pathHint": "Vazio = raiz. Sem domínio próprio, precisa ser diferente do caminho do sistema.",
+    "pathPlaceholder": "vazio = raiz",
+    "locked": "Só quem administra o sistema pode mudar o endereço.",
+    "indexing": "Deixar buscadores encontrarem o site",
+    "indexingHint": "Desligado, o site continua aberto para quem tem o link, mas pede aos buscadores (Google, Bing) que não o mostrem e não publica o mapa do site. Útil enquanto o site está sendo montado.",
+    "save": "Salvar endereço"
+  },
+  "appearance": {
+    "title": "Aparência",
+    "description": "Tema e apresentação usados em todas as páginas.",
+    "theme": "Tema",
+    "themeHint": "Temas vêm de plugins. O tema padrão é simples e se adapta ao modo escuro.",
+    "defaultTheme": "Tema padrão",
+    "tagline": "Frase de apresentação",
+    "taglineHint": "Aparece abaixo do nome da empresa no topo do site. Até 160 caracteres. O nome, o logo e a cor vêm de Configurações → Organização.",
+    "taglinePlaceholder": "Ex.: Doces artesanais desde 1998",
+    "save": "Salvar aparência"
+  },
+  "menu": {
+    "title": "Menu",
+    "description": "Arraste para mudar a ordem. Itens ocultos continuam no ar, só saem do menu.",
+    "listLabel": "Itens do menu do site",
+    "shown": "Mostrar no menu",
+    "empty": "Nenhum plugin oferece itens de menu.",
+    "saved": "Menu atualizado"
+  },
+  "redirects": {
+    "title": "Endereços que mudaram",
+    "description": "Quando o endereço de um conteúdo muda (por exemplo, o slug de um post), o endereço antigo leva ao novo. Remova um redirecionamento se o endereço antigo deve voltar a dar \"página não encontrada\".",
+    "empty": "Nenhum endereço mudou até agora.",
+    "remove": "Remover redirecionamento de {{path}}",
+    "removed": "Redirecionamento removido",
+    "listLabel": "Redirecionamentos"
+  },
+  "cache": {
+    "title": "Atualização das páginas",
+    "description": "As páginas ficam guardadas para abrir rápido e se atualizam sozinhas quando o conteúdo muda. Use o botão se algo continuar desatualizado.",
+    "purge": "Atualizar todas as páginas agora",
+    "purged": "As páginas serão geradas de novo na próxima visita"
+  },
+  "errors": {
+    "path": "Use só letras minúsculas, números e hífens, num único trecho (ex.: blog).",
+    "pathReserved": "Esse caminho é usado pela API. Escolha outro.",
+    "host": "Informe só o domínio, como www.suaempresa.com.br, sem http:// nem caminho.",
+    "pathTaken": "O sistema já usa esse caminho. Escolha outro ou informe um domínio próprio para o site.",
+    "tagline": "Use até 160 caracteres."
+  },
+  "saved": "Configurações do site salvas"
+}

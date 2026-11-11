@@ -1813,6 +1813,8 @@ dependencies = [
  "sqlx",
  "tokio",
  "tracing",
+ "utoipa",
+ "utoipa-axum",
  "uuid",
 ]
 

@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "label": "Site",
+    "description": "Address, appearance, menu and redirects of the public site."
+  },
+  "page": {
+    "title": "Site",
+    "description": "The public site shows the pages that plugins publish (blog, shop, catalog).",
+    "open": "Open the site",
+    "pages_one": "{{count}} page published by plugins",
+    "pages_other": "{{count}} pages published by plugins",
+    "noPages": "No plugin publishes pages yet. Install a blog or shop plugin so the site has content."
+  },
+  "address": {
+    "title": "Address",
+    "description": "Where the site answers. The app stays at the path set in General.",
+    "host": "Site domain (optional)",
+    "hostHint": "Use it when the site has its own domain, such as www.yourcompany.com, pointed at this server. Empty, the site uses the same address as the app.",
+    "hostPlaceholder": "www.yourcompany.com",
+    "path": "Site path",
+    "pathHint": "Empty = root. Without its own domain, it must differ from the app path.",
+    "pathPlaceholder": "empty = root",
+    "locked": "Only system administrators can change the address.",
+    "indexing": "Let search engines find the site",
+    "indexingHint": "When off, the site stays open to anyone with the link but asks search engines (Google, Bing) not to list it and does not publish the sitemap. Useful while the site is being built.",
+    "save": "Save address"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Theme and presentation used on every page.",
+    "theme": "Theme",
+    "themeHint": "Themes come from plugins. The default theme is simple and follows dark mode.",
+    "defaultTheme": "Default theme",
+    "tagline": "Tagline",
+    "taglineHint": "Shown below the company name at the top of the site. Up to 160 characters. Name, logo and color come from Settings → Organization.",
+    "taglinePlaceholder": "E.g.: Handmade sweets since 1998",
+    "save": "Save appearance"
+  },
+  "menu": {
+    "title": "Menu",
+    "description": "Drag to change the order. Hidden items stay online; they only leave the menu.",
+    "listLabel": "Site menu items",
+    "shown": "Show in the menu",
+    "empty": "No plugin offers menu items.",
+    "saved": "Menu updated"
+  },
+  "redirects": {
+    "title": "Moved addresses",
+    "description": "When the address of some content changes (for example a post slug), the old address leads to the new one. Remove a redirect if the old address should answer \"page not found\" again.",
+    "empty": "No address has moved so far.",
+    "remove": "Remove the redirect of {{path}}",
+    "removed": "Redirect removed",
+    "listLabel": "Redirects"
+  },
+  "cache": {
+    "title": "Page updates",
+    "description": "Pages are kept so they open fast and refresh on their own when the content changes. Use the button if something stays out of date.",
+    "purge": "Refresh every page now",
+    "purged": "Pages will be generated again on the next visit"
+  },
+  "errors": {
+    "path": "Use only lowercase letters, digits and hyphens, in a single segment (e.g. blog).",
+    "pathReserved": "This path is used by the API. Choose another one.",
+    "host": "Enter only the domain, such as www.yourcompany.com, without http:// or a path.",
+    "pathTaken": "The app already uses this path. Choose another one or set a domain for the site.",
+    "tagline": "Use up to 160 characters."
+  },
+  "saved": "Site settings saved"
+}

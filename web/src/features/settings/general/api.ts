@@ -42,8 +42,16 @@ export interface MailSettings {
   security: string
 }
 
+export interface SiteMenuEntry {
+  item: string
+  hidden: boolean
+}
+
 export interface SiteSettings {
   indexing: boolean
+  theme: string | null
+  tagline: string | null
+  menu: SiteMenuEntry[]
 }
 
 export interface OrganizationConfiguration {

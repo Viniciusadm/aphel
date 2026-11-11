@@ -12,8 +12,14 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-app
 a{color:var(--link)}
 .wrap{max-width:46rem;margin:0 auto;padding:0 1rem}
 header.site{border-bottom:1px solid var(--line)}
-header.site .wrap{display:flex;align-items:center;justify-content:space-between;min-height:3.5rem}
-header.site a.brand{color:var(--fg);font-weight:600;text-decoration:none}
+header.site .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1.5rem;min-height:3.5rem;padding-top:.5rem;padding-bottom:.5rem}
+header.site a.brand{display:flex;align-items:center;gap:.6rem;color:var(--fg);font-weight:600;text-decoration:none}
+header.site a.brand img{height:2rem;width:auto}
+header.site .tagline{display:block;color:var(--muted);font-size:.8125rem;font-weight:400}
+nav.menu{display:flex;flex-wrap:wrap;gap:.25rem 1rem}
+nav.menu a{color:var(--muted);text-decoration:none;padding:.25rem 0}
+nav.menu a:hover,nav.menu a[aria-current=page]{color:var(--fg)}
+nav.menu a[aria-current=page]{box-shadow:inset 0 -2px 0 var(--link)}
 main{padding:2rem 0 3rem}
 footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.875rem;padding:1.5rem 0}
 h1,h2,h3{line-height:1.25}
@@ -21,26 +27,14 @@ img{max-width:100%;height:auto}
 .muted{color:var(--muted)}
 nav.pagination{display:flex;justify-content:space-between;margin-top:2rem}
 </style>
-{% if page.seo %}
-<link rel="canonical" href="{{ page.seo.canonical }}">
-{% if page.seo.description %}<meta name="description" content="{{ page.seo.description }}">{% endif %}
-{% if page.seo.noindex %}<meta name="robots" content="noindex">{% endif %}
-<meta property="og:type" content="{{ page.seo.type }}">
-<meta property="og:site_name" content="{{ site.name }}">
-<meta property="og:title" content="{{ page.title or site.name }}">
-<meta property="og:url" content="{{ page.seo.canonical }}">
-<meta property="og:locale" content="{{ site.locale | replace('-', '_') }}">
-{% if page.seo.description %}<meta property="og:description" content="{{ page.seo.description }}">{% endif %}
-{% if page.seo.image %}<meta property="og:image" content="{{ page.seo.image }}">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="{{ page.seo.image }}">{% else %}<meta name="twitter:card" content="summary">{% endif %}
-<meta name="twitter:title" content="{{ page.title or site.name }}">
-{% if page.seo.description %}<meta name="twitter:description" content="{{ page.seo.description }}">{% endif %}
-{% endif %}
+{% include "aphel/seo.html" %}
 {% block head %}{% endblock %}
 </head>
 <body>
-<header class="site"><div class="wrap"><a class="brand" href="{{ site.home }}">{{ site.name }}</a></div></header>
+<header class="site"><div class="wrap">
+<a class="brand" href="{{ site.home }}">{% if site.logo_url %}<img src="{{ site.logo_url }}" alt="">{% endif %}<span>{{ site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
+{% if site.menu %}<nav class="menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>{% endif %}
+</div></header>
 <main><div class="wrap">{% block content %}{% endblock %}</div></main>
 <footer class="site"><div class="wrap">© {{ site.year }} {{ site.name }}</div></footer>
 </body>

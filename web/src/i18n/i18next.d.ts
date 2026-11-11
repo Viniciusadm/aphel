@@ -81,6 +81,7 @@ import type sequencesNamespace from '../modules/sequences/i18n/pt-BR.json'
 import type settingsNamespace from './pt-BR/settings.json'
 import type setupNamespace from './pt-BR/setup.json'
 import type sharingNamespace from './pt-BR/sharing.json'
+import type siteNamespace from '../modules/site/i18n/pt-BR.json'
 import type ssoNamespace from '../modules/sso/i18n/pt-BR.json'
 import type systemNamespace from './pt-BR/system.json'
 import type taggingNamespace from '../modules/tagging/i18n/pt-BR.json'
@@ -180,6 +181,7 @@ declare module 'i18next' {
       settings: typeof settingsNamespace
       setup: typeof setupNamespace
       sharing: typeof sharingNamespace
+      site: typeof siteNamespace
       sso: typeof ssoNamespace
       system: typeof systemNamespace
       tagging: typeof taggingNamespace

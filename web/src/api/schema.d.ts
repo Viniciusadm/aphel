@@ -7162,6 +7162,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`. */
+        get: operations["site_overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/cache/purge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Renders every site page again on the next visit, in every server process within a few seconds. Publishes `site.cache_purged` and writes the audit entry. Requires `settings.manage`. */
+        post: operations["site_cache_purge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/redirects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Addresses that moved because the field of a record page changed (for example a new slug), newest first, up to 500. Requires `settings.manage`. */
+        get: operations["site_redirects_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/redirects/{redirect_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Stops redirecting an old address; it answers 404 again unless a record takes it. Publishes `site.redirect_deleted` and writes the audit entry. Requires `settings.manage`. */
+        delete: operations["site_redirects_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sso/status": {
         parameters: {
             query?: never;
@@ -13954,6 +14022,16 @@ export interface components {
                 session: components["schemas"]["CallSessionResponse"];
             };
         };
+        Data_SiteOverviewResponse: {
+            data: {
+                active_theme?: string | null;
+                /** @example https://www.example.com */
+                base_url: string;
+                menu_items: components["schemas"]["SiteMenuItemResponse"][];
+                pages: number;
+                themes: components["schemas"]["SiteThemeResponse"][];
+            };
+        };
         Data_SsoLoginStatus: {
             data: {
                 /** @example https://crm.example.com/api/v1/public/google/callback */
@@ -15031,6 +15109,23 @@ export interface components {
                 /** Format: date-time */
                 last_seen_at: string;
                 user_agent?: string | null;
+            }[];
+        };
+        Data_Vec_SiteRedirectResponse: {
+            data: {
+                created_at: string;
+                /** @example slug */
+                field: string;
+                /** Format: int64 */
+                id: number;
+                /** @example /blog/new-title */
+                new_path?: string | null;
+                new_value: string;
+                /** @example /blog/old-title */
+                old_path?: string | null;
+                old_value: string;
+                /** @example blog.post */
+                record_type: string;
             }[];
         };
         Data_Vec_StageFieldChoice: {
@@ -21922,6 +22017,42 @@ export interface components {
             name?: string | null;
             /** @example user */
             type: string;
+        };
+        SiteMenuItemResponse: {
+            /** @example blog.index */
+            id: string;
+            label: string;
+            /** @example /blog */
+            path: string;
+        };
+        SiteOverviewResponse: {
+            active_theme?: string | null;
+            /** @example https://www.example.com */
+            base_url: string;
+            menu_items: components["schemas"]["SiteMenuItemResponse"][];
+            pages: number;
+            themes: components["schemas"]["SiteThemeResponse"][];
+        };
+        SiteRedirectResponse: {
+            created_at: string;
+            /** @example slug */
+            field: string;
+            /** Format: int64 */
+            id: number;
+            /** @example /blog/new-title */
+            new_path?: string | null;
+            new_value: string;
+            /** @example /blog/old-title */
+            old_path?: string | null;
+            old_value: string;
+            /** @example blog.post */
+            record_type: string;
+        };
+        SiteThemeResponse: {
+            description?: string | null;
+            /** @example clean_theme */
+            key: string;
+            name: string;
         };
         /** @enum {string} */
         SortDirection: "asc" | "desc";
@@ -60947,6 +61078,222 @@ export interface operations {
                 };
             };
             /** @description Sequence not found (`sequence_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Site overview */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SiteOverviewResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_cache_purge: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cache cleared */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_redirects_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirects */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_SiteRedirectResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_redirects_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                redirect_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirect removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown redirect (`site_redirect_not_found`) */
             404: {
                 headers: {
                     [name: string]: unknown;

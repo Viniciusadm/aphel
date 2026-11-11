@@ -20,10 +20,13 @@ use futures::future::BoxFuture;
 use minijinja::Value;
 use serde_json::json;
 
+use crate::assets::LOGO_PATH;
 use crate::cache::{self, CachedPage};
-use crate::runtime::{self, ERROR_TEMPLATE, NOT_FOUND_TEMPLATE, Route, SiteRuntime};
+use crate::runtime::{
+    self, ERROR_TEMPLATE, NOT_FOUND_TEMPLATE, Route, SiteRuntime, THEMES_SEGMENT,
+};
 use crate::settings::site_settings;
-use crate::{data, images, redirects, sitemap};
+use crate::{assets, data, images, redirects, sitemap};
 
 const SITE_CSP: &str = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
 const DEFAULT_COLOR: &str = "#4f46e5";
@@ -75,13 +78,21 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if !readable_method(request.method()) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
-    let runtime = match runtime::current(&state.app).await {
+    let theme = site_settings(&state.organization_config.snapshot()).theme;
+    let runtime = match runtime::current(&state.app, theme.as_deref()).await {
         Ok(runtime) => runtime,
         Err(error) => {
             tracing::error!(%error, "could not load the site pages");
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }
     };
+    let path = request.uri().path().to_owned();
+    if path == LOGO_PATH {
+        return assets::logo(state).await;
+    }
+    if let Some(rest) = path.strip_prefix(&format!("/{THEMES_SEGMENT}/")) {
+        return assets::theme_file(state, rest).await;
+    }
     match images::serve(state, &runtime, request.uri().path(), request.headers()).await {
         Ok(response) => response,
         Err(error) => {
@@ -129,7 +140,8 @@ async fn serve(state: &AppState, request: Request) -> Response {
         .get::<SiteMountPrefix>()
         .map(|prefix| prefix.0.clone())
         .unwrap_or_default();
-    let runtime = match runtime::current(&state.app).await {
+    let theme = site_settings(&state.organization_config.snapshot()).theme;
+    let runtime = match runtime::current(&state.app, theme.as_deref()).await {
         Ok(runtime) => runtime,
         Err(error) => {
             tracing::error!(%error, "could not load the site pages");
@@ -165,7 +177,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if RENDER_LIMIT.check(address, RATE_LIMITED).await.is_err() {
         return (StatusCode::TOO_MANY_REQUESTS, RATE_LIMITED).into_response();
     }
-    let context = match site_context(state, &prefix).await {
+    let context = match site_context(state, &prefix, &runtime, &path).await {
         Ok(context) => context,
         Err(error) => {
             tracing::error!(%error, "could not load the site context");
@@ -216,6 +228,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "back_home": "Voltar ao início",
             "previous": "Anterior",
             "next": "Próxima",
+            "menu": "Menu principal",
         })
     } else {
         json!({
@@ -226,6 +239,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "back_home": "Back to the home page",
             "previous": "Previous",
             "next": "Next",
+            "menu": "Main menu",
         })
     }
 }
@@ -242,8 +256,53 @@ fn safe_color(color: Option<&str>) -> &str {
         .unwrap_or(DEFAULT_COLOR)
 }
 
-async fn site_context(state: &AppState, prefix: &str) -> Result<SiteContext, AppError> {
+fn menu_of(
+    runtime: &SiteRuntime,
+    settings: &crate::settings::SiteSettings,
+    prefix: &str,
+    current: &str,
+) -> Vec<serde_json::Value> {
+    let position = |id: &str| {
+        settings
+            .menu
+            .iter()
+            .position(|entry| entry.item == id)
+            .unwrap_or(usize::MAX)
+    };
+    let mut items: Vec<_> = runtime
+        .menu
+        .iter()
+        .filter(|item| {
+            !settings
+                .menu
+                .iter()
+                .any(|entry| entry.item == item.id && entry.hidden)
+        })
+        .enumerate()
+        .collect();
+    items.sort_by_key(|(index, item)| (position(&item.id), *index));
+    items
+        .into_iter()
+        .map(|(_, item)| {
+            let active = current == item.path
+                || (item.path != "/" && current.starts_with(&format!("{}/", item.path)));
+            json!({
+                "label": item.label,
+                "url": format!("{prefix}{}", item.path),
+                "active": active,
+            })
+        })
+        .collect()
+}
+
+async fn site_context(
+    state: &AppState,
+    prefix: &str,
+    runtime: &SiteRuntime,
+    current: &str,
+) -> Result<SiteContext, AppError> {
     let config = state.organization_config.snapshot();
+    let settings = site_settings(&config);
     let organization = MySqlOrganizationRepository::new(state.db()?)
         .find()
         .await?
@@ -258,7 +317,13 @@ async fn site_context(state: &AppState, prefix: &str) -> Result<SiteContext, App
             "year": chrono::Utc::now().format("%Y").to_string(),
             "texts": texts(&organization.locale),
             "base_url": config.site_base_url().trim_end_matches('/'),
-            "indexing": site_settings(&config).indexing,
+            "indexing": settings.indexing,
+            "tagline": settings.tagline.as_deref().map(str::trim).filter(|tagline| !tagline.is_empty()),
+            "menu": menu_of(runtime, &settings, prefix, current),
+            "logo_url": organization
+                .logo_file_id
+                .as_ref()
+                .map(|file| format!("/_aphel/site{LOGO_PATH}?v={file}")),
         }),
     })
 }

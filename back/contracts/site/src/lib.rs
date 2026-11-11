@@ -15,6 +15,13 @@ pub const MAX_PER_PAGE: u64 = 50;
 pub const IMAGE_WIDTHS: &[u32] = &[320, 640, 960, 1280, 1920];
 pub const SITEMAP_PATH: &str = "/sitemap.xml";
 pub const ROBOTS_PATH: &str = "/robots.txt";
+pub const THEME_LAYOUT: &str = "site/theme/layout.html";
+pub const THEME_NOT_FOUND: &str = "site/theme/not_found.html";
+pub const THEME_ERROR: &str = "site/theme/error.html";
+pub const THEME_ASSETS_DIR: &str = "site/theme/assets";
+pub const SEO_PARTIAL: &str = "aphel/seo.html";
+const MAX_MENU_ITEMS: usize = 20;
+const MAX_LABEL_LENGTH: usize = 60;
 pub const ALWAYS_PUBLIC_FIELDS: &[&str] = &["id", "created_at", "updated_at"];
 const MAX_SEGMENTS: usize = 8;
 const MAX_KEY_LENGTH: usize = 40;
@@ -26,6 +33,27 @@ pub struct SiteBundle {
     pub pages: Vec<SitePage>,
     pub exposures: Vec<SiteExposure>,
     pub templates: Vec<SiteTemplate>,
+    #[serde(default)]
+    pub menu: Vec<SiteMenuItem>,
+    #[serde(default)]
+    pub theme: Option<SiteTheme>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SiteMenuItem {
+    pub key: String,
+    pub label: String,
+    pub page: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SiteTheme {
+    pub name: String,
+    pub description: Option<String>,
+}
+
+pub fn menu_item_id(owner: &str, key: &str) -> String {
+    format!("{owner}.{key}")
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -94,6 +122,8 @@ pub struct SiteTemplate {
 #[async_trait]
 pub trait SiteContentSource: Send + Sync {
     async fn bundles(&self) -> Result<Vec<SiteBundle>, AppError>;
+
+    async fn asset(&self, owner: &str, path: &str) -> Result<Option<(String, Vec<u8>)>, AppError>;
 }
 
 pub fn template_name(owner: &str, path: &str) -> String {
@@ -384,23 +414,68 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
             (_, None) => {}
         }
     }
+    let mut menu_keys = BTreeSet::new();
+    if bundle.menu.len() > MAX_MENU_ITEMS {
+        problems.push(format!("site.menu: at most {MAX_MENU_ITEMS} items"));
+    }
+    for item in &bundle.menu {
+        let label = format!("site.menu {}", item.key);
+        if item.key.len() > MAX_KEY_LENGTH || !is_identifier(&item.key) {
+            problems.push(format!(
+                "{label}: the key uses lowercase letters, digits and _"
+            ));
+        }
+        if !menu_keys.insert(item.key.as_str()) {
+            problems.push(format!("{label}: the key is repeated"));
+        }
+        if item.label.trim().is_empty() || item.label.chars().count() > MAX_LABEL_LENGTH {
+            problems.push(format!(
+                "{label}: the label must have between 1 and {MAX_LABEL_LENGTH} characters"
+            ));
+        }
+        match bundle.pages.iter().find(|page| page.key == item.page) {
+            None => problems.push(format!("{label}: the page {} does not exist", item.page)),
+            Some(page) => {
+                if PathPattern::parse(&page.path).is_ok_and(|pattern| !pattern.params().is_empty())
+                {
+                    problems.push(format!(
+                        "{label}: the page {} has parameters and cannot be a menu item",
+                        item.page
+                    ));
+                }
+            }
+        }
+    }
+    if let Some(theme) = &bundle.theme {
+        if theme.name.trim().is_empty() || theme.name.chars().count() > MAX_LABEL_LENGTH {
+            problems.push(format!(
+                "site.theme: the name must have between 1 and {MAX_LABEL_LENGTH} characters"
+            ));
+        }
+        if !templates.contains(THEME_LAYOUT) {
+            problems.push(format!("site.theme: the package needs {THEME_LAYOUT}"));
+        }
+    }
     problems.extend(check_templates(bundle));
     problems
 }
 
-pub fn join_template_path(name: &str, parent: &str) -> String {
+pub fn join_template_path(name: &str, parent: &str, theme_owner: Option<&str>) -> String {
     if name == LAYOUT_TEMPLATE || (name.contains('/') && !name.starts_with("site/")) {
         return name.to_owned();
     }
-    match parent.split_once('/') {
-        Some((owner, _)) if parent != LAYOUT_TEMPLATE => template_name(owner, name),
+    let shared = parent == LAYOUT_TEMPLATE || parent.starts_with("aphel/");
+    match (parent.split_once('/'), theme_owner) {
+        (_, Some(theme)) if shared => template_name(theme, name),
+        (Some((owner, _)), _) if !shared => template_name(owner, name),
         _ => name.to_owned(),
     }
 }
 
 fn check_templates(bundle: &SiteBundle) -> Vec<String> {
     let mut environment = minijinja::Environment::new();
-    environment.set_path_join_callback(|name, parent| join_template_path(name, parent).into());
+    environment
+        .set_path_join_callback(|name, parent| join_template_path(name, parent, None).into());
     let mut problems = Vec::new();
     for template in &bundle.templates {
         if let Err(error) = environment.add_template_owned(

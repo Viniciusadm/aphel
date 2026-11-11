@@ -6,16 +6,33 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 const SETTINGS_KEY: &str = "site";
+const MAX_TAGLINE_CHARS: usize = 160;
+const MAX_MENU_ENTRIES: usize = 100;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub(crate) struct SiteSettings {
     pub indexing: bool,
+    pub theme: Option<String>,
+    pub tagline: Option<String>,
+    pub menu: Vec<MenuEntry>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub(crate) struct MenuEntry {
+    pub item: String,
+    #[serde(default)]
+    pub hidden: bool,
 }
 
 impl Default for SiteSettings {
     fn default() -> Self {
-        Self { indexing: true }
+        Self {
+            indexing: true,
+            theme: None,
+            tagline: None,
+            menu: Vec::new(),
+        }
     }
 }
 
@@ -39,14 +56,32 @@ impl OrganizationConfigExtension for SiteConfiguration {
     }
 
     fn validate(&self, values: &std::collections::BTreeMap<String, Value>) -> Vec<FieldViolation> {
-        match values.get(SETTINGS_KEY) {
-            Some(value) if serde_json::from_value::<SiteSettings>(value.clone()).is_err() => {
-                vec![FieldViolation::new(
-                    SETTINGS_KEY,
-                    "invalid site configuration",
-                )]
-            }
-            _ => Vec::new(),
+        let Some(value) = values.get(SETTINGS_KEY) else {
+            return Vec::new();
+        };
+        let Ok(settings) = serde_json::from_value::<SiteSettings>(value.clone()) else {
+            return vec![FieldViolation::new(
+                SETTINGS_KEY,
+                "invalid site configuration",
+            )];
+        };
+        let mut violations = Vec::new();
+        if settings
+            .tagline
+            .as_deref()
+            .is_some_and(|tagline| tagline.chars().count() > MAX_TAGLINE_CHARS)
+        {
+            violations.push(FieldViolation::new(
+                "site.tagline",
+                format!("must have at most {MAX_TAGLINE_CHARS} characters"),
+            ));
         }
+        if settings.menu.len() > MAX_MENU_ENTRIES {
+            violations.push(FieldViolation::new(
+                "site.menu",
+                format!("must have at most {MAX_MENU_ENTRIES} entries"),
+            ));
+        }
+        violations
     }
 }

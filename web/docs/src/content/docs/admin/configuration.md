@@ -126,9 +126,12 @@ Settings that live in the database are edited under Settings in the app. They re
 | --- | --- | --- | --- |
 | General | Public address | `http://localhost:5173` until set | The base of every link in email (invitations, password resets, notifications). When it starts with `https://`, the session cookie is marked `Secure`. The installer fills it with the address your browser used. |
 | General | App path | `/` | Where the internal app is served: `/` or a single segment such as `/app` (lowercase letters, digits, hyphens; not `/api` or `/_aphel`). With a segment, the other paths stay free for a public site and `/` redirects to the app. Links in email use the public address plus this path. Changing it also requires `system.manage`. The app always answers at `/_aphel/app/` too, and `aphel mounts reset` moves it back to `/`. |
-| General | Site domain | none | Shown when the `site` module is enabled. A host name such as `www.example.com`, optionally with a port, pointed at this server. On that host, every path outside `/api` and `/_aphel` belongs to the site. Changing it requires `system.manage`. |
-| General | Site path | `/s` | Where plugin site pages answer: `/` or one segment. Without a site domain it must differ from the app path; the longer path wins, so the app at `/app` and the site at `/` share the address. Changing it requires `system.manage`. |
-| General | Let search engines find the site | on | Shown when the `site` module is enabled. Off, site pages carry `noindex`, `robots.txt` disallows everything and the sitemap answers 404. |
+| Site | Site domain | none | A host name such as `www.example.com`, optionally with a port, pointed at this server. On that host, every path outside `/api` and `/_aphel` belongs to the site. Changing it requires `system.manage`. |
+| Site | Site path | `/s` | Where plugin site pages answer: `/` or one segment. Without a site domain it must differ from the app path; the longer path wins, so the app at `/app` and the site at `/` share the address. Changing it requires `system.manage`. |
+| Site | Let search engines find the site | on | Off, site pages carry `noindex`, `robots.txt` disallows everything and the sitemap answers 404. |
+| Site | Theme | Default theme | A theme from an installed plugin (`[site.theme]`) or the built-in one. |
+| Site | Tagline | none | Up to 160 characters, shown below the company name. Name, logo and color come from the organization. |
+| Site | Menu | Declaration order, all shown | Order and visibility of the menu items that plugins contribute. |
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |
 | File storage | Type | Local disk, folder `./storage` | `Local disk` or `S3 compatible`. The folder is relative to the working directory of the server and the worker, which must see the same folder. |
 | File storage | S3 options | bucket `aphel`, region `us-east-1`, path-style on, plain http off | Bucket, region, optional endpoint (MinIO, SeaweedFS, R2, B2), access key, secret key. The secret key goes to the secret vault. A test button writes, reads and deletes a small object. |
@@ -140,6 +143,8 @@ Settings that live in the database are edited under Settings in the app. They re
 | API tokens | Requests per window | 600 | 1 to 100000, per token. |
 | API tokens | Window | 60 s | 1 to 3600. |
 | Community catalog | Source | Built-in catalog | `builtin` (no internet), `remote` (with an index URL) or `off`. A remote index must be an https URL unless the development option allows http. Fetch time is 1 to 120 s, default 10. |
+
+The Site screen exists only when the `site` module is enabled. It also lists the redirects of moved addresses (remove one to make the old address answer 404 again) and refreshes every page on demand.
 
 Changing the storage type does not copy existing files: they stay in the previous storage. Move them yourself before switching. The secret values in these settings are written to the audit log as `[redacted]`.
 

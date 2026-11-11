@@ -1,0 +1,16 @@
+{% if page.seo %}
+<link rel="canonical" href="{{ page.seo.canonical }}">
+{% if page.seo.description %}<meta name="description" content="{{ page.seo.description }}">{% endif %}
+{% if page.seo.noindex %}<meta name="robots" content="noindex">{% endif %}
+<meta property="og:type" content="{{ page.seo.type }}">
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:title" content="{{ page.title or site.name }}">
+<meta property="og:url" content="{{ page.seo.canonical }}">
+<meta property="og:locale" content="{{ site.locale | replace('-', '_') }}">
+{% if page.seo.description %}<meta property="og:description" content="{{ page.seo.description }}">{% endif %}
+{% if page.seo.image %}<meta property="og:image" content="{{ page.seo.image }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{ page.seo.image }}">{% else %}<meta name="twitter:card" content="summary">{% endif %}
+<meta name="twitter:title" content="{{ page.title or site.name }}">
+{% if page.seo.description %}<meta name="twitter:description" content="{{ page.seo.description }}">{% endif %}
+{% endif %}

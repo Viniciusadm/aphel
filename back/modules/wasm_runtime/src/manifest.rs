@@ -156,6 +156,26 @@ pub struct SiteSpec {
     pub public: Vec<SitePublicSpec>,
     #[serde(default)]
     pub pages: Vec<SitePageSpec>,
+    #[serde(default)]
+    pub menu: Vec<SiteMenuSpec>,
+    #[serde(default)]
+    pub theme: Option<SiteThemeSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteMenuSpec {
+    pub key: String,
+    pub label: String,
+    pub page: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteThemeSpec {
+    pub name: String,
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
