@@ -19,7 +19,7 @@ use crate::runtime::SiteRuntime;
 
 pub(crate) const FILES_SEGMENT: &str = "files";
 const ORIGINAL_VARIANT: &str = "original";
-const MAX_IMAGES: u64 = 20;
+const MAX_IMAGES: u64 = 100;
 const MAX_SOURCE_BYTES: usize = 20 * 1024 * 1024;
 const MAX_SOURCE_PIXELS: u32 = 8_000;
 const JPEG_QUALITY: u8 = 82;

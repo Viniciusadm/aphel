@@ -89,7 +89,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | --- | --- |
 | `site` | `name`, `locale`, `color`, `prefix` (the site path, empty at the root), `home`, `year` and `texts` (`previous`, `next`, `back_home` and the error page texts in the organization language). |
 | `page` | `owner`, `key`, `path`, `params` and the rendered `title`. |
-| `record` | The record of a `match` page, with the public fields only, plus `images` when the entity exposes them: a list of `{ id, name, type, url }`, at most 20. |
+| `record` | The record of a `match` page, with the public fields only, plus `images` when the entity exposes them: a list of `{ id, name, type, url }`, at most 100. |
 | `records`, `pagination` | The records of a `list` page and `page`, `pages`, `total`, `previous_url`, `next_url`. |
 
 | Function or filter | Use |
