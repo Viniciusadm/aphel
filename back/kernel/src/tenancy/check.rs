@@ -219,14 +219,16 @@ async fn checks(context: &Context, a: &Side, b: &Side) -> Result<IsolationReport
     report.record_result("sessions", sessions.map(|(detail, _)| detail));
     match cookies {
         Some((cookie_a, cookie_b)) => {
-            report.record_result(
-                "records and lists",
-                records_check(context, a, b, &cookie_a, &cookie_b).await,
-            );
-            report.record_result(
-                "events",
-                events_check(context, &runtime_a, &runtime_b).await,
-            );
+            let records = records_check(context, a, b, &cookie_a, &cookie_b).await;
+            let team_id = records.as_ref().ok().map(|(_, id)| id.clone());
+            report.record_result("records and lists", records.map(|(detail, _)| detail));
+            match team_id {
+                Some(team_id) => report.record_result(
+                    "events",
+                    events_check(&runtime_a, &runtime_b, &team_id).await,
+                ),
+                None => report.record("events", false, "skipped: the team was not created"),
+            }
             report.record_result(
                 "suspended tenants",
                 suspension_check(context, b, &cookie_b).await,
@@ -514,7 +516,7 @@ async fn records_check(
     b: &Side,
     cookie_a: &str,
     cookie_b: &str,
-) -> Result<String, String> {
+) -> Result<(String, String), String> {
     let created = send(
         context,
         &a.host,
@@ -527,6 +529,13 @@ async fn records_check(
     if !created.status.is_success() {
         return Err(format!("creating a team on A answered {}", created.status));
     }
+    let team_id = created
+        .body
+        .pointer("/data/id")
+        .or_else(|| created.body.pointer("/id"))
+        .and_then(Value::as_str)
+        .ok_or("creating a team on A answered without an id")?
+        .to_owned();
     let listed_a = send(
         context,
         &a.host,
@@ -554,31 +563,35 @@ async fn records_check(
     if mentions(&listed_b.body, &context.marker) {
         return Err("B lists the team created on A".to_owned());
     }
-    Ok("a team created on A is listed on A only".to_owned())
+    Ok((
+        "a team created on A is listed on A only".to_owned(),
+        team_id,
+    ))
 }
 
-async fn marker_events(runtime: &Arc<TenantRuntime>, marker: &str) -> Result<i64, String> {
-    let pattern = format!("%{marker}%");
+async fn team_events(runtime: &Arc<TenantRuntime>, team_id: &str) -> Result<i64, String> {
+    let team_id = team_id.to_owned();
     scope(runtime.clone(), async move {
         let pool = crate::state::runtime_pool().map_err(|error| error.to_string())?;
-        sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM domain_events WHERE CAST(payload AS CHAR) LIKE ?",
-        )
-        .bind(pattern)
-        .fetch_one(&pool)
-        .await
-        .map_err(|error| error.to_string())
+        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM domain_events WHERE record_id = ?")
+            .bind(team_id)
+            .fetch_one(&pool)
+            .await
+            .map_err(|error| error.to_string())
     })
     .await
 }
 
 async fn events_check(
-    context: &Context,
     runtime_a: &Arc<TenantRuntime>,
     runtime_b: &Arc<TenantRuntime>,
+    team_id: &str,
 ) -> Result<String, String> {
-    let in_a = marker_events(runtime_a, &context.marker).await?;
-    let in_b = marker_events(runtime_b, &context.marker).await?;
+    let in_a = team_events(runtime_a, team_id).await?;
+    let in_b = team_events(runtime_b, team_id).await?;
+    if in_a == 0 {
+        return Err("A holds no event about the team it created".to_owned());
+    }
     if in_b > 0 {
         return Err(format!("B holds {in_b} events about A's team"));
     }

@@ -15,6 +15,7 @@ import { PageLoader } from '@/components/ui/page-loader'
 import { ToggleField } from '@/components/ui/toggle-field'
 import { consoleApi, consoleKeys, type Tenant } from '../api'
 import { TenantHealthCard } from '../components/TenantHealthCard'
+import { Notice } from '../components/Notice'
 import { TenantHostsCard } from '../components/TenantHostsCard'
 import { TenantStatusBadge } from '../components/TenantStatusBadge'
 import { notifyConsoleError, notifyConsoleSuccess } from '../errors'
@@ -94,7 +95,7 @@ export function TenantPage() {
           {t('tenant.resume')}
         </Button>
       )}
-      {data.status !== 'deleting' && (
+      {(data.status !== 'deleting' || data.last_error) && (
         <Button variant="destructive" disabled={busy} onClick={() => setConfirming('delete')}>
           <Trash2 className="size-4" aria-hidden />
           {t('tenant.delete')}
@@ -113,9 +114,9 @@ export function TenantPage() {
         actions={actions}
       />
       <div className="grid gap-4">
-        {data.status === 'provisioning' && <Alert className="text-sm">{t('tenant.provisioning')}</Alert>}
-        {data.status === 'deleting' && <Alert className="text-sm">{t('tenant.deleting')}</Alert>}
-        {data.status === 'suspended' && <Alert className="text-sm">{t('tenant.suspendedNotice')}</Alert>}
+        {data.status === 'provisioning' && !data.last_error && <Notice>{t('tenant.provisioning')}</Notice>}
+        {data.status === 'deleting' && !data.last_error && <Notice>{t('tenant.deleting')}</Notice>}
+        {data.status === 'suspended' && <Notice>{t('tenant.suspendedNotice')}</Notice>}
         {data.last_error && (
           <Alert role="alert" className="border-destructive/30 bg-destructive/10 text-sm text-destructive">
             <strong>{t('tenant.lastError')}:</strong> {data.last_error}

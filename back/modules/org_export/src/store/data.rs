@@ -12,7 +12,7 @@ use crate::{ColumnInfo, ColumnKind, ConfigKind, DataRow, MemberRow, Organization
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::configuration::stored_reference_keys;
+use aphel_sdk::configuration::{configuration_keys_available, stored_reference_keys};
 use aphel_sdk::platform::application::fields::{RecordTypeRegistry, is_sql_identifier};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::organization_profile::OrganizationRegistration;
@@ -329,6 +329,7 @@ impl OrgDataStore {
 
     pub(crate) async fn config_keys(&self) -> Result<ConfigKeyMap, AppError> {
         let mut map: ConfigKeyMap = BTreeMap::new();
+        let keyed = configuration_keys_available();
         for (kind, reference) in [
             (ConfigKind::Pipeline, aphel_contract_crm::keys::PIPELINE),
             (
@@ -342,6 +343,10 @@ impl OrgDataStore {
             (ConfigKind::Tag, "tagging.tag"),
             (ConfigKind::ActivityType, "tasks.activity_type"),
         ] {
+            if !keyed {
+                map.insert(kind, BTreeMap::new());
+                continue;
+            }
             map.insert(
                 kind,
                 stored_reference_keys(&self.pool, ConfigReferenceKind::new(reference))

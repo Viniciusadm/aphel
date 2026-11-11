@@ -109,6 +109,7 @@ pub(crate) async fn run(config: AppConfig, command: TenantsCommand) -> CliResult
         .into());
     };
     let control = ControlPlane::connect(&multi).await?;
+    control.migrate().await?;
     let result = match command {
         TenantsCommand::List => list(&control).await,
         TenantsCommand::Create(args) => create(&control, &config, &multi, *args).await,

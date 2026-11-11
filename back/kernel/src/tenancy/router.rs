@@ -124,8 +124,11 @@ fn unknown_host(path: &str) -> Response {
     }
     plain_page(
         StatusCode::NOT_FOUND,
-        "Address not found",
-        "No organization is served at this address.",
+        "Endereço não encontrado · Address not found",
+        &[
+            "Nenhuma empresa é atendida neste endereço.",
+            "No organization is served at this address.",
+        ],
     )
 }
 
@@ -138,14 +141,21 @@ fn tenant_unavailable(path: &str) -> Response {
     }
     plain_page(
         StatusCode::SERVICE_UNAVAILABLE,
-        "Temporarily unavailable",
-        "This organization is temporarily unavailable. Please try again later.",
+        "Indisponível no momento · Temporarily unavailable",
+        &[
+            "Este sistema está indisponível no momento. Tente de novo mais tarde.",
+            "This organization is temporarily unavailable. Please try again later.",
+        ],
     )
 }
 
-fn plain_page(status: StatusCode, title: &str, message: &str) -> Response {
+fn plain_page(status: StatusCode, title: &str, messages: &[&str]) -> Response {
+    let paragraphs: String = messages
+        .iter()
+        .map(|message| format!("<p>{message}</p>"))
+        .collect();
     let body = format!(
-        "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{title}</title></head><body style=\"font-family: system-ui, sans-serif; max-width: 32rem; margin: 20vh auto; padding: 0 1rem; color: #222\"><h1 style=\"font-size: 1.25rem\">{title}</h1><p>{message}</p></body></html>"
+        "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{title}</title></head><body style=\"font-family: system-ui, sans-serif; max-width: 32rem; margin: 20vh auto; padding: 0 1rem; color: #222\"><h1 style=\"font-size: 1.25rem\">{title}</h1>{paragraphs}</body></html>"
     );
     (status, [(header::CACHE_CONTROL, "no-store")], Html(body)).into_response()
 }

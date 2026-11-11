@@ -130,7 +130,7 @@ tar -C /var/lib/aphel/storage -xzf storage.tar.gz
 
 ## Full export: a portable backup
 
-The **full export** is independent of the database schema. It writes a zip with a manifest (format `aphel.organization_export`, the Aphel version, the source organization, counts and a SHA-256 of every entry), the configuration package, one JSON Lines file per record type (including custom objects), relationships, notes, history, members and the attached files.
+The **full export** is independent of the database schema. It writes a zip with a manifest (format `aphel.organization_export`, the Aphel version, the source organization, counts and a SHA-256 of every entry), the configuration package (empty when the Configuration packages module is off; pipelines, stages, lost reasons, tags and activity types then travel as plain rows), one JSON Lines file per record type (including custom objects), relationships, notes, history, members and the attached files.
 
 | Task | How |
 | --- | --- |

@@ -12,7 +12,7 @@ use axum::extract::{FromRequestParts, Request, State};
 use axum::http::request::Parts;
 use axum::http::{HeaderMap, HeaderValue, header};
 use axum::middleware;
-use axum::response::Response;
+use axum::response::{IntoResponse, Response};
 use chrono::{DateTime, Utc};
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
@@ -29,6 +29,7 @@ pub use operators::{Operator, create as create_operator};
 pub(crate) const API_PREFIX: &str = "/api/console/v1";
 const RESERVED_PREFIX: &str = "/_aphel/";
 const COOKIE: &str = "aphel_console_session";
+const UI_STYLESHEET_PREFIX: &str = "/api/v1/public/ui/";
 const SIGN_IN_ATTEMPTS_PER_MINUTE: u32 = 10;
 
 pub(crate) struct ConsoleState {
@@ -101,6 +102,16 @@ async fn fallback(State(_): State<Shared>, request: Request) -> Response {
     let path = request.uri().path();
     if let Some(asset) = path.strip_prefix(RESERVED_PREFIX) {
         return crate::api::web::serve_console_asset(asset);
+    }
+    if path.starts_with(UI_STYLESHEET_PREFIX) {
+        return (
+            [
+                (header::CONTENT_TYPE, "text/css; charset=utf-8"),
+                (header::CACHE_CONTROL, "no-cache"),
+            ],
+            "",
+        )
+            .into_response();
     }
     if path == "/api" || path.starts_with("/api/") {
         return app_error(AppError::NotFound("route was not found".to_owned()));

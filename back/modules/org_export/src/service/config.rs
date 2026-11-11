@@ -10,7 +10,10 @@ use aphel_sdk::configuration::{
 };
 
 pub(crate) async fn export_config_package(ctx: &Ctx<'_>) -> Result<Value, AppError> {
-    let package = configuration_packages(ctx)?
+    let Ok(packages) = configuration_packages(ctx) else {
+        return Ok(Value::Null);
+    };
+    let package = packages
         .export(
             ctx,
             ExportCommand {
@@ -27,6 +30,9 @@ pub(crate) async fn install_config_package(
     ctx: &Ctx<'_>,
     package: Value,
 ) -> Result<Value, AppError> {
+    if package.is_null() {
+        return Ok(json!({ "skipped": true }));
+    }
     let packages = configuration_packages(ctx)?;
     let plan = packages
         .plan(ctx, PackageSource::Package(package.clone()))

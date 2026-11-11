@@ -80,6 +80,10 @@ impl ConfigKeyClient {
         Self { pool }
     }
 }
+pub fn configuration_keys_available() -> bool {
+    key_service().is_ok()
+}
+
 fn key_service() -> Result<Arc<dyn ConfigurationKeys>, AppError> {
     aphel_kernel::modules::app()
         .services()
