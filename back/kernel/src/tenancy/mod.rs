@@ -1,4 +1,5 @@
 mod audit;
+mod check;
 mod console;
 mod control;
 mod directory;
@@ -13,6 +14,7 @@ mod worker;
 use std::sync::OnceLock;
 
 pub use audit::{OperatorActor, record_operator_action};
+pub use check::{CheckOutcome, IsolationReport, run_isolation_check};
 pub use console::{
     Operator, create_operator, openapi as console_openapi, openapi_json as console_openapi_json,
 };

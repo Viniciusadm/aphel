@@ -11,6 +11,7 @@ mod openapi;
 mod probe;
 mod secrets;
 mod serve;
+mod tenancy_check;
 mod tenants;
 mod upgrade;
 mod worker;
@@ -106,6 +107,11 @@ pub(crate) enum Command {
     Tenants(TenantsCommand),
     #[command(subcommand, about = "Manage the operators of the multi-tenant console")]
     Console(ConsoleCommand),
+    #[command(
+        about = "Create two throwaway tenants, check that neither reaches the other's data, then delete them",
+        long_about = "Create two throwaway tenants on the control server, sign in to each through the real host routing, and fail when one of them reaches the other's database, stored files, tenant-local state, enabled modules, sessions, records or events, or when state answers outside a tenant scope. Both tenants are deleted at the end, also on failure. Needs CONTROL_DATABASE_URL with CREATE and DROP privileges."
+    )]
+    TenancyCheck,
     #[command(
         about = "List everything this build offers to plugins: plugins, operations, hooks, events, permissions"
     )]
@@ -270,6 +276,7 @@ async fn dispatch(
         Command::Mounts(command) => mounts::run(config, command).await,
         Command::Tenants(command) => tenants::run(config, command).await,
         Command::Console(command) => console::run(config, command).await,
+        Command::TenancyCheck => tenancy_check::run(config).await,
         Command::Catalog(args) => catalog::run(args),
         Command::Probe => unreachable!("the probe runs before configuration is loaded"),
         Command::Plugin(_) => unreachable!("plugin commands run before configuration is loaded"),

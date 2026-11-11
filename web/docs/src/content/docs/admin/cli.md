@@ -38,6 +38,7 @@ docker compose -f docker-compose.prod.yml exec app aphel doctor
 | `db reset` | Delete and recreate the database |
 | `tenants list`, `create`, `suspend`, `resume`, `delete`, `migrate` | Manage the tenants of a multi-tenant installation |
 | `console create-operator` | Create an operator of the multi-tenant console |
+| `tenancy-check` | Check that two throwaway tenants cannot reach each other |
 | `modules list`, `modules doctor`, `modules uninstall` | Inspect and remove modules |
 | `mounts reset` | Serve the internal app at `/` again |
 | `org export`, `org import` | Full export and restore |
@@ -100,6 +101,8 @@ The console on `CONSOLE_HOST` offers the same actions to operators, plus hosts, 
 ```bash
 aphel console create-operator --email ops@example.com --name "Operations"
 ```
+
+`aphel tenancy-check` creates two throwaway tenants, checks through the real host routing that neither reaches the other's database, files, cached state, modules, sessions, records or events, and deletes them, also on failure. It exits 1 when a check fails. See [Serving many companies](/_aphel/docs/admin/multi-tenancy/).
 
 ```bash
 aphel tenants create --slug acme --name "Acme" --host acme.example.com \
