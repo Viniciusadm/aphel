@@ -373,6 +373,7 @@ impl GenericRecordHandler {
         let persisted = super::snapshot::capture(tx, ctx.pool(), ctx.registry(), &record)
             .await?
             .ok_or_else(|| AppError::Internal("saved entity record is missing".to_owned()))?;
+        super::snapshot::remember(tx, &record, Some(persisted.clone()));
         let values = persisted["values"].clone();
         let sensitive = definition
             .system_fields

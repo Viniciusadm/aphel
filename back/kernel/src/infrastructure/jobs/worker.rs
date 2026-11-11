@@ -14,10 +14,19 @@ use crate::application::shared::{JobContext, JobHandler};
 use crate::config::WorkerConfig;
 use crate::errors::AppError;
 use crate::infrastructure::jobs::shutdown::Shutdown;
+use crate::infrastructure::jobs::signal::{jobs_available, wake_workers};
 
 pub(crate) const MAX_ERROR_LENGTH: usize = 2000;
 pub(crate) const LOCK_GRACE_PERIOD: Duration = Duration::from_secs(60);
 const MAX_MAINTENANCE_INTERVAL: Duration = Duration::from_secs(60);
+const MAX_IDLE_POLL_INTERVAL: Duration = Duration::from_secs(5);
+const HELPER_IDLE_INTERVAL: Duration = Duration::from_secs(30);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LoopRole {
+    Poller,
+    Helper,
+}
 const LOST_LOCK_ERROR: &str =
     "the worker holding this job stopped before finishing it (lock expired)";
 
@@ -124,10 +133,15 @@ impl JobWorker {
         );
 
         let mut tasks = JoinSet::new();
-        for _ in 0..self.settings.concurrency {
+        for index in 0..self.settings.concurrency {
             let worker = self.clone();
             let shutdown = shutdown.clone();
-            tasks.spawn(async move { worker.process_until(shutdown).await });
+            let role = if index == 0 {
+                LoopRole::Poller
+            } else {
+                LoopRole::Helper
+            };
+            tasks.spawn(async move { worker.process_until(shutdown, role).await });
         }
         let worker = self.clone();
         let maintenance_shutdown = shutdown.clone();
@@ -141,13 +155,6 @@ impl JobWorker {
 
         info!(worker_id = %self.settings.worker_id, "job worker stopped");
         Ok(())
-    }
-
-    pub(crate) async fn run_once(&self) -> Result<Option<JobOutcome>, AppError> {
-        match self.reserve().await? {
-            Some(job) => Ok(Some(self.execute(job).await?)),
-            None => Ok(None),
-        }
     }
 
     pub(crate) async fn reserve(&self) -> Result<Option<ReservedJob>, AppError> {
@@ -239,19 +246,38 @@ impl JobWorker {
         Ok(recovered)
     }
 
-    async fn process_until(&self, mut shutdown: Shutdown) {
+    async fn process_until(&self, mut shutdown: Shutdown, role: LoopRole) {
+        let busiest_wait = self.settings.poll_interval.max(MAX_IDLE_POLL_INTERVAL);
+        let mut idle_wait = self.settings.poll_interval;
         loop {
             if shutdown.is_triggered() {
                 break;
             }
-            match self.run_once().await {
-                Ok(Some(_)) => continue,
+            let woken = jobs_available().notified();
+            tokio::pin!(woken);
+            woken.as_mut().enable();
+            match self.reserve().await {
+                Ok(Some(job)) => {
+                    wake_workers();
+                    idle_wait = self.settings.poll_interval;
+                    if let Err(failure) = self.execute(job).await {
+                        error!("job worker failed to process the queue: {failure}");
+                    }
+                    continue;
+                }
                 Ok(None) => {}
                 Err(failure) => error!("job worker failed to process the queue: {failure}"),
             }
+            let wait = match role {
+                LoopRole::Poller => idle_wait,
+                LoopRole::Helper => HELPER_IDLE_INTERVAL,
+            };
             tokio::select! {
                 () = shutdown.wait() => break,
-                () = tokio::time::sleep(self.settings.poll_interval) => {}
+                () = &mut woken => idle_wait = self.settings.poll_interval,
+                () = tokio::time::sleep(wait) => {
+                    idle_wait = (idle_wait * 2).min(busiest_wait);
+                }
             }
         }
     }

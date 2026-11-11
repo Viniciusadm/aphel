@@ -14,6 +14,7 @@ pub struct MySqlTx {
     pub(crate) after_commit: Vec<crate::modules::BoxFuture<'static, ()>>,
     pub(crate) receipt_lease: Option<super::receipt::ReceiptLease>,
     pub record_states: HashMap<(String, Uuid), Value>,
+    pub(crate) fresh_snapshot: Option<((String, Uuid), Option<Value>)>,
 }
 
 impl From<DatabaseTransaction<'static>> for MySqlTx {
@@ -25,6 +26,7 @@ impl From<DatabaseTransaction<'static>> for MySqlTx {
             reference_deletions: Default::default(),
             after_commit: Vec::new(),
             record_states: HashMap::new(),
+            fresh_snapshot: None,
         }
     }
 }

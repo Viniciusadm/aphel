@@ -5,6 +5,7 @@ use sqlx::{Executor, MySql, MySqlPool};
 use crate::application::shared::{EnqueueOutcome, Job, JobQueue};
 use crate::database::transaction::MySqlTx;
 use crate::errors::AppError;
+use crate::infrastructure::jobs::signal::wake_workers;
 use crate::infrastructure::repositories::mapper;
 
 pub(crate) const MAX_QUEUE_LENGTH: usize = 64;
@@ -25,11 +26,19 @@ impl MySqlJobQueue {
 #[async_trait]
 impl JobQueue<MySqlTx> for MySqlJobQueue {
     async fn enqueue(&self, tx: &mut MySqlTx, job: Job) -> Result<EnqueueOutcome, AppError> {
-        insert_job(&mut **tx, job).await
+        let outcome = insert_job(&mut **tx, job).await?;
+        if matches!(outcome, EnqueueOutcome::Enqueued(_)) {
+            tx.after_commit.push(Box::pin(async { wake_workers() }));
+        }
+        Ok(outcome)
     }
 
     async fn enqueue_now(&self, job: Job) -> Result<EnqueueOutcome, AppError> {
-        insert_job(&self.pool, job).await
+        let outcome = insert_job(&self.pool, job).await?;
+        if matches!(outcome, EnqueueOutcome::Enqueued(_)) {
+            wake_workers();
+        }
+        Ok(outcome)
     }
 }
 

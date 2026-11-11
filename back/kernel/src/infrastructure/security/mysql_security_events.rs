@@ -79,6 +79,7 @@ impl SecurityNoticeQueue for MySqlSecurityNoticeQueue {
             Job::new(SECURITY_EMAIL_JOB, payload).with_max_attempts(SECURITY_EMAIL_ATTEMPTS),
         )
         .await?;
+        crate::infrastructure::jobs::signal::wake_workers();
         Ok(())
     }
 }

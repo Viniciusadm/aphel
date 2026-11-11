@@ -4,10 +4,20 @@ use sqlx::mysql::{MySqlConnectOptions, MySqlPoolOptions};
 use sqlx::{Connection, MySqlPool};
 
 const IDLE_BEFORE_PING: Duration = Duration::from_secs(30);
+const IDLE_BEFORE_CLOSE: Duration = Duration::from_secs(60);
+const BASE_CONNECTIONS: u32 = 10;
+const CONNECTIONS_BESIDES_WORKER: u32 = 6;
+
+fn max_connections() -> u32 {
+    let worker =
+        u32::try_from(crate::config::WorkerConfig::from_env().concurrency).unwrap_or(u32::MAX);
+    BASE_CONNECTIONS.max(worker.saturating_add(CONNECTIONS_BESIDES_WORKER))
+}
 
 pub async fn connect(database_url: &str) -> Result<MySqlPool, sqlx::Error> {
     MySqlPoolOptions::new()
-        .max_connections(30)
+        .max_connections(max_connections())
+        .idle_timeout(IDLE_BEFORE_CLOSE)
         .acquire_timeout(Duration::from_secs(10))
         .test_before_acquire(false)
         .before_acquire(|connection, metadata| {

@@ -115,6 +115,9 @@ impl JobScheduler {
                 .await?;
         }
         transaction.commit().await?;
+        if report.enqueued > 0 {
+            crate::infrastructure::jobs::signal::wake_workers();
+        }
         Ok(report)
     }
 

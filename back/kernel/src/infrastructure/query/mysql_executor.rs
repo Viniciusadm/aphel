@@ -47,6 +47,9 @@ impl MySqlRecordQueryExecutor {
 }
 
 const COUNT_CACHE_TTL: Duration = Duration::from_secs(3);
+const TIMEZONE_CACHE_TTL: Duration = Duration::from_secs(5);
+
+static TIMEZONE: LazyLock<Mutex<Option<(Tz, Instant)>>> = LazyLock::new(Mutex::default);
 const COUNT_CACHE_CAPACITY: usize = 512;
 
 struct CachedCount {
@@ -106,13 +109,26 @@ pub fn invalidate_counts() {
 #[async_trait]
 impl RecordQueryExecutor for MySqlRecordQueryExecutor {
     async fn timezone(&self) -> Result<Tz, AppError> {
+        if let Some(timezone) = TIMEZONE
+            .lock()
+            .ok()
+            .and_then(|cached| *cached)
+            .filter(|(_, stored_at)| stored_at.elapsed() < TIMEZONE_CACHE_TTL)
+            .map(|(timezone, _)| timezone)
+        {
+            return Ok(timezone);
+        }
         let timezone: Option<String> =
             sqlx::query_scalar("SELECT timezone FROM organization_settings WHERE id = 1")
                 .fetch_optional(&self.pool)
                 .await?;
-        Ok(timezone
+        let timezone = timezone
             .and_then(|timezone| timezone.parse::<Tz>().ok())
-            .unwrap_or(chrono_tz::UTC))
+            .unwrap_or(chrono_tz::UTC);
+        if let Ok(mut cached) = TIMEZONE.lock() {
+            *cached = Some((timezone, Instant::now()));
+        }
+        Ok(timezone)
     }
 
     async fn execute(

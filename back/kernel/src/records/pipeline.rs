@@ -122,8 +122,15 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {
-        let stored =
-            crate::records::snapshot::capture(tx, &self.pool, &self.registry, write.record).await?;
+        let fresh = crate::records::snapshot::take_fresh(tx, write.record);
+        let reused = fresh.is_some();
+        let stored = match fresh {
+            Some(snapshot) => snapshot,
+            None => {
+                crate::records::snapshot::capture(tx, &self.pool, &self.registry, write.record)
+                    .await?
+            }
+        };
         let proposed = serde_json::json!({
             "values": write.values,
             "custom_fields": stored.as_ref().and_then(|value| value.get("custom_fields")).cloned().unwrap_or_else(|| serde_json::json!({})),
@@ -156,6 +163,10 @@ impl RecordPipeline for MySqlRecordPipeline {
             &Value::Object(reference_values),
         )
         .await?;
+        if reused && !self.app.hooks().has(RecordValidating) {
+            crate::records::snapshot::remember(tx, write.record, stored);
+            return Ok(());
+        }
         self.run(RecordValidating, tx, scope, &self.changed(write))
             .await
     }
@@ -166,8 +177,13 @@ impl RecordPipeline for MySqlRecordPipeline {
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {
-        let proposed =
-            crate::records::snapshot::capture(tx, &self.pool, &self.registry, write.record).await?;
+        let proposed = match crate::records::snapshot::take_fresh(tx, write.record) {
+            Some(snapshot) => snapshot,
+            None => {
+                crate::records::snapshot::capture(tx, &self.pool, &self.registry, write.record)
+                    .await?
+            }
+        };
         if let Some(state) = tx.record_states.get_mut(&(
             write.record.record_type.as_str().to_owned(),
             write.record.record_id,

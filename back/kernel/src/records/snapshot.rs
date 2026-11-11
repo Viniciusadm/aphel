@@ -96,6 +96,19 @@ pub async fn capture(
     ))
 }
 
+pub(crate) fn remember(tx: &mut MySqlTx, record: &RecordRef, snapshot: Option<Value>) {
+    tx.fresh_snapshot = Some((
+        (record.record_type.as_str().to_owned(), record.record_id),
+        snapshot,
+    ));
+}
+
+pub(crate) fn take_fresh(tx: &mut MySqlTx, record: &RecordRef) -> Option<Option<Value>> {
+    let ((record_type, record_id), snapshot) = tx.fresh_snapshot.take()?;
+    (record_type == record.record_type.as_str() && record_id == record.record_id)
+        .then_some(snapshot)
+}
+
 pub fn proposed(
     before: Option<&Value>,
     values: &Map<String, Value>,

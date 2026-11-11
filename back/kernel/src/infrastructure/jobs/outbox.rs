@@ -131,6 +131,9 @@ impl OutboxDispatchHandler {
             }
         }
         transaction.commit().await?;
+        if dispatched > 0 {
+            crate::infrastructure::jobs::signal::wake_workers();
+        }
         Ok(dispatched)
     }
 

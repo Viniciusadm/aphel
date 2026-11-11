@@ -3,6 +3,7 @@ pub(crate) mod outbox;
 pub(crate) mod queue;
 pub(crate) mod scheduler;
 pub(crate) mod shutdown;
+pub(crate) mod signal;
 pub(crate) mod worker;
 
 pub(crate) use cleanup::{JobCleanupHandler, jobs_cleanup_schedule};
