@@ -407,6 +407,9 @@ impl GenericRecordHandler {
                 "created_by",
             ]),
         )?;
+        crate::application::fields::permissions::check_managed_writes(
+            definition, &provided, &changes,
+        )?;
         changes.extend(custom_changes);
         let write = RecordWrite {
             record: &record,

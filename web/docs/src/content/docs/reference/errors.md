@@ -106,7 +106,7 @@ The tables below list every code that the platform and the built-in modules defi
 | `field_not_found` | 404 | Field was not found. |
 | `field_option_not_found` | 404 | Option was not found. |
 | `field_permission_locked` | 422 | Required and structural fields are always editable. |
-| `field_read_only` | 422 | The role of the user cannot change these fields. |
+| `field_read_only` | 422 | The role of the user cannot change these fields, or the fields are kept by their owner (plugin `read_only` fields change only through the plugin or a module listed in `writers`). |
 | `field_without_options` | 422 | Only select and multi_select fields have options. |
 | `file_not_found` | 404 | File was not found. |
 | `file_too_large` | 413/422 | The file is too large to be read by a module. |

@@ -68,6 +68,44 @@ tokio::task_local! {
 }
 
 impl ExecutionContext {
+    pub const PLUGIN_EXECUTOR: &'static str = "plugin";
+    pub const MODULE_EXECUTOR: &'static str = "module";
+
+    pub fn module(
+        executor: &str,
+        trigger: &str,
+        initiator: Option<&Actor>,
+    ) -> Result<Self, AppError> {
+        let parent = Self::current();
+        let depth = parent
+            .as_ref()
+            .map(|parent| parent.depth + 1)
+            .unwrap_or_default();
+        if depth >= MAX_EXECUTION_DEPTH {
+            return Err(too_deep());
+        }
+        let id = Uuid::now_v7();
+        Ok(Self {
+            id,
+            correlation_id: parent
+                .as_ref()
+                .map(|parent| parent.correlation_id)
+                .unwrap_or(id),
+            parent_id: parent.as_ref().map(|parent| parent.id),
+            event_id: parent.as_ref().and_then(|parent| parent.event_id),
+            executor: executor.to_owned(),
+            executor_kind: Self::MODULE_EXECUTOR.to_owned(),
+            automation: parent.as_ref().and_then(|parent| parent.automation.clone()),
+            initiator: parent
+                .as_ref()
+                .and_then(|parent| parent.initiator.clone())
+                .or_else(|| initiator.map(ExecutionActor::from)),
+            trigger: trigger.to_owned(),
+            chain: parent.map(|parent| parent.chain).unwrap_or_default(),
+            depth,
+        })
+    }
+
     pub fn event_origin(id: Uuid, actor: &Actor) -> Self {
         Self {
             id,

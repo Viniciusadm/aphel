@@ -57,6 +57,7 @@ pub struct SystemField {
     pub computed: Option<ComputedColumn>,
     pub contributed_by: Option<&'static str>,
     pub owner_managed: bool,
+    pub writers: Vec<String>,
 }
 
 impl SystemField {
@@ -88,6 +89,7 @@ impl SystemField {
             computed: None,
             contributed_by: None,
             owner_managed: false,
+            writers: Vec::new(),
         })
     }
 

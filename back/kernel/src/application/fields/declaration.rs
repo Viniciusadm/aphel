@@ -68,6 +68,8 @@ pub struct FieldDef {
     pub target: Option<String>,
     #[serde(default)]
     pub read_only: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub writers: Vec<String>,
     #[serde(default)]
     pub options: Vec<OptionDef>,
 }
@@ -214,6 +216,24 @@ impl EntityDeclaration {
                 system.personal = field.personal;
                 system.sensitive = field.sensitive;
                 system.owner_managed = field.read_only;
+                if !field.writers.is_empty() && !field.read_only {
+                    return Err(crate::errors::AppError::Configuration(format!(
+                        "field {} declares writers but is not read_only",
+                        field.key
+                    )));
+                }
+                if let Some(writer) = field.writers.iter().find(|writer| {
+                    writer.is_empty()
+                        || !writer.chars().all(|char| {
+                            char.is_ascii_lowercase() || char.is_ascii_digit() || char == '_'
+                        })
+                }) {
+                    return Err(crate::errors::AppError::Configuration(format!(
+                        "invalid writer {writer:?} on field {}",
+                        field.key
+                    )));
+                }
+                system.writers = field.writers.clone();
                 system.config = field.config().map_err(|_| {
                     crate::errors::AppError::Configuration(format!(
                         "invalid configuration for {}",

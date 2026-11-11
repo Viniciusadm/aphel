@@ -156,8 +156,7 @@ impl FieldAccessPolicy {
         if field
             .system
             .as_ref()
-            .is_some_and(|system| system.owner_managed)
-            && !owner_is_writing(record_type)
+            .is_some_and(|system| system.owner_managed && !may_write_managed(record_type, system))
         {
             return match self.access_of(field.definition.id) {
                 FieldAccess::Hidden => FieldAccess::Hidden,
@@ -361,8 +360,40 @@ pub fn query_error(message: &str, violations: Vec<FieldViolation>) -> AppError {
     AppError::invalid_fields(message.to_owned(), violations)
 }
 
-fn owner_is_writing(record_type: &RecordType) -> bool {
+pub fn may_write_managed(
+    record_type: &RecordType,
+    field: &crate::application::fields::SystemField,
+) -> bool {
+    let Some(execution) = crate::application::shared::ExecutionContext::current() else {
+        return false;
+    };
     let owner = record_type.as_str().split('.').next().unwrap_or_default();
-    crate::application::shared::ExecutionContext::current()
-        .is_some_and(|execution| execution.executor_kind == "plugin" && execution.executor == owner)
+    match execution.executor_kind.as_str() {
+        crate::application::shared::ExecutionContext::PLUGIN_EXECUTOR => {
+            execution.executor == owner
+        }
+        crate::application::shared::ExecutionContext::MODULE_EXECUTOR => {
+            field.writers.contains(&execution.executor)
+        }
+        _ => false,
+    }
+}
+
+pub fn check_managed_writes(
+    definition: &crate::application::fields::EntityDefinition,
+    provided: &[&str],
+    changes: &[FieldChange],
+) -> Result<(), AppError> {
+    let mut violations = changes
+        .iter()
+        .filter(|change| provided.contains(&change.field.as_str()))
+        .filter_map(|change| definition.system_field_by_key(&change.field))
+        .filter(|field| field.owner_managed && !may_write_managed(&definition.record_type, field))
+        .map(|field| FieldViolation::new(field.key.as_str(), READ_ONLY_MESSAGE))
+        .collect::<Vec<_>>();
+    if violations.is_empty() {
+        return Ok(());
+    }
+    violations.sort_by(|left, right| left.field.cmp(&right.field));
+    Err(read_only_error(violations))
 }

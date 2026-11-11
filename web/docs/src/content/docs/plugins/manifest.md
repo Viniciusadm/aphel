@@ -90,6 +90,7 @@ Both tables use the same keys. In `[[fields]]` (top-level) there is one more key
 | `default` | any | no | none | Not allowed for `user` and `record`. |
 | `target` | string | for `record` | none | Record type the field points to. Error: `is required for record fields`. Targets outside the plugin need the target's read permission in the capabilities. |
 | `read_only` | boolean | no | `false` | Managed entities only. People see the field but cannot change it (422 `field_read_only`); only the plugin's own backend writes it. Use it for totals, statuses and keys that the plugin's operations keep consistent. |
+| `writers` | array of module keys | no | `[]` | Requires `read_only`. Native modules that may also change the field, in addition to the plugin's own backend, when they write the record as that module (for example a publication module projecting the active revision). Everyone else, administrators and generic record writes, imports and bulk actions included, gets 422 `field_read_only` when the value changes. |
 | `options` | array of tables | for `select`, `multi_select` | `[]` | Each has `value` (string), `label` (string) and `color` (optional string). Error: `is required for select fields`. |
 
 A property that the field type does not support is rejected with `is not supported by <type> fields`.
