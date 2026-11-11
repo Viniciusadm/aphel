@@ -288,6 +288,7 @@ impl From<&PluginManifest> for PluginDeclarations {
                         .and_then(|web| web.public.as_ref())
                         .map(|_| format!("GET /p/{}/", manifest.key)),
                 )
+                .chain(crate::site::public_routes(manifest))
                 .collect(),
             requires: manifest.requires.clone(),
             optional_requires: manifest.optional_requires.clone(),
@@ -711,6 +712,14 @@ pub(crate) async fn prepare_install(
         runtime::validate(backend.content.clone()).await?;
     }
     let pool = state.db()?;
+    let installed = crate::registry::current(&pool).await?;
+    let others: Vec<&PluginManifest> = installed
+        .plugins
+        .iter()
+        .map(|plugin| &plugin.manifest)
+        .chain(pack.iter())
+        .collect();
+    crate::site::validate_package(&package.manifest, &package.files, &others)?;
     let previous = store::find(&pool, &package.manifest.key).await?;
     if previous.as_ref().is_some_and(|plugin| plugin.enabled) {
         crate::dependents::ensure_none_broken(

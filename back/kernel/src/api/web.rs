@@ -10,6 +10,7 @@ use crate::api::error::app_error;
 use crate::api::state::AppState;
 use crate::application::organization_profile::{RECOVERY_APP_PATH, RESERVED_PREFIX};
 use crate::errors::AppError;
+use crate::modules::{SiteMountPrefix, SiteRequestHandler};
 
 #[derive(Embed)]
 #[folder = "../../web/dist"]
@@ -34,8 +35,21 @@ pub struct AppMountPrefix(pub String);
 enum Target {
     Reserved(String),
     App(String),
+    Site(String),
     Redirect(String),
     NotFound,
+}
+
+struct SiteClaim<'a> {
+    prefix: &'a str,
+    host: Option<&'a str>,
+}
+
+fn host_matches(request_host: Option<&str>, configured: &str) -> bool {
+    request_host.is_some_and(|host| {
+        let host = host.to_ascii_lowercase();
+        host == configured || host.split(':').next() == Some(configured)
+    })
 }
 
 fn mounted_under<'a>(path: &'a str, prefix: &str) -> Option<&'a str> {
@@ -43,20 +57,38 @@ fn mounted_under<'a>(path: &'a str, prefix: &str) -> Option<&'a str> {
     (rest.is_empty() || rest.starts_with('/')).then_some(rest)
 }
 
-fn resolve(path: &str, app_prefix: &str) -> Target {
+fn resolve(
+    path: &str,
+    request_host: Option<&str>,
+    app_prefix: &str,
+    site: Option<SiteClaim<'_>>,
+) -> Target {
     if mounted_under(path, RECOVERY_APP_PATH).is_some() {
         return Target::App(RECOVERY_APP_PATH.to_owned());
     }
     if let Some(rest) = mounted_under(path, RESERVED_PREFIX) {
         return Target::Reserved(rest.trim_start_matches('/').to_owned());
     }
-    if app_prefix.is_empty() || mounted_under(path, app_prefix).is_some() {
-        return Target::App(app_prefix.to_owned());
+    let app = (app_prefix.is_empty() || mounted_under(path, app_prefix).is_some())
+        .then_some(app_prefix.len());
+    let site = site
+        .filter(|site| {
+            site.host
+                .is_none_or(|host| host_matches(request_host, host))
+        })
+        .filter(|site| site.prefix.is_empty() || mounted_under(path, site.prefix).is_some());
+    match (app, site) {
+        (Some(app_length), Some(site))
+            if site.prefix.len() > app_length
+                || (site.prefix.len() == app_length && site.host.is_some()) =>
+        {
+            Target::Site(site.prefix.to_owned())
+        }
+        (Some(_), _) => Target::App(app_prefix.to_owned()),
+        (None, Some(site)) => Target::Site(site.prefix.to_owned()),
+        (None, None) if path == "/" => Target::Redirect(format!("{app_prefix}/")),
+        (None, None) => Target::NotFound,
     }
-    if path == "/" {
-        return Target::Redirect(format!("{app_prefix}/"));
-    }
-    Target::NotFound
 }
 
 pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Response {
@@ -65,28 +97,66 @@ pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Res
         return app_error(AppError::NotFound("route was not found".to_owned()));
     }
     let config = state.organization_config.snapshot();
-    match resolve(&path, config.app_prefix()) {
+    let handler = state
+        .app
+        .contributions::<dyn SiteRequestHandler>()
+        .into_iter()
+        .next();
+    let request_host = request
+        .headers()
+        .get(header::HOST)
+        .and_then(|value| value.to_str().ok())
+        .map(str::to_owned);
+    let site = handler.as_ref().map(|_| SiteClaim {
+        prefix: config.mounts.site.prefix(),
+        host: config.mounts.site.host.as_deref(),
+    });
+    match resolve(&path, request_host.as_deref(), config.app_prefix(), site) {
         Target::Reserved(rest) => serve_reserved(&rest, config.app_prefix()),
         Target::App(prefix) => serve_app(mounted, prefix, request).await,
+        Target::Site(prefix) => match handler {
+            Some(handler) => serve_site(&state, handler.as_ref(), prefix, request).await,
+            None => StatusCode::NOT_FOUND.into_response(),
+        },
         Target::Redirect(location) => Redirect::temporary(&location).into_response(),
         Target::NotFound => StatusCode::NOT_FOUND.into_response(),
     }
 }
 
-async fn serve_app(mounted: Router, prefix: String, mut request: Request) -> Response {
+fn strip_mount(prefix: &str, request: &mut Request) -> Result<(), StatusCode> {
     let uri = request.uri();
     let rest = uri
         .path()
-        .strip_prefix(prefix.as_str())
+        .strip_prefix(prefix)
         .filter(|rest| !rest.is_empty())
         .unwrap_or("/");
     let rewritten = match uri.query() {
         Some(query) => format!("{rest}?{query}"),
         None => rest.to_owned(),
     };
-    match rewritten.parse::<Uri>() {
-        Ok(rewritten) => *request.uri_mut() = rewritten,
-        Err(_) => return StatusCode::BAD_REQUEST.into_response(),
+    let rewritten = rewritten
+        .parse::<Uri>()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+    *request.uri_mut() = rewritten;
+    Ok(())
+}
+
+async fn serve_site(
+    state: &AppState,
+    handler: &dyn SiteRequestHandler,
+    prefix: String,
+    mut request: Request,
+) -> Response {
+    if let Err(status) = strip_mount(&prefix, &mut request) {
+        return status.into_response();
+    }
+    request.extensions_mut().insert(SiteMountPrefix(prefix));
+    handler.serve(state, request).await
+}
+
+async fn serve_app(mounted: Router, prefix: String, mut request: Request) -> Response {
+    if let Err(status) = strip_mount(&prefix, &mut request) {
+        return status.into_response();
     }
     request.extensions_mut().insert(AppMountPrefix(prefix));
     match mounted.oneshot(request).await {

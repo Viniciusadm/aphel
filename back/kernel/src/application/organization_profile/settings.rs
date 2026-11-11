@@ -28,6 +28,8 @@ pub const REDACTED: &str = "[redacted]";
 pub const ROOT_PATH: &str = "/";
 pub const RESERVED_PREFIX: &str = "/_aphel";
 pub const RECOVERY_APP_PATH: &str = "/_aphel/app";
+pub const DEFAULT_SITE_BASE_PATH: &str = "/s";
+const SITE_HOST_MAX_LEN: usize = 253;
 const RESERVED_MOUNT_SEGMENTS: [&str; 3] = ["api", "_aphel", ".well-known"];
 const MOUNT_SEGMENT_MAX_LEN: usize = 40;
 const UPLOAD_LIMIT_MB_CEILING: u64 = 4096;
@@ -49,6 +51,7 @@ pub struct OrganizationConfig {
 #[serde(default)]
 pub struct MountSettings {
     pub app: AppMount,
+    pub site: SiteMount,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -73,6 +76,53 @@ impl AppMount {
     pub fn is_root(&self) -> bool {
         self.prefix().is_empty()
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SiteMount {
+    pub base_path: String,
+    pub host: Option<String>,
+}
+
+impl Default for SiteMount {
+    fn default() -> Self {
+        Self {
+            base_path: DEFAULT_SITE_BASE_PATH.to_owned(),
+            host: None,
+        }
+    }
+}
+
+impl SiteMount {
+    pub fn prefix(&self) -> &str {
+        self.base_path.trim_end_matches('/')
+    }
+}
+
+pub fn normalize_site_host(raw: &str) -> Option<String> {
+    let host = raw.trim().trim_end_matches('/').to_ascii_lowercase();
+    let host = host
+        .strip_prefix("https://")
+        .or_else(|| host.strip_prefix("http://"))
+        .unwrap_or(&host)
+        .to_owned();
+    let (name, port) = match host.rsplit_once(':') {
+        Some((name, port)) => (name, Some(port)),
+        None => (host.as_str(), None),
+    };
+    let valid_name = !name.is_empty()
+        && host.len() <= SITE_HOST_MAX_LEN
+        && name.split('.').all(|label| {
+            !label.is_empty()
+                && !label.starts_with('-')
+                && !label.ends_with('-')
+                && label
+                    .chars()
+                    .all(|character| character.is_ascii_alphanumeric() || character == '-')
+        });
+    let valid_port = port.is_none_or(|port| port.parse::<u16>().is_ok_and(|port| port > 0));
+    (valid_name && valid_port).then_some(host)
 }
 
 pub fn normalize_app_base_path(raw: &str) -> Option<String> {
@@ -122,6 +172,25 @@ impl OrganizationConfig {
             self.public_base_url().trim_end_matches('/'),
             self.app_prefix()
         )
+    }
+
+    pub fn site_base_url(&self) -> String {
+        let site = &self.mounts.site;
+        match &site.host {
+            Some(host) => {
+                let scheme = if self.secure_cookies() {
+                    "https"
+                } else {
+                    "http"
+                };
+                format!("{scheme}://{host}{}", site.prefix())
+            }
+            None => format!(
+                "{}{}",
+                self.public_base_url().trim_end_matches('/'),
+                site.prefix()
+            ),
+        }
     }
 
     pub fn secure_cookies(&self) -> bool {
@@ -280,6 +349,27 @@ pub fn validate_config(config: &OrganizationConfig) -> Vec<FieldViolation> {
         violations.push(FieldViolation::new(
             "mounts.app.base_path",
             "must be / or a single lowercase segment such as /app (letters, digits and hyphens), other than /api and /_aphel",
+        ));
+    }
+    let site = &config.mounts.site;
+    if normalize_app_base_path(&site.base_path).as_deref() != Some(site.base_path.as_str()) {
+        violations.push(FieldViolation::new(
+            "mounts.site.base_path",
+            "must be / or a single lowercase segment such as /s (letters, digits and hyphens), other than /api and /_aphel",
+        ));
+    }
+    if let Some(host) = &site.host
+        && normalize_site_host(host).as_deref() != Some(host.as_str())
+    {
+        violations.push(FieldViolation::new(
+            "mounts.site.host",
+            "must be a host name such as www.example.com, optionally with a port",
+        ));
+    }
+    if site.host.is_none() && site.prefix() == config.mounts.app.prefix() {
+        violations.push(FieldViolation::new(
+            "mounts.site.base_path",
+            "must differ from the app path unless the site has its own host",
         ));
     }
     check_range(
@@ -599,6 +689,8 @@ pub enum SecretChange {
 pub struct UpdateOrganizationConfig {
     pub public_base_url: Option<String>,
     pub app_base_path: Option<String>,
+    pub site_base_path: Option<String>,
+    pub site_host: Option<Option<String>>,
     pub max_upload_mb: Option<u64>,
     pub storage: Option<StorageSettings>,
     pub storage_secret: SecretChange,
@@ -702,9 +794,18 @@ where
         if let Some(base_path) = command.app_base_path {
             next.mounts.app.base_path =
                 normalize_app_base_path(&base_path).unwrap_or_else(|| base_path.trim().to_owned());
-            if next.mounts.app != current.mounts.app {
-                scope.require(&Permission::SYSTEM_MANAGE)?;
-            }
+        }
+        if let Some(base_path) = command.site_base_path {
+            next.mounts.site.base_path =
+                normalize_app_base_path(&base_path).unwrap_or_else(|| base_path.trim().to_owned());
+        }
+        if let Some(host) = command.site_host {
+            next.mounts.site.host = host
+                .map(|host| normalize_site_host(&host).unwrap_or_else(|| host.trim().to_owned()))
+                .filter(|host| !host.is_empty());
+        }
+        if next.mounts != current.mounts {
+            scope.require(&Permission::SYSTEM_MANAGE)?;
         }
         if let Some(max_upload_mb) = command.max_upload_mb {
             next.max_upload_mb = max_upload_mb;

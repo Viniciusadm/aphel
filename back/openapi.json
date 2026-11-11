@@ -82867,6 +82867,9 @@
               "effective_public_base_url",
               "app_base_path",
               "app_base_url",
+              "site_base_path",
+              "site_base_url",
+              "site_available",
               "secure_cookies",
               "max_upload_mb",
               "storage",
@@ -82914,6 +82917,24 @@
               },
               "secure_cookies": {
                 "type": "boolean"
+              },
+              "site_available": {
+                "type": "boolean"
+              },
+              "site_base_path": {
+                "type": "string",
+                "example": "/"
+              },
+              "site_base_url": {
+                "type": "string",
+                "example": "https://www.example.com"
+              },
+              "site_host": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "www.example.com"
               },
               "storage": {
                 "$ref": "#/components/schemas/StorageSettingsDto"
@@ -102348,6 +102369,9 @@
           "effective_public_base_url",
           "app_base_path",
           "app_base_url",
+          "site_base_path",
+          "site_base_url",
+          "site_available",
           "secure_cookies",
           "max_upload_mb",
           "storage",
@@ -102395,6 +102419,24 @@
           },
           "secure_cookies": {
             "type": "boolean"
+          },
+          "site_available": {
+            "type": "boolean"
+          },
+          "site_base_path": {
+            "type": "string",
+            "example": "/"
+          },
+          "site_base_url": {
+            "type": "string",
+            "example": "https://www.example.com"
+          },
+          "site_host": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "www.example.com"
           },
           "storage": {
             "$ref": "#/components/schemas/StorageSettingsDto"
@@ -119677,6 +119719,20 @@
               "string",
               "null"
             ]
+          },
+          "site_base_path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "/"
+          },
+          "site_host": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "www.example.com"
           },
           "storage": {
             "oneOf": [

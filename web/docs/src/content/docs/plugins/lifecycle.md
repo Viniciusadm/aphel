@@ -60,6 +60,7 @@ The installer runs these steps in order and stops at the first failure.
 | Package | Size, file count, paths, zip, web entry | `422 plugin_package_invalid` |
 | Manifest | Every rule in [Manifest](/_aphel/docs/plugins/manifest/) | `422 plugin_manifest_invalid`, `422 plugin_backend_missing` |
 | Backend | The component compiles and has the `aphel:plugin` world | `422 plugin_backend_invalid` |
+| Site | `[site]` pages and public entities, template syntax, page paths free among installed plugins | `422 plugin_site_invalid`, `409 site_route_conflict` |
 | Presets | Every key in `role_presets` is a preset of the package | `422 plugin_role_preset_unknown` |
 | Dependents | For an enabled plugin being replaced: other plugins must not lose a contract or operation they use | `409 plugin_has_dependents` |
 | Schema | Entity storage and indexes; required contracts exist; required permissions belong to enabled modules; reference permissions; field type changes; key conflicts; unique values | `422 plugin_contract_unavailable`, `422 plugin_dependency_unavailable`, `422 plugin_reference_permission_required`, `409 plugin_field_type_changed`, `409 plugin_object_conflict`, `409 plugin_field_conflict`, `409 plugin_field_unique_conflict` |

@@ -228,6 +228,10 @@ See [Automation and widgets](/_aphel/docs/plugins/automation-and-widgets/).
 
 Declaring `[web]` requires an explicit acknowledgement on every install, upgrade and enable (`plugin_web_unacknowledged`). See [Web bundle](/_aphel/docs/plugins/web-bundle/), [Public web apps](/_aphel/docs/plugins/public-web-apps/) and [Security model](/_aphel/docs/plugins/security-model/).
 
+### `[site]`
+
+`[[site.public]]` lists the entities and fields the public site may show, with the conditions a record must meet (`where`). `[[site.pages]]` declares server-rendered pages backed by templates under `site/` in the package. Both need the `site` module. See [Site pages](/_aphel/docs/plugins/site-pages/) for every key.
+
 ## `[provides]`, `[uses]` and `[[contribute]]`
 
 These three tables reject unknown keys.

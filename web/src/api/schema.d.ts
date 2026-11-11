@@ -13064,6 +13064,13 @@ export interface components {
                 /** @example https://app.example.com */
                 public_base_url?: string | null;
                 secure_cookies: boolean;
+                site_available: boolean;
+                /** @example / */
+                site_base_path: string;
+                /** @example https://www.example.com */
+                site_base_url: string;
+                /** @example www.example.com */
+                site_host?: string | null;
                 storage: components["schemas"]["StorageSettingsDto"];
                 storage_secret_configured: boolean;
             } & {
@@ -18158,6 +18165,13 @@ export interface components {
             /** @example https://app.example.com */
             public_base_url?: string | null;
             secure_cookies: boolean;
+            site_available: boolean;
+            /** @example / */
+            site_base_path: string;
+            /** @example https://www.example.com */
+            site_base_url: string;
+            /** @example www.example.com */
+            site_host?: string | null;
             storage: components["schemas"]["StorageSettingsDto"];
             storage_secret_configured: boolean;
         } & {
@@ -22502,6 +22516,10 @@ export interface components {
             /** Format: int64 */
             max_upload_mb?: number | null;
             public_base_url?: string | null;
+            /** @example / */
+            site_base_path?: string | null;
+            /** @example www.example.com */
+            site_host?: string | null;
             storage?: null | components["schemas"]["StorageSettingsDto"];
             storage_secret_access_key?: string | null;
         } & {

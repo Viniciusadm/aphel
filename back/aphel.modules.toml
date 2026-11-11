@@ -68,6 +68,7 @@ messaging = { path = "modules/messaging" }
 calendar = { path = "modules/calendar" }
 
 documents = { path = "modules/documents" }
+site = { path = "modules/site" }
 
 [build]
 blueprints = ["agency", "consultancy", "crm", "freelancer", "other", "real_estate", "saas", "sales"]

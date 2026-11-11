@@ -206,6 +206,7 @@ dependencies = [
  "aphel-mod-search",
  "aphel-mod-segments",
  "aphel-mod-sequences",
+ "aphel-mod-site",
  "aphel-mod-sso",
  "aphel-mod-tagging",
  "aphel-mod-tasks",
@@ -486,6 +487,18 @@ name = "aphel-contract-sequences"
 version = "0.1.0"
 dependencies = [
  "aphel-contract",
+]
+
+[[package]]
+name = "aphel-contract-site"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "aphel-kernel",
+ "async-trait",
+ "minijinja",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1780,6 +1793,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-mod-site"
+version = "0.1.0"
+dependencies = [
+ "ammonia",
+ "aphel-contract-site",
+ "aphel-kernel",
+ "aphel-sdk",
+ "axum",
+ "chrono",
+ "futures",
+ "minijinja",
+ "pulldown-cmark",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "aphel-mod-sso"
 version = "0.1.0"
 dependencies = [
@@ -1928,6 +1961,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
+ "aphel-contract-site",
  "aphel-kernel",
  "aphel-sdk",
  "async-trait",
@@ -4181,6 +4215,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "memo-map"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5449c8c750f1a07ea702bbd212bd999fceece9b3d1508b17023b3e174583124b"
+
+[[package]]
 name = "mimalloc"
 version = "0.1.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4203,6 +4243,16 @@ checksum = "f7c44f8e672c00fe5308fa235f821cb4198414e1c77935c1ab6948d3fd78550e"
 dependencies = [
  "mime",
  "unicase",
+]
+
+[[package]]
+name = "minijinja"
+version = "2.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86886cf6dbf4e614b19c9a1eec9775f021869d7eadde0fc73921a81b90c9b4c9"
+dependencies = [
+ "memo-map",
+ "serde",
 ]
 
 [[package]]
@@ -4745,6 +4795,24 @@ checksum = "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
 dependencies = [
  "unicode-ident",
 ]
+
+[[package]]
+name = "pulldown-cmark"
+version = "0.13.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3db2be46835f013dd3f4fa7f5f7402c537787b54ebb6fe2b94bbdd7e2669bb7b"
+dependencies = [
+ "bitflags",
+ "memchr",
+ "pulldown-cmark-escape",
+ "unicase",
+]
+
+[[package]]
+name = "pulldown-cmark-escape"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "007d8adb5ddab6f8e3f491ac63566a7d5002cc7ed73901f72057943fa71ae1ae"
 
 [[package]]
 name = "pulley-interpreter"

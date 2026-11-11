@@ -47,6 +47,7 @@ aphel-contract-workflow = { path = "contracts/workflow" }
 aphel-contract-party = { path = "contracts/party" }
 aphel-contract-crm = { path = "contracts/crm" }
 aphel-contract-tagging = { path = "contracts/tagging" }
+aphel-contract-site = { path = "contracts/site" }
 aphel-sdk = { path = "sdk" }
 semver = "1"
 mimalloc = "0.1"
@@ -98,6 +99,8 @@ libc = "0.2"
 async-imap = { version = "0.12", default-features = false, features = ["runtime-tokio"] }
 mail-parser = "0.11"
 ammonia = "4"
+minijinja = { version = "2", features = ["fuel"] }
+pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
 webpki-roots = "1"

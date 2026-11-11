@@ -55,4 +55,6 @@ pub use settings::{module_secret_key, module_settings};
 pub use worker::{WorkerEnv, WorkerParts};
 
 pub mod runtime_catalog;
+pub(crate) mod site_mount;
+pub use site_mount::{SiteMountPrefix, SiteRequestHandler};
 pub mod toggle_guard;

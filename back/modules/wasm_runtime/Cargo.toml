@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 aphel-contract-automation.workspace = true
 aphel-contract-crm.workspace = true
+aphel-contract-site.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 async-trait.workspace = true

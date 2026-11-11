@@ -126,6 +126,8 @@ Settings that live in the database are edited under Settings in the app. They re
 | --- | --- | --- | --- |
 | General | Public address | `http://localhost:5173` until set | The base of every link in email (invitations, password resets, notifications). When it starts with `https://`, the session cookie is marked `Secure`. The installer fills it with the address your browser used. |
 | General | App path | `/` | Where the internal app is served: `/` or a single segment such as `/app` (lowercase letters, digits, hyphens; not `/api` or `/_aphel`). With a segment, the other paths stay free for a public site and `/` redirects to the app. Links in email use the public address plus this path. Changing it also requires `system.manage`. The app always answers at `/_aphel/app/` too, and `aphel mounts reset` moves it back to `/`. |
+| General | Site domain | none | Shown when the `site` module is enabled. A host name such as `www.example.com`, optionally with a port, pointed at this server. On that host, every path outside `/api` and `/_aphel` belongs to the site. Changing it requires `system.manage`. |
+| General | Site path | `/s` | Where plugin site pages answer: `/` or one segment. Without a site domain it must differ from the app path; the longer path wins, so the app at `/app` and the site at `/` share the address. Changing it requires `system.manage`. |
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |
 | File storage | Type | Local disk, folder `./storage` | `Local disk` or `S3 compatible`. The folder is relative to the working directory of the server and the worker, which must see the same folder. |
 | File storage | S3 options | bucket `aphel`, region `us-east-1`, path-style on, plain http off | Bucket, region, optional endpoint (MinIO, SeaweedFS, R2, B2), access key, secret key. The secret key goes to the secret vault. A test button writes, reads and deletes a small object. |
@@ -146,7 +148,7 @@ The Webhooks and Catalog screens exist only when the corresponding modules are c
 
 | Topic | Rule |
 | --- | --- |
-| Public address, app path, upload limit, file storage, API token limits, webhook delivery, catalog | Only the organization setting exists. There is no environment equivalent. |
+| Public address, app path, site path and domain, upload limit, file storage, API token limits, webhook delivery, catalog | Only the organization setting exists. There is no environment equivalent. |
 | Outgoing email (SMTP) | Per value, the organization setting wins when its SMTP host is set. A value left empty there falls back to the matching `SMTP_*` variable. When no host is set in the app, everything comes from the environment. The password is read from the secret vault first, then from `SMTP_PASSWORD`. |
 | Private-network webhooks | The environment variable `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` decides. The Delivery screen cannot override it. |
 | Worker, scheduler, health, lockout, email synchronization | Only the environment. |

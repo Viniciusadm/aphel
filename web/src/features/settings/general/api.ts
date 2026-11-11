@@ -47,6 +47,10 @@ export interface OrganizationConfiguration {
   effective_public_base_url: string
   app_base_path: string
   app_base_url: string
+  site_base_path: string
+  site_host: string | null
+  site_base_url: string
+  site_available: boolean
   secure_cookies: boolean
   max_upload_mb: number
   storage: StorageSettings
@@ -64,6 +68,8 @@ export interface UpdateOrganizationConfiguration {
   mail_password?: string | null
   public_base_url?: string
   app_base_path?: string
+  site_base_path?: string
+  site_host?: string | null
   max_upload_mb?: number
   storage?: StorageSettings
   storage_secret_access_key?: string | null

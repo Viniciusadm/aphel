@@ -5,7 +5,7 @@ sidebar:
   order: 54
 ---
 
-A public web app is a folder of static files in your package that Aphel serves at `/p/<key>/`. Use it for pages that should not look like part of the Aphel interface: a customer-facing form, a status page, a booking page or a small tool. It is separate from the [web bundle](/_aphel/docs/plugins/web-bundle/), which plugs screens into the signed-in application.
+A public web app is a folder of static files in your package that Aphel serves at `/p/<key>/`. Use it for pages that should not look like part of the Aphel interface: a customer-facing form, a status page, a booking page or a small tool. It is separate from the [web bundle](/_aphel/docs/plugins/web-bundle/), which plugs screens into the signed-in application. For content that visitors read and search engines index (posts, products), use [site pages](/_aphel/docs/plugins/site-pages/) instead: they are rendered on the server from your records.
 
 ## Declaring it
 

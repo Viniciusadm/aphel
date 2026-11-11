@@ -817,6 +817,8 @@ The tables below list every code that the platform and the built-in modules defi
 | `plugin_raw_body_outside_route` | 409 | Respond-bytes is only available while handling a route. |
 | `plugin_raw_body_too_large` | 413 | The route body exceeds the maximum size. |
 | `plugin_read_only` | 403 | This plugin execution cannot produce side effects. |
+| `plugin_site_invalid` | 422 | The `[site]` section or the `site/` templates of the package break a rule; the message lists every problem. |
+| `site_route_conflict` | 409 | A site page of the plugin has the same path shape as a page of another installed plugin. |
 | `plugin_reference_permission_required` | 422 | A reference field requires a permission the plugin does not declare. |
 | `plugin_role_preset_unknown` | 422 | Unknown role presets. |
 | `plugin_route_not_found` | 404 | The plugin has no route for that method and path. |

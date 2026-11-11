@@ -18,6 +18,7 @@ recommended = [
   "saved_views",
   "privacy",
   "trash",
+  "site",
 ]
 
 [navigation]

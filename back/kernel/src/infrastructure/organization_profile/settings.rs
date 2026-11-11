@@ -8,7 +8,7 @@ use sqlx::types::Json;
 use sqlx::{MySqlPool, Row};
 
 use crate::application::organization_profile::{
-    OrganizationConfig, OrganizationConfigCatalog, OrganizationConfigPorts,
+    DEFAULT_SITE_BASE_PATH, OrganizationConfig, OrganizationConfigCatalog, OrganizationConfigPorts,
     OrganizationConfigRepository, OrganizationConfigSource, OrganizationConfigUseCases, ROOT_PATH,
     SecretChange, UpdateOrganizationConfig,
 };
@@ -92,6 +92,12 @@ pub async fn reset_app_mount(
     audit: SharedAuditLog,
     catalog: Arc<OrganizationConfigCatalog>,
 ) -> Result<String, AppError> {
+    let current = MySqlOrganizationConfigRepository::new(pool.clone())
+        .find()
+        .await?
+        .unwrap_or_default();
+    let site_on_root =
+        current.mounts.site.host.is_none() && current.mounts.site.prefix().is_empty();
     let use_cases = OrganizationConfigUseCases::new(MySqlOrganizationConfigPorts::new(
         pool, secrets, events, audit, catalog,
     ));
@@ -101,6 +107,8 @@ pub async fn reset_app_mount(
             UpdateOrganizationConfig {
                 public_base_url: None,
                 app_base_path: Some(ROOT_PATH.to_owned()),
+                site_base_path: site_on_root.then(|| DEFAULT_SITE_BASE_PATH.to_owned()),
+                site_host: None,
                 max_upload_mb: None,
                 storage: None,
                 storage_secret: SecretChange::Keep,

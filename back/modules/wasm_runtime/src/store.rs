@@ -157,6 +157,23 @@ pub async fn file(
     .transpose()
 }
 
+pub async fn files_under(
+    pool: &MySqlPool,
+    key: &str,
+    directory: &str,
+) -> Result<Vec<(String, Vec<u8>)>, AppError> {
+    let rows = sqlx::query(
+        "SELECT path, content FROM plugins_files WHERE plugin_key = ? AND path LIKE ? ORDER BY path",
+    )
+    .bind(key)
+    .bind(format!("{}/%", directory.trim_end_matches('/')))
+    .fetch_all(pool)
+    .await?;
+    rows.into_iter()
+        .map(|row| Ok((row.try_get("path")?, row.try_get("content")?)))
+        .collect()
+}
+
 pub async fn backend(pool: &MySqlPool, key: &str) -> Result<Option<Vec<u8>>, AppError> {
     Ok(sqlx::query_scalar(
         "SELECT content FROM plugins_files WHERE plugin_key = ? AND path = 'backend.wasm'",

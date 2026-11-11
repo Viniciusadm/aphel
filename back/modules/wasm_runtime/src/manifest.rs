@@ -138,6 +138,8 @@ pub struct PluginManifest {
     #[serde(default)]
     pub web: Option<WebSpec>,
     #[serde(default)]
+    pub site: Option<SiteSpec>,
+    #[serde(default)]
     pub menu: MenuSpec,
     #[serde(default)]
     pub ui: Option<crate::ui::UiSpec>,
@@ -146,6 +148,53 @@ pub struct PluginManifest {
 }
 
 pub const OWN_ENTITIES_VISIBILITY: &[&str] = &["visible", "hidden"];
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteSpec {
+    #[serde(default)]
+    pub public: Vec<SitePublicSpec>,
+    #[serde(default)]
+    pub pages: Vec<SitePageSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SitePublicSpec {
+    pub entity: String,
+    pub fields: Vec<String>,
+    #[serde(default, rename = "where")]
+    pub conditions: std::collections::BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SitePageSpec {
+    pub key: String,
+    pub path: String,
+    pub template: String,
+    #[serde(default)]
+    pub entity: Option<String>,
+    #[serde(default, rename = "match")]
+    pub match_field: Option<String>,
+    #[serde(default)]
+    pub list: Option<SiteListSpec>,
+    #[serde(default)]
+    pub title: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteListSpec {
+    #[serde(default)]
+    pub sort: Option<String>,
+    #[serde(default = "default_site_per_page")]
+    pub per_page: u64,
+}
+
+fn default_site_per_page() -> u64 {
+    10
+}
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, utoipa::ToSchema)]
 #[serde(deny_unknown_fields)]

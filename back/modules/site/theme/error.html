@@ -1,0 +1,7 @@
+{% extends "layout.html" %}
+{% block title %}{{ site.texts.error_title }} · {{ site.name }}{% endblock %}
+{% block content %}
+<h1>{{ site.texts.error_title }}</h1>
+<p class="muted">{{ site.texts.error_body }}</p>
+<p><a href="{{ site.home }}">{{ site.texts.back_home }}</a></p>
+{% endblock %}

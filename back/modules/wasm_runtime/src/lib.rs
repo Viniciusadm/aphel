@@ -26,6 +26,7 @@ pub mod runtime;
 pub mod schedule;
 pub mod schema;
 pub mod signing;
+pub(crate) mod site;
 pub mod store;
 pub mod takeover;
 pub mod ui;
@@ -136,6 +137,9 @@ impl Module for WasmRuntimeModule {
         );
         app.contribute::<dyn aphel_sdk::privacy::DataSubjectSource>(Arc::new(
             data_subject::PluginDataSubjects,
+        ));
+        app.contribute::<dyn aphel_contract_site::SiteContentSource>(Arc::new(
+            site::PluginSiteContent,
         ));
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
             .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers))

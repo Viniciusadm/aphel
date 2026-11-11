@@ -120,6 +120,13 @@ pub struct OrganizationSettingsResponse {
     pub app_base_path: String,
     #[schema(example = "https://app.example.com/app")]
     pub app_base_url: String,
+    #[schema(example = "/")]
+    pub site_base_path: String,
+    #[schema(example = "www.example.com")]
+    pub site_host: Option<String>,
+    #[schema(example = "https://www.example.com")]
+    pub site_base_url: String,
+    pub site_available: bool,
     pub secure_cookies: bool,
     pub max_upload_mb: u64,
     pub storage: StorageSettingsDto,
@@ -139,6 +146,13 @@ impl From<OrganizationConfigView> for OrganizationSettingsResponse {
             effective_public_base_url: config.public_base_url().to_owned(),
             app_base_url: config.app_base_url(),
             app_base_path: config.mounts.app.base_path.clone(),
+            site_base_url: config.site_base_url(),
+            site_base_path: config.mounts.site.base_path.clone(),
+            site_host: config.mounts.site.host.clone(),
+            site_available: crate::modules::try_app().is_some_and(|app| {
+                !app.contributions::<dyn crate::modules::SiteRequestHandler>()
+                    .is_empty()
+            }),
             secure_cookies: config.secure_cookies(),
             public_base_url: config.public_base_url,
             max_upload_mb: config.max_upload_mb,
@@ -158,6 +172,11 @@ pub struct UpdateOrganizationSettingsRequest {
     pub public_base_url: Option<String>,
     #[schema(example = "/app")]
     pub app_base_path: Option<String>,
+    #[schema(example = "/")]
+    pub site_base_path: Option<String>,
+    #[serde(default, deserialize_with = "double_option")]
+    #[schema(value_type = Option<String>, nullable = true, example = "www.example.com")]
+    pub site_host: Option<Option<String>>,
     #[schema(minimum = 1, maximum = 4096)]
     pub max_upload_mb: Option<u64>,
     pub storage: Option<StorageSettingsDto>,
@@ -184,6 +203,8 @@ impl UpdateOrganizationSettingsRequest {
         UpdateOrganizationConfig {
             public_base_url: self.public_base_url,
             app_base_path: self.app_base_path,
+            site_base_path: self.site_base_path,
+            site_host: self.site_host,
             max_upload_mb: self.max_upload_mb,
             storage: self.storage.map(Into::into),
             storage_secret,
