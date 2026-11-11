@@ -10,6 +10,7 @@ mod openapi;
 mod probe;
 mod secrets;
 mod serve;
+mod tenants;
 mod upgrade;
 mod worker;
 
@@ -19,14 +20,19 @@ use clap::{Args, CommandFactory, FromArgMatches, Parser, Subcommand};
 use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
-use aphel_kernel::config::AppConfig;
+use std::sync::Arc;
+
+use aphel_kernel::config::{AppConfig, MultiTenancyConfig, Tenancy};
+use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::ModuleCommand;
+use aphel_kernel::tenancy::{ControlPlane, TenantRuntime};
 pub(crate) use catalog::CatalogArgs;
 pub(crate) use db::DbCommand;
 pub(crate) use healthcheck::HealthcheckArgs;
 pub(crate) use modules::ModulesCommand;
 pub(crate) use mounts::MountsCommand;
 pub(crate) use secrets::SecretsCommand;
+pub(crate) use tenants::TenantsCommand;
 pub(crate) use upgrade::UpgradeArgs;
 
 pub(crate) type CliResult = Result<(), Box<dyn Error + Send + Sync>>;
@@ -47,6 +53,13 @@ impl Error for AlreadyReported {}
 pub(crate) struct Cli {
     #[command(subcommand)]
     pub(crate) command: Option<Command>,
+    #[arg(
+        long,
+        global = true,
+        value_name = "SLUG",
+        help = "Tenant to act on when CONTROL_DATABASE_URL is set (migrate, doctor, modules, mounts, secrets rotate, search, org, demo)"
+    )]
+    pub(crate) tenant: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
@@ -55,7 +68,9 @@ pub(crate) enum Command {
     Serve(ServeArgs),
     #[command(about = "Run the background job worker and the job scheduler")]
     Worker,
-    #[command(about = "Apply pending database migrations and exit")]
+    #[command(
+        about = "Apply pending database migrations and exit (with CONTROL_DATABASE_URL: the control database and every tenant, or only --tenant)"
+    )]
     Migrate,
     #[command(subcommand, about = "Maintain the configured database")]
     Db(DbCommand),
@@ -82,6 +97,11 @@ pub(crate) enum Command {
     Modules(ModulesCommand),
     #[command(subcommand, about = "Manage where the internal app is served")]
     Mounts(MountsCommand),
+    #[command(
+        subcommand,
+        about = "Create, list, suspend, resume, delete and migrate the tenants of a multi-tenant installation"
+    )]
+    Tenants(TenantsCommand),
     #[command(
         about = "List everything this build offers to plugins: plugins, operations, hooks, events, permissions"
     )]
@@ -149,9 +169,80 @@ pub(crate) async fn run() -> CliResult {
         Err(err) => warn!("failed to load .env file: {err}"),
     }
 
-    let config = AppConfig::from_env();
-    aphel_kernel::tenancy::install_mode((&config.tenancy()?).into())?;
+    let mut config = AppConfig::from_env();
+    let tenancy = config.tenancy()?;
+    aphel_kernel::tenancy::install_mode((&tenancy).into())?;
+    let tenant = matches.get_one::<String>("tenant").cloned();
+    let name = matches.subcommand_name().unwrap_or("serve").to_owned();
+    let scoped = match (&tenancy, tenant.as_deref()) {
+        (Tenancy::Single, Some(_)) => {
+            return Err(
+                AppError::Configuration("--tenant needs CONTROL_DATABASE_URL".to_owned()).into(),
+            );
+        }
+        (Tenancy::Multi(_), _) if name == "migrate" => None,
+        (Tenancy::Multi(multi), Some(slug)) if acts_on_one_tenant(&matches) => {
+            Some(open_tenant(&mut config, multi, slug).await?)
+        }
+        (Tenancy::Multi(_), Some(_)) => {
+            return Err(
+                AppError::Configuration(format!("--tenant does not apply to `{name}`")).into(),
+            );
+        }
+        (Tenancy::Multi(_), None) if acts_on_one_tenant(&matches) => {
+            return Err(AppError::Configuration(format!(
+                "`{name}` acts on one tenant: pass --tenant <slug>"
+            ))
+            .into());
+        }
+        (Tenancy::Multi(_), None) if matches!(name.as_str(), "db" | "upgrade") => {
+            return Err(AppError::Configuration(format!(
+                "`{name}` works on a single-company installation; use `aphel tenants` with CONTROL_DATABASE_URL"
+            ))
+            .into());
+        }
+        _ => None,
+    };
+    let dispatched = dispatch(config, &matches, &commands, tenant);
+    match scoped {
+        Some(runtime) => {
+            let result = aphel_kernel::tenancy::scope(runtime.clone(), dispatched).await;
+            runtime.stop();
+            result
+        }
+        None => dispatched.await,
+    }
+}
 
+fn acts_on_one_tenant(matches: &clap::ArgMatches) -> bool {
+    match matches.subcommand() {
+        Some(("doctor" | "modules" | "mounts" | "search" | "org" | "demo", _)) => true,
+        Some(("secrets", arguments)) => arguments.subcommand_name() == Some("rotate"),
+        _ => false,
+    }
+}
+
+async fn open_tenant(
+    config: &mut AppConfig,
+    multi: &MultiTenancyConfig,
+    slug: &str,
+) -> Result<Arc<TenantRuntime>, Box<dyn Error + Send + Sync>> {
+    let control = ControlPlane::connect(multi).await?;
+    let tenant = control.require_tenant(slug).await?;
+    let runtime = TenantRuntime::open(&control, config, tenant.clone()).await?;
+    config.database_url = Some(control.tenant_database_url(&tenant));
+    config.control_database_url = None;
+    config.console_host = None;
+    control.close().await;
+    Ok(runtime)
+}
+
+async fn dispatch(
+    config: AppConfig,
+    matches: &clap::ArgMatches,
+    commands: &[(&'static str, Arc<dyn ModuleCommand>)],
+    tenant: Option<String>,
+) -> CliResult {
     if let Some((name, arguments)) = matches.subcommand()
         && let Some((_, module_command)) = commands
             .iter()
@@ -159,11 +250,11 @@ pub(crate) async fn run() -> CliResult {
     {
         return module_command.run(config, arguments).await;
     }
-    let cli = Cli::from_arg_matches(&matches)?;
+    let cli = Cli::from_arg_matches(matches)?;
     match cli.command() {
         Command::Serve(args) => serve::run(config, args).await,
         Command::Worker => worker::run(config).await,
-        Command::Migrate => migrate::run(config).await,
+        Command::Migrate => migrate::run(config, tenant.as_deref()).await,
         Command::Db(command) => db::run(config, command).await,
         Command::Openapi => openapi::run(),
         Command::EntitySchema(args) => entity_schema::run(args),
@@ -173,6 +264,7 @@ pub(crate) async fn run() -> CliResult {
         Command::Healthcheck(args) => healthcheck::run(config, args).await,
         Command::Modules(command) => modules::run(config, command).await,
         Command::Mounts(command) => mounts::run(config, command).await,
+        Command::Tenants(command) => tenants::run(config, command).await,
         Command::Catalog(args) => catalog::run(args),
         Command::Probe => unreachable!("the probe runs before configuration is loaded"),
         Command::Plugin(_) => unreachable!("plugin commands run before configuration is loaded"),

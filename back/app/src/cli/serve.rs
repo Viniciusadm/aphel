@@ -40,8 +40,13 @@ async fn run_multi(config: AppConfig, tenancy: MultiTenancyConfig, args: ServeAr
     tenancy::ensure_multi_tenant_ready()?;
     let control = ControlPlane::connect(&tenancy).await?;
     if config.run_migrations {
-        info!("running control database migrations");
-        control.migrate().await?;
+        info!("running control and tenant database migrations");
+        let summary = tenancy::migrate_all(&control).await?;
+        info!(
+            migrated = summary.migrated,
+            failed = summary.failed,
+            "tenant migrations finished"
+        );
     }
     let directory = TenantDirectory::load(control.pool().clone()).await?;
     let runtimes = TenantRuntimes::new(control.clone(), config.clone());

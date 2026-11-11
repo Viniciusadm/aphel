@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -65,26 +66,52 @@ impl DynamicFileStorage {
     }
 }
 
+fn tenant_key(key: &str) -> Result<Cow<'_, str>, AppError> {
+    match crate::tenancy::current() {
+        Some(tenant) => Ok(Cow::Owned(format!("{}/{key}", tenant.tenant().slug))),
+        None if crate::tenancy::is_multi() => Err(crate::tenancy::outside_scope()),
+        None => Ok(Cow::Borrowed(key)),
+    }
+}
+
 #[async_trait]
 impl FileStorage for DynamicFileStorage {
     async fn put(&self, key: &str, content: Bytes) -> Result<(), AppError> {
-        self.current().await?.put(key, content).await
+        let key = tenant_key(key)?;
+        self.current().await?.put(&key, content).await
     }
 
     async fn get_stream(&self, key: &str) -> Result<ByteStream, AppError> {
-        self.current().await?.get_stream(key).await
+        let key = tenant_key(key)?;
+        self.current().await?.get_stream(&key).await
     }
 
     async fn delete(&self, key: &str) -> Result<(), AppError> {
-        self.current().await?.delete(key).await
+        let key = tenant_key(key)?;
+        self.current().await?.delete(&key).await
     }
 
     async fn put_stream(&self, key: &str, content: ByteStream) -> Result<(), AppError> {
-        self.current().await?.put_stream(key, content).await
+        let key = tenant_key(key)?;
+        self.current().await?.put_stream(&key, content).await
     }
 
     async fn presigned_get(&self, key: &str, ttl: Duration) -> Result<Option<String>, AppError> {
-        self.current().await?.presigned_get(key, ttl).await
+        let key = tenant_key(key)?;
+        self.current().await?.presigned_get(&key, ttl).await
+    }
+
+    async fn delete_prefix(&self, prefix: &str) -> Result<u64, AppError> {
+        let Some(tenant) = crate::tenancy::current() else {
+            return Err(AppError::Configuration(
+                "file storage can only be cleared by prefix for a tenant".to_owned(),
+            ));
+        };
+        let prefix = match prefix.trim_matches('/') {
+            "" => tenant.tenant().slug.clone(),
+            rest => format!("{}/{rest}", tenant.tenant().slug),
+        };
+        self.current().await?.delete_prefix(&prefix).await
     }
 }
 

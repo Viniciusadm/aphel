@@ -115,6 +115,22 @@ impl FileStorage for ObjectFileStorage {
         Ok(())
     }
 
+    async fn delete_prefix(&self, prefix: &str) -> Result<u64, AppError> {
+        let prefix = location(prefix)?;
+        let listed = self
+            .store
+            .list(Some(&prefix))
+            .map_ok(|meta| meta.location)
+            .boxed();
+        let mut deleted = self.store.delete_stream(listed);
+        let mut count = 0;
+        while let Some(result) = deleted.next().await {
+            result.map_err(storage_error)?;
+            count += 1;
+        }
+        Ok(count)
+    }
+
     async fn put_stream(&self, key: &str, mut content: ByteStream) -> Result<(), AppError> {
         let upload = self
             .store

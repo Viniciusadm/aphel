@@ -29,6 +29,12 @@ pub trait FileStorage: Send + Sync {
     async fn presigned_get(&self, _key: &str, _ttl: Duration) -> Result<Option<String>, AppError> {
         Ok(None)
     }
+
+    async fn delete_prefix(&self, _prefix: &str) -> Result<u64, AppError> {
+        Err(AppError::Configuration(
+            "this file storage cannot delete by prefix".to_owned(),
+        ))
+    }
 }
 
 pub type SharedFileStorage = Arc<dyn FileStorage>;

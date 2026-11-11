@@ -109,9 +109,9 @@ async fn install(
     JsonBody(request): JsonBody<InstallRequest>,
 ) -> Result<Response, ApiError> {
     let password = Secret::new(request.admin_password);
-    let business = request.business.clone();
-    let installation = use_cases(&state)?
-        .install(InstallCommand {
+    let installation = install_organization(
+        &state,
+        InstallCommand {
             modules: request.modules,
             module_settings: request.module_settings,
             organization_name: request.organization_name,
@@ -124,8 +124,36 @@ async fn install(
             business: request.business,
             public_base_url: request.public_base_url,
             ip: client.ip.clone(),
+        },
+    )
+    .await?;
+    let session = state
+        .auth_use_cases()?
+        .login(LoginCommand {
+            email: installation.admin_email,
+            password,
+            client,
         })
-        .await?;
+        .await?
+        .into_session()?;
+    let cookie = session_cookie::issue(
+        &session.token,
+        session.expires_at,
+        Utc::now(),
+        state.secure_cookies(),
+    )?;
+    let mut response =
+        (StatusCode::CREATED, Json(MeResponse::from(session.account))).into_response();
+    response.headers_mut().insert(header::SET_COOKIE, cookie);
+    Ok(response)
+}
+
+pub(crate) async fn install_organization(
+    state: &AppState,
+    command: InstallCommand,
+) -> Result<crate::application::installer::Installation, AppError> {
+    let business = command.business.clone();
+    let installation = use_cases(state)?.install(command).await?;
     state.app.enabled().refresh(&state.db()?).await?;
     let pool = state.db()?;
     let scope = crate::infrastructure::repositories::mysql_access::build_requester_scope(
@@ -154,27 +182,9 @@ async fn install(
         }
     }
     state.organization_config.refresh().await;
-    let outcome = apply_blueprint(&state, &scope, business.as_ref()).await;
-    record_configuration(&state, outcome).await;
-    let session = state
-        .auth_use_cases()?
-        .login(LoginCommand {
-            email: installation.admin_email,
-            password,
-            client,
-        })
-        .await?
-        .into_session()?;
-    let cookie = session_cookie::issue(
-        &session.token,
-        session.expires_at,
-        Utc::now(),
-        state.secure_cookies(),
-    )?;
-    let mut response =
-        (StatusCode::CREATED, Json(MeResponse::from(session.account))).into_response();
-    response.headers_mut().insert(header::SET_COOKIE, cookie);
-    Ok(response)
+    let outcome = apply_blueprint(state, &scope, business.as_ref()).await;
+    record_configuration(state, outcome).await;
+    Ok(installation)
 }
 
 fn use_cases(state: &AppState) -> Result<InstallerUseCases<MySqlInstallerPorts>, AppError> {

@@ -5,7 +5,7 @@ use sqlx::mysql::MySqlConnectOptions;
 use crate::config::MultiTenancyConfig;
 use crate::database;
 use crate::errors::AppError;
-use crate::tenancy::Tenant;
+use crate::tenancy::{Tenant, TenantStatus};
 
 static CONTROL_MIGRATOR: Migrator = sqlx::migrate!("./control_migrations");
 
@@ -14,6 +14,7 @@ const CONTROL_MAX_CONNECTIONS: u32 = 5;
 #[derive(Clone)]
 pub struct ControlPlane {
     pool: MySqlPool,
+    url: String,
     server: MySqlConnectOptions,
     tenant_max_connections: u32,
 }
@@ -31,6 +32,7 @@ impl ControlPlane {
         let pool = database::pool::connect_with(server.clone(), CONTROL_MAX_CONNECTIONS).await?;
         Ok(Self {
             pool,
+            url: config.control_database_url.clone(),
             server,
             tenant_max_connections: config.tenant_max_connections,
         })
@@ -53,6 +55,63 @@ impl ControlPlane {
             self.tenant_max_connections,
         )
         .await?)
+    }
+
+    pub fn control_database_name(&self) -> &str {
+        self.server.get_database().unwrap_or_default()
+    }
+
+    pub fn tenant_database_name(&self, slug: &str) -> String {
+        format!(
+            "{}_{}",
+            self.control_database_name(),
+            slug.replace('-', "_")
+        )
+    }
+
+    pub fn tenant_database_url(&self, tenant: &Tenant) -> String {
+        let (scheme, rest) = self.url.split_once("://").unwrap_or(("mysql", &self.url));
+        let authority_end = rest.find('/').unwrap_or(rest.len());
+        let query = rest[authority_end..]
+            .find('?')
+            .map(|start| &rest[authority_end + start..])
+            .unwrap_or_default();
+        format!(
+            "{scheme}://{}/{}{query}",
+            &rest[..authority_end],
+            tenant.database_name
+        )
+    }
+
+    pub async fn find_tenant(&self, slug: &str) -> Result<Option<Tenant>, AppError> {
+        let row: Option<(String, String, String, String, String)> = sqlx::query_as(
+            "SELECT id, slug, name, database_name, status FROM tenants WHERE slug = ?",
+        )
+        .bind(slug)
+        .fetch_optional(&self.pool)
+        .await?;
+        row.map(|(id, slug, name, database_name, status)| {
+            Ok(Tenant {
+                id: uuid::Uuid::parse_str(&id)
+                    .map_err(|_| AppError::Persistence(format!("invalid tenant id {id:?}")))?,
+                slug,
+                name,
+                database_name,
+                status: TenantStatus::parse(&status).ok_or_else(|| {
+                    AppError::Persistence(format!("invalid tenant status {status:?}"))
+                })?,
+            })
+        })
+        .transpose()
+    }
+
+    pub async fn require_tenant(&self, slug: &str) -> Result<Tenant, AppError> {
+        self.find_tenant(slug).await?.ok_or_else(|| {
+            AppError::not_found_code(
+                "tenant_not_found",
+                format!("no tenant has the slug {slug:?}"),
+            )
+        })
     }
 
     pub async fn close(&self) {

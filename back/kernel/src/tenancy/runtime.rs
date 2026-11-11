@@ -32,6 +32,25 @@ pub struct TenantRuntime {
 }
 
 impl TenantRuntime {
+    pub(super) fn bare(tenant: Arc<Tenant>) -> Arc<Self> {
+        Arc::new(Self {
+            tenant,
+            state: OnceLock::new(),
+            router: OnceLock::new(),
+            locals: RwLock::new(HashMap::new()),
+            tasks: Mutex::new(Vec::new()),
+            stopped: AtomicBool::new(false),
+        })
+    }
+
+    pub async fn open(
+        control: &ControlPlane,
+        config: &AppConfig,
+        tenant: Tenant,
+    ) -> Result<Arc<Self>, AppError> {
+        Self::start(control, config, Arc::new(tenant), false).await
+    }
+
     pub(super) async fn start(
         control: &ControlPlane,
         config: &AppConfig,
@@ -39,14 +58,7 @@ impl TenantRuntime {
         serves_http: bool,
     ) -> Result<Arc<Self>, AppError> {
         let pool = control.connect_tenant(&tenant).await?;
-        let runtime = Arc::new(Self {
-            tenant,
-            state: OnceLock::new(),
-            router: OnceLock::new(),
-            locals: RwLock::new(HashMap::new()),
-            tasks: Mutex::new(Vec::new()),
-            stopped: AtomicBool::new(false),
-        });
+        let runtime = Self::bare(tenant);
         match scope(
             runtime.clone(),
             runtime.initialize(pool, config, serves_http),

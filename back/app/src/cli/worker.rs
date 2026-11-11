@@ -85,8 +85,13 @@ async fn run_multi(config: AppConfig, multi: MultiTenancyConfig) -> CliResult {
     tenancy::ensure_multi_tenant_ready()?;
     let control = ControlPlane::connect(&multi).await?;
     if config.run_migrations {
-        info!("running control database migrations");
-        control.migrate().await?;
+        info!("running control and tenant database migrations");
+        let summary = tenancy::migrate_all(&control).await?;
+        info!(
+            migrated = summary.migrated,
+            failed = summary.failed,
+            "tenant migrations finished"
+        );
     }
     let (trigger, shutdown) = shutdown_channel();
     let signal = tokio::spawn(async move {

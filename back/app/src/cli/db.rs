@@ -71,7 +71,7 @@ async fn reset(config: AppConfig, args: ResetArgs) -> CliResult {
     warn!(database, "permanently deleting and recreating the database");
     MySql::drop_database(database_url).await?;
     MySql::create_database(database_url).await?;
-    migrate::run(config).await?;
+    migrate::run(config, None).await?;
     println!("Database reset complete. Start Aphel and open /install to set up the company again.");
     Ok(())
 }

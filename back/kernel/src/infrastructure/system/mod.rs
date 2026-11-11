@@ -6,6 +6,7 @@ pub mod migrations;
 pub mod monitor;
 pub(crate) mod ports;
 pub mod probe;
+pub(crate) mod terminal;
 pub(crate) mod upgrades;
 
 pub use audit::MySqlSystemAuditLog;
@@ -15,4 +16,5 @@ pub use migrations::{CompiledModuleInventory, MySqlMigrationInspector};
 pub use monitor::{MySqlFailedJobRepository, MySqlQueueMonitor};
 pub(crate) use ports::MySqlSystemAdminPorts;
 pub use probe::SystemHealthProbe;
+pub use terminal::read_password;
 pub use upgrades::MySqlUpgradeLog;

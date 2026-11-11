@@ -36,6 +36,7 @@ docker compose -f docker-compose.prod.yml exec app aphel doctor
 | `secrets generate-key` | Print a new encryption key |
 | `secrets rotate` | Re-encrypt stored secrets with the current key |
 | `db reset` | Delete and recreate the database |
+| `tenants list`, `create`, `suspend`, `resume`, `delete`, `migrate` | Manage the tenants of a multi-tenant installation |
 | `modules list`, `modules doctor`, `modules uninstall` | Inspect and remove modules |
 | `mounts reset` | Serve the internal app at `/` again |
 | `org export`, `org import` | Full export and restore |
@@ -70,10 +71,34 @@ aphel worker
 
 ## migrate
 
-Applies pending core and module migrations, synchronizes system and custom-object fields, and exits. It runs regardless of `RUN_MIGRATIONS`. No flags. For production upgrades prefer `upgrade`.
+Applies pending core and module migrations, synchronizes system and custom-object fields, and exits. It runs regardless of `RUN_MIGRATIONS`. For production upgrades prefer `upgrade`.
+
+With `CONTROL_DATABASE_URL` it migrates the control database and then every active or suspended tenant, one at a time; a tenant that fails keeps its error (see `tenants list`) and the others go on. `--tenant <slug>` migrates only that tenant.
 
 ```bash
 aphel migrate
+aphel migrate --tenant acme
+```
+
+## tenants
+
+Manages the tenants of a multi-tenant installation (`CONTROL_DATABASE_URL`). Every tenant database lives on the control server with the name `<control database>_<slug>`; the control credentials need `CREATE` and `DROP` privileges. Stored files of a tenant live under `<slug>/` in the configured storage. Each action is recorded in the control database (`operator_audit`).
+
+| Command | Meaning |
+| --- | --- |
+| `tenants list` | Slug, state, name, database, hosts, last migration and last error of each tenant |
+| `tenants create --slug <slug> --name <name> --host <host> --admin-email <email> --admin-name <name>` | Registers the tenant as provisioning, creates and migrates its database, installs the organization with its first administrator and activates it. `--host` repeats (the first is the primary); `--blueprint`, `--module` (repeats), `--timezone`, `--currency`, `--locale` and `--public-url` (default `https://` plus the primary host) choose the installation. The administrator password is read without echo, or from standard input when it is not a terminal. A failed creation keeps the tenant as provisioning with its error; delete it with `--no-export` and create it again |
+| `tenants suspend <slug>`, `tenants resume <slug>` | Stop or restart serving the tenant and its jobs; the data is kept |
+| `tenants delete <slug> --confirm <slug> (--export <zip> \| --no-export)` | Marks the tenant as deleting, writes `org export` to the zip, removes its stored files, drops its database and its registration. Cannot be undone |
+| `tenants migrate [<slug>]` | Same as `migrate` with or without `--tenant` |
+
+Commands that act on one organization (`doctor`, `modules`, `mounts`, `secrets rotate`, `search`, `org`, `demo`) take `--tenant <slug>` in a multi-tenant installation and refuse to run without it. `db reset` and `upgrade` only work on a single-company installation.
+
+```bash
+aphel tenants create --slug acme --name "Acme" --host acme.example.com \
+  --admin-email ana@acme.example --admin-name "Ana Souza" --blueprint crm
+aphel modules list --tenant acme
+aphel tenants delete acme --confirm acme --export acme.zip
 ```
 
 ## upgrade

@@ -1,6 +1,8 @@
+mod audit;
 mod control;
 mod directory;
 mod local;
+mod provisioning;
 mod router;
 mod runtime;
 mod scope;
@@ -9,9 +11,14 @@ mod worker;
 
 use std::sync::OnceLock;
 
+pub use audit::{OperatorAction, record_operator_action};
 pub use control::ControlPlane;
 pub use directory::TenantDirectory;
 pub use local::TenantLocal;
+pub use provisioning::{
+    MigrationSummary, NewTenant, begin_deletion, create_tenant, finish_deletion, migrate_all,
+    migrate_tenant, resume_tenant, suspend_tenant, validate_slug,
+};
 pub use router::{router, spawn_directory_refresh};
 pub use runtime::{TenantRuntime, TenantRuntimes};
 pub use scope::{bind, current, current_state, scope, spawn};
