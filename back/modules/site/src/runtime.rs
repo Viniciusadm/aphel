@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, LazyLock, RwLock};
 
 use aphel_contract_site::{
-    IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SEO_PARTIAL, SiteBundle, SiteContentSource,
-    SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND, check_bundle,
+    HEAD_PARTIAL, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle, SiteContentSource,
+    SiteCsp, SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND, check_bundle,
     join_template_path, menu_item_id, template_name,
 };
 use aphel_kernel::errors::AppError;
@@ -14,6 +14,22 @@ use minijinja::{Environment, Error, ErrorKind, State, Value};
 pub(crate) const NOT_FOUND_TEMPLATE: &str = "aphel/not_found.html";
 pub(crate) const ERROR_TEMPLATE: &str = "aphel/error.html";
 pub(crate) const THEMES_SEGMENT: &str = "themes";
+pub(crate) const ISLANDS_SEGMENT: &str = "islands";
+const IMPORT_MAP: &str = r#"{"imports":{"react":"/_aphel/shared/react.js","react/jsx-runtime":"/_aphel/shared/jsx-runtime.js","react-dom":"/_aphel/shared/react-dom.js","react-dom/client":"/_aphel/shared/react-dom-client.js","@aphel/ui":"/_aphel/shared/ui.js"}}"#;
+
+static IMPORT_MAP_HASH: LazyLock<String> = LazyLock::new(|| {
+    use base64::Engine;
+    use sha2::Digest;
+    let digest = sha2::Sha256::digest(IMPORT_MAP.as_bytes());
+    format!(
+        "'sha256-{}'",
+        base64::engine::general_purpose::STANDARD.encode(digest)
+    )
+});
+
+fn import_map_tag() -> String {
+    format!("<script type=\"importmap\">{IMPORT_MAP}</script>")
+}
 const RENDER_FUEL: u64 = 2_000_000;
 const DEFAULT_DATE_FORMAT: &str = "%d/%m/%Y";
 
@@ -44,6 +60,7 @@ pub(crate) struct SiteRuntime {
     pub menu: Vec<MenuCandidate>,
     pub themes: Vec<ThemeInfo>,
     pub theme: Option<String>,
+    csp: BTreeMap<String, SiteCsp>,
 }
 
 impl SiteRuntime {
@@ -60,6 +77,33 @@ impl SiteRuntime {
 
     pub fn exposure(&self, owner: &str, entity: &str) -> Option<&SiteExposure> {
         self.exposures.get(&(owner.to_owned(), entity.to_owned()))
+    }
+
+    pub fn content_security_policy(&self, owner: Option<&str>) -> String {
+        let extras: Vec<&SiteCsp> = [owner, self.theme.as_deref()]
+            .into_iter()
+            .flatten()
+            .filter_map(|owner| self.csp.get(owner))
+            .collect();
+        let sources = |base: &[&str], pick: fn(&SiteCsp) -> &Vec<String>| {
+            let mut all: Vec<String> = base.iter().map(|source| (*source).to_owned()).collect();
+            for csp in &extras {
+                for source in pick(csp) {
+                    if !all.contains(source) {
+                        all.push(source.clone());
+                    }
+                }
+            }
+            all.join(" ")
+        };
+        let script = sources(&["'self'", IMPORT_MAP_HASH.as_str()], |csp| &csp.script);
+        let style = sources(&["'self'", "'unsafe-inline'"], |csp| &csp.style);
+        let font = sources(&["'self'"], |csp| &csp.font);
+        let connect = sources(&["'self'"], |csp| &csp.connect);
+        let frame = sources(&["'self'"], |csp| &csp.frame);
+        format!(
+            "default-src 'self'; script-src {script}; style-src {style}; img-src 'self' data: https:; font-src {font}; connect-src {connect}; frame-src {frame}; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+        )
     }
 
     pub fn find(&self, path: &str) -> Option<(&Route, BTreeMap<String, String>)> {
@@ -110,6 +154,8 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     let mut environment = base_environment(theme.clone());
     let mut menu = Vec::new();
     let mut themes = Vec::new();
+    let mut csp = BTreeMap::new();
+    let mut islands: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut routes: Vec<Route> = Vec::new();
     let mut exposures = BTreeMap::new();
     let mut paths: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
@@ -126,6 +172,12 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             ) {
                 tracing::warn!(owner = %bundle.owner, template = %template.name, %error, "skipping a site template");
             }
+        }
+        if !bundle.csp.is_empty() {
+            csp.insert(bundle.owner.clone(), bundle.csp.clone());
+        }
+        if !bundle.islands.is_empty() {
+            islands.insert(bundle.owner.clone(), bundle.islands.clone());
         }
         if let Some(declared) = &bundle.theme {
             themes.push(ThemeInfo {
@@ -192,6 +244,7 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     }
     routes.sort_by_key(|route| std::cmp::Reverse(route.pattern.specificity()));
     environment.add_global("__site_pages", Value::from_serialize(&paths));
+    environment.add_global("__site_islands", Value::from_serialize(&islands));
     SiteRuntime {
         revision,
         routes,
@@ -200,6 +253,7 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
         menu,
         themes,
         theme,
+        csp,
     }
 }
 
@@ -211,6 +265,11 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
         Value::from(theme.clone().unwrap_or_default()),
     );
     environment.add_function("theme_asset", theme_asset);
+    environment.add_function("island", island);
+    environment.add_global(
+        "__site_import_map",
+        Value::from_safe_string(import_map_tag()),
+    );
     environment.set_path_join_callback(move |name, parent| {
         join_template_path(name, parent, theme.as_deref()).into()
     });
@@ -218,7 +277,7 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
         (LAYOUT_TEMPLATE, include_str!("../theme/layout.html")),
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
-        (SEO_PARTIAL, include_str!("../theme/seo.html")),
+        (HEAD_PARTIAL, include_str!("../theme/head.html")),
     ] {
         if let Err(error) = environment.add_template(name, source) {
             tracing::error!(template = name, %error, "the built-in site theme does not compile");
@@ -282,6 +341,59 @@ fn image_url(image: Value, width: Option<u32>) -> String {
         Some(base) => format!("{base}/w{chosen}"),
         None => url,
     }
+}
+
+fn escape_attribute(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#39;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+}
+
+fn island(state: &State, name: String, props: Kwargs) -> Result<Value, Error> {
+    let owner = state
+        .lookup("page")
+        .and_then(|current| current.get_attr("owner").ok())
+        .and_then(|owner| owner.as_str().map(str::to_owned))
+        .unwrap_or_default();
+    let known = state
+        .lookup("__site_islands")
+        .and_then(|islands| islands.get_attr(&owner).ok())
+        .and_then(|names| names.try_iter().ok().map(|names| names.collect::<Vec<_>>()))
+        .is_some_and(|names| {
+            names
+                .iter()
+                .any(|candidate| candidate.as_str() == Some(name.as_str()))
+        });
+    if !known {
+        return Err(Error::new(
+            ErrorKind::InvalidOperation,
+            format!("island: {owner} has no site/islands/{name}.js"),
+        ));
+    }
+    let mut values = serde_json::Map::new();
+    for key in props.args() {
+        let value: Value = props.get(key)?;
+        values.insert(
+            key.to_owned(),
+            serde_json::to_value(&value).map_err(|error| {
+                Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("island props: {error}"),
+                )
+            })?,
+        );
+    }
+    props.assert_all_used()?;
+    let encoded = serde_json::Value::Object(values).to_string();
+    Ok(Value::from_safe_string(format!(
+        "<div data-island=\"{}:{}\" data-props=\"{}\"></div>",
+        escape_attribute(&owner),
+        escape_attribute(&name),
+        escape_attribute(&encoded)
+    )))
 }
 
 fn theme_asset(state: &State, path: String) -> String {

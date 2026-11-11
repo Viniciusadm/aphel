@@ -60,9 +60,10 @@ title = "{{ record.title }}"
 | `match` | string | One record: the public field compared with the only path parameter, which must have the same name (`/blog/{slug}` with `match = "slug"`). |
 | `list` | table | A paginated list: `sort` (public fields, `-` for descending, comma separated) and `per_page` (1 to 50, default 10). The page reads `?page=N`. |
 | `title` | string | Optional. A template expression rendered with the page context, used in `<title>` and in the share previews. |
+| `data` | string | Optional. Path of a GET route of the plugin declared with `site = true`, using the page parameters (`/products/{slug}`). Its JSON answer reaches the template as `data`; a 404 answer makes the page 404. See [Dynamic pages](#dynamic-pages). |
 | `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap. See [Search engines](#search-engines). |
 
-A page without `entity` is static and has no parameters. A page with `entity` needs either `match` or `list`.
+A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs either `match` or `list`.
 
 Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
 
@@ -101,11 +102,79 @@ Templates are compiled when the plugin is installed: a syntax error, a missing t
 ## How pages are served
 
 - Only `GET` and `HEAD` are answered.
-- Every response carries a content security policy that allows scripts, fonts and connections only from the same origin, and images from the same origin, `data:` and `https:`.
+- Every response carries a content security policy that allows scripts, fonts and connections only from the same origin (plus the import map, by hash), images from the same origin, `data:` and `https:`, and the origins the page's plugin and the active theme declare in `[site.csp]`.
 - Unknown paths, records that fail the publication conditions and list pages past the last one answer 404 with the theme's page.
 - Rendered pages are kept in a cache in each server process. A change to a public record (create, update, delete, archive, restore, attachments) clears the pages that show it: its own page and the list pages of its entity. A change to the organization (name, color, settings) clears every page. Other server processes see the change within a few seconds. Plugin installs and upgrades start a new cache.
 - Pages carry an `ETag` and `Cache-Control: public, max-age=60, stale-while-revalidate=600`, and answer `304` to a matching `If-None-Match`. Error pages are never cached.
 - Renders (pages not in the cache) are limited to 120 per minute per client address; above that the site answers `429`.
+
+## Dynamic pages
+
+Server-rendered pages cover what visitors read. For what they do (a cart, a like button, a shipping quote), a plugin with a backend adds **site routes** and **islands**.
+
+### Site routes
+
+```toml
+[[routes]]
+method = "POST"
+path = "/cart/items"
+site = true
+```
+
+A route with `site = true` answers at `/_aphel/site/api/<plugin key>/<path>` on every host of the installation, so scripts on the site reach it from the same origin. It runs like a public route: with the identity of the user who installed the plugin, limited by the plugin capabilities, and rate limited to 60 requests per minute per client address and 600 per minute per plugin. It cannot require a permission and is either public or a site route, not both. Requests other than `GET`, `HEAD` and `OPTIONS` must carry the header `X-Aphel-Site: 1`, which the island loader adds; without it they answer `403 site_request_forbidden`. Bodies are JSON, up to 1 MB.
+
+### Data from the backend
+
+A page can take its data from a GET site route instead of an entity:
+
+```toml
+[[site.pages]]
+key = "product"
+path = "/product/{slug}"
+template = "site/product.html"
+data = "/products/{slug}"
+title = "{{ data.name }}"
+```
+
+The route's JSON is `data` in the template (and in `title` and `seo`). A `404` from the route makes the page 404; any other error shows the error page. Such pages stay in the cache for at most 60 seconds, because Aphel cannot know when the data behind them changes.
+
+### Islands
+
+An island is an ES module in the package at `site/islands/<name>.js` (lowercase letters, digits, `-` and `_`; at most 30). A template places it with `island`:
+
+```html
+{{ island("like-button", slug=page.params.slug, label="Like") }}
+```
+
+This writes `<div data-island="<plugin>:<name>" data-props="…">`. The island loader (included by `aphel/head.html`) imports `/_aphel/site/islands/<plugin>/<name>.js` and calls its default export with the element, the props and a `site` object whose `api(path, init)` calls the plugin's site routes (JSON in and out, with the CSRF header):
+
+```js
+import { createElement, useState } from 'react'
+import { createRoot } from 'react-dom/client'
+
+function Like({ slug, label, site }) {
+  const [count, setCount] = useState(null)
+  const like = async () => setCount((await site.api(`/likes/${slug}`, { method: 'POST' })).likes)
+  return createElement('button', { onClick: like }, `${label} (${count ?? '…'})`)
+}
+
+export default function mount(element, props, site) {
+  createRoot(element).render(createElement(Like, { ...props, site }))
+}
+```
+
+`react`, `react/jsx-runtime`, `react-dom`, `react-dom/client` and `@aphel/ui` resolve through the site's import map to the same files the application uses; anything else must be bundled into the island. An island only exists in pages of its own plugin; asking for an unknown island fails the render.
+
+### Content security policy
+
+```toml
+[site.csp]
+script = ["https://js.stripe.com"]
+connect = ["https://api.stripe.com"]
+frame = ["https://js.stripe.com"]
+```
+
+`script`, `style`, `img`, `font`, `connect` and `frame` accept up to 10 origins each, written as `https://host`, `https://host:port` or `https://*.domain`. They apply to the pages of the plugin that declares them, and to every page when the plugin is the active theme. The consent dialog lists them.
 
 ## Menu
 
@@ -136,7 +205,7 @@ description = "Serif type and a centered menu."
 | `site/theme/not_found.html`, `site/theme/error.html` | Optional. Replace the 404 and error pages. They receive `site` and an empty `page`. |
 | `site/theme/assets/*` | CSS, images and fonts, served at `/_aphel/site/themes/<plugin key>/<file>`. Link them with `{{ theme_asset('style.css') }}`. |
 
-Include `{% include "aphel/seo.html" %}` in the `<head>` of the layout to keep the canonical, description, Open Graph and Twitter tags. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
+Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
 
 ## Search engines
 

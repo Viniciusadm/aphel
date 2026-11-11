@@ -160,6 +160,25 @@ pub struct SiteSpec {
     pub menu: Vec<SiteMenuSpec>,
     #[serde(default)]
     pub theme: Option<SiteThemeSpec>,
+    #[serde(default)]
+    pub csp: SiteCspSpec,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteCspSpec {
+    #[serde(default)]
+    pub script: Vec<String>,
+    #[serde(default)]
+    pub style: Vec<String>,
+    #[serde(default)]
+    pub img: Vec<String>,
+    #[serde(default)]
+    pub font: Vec<String>,
+    #[serde(default)]
+    pub connect: Vec<String>,
+    #[serde(default)]
+    pub frame: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -205,6 +224,8 @@ pub struct SitePageSpec {
     pub title: Option<String>,
     #[serde(default)]
     pub seo: SiteSeoSpec,
+    #[serde(default)]
+    pub data: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -425,7 +446,26 @@ pub struct RouteSpec {
     #[serde(default)]
     pub public: bool,
     #[serde(default)]
+    pub site: bool,
+    #[serde(default)]
     pub forward_headers: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RouteAudience {
+    Private,
+    Public,
+    Site,
+}
+
+impl RouteSpec {
+    pub fn audience(&self) -> RouteAudience {
+        match (self.site, self.public) {
+            (true, _) => RouteAudience::Site,
+            (false, true) => RouteAudience::Public,
+            (false, false) => RouteAudience::Private,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -896,10 +936,16 @@ impl PluginManifest {
                     "must start with /",
                 ));
             }
-            match (&route.permission, route.public) {
+            if route.site && route.public {
+                violations.push(FieldViolation::new(
+                    format!("routes[{index}].site"),
+                    "a route is either public or a site route",
+                ));
+            }
+            match (&route.permission, route.public || route.site) {
                 (Some(_), true) => violations.push(FieldViolation::new(
                     format!("routes[{index}].permission"),
-                    "public routes cannot require a permission",
+                    "public and site routes cannot require a permission",
                 )),
                 (Some(permission), false) => {
                     if !Permission::parse(permission.clone())
@@ -913,7 +959,7 @@ impl PluginManifest {
                 }
                 (None, _) => {}
             }
-            if !route.forward_headers.is_empty() && !route.public {
+            if !route.forward_headers.is_empty() && (!route.public || route.site) {
                 violations.push(FieldViolation::new(
                     format!("routes[{index}].forward_headers"),
                     "only public routes can forward sensitive headers",
@@ -1589,13 +1635,13 @@ fn is_host_pattern(pattern: &str) -> bool {
 
 pub fn match_route<'a>(
     routes: &'a [RouteSpec],
-    public: bool,
+    audience: RouteAudience,
     method: &str,
     path: &str,
 ) -> Option<(&'a RouteSpec, serde_json::Map<String, Value>)> {
     let segments: Vec<&str> = path.trim_matches('/').split('/').collect();
     routes.iter().find_map(|route| {
-        if route.method != method || route.public != public {
+        if route.method != method || route.audience() != audience {
             return None;
         }
         let pattern: Vec<&str> = route.path.trim_matches('/').split('/').collect();

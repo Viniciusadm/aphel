@@ -260,11 +260,11 @@ impl From<&PluginManifest> for PluginDeclarations {
             .collect();
         extended.sort();
         extended.dedup();
-        let routes = |public: bool| {
+        let routes = |audience: crate::manifest::RouteAudience| {
             manifest
                 .routes
                 .iter()
-                .filter(|route| route.public == public)
+                .filter(|route| route.audience() == audience)
                 .map(|route| format!("{} {}", route.method, route.path))
                 .collect()
         };
@@ -278,8 +278,8 @@ impl From<&PluginManifest> for PluginDeclarations {
                 .map(|hook| format!("{} ({})", hook.hook, hook.record_types.join(", ")))
                 .collect(),
             events: manifest.events.clone(),
-            routes: routes(false),
-            public_routes: routes(true)
+            routes: routes(crate::manifest::RouteAudience::Private),
+            public_routes: routes(crate::manifest::RouteAudience::Public)
                 .into_iter()
                 .chain(
                     manifest
@@ -2140,6 +2140,7 @@ pub(crate) async fn serve_route(
     state: &AppState,
     call: RouteCall,
     caller: Option<&AccessScope>,
+    audience: crate::manifest::RouteAudience,
 ) -> Result<Response, AppError> {
     let RouteCall {
         method,
@@ -2162,13 +2163,8 @@ pub(crate) async fn serve_route(
             format!("the plugin {key} has no route {method} /{path}"),
         )
     };
-    let (route, params) = match_route(
-        &plugin.manifest.routes,
-        caller.is_none(),
-        method.as_str(),
-        &path,
-    )
-    .ok_or_else(route_missing)?;
+    let (route, params) = match_route(&plugin.manifest.routes, audience, method.as_str(), &path)
+        .ok_or_else(route_missing)?;
     if let (Some(permission), Some(scope)) = (&route.permission, caller) {
         let permission = Permission::parse(permission.clone()).map_err(|_| {
             AppError::Configuration(format!("the plugin {key} declares an invalid permission"))
@@ -2258,7 +2254,13 @@ async fn dispatch(
         headers,
         body,
     };
-    Ok(serve_route(&state, call, Some(&tenant.scope)).await?)
+    Ok(serve_route(
+        &state,
+        call,
+        Some(&tenant.scope),
+        crate::manifest::RouteAudience::Private,
+    )
+    .await?)
 }
 
 static PUBLIC_LIMITS: LazyLock<(SharedRateLimiter, SharedRateLimiter)> = LazyLock::new(|| {
@@ -2276,6 +2278,15 @@ static PUBLIC_LIMITS: LazyLock<(SharedRateLimiter, SharedRateLimiter)> = LazyLoc
     )
 });
 
+pub(crate) async fn check_public_limits(key: &str, address: &str) -> Result<(), AppError> {
+    let (per_address, per_plugin) = &*PUBLIC_LIMITS;
+    let message = "muitas requisições em sequência; aguarde um pouco e tente novamente";
+    per_address
+        .check(&format!("{key}:{address}"), message)
+        .await?;
+    per_plugin.check(key, message).await
+}
+
 async fn public_dispatch(
     State(state): State<AppState>,
     client: ClientInfo,
@@ -2285,12 +2296,7 @@ async fn public_dispatch(
     headers: HeaderMap,
     body: Bytes,
 ) -> Result<Response, ApiError> {
-    let (per_address, per_plugin) = &*PUBLIC_LIMITS;
-    let message = "muitas requisições em sequência; aguarde um pouco e tente novamente";
-    per_address
-        .check(&format!("{key}:{}", client.ip_or_unknown()), message)
-        .await?;
-    per_plugin.check(&key, message).await?;
+    check_public_limits(&key, client.ip_or_unknown()).await?;
     let call = RouteCall {
         method,
         key,
@@ -2299,7 +2305,7 @@ async fn public_dispatch(
         headers,
         body,
     };
-    Ok(serve_route(&state, call, None).await?)
+    Ok(serve_route(&state, call, None, crate::manifest::RouteAudience::Public).await?)
 }
 
 fn forwarded_headers(headers: &HeaderMap, forwarded: &[String]) -> Vec<(String, String)> {

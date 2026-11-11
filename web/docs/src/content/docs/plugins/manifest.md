@@ -117,7 +117,8 @@ Declared hooks are added to the host catalog so other plugins can subscribe to t
 | `method` | string | yes | | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`, in uppercase. |
 | `path` | string | yes | | Starts with `/` and has no `..`. Segments written `{name}` are path parameters. |
 | `permission` | string | no | none | A permission known to Aphel, declared by the plugin, or one of its entity permissions. Not allowed on public routes. |
-| `public` | boolean | no | `false` | A public route needs no sign-in. Error when combined with `permission`: `public routes cannot require a permission`. |
+| `public` | boolean | no | `false` | A public route needs no sign-in. Error when combined with `permission`: `public and site routes cannot require a permission`. |
+| `site` | boolean | no | `false` | A route for scripts on the public site, served at `/_aphel/site/api/<key>/<path>`. Cannot be combined with `public` or `permission`. See [Site pages](/_aphel/docs/plugins/site-pages/#site-routes). |
 
 See [Routes](/_aphel/docs/plugins/routes/).
 

@@ -19,7 +19,11 @@ pub const THEME_LAYOUT: &str = "site/theme/layout.html";
 pub const THEME_NOT_FOUND: &str = "site/theme/not_found.html";
 pub const THEME_ERROR: &str = "site/theme/error.html";
 pub const THEME_ASSETS_DIR: &str = "site/theme/assets";
-pub const SEO_PARTIAL: &str = "aphel/seo.html";
+pub const HEAD_PARTIAL: &str = "aphel/head.html";
+pub const ISLANDS_DIR: &str = "site/islands";
+pub const SITE_API_HEADER: &str = "x-aphel-site";
+const MAX_ISLANDS: usize = 30;
+const MAX_CSP_SOURCES: usize = 10;
 const MAX_MENU_ITEMS: usize = 20;
 const MAX_LABEL_LENGTH: usize = 60;
 pub const ALWAYS_PUBLIC_FIELDS: &[&str] = &["id", "created_at", "updated_at"];
@@ -37,6 +41,93 @@ pub struct SiteBundle {
     pub menu: Vec<SiteMenuItem>,
     #[serde(default)]
     pub theme: Option<SiteTheme>,
+    #[serde(default)]
+    pub islands: Vec<String>,
+    #[serde(default)]
+    pub csp: SiteCsp,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SiteCsp {
+    pub script: Vec<String>,
+    pub style: Vec<String>,
+    pub img: Vec<String>,
+    pub font: Vec<String>,
+    pub connect: Vec<String>,
+    pub frame: Vec<String>,
+}
+
+impl SiteCsp {
+    pub fn directives(&self) -> [(&'static str, &[String]); 6] {
+        [
+            ("script-src", &self.script),
+            ("style-src", &self.style),
+            ("img-src", &self.img),
+            ("font-src", &self.font),
+            ("connect-src", &self.connect),
+            ("frame-src", &self.frame),
+        ]
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.directives()
+            .iter()
+            .all(|(_, sources)| sources.is_empty())
+    }
+}
+
+pub fn is_csp_source(source: &str) -> bool {
+    let Some(host) = source.strip_prefix("https://") else {
+        return false;
+    };
+    let host = host.strip_prefix("*.").unwrap_or(host);
+    let (name, port) = match host.rsplit_once(':') {
+        Some((name, port)) => (name, Some(port)),
+        None => (host, None),
+    };
+    name.contains('.')
+        && name.split('.').all(|label| {
+            !label.is_empty()
+                && label.chars().all(|character| {
+                    character.is_ascii_lowercase() || character.is_ascii_digit() || character == '-'
+                })
+        })
+        && port.is_none_or(|port| port.parse::<u16>().is_ok())
+}
+
+pub fn is_island_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= MAX_KEY_LENGTH
+        && name
+            .chars()
+            .next()
+            .is_some_and(|first| first.is_ascii_lowercase())
+        && name.chars().all(|character| {
+            character.is_ascii_lowercase()
+                || character.is_ascii_digit()
+                || matches!(character, '-' | '_')
+        })
+}
+
+#[derive(Clone)]
+pub struct SiteApiRequest {
+    pub owner: String,
+    pub method: axum::http::Method,
+    pub path: String,
+    pub query: Option<String>,
+    pub headers: axum::http::HeaderMap,
+    pub body: bytes::Bytes,
+    pub client: Option<String>,
+}
+
+#[async_trait]
+pub trait SiteApiHandler: Send + Sync {
+    async fn handle(
+        &self,
+        state: &aphel_kernel::api::state::AppState,
+        request: SiteApiRequest,
+    ) -> Result<Option<axum::response::Response>, AppError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -65,6 +156,8 @@ pub struct SitePage {
     pub title: Option<String>,
     #[serde(default)]
     pub seo: SitePageSeo,
+    #[serde(default)]
+    pub data: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -124,6 +217,8 @@ pub trait SiteContentSource: Send + Sync {
     async fn bundles(&self) -> Result<Vec<SiteBundle>, AppError>;
 
     async fn asset(&self, owner: &str, path: &str) -> Result<Option<(String, Vec<u8>)>, AppError>;
+
+    async fn island(&self, owner: &str, name: &str) -> Result<Option<Vec<u8>>, AppError>;
 }
 
 pub fn template_name(owner: &str, path: &str) -> String {
@@ -358,6 +453,20 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 continue;
             }
         };
+        if let Some(data) = &page.data {
+            match PathPattern::parse(data) {
+                Err(problem) => problems.push(format!("{label}: data {problem}")),
+                Ok(data_pattern) => {
+                    for param in data_pattern.params() {
+                        if !pattern.params().contains(&param) {
+                            problems.push(format!(
+                                "{label}: data uses {{{param}}}, which is not a parameter of the page path"
+                            ));
+                        }
+                    }
+                }
+            }
+        }
         if [SITEMAP_PATH, ROBOTS_PATH].contains(&pattern.shape().as_str()) {
             problems.push(format!("{label}: {} is reserved for the site", page.path));
         }
@@ -378,8 +487,10 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         });
         match (&page.source, exposure) {
             (PageSource::Static, _) => {
-                if !pattern.params().is_empty() {
-                    problems.push(format!("{label}: a page without entity has no parameters"));
+                if !pattern.params().is_empty() && page.data.is_none() {
+                    problems.push(format!(
+                        "{label}: a page without entity has parameters only when it declares data"
+                    ));
                 }
             }
             (_, Some(None)) => problems.push(format!(
@@ -443,6 +554,30 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                         item.page
                     ));
                 }
+            }
+        }
+    }
+    if bundle.islands.len() > MAX_ISLANDS {
+        problems.push(format!("site/islands: at most {MAX_ISLANDS} islands"));
+    }
+    for island in &bundle.islands {
+        if !is_island_name(island) {
+            problems.push(format!(
+                "site/islands/{island}.js: names use lowercase letters, digits, - and _"
+            ));
+        }
+    }
+    for (directive, sources) in bundle.csp.directives() {
+        if sources.len() > MAX_CSP_SOURCES {
+            problems.push(format!(
+                "site.csp {directive}: at most {MAX_CSP_SOURCES} sources"
+            ));
+        }
+        for source in sources {
+            if !is_csp_source(source) {
+                problems.push(format!(
+                    "site.csp {directive}: {source} must be an https origin such as https://js.example.com or https://*.example.com"
+                ));
             }
         }
     }

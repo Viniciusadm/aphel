@@ -55,6 +55,7 @@ Runs `build`, then writes the package:
 - `plugin.toml`
 - `backend.wasm` when it exists in `dir`
 - every file under `web/dist/`, stored as `web/<path relative to dist>`
+- every file under `site/` (site templates, islands and theme assets), stored as is
 
 The output file is `<dir>/<key>-<version>.aphelplugin` by default, using `key` and `version` from `plugin.toml`. `-o file.aphelplugin` chooses another path (relative to the current directory). The CLI prints `packed <path>`.
 

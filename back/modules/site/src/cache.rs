@@ -16,12 +16,14 @@ const INVALIDATION_BATCH: i64 = 1000;
 pub(crate) struct CachedPage {
     pub html: Arc<str>,
     pub etag: String,
+    pub csp: Arc<str>,
 }
 
 struct Entry {
     page: CachedPage,
     tags: Vec<String>,
     stored_at: Instant,
+    lifetime: Duration,
 }
 
 #[derive(Default)]
@@ -141,7 +143,7 @@ pub(crate) fn get(key: &str) -> Option<CachedPage> {
         let expired = cache
             .entries
             .get(key)
-            .is_some_and(|entry| entry.stored_at.elapsed() > ENTRY_LIFETIME);
+            .is_some_and(|entry| entry.stored_at.elapsed() > entry.lifetime);
         if expired {
             cache.remove(key);
             return None;
@@ -151,11 +153,20 @@ pub(crate) fn get(key: &str) -> Option<CachedPage> {
     .flatten()
 }
 
-pub(crate) fn put(key: String, html: String, tags: Vec<String>) -> CachedPage {
-    let page = CachedPage {
+pub(crate) fn page(html: String, csp: String) -> CachedPage {
+    CachedPage {
         etag: etag_of(&html),
         html: Arc::from(html),
-    };
+        csp: Arc::from(csp),
+    }
+}
+
+pub(crate) fn put(
+    key: String,
+    page: CachedPage,
+    tags: Vec<String>,
+    lifetime: Option<Duration>,
+) -> CachedPage {
     with_cache(|cache| {
         cache.remove(&key);
         cache.bytes += page.html.len();
@@ -167,6 +178,7 @@ pub(crate) fn put(key: String, html: String, tags: Vec<String>) -> CachedPage {
                 page: page.clone(),
                 tags,
                 stored_at: Instant::now(),
+                lifetime: lifetime.unwrap_or(ENTRY_LIFETIME).min(ENTRY_LIFETIME),
             },
         );
         cache.evict();

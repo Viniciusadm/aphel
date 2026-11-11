@@ -22,13 +22,14 @@ use serde_json::json;
 
 use crate::assets::LOGO_PATH;
 use crate::cache::{self, CachedPage};
+use crate::dynamic::{API_SEGMENT, ISLANDS_LOADER_PATH};
 use crate::runtime::{
-    self, ERROR_TEMPLATE, NOT_FOUND_TEMPLATE, Route, SiteRuntime, THEMES_SEGMENT,
+    self, ERROR_TEMPLATE, ISLANDS_SEGMENT, NOT_FOUND_TEMPLATE, Route, SiteRuntime, THEMES_SEGMENT,
 };
 use crate::settings::site_settings;
-use crate::{assets, data, images, redirects, sitemap};
+use crate::{assets, data, dynamic, images, redirects, sitemap};
 
-const SITE_CSP: &str = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
+const LIVE_DATA_LIFETIME: Duration = Duration::from_secs(60);
 const DEFAULT_COLOR: &str = "#4f46e5";
 const PAGE_CACHE_CONTROL: &str = "public, max-age=60, stale-while-revalidate=600";
 const RENDERS_PER_ADDRESS: u32 = 120;
@@ -65,7 +66,11 @@ struct SiteContext {
 }
 
 enum Outcome {
-    Page { html: String, tags: Vec<String> },
+    Page {
+        html: String,
+        tags: Vec<String>,
+        live: bool,
+    },
     Redirect(String),
     NotFound,
 }
@@ -75,8 +80,27 @@ fn readable_method(method: &Method) -> bool {
 }
 
 async fn serve_reserved(state: &AppState, request: Request) -> Response {
+    if let Some(rest) = request
+        .uri()
+        .path()
+        .strip_prefix(&format!("/{API_SEGMENT}/"))
+        .map(str::to_owned)
+    {
+        return dynamic::api(state, &rest, request).await;
+    }
     if !readable_method(request.method()) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
+    }
+    if request.uri().path() == ISLANDS_LOADER_PATH {
+        return dynamic::islands_loader();
+    }
+    if let Some(rest) = request
+        .uri()
+        .path()
+        .strip_prefix(&format!("/{ISLANDS_SEGMENT}/"))
+        .map(str::to_owned)
+    {
+        return dynamic::island(state, &rest).await;
     }
     let theme = site_settings(&state.organization_config.snapshot()).theme;
     let runtime = match runtime::current(&state.app, theme.as_deref()).await {
@@ -188,6 +212,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
         return fallback(&context, StatusCode::NOT_FOUND, Some(&runtime));
     };
     let query = parts.uri.query().unwrap_or_default();
+    let owner = route.owner.clone();
     match render_route(
         state,
         &runtime,
@@ -199,13 +224,11 @@ async fn serve(state: &AppState, request: Request) -> Response {
     )
     .await
     {
-        Ok(Outcome::Page { html, tags }) => {
+        Ok(Outcome::Page { html, tags, live }) => {
+            let page = cache::page(html, runtime.content_security_policy(Some(&owner)));
             let page = match key {
-                Some(key) => cache::put(key, html, tags),
-                None => CachedPage {
-                    etag: cache::etag_of(&html),
-                    html: html.into(),
-                },
+                Some(key) => cache::put(key, page, tags, live.then_some(LIVE_DATA_LIFETIME)),
+                None => page,
             };
             page_response(&page, &parts.headers)
         }
@@ -350,6 +373,18 @@ async fn render_route(
         "params": params,
     });
     let mut tags = Vec::new();
+    let mut live = false;
+    if let Some(data) = &route.page.data {
+        let path = aphel_contract_site::PathPattern::parse(data)
+            .ok()
+            .and_then(|pattern| pattern.build(&params))
+            .ok_or_else(|| AppError::Internal(format!("the data route {data} cannot be built")))?;
+        let Some(loaded) = dynamic::page_data(state, &route.owner, &path).await? else {
+            return Ok(Outcome::NotFound);
+        };
+        values.insert("data".to_owned(), loaded);
+        live = true;
+    }
     match &route.page.source {
         PageSource::Static => {}
         PageSource::Record {
@@ -464,7 +499,7 @@ async fn render_route(
         .get_template(&template_name(&route.owner, &route.page.template))
         .and_then(|template| template.render(Value::from_serialize(&values)))
         .map_err(render_error)?;
-    Ok(Outcome::Page { html, tags })
+    Ok(Outcome::Page { html, tags, live })
 }
 
 fn plain_summary(text: &str) -> String {
@@ -523,10 +558,11 @@ fn fallback(context: &SiteContext, status: StatusCode, runtime: Option<&SiteRunt
             .get_template(template)
             .and_then(|template| template.render(Value::from_serialize(&values)))
             .ok()
+            .map(|html| (html, runtime.content_security_policy(None)))
     });
     match rendered {
-        Some(html) => {
-            let mut response = html_response(status, html);
+        Some((html, csp)) => {
+            let mut response = html_response(status, html, &csp);
             response
                 .headers_mut()
                 .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
@@ -548,7 +584,7 @@ fn page_response(page: &CachedPage, request_headers: &HeaderMap) -> Response {
     let mut response = if matches {
         StatusCode::NOT_MODIFIED.into_response()
     } else {
-        html_response(StatusCode::OK, page.html.to_string())
+        html_response(StatusCode::OK, page.html.to_string(), &page.csp)
     };
     let headers = response.headers_mut();
     if let Ok(etag) = HeaderValue::from_str(&page.etag) {
@@ -561,17 +597,16 @@ fn page_response(page: &CachedPage, request_headers: &HeaderMap) -> Response {
     response
 }
 
-fn html_response(status: StatusCode, html: String) -> Response {
+fn html_response(status: StatusCode, html: String, csp: &str) -> Response {
     let mut response = (status, html).into_response();
     let headers = response.headers_mut();
     headers.insert(
         header::CONTENT_TYPE,
         HeaderValue::from_static("text/html; charset=utf-8"),
     );
-    headers.insert(
-        header::CONTENT_SECURITY_POLICY,
-        HeaderValue::from_static(SITE_CSP),
-    );
+    if let Ok(value) = HeaderValue::from_str(csp) {
+        headers.insert(header::CONTENT_SECURITY_POLICY, value);
+    }
     headers.insert(
         header::X_CONTENT_TYPE_OPTIONS,
         HeaderValue::from_static("nosniff"),

@@ -141,6 +141,7 @@ impl Module for WasmRuntimeModule {
         app.contribute::<dyn aphel_contract_site::SiteContentSource>(Arc::new(
             site::PluginSiteContent,
         ));
+        app.contribute::<dyn aphel_contract_site::SiteApiHandler>(Arc::new(site::PluginSiteApi));
         app.contribute::<dyn AutomationActionSource>(Arc::new(automation::PluginActions))
             .contribute::<dyn AutomationTriggerSource>(Arc::new(automation::PluginTriggers))
             .provide::<dyn PluginHookDispatcher>(Arc::new(bridge::Dispatcher))

@@ -1,6 +1,7 @@
 pub(crate) mod assets;
 pub(crate) mod cache;
 pub(crate) mod data;
+pub(crate) mod dynamic;
 pub(crate) mod handler;
 pub(crate) mod http;
 pub(crate) mod images;

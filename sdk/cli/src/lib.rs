@@ -161,6 +161,17 @@ fn pack(dir: &Path, output: Option<PathBuf>) -> Result<(), Failure> {
             archive.write_all(&fs::read(dist.join(&path))?)?;
         }
     }
+    let site = dir.join("site");
+    if site.exists() {
+        let mut found = Vec::new();
+        files(&site, &site, &mut found)?;
+        found.sort();
+        for path in found {
+            let name = format!("site/{}", path.to_string_lossy().replace('\\', "/"));
+            archive.start_file(name, options)?;
+            archive.write_all(&fs::read(site.join(&path))?)?;
+        }
+    }
     archive.finish()?;
     println!("packed {}", output.display());
     Ok(())

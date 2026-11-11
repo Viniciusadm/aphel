@@ -182,7 +182,7 @@ pub(crate) async fn respond(
     let base_url = config.site_base_url();
     match collect(state, runtime, base_url.trim_end_matches('/')).await {
         Ok((urls, tags)) => {
-            let cached = cache::put(key, render(&urls), tags);
+            let cached = cache::put(key, cache::page(render(&urls), String::new()), tags, None);
             text_response(
                 "application/xml; charset=utf-8",
                 cached.html.to_string(),

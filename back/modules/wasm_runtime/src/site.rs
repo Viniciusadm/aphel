@@ -1,19 +1,23 @@
 use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
-    ALWAYS_PUBLIC_FIELDS, PageSource, PathPattern, SiteBundle, SiteContentSource, SiteExposure,
-    SiteMenuItem, SitePage, SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle,
+    ALWAYS_PUBLIC_FIELDS, ISLANDS_DIR, PageSource, PathPattern, SiteApiHandler, SiteApiRequest,
+    SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem, SitePage, SitePageSeo,
+    SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle, is_island_name,
 };
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::state::runtime_pool;
 use async_trait::async_trait;
+use axum::response::Response;
 
-use crate::manifest::{PluginManifest, SitePageSpec};
+use crate::manifest::{PluginManifest, RouteAudience, SiteCspSpec, SitePageSpec, match_route};
 use crate::package::PackageFile;
 use crate::{registry, store};
 
 pub(crate) const SITE_DIR: &str = "site";
 const TEMPLATE_EXTENSION: &str = ".html";
+const ISLAND_EXTENSION: &str = ".js";
 const SITE_INVALID: &str = "plugin_site_invalid";
 const SITE_ROUTE_CONFLICT: &str = "site_route_conflict";
 
@@ -54,10 +58,46 @@ fn templates_of<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> Vec<Sit
         .collect()
 }
 
+fn islands_of<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> Vec<String> {
+    files
+        .filter_map(|(path, _)| {
+            path.strip_prefix(&format!("{ISLANDS_DIR}/"))
+                .and_then(|name| name.strip_suffix(ISLAND_EXTENSION))
+                .filter(|name| !name.contains('/'))
+                .map(str::to_owned)
+        })
+        .collect()
+}
+
+fn csp_of(spec: &SiteCspSpec) -> SiteCsp {
+    SiteCsp {
+        script: spec.script.clone(),
+        style: spec.style.clone(),
+        img: spec.img.clone(),
+        font: spec.font.clone(),
+        connect: spec.connect.clone(),
+        frame: spec.frame.clone(),
+    }
+}
+
+fn dummy_path(path: &str) -> String {
+    path.split('/')
+        .map(|segment| {
+            if segment.starts_with('{') && segment.ends_with('}') {
+                "x"
+            } else {
+                segment
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
 fn bundle_of(
     manifest: &PluginManifest,
     revision: String,
     templates: Vec<SiteTemplate>,
+    islands: Vec<String>,
 ) -> Result<Option<SiteBundle>, Vec<String>> {
     let Some(site) = &manifest.site else {
         return Ok(None);
@@ -112,6 +152,7 @@ fn bundle_of(
                     image: page.seo.image.clone(),
                     noindex: page.seo.noindex,
                 },
+                data: page.data.clone(),
             }),
             Err(problem) => {
                 problems.push(problem);
@@ -138,7 +179,25 @@ fn bundle_of(
             name: theme.name.clone(),
             description: theme.description.clone(),
         }),
+        islands,
+        csp: csp_of(&site.csp),
     };
+    for page in &site.pages {
+        if let Some(data) = &page.data
+            && match_route(
+                &manifest.routes,
+                RouteAudience::Site,
+                "GET",
+                &dummy_path(data),
+            )
+            .is_none()
+        {
+            problems.push(format!(
+                "site.pages {}: data {data} is not a GET route with site = true",
+                page.key
+            ));
+        }
+    }
     problems.extend(check_bundle(&bundle));
     if problems.is_empty() {
         Ok(Some(bundle))
@@ -165,12 +224,17 @@ pub(crate) fn validate_package(
     files: &[PackageFile],
     others: &[&PluginManifest],
 ) -> Result<(), AppError> {
-    let templates = templates_of(
+    let entries = || {
         files
             .iter()
-            .map(|file| (file.path.as_str(), file.content.as_slice())),
-    );
-    if let Err(problems) = bundle_of(manifest, String::new(), templates) {
+            .map(|file| (file.path.as_str(), file.content.as_slice()))
+    };
+    if let Err(problems) = bundle_of(
+        manifest,
+        String::new(),
+        templates_of(entries()),
+        islands_of(entries()),
+    ) {
         return Err(AppError::validation_code(SITE_INVALID, problems.join("; ")));
     }
     for (shape, path) in shapes(manifest) {
@@ -198,6 +262,29 @@ pub(crate) fn public_routes(manifest: &PluginManifest) -> Vec<String> {
     site.pages
         .iter()
         .map(|page| format!("GET <site>{}", page.path))
+        .chain(
+            manifest
+                .routes
+                .iter()
+                .filter(|route| route.site)
+                .map(|route| {
+                    format!(
+                        "{} /_aphel/site/api/{}{}",
+                        route.method, manifest.key, route.path
+                    )
+                }),
+        )
+        .chain(
+            csp_of(&site.csp)
+                .directives()
+                .into_iter()
+                .flat_map(|(directive, sources)| {
+                    sources
+                        .iter()
+                        .map(move |source| format!("site csp: {directive} {source}"))
+                        .collect::<Vec<_>>()
+                }),
+        )
         .chain(site.public.iter().map(|public| {
             format!(
                 "site: {} ({})",
@@ -234,12 +321,17 @@ impl SiteContentSource for PluginSiteContent {
                 continue;
             }
             let files = store::files_under(&pool, &plugin.key, SITE_DIR).await?;
-            let templates = templates_of(
+            let entries = || {
                 files
                     .iter()
-                    .map(|(path, content)| (path.as_str(), content.as_slice())),
-            );
-            match bundle_of(&plugin.manifest, revision.clone(), templates) {
+                    .map(|(path, content)| (path.as_str(), content.as_slice()))
+            };
+            match bundle_of(
+                &plugin.manifest,
+                revision.clone(),
+                templates_of(entries()),
+                islands_of(entries()),
+            ) {
                 Ok(Some(bundle)) => bundles.push(bundle),
                 Ok(None) => {}
                 Err(problems) => {
@@ -272,5 +364,61 @@ impl SiteContentSource for PluginSiteContent {
             return Ok(None);
         }
         store::file(&pool, owner, &path).await
+    }
+
+    async fn island(&self, owner: &str, name: &str) -> Result<Option<Vec<u8>>, AppError> {
+        if !is_island_name(name) {
+            return Ok(None);
+        }
+        let pool = runtime_pool()?;
+        let snapshot = registry::current(&pool).await?;
+        if snapshot
+            .plugin(owner)
+            .is_none_or(|plugin| plugin.manifest.site.is_none())
+        {
+            return Ok(None);
+        }
+        Ok(store::file(
+            &pool,
+            owner,
+            &format!("{ISLANDS_DIR}/{name}{ISLAND_EXTENSION}"),
+        )
+        .await?
+        .map(|(_, content)| content))
+    }
+}
+
+pub(crate) struct PluginSiteApi;
+
+#[async_trait]
+impl SiteApiHandler for PluginSiteApi {
+    async fn handle(
+        &self,
+        state: &AppState,
+        request: SiteApiRequest,
+    ) -> Result<Option<Response>, AppError> {
+        let snapshot = registry::current(&state.db()?).await?;
+        let serves_site = snapshot
+            .plugin(&request.owner)
+            .is_some_and(|plugin| plugin.manifest.routes.iter().any(|route| route.site));
+        if !serves_site {
+            return Ok(None);
+        }
+        crate::http::check_public_limits(
+            &request.owner,
+            request.client.as_deref().unwrap_or("unknown"),
+        )
+        .await?;
+        let call = crate::http::RouteCall {
+            method: request.method,
+            key: request.owner,
+            path: request.path.trim_start_matches('/').to_owned(),
+            query: request.query,
+            headers: request.headers,
+            body: request.body,
+        };
+        crate::http::serve_route(state, call, None, RouteAudience::Site)
+            .await
+            .map(Some)
     }
 }

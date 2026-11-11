@@ -79,10 +79,19 @@ impl RouteTakeover for AliasTakeover {
                 headers: parts.headers.clone(),
                 body: bytes,
             };
-            Ok(match serve_route(state, call, Some(&tenant.scope)).await {
-                Ok(response) => response,
-                Err(error) => aphel_sdk::platform::api::error::app_error(error),
-            })
+            Ok(
+                match serve_route(
+                    state,
+                    call,
+                    Some(&tenant.scope),
+                    crate::manifest::RouteAudience::Private,
+                )
+                .await
+                {
+                    Ok(response) => response,
+                    Err(error) => aphel_sdk::platform::api::error::app_error(error),
+                },
+            )
         })
     }
 }

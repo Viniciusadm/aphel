@@ -27,6 +27,7 @@ public = true
 | `path` | Starts with `/`, no `..`. A segment written `{name}` matches one path segment and is passed to the backend as a parameter. |
 | `permission` | Permission the caller must hold. Not allowed with `public`. |
 | `public` | `true` for a route that does not need sign-in. |
+| `site` | `true` for a route called by islands on the public site, at `/_aphel/site/api/<plugin key>/<path>`. See [Site pages](/_aphel/docs/plugins/site-pages/#site-routes). |
 
 A plugin with routes needs a backend.
 
