@@ -63,7 +63,7 @@ pub async fn validate_dependencies_with(
     state: &AppState,
     manifest: &PluginManifest,
     pack: &[PluginManifest],
-    pending_contracts: &[String],
+    pending_modules: &[String],
 ) -> Result<(), AppError> {
     let registry = state.registry().await?;
     let mut provided: Vec<String> = state
@@ -91,7 +91,7 @@ pub async fn validate_dependencies_with(
             provided.extend(other.provides.contracts.clone());
         }
     }
-    provided.extend(pending_contracts.iter().cloned());
+    provided.extend(crate::provision::module_contracts(state, pending_modules));
     let unmet = manifest.uses.unmet(&provided);
     if !unmet.is_empty() {
         return Err(AppError::validation_code(
@@ -106,6 +106,7 @@ pub async fn validate_dependencies_with(
         let permission = aphel_sdk::platform::domain::access::Permission::parse(required.clone())?;
         if let Some(owner) = state.app.catalog().permission_owner(&permission)
             && !state.app.is_enabled(owner)
+            && !pending_modules.iter().any(|module| module == owner)
         {
             return Err(AppError::validation_code(
                 "plugin_dependency_unavailable",
@@ -198,7 +199,7 @@ pub async fn check_with(
     state: &AppState,
     manifest: &PluginManifest,
     pack: &[PluginManifest],
-    pending_contracts: &[String],
+    pending_modules: &[String],
 ) -> Result<(), AppError> {
     for entity in &manifest.entities {
         if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Dynamic
@@ -221,7 +222,7 @@ pub async fn check_with(
             aphel_sdk::platform::infrastructure::fields::managed_schema(&definition)?;
         }
     }
-    validate_dependencies_with(state, manifest, pack, pending_contracts).await?;
+    validate_dependencies_with(state, manifest, pack, pending_modules).await?;
     let pool = state.db()?;
     ensure_compatible(&pool, manifest).await?;
     preflight(&pool, manifest).await?;

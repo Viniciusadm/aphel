@@ -684,7 +684,7 @@ pub(crate) async fn prepare_install(
     package: crate::package::PluginPackage,
     extra_operations: &[String],
     pack: &[PluginManifest],
-    pending_contracts: &[String],
+    pending_modules: &[String],
 ) -> Result<PreparedInstall, AppError> {
     let compiled: Vec<String> = state
         .app
@@ -735,7 +735,7 @@ pub(crate) async fn prepare_install(
         )
         .await?;
     }
-    schema::check_with(state, &package.manifest, pack, pending_contracts).await?;
+    schema::check_with(state, &package.manifest, pack, pending_modules).await?;
     let conflicts = crate::conflicts::detect_for(&pool, &package.manifest).await?;
     let module_conflicts = crate::modules::plan(state, scope, &package.manifest).await?;
     Ok(PreparedInstall {
@@ -1016,8 +1016,6 @@ async fn install_pack(
     let (bytes, presets) = package_bytes(multipart).await?;
     let pack = crate::pack::read_pack(&bytes)?;
     let requirements = crate::provision::requirements(&state, scope, &pack.manifest).await?;
-    let pending_contracts =
-        crate::provision::module_contracts(&state, &requirements.modules_to_enable);
     let catalog = crate::bridge::host_catalog();
     crate::pack::ensure_dependencies(&pack, &catalog.operations)?;
     let provided = pack.provided_operations();
@@ -1040,7 +1038,7 @@ async fn install_pack(
             member.package.clone(),
             &provided,
             &manifests,
-            &pending_contracts,
+            &requirements.modules_to_enable,
         )
         .await
         .and_then(|mut ready| {
