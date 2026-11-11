@@ -88,3 +88,72 @@ pub(crate) async fn theme_file(state: &AppState, rest: &str) -> Response {
     }
     StatusCode::NOT_FOUND.into_response()
 }
+
+pub(crate) async fn appearance_file(state: &AppState, key: &str) -> Response {
+    match load_appearance_file(state, key).await {
+        Ok(Some(response)) => response,
+        Ok(None) => StatusCode::NOT_FOUND.into_response(),
+        Err(error) => {
+            tracing::warn!(%error, "could not serve appearance image");
+            StatusCode::SERVICE_UNAVAILABLE.into_response()
+        }
+    }
+}
+
+async fn load_appearance_file(state: &AppState, key: &str) -> Result<Option<Response>, AppError> {
+    let parts: Vec<&str> = key.split('/').collect();
+    let [entity, id, key] = parts.as_slice() else {
+        return Ok(None);
+    };
+    if !["logo", "dark_logo", "icon", "opening_image"].contains(key)
+        || ![
+            aphel_contract_site::APPEARANCE_ENTITY,
+            aphel_contract_site::PRESENTATION_ENTITY,
+        ]
+        .contains(entity)
+        || !state.app.is_enabled("publication")
+    {
+        return Ok(None);
+    }
+    let scope = AccessScope::system().acting_as("site", "public");
+    let id = uuid::Uuid::parse_str(id)
+        .map_err(|_| AppError::Validation("invalid appearance record".into()))?;
+    let Some(record) = state
+        .registry()
+        .await?
+        .handler(entity)?
+        .load(&aphel_sdk::records::RecordCtx::new(&scope, state), id)
+        .await?
+    else {
+        return Ok(None);
+    };
+    if record["state"] != "published" {
+        return Ok(None);
+    }
+    let Some(file) = record[*key].as_str() else {
+        return Ok(None);
+    };
+    let download = Ctx::from_state(state, &scope)
+        .await?
+        .files()
+        .await?
+        .download(&scope, file)
+        .await?;
+    if ![
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "image/gif",
+        "image/x-icon",
+        "image/vnd.microsoft.icon",
+    ]
+    .contains(&download.file.mime_type.as_str())
+    {
+        return Ok(None);
+    }
+    Ok(Some(with_headers(
+        (StatusCode::OK, Body::from_stream(download.content)).into_response(),
+        &download.file.mime_type,
+        "private, no-store",
+    )))
+}

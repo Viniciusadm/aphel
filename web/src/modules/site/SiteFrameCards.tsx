@@ -59,8 +59,8 @@ const DEFAULT_FOOTER: SiteFooterSettings = {
 }
 
 interface CardProps {
-  configuration: OrganizationConfiguration
-  overview: SiteOverview
+  configuration: Pick<OrganizationConfiguration, 'site'>
+  overview: Pick<SiteOverview, 'base_url' | 'default_language'>
 }
 
 type Errors = Record<string, string>
@@ -101,7 +101,7 @@ function blank(value: string): string | null {
   return value.trim() || null
 }
 
-function useLanguages(configuration: OrganizationConfiguration, overview: SiteOverview) {
+function useLanguages(configuration: Pick<OrganizationConfiguration, 'site'>, overview: Pick<SiteOverview, 'base_url' | 'default_language'>) {
   const extra = currentSettings(configuration).languages
   const [editing, setEditing] = useState<string | null>(null)
   return { extra, editing: editing && extra.includes(editing) ? editing : null, setEditing, defaultLanguage: overview.default_language }
@@ -187,7 +187,7 @@ interface HeaderDraft {
   translations: Record<string, SiteTexts>
 }
 
-function headerDraft(configuration: OrganizationConfiguration): HeaderDraft {
+function headerDraft(configuration: Pick<OrganizationConfiguration, 'site'>): HeaderDraft {
   const settings = currentSettings(configuration)
   const header = { ...DEFAULT_HEADER, ...settings.header }
   return {
@@ -383,7 +383,7 @@ interface FooterDraft {
   translations: Record<string, SiteTexts>
 }
 
-function footerDraft(configuration: OrganizationConfiguration): FooterDraft {
+function footerDraft(configuration: Pick<OrganizationConfiguration, 'site'>): FooterDraft {
   const settings = currentSettings(configuration)
   const footer = { ...DEFAULT_FOOTER, ...settings.footer }
   const contact = { ...DEFAULT_FOOTER.contact, ...footer.contact }

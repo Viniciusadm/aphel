@@ -75,6 +75,7 @@ pub(crate) struct SiteRuntime {
     pub themes: Vec<ThemeInfo>,
     pub theme: Option<String>,
     csp: BTreeMap<String, SiteCsp>,
+    pub appearance: aphel_contract_site::ThemeAppearance,
     pub uses_customers: bool,
     pub account_links: Vec<MenuCandidate>,
 }
@@ -217,6 +218,7 @@ pub(crate) async fn current(app: &App, theme: Option<&str>) -> Result<Arc<SiteRu
 
 fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> SiteRuntime {
     let mut environment = base_environment(theme.clone());
+    let mut appearance = aphel_contract_site::ThemeAppearance::default();
     let mut menu = Vec::new();
     let mut themes = Vec::new();
     let mut csp = BTreeMap::new();
@@ -260,10 +262,20 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             });
         }
         if theme.as_deref() == Some(bundle.owner.as_str()) {
+            appearance = bundle
+                .theme
+                .as_ref()
+                .map(|theme| theme.appearance.clone())
+                .unwrap_or_default();
             for (source, target) in [
                 (THEME_LAYOUT, LAYOUT_TEMPLATE),
                 (THEME_NOT_FOUND, NOT_FOUND_TEMPLATE),
                 (THEME_ERROR, ERROR_TEMPLATE),
+                ("site/theme/appearance.html", "aphel/appearance.html"),
+                (
+                    "site/theme/presentation_style.html",
+                    "aphel/presentation_style.html",
+                ),
             ] {
                 let Some(template) = bundle
                     .templates
@@ -359,6 +371,23 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     environment.add_global("__site_pages", Value::from_serialize(&paths));
     environment.add_global("__site_islands", Value::from_serialize(&islands));
     prefixed.sort_by_key(|route| std::cmp::Reverse(route.pattern.specificity()));
+    if let Some(owner) = &theme {
+        for (target, source) in &appearance.presentations {
+            let source = template_name(owner, source);
+            if environment.get_template(target).is_ok()
+                && environment.get_template(&source).is_ok()
+                && target != &source
+            {
+                let wrapper = format!(
+                    "{{% include {} %}}",
+                    serde_json::to_string(&source).unwrap_or_default()
+                );
+                if let Err(error) = environment.add_template_owned(target.clone(), wrapper) {
+                    tracing::warn!(%error, "could not install theme presentation");
+                }
+            }
+        }
+    }
     SiteRuntime {
         revision,
         routes,
@@ -368,6 +397,7 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
         exposures,
         environment,
         menu,
+        appearance,
         themes,
         theme,
         csp,
@@ -394,6 +424,14 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
     });
     for (name, source) in [
         (LAYOUT_TEMPLATE, include_str!("../theme/layout.html")),
+        (
+            "aphel/appearance.html",
+            include_str!("../theme/appearance.html"),
+        ),
+        (
+            "aphel/presentation_style.html",
+            include_str!("../theme/presentation_style.html"),
+        ),
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
         (HEAD_PARTIAL, include_str!("../theme/head.html")),
@@ -409,6 +447,10 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
     }
     crate::blocks::register(&mut environment);
     environment.add_filter("markdown", markdown);
+    environment.add_filter("block_toc", block_toc);
+    environment.add_filter("url_encode", |text: String| {
+        form_urlencoded::byte_serialize(text.as_bytes()).collect::<String>()
+    });
     environment.add_filter("date", date);
     environment.add_filter("image_url", image_url);
     environment.add_filter("from_json", from_json);
@@ -419,12 +461,39 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
     environment
 }
 
-fn markdown(text: Option<String>) -> Value {
+fn markdown(text: Option<String>, namespace: Option<String>) -> Value {
     let text = text.unwrap_or_default();
     let parser = pulldown_cmark::Parser::new_ext(&text, pulldown_cmark::Options::all());
+    let mut index = 0;
+    let parser = parser.map(|event| match event {
+        pulldown_cmark::Event::Start(pulldown_cmark::Tag::Heading {
+            level,
+            id,
+            classes,
+            attrs,
+        }) => {
+            index += 1;
+            let id = namespace
+                .as_ref()
+                .map(|namespace| format!("{namespace}-heading-{index}").into())
+                .or(id);
+            pulldown_cmark::Event::Start(pulldown_cmark::Tag::Heading {
+                level,
+                id,
+                classes,
+                attrs,
+            })
+        }
+        event => event,
+    });
     let mut html = String::new();
     pulldown_cmark::html::push_html(&mut html, parser);
-    Value::from_safe_string(ammonia::clean(&html))
+    Value::from_safe_string(
+        ammonia::Builder::default()
+            .add_generic_attributes(["id"])
+            .clean(&html)
+            .to_string(),
+    )
 }
 
 fn depth_of(value: &serde_json::Value) -> usize {
@@ -671,4 +740,99 @@ fn url_for(state: &State, page: String, params: Kwargs) -> Result<String, Error>
         )
     })?;
     Ok(format!("{prefix}{built}"))
+}
+
+fn block_toc(body: Option<String>) -> Value {
+    let blocks: Vec<serde_json::Value> = body
+        .and_then(|body| serde_json::from_str(&body).ok())
+        .unwrap_or_default();
+    let mut headings = Vec::new();
+    for block in blocks {
+        if !["text", "text_image"].contains(&block["type"].as_str().unwrap_or_default()) {
+            continue;
+        }
+        let Some(id) = block["id"].as_str() else {
+            continue;
+        };
+        let text = block["text"].as_str().unwrap_or_default();
+        let mut label = None::<String>;
+        let mut index = 0;
+        for event in pulldown_cmark::Parser::new_ext(text, pulldown_cmark::Options::all()) {
+            match event {
+                pulldown_cmark::Event::Start(pulldown_cmark::Tag::Heading { .. }) => {
+                    index += 1;
+                    label = Some(String::new());
+                }
+                pulldown_cmark::Event::Text(text) | pulldown_cmark::Event::Code(text) => {
+                    if let Some(label) = &mut label {
+                        label.push_str(&text);
+                    }
+                }
+                pulldown_cmark::Event::End(pulldown_cmark::TagEnd::Heading(_)) => {
+                    if let Some(label) = label.take().filter(|label| !label.trim().is_empty()) {
+                        headings.push(serde_json::json!({ "id": format!("{id}-heading-{index}"), "label": label }));
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    Value::from_serialize(headings)
+}
+
+pub(crate) fn probe(failures: &mut Vec<String>) {
+    let mut environment = base_environment(None);
+    if let Err(error) = environment.add_template("appearance-image-probe", "{% from 'aphel/blocks_macros.html' import picture %}{{ picture([{'id':'file','url':'/original'}], 'file', 640, 'Cover', '', false, 25, 75) }}") { failures.push(format!("appearance: image probe cannot compile: {error}")); }
+    let values: serde_json::Map<String, serde_json::Value> =
+        aphel_contract_site::appearance_properties()
+            .into_iter()
+            .map(|property| (property.key, property.default))
+            .collect();
+    let context = serde_json::json!({ "site": { "appearance": values, "texts": {}, "header": {}, "footer": {}, "menu": [], "locale": "en", "name": "Preview" }, "page": {}, "customer": null });
+    for name in [
+        LAYOUT_TEMPLATE,
+        "appearance-image-probe",
+        "aphel/presentation_style.html",
+        aphel_contract_site::BLOCKS_MACROS,
+    ] {
+        if let Err(error) = environment
+            .get_template(name)
+            .and_then(|template| template.render(&context))
+        {
+            failures.push(format!("appearance: cannot render {name}: {error}"));
+        }
+    }
+    let html = markdown(Some("## Heading".into()), Some("block".into()));
+    if !html
+        .as_str()
+        .is_some_and(|html| html.contains("id=\"block-heading-1\""))
+    {
+        failures.push("appearance: shared heading anchors are missing".into());
+    }
+}
+
+pub(crate) async fn active(
+    state: &aphel_sdk::platform::api::state::AppState,
+) -> Result<Arc<SiteRuntime>, AppError> {
+    let mut theme = crate::settings::site_settings(&state.organization_config.snapshot()).theme;
+    if state.app.is_enabled("publication") {
+        let scope = aphel_sdk::access::AccessScope::system();
+        if let Some(record) = crate::appearance::record(
+            state,
+            aphel_contract_site::APPEARANCE_ENTITY,
+            "site",
+            &scope,
+        )
+        .await?
+            && record["state"] == "published"
+        {
+            let values: serde_json::Value =
+                serde_json::from_str(record["values"].as_str().unwrap_or("{}"))
+                    .map_err(|error| AppError::Internal(error.to_string()))?;
+            if let Some(selected) = values["theme"].as_str() {
+                theme = (!selected.is_empty()).then(|| selected.to_owned());
+            }
+        }
+    }
+    current(&state.app, theme.as_deref()).await
 }

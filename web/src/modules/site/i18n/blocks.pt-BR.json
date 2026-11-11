@@ -181,5 +181,9 @@
     "add": "Adicionar bloco",
     "addHere": "Adicionar bloco aqui",
     "chooseType": "Que tipo de bloco?"
+  },
+  "crop": {
+    "horizontal": "Ponto focal horizontal",
+    "vertical": "Ponto focal vertical"
   }
 }

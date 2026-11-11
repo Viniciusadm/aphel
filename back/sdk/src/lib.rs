@@ -94,11 +94,12 @@ pub mod records {
         VisibleRecordLabel, visible_record_ids, visible_record_label, visible_record_labels,
     };
     pub use aphel_kernel::records::{
-        EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx, RecordTypeHandler,
-        StoredTextField, TextAssignment, TextComparison, archive_entity, backdate_dataset_history,
-        cleanup_dataset_files, copy_custom_columns, existing_entity_ids, existing_tables,
-        inspect_entity, lock_entity_version, mark_entity_deleted, matching_entity_text_ids,
-        move_core_references, optional_record, purge_entity, retire_custom, update_entity_text,
+        ChangedRecord, EntityWriteBehavior, GenericRecordHandler, PendingCommit, RecordCtx,
+        RecordTypeHandler, RecordValidating, StoredTextField, TextAssignment, TextComparison,
+        archive_entity, backdate_dataset_history, cleanup_dataset_files, copy_custom_columns,
+        existing_entity_ids, existing_tables, inspect_entity, lock_entity_version,
+        mark_entity_deleted, matching_entity_text_ids, move_core_references, optional_record,
+        purge_entity, query_ports, retire_custom, update_entity_text,
     };
     pub fn enabled(
         ctx: &aphel_kernel::Ctx<'_>,

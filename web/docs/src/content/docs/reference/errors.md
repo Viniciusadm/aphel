@@ -965,3 +965,9 @@ Answered when a module needs a capability that another module provides and that 
 | `task_types_unavailable` | 503 | Task types are not enabled. |
 | `task_writer_unavailable` | 503 | Task creation is not enabled. |
 | `workflow_views_unavailable` | 503 | Workflow views are not enabled. |
+
+### Site appearance
+
+- `site_appearance_invalid`: unsupported scope, property, value, image or collection target. Use the appearance catalog and an available target.
+- `site_appearance_unavailable`: Publication is disabled. Enable it before editing or publishing appearance.
+- `site_appearance_pending`: appearance provisioned by a pack has not completed publication. Resolve its publication request, then retry the import.

@@ -54,6 +54,7 @@ pub(crate) struct ResolveContext<'a> {
     pub state: &'a AppState,
     pub runtime: &'a SiteRuntime,
     pub site: &'a serde_json::Value,
+    pub appearance: Option<&'a crate::appearance::AppearancePreview>,
     pub suffix: Option<&'a str>,
 }
 
@@ -223,10 +224,43 @@ async fn list(
     let mut tags = vec![cache::entity_tag(&record_type)];
     crate::terms::annotate(context.state, exposure, &mut records, &mut tags).await?;
     let mut cards = String::new();
+    let mut presentations = std::collections::BTreeMap::new();
     for record in &mut records {
         images::attach_images(context.state, exposure, record).await?;
+        let target = context.runtime.prefixed.iter().find_map(|route| {
+            let prefix = route.page.prefix.as_ref()?;
+            let matches = match &route.page.source {
+                aphel_contract_site::PageSource::List { entity, .. } => entity == &record_type,
+                _ => false,
+            };
+            matches
+                .then(|| {
+                    record
+                        .get(&prefix.scope)
+                        .and_then(serde_json::Value::as_str)
+                        .map(|id| format!("{}:{id}", prefix.entity))
+                })
+                .flatten()
+        });
+        let mut site = context.site.clone();
+        if let Some(target) = target {
+            if let std::collections::btree_map::Entry::Vacant(entry) =
+                presentations.entry(target.clone())
+            {
+                let values = crate::appearance::presentation_values(
+                    context.state,
+                    &target,
+                    context.appearance,
+                )
+                .await?;
+                entry.insert(values);
+            }
+            if let Some(values) = site["appearance"].as_object_mut() {
+                values.extend(presentations[&target].clone());
+            }
+        }
         let values = json!({
-            "site": context.site,
+            "site": site,
             "record": record,
             "page": { "owner": owner, "key": "card" },
             "customer": null,

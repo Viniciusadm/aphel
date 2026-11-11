@@ -44,22 +44,31 @@ pub(crate) async fn invalidate_in_tx(
     record: &aphel_sdk::platform::application::shared::RecordRef,
 ) -> Result<(), AppError> {
     let record_type = record.record_type.as_str();
-    let tags = match site_bundles().await {
-        Ok(bundles)
-            if !bundles
-                .iter()
-                .flat_map(|bundle| &bundle.exposures)
-                .any(|exposure| exposure.entity == record_type) =>
-        {
-            return Ok(());
-        }
-        Ok(_) => vec![
-            cache::record_tag(record_type, &record.record_id.to_string()),
-            cache::entity_tag(record_type),
-        ],
-        Err(error) => {
-            tracing::warn!(%error, "site exposures unavailable; invalidating the whole site cache");
-            vec![ALL_TAG.to_owned()]
+    let tags = if [
+        aphel_contract_site::APPEARANCE_ENTITY,
+        aphel_contract_site::PRESENTATION_ENTITY,
+    ]
+    .contains(&record_type)
+    {
+        vec![ALL_TAG.to_owned()]
+    } else {
+        match site_bundles().await {
+            Ok(bundles)
+                if !bundles
+                    .iter()
+                    .flat_map(|bundle| &bundle.exposures)
+                    .any(|exposure| exposure.entity == record_type) =>
+            {
+                return Ok(());
+            }
+            Ok(_) => vec![
+                cache::record_tag(record_type, &record.record_id.to_string()),
+                cache::entity_tag(record_type),
+            ],
+            Err(error) => {
+                tracing::warn!(%error, "site exposures unavailable; invalidating the whole site cache");
+                vec![ALL_TAG.to_owned()]
+            }
         }
     };
     for tag in tags {

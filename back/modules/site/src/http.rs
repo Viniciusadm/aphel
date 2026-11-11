@@ -33,6 +33,7 @@ const MAX_REDIRECTS: i64 = 500;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
+        .merge(crate::appearance_http::router())
         .routes(routes!(overview))
         .routes(routes!(list_redirects))
         .routes(routes!(delete_redirect))
@@ -241,8 +242,7 @@ async fn overview(
 ) -> Result<Json<Data<SiteOverviewResponse>>, ApiError> {
     require_manage(&tenant.scope)?;
     let config = state.organization_config.snapshot();
-    let theme = site_settings(&config).theme;
-    let runtime = runtime::current(&state.app, theme.as_deref()).await?;
+    let runtime = runtime::active(&state).await?;
     let default_language = {
         use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
         aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(state.db()?)
@@ -314,8 +314,7 @@ async fn list_redirects(
     tenant: AuthContext,
 ) -> Result<Json<Data<Vec<SiteRedirectResponse>>>, ApiError> {
     require_manage(&tenant.scope)?;
-    let theme = site_settings(&state.organization_config.snapshot()).theme;
-    let runtime = runtime::current(&state.app, theme.as_deref()).await?;
+    let runtime = runtime::active(&state).await?;
     let path_of = |record_type: &str, field: &str, value: &str| {
         runtime
             .routes
@@ -684,8 +683,7 @@ async fn start_preview(
     Json(input): Json<StartSitePreview>,
 ) -> Result<(StatusCode, Json<Data<SitePreviewResponse>>), ApiError> {
     let config = state.organization_config.snapshot();
-    let current = site_settings(&config).theme;
-    let runtime = runtime::current(&state.app, current.as_deref()).await?;
+    let runtime = runtime::active(&state).await?;
     let path = match input
         .path
         .as_deref()
@@ -795,7 +793,7 @@ async fn render_preview(
     })?;
     let config = state.organization_config.snapshot();
     let settings = site_settings(&config);
-    let runtime = runtime::current(&state.app, settings.theme.as_deref()).await?;
+    let runtime = runtime::active(&state).await?;
     let mut record = preview_record(
         &state,
         &tenant,
@@ -843,6 +841,7 @@ async fn render_preview(
     let previewing = crate::preview::Preview {
         theme: None,
         record: Some(record),
+        appearance: None,
     };
     let html = crate::handler::render_draft(&state, &runtime, &previewing, path)
         .await?
@@ -965,8 +964,7 @@ async fn list_collections(
     State(state): State<AppState>,
     _tenant: AuthContext,
 ) -> Result<Json<Data<Vec<SiteCollectionResponse>>>, ApiError> {
-    let theme = site_settings(&state.organization_config.snapshot()).theme;
-    let runtime = runtime::current(&state.app, theme.as_deref()).await?;
+    let runtime = runtime::active(&state).await?;
     let registry = state.registry().await?;
     let collections = runtime
         .exposures()

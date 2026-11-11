@@ -17,6 +17,7 @@ const MAX_PATH_LENGTH: usize = 500;
 
 pub(crate) struct Preview {
     pub theme: Option<String>,
+    pub appearance: Option<crate::appearance::AppearancePreview>,
     pub record: Option<PreviewRecord>,
 }
 
@@ -130,7 +131,14 @@ async fn find(
                     .unwrap_or_default(),
                 values: BTreeMap::new(),
             });
-        (Preview { theme, record }, path)
+        (
+            Preview {
+                theme,
+                record,
+                appearance: None,
+            },
+            path,
+        )
     }))
 }
 

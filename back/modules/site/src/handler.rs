@@ -170,6 +170,9 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if !readable_method(request.method()) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
+    if request.uri().path() == "/interactions.js" {
+        return dynamic::interactions();
+    }
     if request.uri().path() == ISLANDS_LOADER_PATH {
         return dynamic::islands_loader();
     }
@@ -192,8 +195,7 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     {
         return dynamic::island(state, &rest).await;
     }
-    let theme = site_settings(&state.organization_config.snapshot()).theme;
-    let runtime = match runtime::current(&state.app, theme.as_deref()).await {
+    let runtime = match runtime::active(state).await {
         Ok(runtime) => runtime,
         Err(error) => {
             tracing::error!(%error, "could not load the site pages");
@@ -201,6 +203,9 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
         }
     };
     let path = request.uri().path().to_owned();
+    if let Some(key) = path.strip_prefix("/appearance/") {
+        return assets::appearance_file(state, key).await;
+    }
     if path == LOGO_PATH {
         return assets::logo(state).await;
     }
@@ -253,11 +258,13 @@ async fn serve(state: &AppState, request: Request) -> Response {
     let config = state.organization_config.snapshot();
     let settings = site_settings(&config);
     let previewing = preview::active(state, &parts.headers).await;
-    let theme = match &previewing {
-        Some(previewing) if previewing.record.is_none() => previewing.theme.clone(),
-        _ => settings.theme.clone(),
+    let selected = match &previewing {
+        Some(previewing) if previewing.record.is_none() => {
+            runtime::current(&state.app, previewing.theme.as_deref()).await
+        }
+        _ => runtime::active(state).await,
     };
-    let runtime = match runtime::current(&state.app, theme.as_deref()).await {
+    let runtime = match selected {
         Ok(runtime) => runtime,
         Err(error) => {
             tracing::error!(%error, "could not load the site pages");
@@ -616,6 +623,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "social": "Redes sociais",
             "contact": "Contato",
             "my_account": "Minha conta",
+            "share": "Compartilhar", "copy_url": "Copiar endereço", "copied": "Endereço copiado", "toc": "Nesta publicação", "empty_collection": "Ainda não há publicações aqui.", "updated": "Atualizada em",
         })
     } else {
         json!({
@@ -633,6 +641,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "social": "Social networks",
             "contact": "Contact",
             "my_account": "My account",
+            "share": "Share", "copy_url": "Copy URL", "copied": "URL copied", "toc": "On this page", "empty_collection": "There are no publications here yet.", "updated": "Updated on",
         })
     }
 }
@@ -846,9 +855,10 @@ async fn site_context(
         .code
         .as_ref()
         .and_then(|code| settings.translations.get(code));
-    Ok(SiteContext {
+    let mut context = SiteContext {
         suffix: language.suffix(),
         site: json!({
+            "appearance": crate::appearance::resolved(state, None, None).await?,
             "name": organization.name.as_str(),
             "locale": locale,
             "language": locale,
@@ -883,7 +893,10 @@ async fn site_context(
         }),
         customer: customer.cloned(),
         tags,
-    })
+    };
+    let appearance = context.site["appearance"].clone();
+    crate::appearance::apply_frame(&mut context.site, &appearance, state)?;
+    Ok(context)
 }
 
 struct RouteRequest<'a> {
@@ -916,7 +929,17 @@ async fn render_route(
         .map(|(name, value)| (name, decode_segment(&value)))
         .collect();
     let mut values = serde_json::Map::new();
-    values.insert("site".to_owned(), context.site.clone());
+    let target = prefix.map(|prefix| format!("{}:{}", prefix.entity, prefix.id));
+    let appearance = crate::appearance::resolved(
+        state,
+        target.as_deref(),
+        preview.and_then(|preview| preview.appearance.as_ref()),
+    )
+    .await?;
+    let mut site = context.site.clone();
+    crate::appearance::apply_frame(&mut site, &appearance, state)?;
+    site["appearance"] = appearance;
+    values.insert("site".to_owned(), site);
     values.insert("customer".to_owned(), json!(customer));
     let restriction = route
         .page
@@ -1064,7 +1087,12 @@ async fn render_route(
             let exposure = runtime
                 .exposure(&route.owner, entity)
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
-            let per_page = (*per_page).clamp(1, MAX_PER_PAGE);
+            let per_page = values["site"]["appearance"]["per_page"]
+                .as_str()
+                .and_then(|value| value.parse::<u64>().ok())
+                .filter(|_| prefix.is_some())
+                .unwrap_or(*per_page)
+                .clamp(1, MAX_PER_PAGE);
             let current = requested_page(query);
             let term_filter = match &route.page.term {
                 Some(page_term) => {
@@ -1090,6 +1118,13 @@ async fn render_route(
                 context.suffix.as_deref(),
             )
             .await?;
+            if preview
+                .and_then(|preview| preview.appearance.as_ref())
+                .is_some_and(|appearance| appearance.empty)
+            {
+                listed.records.clear();
+                listed.total = 0;
+            }
             let pages = listed.total.div_ceil(per_page).max(1);
             if current > pages {
                 return Ok(Outcome::NotFound);
@@ -1185,7 +1220,8 @@ async fn render_route(
         &deferred::ResolveContext {
             state,
             runtime,
-            site: &context.site,
+            site: &values["site"],
+            appearance: preview.and_then(|preview| preview.appearance.as_ref()),
             suffix: context.suffix.as_deref(),
         },
     )

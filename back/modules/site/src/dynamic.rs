@@ -171,3 +171,10 @@ pub(crate) async fn page_data(
         .map(Some)
         .map_err(|_| AppError::Internal(format!("the data route {path} did not answer JSON")))
 }
+
+pub(crate) fn interactions() -> Response {
+    javascript(
+        include_str!("../theme/interactions.js").as_bytes().to_vec(),
+        LOADER_CACHE_CONTROL,
+    )
+}

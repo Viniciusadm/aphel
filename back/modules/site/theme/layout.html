@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}{% if page.title %}{{ page.title }} · {% endif %}{{ site.name }}{% endblock %}</title>
+<title>{% block title %}{% if page.title %}{{ page.title }} · {% endif %}{{ site.appearance.name or site.name }}{% endblock %}</title>
 <style>
 :root{--bg:#fbfbfd;--fg:#1d1d24;--muted:#5d5d6b;--line:#e4e4ea;--accent:{{ site.color }};--link:var(--accent);color-scheme:light dark}
 @media (prefers-color-scheme:dark){:root{--bg:#111116;--fg:#ececf1;--muted:#a3a3b2;--line:#2a2a33;--link:color-mix(in srgb,var(--accent) 55%,#fff)}}
@@ -61,14 +61,16 @@ nav.languages a[aria-current]{color:var(--fg);font-weight:600}
 .account-links{display:grid;gap:.5rem;margin:1rem 0}
 details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}
 </style>
+{% include "aphel/appearance.html" %}
+{% include "aphel/presentation_style.html" %}
 {% include "aphel/head.html" %}
 {% block head %}{% endblock %}
 </head>
 <body>
 <header class="site" data-align="{{ site.header.align or 'left' }}"><div class="wrap">
-<a class="brand" href="{{ site.home }}">{% if site.logo_url %}<img src="{{ site.logo_url }}" alt="">{% endif %}<span>{{ site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
+<a class="brand" href="{{ site.home }}">{% if site.appearance.logo or site.logo_url %}<img class="{% if site.appearance.dark_logo %}light-logo{% endif %}" src="{{ site.appearance.logo or site.logo_url }}" alt="">{% endif %}{% if site.appearance.dark_logo %}<img class="dark-logo" src="{{ site.appearance.dark_logo }}" alt="">{% endif %}<span>{{ site.appearance.name or site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
 <div class="header-end">
-{% if site.menu %}<nav class="menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>{% endif %}
+{% if site.menu %}<nav class="menu desktop-menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav><details class="site-mobile-menu"><summary>{{ site.texts.menu }}</summary><nav class="menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav></details>{% endif %}
 {% if site.alternates %}<nav class="languages" aria-label="{{ site.texts.languages }}">{% for alternate in site.alternates %}<a href="{{ alternate.path }}" hreflang="{{ alternate.code }}" lang="{{ alternate.code }}"{% if alternate.current %} aria-current="true"{% endif %}>{{ alternate.code | upper }}</a>{% endfor %}</nav>{% endif %}
 {% if site.header.cta %}<a class="cta" href="{{ site.header.cta.url }}">{{ site.header.cta.label }}</a>{% endif %}
 {% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}
@@ -76,6 +78,7 @@ details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem
 </div></header>
 <main><div class="wrap">{% block content %}{% endblock %}</div></main>
 {% set footer = site.footer %}{% if not footer.empty or footer.credit %}<footer class="site"><div class="wrap">
+{% if site.appearance.footer_brand %}<p><strong>{{ site.appearance.name or site.name }}</strong></p>{% endif %}
 {% if not footer.empty %}<div class="footer-grid">
 {% if footer.text or footer.contact %}<div class="footer-about">
 {% if footer.text %}<p>{% for line in footer.text %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>{% endif %}
@@ -89,7 +92,7 @@ details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem
 {% if footer.links %}<nav aria-label="{{ site.texts.footer_links }}"><ul class="footer-links">{% for link in footer.links %}<li><a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.label }}</a></li>{% endfor %}</ul></nav>{% endif %}
 {% if footer.social %}<ul class="footer-social" aria-label="{{ site.texts.social }}">{% for link in footer.social %}<li><a href="{{ link.url }}" target="_blank" rel="noopener" aria-label="{{ link.label }}" title="{{ link.label }}">{{ social_icon(link.network) }}</a></li>{% endfor %}</ul>{% endif %}
 </div>{% endif %}
-{% if footer.credit %}<p>© {{ site.year }} {{ site.name }}</p>{% endif %}
+{% if footer.credit %}<p>© {{ site.year }} {{ site.appearance.name or site.name }}</p>{% endif %}
 </div></footer>{% endif %}
 </body>
 </html>

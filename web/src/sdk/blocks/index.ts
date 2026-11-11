@@ -1,3 +1,4 @@
+export { CropPreview as BlockCropPreview } from './CropPreview'
 export { AddBlock } from './AddBlock'
 export { BlockForm } from './BlockForm'
 export { BLOCK_ICONS, ITEM_ICONS as BLOCK_ITEM_ICONS } from './blockIcons'

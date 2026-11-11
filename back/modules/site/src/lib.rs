@@ -1,4 +1,6 @@
 pub(crate) mod account;
+mod appearance;
+mod appearance_http;
 pub(crate) mod assets;
 pub(crate) mod blocks;
 pub(crate) mod cache;
@@ -159,6 +161,7 @@ impl Module for SiteModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        appearance::register(app)?;
         app.entity(customer_entity()?.handler(Arc::new(
             aphel_kernel::records::GenericRecordHandler::new(customers::record_type()),
         )));
@@ -210,4 +213,9 @@ impl Module for SiteModule {
         .routes(|_| http::router());
         Ok(())
     }
+}
+
+pub fn probe(failures: &mut Vec<String>) {
+    appearance::probe(failures);
+    runtime::probe(failures);
 }

@@ -3,6 +3,6 @@
 {% if block.image %}<div class="blk-text-image-media">{{ picture(images, block.image, 640, block.alt) }}</div>{% endif %}
 <div class="blk-text-image-body">
 {% if block.title %}{% if position == 0 %}<h1>{{ block.title }}</h1>{% else %}<h2>{{ block.title }}</h2>{% endif %}{% endif %}
-{{ block.text | markdown }}
+{{ block.text | markdown(block.id) }}
 </div>
 </section>

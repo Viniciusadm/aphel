@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRight, ExternalLink, Eye, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { ArrowRight, ExternalLink, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -237,7 +237,6 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
   const settings = currentSettings(configuration)
   const {
     register,
-    control,
     handleSubmit,
     reset,
     formState: { isSubmitting, isDirty },
@@ -245,28 +244,9 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
     resolver: zodResolver(appearanceSchema),
     defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default' },
   })
-  const theme = useWatch({ control, name: 'theme' })
-  const [previewing, setPreviewing] = useState(false)
-
-  const preview = async () => {
-    const tab = window.open('about:blank', '_blank')
-    if (tab) tab.opener = null
-    setPreviewing(true)
-    try {
-      const { url } = await siteApi.startPreview(theme || null)
-      if (tab) tab.location.href = url
-      else window.location.assign(url)
-    } catch (error) {
-      tab?.close()
-      notifyError(error)
-    } finally {
-      setPreviewing(false)
-    }
-  }
-
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const saved = await saveSite({ theme: values.theme || null, home: values.home || null, scrollbar: values.scrollbar })
+      const saved = await saveSite({ home: values.home || null, scrollbar: values.scrollbar })
       reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default' })
       void invalidate()
       notifySuccess(t('saved'))
@@ -285,24 +265,6 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
         <form className="grid gap-4" onSubmit={onSubmit} noValidate>
           <UnsavedChangesGuard when={isDirty} />
           <fieldset className="grid gap-4" disabled={isSubmitting}>
-            <FormRow id="site-theme" label={t('appearance.theme')} hint={t('appearance.themeHint')}>
-              {(describedBy) => (
-                <div className="flex flex-wrap items-center gap-2">
-                  <NativeSelect id="site-theme" className="min-w-48 flex-1" aria-describedby={describedBy} {...register('theme')}>
-                    <option value="">{t('appearance.defaultTheme')}</option>
-                    {overview.themes.map((option) => (
-                      <option key={option.key} value={option.key}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                  <Button type="button" variant="outline" disabled={previewing} onClick={() => void preview()}>
-                    <Eye aria-hidden="true" />
-                    {t('appearance.preview')}
-                  </Button>
-                </div>
-              )}
-            </FormRow>
             {overview.home_candidates.length > 1 && (
               <FormRow id="site-home" label={t('appearance.home')} hint={t('appearance.homeHint')}>
                 {(describedBy) => (

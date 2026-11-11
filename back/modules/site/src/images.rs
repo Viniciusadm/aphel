@@ -298,7 +298,7 @@ fn output_type(source: &str) -> (&'static str, image::ImageFormat) {
     }
 }
 
-async fn collect(
+pub(crate) async fn collect(
     mut stream: aphel_sdk::platform::application::shared::ByteStream,
 ) -> Result<Vec<u8>, AppError> {
     let mut buffer = Vec::new();

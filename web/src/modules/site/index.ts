@@ -23,7 +23,7 @@ const siteModule = defineModule({
         to: screen.path,
         label: `nav.${screen.key}`,
         icon: ICONS[screen.key],
-        permission: SETTINGS_MANAGE,
+        permission: screen.key === 'appearance' || screen.key === 'frame' ? ['site.appearance.edit', 'site.presentation.edit'] : SETTINGS_MANAGE,
         section: 'operations',
         group: { key: 'site', label: 'nav.site', icon: Globe },
         order: 41 + index,

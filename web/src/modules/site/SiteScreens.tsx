@@ -17,7 +17,7 @@ import {
   RedirectsCard,
   SiteSummary,
 } from './SiteCards'
-import { FooterCard, HeaderCard } from './SiteFrameCards'
+import { AppearanceEditor } from './AppearanceEditor'
 
 type ScreenKey = 'general' | 'frame' | 'appearance' | 'languages' | 'customers' | 'redirects'
 
@@ -63,6 +63,7 @@ export function SiteGeneralPage() {
         <>
           <SiteSummary overview={overview} />
           <AddressCard configuration={configuration} />
+          <AppearanceCard configuration={configuration} overview={overview} />
           <CacheCard />
         </>
       )}
@@ -75,9 +76,8 @@ export function SiteFramePage() {
     <SiteScreen screen="frame">
       {(configuration, overview) => (
         <>
-          <HeaderCard configuration={configuration} overview={overview} />
+          <AppearanceEditor />
           <MenuCard key={overview.menu_items.map((item) => item.id).join()} configuration={configuration} overview={overview} />
-          <FooterCard configuration={configuration} overview={overview} />
         </>
       )}
     </SiteScreen>
@@ -85,17 +85,8 @@ export function SiteFramePage() {
 }
 
 export function SiteAppearancePage() {
-  return (
-    <SiteScreen screen="appearance">
-      {(configuration, overview) => (
-        <AppearanceCard
-          key={JSON.stringify([configuration.site?.theme, configuration.site?.home, configuration.site?.scrollbar])}
-          configuration={configuration}
-          overview={overview}
-        />
-      )}
-    </SiteScreen>
-  )
+  const { t } = useTranslation('site')
+  return <Page><PageHeader title={t('screens.appearance.title')} description={t('screens.appearance.description')} /><AppearanceEditor /></Page>
 }
 
 export function SiteLanguagesPage() {

@@ -1,3 +1,6 @@
+mod appearance;
+pub use appearance::*;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use aphel_kernel::errors::AppError;
@@ -38,6 +41,8 @@ pub const BUILTIN_TEMPLATES: &[&str] = &[
     "aphel/not_found.html",
     "aphel/error.html",
     "aphel/account.html",
+    "aphel/appearance.html",
+    "aphel/presentation_style.html",
 ];
 const REFERENCE_TAGS: &[&str] = &["include", "extends", "import", "from"];
 pub const ISLANDS_DIR: &str = "site/islands";
@@ -194,6 +199,8 @@ impl SiteMenuItem {
 pub struct SiteTheme {
     pub name: String,
     pub description: Option<String>,
+    #[serde(default)]
+    pub appearance: ThemeAppearance,
 }
 
 fn is_schema_type(value: &str) -> bool {

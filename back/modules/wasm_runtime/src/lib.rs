@@ -83,9 +83,7 @@ impl Module for WasmRuntimeModule {
         app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(std::sync::Arc::new(
             provision::RecordProvisioner,
         ));
-        app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath(
-            "p",
-        )));
+        app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath("p")));
         app.contribute::<dyn aphel_sdk::platform::modules::RouteTakeover>(std::sync::Arc::new(
             takeover::AliasTakeover,
         ));

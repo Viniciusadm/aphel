@@ -1835,6 +1835,7 @@ name = "aphel-mod-site"
 version = "0.1.0"
 dependencies = [
  "ammonia",
+ "aphel-contract-publication",
  "aphel-contract-site",
  "aphel-contract-tagging",
  "aphel-kernel",

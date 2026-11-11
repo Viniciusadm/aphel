@@ -1,1 +1,1 @@
-{% if block.text %}<section class="blk-block blk-text blk-width-{{ block.width }}">{{ block.text | markdown }}</section>{% endif %}
+{% if block.text %}<section class="blk-block blk-text blk-width-{{ block.width }}">{{ block.text | markdown(block.id) }}</section>{% endif %}

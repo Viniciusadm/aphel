@@ -379,6 +379,8 @@ pub(crate) fn run() -> CliResult {
     hook_order(&mut failures);
     record_validation_order(&mut failures);
     registry_integrity(&mut failures);
+    #[cfg(feature = "plugins")]
+    module_site::probe(&mut failures);
     operations(&mut failures);
     provided_operations(&mut failures);
     provided_contributions(&mut failures);

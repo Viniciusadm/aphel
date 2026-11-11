@@ -238,6 +238,7 @@ fn bundle_of(
             })
             .collect(),
         theme: site.theme.as_ref().map(|theme| SiteTheme {
+            appearance: theme.appearance.clone(),
             name: theme.name.clone(),
             description: theme.description.clone(),
         }),

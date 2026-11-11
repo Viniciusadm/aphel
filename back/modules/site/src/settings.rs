@@ -356,7 +356,7 @@ impl OrganizationConfigExtension for SiteConfiguration {
     }
 }
 
-fn frame_violations(settings: &SiteSettings) -> Vec<FieldViolation> {
+pub(crate) fn frame_violations(settings: &SiteSettings) -> Vec<FieldViolation> {
     let mut violations = Vec::new();
     let mut fail =
         |field: &str, message: String| violations.push(FieldViolation::new(field, message));

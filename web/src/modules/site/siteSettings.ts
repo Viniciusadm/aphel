@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react'
 import { type OrganizationConfiguration, type SiteLink, type SiteSettings, useSaveConfiguration } from '@/sdk'
 
 export interface SiteHeaderSettings {
@@ -47,14 +48,17 @@ const DEFAULT_SETTINGS: SiteModuleSettings = {
   scrollbar: 'default',
 }
 
-export function currentSettings(configuration: OrganizationConfiguration): SiteModuleSettings {
+export function currentSettings(configuration: Pick<OrganizationConfiguration, 'site'>): SiteModuleSettings {
   return { ...DEFAULT_SETTINGS, ...(configuration.site as Partial<SiteModuleSettings> | undefined) }
 }
 
-export function useSaveSite(configuration: OrganizationConfiguration) {
+export const AppearanceFrameDraft = createContext<((values: Partial<SiteModuleSettings>) => Promise<void>) | null>(null)
+
+export function useSaveSite<T extends Pick<OrganizationConfiguration, 'site'>>(configuration: T) {
   const save = useSaveConfiguration()
+  const frameDraft = useContext(AppearanceFrameDraft)
   return (site: Partial<SiteModuleSettings>, extra: Record<string, unknown> = {}) =>
-    save({ ...extra, site: { ...currentSettings(configuration), ...site } })
+    frameDraft && (site.header || site.footer) ? frameDraft(site).then(() => ({ ...configuration, site: { ...currentSettings(configuration), ...site } })) : save({ ...extra, site: { ...currentSettings(configuration), ...site } })
 }
 
 export function languageName(code: string, locale: string): string {

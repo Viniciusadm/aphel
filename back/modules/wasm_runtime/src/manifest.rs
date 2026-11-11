@@ -205,6 +205,8 @@ pub struct SiteThemeSpec {
     pub name: String,
     #[serde(default)]
     pub description: Option<String>,
+    #[serde(default)]
+    pub appearance: aphel_contract_site::ThemeAppearance,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
