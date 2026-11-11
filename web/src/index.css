@@ -3,6 +3,7 @@
 @import 'tailwindcss';
 @import './sdk/theme.css';
 @import './sdk/tokens.css';
+@import './sdk/blocks/blocks.css';
 
 @layer base {
   * {

@@ -1,0 +1,8 @@
+{% from "aphel/blocks_macros.html" import picture %}
+<section class="blk-block blk-text-image blk-side-{{ block.image_side }}{% if not block.image %} blk-text-only{% endif %}">
+{% if block.image %}<div class="blk-text-image-media">{{ picture(images, block.image, 640, block.alt) }}</div>{% endif %}
+<div class="blk-text-image-body">
+{% if block.title %}{% if position == 0 %}<h1>{{ block.title }}</h1>{% else %}<h2>{{ block.title }}</h2>{% endif %}{% endif %}
+{{ block.text | markdown }}
+</div>
+</section>

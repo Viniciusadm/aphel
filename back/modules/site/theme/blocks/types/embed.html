@@ -1,0 +1,10 @@
+{% set heights = {'small': 480, 'medium': 720, 'large': 1000} %}
+{% if block.embed_id %}{% set source = {
+  'google_forms': 'https://docs.google.com/forms/d/e/' ~ block.embed_id ~ '/viewform?embedded=true',
+  'typeform': 'https://form.typeform.com/to/' ~ block.embed_id,
+  'tally': 'https://tally.so/embed/' ~ block.embed_id ~ '?transparentBackground=1',
+  'jotform': 'https://form.jotform.com/' ~ block.embed_id,
+  'calendly': 'https://calendly.com/' ~ block.embed_id ~ '?hide_gdpr_banner=1',
+}[block.provider] %}{% if source %}<section class="blk-block blk-embed blk-width-narrow">
+<iframe class="blk-embed-frame" src="{{ source }}" title="{{ block.title or site.name }}" height="{{ heights[block.height] or 720 }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</section>{% endif %}{% endif %}

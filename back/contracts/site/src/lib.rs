@@ -22,10 +22,19 @@ pub const THEME_ERROR: &str = "site/theme/error.html";
 pub const THEME_ASSETS_DIR: &str = "site/theme/assets";
 pub const HEAD_PARTIAL: &str = "aphel/head.html";
 pub const ICONS_PARTIAL: &str = "aphel/icons.html";
+pub const BLOCKS_TEMPLATE: &str = "aphel/blocks.html";
+pub const BLOCKS_STYLE: &str = "aphel/blocks_style.html";
+pub const BLOCKS_MACROS: &str = "aphel/blocks_macros.html";
+pub const BLOCKS_ICONS: &str = "aphel/blocks_icons.html";
+pub const BLOCK_TYPES_DIR: &str = "aphel/blocks";
 pub const BUILTIN_TEMPLATES: &[&str] = &[
     LAYOUT_TEMPLATE,
     HEAD_PARTIAL,
     ICONS_PARTIAL,
+    BLOCKS_TEMPLATE,
+    BLOCKS_STYLE,
+    BLOCKS_MACROS,
+    BLOCKS_ICONS,
     "aphel/not_found.html",
     "aphel/error.html",
     "aphel/account.html",

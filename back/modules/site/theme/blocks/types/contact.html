@@ -1,0 +1,15 @@
+{% from "aphel/blocks_icons.html" import icon %}
+<section class="blk-block blk-contact">
+<div class="blk-contact-body">
+{% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+{% if block.text %}<p>{{ block.text }}</p>{% endif %}
+<ul class="blk-contact-list">
+{% if block.phone %}<li>{{ icon('phone') }}<a href="tel:{{ block.phone | replace(' ', '') | replace('(', '') | replace(')', '') | replace('-', '') | replace('.', '') }}">{{ block.phone_display or block.phone }}</a></li>{% endif %}
+{% if block.whatsapp %}<li>{{ icon('message') }}<a href="https://wa.me/{{ block.whatsapp | replace(' ', '') | replace('(', '') | replace(')', '') | replace('-', '') | replace('.', '') | replace('+', '') }}" rel="noopener">WhatsApp {{ block.whatsapp_display or block.whatsapp }}</a></li>{% endif %}
+{% if block.email %}<li>{{ icon('mail') }}<a href="mailto:{{ block.email }}">{{ block.email }}</a></li>{% endif %}
+{% if block.address %}<li>{{ icon('map-pin') }}<span>{{ block.address }}</span></li>{% endif %}
+{% if block.hours %}<li>{{ icon('clock') }}<span class="blk-contact-hours">{{ block.hours }}</span></li>{% endif %}
+</ul>
+</div>
+{% if block.show_map and block.address %}<iframe class="blk-contact-map" title="{{ block.address }}" src="https://www.google.com/maps?q={{ block.address | urlencode }}&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>{% endif %}
+</section>

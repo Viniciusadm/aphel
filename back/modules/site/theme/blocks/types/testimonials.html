@@ -1,0 +1,11 @@
+{% from "aphel/blocks_macros.html" import picture %}
+{% set quotes = block['items'] | selectattr('quote') | list %}
+{% if quotes %}<section class="blk-block blk-testimonials">
+{% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+<div class="blk-testimonials-grid">
+{% for item in quotes %}<figure class="blk-testimonial">
+<blockquote>{{ item.quote }}</blockquote>
+{% if item.name or item.image %}<figcaption>{% if item.image %}{{ picture(images, item.image, 320, '', 'blk-testimonial-photo') }}{% endif %}<span>{% if item.name %}<strong>{{ item.name }}</strong>{% endif %}{% if item.role %}<small>{{ item.role }}</small>{% endif %}</span></figcaption>{% endif %}
+</figure>{% endfor %}
+</div>
+</section>{% endif %}

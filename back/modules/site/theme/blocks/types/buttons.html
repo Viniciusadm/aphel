@@ -1,0 +1,2 @@
+{% from "aphel/blocks_macros.html" import href %}
+{% if block.buttons %}<div class="blk-block blk-buttons blk-align-{{ block.align }}">{% for button in block.buttons %}{% if button.link %}<a class="blk-button blk-button-{{ button.style }}" href="{{ href(button.link, site.prefix) }}">{{ button.label }}</a>{% endif %}{% endfor %}</div>{% endif %}

@@ -1,0 +1,5 @@
+{% if block.owner and block.entity %}<section class="blk-block blk-collection">
+{% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+{{ site_list(block.owner, block.entity, sort='-created_at' if block.sort == 'newest' else 'created_at', limit=block.limit | int) }}
+{% if block.more_label and block.more_link %}<p class="blk-collection-more"><a class="blk-button blk-button-secondary" href="{{ site_path(block.more_link) }}">{{ block.more_label }}</a></p>{% endif %}
+</section>{% endif %}

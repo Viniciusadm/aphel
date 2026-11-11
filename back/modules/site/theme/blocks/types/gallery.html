@@ -1,0 +1,8 @@
+{% from "aphel/blocks_macros.html" import picture %}
+{% set pictures = block['items'] | selectattr('image') | list %}
+{% if pictures %}<section class="blk-block blk-gallery blk-gallery-{{ block.layout }} blk-columns-{{ block.columns }}">
+{% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+<ul class="blk-gallery-list"{% if block.layout == 'carousel' %} tabindex="0" aria-label="{{ block.title or site.name }}"{% endif %}>
+{% for item in pictures %}<li><figure>{{ picture(images, item.image, 960 if block.layout == 'carousel' else 640, item.alt) }}{% if item.caption %}<figcaption>{{ item.caption }}</figcaption>{% endif %}</figure></li>{% endfor %}
+</ul>
+</section>{% endif %}

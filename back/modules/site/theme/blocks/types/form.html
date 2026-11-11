@@ -1,0 +1,5 @@
+<section class="blk-block blk-form blk-width-narrow">
+{% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+{% if block.text %}<p>{{ block.text }}</p>{% endif %}
+{% if block.form %}{{ embed('form', block.form) }}{% endif %}
+</section>

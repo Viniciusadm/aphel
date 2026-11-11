@@ -1,0 +1,9 @@
+{% from "aphel/blocks_macros.html" import href, picture %}
+<section class="blk-block blk-hero blk-align-{{ block.align }}{% if block.image %} blk-hero-image{% endif %}">
+{% if block.image %}{{ picture(images, block.image, 1280, '', 'blk-hero-background', position == 0) }}{% endif %}
+<div class="blk-hero-content">
+{% if block.title %}{% if position == 0 %}<h1>{{ block.title }}</h1>{% else %}<h2>{{ block.title }}</h2>{% endif %}{% endif %}
+{% if block.subtitle %}<p class="blk-hero-subtitle">{{ block.subtitle }}</p>{% endif %}
+{% if block.button_label and block.button_link %}<p><a class="blk-button blk-button-primary" href="{{ href(block.button_link, site.prefix) }}">{{ block.button_label }}</a></p>{% endif %}
+</div>
+</section>

@@ -6,7 +6,7 @@ NPM := npm --prefix web
 .DEFAULT_GOAL := help
 
 .PHONY: help up down modules dev-back dev-web lint fmt api-types build
-.PHONY: sdk catalog-docs probe
+.PHONY: sdk catalog-docs probe blocks-wasm
 
 help:
 	@echo "Targets:"
@@ -22,6 +22,7 @@ help:
 	@echo "  api-types  generate web/src/api/schema.d.ts from the OpenAPI document"
 	@echo "  build      release build (web + binary)"
 	@echo "  sdk        generate types and build the TypeScript SDK (sdk/typescript)"
+	@echo "  blocks-wasm  build the content blocks validator for the browser (web/src/sdk/blocks/aphel_blocks.wasm)"
 
 up:
 	docker compose up -d --wait
@@ -79,3 +80,7 @@ sdk:
 	npm --prefix sdk/typescript ci
 	npm --prefix sdk/typescript run generate
 	npm --prefix sdk/typescript run build
+
+blocks-wasm:
+	cd sdk/rust/aphel-blocks && cargo build --release --target wasm32-unknown-unknown --features web
+	cp sdk/rust/aphel-blocks/target/wasm32-unknown-unknown/release/aphel_blocks.wasm web/src/sdk/blocks/aphel_blocks.wasm

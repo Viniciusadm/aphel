@@ -1,0 +1,4 @@
+{% if block.video_id %}<figure class="blk-block blk-video">
+<div class="blk-video-frame"><iframe src="{% if block.provider == 'vimeo' %}https://player.vimeo.com/video/{{ block.video_id }}?dnt=1{% else %}https://www.youtube-nocookie.com/embed/{{ block.video_id }}{% endif %}" title="{{ block.title or block.caption or site.name }}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+{% if block.caption %}<figcaption>{{ block.caption }}</figcaption>{% endif %}
+</figure>{% endif %}

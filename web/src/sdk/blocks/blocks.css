@@ -1,0 +1,243 @@
+@layer plugin-ui {
+  .blocks-muted {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .blocks-hidden {
+    display: none;
+  }
+
+  .blocks-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .blocks-insert {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0.5rem 0;
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    background: var(--background);
+    color: var(--muted-foreground);
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 0.15s;
+  }
+
+  .blocks-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding-top: 0.75rem;
+  }
+
+  .blocks-fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+  }
+
+  .blocks-fieldset legend {
+    padding: 0 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .blocks-add {
+    align-self: flex-start;
+  }
+
+  .blocks-types {
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+    max-height: min(32rem, calc(var(--radix-popover-content-available-height, 70vh) - 1rem));
+    overflow: hidden;
+  }
+
+  .blocks-types ul {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .blocks-types ul {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .blocks-type {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border: 0;
+    border-radius: calc(var(--card-radius) - 2px);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .blocks-type:hover,
+  .blocks-type:focus-visible {
+    background: var(--accent);
+    outline: none;
+  }
+
+  .blocks-type span {
+    display: grid;
+  }
+
+  .blocks-type strong {
+    font-size: 0.875rem;
+  }
+
+  .blocks-type small {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .blocks-image-field {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .blocks-image-current img {
+    display: block;
+    max-width: 100%;
+    max-height: 10rem;
+    border-radius: calc(var(--card-radius) - 2px);
+    object-fit: cover;
+  }
+
+  .blocks-library {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0.375rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .blocks-library-item {
+    display: block;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--muted);
+    cursor: pointer;
+  }
+
+  .blocks-library-item:hover,
+  .blocks-library-item:focus-visible {
+    border-color: var(--primary);
+    outline: 2px solid var(--primary);
+  }
+
+  .blocks-library-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .blocks-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .blocks-fieldset {
+    position: relative;
+  }
+
+  .blocks-item-tools {
+    position: absolute;
+    top: -0.65rem;
+    right: 0.5rem;
+    display: flex;
+    background: var(--card);
+  }
+
+  .blocks-item-tools button {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .blocks-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .blocks-icon-option {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--background);
+    color: var(--muted-foreground);
+    cursor: pointer;
+  }
+
+  .blocks-icon-option[aria-checked='true'] {
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+
+  .blocks-icon-option:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
+  }
+
+  .blocks-library-entry {
+    position: relative;
+  }
+
+  .blocks-library-remove {
+    position: absolute;
+    top: -0.4rem;
+    right: -0.4rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--background);
+    color: var(--destructive);
+    cursor: pointer;
+  }
+
+  .blocks-insert:hover,
+  .blocks-insert:focus-visible {
+    opacity: 1;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+}

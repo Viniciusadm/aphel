@@ -1,5 +1,6 @@
 pub(crate) mod account;
 pub(crate) mod assets;
+pub(crate) mod blocks;
 pub(crate) mod cache;
 pub(crate) mod customers;
 pub(crate) mod data;

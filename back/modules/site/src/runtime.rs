@@ -390,6 +390,7 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
             tracing::error!(template = name, %error, "the built-in site theme does not compile");
         }
     }
+    crate::blocks::register(&mut environment);
     environment.add_filter("markdown", markdown);
     environment.add_filter("date", date);
     environment.add_filter("image_url", image_url);

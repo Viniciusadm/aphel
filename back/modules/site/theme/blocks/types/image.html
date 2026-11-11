@@ -1,0 +1,2 @@
+{% from "aphel/blocks_macros.html" import picture %}
+{% if block.image %}<figure class="blk-block blk-image blk-width-{{ block.width }}">{{ picture(images, block.image, 1280 if block.width != 'narrow' else 640, block.alt, '', position == 0) }}{% if block.caption %}<figcaption>{{ block.caption }}</figcaption>{% endif %}</figure>{% endif %}

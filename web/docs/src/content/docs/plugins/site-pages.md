@@ -124,6 +124,26 @@ A plugin lets other plugins' pages list its records by shipping `site/cards/<ent
 
 `site_list` and `embed` are filled after the page is rendered, so they cannot be used inside `title` or `seo`. Pages that list records are refreshed when a record of that entity changes; pages with embeds stay in the cache for at most 60 seconds.
 
+## Content blocks
+
+Plugins that store structured content as blocks (hero, text, image, text with image, buttons, spacer, gallery, columns, FAQ, testimonials, contact, video, external form, form, booking, collection) share one implementation instead of shipping their own:
+
+| Part | Where | What it gives |
+| --- | --- | --- |
+| Validation | Rust crate `aphel-blocks` in `sdk/rust/aphel-blocks` (feature `plugin` for `PluginError` conversions) | `blocks::normalize` (known types and fields, text limits, safe links, at most 100 blocks), `blocks::image_ids`/`replace_images`, `slug::check`/`slug::suggest`. Errors use the codes `block_*`, `blocks_*` and `slug_*`; `BlockError::at(field)` points them at your field |
+| Editor | `@aphel/web-sdk` | `BlockForm`, `AddBlock`, `BlockImageField`, `BLOCK_ICONS`, the `Block` types, `newBlock`/`parseBlocks`/`serializeBlocks`, `blockProblems`/`blockSummary` and `useBlocksValidation`, which loads the same Rust validation compiled to WebAssembly. Images are attachments of the record you pass as `record: { recordType, recordId }`. Labels come from the `site-blocks` namespace |
+| Rendering | Built-in templates of the `site` module | `aphel/blocks.html` renders a list of blocks and `aphel/blocks_style.html` their styles |
+
+A page template only wraps the catalog with its own data:
+
+```html
+{% extends "layout.html" %}
+{% block head %}{% include "aphel/blocks_style.html" %}{% endblock %}
+{% block content %}{% with blocks = record.blocks | from_json, images = record.images %}{% include "aphel/blocks.html" %}{% endwith %}{% endblock %}
+```
+
+`images` is the list of public images of the record (`images = true` on the exposure). Every block is wrapped in an element whose id is the block id, so links such as `#contact` jump to it; unknown block types render nothing.
+
 ## Dynamic pages
 
 Server-rendered pages cover what visitors read. For what they do (a cart, a like button, a shipping quote), a plugin with a backend adds **site routes** and **islands**.

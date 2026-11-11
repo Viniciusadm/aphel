@@ -1,0 +1,13 @@
+{% from "aphel/blocks_macros.html" import href, picture %}
+{% from "aphel/blocks_icons.html" import icon %}
+{% if block['items'] %}<section class="blk-block blk-columns blk-align-{{ block.align }}">
+{% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+<div class="blk-columns-grid blk-count-{{ block['items'] | length }}">
+{% for item in block['items'] %}<div class="blk-column">
+{% if item.image %}{{ picture(images, item.image, 640, item.alt, 'blk-column-image') }}{% elif item.icon != 'none' %}<span class="blk-column-icon">{{ icon(item.icon) }}</span>{% endif %}
+{% if item.title %}<h3>{{ item.title }}</h3>{% endif %}
+{{ item.text | markdown }}
+{% if item.link_label and item.link %}<p><a href="{{ site_path(item.link) }}">{{ item.link_label }}</a></p>{% endif %}
+</div>{% endfor %}
+</div>
+</section>{% endif %}
