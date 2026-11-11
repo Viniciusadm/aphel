@@ -109,6 +109,7 @@ pub(crate) async fn api(state: &AppState, rest: &str, request: Request) -> Respo
         .await
         .ok()
         .and_then(|client| client.0.ip);
+    let customer = crate::session::customer(state, &parts.headers).await;
     let request = SiteApiRequest {
         owner: owner.to_owned(),
         method: parts.method.clone(),
@@ -117,6 +118,7 @@ pub(crate) async fn api(state: &AppState, rest: &str, request: Request) -> Respo
         headers: parts.headers.clone(),
         body,
         client,
+        customer,
     };
     match forward(state, request).await {
         Ok(response) => response,
@@ -128,6 +130,7 @@ pub(crate) async fn page_data(
     state: &AppState,
     owner: &str,
     path: &str,
+    customer: Option<aphel_contract_site::SiteCustomer>,
 ) -> Result<Option<Value>, AppError> {
     let request = SiteApiRequest {
         owner: owner.to_owned(),
@@ -137,6 +140,7 @@ pub(crate) async fn page_data(
         headers: HeaderMap::new(),
         body: Bytes::new(),
         client: None,
+        customer,
     };
     let response = match forward(state, request).await {
         Ok(response) => response,

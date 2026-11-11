@@ -3,7 +3,7 @@ use serde_json::{Map, Value};
 use crate::bindings::aphel::plugin::host;
 use crate::bindings::aphel::plugin::types as wit;
 use crate::{
-    ActionCall, Actor, ActorKind, Change, Ctx, Event, FieldError, HookCall, HttpRequest,
+    ActionCall, Actor, ActorKind, Change, Ctx, Customer, Event, FieldError, HookCall, HttpRequest,
     HttpResponse, ListQuery, Mutation, Notification, Page, Plugin, PluginError, Request,
     WidgetRequest,
 };
@@ -264,9 +264,16 @@ pub(crate) fn list_teams() -> Result<Value, PluginError> {
     Ok(value(&host::list_teams()?))
 }
 
-pub(crate) fn sign_bytes(identity: &str, algorithm: &str, data: &[u8]) -> Result<crate::Signature, PluginError> {
+pub(crate) fn sign_bytes(
+    identity: &str,
+    algorithm: &str,
+    data: &[u8],
+) -> Result<crate::Signature, PluginError> {
     let signature = host::sign_bytes(identity, algorithm, data)?;
-    Ok(crate::Signature { value: signature.value, certificates: signature.certificates })
+    Ok(crate::Signature {
+        value: signature.value,
+        certificates: signature.certificates,
+    })
 }
 
 pub(crate) fn effect_result(id: &str) -> Result<Option<String>, PluginError> {
@@ -447,11 +454,18 @@ pub fn on_route<P: Plugin>(
         body: value(&request.body_json),
         body_raw: request.body_raw,
         actor: actor(request.actor),
+        customer: request.customer.map(|customer| Customer {
+            id: customer.id,
+            email: customer.email,
+            name: customer.name,
+            email_verified: customer.email_verified,
+        }),
     };
     let response = plugin.on_route(&Ctx::new(), &request)?;
     Ok(wit::Response {
         status: response.status,
         body_json: response.body.to_string(),
+        headers: response.headers,
     })
 }
 

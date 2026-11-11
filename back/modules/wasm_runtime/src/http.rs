@@ -2134,6 +2134,40 @@ pub(crate) struct RouteCall {
     pub(crate) query: Option<String>,
     pub(crate) headers: HeaderMap,
     pub(crate) body: Bytes,
+    pub(crate) customer: Option<aphel_contract_site::SiteCustomer>,
+}
+
+const PLUGIN_RESPONSE_HEADERS: [&str; 6] = [
+    "cache-control",
+    "etag",
+    "last-modified",
+    "location",
+    "vary",
+    "content-language",
+];
+const PRIVATE_NO_STORE: &str = "private, no-store";
+
+fn apply_plugin_headers(response: &mut Response, declared: &[(String, String)], personal: bool) {
+    let headers = response.headers_mut();
+    headers.insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static(PRIVATE_NO_STORE),
+    );
+    for (name, value) in declared {
+        let name = name.to_ascii_lowercase();
+        if !PLUGIN_RESPONSE_HEADERS.contains(&name.as_str())
+            || (name == "cache-control" && personal)
+            || (name == "location" && (!value.starts_with('/') || value.starts_with("//")))
+        {
+            continue;
+        }
+        if let (Ok(name), Ok(value)) = (
+            header::HeaderName::from_bytes(name.as_bytes()),
+            HeaderValue::from_str(value),
+        ) {
+            headers.insert(name, value);
+        }
+    }
 }
 
 pub(crate) async fn serve_route(
@@ -2149,7 +2183,9 @@ pub(crate) async fn serve_route(
         query,
         headers,
         body,
+        customer,
     } = call;
+    let personal = customer.is_some();
     let snapshot = registry::current(&state.db()?).await?;
     let plugin = snapshot.plugin(&key).cloned().ok_or_else(|| {
         AppError::not_found_code(
@@ -2208,6 +2244,12 @@ pub(crate) async fn serve_route(
         body_json,
         body_raw: body.to_vec(),
         actor,
+        customer: customer.map(|customer| wit::Customer {
+            id: customer.id,
+            email: customer.email,
+            name: customer.name,
+            email_verified: customer.email_verified,
+        }),
     };
     let result = runtime::on_route(&plugin, scope, &request).await?;
     let status = StatusCode::from_u16(result.response.status).unwrap_or(StatusCode::OK);
@@ -2221,20 +2263,19 @@ pub(crate) async fn serve_route(
             header::X_CONTENT_TYPE_OPTIONS,
             HeaderValue::from_static("nosniff"),
         );
-        headers.insert(
-            header::CACHE_CONTROL,
-            HeaderValue::from_static("private, no-store"),
-        );
         if let Some(filename) = raw.filename
             && let Ok(value) =
                 HeaderValue::from_str(&format!("attachment; filename=\"{filename}\""))
         {
             headers.insert(header::CONTENT_DISPOSITION, value);
         }
+        apply_plugin_headers(&mut response, &result.response.headers, personal);
         return Ok(response);
     }
     let body: Value = serde_json::from_str(&result.response.body_json).unwrap_or(Value::Null);
-    Ok((status, Json(body)).into_response())
+    let mut response = (status, Json(body)).into_response();
+    apply_plugin_headers(&mut response, &result.response.headers, personal);
+    Ok(response)
 }
 
 async fn dispatch(
@@ -2253,6 +2294,7 @@ async fn dispatch(
         query,
         headers,
         body,
+        customer: None,
     };
     Ok(serve_route(
         &state,
@@ -2304,6 +2346,7 @@ async fn public_dispatch(
         query,
         headers,
         body,
+        customer: None,
     };
     Ok(serve_route(&state, call, None, crate::manifest::RouteAudience::Public).await?)
 }

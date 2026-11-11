@@ -74,11 +74,24 @@ async fn query(
     })
 }
 
+pub(crate) type Restriction<'a> = Option<(&'a str, &'a str)>;
+
+fn restricted(extra: Option<Filter>, restriction: Restriction<'_>) -> Option<Filter> {
+    let owned = restriction.map(|(field, value)| {
+        Filter::condition(field, FilterOperator::Eq, Value::String(value.to_owned()))
+    });
+    match (extra, owned) {
+        (Some(extra), Some(owned)) => Some(Filter::and(vec![extra, owned])),
+        (extra, owned) => extra.or(owned),
+    }
+}
+
 pub(crate) async fn record(
     state: &AppState,
     exposure: &SiteExposure,
     field: &str,
     value: &str,
+    restriction: Restriction<'_>,
 ) -> Result<Option<Value>, AppError> {
     let found = query(
         state,
@@ -86,11 +99,14 @@ pub(crate) async fn record(
         RecordQuery {
             filter: publication_filter(
                 exposure,
-                Some(Filter::condition(
-                    field,
-                    FilterOperator::Eq,
-                    Value::String(value.to_owned()),
-                )),
+                restricted(
+                    Some(Filter::condition(
+                        field,
+                        FilterOperator::Eq,
+                        Value::String(value.to_owned()),
+                    )),
+                    restriction,
+                ),
             ),
             sort: Vec::new(),
             search: None,
@@ -111,12 +127,13 @@ pub(crate) async fn list(
     sort: Option<&str>,
     page: u64,
     per_page: u64,
+    restriction: Restriction<'_>,
 ) -> Result<RecordPage, AppError> {
     query(
         state,
         exposure,
         RecordQuery {
-            filter: publication_filter(exposure, None),
+            filter: publication_filter(exposure, restricted(None, restriction)),
             sort: sort.map(parse_sort).unwrap_or_default(),
             search: None,
             archived: ArchivedFilter::Exclude,

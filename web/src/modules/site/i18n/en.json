@@ -65,5 +65,21 @@
     "pathTaken": "The app already uses this path. Choose another one or set a domain for the site.",
     "tagline": "Use up to 160 characters."
   },
-  "saved": "Site settings saved"
+  "saved": "Site settings saved",
+  "customers": {
+    "title": "Customer accounts",
+    "description": "Visitors create an account on the site itself to follow orders and whatever plugins offer. Accounts are separate from app users.",
+    "enable": "Let visitors create an account",
+    "enableHint": "Shows \"Sign in\" at the top of the site and the account pages (sign in, sign up, password reset).",
+    "required": "On because an installed plugin has customer pages.",
+    "search": "Search customers",
+    "searchPlaceholder": "Name or email",
+    "empty": "No customer has signed up yet.",
+    "noMatch": "No customer found.",
+    "total_one": "{{count}} customer",
+    "total_other": "{{count}} customers",
+    "listLabel": "Site customers",
+    "unverified": "email not confirmed",
+    "since": "since {{date}}"
+  }
 }

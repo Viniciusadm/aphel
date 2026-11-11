@@ -55,7 +55,7 @@ async fn collect(
     let mut urls = Vec::new();
     let mut tags = Vec::new();
     for route in &runtime.routes {
-        if route.page.seo.noindex || urls.len() >= MAX_URLS {
+        if route.page.seo.noindex || route.page.needs_customer() || urls.len() >= MAX_URLS {
             continue;
         }
         match &route.page.source {
@@ -87,7 +87,8 @@ async fn collect(
                 let mut page = 1;
                 loop {
                     let listed =
-                        data::list(state, exposure, Some(RECORD_ID_SORT), page, BATCH).await?;
+                        data::list(state, exposure, Some(RECORD_ID_SORT), page, BATCH, None)
+                            .await?;
                     for record in &listed.records {
                         let Some(value) = value_text(record.get(match_field)) else {
                             continue;

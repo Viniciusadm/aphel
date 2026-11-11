@@ -65,5 +65,21 @@
     "pathTaken": "O sistema já usa esse caminho. Escolha outro ou informe um domínio próprio para o site.",
     "tagline": "Use até 160 caracteres."
   },
-  "saved": "Configurações do site salvas"
+  "saved": "Configurações do site salvas",
+  "customers": {
+    "title": "Contas de clientes",
+    "description": "Visitantes criam conta no próprio site para acompanhar pedidos e o que os plugins oferecerem. As contas são separadas dos usuários do sistema.",
+    "enable": "Permitir que visitantes criem conta",
+    "enableHint": "Mostra \"Entrar\" no topo do site e as páginas de conta (entrar, criar conta, recuperar senha).",
+    "required": "Ligado porque um plugin instalado tem páginas para clientes.",
+    "search": "Buscar cliente",
+    "searchPlaceholder": "Nome ou e-mail",
+    "empty": "Nenhum cliente criou conta ainda.",
+    "noMatch": "Nenhum cliente encontrado.",
+    "total_one": "{{count}} cliente",
+    "total_other": "{{count}} clientes",
+    "listLabel": "Clientes do site",
+    "unverified": "e-mail não confirmado",
+    "since": "desde {{date}}"
+  }
 }

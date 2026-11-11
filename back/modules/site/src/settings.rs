@@ -13,6 +13,7 @@ const MAX_MENU_ENTRIES: usize = 100;
 #[serde(default)]
 pub(crate) struct SiteSettings {
     pub indexing: bool,
+    pub accounts: bool,
     pub theme: Option<String>,
     pub tagline: Option<String>,
     pub menu: Vec<MenuEntry>,
@@ -29,6 +30,7 @@ impl Default for SiteSettings {
     fn default() -> Self {
         Self {
             indexing: true,
+            accounts: false,
             theme: None,
             tagline: None,
             menu: Vec::new(),

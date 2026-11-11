@@ -61,6 +61,7 @@ pub(crate) struct SiteOverviewResponse {
     pub active_theme: Option<String>,
     pub menu_items: Vec<SiteMenuItemResponse>,
     pub pages: usize,
+    pub customers_required: bool,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -128,6 +129,7 @@ async fn overview(
             })
             .collect(),
         pages: runtime.routes.len(),
+        customers_required: runtime.uses_customers,
     })))
 }
 

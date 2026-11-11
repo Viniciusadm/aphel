@@ -89,13 +89,22 @@ export interface Request {
   body: Json
   bodyRaw: Uint8Array
   actor: Actor
+  customer: Customer | null
   is(method: string, route: string): boolean
   header(name: string): string | null
+}
+
+export interface Customer {
+  id: string
+  email: string
+  name: string
+  emailVerified: boolean
 }
 
 export interface Response {
   status: number
   body: Json | undefined
+  headers?: [string, string][]
 }
 
 export interface ActionCall {
@@ -275,6 +284,7 @@ export declare const ctx: Ctx
 export declare function respond(status: number, body?: Json): Response
 export declare function ok(body?: Json): Response
 export declare function created(body?: Json): Response
+export declare function redirect(location: string): Response
 
 export interface PluginDefinition {
   onHook?(ctx: Ctx, call: HookCall): HookOutcome | void

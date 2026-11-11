@@ -61,6 +61,8 @@ pub(crate) struct SiteRuntime {
     pub themes: Vec<ThemeInfo>,
     pub theme: Option<String>,
     csp: BTreeMap<String, SiteCsp>,
+    pub uses_customers: bool,
+    pub account_links: Vec<MenuCandidate>,
 }
 
 impl SiteRuntime {
@@ -155,6 +157,8 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     let mut menu = Vec::new();
     let mut themes = Vec::new();
     let mut csp = BTreeMap::new();
+    let mut uses_customers = false;
+    let mut account_links = Vec::new();
     let mut islands: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut routes: Vec<Route> = Vec::new();
     let mut exposures = BTreeMap::new();
@@ -203,6 +207,17 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
                 {
                     tracing::warn!(owner = %bundle.owner, template = %source, %error, "skipping a theme template");
                 }
+            }
+        }
+        uses_customers |=
+            !bundle.account.is_empty() || bundle.pages.iter().any(|page| page.needs_customer());
+        for item in &bundle.account {
+            if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
+                account_links.push(MenuCandidate {
+                    id: menu_item_id(&bundle.owner, &item.key),
+                    label: item.label.clone(),
+                    path: page.path.clone(),
+                });
             }
         }
         for item in &bundle.menu {
@@ -254,6 +269,8 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
         themes,
         theme,
         csp,
+        uses_customers,
+        account_links,
     }
 }
 
@@ -278,6 +295,10 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
         (HEAD_PARTIAL, include_str!("../theme/head.html")),
+        (
+            crate::account::ACCOUNT_TEMPLATE,
+            include_str!("../theme/account.html"),
+        ),
     ] {
         if let Err(error) = environment.add_template(name, source) {
             tracing::error!(template = name, %error, "the built-in site theme does not compile");

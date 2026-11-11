@@ -29,11 +29,11 @@ import {
   useOrganizationConfiguration,
   useSaveConfiguration,
 } from '@/sdk'
-import { siteApi, useInvalidateSite, useSiteOverview, useSiteRedirects, type SiteMenuItem, type SiteOverview } from './api'
+import { siteApi, useInvalidateSite, useSiteCustomers, useSiteOverview, useSiteRedirects, type SiteMenuItem, type SiteOverview } from './api'
 
 const RESERVED_SEGMENTS = ['api']
 const TAGLINE_MAX = 160
-const DEFAULT_SETTINGS: SiteSettings = { indexing: true, theme: null, tagline: null, menu: [] }
+const DEFAULT_SETTINGS: SiteSettings = { indexing: true, accounts: false, theme: null, tagline: null, menu: [] }
 
 function segmentOf(basePath: string): string {
   return basePath.replace(/^\/+|\/+$/g, '')
@@ -77,6 +77,7 @@ export function SiteSettingsPage() {
           <AddressCard configuration={configuration.data} />
           <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
           <MenuCard key={overview.data.menu_items.map((item) => item.id).join()} configuration={configuration.data} overview={overview.data} />
+          <CustomersCard configuration={configuration.data} overview={overview.data} />
           <RedirectsCard />
           <CacheCard />
         </div>
@@ -414,6 +415,94 @@ function MenuCard({ configuration, overview }: { configuration: OrganizationConf
               </div>
             )}
           />
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function CustomersCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+  const { t, i18n } = useTranslation('site')
+  const saveSite = useSaveSite(configuration)
+  const invalidate = useInvalidateSite()
+  const [search, setSearch] = useState('')
+  const [saving, setSaving] = useState(false)
+  const enabled = currentSettings(configuration).accounts || overview.customers_required
+  const customers = useSiteCustomers(search.trim())
+  const formatDate = (value: string | null) =>
+    value ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short' }).format(new Date(value)) : '—'
+
+  const toggle = async (checked: boolean) => {
+    setSaving(true)
+    try {
+      await saveSite({ accounts: checked })
+      void invalidate()
+      notifySuccess(t('saved'))
+    } catch (error) {
+      notifyError(error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('customers.title')}</CardTitle>
+        <CardDescription>{t('customers.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <ToggleField
+          id="site-accounts"
+          type="switch"
+          label={t('customers.enable')}
+          description={overview.customers_required ? t('customers.required') : t('customers.enableHint')}
+          checked={enabled}
+          disabled={saving || overview.customers_required}
+          onCheckedChange={(checked) => void toggle(checked === true)}
+        />
+        {enabled && (
+          <>
+            <FormRow id="site-customer-search" label={t('customers.search')}>
+              {(describedBy) => (
+                <Input
+                  id="site-customer-search"
+                  type="search"
+                  value={search}
+                  placeholder={t('customers.searchPlaceholder')}
+                  aria-describedby={describedBy}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              )}
+            </FormRow>
+            {customers.isPending ? (
+              <Skeleton className="h-16" />
+            ) : customers.isError ? (
+              <ErrorState onRetry={() => void customers.refetch()} />
+            ) : customers.data.data.length === 0 ? (
+              <EmptyState title={search ? t('customers.noMatch') : t('customers.empty')} />
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">{t('customers.total', { count: customers.data.meta.total })}</p>
+                <ul className="grid gap-2" aria-label={t('customers.listLabel')}>
+                  {customers.data.data.map((customer) => (
+                    <li key={customer.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card px-3 py-2">
+                      <div className="grid min-w-0 gap-0.5">
+                        <span className="truncate text-sm font-medium">{customer.name || customer.email}</span>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {customer.email}
+                          {customer.email_verified_at ? '' : ` · ${t('customers.unverified')}`}
+                        </span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {t('customers.since', { date: formatDate(customer.created_at) })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

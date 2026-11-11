@@ -19,6 +19,21 @@ export interface SiteOverview {
   active_theme: string | null
   menu_items: SiteMenuItem[]
   pages: number
+  customers_required: boolean
+}
+
+export interface SiteCustomer {
+  id: string
+  name: string
+  email: string
+  email_verified_at: string | null
+  last_login_at: string | null
+  created_at: string
+}
+
+interface CustomerPage {
+  data: SiteCustomer[]
+  meta: { total: number }
 }
 
 export interface SiteRedirect {
@@ -46,6 +61,16 @@ export function useSiteOverview() {
 
 export function useSiteRedirects() {
   return useQuery({ queryKey: siteKeys.redirects, queryFn: () => api.get<SiteRedirect[]>(`${SITE_PATH}/redirects`) })
+}
+
+export function useSiteCustomers(search: string) {
+  return useQuery({
+    queryKey: [...siteKeys.all, 'customers', search],
+    queryFn: () =>
+      api.get<CustomerPage>('/v1/entities/site.customer/records', {
+        query: { sort: '-created_at', per_page: 20, search: search || undefined },
+      }),
+  })
 }
 
 export function useInvalidateSite() {

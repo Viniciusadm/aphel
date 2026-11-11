@@ -86683,7 +86683,8 @@
               "base_url",
               "themes",
               "menu_items",
-              "pages"
+              "pages",
+              "customers_required"
             ],
             "properties": {
               "active_theme": {
@@ -86695,6 +86696,9 @@
               "base_url": {
                 "type": "string",
                 "example": "https://www.example.com"
+              },
+              "customers_required": {
+                "type": "boolean"
               },
               "menu_items": {
                 "type": "array",
@@ -117744,7 +117748,8 @@
           "base_url",
           "themes",
           "menu_items",
-          "pages"
+          "pages",
+          "customers_required"
         ],
         "properties": {
           "active_theme": {
@@ -117756,6 +117761,9 @@
           "base_url": {
             "type": "string",
             "example": "https://www.example.com"
+          },
+          "customers_required": {
+            "type": "boolean"
           },
           "menu_items": {
             "type": "array",

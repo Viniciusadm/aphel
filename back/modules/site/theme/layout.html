@@ -26,6 +26,21 @@ h1,h2,h3{line-height:1.25}
 img{max-width:100%;height:auto}
 .muted{color:var(--muted)}
 nav.pagination{display:flex;justify-content:space-between;margin-top:2rem}
+.header-end{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem}
+a.account-entry{font-size:.875rem}
+.account{max-width:26rem}
+.account .stack{display:grid;gap:.85rem;margin:1rem 0}
+.account label{display:grid;gap:.3rem;font-size:.9rem}
+.account label.inline{display:flex;align-items:center;gap:.5rem}
+.account small{color:var(--muted)}
+.account input[type=email],.account input[type=password],.account input[type=text]{font:inherit;padding:.6rem .7rem;border:1px solid var(--line);border-radius:.4rem;background:transparent;color:inherit;min-height:2.75rem}
+.account button{font:inherit;padding:.6rem 1rem;border-radius:.4rem;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;min-height:2.75rem}
+.account button.secondary{background:transparent;color:var(--fg);border-color:var(--line)}
+.account button.danger{background:#b42318;border-color:#b42318}
+.account .notice{padding:.75rem;border:1px solid var(--line);border-radius:.4rem}
+.account .error{padding:.75rem;border:1px solid #b42318;border-radius:.4rem;color:#b42318}
+.account-links{display:grid;gap:.5rem;margin:1rem 0}
+details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}
 </style>
 {% include "aphel/head.html" %}
 {% block head %}{% endblock %}
@@ -33,7 +48,10 @@ nav.pagination{display:flex;justify-content:space-between;margin-top:2rem}
 <body>
 <header class="site"><div class="wrap">
 <a class="brand" href="{{ site.home }}">{% if site.logo_url %}<img src="{{ site.logo_url }}" alt="">{% endif %}<span>{{ site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
+<div class="header-end">
 {% if site.menu %}<nav class="menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>{% endif %}
+{% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}
+</div>
 </div></header>
 <main><div class="wrap">{% block content %}{% endblock %}</div></main>
 <footer class="site"><div class="wrap">© {{ site.year }} {{ site.name }}</div></footer>

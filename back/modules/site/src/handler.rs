@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::LazyLock;
 use std::time::Duration;
 
+use aphel_contract_site::SiteCustomer;
 use aphel_contract_site::{
     MAX_PER_PAGE, PageSource, ROBOTS_PATH, SITEMAP_PATH, decode_segment, template_name,
 };
@@ -27,7 +28,7 @@ use crate::runtime::{
     self, ERROR_TEMPLATE, ISLANDS_SEGMENT, NOT_FOUND_TEMPLATE, Route, SiteRuntime, THEMES_SEGMENT,
 };
 use crate::settings::site_settings;
-use crate::{assets, data, dynamic, images, redirects, sitemap};
+use crate::{account, assets, data, dynamic, images, redirects, session, sitemap};
 
 const LIVE_DATA_LIFETIME: Duration = Duration::from_secs(60);
 const DEFAULT_COLOR: &str = "#4f46e5";
@@ -63,6 +64,7 @@ impl SiteRequestHandler for SiteHandler {
 
 struct SiteContext {
     site: serde_json::Value,
+    customer: Option<SiteCustomer>,
 }
 
 enum Outcome {
@@ -154,25 +156,95 @@ fn cache_key(parts: &Parts, prefix: &str, runtime: &SiteRuntime, route: &Route) 
     )
 }
 
+const ACCOUNT_BODY_LIMIT: usize = 64 * 1024;
+const ACCOUNT_ROOTS: [&str; 2] = ["conta", "account"];
+
 async fn serve(state: &AppState, request: Request) -> Response {
-    if !readable_method(request.method()) {
-        return StatusCode::METHOD_NOT_ALLOWED.into_response();
-    }
-    let (mut parts, _) = request.into_parts();
+    let (mut parts, body) = request.into_parts();
     let prefix = parts
         .extensions
         .get::<SiteMountPrefix>()
         .map(|prefix| prefix.0.clone())
         .unwrap_or_default();
-    let theme = site_settings(&state.organization_config.snapshot()).theme;
-    let runtime = match runtime::current(&state.app, theme.as_deref()).await {
+    let config = state.organization_config.snapshot();
+    let settings = site_settings(&config);
+    let runtime = match runtime::current(&state.app, settings.theme.as_deref()).await {
         Ok(runtime) => runtime,
         Err(error) => {
             tracing::error!(%error, "could not load the site pages");
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }
     };
+    let accounts = settings.accounts || runtime.uses_customers;
     let path = parts.uri.path().to_owned();
+    let customer = match accounts {
+        true => session::customer(state, &parts.headers).await,
+        false => None,
+    };
+    let client = ClientInfo::from_request_parts(&mut parts, state)
+        .await
+        .ok()
+        .and_then(|client| client.0.ip);
+    let first_segment = path
+        .trim_start_matches('/')
+        .split('/')
+        .next()
+        .unwrap_or_default();
+    if accounts && ACCOUNT_ROOTS.contains(&first_segment) {
+        let context = match site_context(
+            state,
+            &prefix,
+            &runtime,
+            &path,
+            customer.as_ref(),
+            accounts,
+        )
+        .await
+        {
+            Ok(context) => context,
+            Err(error) => {
+                tracing::error!(%error, "could not load the site context");
+                return StatusCode::SERVICE_UNAVAILABLE.into_response();
+            }
+        };
+        let locale = context.site["locale"]
+            .as_str()
+            .unwrap_or_default()
+            .to_owned();
+        let paths = account::paths(&locale);
+        let Some(segments) = account::segments(&paths, &path) else {
+            return fallback(&context, StatusCode::NOT_FOUND, Some(&runtime));
+        };
+        let Ok(body) = axum::body::to_bytes(body, ACCOUNT_BODY_LIMIT).await else {
+            return StatusCode::PAYLOAD_TOO_LARGE.into_response();
+        };
+        let links = runtime
+            .account_links
+            .iter()
+            .map(|link| json!({ "label": link.label, "url": format!("{prefix}{}", link.path) }))
+            .collect();
+        let segments: Vec<&str> = segments;
+        return account::handle(
+            account::AccountRequest {
+                state,
+                runtime: &runtime,
+                site: context.site.clone(),
+                locale,
+                prefix: prefix.clone(),
+                base_url: config.site_base_url(),
+                parts,
+                body,
+                customer,
+                client,
+                links,
+            },
+            segments,
+        )
+        .await;
+    }
+    if !readable_method(&parts.method) {
+        return StatusCode::METHOD_NOT_ALLOWED.into_response();
+    }
     if path == SITEMAP_PATH {
         return sitemap::respond(state, &runtime, &parts, &prefix).await;
     }
@@ -180,8 +252,10 @@ async fn serve(state: &AppState, request: Request) -> Response {
         return sitemap::robots(state);
     }
     let found = runtime.find(parts.uri.path());
+    let personal = customer.is_some();
     let key = found
         .as_ref()
+        .filter(|_| !personal)
         .map(|(route, _)| cache_key(&parts, &prefix, &runtime, route));
     if let Some(key) = &key {
         if let Ok(pool) = state.db()
@@ -189,30 +263,47 @@ async fn serve(state: &AppState, request: Request) -> Response {
         {
             tracing::warn!(%error, "could not read the site cache invalidations");
         }
-        if let Some(page) = cache::get(key) {
-            return page_response(&page, &parts.headers);
+        if let Some(page) = cache::get(key)
+            && !found
+                .as_ref()
+                .is_some_and(|(route, _)| route.page.needs_customer())
+        {
+            return page_response(&page, &parts.headers, false);
         }
     }
-    let client = ClientInfo::from_request_parts(&mut parts, state).await.ok();
-    let address = client
-        .as_ref()
-        .map(ClientInfo::ip_or_unknown)
-        .unwrap_or("unknown");
+    let address = client.as_deref().unwrap_or("unknown");
     if RENDER_LIMIT.check(address, RATE_LIMITED).await.is_err() {
         return (StatusCode::TOO_MANY_REQUESTS, RATE_LIMITED).into_response();
     }
-    let context = match site_context(state, &prefix, &runtime, &path).await {
-        Ok(context) => context,
-        Err(error) => {
-            tracing::error!(%error, "could not load the site context");
-            return StatusCode::SERVICE_UNAVAILABLE.into_response();
-        }
-    };
+    let context =
+        match site_context(state, &prefix, &runtime, &path, customer.as_ref(), accounts).await {
+            Ok(context) => context,
+            Err(error) => {
+                tracing::error!(%error, "could not load the site context");
+                return StatusCode::SERVICE_UNAVAILABLE.into_response();
+            }
+        };
     let Some((route, params)) = found else {
         return fallback(&context, StatusCode::NOT_FOUND, Some(&runtime));
     };
+    if route.page.needs_customer() && customer.is_none() {
+        if !accounts {
+            return fallback(&context, StatusCode::NOT_FOUND, Some(&runtime));
+        }
+        let locale = context.site["locale"].as_str().unwrap_or_default();
+        let login = account::urls(&prefix, &account::paths(locale))["login"]
+            .as_str()
+            .unwrap_or_default()
+            .to_owned();
+        let current = match parts.uri.query() {
+            Some(query) => format!("{prefix}{path}?{query}"),
+            None => format!("{prefix}{path}"),
+        };
+        return see_other(&format!("{login}?next={}", account::urlencode(&current)));
+    }
     let query = parts.uri.query().unwrap_or_default();
     let owner = route.owner.clone();
+    let cacheable = !personal && !route.page.needs_customer();
     match render_route(
         state,
         &runtime,
@@ -226,11 +317,11 @@ async fn serve(state: &AppState, request: Request) -> Response {
     {
         Ok(Outcome::Page { html, tags, live }) => {
             let page = cache::page(html, runtime.content_security_policy(Some(&owner)));
-            let page = match key {
+            let page = match key.filter(|_| cacheable) {
                 Some(key) => cache::put(key, page, tags, live.then_some(LIVE_DATA_LIFETIME)),
                 None => page,
             };
-            page_response(&page, &parts.headers)
+            page_response(&page, &parts.headers, !cacheable)
         }
         Ok(Outcome::Redirect(location)) => moved_permanently(&location),
         Ok(Outcome::NotFound) => fallback(&context, StatusCode::NOT_FOUND, Some(&runtime)),
@@ -239,6 +330,17 @@ async fn serve(state: &AppState, request: Request) -> Response {
             fallback(&context, StatusCode::INTERNAL_SERVER_ERROR, Some(&runtime))
         }
     }
+}
+
+fn see_other(location: &str) -> Response {
+    let mut response = StatusCode::SEE_OTHER.into_response();
+    if let Ok(value) = HeaderValue::from_str(location) {
+        response.headers_mut().insert(header::LOCATION, value);
+    }
+    response
+        .headers_mut()
+        .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    response
 }
 
 fn texts(locale: &str) -> serde_json::Value {
@@ -252,6 +354,8 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Anterior",
             "next": "Próxima",
             "menu": "Menu principal",
+            "sign_in": "Entrar",
+            "my_account": "Minha conta",
         })
     } else {
         json!({
@@ -263,6 +367,8 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Previous",
             "next": "Next",
             "menu": "Main menu",
+            "sign_in": "Sign in",
+            "my_account": "My account",
         })
     }
 }
@@ -323,6 +429,8 @@ async fn site_context(
     prefix: &str,
     runtime: &SiteRuntime,
     current: &str,
+    customer: Option<&SiteCustomer>,
+    accounts: bool,
 ) -> Result<SiteContext, AppError> {
     let config = state.organization_config.snapshot();
     let settings = site_settings(&config);
@@ -347,7 +455,9 @@ async fn site_context(
                 .logo_file_id
                 .as_ref()
                 .map(|file| format!("/_aphel/site{LOGO_PATH}?v={file}")),
+            "account": accounts.then(|| account::urls(prefix, &account::paths(&organization.locale))),
         }),
+        customer: customer.cloned(),
     })
 }
 
@@ -360,12 +470,19 @@ async fn render_route(
     path: &str,
     query: &str,
 ) -> Result<Outcome, AppError> {
+    let customer = context.customer.as_ref();
     let params: BTreeMap<String, String> = params
         .into_iter()
         .map(|(name, value)| (name, decode_segment(&value)))
         .collect();
     let mut values = serde_json::Map::new();
     values.insert("site".to_owned(), context.site.clone());
+    values.insert("customer".to_owned(), json!(customer));
+    let restriction = route
+        .page
+        .customer_field
+        .as_deref()
+        .zip(customer.map(|customer| customer.id.as_str()));
     let mut page = json!({
         "owner": route.owner,
         "key": route.page.key,
@@ -379,7 +496,9 @@ async fn render_route(
             .ok()
             .and_then(|pattern| pattern.build(&params))
             .ok_or_else(|| AppError::Internal(format!("the data route {data} cannot be built")))?;
-        let Some(loaded) = dynamic::page_data(state, &route.owner, &path).await? else {
+        let Some(loaded) =
+            dynamic::page_data(state, &route.owner, &path, customer.cloned()).await?
+        else {
             return Ok(Outcome::NotFound);
         };
         values.insert("data".to_owned(), loaded);
@@ -395,7 +514,9 @@ async fn render_route(
                 .exposure(&route.owner, entity)
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
             let value = params.get(match_field).cloned().unwrap_or_default();
-            let Some(mut record) = data::record(state, exposure, match_field, &value).await? else {
+            let Some(mut record) =
+                data::record(state, exposure, match_field, &value, restriction).await?
+            else {
                 let moved = redirects::lookup(&state.db()?, entity, match_field, &value).await?;
                 let location = moved.and_then(|moved| {
                     route
@@ -426,8 +547,15 @@ async fn render_route(
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
             let per_page = (*per_page).clamp(1, MAX_PER_PAGE);
             let current = requested_page(query);
-            let mut listed =
-                data::list(state, exposure, sort.as_deref(), current, per_page).await?;
+            let mut listed = data::list(
+                state,
+                exposure,
+                sort.as_deref(),
+                current,
+                per_page,
+                restriction,
+            )
+            .await?;
             let pages = listed.total.div_ceil(per_page).max(1);
             if current > pages {
                 return Ok(Outcome::NotFound);
@@ -551,7 +679,7 @@ fn fallback(context: &SiteContext, status: StatusCode, runtime: Option<&SiteRunt
     } else {
         ERROR_TEMPLATE
     };
-    let values = json!({ "site": context.site, "page": {} });
+    let values = json!({ "site": context.site, "page": {}, "customer": context.customer });
     let rendered = runtime.and_then(|runtime| {
         runtime
             .environment
@@ -572,7 +700,7 @@ fn fallback(context: &SiteContext, status: StatusCode, runtime: Option<&SiteRunt
     }
 }
 
-fn page_response(page: &CachedPage, request_headers: &HeaderMap) -> Response {
+fn page_response(page: &CachedPage, request_headers: &HeaderMap, personal: bool) -> Response {
     let matches = request_headers
         .get(header::IF_NONE_MATCH)
         .and_then(|value| value.to_str().ok())
@@ -590,10 +718,18 @@ fn page_response(page: &CachedPage, request_headers: &HeaderMap) -> Response {
     if let Ok(etag) = HeaderValue::from_str(&page.etag) {
         headers.insert(header::ETAG, etag);
     }
-    headers.insert(
-        header::CACHE_CONTROL,
-        HeaderValue::from_static(PAGE_CACHE_CONTROL),
-    );
+    if personal {
+        headers.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("private, no-store"),
+        );
+    } else {
+        headers.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static(PAGE_CACHE_CONTROL),
+        );
+        headers.insert(header::VARY, HeaderValue::from_static("Cookie"));
+    }
     response
 }
 

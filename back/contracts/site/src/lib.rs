@@ -45,6 +45,8 @@ pub struct SiteBundle {
     pub islands: Vec<String>,
     #[serde(default)]
     pub csp: SiteCsp,
+    #[serde(default)]
+    pub account: Vec<SiteMenuItem>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -119,6 +121,7 @@ pub struct SiteApiRequest {
     pub headers: axum::http::HeaderMap,
     pub body: bytes::Bytes,
     pub client: Option<String>,
+    pub customer: Option<SiteCustomer>,
 }
 
 #[async_trait]
@@ -158,7 +161,28 @@ pub struct SitePage {
     pub seo: SitePageSeo,
     #[serde(default)]
     pub data: Option<String>,
+    #[serde(default)]
+    pub requires_customer: bool,
+    #[serde(default)]
+    pub customer_field: Option<String>,
 }
+
+impl SitePage {
+    pub fn needs_customer(&self) -> bool {
+        self.requires_customer || self.customer_field.is_some()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SiteCustomer {
+    pub id: String,
+    pub email: String,
+    pub name: String,
+    pub email_verified: bool,
+}
+
+pub const CUSTOMER_RECORD_TYPE: &str = "site.customer";
+pub const RESERVED_PAGE_PREFIXES: &[&str] = &["/conta", "/account"];
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct SitePageSeo {
@@ -467,6 +491,33 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 }
             }
         }
+        let shape = pattern.shape();
+        if RESERVED_PAGE_PREFIXES
+            .iter()
+            .any(|prefix| shape == *prefix || shape.starts_with(&format!("{prefix}/")))
+        {
+            problems.push(format!(
+                "{label}: {} is reserved for the customer account pages",
+                page.path
+            ));
+        }
+        if let Some(field) = &page.customer_field {
+            let exposed = page.source.entity().and_then(|entity| {
+                bundle
+                    .exposures
+                    .iter()
+                    .find(|exposure| exposure.entity == entity)
+            });
+            match exposed {
+                Some(exposure) if exposure.exposes(field) => {}
+                Some(_) => problems.push(format!(
+                    "{label}: customer_field {field} must be a public field of the entity"
+                )),
+                None => problems.push(format!(
+                    "{label}: customer_field needs a page with an entity"
+                )),
+            }
+        }
         if [SITEMAP_PATH, ROBOTS_PATH].contains(&pattern.shape().as_str()) {
             problems.push(format!("{label}: {} is reserved for the site", page.path));
         }
@@ -579,6 +630,30 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                     "site.csp {directive}: {source} must be an https origin such as https://js.example.com or https://*.example.com"
                 ));
             }
+        }
+    }
+    for item in &bundle.account {
+        let label = format!("site.account {}", item.key);
+        match bundle.pages.iter().find(|page| page.key == item.page) {
+            None => problems.push(format!("{label}: the page {} does not exist", item.page)),
+            Some(page) if !page.needs_customer() => problems.push(format!(
+                "{label}: the page {} must declare requires_customer or customer_field",
+                item.page
+            )),
+            Some(page) => {
+                if PathPattern::parse(&page.path).is_ok_and(|pattern| !pattern.params().is_empty())
+                {
+                    problems.push(format!(
+                        "{label}: the page {} has parameters and cannot be linked",
+                        item.page
+                    ));
+                }
+            }
+        }
+        if item.label.trim().is_empty() || item.label.chars().count() > MAX_LABEL_LENGTH {
+            problems.push(format!(
+                "{label}: the label must have between 1 and {MAX_LABEL_LENGTH} characters"
+            ));
         }
     }
     if let Some(theme) = &bundle.theme {

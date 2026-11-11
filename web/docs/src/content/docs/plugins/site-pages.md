@@ -176,6 +176,39 @@ frame = ["https://js.stripe.com"]
 
 `script`, `style`, `img`, `font`, `connect` and `frame` accept up to 10 origins each, written as `https://host`, `https://host:port` or `https://*.domain`. They apply to the pages of the plugin that declares them, and to every page when the plugin is the active theme. The consent dialog lists them.
 
+## Customer accounts
+
+Visitors can have an account on the site, separate from the people who use Aphel. Accounts turn on by themselves when an installed plugin has customer pages, and an administrator can also turn them on in Settings → Site.
+
+The site then serves, under `/conta` (`/account` when the organization language is not Portuguese): sign in with password or with a one-time link by email, sign up, password reset, email confirmation, and *My account* (name, sign out, close account). Pages are rendered by the site theme; emails go through the organization's outgoing email. The session is an `HttpOnly`, `SameSite=Lax` cookie valid for 30 days of use; form posts must come from the site itself, and sign-in attempts are rate limited.
+
+```toml
+[[site.pages]]
+key = "orders"
+path = "/orders"
+template = "site/orders.html"
+entity = "order"
+list = { sort = "-created_at" }
+customer_field = "customer"
+
+[[site.account]]
+key = "orders"
+label = "My orders"
+page = "orders"
+```
+
+| Key | Effect |
+| --- | --- |
+| `requires_customer = true` | The page needs a signed-in customer; visitors go to sign in and come back. |
+| `customer_field` | Also restricts the records to those whose field holds the customer id (a public field of the entity). Implies `requires_customer`. |
+| `[[site.account]]` | Links shown in *My account* (`key`, `label`, `page`); the page must need a customer and have no parameters. |
+
+Templates receive `customer` (`{ id, email, name, email_verified }` or nothing) and the theme gets `site.account` (`home`, `login`, `signup`, `logout`, `password`, `close` addresses) to show *Sign in* or the customer name. Pages seen by a signed-in customer are never cached and answer `Cache-Control: private, no-store`; anonymous pages add `Vary: Cookie`.
+
+Site routes receive the customer in `request.customer` (see [Routes](/_aphel/docs/plugins/routes/#the-request)), so a route can create an order for whoever is signed in. Store the customer id in a field of your entity (for example `customer`), or point a `record` field at the entity `site.customer`.
+
+Customers are the record type `site.customer` (name, email, confirmation and last sign-in dates), readable with the permission `site.customers.read` and listed in Settings → Site. Account creation, changes and closing publish `site.customer.created|updated|deleted` with an audit entry. Closing an account, or a privacy request for it, erases the name, email and password and signs the customer out everywhere.
+
 ## Menu
 
 ```toml

@@ -14027,6 +14027,7 @@ export interface components {
                 active_theme?: string | null;
                 /** @example https://www.example.com */
                 base_url: string;
+                customers_required: boolean;
                 menu_items: components["schemas"]["SiteMenuItemResponse"][];
                 pages: number;
                 themes: components["schemas"]["SiteThemeResponse"][];
@@ -22029,6 +22030,7 @@ export interface components {
             active_theme?: string | null;
             /** @example https://www.example.com */
             base_url: string;
+            customers_required: boolean;
             menu_items: components["schemas"]["SiteMenuItemResponse"][];
             pages: number;
             themes: components["schemas"]["SiteThemeResponse"][];

@@ -162,6 +162,8 @@ pub struct SiteSpec {
     pub theme: Option<SiteThemeSpec>,
     #[serde(default)]
     pub csp: SiteCspSpec,
+    #[serde(default)]
+    pub account: Vec<SiteMenuSpec>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -226,6 +228,10 @@ pub struct SitePageSpec {
     pub seo: SiteSeoSpec,
     #[serde(default)]
     pub data: Option<String>,
+    #[serde(default)]
+    pub requires_customer: bool,
+    #[serde(default)]
+    pub customer_field: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]

@@ -819,6 +819,9 @@ The tables below list every code that the platform and the built-in modules defi
 | `plugin_read_only` | 403 | This plugin execution cannot produce side effects. |
 | `plugin_site_invalid` | 422 | The `[site]` section or the `site/` templates of the package break a rule; the message lists every problem. |
 | `site_route_conflict` | 409 | A site page of the plugin has the same path shape as a page of another installed plugin. |
+| `site_request_forbidden` | 403 | A site route call that changes data came without the `X-Aphel-Site` header sent by the site scripts. |
+| `site_route_not_found` | 404 | No installed plugin has this site route. |
+| `site_redirect_not_found` | 404 | The site redirect does not exist. |
 | `plugin_reference_permission_required` | 422 | A reference field requires a permission the plugin does not declare. |
 | `plugin_role_preset_unknown` | 422 | Unknown role presets. |
 | `plugin_route_not_found` | 404 | The plugin has no route for that method and path. |

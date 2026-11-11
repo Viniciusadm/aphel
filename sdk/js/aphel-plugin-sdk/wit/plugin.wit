@@ -60,6 +60,13 @@ interface types {
     payload-json: string,
   }
 
+  record customer {
+    id: string,
+    email: string,
+    name: string,
+    email-verified: bool,
+  }
+
   record request {
     method: string,
     path: string,
@@ -70,11 +77,13 @@ interface types {
     body-json: string,
     body-raw: list<u8>,
     actor: actor,
+    customer: option<customer>,
   }
 
   record response {
     status: u16,
     body-json: string,
+    headers: list<tuple<string, string>>,
   }
 
   record list-query {

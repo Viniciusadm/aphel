@@ -1,5 +1,5 @@
-pub mod payments;
 mod execution;
+pub mod payments;
 pub use execution::{
     AutomationExecution, EffectCommand, ExecutionActor, ExecutionContext, HookState, RecordSnapshot,
 };
@@ -106,6 +106,14 @@ pub struct Actor {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct Customer {
+    pub id: String,
+    pub email: String,
+    pub name: String,
+    pub email_verified: bool,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct Change {
     pub field: String,
     #[serde(default)]
@@ -209,6 +217,8 @@ pub struct Request {
     #[serde(default)]
     pub body_raw: Vec<u8>,
     pub actor: Actor,
+    #[serde(default)]
+    pub customer: Option<Customer>,
 }
 
 impl Request {
@@ -248,6 +258,7 @@ impl Request {
 pub struct Response {
     pub status: u16,
     pub body: Value,
+    pub headers: Vec<(String, String)>,
 }
 
 impl Response {
@@ -263,7 +274,17 @@ impl Response {
         Self {
             status,
             body: serde_json::to_value(body).unwrap_or(Value::Null),
+            headers: Vec::new(),
         }
+    }
+
+    pub fn redirect(location: impl Into<String>) -> Self {
+        Self::with_status(303, Value::Null).with_header("location", location)
+    }
+
+    pub fn with_header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        self.headers.push((name.into(), value.into()));
+        self
     }
 }
 
@@ -362,7 +383,12 @@ impl Ctx {
     }
 
     pub fn effect_result(&self, id: &str) -> Result<Option<Value>> {
-        adapter::effect_result(id)?.map(|value| serde_json::from_str(&value).map_err(|error| PluginError::internal(error.to_string()))).transpose()
+        adapter::effect_result(id)?
+            .map(|value| {
+                serde_json::from_str(&value)
+                    .map_err(|error| PluginError::internal(error.to_string()))
+            })
+            .transpose()
     }
 
     pub fn defer_effect(&self, key: &str, command: impl Serialize) -> Result<String> {
@@ -808,13 +834,7 @@ pub trait Plugin {
         ))
     }
 
-    fn on_contribution(
-        &self,
-        _ctx: &Ctx,
-        point: &str,
-        name: &str,
-        _input: Value,
-    ) -> Result<Value> {
+    fn on_contribution(&self, _ctx: &Ctx, point: &str, name: &str, _input: Value) -> Result<Value> {
         Err(PluginError::not_found(
             "contribution_not_found",
             format!("no contribution {name} for {point}"),

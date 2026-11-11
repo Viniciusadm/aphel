@@ -78,6 +78,7 @@ impl RouteTakeover for AliasTakeover {
                 query: parts.uri.query().map(str::to_owned),
                 headers: parts.headers.clone(),
                 body: bytes,
+                customer: None,
             };
             Ok(
                 match serve_route(

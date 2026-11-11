@@ -305,6 +305,10 @@ export function respond(status, body) {
 }
 
 export const ok = (body) => respond(200, body)
+
+export function redirect(location) {
+  return { status: 303, body: null, headers: [['location', location]] }
+}
 export const created = (body) => respond(201, body)
 
 function guard(fn) {
@@ -382,6 +386,14 @@ export function definePlugin(plugin) {
           body: parse(raw.bodyJson),
           bodyRaw: raw.bodyRaw,
           actor: actor(raw.actor),
+          customer: raw.customer
+            ? {
+                id: raw.customer.id,
+                email: raw.customer.email,
+                name: raw.customer.name,
+                emailVerified: raw.customer.emailVerified,
+              }
+            : null,
           is(method, route) {
             return this.method === method && this.route === route
           },
@@ -393,7 +405,11 @@ export function definePlugin(plugin) {
         if (!plugin.onRoute) throw routeNotFound(request)
         const response = plugin.onRoute(ctx, request)
         if (!response) throw routeNotFound(request)
-        return { status: response.status ?? 200, bodyJson: JSON.stringify(response.body ?? null) }
+        return {
+          status: response.status ?? 200,
+          bodyJson: JSON.stringify(response.body ?? null),
+          headers: (response.headers ?? []).map(([name, value]) => [String(name), String(value)]),
+        }
       })
     },
     onSchedule(name, slot) {

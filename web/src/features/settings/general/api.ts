@@ -49,6 +49,7 @@ export interface SiteMenuEntry {
 
 export interface SiteSettings {
   indexing: boolean
+  accounts: boolean
   theme: string | null
   tagline: string | null
   menu: SiteMenuEntry[]

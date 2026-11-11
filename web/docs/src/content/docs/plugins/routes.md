@@ -79,6 +79,7 @@ The backend receives:
 | `headers` | `request.headers` | `request.headers` | List of `[name, value]` pairs with lowercase names. `authorization`, `cookie` and `proxy-authorization` are never forwarded. |
 | `body` | `request.body` | `request.body` | The parsed JSON body, or `null` when the body is empty. |
 | `actor` | `request.actor` | `request.actor` | Who is calling: `{ kind, id, user_id }`. |
+| `customer` | `request.customer` | `request.customer` | On site routes, the signed-in site customer `{ id, email, name, email_verified }` (`emailVerified` in JavaScript), or `null`. Always `null` on private and public routes. See [Site pages](/_aphel/docs/plugins/site-pages/#customer-accounts). |
 
 The body must be valid JSON. Anything else fails before your code runs with `422 validation_error`: `the body must be JSON`. The content type is not checked.
 
@@ -108,6 +109,12 @@ onRoute(ctx, request) {
 | Timeout (10 seconds), trap, out of memory | `503 plugin_failed`. |
 
 In Rust the default `on_route` returns `route_not_found` with status 404.
+
+### Response headers
+
+A response may carry headers: `Response::ok(body).with_header("cache-control", "public, max-age=60")` in Rust, `{ status, body, headers: [['cache-control', 'public, max-age=60']] }` in JavaScript. `Response::redirect("/thanks")` / `redirect('/thanks')` answer `303` with a `Location`.
+
+Only `cache-control`, `etag`, `last-modified`, `location`, `vary` and `content-language` are applied; any other header (including `set-cookie`) is dropped. `location` must be a path on the same host (it starts with `/`, not `//`). Without a `cache-control` of your own the response is `private, no-store`, and on site routes called by a signed-in customer it is always `private, no-store`.
 
 ### Downloads and raw bodies
 

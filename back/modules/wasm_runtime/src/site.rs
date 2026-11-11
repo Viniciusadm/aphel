@@ -153,6 +153,8 @@ fn bundle_of(
                     noindex: page.seo.noindex,
                 },
                 data: page.data.clone(),
+                requires_customer: page.requires_customer,
+                customer_field: page.customer_field.clone(),
             }),
             Err(problem) => {
                 problems.push(problem);
@@ -181,6 +183,15 @@ fn bundle_of(
         }),
         islands,
         csp: csp_of(&site.csp),
+        account: site
+            .account
+            .iter()
+            .map(|item| SiteMenuItem {
+                key: item.key.clone(),
+                label: item.label.clone(),
+                page: item.page.clone(),
+            })
+            .collect(),
     };
     for page in &site.pages {
         if let Some(data) = &page.data
@@ -416,6 +427,7 @@ impl SiteApiHandler for PluginSiteApi {
             query: request.query,
             headers: request.headers,
             body: request.body,
+            customer: request.customer,
         };
         crate::http::serve_route(state, call, None, RouteAudience::Site)
             .await

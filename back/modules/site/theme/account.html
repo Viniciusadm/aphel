@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="account">
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+
+{% if view == "login" %}
+<h1>{{ texts.login_title }}</h1>
+<form method="post" action="{{ urls.login }}" class="stack">
+  <input type="hidden" name="mode" value="password">
+  <input type="hidden" name="next" value="{{ next }}">
+  <label>{{ texts.email }}<input type="email" name="email" autocomplete="email" required value="{{ values.email }}"></label>
+  <label>{{ texts.password }}<input type="password" name="password" autocomplete="current-password" required></label>
+  <button type="submit">{{ texts.login_submit }}</button>
+</form>
+<p><a href="{{ urls.password }}">{{ texts.forgot_link }}</a></p>
+<h2>{{ texts.link_title }}</h2>
+<form method="post" action="{{ urls.login }}" class="stack">
+  <input type="hidden" name="mode" value="link">
+  <input type="hidden" name="next" value="{{ next }}">
+  <label>{{ texts.email }}<input type="email" name="email" autocomplete="email" required></label>
+  <button type="submit" class="secondary">{{ texts.link_submit }}</button>
+</form>
+<p>{{ texts.no_account }} <a href="{{ urls.signup }}{% if next %}?next={{ next | urlencode }}{% endif %}">{{ texts.signup_link }}</a></p>
+
+{% elif view == "signup" %}
+<h1>{{ texts.signup_title }}</h1>
+<form method="post" action="{{ urls.signup }}" class="stack">
+  <input type="hidden" name="next" value="{{ next }}">
+  <label>{{ texts.name }}<input type="text" name="name" autocomplete="name" required maxlength="200" value="{{ values.name }}"></label>
+  <label>{{ texts.email }}<input type="email" name="email" autocomplete="email" required value="{{ values.email }}"></label>
+  <label>{{ texts.password }}<input type="password" name="password" autocomplete="new-password" required minlength="8"><small>{{ texts.password_hint }}</small></label>
+  <button type="submit">{{ texts.signup_submit }}</button>
+</form>
+<p>{{ texts.has_account }} <a href="{{ urls.login }}{% if next %}?next={{ next | urlencode }}{% endif %}">{{ texts.login_link }}</a></p>
+
+{% elif view == "forgot" %}
+<h1>{{ texts.forgot_title }}</h1>
+<p class="muted">{{ texts.forgot_body }}</p>
+<form method="post" action="{{ urls.password }}" class="stack">
+  <label>{{ texts.email }}<input type="email" name="email" autocomplete="email" required></label>
+  <button type="submit">{{ texts.forgot_submit }}</button>
+</form>
+
+{% elif view == "reset" %}
+<h1>{{ texts.reset_title }}</h1>
+<form method="post" class="stack">
+  <label>{{ texts.new_password }}<input type="password" name="password" autocomplete="new-password" required minlength="8"><small>{{ texts.password_hint }}</small></label>
+  <button type="submit">{{ texts.reset_submit }}</button>
+</form>
+
+{% elif view == "magic" %}
+<h1>{{ texts.magic_title }}</h1>
+<form method="post" class="stack">
+  <input type="hidden" name="next" value="{{ next }}">
+  <button type="submit">{{ texts.magic_submit }}</button>
+</form>
+
+{% elif view == "message" %}
+<h1>{{ heading }}</h1>
+<p><a href="{{ site.home }}">{{ site.texts.back_home }}</a></p>
+
+{% elif view == "home" %}
+<h1>{{ texts.home_title }}</h1>
+<p class="muted">{{ customer.email }}{% if not customer.email_verified %} · {{ texts.unverified }}{% endif %}</p>
+{% if links %}
+<nav class="account-links">{% for link in links %}<a href="{{ link.url }}">{{ link.label }}</a>{% endfor %}</nav>
+{% endif %}
+<h2>{{ texts.profile_title }}</h2>
+<form method="post" action="{{ urls.home }}" class="stack">
+  <label>{{ texts.name }}<input type="text" name="name" autocomplete="name" required maxlength="200" value="{{ customer.name }}"></label>
+  <button type="submit" class="secondary">{{ texts.save }}</button>
+</form>
+<form method="post" action="{{ urls.logout }}"><button type="submit" class="secondary">{{ texts.logout }}</button></form>
+<details class="danger">
+  <summary>{{ texts.close_title }}</summary>
+  <p>{{ texts.close_body }}</p>
+  <form method="post" action="{{ urls.close }}" class="stack">
+    <label class="inline"><input type="checkbox" name="confirm" value="yes" required> {{ texts.close_confirm }}</label>
+    <button type="submit" class="danger">{{ texts.close_submit }}</button>
+  </form>
+</details>
+{% endif %}
+</section>
+{% endblock %}
