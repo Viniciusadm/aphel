@@ -1,5 +1,6 @@
-use std::collections::HashMap;
-use std::sync::{LazyLock, RwLock};
+use std::collections::{HashMap, HashSet};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{LazyLock, Mutex, RwLock};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -28,14 +29,32 @@ const DEFINITION_CACHE_TTL: Duration = Duration::from_secs(2);
 type DefinitionCache = HashMap<String, (Instant, Vec<FieldDefinition>)>;
 
 static DEFINITIONS: LazyLock<RwLock<DefinitionCache>> = LazyLock::new(RwLock::default);
+static DEFINITIONS_GENERATION: AtomicU64 = AtomicU64::new(0);
+static REFRESHING: LazyLock<Mutex<HashSet<String>>> = LazyLock::new(Mutex::default);
 
-fn cached_definitions(record_type: &RecordType) -> Option<Vec<FieldDefinition>> {
-    let cache = DEFINITIONS.read().ok()?;
-    let (stored, definitions) = cache.get(record_type.as_str())?;
-    (stored.elapsed() < DEFINITION_CACHE_TTL).then(|| definitions.clone())
+enum CachedDefinitions {
+    Fresh(Vec<FieldDefinition>),
+    Stale(Vec<FieldDefinition>),
+    Missing,
 }
 
-fn store_definitions(record_type: &RecordType, definitions: &[FieldDefinition]) {
+fn cached_definitions(record_type: &RecordType) -> CachedDefinitions {
+    let Ok(cache) = DEFINITIONS.read() else {
+        return CachedDefinitions::Missing;
+    };
+    match cache.get(record_type.as_str()) {
+        Some((stored, definitions)) if stored.elapsed() < DEFINITION_CACHE_TTL => {
+            CachedDefinitions::Fresh(definitions.clone())
+        }
+        Some((_, definitions)) => CachedDefinitions::Stale(definitions.clone()),
+        None => CachedDefinitions::Missing,
+    }
+}
+
+fn store_definitions(record_type: &RecordType, definitions: &[FieldDefinition], generation: u64) {
+    if DEFINITIONS_GENERATION.load(Ordering::SeqCst) != generation {
+        return;
+    }
     if let Ok(mut cache) = DEFINITIONS.write() {
         cache.insert(
             record_type.as_str().to_owned(),
@@ -45,8 +64,28 @@ fn store_definitions(record_type: &RecordType, definitions: &[FieldDefinition]) 
 }
 
 pub fn invalidate_definitions() {
+    DEFINITIONS_GENERATION.fetch_add(1, Ordering::SeqCst);
     if let Ok(mut cache) = DEFINITIONS.write() {
         cache.clear();
+    }
+}
+
+struct RefreshClaim(String);
+
+impl RefreshClaim {
+    fn claim(record_type: &RecordType) -> Option<Self> {
+        let mut refreshing = REFRESHING.lock().ok()?;
+        refreshing
+            .insert(record_type.as_str().to_owned())
+            .then(|| Self(record_type.as_str().to_owned()))
+    }
+}
+
+impl Drop for RefreshClaim {
+    fn drop(&mut self) {
+        if let Ok(mut refreshing) = REFRESHING.lock() {
+            refreshing.remove(&self.0);
+        }
     }
 }
 
@@ -241,11 +280,17 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
     }
 
     async fn list(&self, record_type: &RecordType) -> Result<Vec<FieldDefinition>, AppError> {
-        if let Some(cached) = cached_definitions(record_type) {
-            return Ok(cached);
-        }
+        let _claim = match cached_definitions(record_type) {
+            CachedDefinitions::Fresh(definitions) => return Ok(definitions),
+            CachedDefinitions::Stale(definitions) => match RefreshClaim::claim(record_type) {
+                Some(claim) => Some(claim),
+                None => return Ok(definitions),
+            },
+            CachedDefinitions::Missing => None,
+        };
+        let generation = DEFINITIONS_GENERATION.load(Ordering::SeqCst);
         let definitions = self.load(record_type).await?;
-        store_definitions(record_type, &definitions);
+        store_definitions(record_type, &definitions, generation);
         Ok(definitions)
     }
 

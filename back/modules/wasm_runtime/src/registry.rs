@@ -216,7 +216,12 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
 }
 
 async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
-    let mut cache = cache().lock().await;
+    let available = cached();
+    let mut cache = match cache().try_lock() {
+        Ok(cache) => cache,
+        Err(_) if available.version.is_some() => return Ok(available),
+        Err(_) => cache().lock().await,
+    };
     let snapshot = cached();
     if snapshot.version.is_some()
         && cache

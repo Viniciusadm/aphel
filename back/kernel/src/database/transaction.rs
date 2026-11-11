@@ -15,6 +15,7 @@ pub struct MySqlTx {
     pub(crate) receipt_lease: Option<super::receipt::ReceiptLease>,
     pub record_states: HashMap<(String, Uuid), Value>,
     pub(crate) fresh_snapshot: Option<((String, Uuid), Option<Value>)>,
+    pub(crate) visible_record: Option<(String, Uuid)>,
 }
 
 impl From<DatabaseTransaction<'static>> for MySqlTx {
@@ -27,6 +28,7 @@ impl From<DatabaseTransaction<'static>> for MySqlTx {
             after_commit: Vec::new(),
             record_states: HashMap::new(),
             fresh_snapshot: None,
+            visible_record: None,
         }
     }
 }

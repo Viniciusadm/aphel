@@ -1,3 +1,4 @@
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, Instant};
 
@@ -18,6 +19,7 @@ const VERSION_CHECK_INTERVAL: Duration = Duration::from_secs(1);
 struct CachedRegistry {
     version: u64,
     checked: Mutex<Instant>,
+    refreshing: AtomicBool,
     schema: Arc<CustomSchema>,
     registry: Arc<RecordTypeRegistry>,
 }
@@ -69,6 +71,7 @@ impl RecordTypeCatalog {
             return Ok(Arc::new(CachedRegistry {
                 version: 0,
                 checked: Mutex::new(Instant::now()),
+                refreshing: AtomicBool::new(false),
                 schema: Arc::new(self.builtin.custom_schema().clone()),
                 registry: self.builtin.clone(),
             }));
@@ -82,6 +85,13 @@ impl RecordTypeCatalog {
         {
             return Ok(cached.clone());
         }
+        let _claim = match &cached {
+            Some(cached) => match RefreshClaim::claim(cached) {
+                Some(claim) => Some(claim),
+                None => return Ok(cached.clone()),
+            },
+            None => None,
+        };
         let version = source.version().await?;
         if let Some(cached) = cached
             && cached.version == version
@@ -96,6 +106,7 @@ impl RecordTypeCatalog {
         let entry = Arc::new(CachedRegistry {
             version,
             checked: Mutex::new(Instant::now()),
+            refreshing: AtomicBool::new(false),
             schema,
             registry: Arc::new(registry),
         });
@@ -103,5 +114,19 @@ impl RecordTypeCatalog {
             *cache = Some(entry.clone());
         }
         Ok(entry)
+    }
+}
+
+struct RefreshClaim(Arc<CachedRegistry>);
+
+impl RefreshClaim {
+    fn claim(cached: &Arc<CachedRegistry>) -> Option<Self> {
+        (!cached.refreshing.swap(true, Ordering::SeqCst)).then(|| Self(cached.clone()))
+    }
+}
+
+impl Drop for RefreshClaim {
+    fn drop(&mut self) {
+        self.0.refreshing.store(false, Ordering::SeqCst);
     }
 }

@@ -201,13 +201,26 @@ impl GenericRecordHandler {
     async fn snapshot(&self, ctx: &Ctx<'_>, tx: &mut MySqlTx, id: Uuid) -> Result<Value, AppError> {
         let record = RecordRef::new(self.record_type.clone(), id);
         let snapshot = super::snapshot::capture(tx, ctx.pool(), ctx.registry(), &record).await?;
-        if snapshot.is_none() || !self.visible(ctx, id).await? {
-            return Err(AppError::not_found_code(
-                "record_not_found",
-                "record was not found",
-            ));
+        let checked = tx
+            .visible_record
+            .as_ref()
+            .is_some_and(|(record_type, record_id)| {
+                record_type == self.record_type.as_str() && *record_id == id
+            });
+        if snapshot.is_none() || (!checked && !self.visible(ctx, id).await?) {
+            return Err(record_not_found());
         }
         Ok(snapshot.expect("checked snapshot"))
+    }
+
+    async fn begin_visible(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<MySqlTx, AppError> {
+        let query_ctx = Ctx::from_state(ctx.state, ctx.scope).await?;
+        if !self.visible(&query_ctx, id).await? {
+            return Err(record_not_found());
+        }
+        let mut tx: MySqlTx = ctx.state.db()?.begin().await?.into();
+        tx.visible_record = Some((self.record_type.as_str().to_owned(), id));
+        Ok(tx)
     }
 
     async fn mutate(
@@ -613,7 +626,7 @@ impl RecordTypeHandler for GenericRecordHandler {
     }
 
     async fn update(&self, ctx: &RecordCtx<'_>, id: Uuid, body: Value) -> Result<Value, AppError> {
-        let mut tx = ctx.state.db()?.begin().await?.into();
+        let mut tx = self.begin_visible(ctx, id).await?;
         let pending = self.update_in_tx(ctx, &mut tx, id, body).await?;
         tx.commit().await?;
         if let Some(pending) = pending {
@@ -643,7 +656,7 @@ impl RecordTypeHandler for GenericRecordHandler {
     }
 
     async fn delete(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<(), AppError> {
-        let mut tx = ctx.state.db()?.begin().await?.into();
+        let mut tx = self.begin_visible(ctx, id).await?;
         self.delete_in_tx(ctx, &mut tx, id).await?;
         tx.commit().await?;
         Ok(())
@@ -736,8 +749,10 @@ impl RecordTypeHandler for GenericRecordHandler {
     }
 
     async fn load(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<Option<Value>, AppError> {
+        let Some(mut tx) = super::optional_record(self.begin_visible(ctx, id).await)? else {
+            return Ok(None);
+        };
         let ctx = Ctx::from_state(ctx.state, ctx.scope).await?;
-        let mut tx = ctx.begin().await?;
         let snapshot = self.snapshot(&ctx, &mut tx, id).await;
         let snapshot = match super::optional_record(snapshot)? {
             Some(value) => value,
@@ -772,4 +787,8 @@ impl RecordTypeHandler for GenericRecordHandler {
                 .await?,
         ))
     }
+}
+
+fn record_not_found() -> AppError {
+    AppError::not_found_code("record_not_found", "record was not found")
 }
