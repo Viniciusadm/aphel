@@ -29,7 +29,9 @@ use crate::runtime::{
     self, ERROR_TEMPLATE, ISLANDS_SEGMENT, NOT_FOUND_TEMPLATE, Route, SiteRuntime, THEMES_SEGMENT,
 };
 use crate::settings::site_settings;
-use crate::{account, assets, data, dynamic, images, preview, redirects, session, sitemap};
+use crate::{
+    account, assets, data, deferred, dynamic, images, preview, redirects, session, sitemap,
+};
 
 const LIVE_DATA_LIFETIME: Duration = Duration::from_secs(60);
 const DEFAULT_COLOR: &str = "#4f46e5";
@@ -795,6 +797,8 @@ async fn site_context(
             "alternates": alternates,
             "color": safe_color(organization.primary_color.as_deref()),
             "prefix": prefix,
+            "mount": language.mount,
+            "tools": aphel_sdk::module::public_app_paths(state),
             "home": format!("{prefix}/"),
             "year": chrono::Utc::now().format("%Y").to_string(),
             "texts": texts(&locale),
@@ -1076,7 +1080,22 @@ async fn render_route(
         .get_template(&template_name(&route.owner, &route.page.template))
         .and_then(|template| template.render(Value::from_serialize(&values)))
         .map_err(render_error)?;
-    Ok(Outcome::Page { html, tags, live })
+    let filled = deferred::resolve(
+        html,
+        &deferred::ResolveContext {
+            state,
+            runtime,
+            site: &context.site,
+            suffix: context.suffix.as_deref(),
+        },
+    )
+    .await;
+    tags.extend(filled.tags);
+    Ok(Outcome::Page {
+        html: filled.html,
+        tags,
+        live: live || filled.live,
+    })
 }
 
 struct StructuredPage<'a> {

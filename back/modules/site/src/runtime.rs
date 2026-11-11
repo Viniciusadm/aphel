@@ -88,6 +88,12 @@ impl SiteRuntime {
             .map(|(_, exposure)| exposure)
     }
 
+    pub fn exposures(&self) -> impl Iterator<Item = (&str, &SiteExposure)> {
+        self.exposures
+            .iter()
+            .map(|((owner, _), exposure)| (owner.as_str(), exposure))
+    }
+
     pub fn entity_exposure(&self, entity: &str) -> Option<&SiteExposure> {
         self.exposures
             .iter()
@@ -332,6 +338,9 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
     environment.add_filter("image_url", image_url);
     environment.add_filter("from_json", from_json);
     environment.add_function("url_for", url_for);
+    environment.add_function("site_path", site_path);
+    environment.add_function("embed", embed);
+    environment.add_function("site_list", site_list);
     environment
 }
 
@@ -468,6 +477,56 @@ fn island(state: &State, name: String, props: Kwargs) -> Result<Value, Error> {
         escape_attribute(&name),
         escape_attribute(&encoded)
     )))
+}
+
+fn site_path(state: &State, path: String) -> String {
+    let path = path.trim();
+    if !path.starts_with('/') || path.starts_with("//") {
+        return path.to_owned();
+    }
+    let site = state.lookup("site");
+    let text = |name: &str| {
+        site.as_ref()
+            .and_then(|site| site.get_attr(name).ok())
+            .and_then(|value| value.as_str().map(str::to_owned))
+            .unwrap_or_default()
+    };
+    let first = path
+        .trim_start_matches('/')
+        .split(['/', '?', '#'])
+        .next()
+        .unwrap_or_default();
+    let tool = site
+        .as_ref()
+        .and_then(|site| site.get_attr("tools").ok())
+        .and_then(|tools| tools.try_iter().ok().map(|tools| tools.collect::<Vec<_>>()))
+        .is_some_and(|tools| tools.iter().any(|tool| tool.as_str() == Some(first)));
+    match tool {
+        true => format!("{}{path}", text("mount")),
+        false => format!("{}{path}", text("prefix")),
+    }
+}
+
+fn embed(source: String, key: String) -> Result<Value, Error> {
+    if !aphel_contract_site::is_embed_key(&key) {
+        return Ok(Value::from(""));
+    }
+    Ok(crate::deferred::marker(&crate::deferred::Deferred::Embed {
+        source,
+        key,
+    }))
+}
+
+fn site_list(owner: String, entity: String, kwargs: Kwargs) -> Result<Value, Error> {
+    let sort: Option<String> = kwargs.get("sort")?;
+    let limit: Option<u64> = kwargs.get("limit")?;
+    kwargs.assert_all_used()?;
+    Ok(crate::deferred::marker(&crate::deferred::Deferred::List {
+        owner,
+        entity,
+        sort,
+        limit: limit.unwrap_or(6).clamp(1, crate::deferred::MAX_LIST_LIMIT),
+    }))
 }
 
 fn theme_asset(state: &State, path: String) -> String {

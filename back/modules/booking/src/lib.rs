@@ -11,6 +11,7 @@ pub(crate) mod payload;
 pub(crate) mod public_http;
 pub(crate) mod runtime;
 pub(crate) mod service;
+mod site_embed;
 pub(crate) mod slots;
 pub(crate) mod store;
 pub mod token;
@@ -73,6 +74,9 @@ impl Module for BookingModule {
         app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath(
             "book",
         )));
+        app.contribute::<dyn aphel_contract_site::SiteEmbedSource>(std::sync::Arc::new(
+            site_embed::BookingEmbeds,
+        ));
         reference_cleanup::register(app);
         app.contract(aphel_sdk::booking::DESCRIPTOR);
         app.openapi_tag(

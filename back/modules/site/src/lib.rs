@@ -3,6 +3,7 @@ pub(crate) mod assets;
 pub(crate) mod cache;
 pub(crate) mod customers;
 pub(crate) mod data;
+pub(crate) mod deferred;
 pub(crate) mod dynamic;
 pub(crate) mod handler;
 pub(crate) mod http;

@@ -54281,6 +54281,106 @@
         "x-aphel-module": "site"
       }
     },
+    "/api/v1/site/collections": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "Public entities whose owner ships a card template (`site/cards/<entity>.html`), so pages can list their published records with `site_list(owner, entity, sort=, limit=)`; `fields` are the public fields usable in `sort`. Any signed-in user.",
+        "operationId": "site_collections_list",
+        "responses": {
+          "200": {
+            "description": "Collections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_SiteCollectionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/embeds": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "What site pages can embed with the template function `embed(kind, key)`: for each kind contributed by an enabled module (such as `form` or `booking`), the active items with their key and label. Only things that are already public are listed. Any signed-in user.",
+        "operationId": "site_embeds_list",
+        "responses": {
+          "200": {
+            "description": "Embeddable kinds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_SiteEmbedSourceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
     "/api/v1/site/path-redirects": {
       "get": {
         "tags": [
@@ -91293,6 +91393,80 @@
           }
         }
       },
+      "Data_Vec_SiteCollectionResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "owner",
+                "entity",
+                "record_type",
+                "label",
+                "fields"
+              ],
+              "properties": {
+                "entity": {
+                  "type": "string",
+                  "example": "post"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "label": {
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string",
+                  "example": "blog"
+                },
+                "record_type": {
+                  "type": "string",
+                  "example": "blog.post"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_SiteEmbedSourceResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "options"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "example": "form"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteEmbedOptionResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_SitePathRedirectResponse": {
         "type": "object",
         "required": [
@@ -118202,6 +118376,74 @@
           "type": {
             "type": "string",
             "example": "user"
+          }
+        }
+      },
+      "SiteCollectionResponse": {
+        "type": "object",
+        "required": [
+          "owner",
+          "entity",
+          "record_type",
+          "label",
+          "fields"
+        ],
+        "properties": {
+          "entity": {
+            "type": "string",
+            "example": "post"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "label": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "example": "blog"
+          },
+          "record_type": {
+            "type": "string",
+            "example": "blog.post"
+          }
+        }
+      },
+      "SiteEmbedOptionResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "SiteEmbedSourceResponse": {
+        "type": "object",
+        "required": [
+          "kind",
+          "options"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "example": "form"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteEmbedOptionResponse"
+            }
           }
         }
       },

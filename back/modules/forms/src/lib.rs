@@ -3,6 +3,7 @@ pub(crate) mod http;
 pub(crate) mod model;
 pub(crate) mod public_http;
 pub(crate) mod render;
+mod site_embed;
 pub(crate) mod store;
 pub(crate) mod submit;
 pub(crate) mod triggers;
@@ -132,6 +133,9 @@ impl Module for FormsModule {
             .public_routes(|_| public_http::router())
             .trigger(triggers::submitted_trigger());
         app.permission(PermissionDefinition::administrative(MANAGE));
+        app.contribute::<dyn aphel_contract_site::SiteEmbedSource>(std::sync::Arc::new(
+            site_embed::FormEmbeds,
+        ));
         for definition in PUBLIC_EVENTS {
             app.public_event(*definition);
         }

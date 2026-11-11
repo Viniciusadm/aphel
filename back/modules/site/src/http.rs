@@ -40,6 +40,8 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(delete_path_redirect))
         .routes(routes!(start_preview))
         .routes(routes!(purge_cache))
+        .routes(routes!(list_embeds))
+        .routes(routes!(list_collections))
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -138,6 +140,32 @@ pub(crate) struct SitePreviewResponse {
     #[schema(example = "https://www.example.com/about-us")]
     pub page_url: String,
     pub expires_in_minutes: i64,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteEmbedOptionResponse {
+    #[schema(example = "01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a")]
+    pub key: String,
+    pub label: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteEmbedSourceResponse {
+    #[schema(example = "form")]
+    pub kind: String,
+    pub options: Vec<SiteEmbedOptionResponse>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteCollectionResponse {
+    #[schema(example = "blog")]
+    pub owner: String,
+    #[schema(example = "post")]
+    pub entity: String,
+    #[schema(example = "blog.post")]
+    pub record_type: String,
+    pub label: String,
+    pub fields: Vec<String>,
 }
 
 fn permanent_by_default() -> bool {
@@ -719,4 +747,96 @@ async fn preview_record(
         record_id: id.to_string(),
         fields: input.fields.clone(),
     })
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/embeds",
+    tag = TAG,
+    operation_id = "site_embeds_list",
+    description = "What site pages can embed with the template function `embed(kind, key)`: for each kind contributed by an enabled module (such as `form` or `booking`), the active items with their key and label. Only things that are already public are listed. Any signed-in user.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Embeddable kinds", body = Data<Vec<SiteEmbedSourceResponse>>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+    )
+)]
+async fn list_embeds(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<Vec<SiteEmbedSourceResponse>>>, ApiError> {
+    let mut kinds = Vec::new();
+    for source in state
+        .app
+        .contributions::<dyn aphel_contract_site::SiteEmbedSource>()
+    {
+        kinds.push(SiteEmbedSourceResponse {
+            kind: source.kind().to_owned(),
+            options: source
+                .options(&state)
+                .await?
+                .into_iter()
+                .map(|option| SiteEmbedOptionResponse {
+                    key: option.key,
+                    label: option.label,
+                })
+                .collect(),
+        });
+    }
+    Ok(Json(Data::new(kinds)))
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/collections",
+    tag = TAG,
+    operation_id = "site_collections_list",
+    description = "Public entities whose owner ships a card template (`site/cards/<entity>.html`), so pages can list their published records with `site_list(owner, entity, sort=, limit=)`; `fields` are the public fields usable in `sort`. Any signed-in user.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Collections", body = Data<Vec<SiteCollectionResponse>>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+    )
+)]
+async fn list_collections(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<Vec<SiteCollectionResponse>>>, ApiError> {
+    let theme = site_settings(&state.organization_config.snapshot()).theme;
+    let runtime = runtime::current(&state.app, theme.as_deref()).await?;
+    let registry = state.registry().await?;
+    let collections = runtime
+        .exposures()
+        .filter_map(|(owner, exposure)| {
+            let entity = exposure.entity.strip_prefix(&format!("{owner}."))?;
+            runtime
+                .environment
+                .get_template(&crate::deferred::card_template(owner, entity))
+                .ok()?;
+            let label = registry
+                .require(&exposure.entity)
+                .ok()
+                .and_then(|definition| {
+                    definition
+                        .custom
+                        .as_ref()
+                        .map(|labels| labels.plural.clone())
+                })
+                .unwrap_or_else(|| exposure.entity.clone());
+            let mut fields: Vec<String> = aphel_contract_site::ALWAYS_PUBLIC_FIELDS
+                .iter()
+                .map(|field| (*field).to_owned())
+                .chain(exposure.fields.iter().cloned())
+                .collect();
+            fields.dedup();
+            Some(SiteCollectionResponse {
+                owner: owner.to_owned(),
+                entity: entity.to_owned(),
+                record_type: exposure.entity.clone(),
+                label,
+                fields,
+            })
+        })
+        .collect();
+    Ok(Json(Data::new(collections)))
 }

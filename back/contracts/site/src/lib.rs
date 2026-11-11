@@ -29,6 +29,7 @@ pub const BUILTIN_TEMPLATES: &[&str] = &[
 ];
 const REFERENCE_TAGS: &[&str] = &["include", "extends", "import", "from"];
 pub const ISLANDS_DIR: &str = "site/islands";
+pub const CARDS_DIR: &str = "site/cards";
 pub const SITE_API_HEADER: &str = "x-aphel-site";
 const MAX_ISLANDS: usize = 30;
 const MAX_CSP_SOURCES: usize = 10;
@@ -298,6 +299,52 @@ pub trait SiteContentSource: Send + Sync {
     async fn asset(&self, owner: &str, path: &str) -> Result<Option<(String, Vec<u8>)>, AppError>;
 
     async fn island(&self, owner: &str, name: &str) -> Result<Option<Vec<u8>>, AppError>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SiteEmbedOption {
+    pub key: String,
+    pub label: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct SiteEmbedContext {
+    pub mount: String,
+    pub prefix: String,
+    pub locale: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SiteEmbed {
+    pub html: String,
+    pub tags: Vec<String>,
+}
+
+pub const MAX_EMBED_KEY_LENGTH: usize = 64;
+
+pub fn is_embed_key(key: &str) -> bool {
+    !key.is_empty()
+        && key.len() <= MAX_EMBED_KEY_LENGTH
+        && key
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric() || matches!(character, '-' | '_'))
+}
+
+#[async_trait]
+pub trait SiteEmbedSource: Send + Sync {
+    fn kind(&self) -> &'static str;
+
+    async fn options(
+        &self,
+        state: &aphel_kernel::api::state::AppState,
+    ) -> Result<Vec<SiteEmbedOption>, AppError>;
+
+    async fn render(
+        &self,
+        state: &aphel_kernel::api::state::AppState,
+        key: &str,
+        context: &SiteEmbedContext,
+    ) -> Result<Option<SiteEmbed>, AppError>;
 }
 
 pub fn template_name(owner: &str, path: &str) -> String {

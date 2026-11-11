@@ -726,6 +726,7 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
+ "aphel-contract-site",
  "aphel-kernel",
  "aphel-sdk",
  "async-trait",
@@ -1092,8 +1093,10 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract-automation",
  "aphel-contract-crm",
+ "aphel-contract-site",
  "aphel-kernel",
  "aphel-sdk",
+ "async-trait",
  "axum",
  "base64 0.22.1",
  "chrono",

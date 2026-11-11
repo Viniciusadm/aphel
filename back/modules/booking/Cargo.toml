@@ -10,6 +10,7 @@ publish = false
 aphel-sdk.workspace = true
 aphel-contract-automation.workspace = true
 aphel-contract-crm.workspace = true
+aphel-contract-site.workspace = true
 aphel-kernel.workspace = true
 axum.workspace = true
 async-trait.workspace = true

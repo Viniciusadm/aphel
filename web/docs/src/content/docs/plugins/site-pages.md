@@ -95,6 +95,9 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | Function or filter | Use |
 | --- | --- |
 | `url_for(key, **params)` | Address of a page of the same plugin, including the site path. |
+| `site_path(path)` | Address of a site path typed by people (`/contact`, `/book/intro`): adds the site path and the language code, except for public app pages (`book`, `quote`, `p`), which keep the site path only. Other values (`https://…`, `#anchor`) are returned unchanged. |
+| `embed(kind, key)` | Places something another module publishes, rendered on the server: `embed('form', <form id>)` (a form of the Forms module, which also works without JavaScript) or `embed('booking', <slug>)` (a card with a button to the booking page). Unknown or inactive items render nothing. The kinds and items available come from `GET /api/v1/site/embeds`. |
+| `site_list(owner, entity, sort=, limit=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`), `limit` is 1 to 24 (default 6). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one. |
 | `value \| markdown` | Renders Markdown and removes unsafe HTML (scripts, event handlers). |
 | `value \| date(format)` | Formats an ISO date or date-time. Default `%d/%m/%Y`. |
 | `text \| from_json` | Parses a JSON text (up to 512 KB and 16 levels deep) into lists and objects, for content stored as JSON in a `long_text` field: `{% for block in record.blocks \| from_json %}`. Empty text gives nothing; invalid JSON fails the render. |
@@ -110,6 +113,16 @@ Templates are compiled when the plugin is installed: a syntax error, a missing t
 - Rendered pages are kept in a cache in each server process. A change to a public record (create, update, delete, archive, restore, attachments) clears the pages that show it: its own page and the list pages of its entity. A change to the organization (name, color, settings) clears every page. Other server processes see the change within a few seconds. Plugin installs and upgrades start a new cache.
 - Pages carry an `ETag` and `Cache-Control: public, max-age=60, stale-while-revalidate=600`, and answer `304` to a matching `If-None-Match`. Error pages are never cached.
 - Renders (pages not in the cache) are limited to 120 per minute per client address; above that the site answers `429`.
+
+## Cards
+
+A plugin lets other plugins' pages list its records by shipping `site/cards/<entity>.html` for a public entity. The template receives `record` (public fields and `images`), `site` and a `page` whose `owner` is your plugin, so `url_for` points to your pages:
+
+```html
+<article><h3><a href="{{ url_for('post', slug=record.slug) }}">{{ record.title }}</a></h3><p>{{ record.excerpt }}</p></article>
+```
+
+`site_list` and `embed` are filled after the page is rendered, so they cannot be used inside `title` or `seo`. Pages that list records are refreshed when a record of that entity changes; pages with embeds stay in the cache for at most 60 seconds.
 
 ## Dynamic pages
 

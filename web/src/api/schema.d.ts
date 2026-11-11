@@ -7196,6 +7196,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Public entities whose owner ships a card template (`site/cards/<entity>.html`), so pages can list their published records with `site_list(owner, entity, sort=, limit=)`; `fields` are the public fields usable in `sort`. Any signed-in user. */
+        get: operations["site_collections_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/embeds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description What site pages can embed with the template function `embed(kind, key)`: for each kind contributed by an enabled module (such as `form` or `booking`), the active items with their key and label. Only things that are already public are listed. Any signed-in user. */
+        get: operations["site_embeds_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/site/path-redirects": {
         parameters: {
             query?: never;
@@ -15197,6 +15231,25 @@ export interface components {
                 user_agent?: string | null;
             }[];
         };
+        Data_Vec_SiteCollectionResponse: {
+            data: {
+                /** @example post */
+                entity: string;
+                fields: string[];
+                label: string;
+                /** @example blog */
+                owner: string;
+                /** @example blog.post */
+                record_type: string;
+            }[];
+        };
+        Data_Vec_SiteEmbedSourceResponse: {
+            data: {
+                /** @example form */
+                kind: string;
+                options: components["schemas"]["SiteEmbedOptionResponse"][];
+            }[];
+        };
         Data_Vec_SitePathRedirectResponse: {
             data: {
                 created_at: string;
@@ -22115,6 +22168,26 @@ export interface components {
             name?: string | null;
             /** @example user */
             type: string;
+        };
+        SiteCollectionResponse: {
+            /** @example post */
+            entity: string;
+            fields: string[];
+            label: string;
+            /** @example blog */
+            owner: string;
+            /** @example blog.post */
+            record_type: string;
+        };
+        SiteEmbedOptionResponse: {
+            /** @example 01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a */
+            key: string;
+            label: string;
+        };
+        SiteEmbedSourceResponse: {
+            /** @example form */
+            kind: string;
+            options: components["schemas"]["SiteEmbedOptionResponse"][];
         };
         SiteMenuItemResponse: {
             /** @example blog.index */
@@ -61334,6 +61407,82 @@ export interface operations {
             };
             /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_collections_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Collections */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_SiteCollectionResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_embeds_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Embeddable kinds */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_SiteEmbedSourceResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

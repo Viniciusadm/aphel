@@ -104,8 +104,26 @@ pub(crate) fn unavailable_page() -> String {
 }
 
 pub(crate) fn page(form: &StoredForm, state: &PageState<'_>) -> String {
+    let body = format!(
+        "<h1>{}</h1>{}",
+        escape(&form.name),
+        form_markup(form, state)
+    );
+    document(&form.name, &body)
+}
+
+pub(crate) fn site_embed(form: &StoredForm) -> String {
+    format!(
+        "<div class=\"site-form\" data-aphel-form=\"{public_id}\">{markup}</div><script src=\"{script}\" defer></script>",
+        public_id = escape(&form.public_id),
+        markup = form_markup(form, &PageState::blank()),
+        script = escape(&public_path(&form.public_id, "/embed.js")),
+    )
+}
+
+fn form_markup(form: &StoredForm, state: &PageState<'_>) -> String {
     let definition = &form.definition;
-    let mut body = format!("<h1>{}</h1>", escape(&form.name));
+    let mut body = String::new();
     if state.success {
         let message = definition
             .success_message
@@ -115,7 +133,7 @@ pub(crate) fn page(form: &StoredForm, state: &PageState<'_>) -> String {
             "<p class=\"alert success\" role=\"status\">{}</p>",
             escape(message)
         ));
-        return document(&form.name, &body);
+        return body;
     }
     if let Some(message) = state.message {
         body.push_str(&format!(
@@ -223,7 +241,7 @@ pub(crate) fn page(form: &StoredForm, state: &PageState<'_>) -> String {
                 .unwrap_or(DEFAULT_SUBMIT_LABEL)
         )
     ));
-    document(&form.name, &body)
+    body
 }
 
 const EMBED_SCRIPT: &str = r#"(function () {
