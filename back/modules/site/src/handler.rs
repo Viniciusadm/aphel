@@ -533,13 +533,41 @@ impl Language {
     }
 }
 
+struct MenuLine<'a> {
+    id: String,
+    label: &'a str,
+    url: String,
+    path: Option<&'a str>,
+}
+
+struct MenuPrefixes<'a> {
+    language: &'a str,
+    mount: &'a str,
+    tools: &'a [&'static str],
+}
+
+impl MenuPrefixes<'_> {
+    fn for_path(&self, path: &str) -> &str {
+        let first = path
+            .trim_start_matches('/')
+            .split('/')
+            .next()
+            .unwrap_or_default();
+        match self.tools.contains(&first) {
+            true => self.mount,
+            false => self.language,
+        }
+    }
+}
+
 fn menu_of(
     runtime: &SiteRuntime,
     settings: &crate::settings::SiteSettings,
-    prefix: &str,
+    prefixes: &MenuPrefixes<'_>,
     current: &str,
     locale: &str,
 ) -> Vec<serde_json::Value> {
+    let prefix = prefixes.language;
     let position = |id: &str| {
         settings
             .menu
@@ -547,26 +575,45 @@ fn menu_of(
             .position(|entry| entry.item == id)
             .unwrap_or(usize::MAX)
     };
-    let mut items: Vec<_> = runtime
-        .menu
-        .iter()
-        .filter(|item| {
-            !settings
-                .menu
-                .iter()
-                .any(|entry| entry.item == item.id && entry.hidden)
-        })
+    let hidden = |id: &str| {
+        settings
+            .menu
+            .iter()
+            .any(|entry| entry.item == id && entry.hidden)
+    };
+    let plugin_items = runtime.menu.iter().map(|item| MenuLine {
+        id: item.id.clone(),
+        label: item.label(locale),
+        url: format!("{prefix}{}", item.path),
+        path: Some(item.path.as_str()),
+    });
+    let links = settings.links.iter().map(|link| {
+        let url = link.url.trim();
+        MenuLine {
+            id: format!("{}{}", crate::settings::LINK_PREFIX, link.id),
+            label: link.label.trim(),
+            url: match url.starts_with('/') {
+                true => format!("{}{url}", prefixes.for_path(url)),
+                false => url.to_owned(),
+            },
+            path: url.starts_with('/').then_some(url),
+        }
+    });
+    let mut items: Vec<_> = plugin_items
+        .chain(links)
+        .filter(|line| !hidden(&line.id))
         .enumerate()
         .collect();
-    items.sort_by_key(|(index, item)| (position(&item.id), *index));
+    items.sort_by_key(|(index, line)| (position(&line.id), *index));
     items
         .into_iter()
-        .map(|(_, item)| {
-            let active = current == item.path
-                || (item.path != "/" && current.starts_with(&format!("{}/", item.path)));
+        .map(|(_, line)| {
+            let active = line.path.is_some_and(|path| {
+                current == path || (path != "/" && current.starts_with(&format!("{path}/")))
+            });
             json!({
-                "label": item.label(locale),
-                "url": format!("{prefix}{}", item.path),
+                "label": line.label,
+                "url": line.url,
                 "active": active,
             })
         })
@@ -641,7 +688,17 @@ async fn site_context(
             "base_url": base_url,
             "indexing": settings.indexing,
             "tagline": settings.tagline.as_deref().map(str::trim).filter(|tagline| !tagline.is_empty()),
-            "menu": menu_of(runtime, &settings, prefix, current, &locale),
+            "menu": menu_of(
+                runtime,
+                &settings,
+                &MenuPrefixes {
+                    language: prefix,
+                    mount: &language.mount,
+                    tools: &aphel_sdk::module::public_app_paths(state),
+                },
+                current,
+                &locale,
+            ),
             "logo_url": organization
                 .logo_file_id
                 .as_ref()

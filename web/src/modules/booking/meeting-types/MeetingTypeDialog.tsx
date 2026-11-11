@@ -32,7 +32,7 @@ import {
 } from './form'
 import { QuestionsEditor } from './QuestionsEditor'
 import { Field } from '@/components/ui/field'
-import { appUrl } from '@/sdk/app-base'
+import { publicUrl } from '@/sdk/app-base'
 
 interface MeetingTypeDialogProps {
   meetingType: MeetingTypeResponse | null
@@ -130,7 +130,7 @@ export function MeetingTypeDialog({ meetingType, onClose }: MeetingTypeDialogPro
           </Field>
           <Field id="meeting-type-slug" label={t('meetingTypes.form.slug')}>
             <div className="flex min-w-0 items-center rounded-md border border-input bg-muted/40 shadow-xs">
-              <span className="truncate pl-3 text-sm text-muted-foreground">{appUrl('/book/')}</span>
+              <span className="truncate pl-3 text-sm text-muted-foreground">{publicUrl('/book/')}</span>
               <Input
                 id="meeting-type-slug"
                 className="min-w-24 flex-1 border-0 shadow-none"

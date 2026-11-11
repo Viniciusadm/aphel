@@ -77,11 +77,13 @@ impl BookingEmailHandler {
                 .unwrap_or(organization.timezone),
         };
         let key = booking::token_key(&ctx).await?;
-        let app_base_url = self.app_base_url.app_root();
-        let manage_url = ManageToken { booking_id }.url(&app_base_url, &key)?;
+        let public_url = self
+            .app_base_url
+            .tools_root(aphel_sdk::module::site_enabled(ctx.app()));
+        let manage_url = ManageToken { booking_id }.url(&public_url, &key)?;
         let booking_url = format!(
             "{}/book/{}",
-            app_base_url.trim_end_matches('/'),
+            public_url.trim_end_matches('/'),
             meeting_type.slug
         );
         Ok(Some(render_booking_email(&BookingEmailContext {

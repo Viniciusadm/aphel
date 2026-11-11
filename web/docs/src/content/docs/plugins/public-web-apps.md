@@ -23,6 +23,8 @@ The `aphel-plugin` CLI packs only the contents of `web/dist/`. To produce `web/a
 
 The app lives inside the internal app's base path, which is `/` by default and can be moved to a segment such as `/app` (see [Configuration](/_aphel/docs/admin/configuration/)). The paths below are relative to that base path: with the app at `/app`, `/p/<key>/` is `/app/p/<key>/`.
 
+When the `site` module is enabled, the same paths also answer under the site address (`https://www.example.com/p/<key>/` when the site has its own domain), so visitors stay on the company's address. Aphel's own public pages work the same way (`/book/<slug>` for booking links, `/quote/<token>` for quotes), and the links Aphel sends point to the site address. Site pages cannot use these first segments (`p`, `book`, `quote`): the install fails with `site_route_conflict`.
+
 | Request | Response |
 | --- | --- |
 | `GET /p/<key>` | Permanent redirect to `<key>/` (relative, so it keeps the base path). |

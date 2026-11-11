@@ -30,6 +30,45 @@ pub(crate) struct SiteSettings {
     pub languages: Vec<String>,
     pub link_people: bool,
     pub people_owner: Option<String>,
+    pub links: Vec<SiteLink>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub(crate) struct SiteLink {
+    pub id: String,
+    pub label: String,
+    pub url: String,
+}
+
+pub(crate) const LINK_PREFIX: &str = "link.";
+const MAX_LINKS: usize = 20;
+const MAX_LINK_ID_CHARS: usize = 40;
+const MAX_LINK_LABEL_CHARS: usize = 60;
+const MAX_LINK_URL_CHARS: usize = 500;
+
+pub(crate) fn valid_link_url(url: &str) -> bool {
+    let site_path = url.starts_with('/') && !url.starts_with("//");
+    let external = url.starts_with("https://") || url.starts_with("http://");
+    (site_path || external)
+        && url.len() <= MAX_LINK_URL_CHARS
+        && !url
+            .chars()
+            .any(|character| character.is_whitespace() || character.is_control())
+}
+
+fn valid_link(link: &SiteLink) -> bool {
+    let label = link.label.trim();
+    !link.id.is_empty()
+        && link.id.len() <= MAX_LINK_ID_CHARS
+        && link.id.chars().all(|character| {
+            character.is_ascii_lowercase()
+                || character.is_ascii_digit()
+                || character == '_'
+                || character == '-'
+        })
+        && !label.is_empty()
+        && label.chars().count() <= MAX_LINK_LABEL_CHARS
+        && valid_link_url(link.url.trim())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -50,6 +89,7 @@ impl Default for SiteSettings {
             languages: Vec::new(),
             link_people: false,
             people_owner: None,
+            links: Vec::new(),
         }
     }
 }
@@ -105,6 +145,20 @@ impl OrganizationConfigExtension for SiteConfiguration {
                 format!(
                     "must have at most {MAX_LANGUAGES} of {}",
                     SITE_LANGUAGES.join(", ")
+                ),
+            ));
+        }
+        let mut link_ids = std::collections::BTreeSet::new();
+        if settings.links.len() > MAX_LINKS
+            || settings
+                .links
+                .iter()
+                .any(|link| !valid_link(link) || !link_ids.insert(link.id.as_str()))
+        {
+            violations.push(FieldViolation::new(
+                "site.links",
+                format!(
+                    "must have at most {MAX_LINKS} links with a unique id, a label of up to {MAX_LINK_LABEL_CHARS} characters and a site path (/page) or an address starting with https://"
                 ),
             ));
         }

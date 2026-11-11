@@ -239,6 +239,7 @@ pub(crate) fn validate_package(
     manifest: &PluginManifest,
     files: &[PackageFile],
     others: &[&PluginManifest],
+    tool_paths: &[&str],
 ) -> Result<(), AppError> {
     let entries = || {
         files
@@ -254,6 +255,17 @@ pub(crate) fn validate_package(
         return Err(AppError::validation_code(SITE_INVALID, problems.join("; ")));
     }
     for (shape, path) in shapes(manifest) {
+        let first = path
+            .trim_start_matches('/')
+            .split('/')
+            .next()
+            .unwrap_or_default();
+        if tool_paths.contains(&first) {
+            return Err(AppError::conflict_code(
+                SITE_ROUTE_CONFLICT,
+                format!("the site page {path} uses /{first}, reserved for public app pages"),
+            ));
+        }
         if let Some(other) = others
             .iter()
             .filter(|other| other.key != manifest.key)

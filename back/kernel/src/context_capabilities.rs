@@ -57,4 +57,11 @@ impl Ctx<'_> {
     pub fn app_root_url(&self) -> String {
         self.state().auth_settings.app_base_url.app_root()
     }
+
+    pub fn public_tools_url(&self) -> String {
+        self.state()
+            .auth_settings
+            .app_base_url
+            .tools_root(crate::modules::site_enabled(self.app()))
+    }
 }

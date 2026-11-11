@@ -580,6 +580,17 @@ impl PublicBaseUrl {
     pub fn app_link(&self, path: &str) -> String {
         format!("{}{path}", self.app_root())
     }
+
+    pub fn tools_root(&self, site_enabled: bool) -> String {
+        match (&self.0, site_enabled) {
+            (BaseUrlSource::Live(catalog), true) => catalog
+                .snapshot()
+                .site_base_url()
+                .trim_end_matches('/')
+                .to_owned(),
+            _ => self.app_root(),
+        }
+    }
 }
 
 impl Default for PublicBaseUrl {

@@ -20,6 +20,14 @@ pub const THEME_NOT_FOUND: &str = "site/theme/not_found.html";
 pub const THEME_ERROR: &str = "site/theme/error.html";
 pub const THEME_ASSETS_DIR: &str = "site/theme/assets";
 pub const HEAD_PARTIAL: &str = "aphel/head.html";
+pub const BUILTIN_TEMPLATES: &[&str] = &[
+    LAYOUT_TEMPLATE,
+    HEAD_PARTIAL,
+    "aphel/not_found.html",
+    "aphel/error.html",
+    "aphel/account.html",
+];
+const REFERENCE_TAGS: &[&str] = &["include", "extends", "import", "from"];
 pub const ISLANDS_DIR: &str = "site/islands";
 pub const SITE_API_HEADER: &str = "x-aphel-site";
 const MAX_ISLANDS: usize = 30;
@@ -728,6 +736,58 @@ pub fn join_template_path(name: &str, parent: &str, theme_owner: Option<&str>) -
     }
 }
 
+fn literal_reference(tag: &str) -> Option<String> {
+    let mut words = tag.trim().splitn(2, char::is_whitespace);
+    let keyword = words.next()?;
+    if !REFERENCE_TAGS.contains(&keyword) {
+        return None;
+    }
+    let rest = words.next()?.trim_start();
+    if rest.contains("ignore missing") {
+        return None;
+    }
+    let quote = rest
+        .chars()
+        .next()
+        .filter(|quote| *quote == '"' || *quote == '\'')?;
+    let body = &rest[1..];
+    body.find(quote).map(|end| body[..end].to_owned())
+}
+
+fn template_references(source: &str) -> Vec<String> {
+    source
+        .split("{%")
+        .skip(1)
+        .filter_map(|block| block.split("%}").next())
+        .map(|tag| {
+            tag.trim_start_matches(['-', '+'])
+                .trim_end_matches(['-', '+'])
+        })
+        .filter_map(literal_reference)
+        .collect()
+}
+
+fn missing_references(bundle: &SiteBundle) -> Vec<String> {
+    let known: std::collections::BTreeSet<String> = bundle
+        .templates
+        .iter()
+        .map(|template| template_name(&bundle.owner, &template.name))
+        .chain(BUILTIN_TEMPLATES.iter().map(|name| (*name).to_owned()))
+        .collect();
+    bundle
+        .templates
+        .iter()
+        .flat_map(|template| {
+            let parent = template_name(&bundle.owner, &template.name);
+            template_references(&template.source)
+                .into_iter()
+                .filter(|name| !known.contains(&join_template_path(name, &parent, None)))
+                .map(|name| format!("{}: the template {name} does not exist", template.name))
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
 fn check_templates(bundle: &SiteBundle) -> Vec<String> {
     let mut environment = minijinja::Environment::new();
     environment
@@ -741,5 +801,61 @@ fn check_templates(bundle: &SiteBundle) -> Vec<String> {
             problems.push(format!("{}: {error}", template.name));
         }
     }
+    problems.extend(missing_references(bundle));
     problems
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn bundle_with(templates: &[(&str, &str)]) -> SiteBundle {
+        SiteBundle {
+            owner: "blog".to_owned(),
+            revision: String::new(),
+            pages: Vec::new(),
+            exposures: Vec::new(),
+            templates: templates
+                .iter()
+                .map(|(name, source)| SiteTemplate {
+                    name: (*name).to_owned(),
+                    source: (*source).to_owned(),
+                })
+                .collect(),
+            menu: Vec::new(),
+            theme: None,
+            islands: Vec::new(),
+            csp: SiteCsp::default(),
+            account: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn accepts_references_to_own_and_builtin_templates() {
+        let bundle = bundle_with(&[
+            (
+                "site/index.html",
+                "{% extends \"layout.html\" %}{% block content %}{% include 'site/_card.html' %}{% endblock %}",
+            ),
+            ("site/_card.html", "<p>card</p>"),
+            (
+                "site/theme/layout.html",
+                "<head>{% include \"aphel/head.html\" %}</head>{%- include \"site/theme/_footer.html\" -%}",
+            ),
+            ("site/theme/_footer.html", "<footer></footer>"),
+        ]);
+        assert!(check_templates(&bundle).is_empty());
+    }
+
+    #[test]
+    fn reports_references_to_missing_templates() {
+        let bundle = bundle_with(&[(
+            "site/theme/layout.html",
+            "{% include \"aphel/seo.html\" %}{% include \"site/_gone.html\" %}{% include \"maybe.html\" ignore missing %}",
+        )]);
+        let problems = check_templates(&bundle);
+        assert_eq!(problems.len(), 2, "{problems:?}");
+        assert!(problems[0].contains("aphel/seo.html"));
+        assert!(problems[1].contains("site/_gone.html"));
+    }
 }

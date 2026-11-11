@@ -56,5 +56,8 @@ pub use worker::{WorkerEnv, WorkerParts};
 
 pub mod runtime_catalog;
 pub(crate) mod site_mount;
-pub use site_mount::{SITE_RESERVED_SEGMENT, SiteMountPrefix, SiteRequestHandler};
+pub use site_mount::{
+    PublicAppPath, SITE_RESERVED_SEGMENT, SiteMountPrefix, SiteRequestHandler, SiteSurface,
+    public_app_paths, public_tools_url, site_enabled,
+};
 pub mod toggle_guard;

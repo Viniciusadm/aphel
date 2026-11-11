@@ -133,3 +133,43 @@ pub(crate) async fn link(state: &AppState, customer_id: &str) {
         tracing::warn!(%error, customer_id, "could not link the site customer to a person");
     }
 }
+
+const CUSTOMERS_TABLE: &str = "site_customers";
+pub(crate) const PERSON_PURGED_EVENT: &str = "people.person.purged";
+
+pub(crate) struct PersonMerges;
+
+#[async_trait::async_trait]
+impl aphel_sdk::merges::MergeReferences for PersonMerges {
+    async fn move_references(
+        &self,
+        _ctx: &Ctx<'_>,
+        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+        record_type: &str,
+        from: uuid::Uuid,
+        to: uuid::Uuid,
+    ) -> Result<std::collections::BTreeMap<String, u64>, AppError> {
+        let mut moved = std::collections::BTreeMap::new();
+        if record_type != PERSON_RECORD_TYPE {
+            return Ok(moved);
+        }
+        let count = sqlx::query("UPDATE site_customers SET person_id = ? WHERE person_id = ?")
+            .bind(to.to_string())
+            .bind(from.to_string())
+            .execute(&mut **tx)
+            .await?
+            .rows_affected();
+        if count > 0 {
+            moved.insert(CUSTOMERS_TABLE.to_owned(), count);
+        }
+        Ok(moved)
+    }
+}
+
+pub(crate) async fn forget_person(pool: &sqlx::MySqlPool, person_id: &str) -> Result<(), AppError> {
+    sqlx::query("UPDATE site_customers SET person_id = NULL WHERE person_id = ?")
+        .bind(person_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}

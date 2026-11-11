@@ -144,6 +144,9 @@ impl Module for SiteModule {
         app.permission(PermissionDefinition::record(CUSTOMERS_READ.clone()))
             .grant_to(["admin", "manager"]);
         app.contribute::<dyn SiteRequestHandler>(Arc::new(handler::SiteHandler));
+        app.contribute::<dyn aphel_sdk::merges::MergeReferences>(Arc::new(
+            people_link::PersonMerges,
+        ));
         app.contribute::<dyn aphel_sdk::privacy::DataSubjectSource>(Arc::new(
             privacy::CustomerPrivacy,
         ));

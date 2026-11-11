@@ -42,6 +42,12 @@ export interface MailSettings {
   security: string
 }
 
+export interface SiteLink {
+  id: string
+  label: string
+  url: string
+}
+
 export interface SiteMenuEntry {
   item: string
   hidden: boolean
@@ -54,8 +60,7 @@ export interface SiteSettings {
   tagline: string | null
   menu: SiteMenuEntry[]
   languages: string[]
-  link_people: boolean
-  people_owner: string | null
+  links: SiteLink[]
 }
 
 export interface OrganizationConfiguration {

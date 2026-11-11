@@ -295,6 +295,9 @@ impl Module for QuotesModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath(
+            "quote",
+        )));
         reference_cleanup::register(app);
         app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
             dataset_seed::QuotesSeed,

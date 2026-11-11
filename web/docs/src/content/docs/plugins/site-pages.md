@@ -66,11 +66,11 @@ title = "{{ record.title }}"
 
 A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs either `match` or `list`.
 
-Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
+Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
 
 ## Write the templates
 
-Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output is HTML-escaped by default. Extend the site theme with `{% extends "layout.html" %}` and fill `{% block content %}`; the theme also has `title` and `head` blocks. Include your own partials by their package path: `{% include "site/_card.html" %}`.
+Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output is HTML-escaped by default. Extend the site theme with `{% extends "layout.html" %}` and fill `{% block content %}`; the theme also has `title` and `head` blocks. Include your own partials by their package path: `{% include "site/_card.html" %}`. The install checks that every `extends`, `include`, `import` and `from` with a literal name points to a template of the package or of the built-in theme (`layout.html`, `aphel/head.html`); a missing one fails with `plugin_site_invalid`. Use `ignore missing` for optional partials.
 
 ```html
 {% extends "layout.html" %}
@@ -210,7 +210,7 @@ Site routes receive the customer in `request.customer` (see [Routes](/_aphel/doc
 
 Customers are the record type `site.customer` (name, email, linked person, confirmation and last sign-in dates), readable with the permission `site.customers.read` and listed in Settings → Site. Account creation, changes and closing publish `site.customer.created|updated|deleted` with an audit entry. Closing an account, or a privacy request for it, erases the name, email and password and signs the customer out everywhere.
 
-When the `people` module is enabled, Settings → Site can link customers to people: once a customer confirms the email (or signs in with a confirmed one), the account points (`person_id`) to the person with the same email, or to a new contact owned by the user the organization chose. Without an owner, only existing people are linked.
+When the `people` module is enabled, Settings → Site can link customers to people: once a customer confirms the email (or signs in with a confirmed one), the account points (`person_id`) to the person with the same email, or to a new contact owned by the user the organization chose. Without an owner, only existing people are linked. Merging people moves the link to the person that stays; purging the person from the trash clears it.
 
 ## Menu
 
@@ -221,7 +221,7 @@ label = "Blog"
 page = "index"
 ```
 
-Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin. `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin and hides the ones it does not want; new items appear at the end. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
+Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin. `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin, hides the ones it does not want and adds its own links (a site path or an `https://` address, such as the booking page or a social profile); new items appear at the end. Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
 
 The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).
 

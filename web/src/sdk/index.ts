@@ -49,7 +49,7 @@ export { ContractComponent, type ContractComponentRenderProps } from '@/kernel/m
 export { useChangeFeed, type ChangeFeedOptions, type PluginChange } from '@/kernel/modules/change-feed'
 export type { RecordSlotProps, SlotName, SlotProps, SlotPropsMap } from '@/kernel/modules/slots'
 export { api, apiRequest, ApiError, isApiError } from '@/api'
-export { appBase, appPath, appUrl } from './app-base'
+export { appBase, appPath, appUrl, onSiteSurface, publicUrl } from './app-base'
 export { useSession } from '@/app/session/session-context'
 export { ConfirmDialog, ErrorBoundary, PageLoader, errorMessage, notifyError, notifySuccess } from '@/components/feedback'
 export * from './mobile'

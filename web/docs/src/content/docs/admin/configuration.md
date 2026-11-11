@@ -131,7 +131,7 @@ Settings that live in the database are edited under Settings in the app. They re
 | Site | Let search engines find the site | on | Off, site pages carry `noindex`, `robots.txt` disallows everything and the sitemap answers 404. |
 | Site | Theme | Default theme | A theme from an installed plugin (`[site.theme]`) or the built-in one. |
 | Site | Tagline | none | Up to 160 characters, shown below the company name. Name, logo and color come from the organization. |
-| Site | Menu | Declaration order, all shown | Order and visibility of the menu items that plugins contribute. |
+| Site | Menu | Declaration order, all shown | Order and visibility of the menu items that plugins contribute, plus links added by hand (up to 20): a site path such as `/book/intro-call` or an address starting with `https://`. |
 | Site | Languages | Only the organization language | Up to five extra languages for the site, each under its own code (`/en`, `/es`). |
 | Site | Create a contact in People | off | With the `people` module, links each customer with a confirmed email to the person with the same email, creating one for the chosen owner when none exists. |
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |

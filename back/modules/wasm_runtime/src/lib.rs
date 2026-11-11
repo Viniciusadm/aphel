@@ -78,6 +78,9 @@ impl Module for WasmRuntimeModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath(
+            "p",
+        )));
         app.contribute::<dyn aphel_sdk::platform::modules::RouteTakeover>(std::sync::Arc::new(
             takeover::AliasTakeover,
         ));

@@ -115,6 +115,10 @@ impl EventConsumer for SiteInvalidationConsumer {
         let Some(record) = &event.record else {
             return Ok(());
         };
+        if event.event_type == crate::people_link::PERSON_PURGED_EVENT {
+            return crate::people_link::forget_person(&self.pool, &record.record_id.to_string())
+                .await;
+        }
         let record_type = record.record_type.as_str();
         let bundles = bundles().await?;
         let exposed = bundles

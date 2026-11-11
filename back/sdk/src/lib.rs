@@ -26,6 +26,7 @@ pub mod module {
         WorkerEnv, WorkerParts, connect_with_modules, module_secret_key, module_settings,
         operation_input, operation_output,
     };
+    pub use aphel_kernel::modules::{PublicAppPath, public_app_paths, site_enabled};
 }
 
 pub mod access {

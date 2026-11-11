@@ -70,6 +70,9 @@ impl Module for BookingModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath(
+            "book",
+        )));
         reference_cleanup::register(app);
         app.contract(aphel_sdk::booking::DESCRIPTOR);
         app.openapi_tag(

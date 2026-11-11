@@ -10,7 +10,10 @@ use crate::api::error::app_error;
 use crate::api::state::AppState;
 use crate::application::organization_profile::{RECOVERY_APP_PATH, RESERVED_PREFIX};
 use crate::errors::AppError;
-use crate::modules::{SITE_RESERVED_SEGMENT, SiteMountPrefix, SiteRequestHandler};
+use crate::modules::{
+    SITE_RESERVED_SEGMENT, SiteMountPrefix, SiteRequestHandler, SiteSurface, public_app_paths,
+    public_tools_url,
+};
 
 #[derive(Embed)]
 #[folder = "../../web/dist"]
@@ -30,6 +33,9 @@ const BASE_META_PLACEHOLDER: &str = "<head>";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppMountPrefix(pub String);
+
+#[derive(Debug, Clone)]
+pub struct PublicToolsBase(pub String);
 
 #[derive(Debug, PartialEq, Eq)]
 enum Target {
@@ -126,14 +132,39 @@ pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Res
             }
             _ => serve_reserved(&rest, config.app_prefix()),
         },
-        Target::App(prefix) => serve_app(mounted, prefix, request).await,
+        Target::App(prefix) => {
+            let mut request = request;
+            request
+                .extensions_mut()
+                .insert(PublicToolsBase(public_tools_url(&state)));
+            serve_app(mounted, prefix, request).await
+        }
         Target::Site(prefix) => match handler {
+            Some(_) if serves_public_tool(&state, &path, &prefix) => {
+                let mut request = request;
+                request.extensions_mut().insert(SiteSurface);
+                request
+                    .extensions_mut()
+                    .insert(PublicToolsBase(public_tools_url(&state)));
+                serve_app(mounted, prefix, request).await
+            }
             Some(handler) => serve_site(&state, handler.as_ref(), prefix, request).await,
             None => StatusCode::NOT_FOUND.into_response(),
         },
         Target::Redirect(location) => Redirect::temporary(&location).into_response(),
         Target::NotFound => StatusCode::NOT_FOUND.into_response(),
     }
+}
+
+fn serves_public_tool(state: &AppState, path: &str, prefix: &str) -> bool {
+    let first = path
+        .strip_prefix(prefix)
+        .unwrap_or(path)
+        .trim_start_matches('/')
+        .split('/')
+        .next()
+        .unwrap_or_default();
+    !first.is_empty() && public_app_paths(state).contains(&first)
 }
 
 fn strip_mount(prefix: &str, request: &mut Request) -> Result<(), StatusCode> {
@@ -178,6 +209,14 @@ async fn serve_app(mounted: Router, prefix: String, mut request: Request) -> Res
     }
 }
 
+fn html_attribute(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('"', "&quot;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+}
+
 pub async fn serve_app_shell(request: Request) -> Response {
     let prefix = request
         .extensions()
@@ -194,9 +233,20 @@ pub async fn serve_app_shell(request: Request) -> Response {
         )
             .into_response();
     };
+    let public_base = request
+        .extensions()
+        .get::<PublicToolsBase>()
+        .map(|base| html_attribute(&base.0))
+        .unwrap_or_default();
+    let surface = match request.extensions().get::<SiteSurface>() {
+        Some(_) => "<meta name=\"aphel-surface\" content=\"site\" />",
+        None => "",
+    };
     let html = String::from_utf8_lossy(&index.data).replacen(
         BASE_META_PLACEHOLDER,
-        &format!("{BASE_META_PLACEHOLDER}<meta name=\"aphel-base\" content=\"{prefix}\" />"),
+        &format!(
+            "{BASE_META_PLACEHOLDER}<meta name=\"aphel-base\" content=\"{prefix}\" /><meta name=\"aphel-public-base\" content=\"{public_base}\" />{surface}"
+        ),
         1,
     );
     (

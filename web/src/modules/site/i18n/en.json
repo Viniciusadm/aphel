@@ -43,7 +43,15 @@
     "listLabel": "Site menu items",
     "shown": "Show in the menu",
     "empty": "No plugin offers menu items.",
-    "saved": "Menu updated"
+    "saved": "Menu updated",
+    "emptyWithLinks": "No menu items. Plugins can offer items, or add a link below.",
+    "addLinkTitle": "Add a link to the menu",
+    "linkLabel": "Link text",
+    "linkLabelPlaceholder": "E.g. Book a call",
+    "linkUrl": "Address",
+    "linkUrlHint": "A site path, such as /book/intro-call for the booking page, or a full address starting with https://.",
+    "addLink": "Add link",
+    "removeLink": "Remove the link {{label}}"
   },
   "redirects": {
     "title": "Moved addresses",
@@ -66,7 +74,8 @@
     "pathTaken": "The app already uses this path. Choose another one or set a domain for the site.",
     "tagline": "Use up to 160 characters.",
     "redirectSource": "Start with / and do not use spaces, ? or #.",
-    "redirectTarget": "Use a site path (/blog) or an address starting with https://."
+    "redirectTarget": "Use a site path (/blog) or an address starting with https://.",
+    "linkLabel": "Enter a text of up to 60 characters."
   },
   "saved": "Site settings saved",
   "customers": {

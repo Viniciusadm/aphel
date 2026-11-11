@@ -719,7 +719,12 @@ pub(crate) async fn prepare_install(
         .map(|plugin| &plugin.manifest)
         .chain(pack.iter())
         .collect();
-    crate::site::validate_package(&package.manifest, &package.files, &others)?;
+    crate::site::validate_package(
+        &package.manifest,
+        &package.files,
+        &others,
+        &aphel_sdk::module::public_app_paths(state),
+    )?;
     let previous = store::find(&pool, &package.manifest.key).await?;
     if previous.as_ref().is_some_and(|plugin| plugin.enabled) {
         crate::dependents::ensure_none_broken(

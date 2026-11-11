@@ -22,6 +22,7 @@ import {
   serverFieldErrors,
   SettingsNativeSelect as NativeSelect,
   SETTINGS_MANAGE,
+  type SiteLink,
   type SiteMenuEntry,
   type SiteSettings,
   SortableList,
@@ -43,7 +44,12 @@ import {
 
 const RESERVED_SEGMENTS = ['api']
 const TAGLINE_MAX = 160
-const DEFAULT_SETTINGS: SiteSettings = {
+interface SiteModuleSettings extends SiteSettings {
+  link_people: boolean
+  people_owner: string | null
+}
+
+const DEFAULT_SETTINGS: SiteModuleSettings = {
   indexing: true,
   accounts: false,
   theme: null,
@@ -52,7 +58,11 @@ const DEFAULT_SETTINGS: SiteSettings = {
   languages: [],
   link_people: false,
   people_owner: null,
+  links: [],
 }
+
+const LINK_PREFIX = 'link.'
+const LINK_LABEL_MAX = 60
 
 function segmentOf(basePath: string): string {
   return basePath.replace(/^\/+|\/+$/g, '')
@@ -63,13 +73,13 @@ function basePathOf(segment: string): string {
   return trimmed ? `/${trimmed}` : '/'
 }
 
-function currentSettings(configuration: OrganizationConfiguration): SiteSettings {
+function currentSettings(configuration: OrganizationConfiguration): SiteModuleSettings {
   return { ...DEFAULT_SETTINGS, ...configuration.site }
 }
 
 function useSaveSite(configuration: OrganizationConfiguration) {
   const save = useSaveConfiguration()
-  return (site: Partial<SiteSettings>, extra: Record<string, unknown> = {}) =>
+  return (site: Partial<SiteModuleSettings>, extra: Record<string, unknown> = {}) =>
     save({ ...extra, site: { ...currentSettings(configuration), ...site } })
 }
 
@@ -390,6 +400,7 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
 
 interface MenuRow extends SiteMenuItem {
   hidden: boolean
+  custom: boolean
 }
 
 function orderedMenu(items: SiteMenuItem[], entries: SiteMenuEntry[]): MenuRow[] {
@@ -400,29 +411,78 @@ function orderedMenu(items: SiteMenuItem[], entries: SiteMenuEntry[]): MenuRow[]
   return items
     .map((item, index) => ({ item, index }))
     .sort((left, right) => position(left.item.id) - position(right.item.id) || left.index - right.index)
-    .map(({ item }) => ({ ...item, hidden: entries.some((entry) => entry.item === item.id && entry.hidden) }))
+    .map(({ item }) => ({
+      ...item,
+      hidden: entries.some((entry) => entry.item === item.id && entry.hidden),
+      custom: item.id.startsWith(LINK_PREFIX),
+    }))
+}
+
+function menuItemsOf(overview: SiteOverview, links: SiteLink[]): SiteMenuItem[] {
+  return [...overview.menu_items, ...links.map((link) => ({ id: `${LINK_PREFIX}${link.id}`, label: link.label, path: link.url }))]
+}
+
+const linkSchema = z.object({
+  label: z.string().trim().min(1, 'errors.linkLabel').max(LINK_LABEL_MAX, 'errors.linkLabel'),
+  url: z
+    .string()
+    .trim()
+    .regex(/^(\/(?!\/)\S*|https?:\/\/\S+)$/, 'errors.redirectTarget'),
+})
+
+type LinkValues = z.infer<typeof linkSchema>
+
+function newLinkId(): string {
+  return crypto.randomUUID().replace(/-/g, '').slice(0, 12)
 }
 
 function MenuCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
   const { t } = useTranslation('site')
   const saveSite = useSaveSite(configuration)
-  const [rows, setRows] = useState(() => orderedMenu(overview.menu_items, currentSettings(configuration).menu))
+  const [links, setLinks] = useState(() => currentSettings(configuration).links)
+  const [rows, setRows] = useState(() => orderedMenu(menuItemsOf(overview, links), currentSettings(configuration).menu))
   const [saving, setSaving] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<LinkValues>({ resolver: zodResolver(linkSchema), defaultValues: { label: '', url: '' } })
+  const errorText = (message?: string) => (message?.startsWith('errors.') ? t(message as 'errors.linkLabel') : message)
 
-  const persist = async (next: MenuRow[]) => {
-    const previous = rows
+  const persist = async (next: MenuRow[], nextLinks: SiteLink[] = links) => {
+    const previous = { rows, links }
     setRows(next)
+    setLinks(nextLinks)
     setSaving(true)
     try {
-      await saveSite({ menu: next.map((row) => ({ item: row.id, hidden: row.hidden })) })
+      await saveSite({ menu: next.map((row) => ({ item: row.id, hidden: row.hidden })), links: nextLinks })
       notifySuccess(t('menu.saved'))
+      return true
     } catch (error) {
-      setRows(previous)
+      setRows(previous.rows)
+      setLinks(previous.links)
       notifyError(error)
+      return false
     } finally {
       setSaving(false)
     }
   }
+
+  const addLink = handleSubmit(async (values) => {
+    const link = { id: newLinkId(), label: values.label.trim(), url: values.url.trim() }
+    const added = await persist(
+      [...rows, { id: `${LINK_PREFIX}${link.id}`, label: link.label, path: link.url, hidden: false, custom: true }],
+      [...links, link],
+    )
+    if (added) reset({ label: '', url: '' })
+  })
+
+  const removeLink = (row: MenuRow) =>
+    void persist(
+      rows.filter((candidate) => candidate.id !== row.id),
+      links.filter((link) => `${LINK_PREFIX}${link.id}` !== row.id),
+    )
 
   return (
     <Card>
@@ -432,7 +492,7 @@ function MenuCard({ configuration, overview }: { configuration: OrganizationConf
       </CardHeader>
       <CardContent>
         {rows.length === 0 ? (
-          <EmptyState title={t('menu.empty')} />
+          <EmptyState title={t('menu.emptyWithLinks')} />
         ) : (
           <SortableList
             items={rows}
@@ -458,10 +518,63 @@ function MenuCard({ configuration, overview }: { configuration: OrganizationConf
                     void persist(rows.map((candidate) => (candidate.id === row.id ? { ...candidate, hidden: checked !== true } : candidate)))
                   }
                 />
+                {row.custom && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={saving}
+                    onClick={() => removeLink(row)}
+                    aria-label={t('menu.removeLink', { label: row.label })}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </Button>
+                )}
               </div>
             )}
           />
         )}
+        <form className="mt-4 grid gap-4 border-t pt-4" onSubmit={addLink} noValidate>
+          <p className="text-sm font-medium">{t('menu.addLinkTitle')}</p>
+          <fieldset className="grid gap-4 sm:grid-cols-2" disabled={isSubmitting || saving}>
+            <FormRow id="site-link-label" label={t('menu.linkLabel')} error={errorText(errors.label?.message)}>
+              {(describedBy) => (
+                <Input
+                  id="site-link-label"
+                  maxLength={LINK_LABEL_MAX}
+                  placeholder={t('menu.linkLabelPlaceholder')}
+                  aria-invalid={errors.label ? true : undefined}
+                  aria-describedby={describedBy}
+                  {...register('label')}
+                />
+              )}
+            </FormRow>
+            <FormRow
+              id="site-link-url"
+              label={t('menu.linkUrl')}
+              error={errorText(errors.url?.message)}
+              hint={t('menu.linkUrlHint')}
+            >
+              {(describedBy) => (
+                <Input
+                  id="site-link-url"
+                  placeholder="/book/consulta"
+                  autoComplete="off"
+                  spellCheck={false}
+                  inputMode="url"
+                  aria-invalid={errors.url ? true : undefined}
+                  aria-describedby={describedBy}
+                  {...register('url')}
+                />
+              )}
+            </FormRow>
+          </fieldset>
+          <div className="flex justify-end">
+            <Button type="submit" variant="outline" disabled={isSubmitting || saving}>
+              <Plus aria-hidden="true" />
+              {t('menu.addLink')}
+            </Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   )
@@ -538,7 +651,7 @@ function CustomersCard({ configuration, overview }: { configuration: Organizatio
   const formatDate = (value: string | null) =>
     value ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short' }).format(new Date(value)) : '—'
 
-  const save = async (site: Partial<SiteSettings>) => {
+  const save = async (site: Partial<SiteModuleSettings>) => {
     setSaving(true)
     try {
       await saveSite(site)

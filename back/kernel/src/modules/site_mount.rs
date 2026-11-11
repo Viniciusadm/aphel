@@ -18,3 +18,29 @@ pub trait SiteRequestHandler: Send + Sync {
         request: Request,
     ) -> BoxFuture<'a, Response>;
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PublicAppPath(pub &'static str);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SiteSurface;
+
+pub fn public_app_paths(state: &AppState) -> Vec<&'static str> {
+    state
+        .app
+        .contributions::<PublicAppPath>()
+        .into_iter()
+        .map(|path| path.0)
+        .collect()
+}
+
+pub fn site_enabled(app: &crate::modules::App) -> bool {
+    !app.contributions::<dyn SiteRequestHandler>().is_empty()
+}
+
+pub fn public_tools_url(state: &AppState) -> String {
+    state
+        .auth_settings
+        .app_base_url
+        .tools_root(site_enabled(&state.app))
+}

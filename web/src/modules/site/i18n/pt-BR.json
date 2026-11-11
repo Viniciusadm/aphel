@@ -43,7 +43,15 @@
     "listLabel": "Itens do menu do site",
     "shown": "Mostrar no menu",
     "empty": "Nenhum plugin oferece itens de menu.",
-    "saved": "Menu atualizado"
+    "saved": "Menu atualizado",
+    "emptyWithLinks": "Nenhum item no menu. Plugins podem oferecer itens, ou adicione um link abaixo.",
+    "addLinkTitle": "Adicionar link ao menu",
+    "linkLabel": "Texto do link",
+    "linkLabelPlaceholder": "Ex.: Agendar",
+    "linkUrl": "Endereço",
+    "linkUrlHint": "Um caminho do site, como /book/consulta para a página de agendamento, ou um endereço completo com https://.",
+    "addLink": "Adicionar link",
+    "removeLink": "Remover o link {{label}}"
   },
   "redirects": {
     "title": "Endereços que mudaram",
@@ -66,7 +74,8 @@
     "pathTaken": "O sistema já usa esse caminho. Escolha outro ou informe um domínio próprio para o site.",
     "tagline": "Use até 160 caracteres.",
     "redirectSource": "Comece com / e não use espaços, ? ou #.",
-    "redirectTarget": "Use um caminho do site (/blog) ou um endereço com https://."
+    "redirectTarget": "Use um caminho do site (/blog) ou um endereço com https://.",
+    "linkLabel": "Informe um texto de até 60 caracteres."
   },
   "saved": "Configurações do site salvas",
   "customers": {
