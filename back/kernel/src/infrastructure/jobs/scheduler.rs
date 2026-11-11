@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
@@ -13,22 +15,54 @@ use crate::errors::AppError;
 use crate::infrastructure::jobs::queue::insert_job;
 use crate::infrastructure::jobs::shutdown::Shutdown;
 use crate::infrastructure::repositories::mapper;
+use crate::modules::EnabledModules;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct TickReport {
     pub(crate) enqueued: usize,
     pub(crate) duplicates: usize,
     pub(crate) disabled: usize,
+    pub(crate) skipped: usize,
+}
+
+#[derive(Clone)]
+pub(crate) struct ScheduleGate {
+    modules: Arc<HashMap<String, &'static str>>,
+    enabled: Arc<EnabledModules>,
+}
+
+impl ScheduleGate {
+    pub(crate) fn new(
+        modules: HashMap<String, &'static str>,
+        enabled: Arc<EnabledModules>,
+    ) -> Self {
+        Self {
+            modules: Arc::new(modules),
+            enabled,
+        }
+    }
+
+    fn allows(&self, kind: &str) -> bool {
+        self.modules
+            .get(kind)
+            .is_none_or(|module| self.enabled.is_enabled(module))
+    }
 }
 
 #[derive(Clone)]
 pub(crate) struct JobScheduler {
     pool: MySqlPool,
+    gate: Option<ScheduleGate>,
 }
 
 impl JobScheduler {
     pub(crate) fn new(pool: MySqlPool) -> Self {
-        Self { pool }
+        Self { pool, gate: None }
+    }
+
+    pub(crate) fn with_gate(mut self, gate: Option<ScheduleGate>) -> Self {
+        self.gate = gate;
+        self
     }
 
     pub(crate) async fn ensure(
@@ -96,6 +130,16 @@ impl JobScheduler {
                 report.disabled += 1;
                 continue;
             };
+
+            if self.gate.as_ref().is_some_and(|gate| !gate.allows(&kind)) {
+                sqlx::query("UPDATE scheduled_jobs SET next_run_at = ? WHERE id = ?")
+                    .bind(mapper::naive(next_run_at))
+                    .bind(&id)
+                    .execute(&mut *transaction)
+                    .await?;
+                report.skipped += 1;
+                continue;
+            }
 
             let Json(payload): Json<Value> = row.try_get("payload")?;
             let job = Job::new(kind.clone(), payload)

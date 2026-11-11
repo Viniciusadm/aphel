@@ -16,6 +16,7 @@ pub struct MySqlTx {
     pub record_states: HashMap<(String, Uuid), Value>,
     pub(crate) fresh_snapshot: Option<((String, Uuid), Option<Value>)>,
     pub(crate) visible_record: Option<(String, Uuid)>,
+    pub(crate) dispatch_requested: bool,
 }
 
 impl From<DatabaseTransaction<'static>> for MySqlTx {
@@ -29,6 +30,7 @@ impl From<DatabaseTransaction<'static>> for MySqlTx {
             record_states: HashMap::new(),
             fresh_snapshot: None,
             visible_record: None,
+            dispatch_requested: false,
         }
     }
 }

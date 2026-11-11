@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::sync::atomic::{AtomicI64, Ordering};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -22,10 +23,27 @@ use crate::infrastructure::repositories::mapper;
 
 pub(crate) const OUTBOX_DISPATCH_KIND: &str = "outbox.dispatch";
 pub(crate) const EVENT_CONSUME_KIND: &str = "event.consume";
-pub(crate) const OUTBOX_DISPATCH_CRON: &str = "*/5 * * * * *";
+pub(crate) const OUTBOX_DISPATCH_CRON: &str = "*/30 * * * * *";
 pub(crate) const DEFAULT_OUTBOX_BATCH_SIZE: u32 = 100;
 pub(crate) const OUTBOX_DISPATCH_TIME_BUDGET: Duration = Duration::from_secs(20);
 const FOLLOW_UP_UNIQUE_KEY: &str = "outbox.dispatch:follow-up";
+
+static LAST_DISPATCH_REQUEST: AtomicI64 = AtomicI64::new(0);
+
+pub(crate) async fn request_dispatch(pool: &MySqlPool) {
+    let second = chrono::Utc::now().timestamp();
+    if LAST_DISPATCH_REQUEST.fetch_max(second, Ordering::SeqCst) >= second {
+        return;
+    }
+    let job = Job::new(OUTBOX_DISPATCH_KIND, Value::Object(Default::default()))
+        .with_max_attempts(1)
+        .with_unique_key(format!("{OUTBOX_DISPATCH_KIND}:requested:{second}"));
+    match insert_job(pool, job).await {
+        Ok(EnqueueOutcome::Enqueued(_)) => crate::infrastructure::jobs::signal::wake_workers(),
+        Ok(EnqueueOutcome::Duplicate) => {}
+        Err(error) => warn!("could not request an outbox dispatch: {error}"),
+    }
+}
 
 const SELECT_UNDISPATCHED_EVENTS: &str = "SELECT id, event_type, record_type, record_id, actor_type, actor_id, payload, execution, causation, origin_type, origin_id, occurred_at \
      FROM domain_events WHERE dispatched_at IS NULL \

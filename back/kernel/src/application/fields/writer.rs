@@ -9,7 +9,7 @@ use crate::application::fields::permissions::{FieldAccess, FieldAccessPolicy, ch
 use crate::application::fields::{
     ConditionalRules, CustomFieldPorts, CustomFieldValueRepository, EntityDefinition,
     FieldDefinitionRepository, FieldSet, PurgedRecord, RecordPipeline, ReferenceChecker,
-    load_values, raw_from_json, value_to_json,
+    load_values_in, raw_from_json, value_to_json,
 };
 use crate::application::shared::{FieldChange, RecordRef};
 use crate::domain::UserId;
@@ -147,10 +147,12 @@ where
         );
         let current = match mode {
             WriteMode::Create => Map::new(),
-            WriteMode::Update => load_values(self.ports.values(), &fields, &[record.record_id])
-                .await?
-                .remove(&record.record_id)
-                .unwrap_or_default(),
+            WriteMode::Update => {
+                load_values_in(self.ports.values(), tx, &fields, &[record.record_id])
+                    .await?
+                    .remove(&record.record_id)
+                    .unwrap_or_default()
+            }
         };
 
         let policy =
@@ -255,7 +257,7 @@ where
         );
         let mut merged = self.merged_values(&fields, &current, &writes);
         if mode == WriteMode::Update {
-            self.complete_created_at(definition, &fields, record, &mut merged)
+            self.complete_created_at(tx, definition, &fields, record, &mut merged)
                 .await?;
         }
         violations.extend(
@@ -276,6 +278,7 @@ where
 
     async fn complete_created_at(
         &self,
+        tx: &mut P::Tx,
         definition: &EntityDefinition,
         fields: &FieldSet,
         record: &RecordRef,
@@ -297,7 +300,7 @@ where
         if let Some(created_at) = self
             .ports
             .values()
-            .record_timestamp(definition, column, record.record_id)
+            .record_timestamp_in(tx, definition, column, record.record_id)
             .await?
         {
             merged.insert(

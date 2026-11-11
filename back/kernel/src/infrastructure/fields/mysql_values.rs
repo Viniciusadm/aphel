@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use rust_decimal::Decimal;
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, MySqlConnection, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::application::fields::{CustomFieldValueRepository, EntityDefinition, StoredFieldValue};
@@ -30,6 +30,15 @@ impl MySqlCustomFieldValueRepository {
     }
     pub async fn load_in_tx(
         tx: &mut MySqlTx,
+        record_type: &RecordType,
+        fields: &[FieldDefinition],
+        record_ids: &[Uuid],
+    ) -> Result<Vec<StoredFieldValue>, AppError> {
+        Self::load_on(tx, record_type, fields, record_ids).await
+    }
+
+    pub async fn load_on(
+        connection: &mut MySqlConnection,
         record_type: &RecordType,
         fields: &[FieldDefinition],
         record_ids: &[Uuid],
@@ -64,7 +73,7 @@ impl MySqlCustomFieldValueRepository {
              FROM custom_field_multi_values",
         );
         push_filters(&mut builder);
-        let rows = builder.build().fetch_all(&mut **tx).await?;
+        let rows = builder.build().fetch_all(&mut *connection).await?;
 
         let mut values = Vec::new();
         let mut multi: BTreeMap<(Uuid, Uuid), Vec<Uuid>> = BTreeMap::new();
@@ -202,6 +211,32 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
         .fetch_optional(&self.pool)
         .await?;
         Ok(value.flatten().map(|naive| naive.and_utc()))
+    }
+
+    async fn record_timestamp_in(
+        &self,
+        tx: &mut MySqlTx,
+        definition: &EntityDefinition,
+        column: &str,
+        record_id: Uuid,
+    ) -> Result<Option<DateTime<Utc>>, AppError> {
+        let value: Option<Option<NaiveDateTime>> = sqlx::query_scalar(sqlx::AssertSqlSafe(
+            format!("SELECT `{column}` FROM `{}` WHERE id = ?", definition.table),
+        ))
+        .bind(record_id.to_string())
+        .fetch_optional(&mut **tx)
+        .await?;
+        Ok(value.flatten().map(|naive| naive.and_utc()))
+    }
+
+    async fn load_in(
+        &self,
+        tx: &mut MySqlTx,
+        record_type: &RecordType,
+        fields: &[FieldDefinition],
+        record_ids: &[Uuid],
+    ) -> Result<Vec<StoredFieldValue>, AppError> {
+        Self::load_in_tx(tx, record_type, fields, record_ids).await
     }
 
     async fn load(

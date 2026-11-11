@@ -1,11 +1,12 @@
 use serde_json::{Map, Value, json};
-use sqlx::{MySql, QueryBuilder, Row};
+use sqlx::{MySql, MySqlConnection, QueryBuilder, Row};
 
 use crate::application::fields::{
     FieldDefinitionRepository, FieldSet, RecordTypeRegistry, value_to_json,
 };
 use crate::application::shared::RecordRef;
 use crate::database::transaction::MySqlTx;
+use crate::domain::fields::FieldDefinition;
 use crate::errors::AppError;
 use crate::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
 use crate::infrastructure::fields::mysql_values::MySqlCustomFieldValueRepository;
@@ -16,6 +17,31 @@ pub async fn capture(
     pool: &sqlx::MySqlPool,
     registry: &RecordTypeRegistry,
     record: &RecordRef,
+) -> Result<Option<Value>, AppError> {
+    let definitions = MySqlFieldDefinitionRepository::new(pool.clone())
+        .list(&record.record_type)
+        .await?;
+    capture_on(tx, definitions, registry, record, true).await
+}
+
+pub async fn read(
+    pool: &sqlx::MySqlPool,
+    registry: &RecordTypeRegistry,
+    record: &RecordRef,
+) -> Result<Option<Value>, AppError> {
+    let definitions = MySqlFieldDefinitionRepository::new(pool.clone())
+        .list(&record.record_type)
+        .await?;
+    let mut connection = pool.acquire().await?;
+    capture_on(&mut connection, definitions, registry, record, false).await
+}
+
+async fn capture_on(
+    connection: &mut MySqlConnection,
+    definitions: Vec<FieldDefinition>,
+    registry: &RecordTypeRegistry,
+    record: &RecordRef,
+    lock: bool,
 ) -> Result<Option<Value>, AppError> {
     let definition = registry.require(record.record_type.as_str())?;
     let fields: Vec<_> = definition
@@ -41,8 +67,10 @@ pub async fn capture(
             .push(format!(" AND r.{} = ", quoted(&partition.column)))
             .push_bind(partition.value.to_string());
     }
-    query.push(" FOR UPDATE");
-    let Some(row) = query.build().fetch_optional(&mut **tx).await? else {
+    if lock {
+        query.push(" FOR UPDATE");
+    }
+    let Some(row) = query.build().fetch_optional(&mut *connection).await? else {
         return Ok(None);
     };
     let mut values = Map::new();
@@ -65,12 +93,7 @@ pub async fn capture(
             },
         );
     }
-    let field_set = FieldSet::new(
-        definition,
-        MySqlFieldDefinitionRepository::new(pool.clone())
-            .list(&record.record_type)
-            .await?,
-    );
+    let field_set = FieldSet::new(definition, definitions);
     let custom: Vec<_> = field_set
         .active_custom()
         .map(|field| field.definition.clone())
@@ -79,8 +102,8 @@ pub async fn capture(
         .iter()
         .map(|field| (field.key.to_string(), Value::Null))
         .collect();
-    for value in MySqlCustomFieldValueRepository::load_in_tx(
-        tx,
+    for value in MySqlCustomFieldValueRepository::load_on(
+        connection,
         &record.record_type,
         &custom,
         &[record.record_id],

@@ -18,9 +18,15 @@ impl MySqlEventPublisher {
 #[async_trait]
 impl EventPublisher<MySqlTx> for MySqlEventPublisher {
     async fn publish(&self, tx: &mut MySqlTx, mut event: DomainEvent) -> Result<(), AppError> {
-        tx.after_commit.push(Box::pin(async {
-            crate::infrastructure::query::mysql_executor::invalidate_counts();
-        }));
+        if !tx.dispatch_requested {
+            tx.dispatch_requested = true;
+            tx.after_commit.push(Box::pin(async {
+                crate::infrastructure::query::mysql_executor::invalidate_counts();
+                if let Ok(pool) = crate::state::runtime_pool() {
+                    crate::infrastructure::jobs::outbox::request_dispatch(&pool).await;
+                }
+            }));
+        }
         if let Some(execution) = crate::application::shared::ExecutionContext::current() {
             if execution.executor_kind == "plugin" {
                 event.actor = crate::application::shared::Actor::plugin(execution.executor.clone());

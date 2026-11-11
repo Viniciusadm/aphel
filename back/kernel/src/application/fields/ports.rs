@@ -82,12 +82,31 @@ pub trait CustomFieldValueRepository: Send + Sync {
         Ok(None)
     }
 
+    async fn record_timestamp_in(
+        &self,
+        _tx: &mut Self::Tx,
+        definition: &EntityDefinition,
+        column: &str,
+        record_id: Uuid,
+    ) -> Result<Option<DateTime<Utc>>, AppError> {
+        self.record_timestamp(definition, column, record_id).await
+    }
+
     async fn load(
         &self,
         record_type: &RecordType,
         fields: &[FieldDefinition],
         record_ids: &[Uuid],
     ) -> Result<Vec<StoredFieldValue>, AppError>;
+    async fn load_in(
+        &self,
+        _tx: &mut Self::Tx,
+        record_type: &RecordType,
+        fields: &[FieldDefinition],
+        record_ids: &[Uuid],
+    ) -> Result<Vec<StoredFieldValue>, AppError> {
+        self.load(record_type, fields, record_ids).await
+    }
     async fn upsert(
         &self,
         tx: &mut Self::Tx,

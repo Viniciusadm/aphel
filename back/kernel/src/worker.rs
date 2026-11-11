@@ -13,7 +13,7 @@ use crate::errors::AppError;
 use crate::infrastructure::custom_objects::MySqlCustomSchemaSource;
 use crate::infrastructure::jobs::{
     EventConsumeHandler, JobCleanupHandler, JobScheduler, JobWorker, OutboxDispatchHandler,
-    Shutdown, WorkerSettings, jobs_cleanup_schedule, outbox_dispatch_schedule,
+    ScheduleGate, Shutdown, WorkerSettings, jobs_cleanup_schedule, outbox_dispatch_schedule,
 };
 use crate::infrastructure::noop::UnavailableSecretVault;
 use crate::infrastructure::platform::SharedSecretVault;
@@ -28,6 +28,7 @@ pub struct WorkerRuntime {
     schedules: Vec<ScheduledJobDefinition>,
     secrets: SharedSecretVault,
     record_types: Arc<RecordTypeCatalog>,
+    schedule_gate: Option<ScheduleGate>,
 }
 
 impl WorkerRuntime {
@@ -45,15 +46,20 @@ impl WorkerRuntime {
             schedules: vec![outbox_dispatch_schedule(), jobs_cleanup_schedule()],
             secrets: Arc::new(UnavailableSecretVault),
             record_types,
+            schedule_gate: None,
         }
     }
 
     pub fn from_app(app: &App, env: &WorkerEnv, config: &WorkerConfig) -> Self {
         crate::state::install_runtime_state(env.runtime_state());
-        let parts = app.worker_parts(env);
+        let mut parts = app.worker_parts(env);
         let mut runtime =
             Self::new(env.pool.clone(), config).with_secret_vault(env.secrets.clone());
         runtime.record_types = env.record_types.clone();
+        runtime.schedule_gate = Some(ScheduleGate::new(
+            std::mem::take(&mut parts.schedule_modules),
+            app.enabled().clone(),
+        ));
         for handler in parts.handlers {
             runtime = runtime.with_handler(handler);
         }
@@ -121,7 +127,7 @@ impl WorkerRuntime {
     }
 
     pub async fn run(self, shutdown: Shutdown) -> Result<(), AppError> {
-        let scheduler = JobScheduler::new(self.pool.clone());
+        let scheduler = JobScheduler::new(self.pool.clone()).with_gate(self.schedule_gate.clone());
         scheduler.ensure(&self.schedules, Utc::now()).await?;
         let worker = self.build_worker();
 

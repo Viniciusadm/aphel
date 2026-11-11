@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -56,6 +57,7 @@ pub struct WorkerParts {
     pub handlers: Vec<Arc<dyn JobHandler>>,
     pub consumers: Vec<Arc<dyn EventConsumer>>,
     pub schedules: Vec<ScheduledJobDefinition>,
+    pub(crate) schedule_modules: HashMap<String, &'static str>,
 }
 
 impl WorkerParts {
@@ -99,6 +101,7 @@ impl WorkerParts {
         self.handlers.extend(other.handlers);
         self.consumers.extend(other.consumers);
         self.schedules.extend(other.schedules);
+        self.schedule_modules.extend(other.schedule_modules);
         self
     }
 }
@@ -188,6 +191,9 @@ impl crate::modules::builder::App {
                         inner,
                     }) as Arc<dyn EventConsumer>
                 }));
+            for schedule in &produced.schedules {
+                parts.schedule_modules.insert(schedule.kind.clone(), module);
+            }
             parts.schedules.extend(produced.schedules);
         }
         parts

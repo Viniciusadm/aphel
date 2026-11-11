@@ -198,6 +198,7 @@ pub(crate) async fn update(
     let mut changes = diff_values(&product_snapshot(old), &values, &DiffOptions::default())?;
     changes.extend(custom);
     if changes.is_empty() {
+        tx.rollback().await?;
         return details(ctx, current).await;
     }
     let write = RecordWrite {

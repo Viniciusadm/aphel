@@ -749,14 +749,14 @@ impl RecordTypeHandler for GenericRecordHandler {
     }
 
     async fn load(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<Option<Value>, AppError> {
-        let Some(mut tx) = super::optional_record(self.begin_visible(ctx, id).await)? else {
-            return Ok(None);
-        };
         let ctx = Ctx::from_state(ctx.state, ctx.scope).await?;
-        let snapshot = self.snapshot(&ctx, &mut tx, id).await;
-        let snapshot = match super::optional_record(snapshot)? {
-            Some(value) => value,
-            None => return Ok(None),
+        if !self.visible(&ctx, id).await? {
+            return Ok(None);
+        }
+        let record = RecordRef::new(self.record_type.clone(), id);
+        let Some(snapshot) = super::snapshot::read(ctx.pool(), ctx.registry(), &record).await?
+        else {
+            return Ok(None);
         };
         let definition = ctx.registry().require(self.record_type.as_str())?;
         let mut values = snapshot["values"].as_object().cloned().unwrap_or_default();
@@ -765,8 +765,9 @@ impl RecordTypeHandler for GenericRecordHandler {
                 format!("SELECT `{column}` FROM `{}` WHERE id = ?", definition.table),
             ))
             .bind(id.to_string())
-            .fetch_one(&mut *tx)
-            .await?;
+            .fetch_optional(ctx.pool())
+            .await?
+            .flatten();
             values.insert(
                 "archived_at".to_owned(),
                 archived
@@ -781,7 +782,6 @@ impl RecordTypeHandler for GenericRecordHandler {
             "custom_fields".to_owned(),
             snapshot["custom_fields"].clone(),
         );
-        drop(tx);
         Ok(Some(
             ctx.redacted(ctx.scope, &self.record_type, Value::Object(values))
                 .await?,
