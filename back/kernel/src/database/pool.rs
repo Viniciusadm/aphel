@@ -5,7 +5,8 @@ use sqlx::{Connection, MySqlPool};
 
 const IDLE_BEFORE_PING: Duration = Duration::from_secs(30);
 const IDLE_BEFORE_CLOSE: Duration = Duration::from_secs(60);
-const BASE_CONNECTIONS: u32 = 10;
+const CONNECTION_LIFETIME: Duration = Duration::from_secs(300);
+const BASE_CONNECTIONS: u32 = 30;
 const CONNECTIONS_BESIDES_WORKER: u32 = 6;
 
 fn max_connections() -> u32 {
@@ -18,6 +19,7 @@ pub async fn connect(database_url: &str) -> Result<MySqlPool, sqlx::Error> {
     MySqlPoolOptions::new()
         .max_connections(max_connections())
         .idle_timeout(IDLE_BEFORE_CLOSE)
+        .max_lifetime(CONNECTION_LIFETIME)
         .acquire_timeout(Duration::from_secs(10))
         .test_before_acquire(false)
         .before_acquire(|connection, metadata| {
