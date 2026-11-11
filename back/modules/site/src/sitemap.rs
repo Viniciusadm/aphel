@@ -67,6 +67,19 @@ async fn collect(
                     });
                 }
             }
+            PageSource::Single { entity, conditions } => {
+                let Some(exposure) = runtime.exposure(&route.owner, entity) else {
+                    continue;
+                };
+                tags.push(cache::entity_tag(entity));
+                let found = data::single(state, exposure, conditions, None).await?;
+                if let (Some(record), Some(path)) = (found, route.pattern.build(&BTreeMap::new())) {
+                    urls.push(SitemapUrl {
+                        location: format!("{base_url}{path}"),
+                        modified: day_of(record.get("updated_at")),
+                    });
+                }
+            }
             PageSource::List { entity, .. } => {
                 tags.push(cache::entity_tag(entity));
                 if let Some(path) = route.pattern.build(&BTreeMap::new()) {

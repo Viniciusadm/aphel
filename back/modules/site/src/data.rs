@@ -8,6 +8,9 @@ use aphel_sdk::platform::application::query::{
 };
 use aphel_sdk::platform::domain::access::AccessScope;
 use serde_json::{Map, Value};
+use std::collections::BTreeMap;
+
+const SINGLE_SORT: &str = "-updated_at";
 
 pub(crate) struct RecordPage {
     pub records: Vec<Value>,
@@ -18,18 +21,30 @@ fn site_scope() -> AccessScope {
     AccessScope::system().acting_as("site", "public")
 }
 
-fn publication_filter(exposure: &SiteExposure, extra: Option<Filter>) -> Option<Filter> {
-    let mut conditions: Vec<Filter> = exposure
-        .conditions
+pub(crate) struct Draft<'a> {
+    pub record_id: &'a str,
+    pub fields: &'a BTreeMap<String, String>,
+}
+
+fn equalities(conditions: &BTreeMap<String, Value>) -> Vec<Filter> {
+    conditions
         .iter()
         .map(|(field, value)| Filter::condition(field.clone(), FilterOperator::Eq, value.clone()))
-        .collect();
-    conditions.extend(extra);
+        .collect()
+}
+
+fn combined(mut conditions: Vec<Filter>) -> Option<Filter> {
     match conditions.len() {
         0 => None,
         1 => conditions.pop(),
         _ => Some(Filter::and(conditions)),
     }
+}
+
+fn publication_filter(exposure: &SiteExposure, extra: Option<Filter>) -> Option<Filter> {
+    let mut conditions = equalities(&exposure.conditions);
+    conditions.extend(extra);
+    combined(conditions)
 }
 
 fn filled(value: &Value) -> bool {
@@ -40,7 +55,28 @@ fn filled(value: &Value) -> bool {
     }
 }
 
-fn project(exposure: &SiteExposure, record: Value, suffix: Option<&str>) -> Value {
+fn swap_drafts(
+    record: &mut Map<String, Value>,
+    fields: &BTreeMap<String, String>,
+    suffix: Option<&str>,
+) {
+    for (target, source) in fields {
+        let pairs = std::iter::once((target.clone(), source.clone())).chain(
+            suffix.map(|suffix| (format!("{target}_{suffix}"), format!("{source}_{suffix}"))),
+        );
+        for (target, source) in pairs {
+            let value = record.get(&source).cloned().unwrap_or(Value::Null);
+            record.insert(target, value);
+        }
+    }
+}
+
+fn project(
+    exposure: &SiteExposure,
+    record: Value,
+    suffix: Option<&str>,
+    drafts: Option<&BTreeMap<String, String>>,
+) -> Value {
     let Value::Object(mut record) = record else {
         return Value::Null;
     };
@@ -48,6 +84,9 @@ fn project(exposure: &SiteExposure, record: Value, suffix: Option<&str>) -> Valu
         for (field, value) in custom {
             record.entry(field).or_insert(value);
         }
+    }
+    if let Some(drafts) = drafts {
+        swap_drafts(&mut record, drafts, suffix);
     }
     if let Some(suffix) = suffix {
         for field in &exposure.translated {
@@ -73,6 +112,7 @@ async fn query(
     exposure: &SiteExposure,
     query: RecordQuery,
     suffix: Option<&str>,
+    drafts: Option<&BTreeMap<String, String>>,
 ) -> Result<RecordPage, AppError> {
     let scope = site_scope();
     let ports = query_ports(state).await?;
@@ -88,7 +128,7 @@ async fn query(
     Ok(RecordPage {
         records: loaded
             .into_iter()
-            .map(|record| project(exposure, record, suffix))
+            .map(|record| project(exposure, record, suffix, drafts))
             .collect(),
         total: listing.total,
     })
@@ -138,6 +178,7 @@ pub(crate) async fn record(
             },
         },
         suffix,
+        None,
     )
     .await?;
     Ok(found.records.into_iter().next())
@@ -166,6 +207,100 @@ pub(crate) async fn list(
             },
         },
         suffix,
+        None,
     )
     .await
+}
+
+async fn first(
+    state: &AppState,
+    exposure: &SiteExposure,
+    filter: Option<Filter>,
+    suffix: Option<&str>,
+    drafts: Option<&BTreeMap<String, String>>,
+) -> Result<Option<Value>, AppError> {
+    let found = query(
+        state,
+        exposure,
+        RecordQuery {
+            filter,
+            sort: parse_sort(SINGLE_SORT),
+            search: None,
+            archived: ArchivedFilter::Exclude,
+            window: ListWindow {
+                offset: 0,
+                limit: 1,
+            },
+        },
+        suffix,
+        drafts,
+    )
+    .await?;
+    Ok(found.records.into_iter().next())
+}
+
+pub(crate) async fn single(
+    state: &AppState,
+    exposure: &SiteExposure,
+    conditions: &BTreeMap<String, Value>,
+    suffix: Option<&str>,
+) -> Result<Option<Value>, AppError> {
+    let page_conditions = combined(equalities(conditions));
+    first(
+        state,
+        exposure,
+        publication_filter(exposure, page_conditions),
+        suffix,
+        None,
+    )
+    .await
+}
+
+pub(crate) async fn draft(
+    state: &AppState,
+    exposure: &SiteExposure,
+    draft: &Draft<'_>,
+    conditions: &BTreeMap<String, Value>,
+    suffix: Option<&str>,
+) -> Result<Option<Value>, AppError> {
+    let mut filters = equalities(conditions);
+    filters.push(Filter::condition(
+        "id",
+        FilterOperator::Eq,
+        Value::String(draft.record_id.to_owned()),
+    ));
+    first(
+        state,
+        exposure,
+        combined(filters),
+        suffix,
+        Some(draft.fields),
+    )
+    .await
+}
+
+pub(crate) async fn matching(
+    state: &AppState,
+    exposure: &SiteExposure,
+    conditions: &BTreeMap<String, Value>,
+    sort: Option<&str>,
+    limit: u64,
+    suffix: Option<&str>,
+) -> Result<Vec<Value>, AppError> {
+    let page_conditions = combined(equalities(conditions));
+    Ok(query(
+        state,
+        exposure,
+        RecordQuery {
+            filter: publication_filter(exposure, page_conditions),
+            sort: sort.map(parse_sort).unwrap_or_default(),
+            search: None,
+            archived: ArchivedFilter::Exclude,
+            window: ListWindow { offset: 0, limit },
+        },
+        suffix,
+        None,
+    )
+    .await?
+    .records)
 }

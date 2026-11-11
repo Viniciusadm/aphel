@@ -135,6 +135,11 @@ impl Module for SiteModule {
                 "add site customer person",
                 include_str!("../migrations/0006_add_site_customer_person.sql"),
             ))
+            .migration(Migration::new(
+                7,
+                "add site preview record",
+                include_str!("../migrations/0007_add_site_preview_record.sql"),
+            ))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

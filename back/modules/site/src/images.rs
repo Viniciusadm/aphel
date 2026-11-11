@@ -180,9 +180,41 @@ pub(crate) async fn serve(
     let Some(exposure) = runtime.image_exposure(record_type) else {
         return Ok(not_found());
     };
-    if !published(state, exposure, record_uuid).await? {
-        return Ok(not_found());
-    }
+    let private = match published(state, exposure, record_uuid).await? {
+        true => false,
+        false
+            if crate::preview::active(state, headers)
+                .await
+                .is_some_and(|preview| preview.shows_record(record_type, record_id)) =>
+        {
+            true
+        }
+        false => return Ok(not_found()),
+    };
+    let response =
+        file_response(state, record_type, record_id, file_uuid, variant, headers).await?;
+    Ok(match private {
+        true => without_caching(response),
+        false => response,
+    })
+}
+
+fn without_caching(mut response: Response) -> Response {
+    response.headers_mut().insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static("private, no-store"),
+    );
+    response
+}
+
+async fn file_response(
+    state: &AppState,
+    record_type: &str,
+    record_id: &str,
+    file_uuid: Uuid,
+    variant: Variant,
+    headers: &HeaderMap,
+) -> Result<Response, AppError> {
     let Some(file) = public_images(state, record_type, record_id)
         .await?
         .into_iter()

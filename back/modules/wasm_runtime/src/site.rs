@@ -2,8 +2,8 @@ use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
     ALWAYS_PUBLIC_FIELDS, ISLANDS_DIR, PageSource, PathPattern, SiteApiHandler, SiteApiRequest,
-    SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem, SitePage, SitePageSeo,
-    SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle, is_island_name,
+    SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem, SiteMenuRecords, SitePage,
+    SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle, is_island_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
@@ -11,7 +11,9 @@ use aphel_sdk::platform::state::runtime_pool;
 use async_trait::async_trait;
 use axum::response::Response;
 
-use crate::manifest::{PluginManifest, RouteAudience, SiteCspSpec, SitePageSpec, match_route};
+use crate::manifest::{
+    PluginManifest, RouteAudience, SiteCspSpec, SiteMenuSpec, SitePageSpec, match_route,
+};
 use crate::package::PackageFile;
 use crate::{registry, store};
 
@@ -23,23 +25,56 @@ const SITE_ROUTE_CONFLICT: &str = "site_route_conflict";
 
 fn source_of(manifest: &PluginManifest, page: &SitePageSpec) -> Result<PageSource, String> {
     let label = format!("site.pages {}", page.key);
-    match (&page.entity, &page.match_field, &page.list) {
-        (None, None, None) => Ok(PageSource::Static),
-        (Some(entity), Some(match_field), None) => Ok(PageSource::Record {
+    match (
+        &page.entity,
+        &page.match_field,
+        &page.list,
+        &page.conditions,
+    ) {
+        (None, None, None, None) => Ok(PageSource::Static),
+        (Some(entity), Some(match_field), None, None) => Ok(PageSource::Record {
             entity: manifest.entity_record_type(entity),
             match_field: match_field.clone(),
         }),
-        (Some(entity), None, Some(list)) => Ok(PageSource::List {
+        (Some(entity), None, Some(list), None) => Ok(PageSource::List {
             entity: manifest.entity_record_type(entity),
             sort: list.sort.clone(),
             per_page: list.per_page,
         }),
-        (Some(_), None, None) => Err(format!(
-            "{label}: a page with an entity needs match (one record) or list"
+        (Some(entity), None, None, Some(conditions)) => Ok(PageSource::Single {
+            entity: manifest.entity_record_type(entity),
+            conditions: conditions.clone(),
+        }),
+        (Some(_), None, None, None) => Err(format!(
+            "{label}: a page with an entity needs match (one record by address), where (one record by condition) or list"
         )),
-        (Some(_), Some(_), Some(_)) => Err(format!("{label}: use either match or list")),
-        (None, _, _) => Err(format!("{label}: match and list need an entity")),
+        (Some(_), _, _, _) => Err(format!("{label}: use only one of match, where or list")),
+        (None, _, _, _) => Err(format!("{label}: match, where and list need an entity")),
     }
+}
+
+fn menu_item_of(spec: &SiteMenuSpec, label: &str) -> Result<SiteMenuItem, String> {
+    let records = match (&spec.conditions, &spec.label_field, &spec.sort) {
+        (None, None, None) => None,
+        (conditions, Some(label_field), sort) => Some(SiteMenuRecords {
+            conditions: conditions.clone().unwrap_or_default(),
+            label_field: label_field.clone(),
+            sort: sort.clone(),
+        }),
+        (_, None, _) => {
+            return Err(format!(
+                "{label} {}: where and sort need label_field",
+                spec.key
+            ));
+        }
+    };
+    Ok(SiteMenuItem {
+        key: spec.key.clone(),
+        label: spec.label.clone(),
+        page: spec.page.clone(),
+        labels: spec.labels.clone(),
+        records,
+    })
 }
 
 fn templates_of<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> Vec<SiteTemplate> {
@@ -174,11 +209,12 @@ fn bundle_of(
         menu: site
             .menu
             .iter()
-            .map(|item| SiteMenuItem {
-                key: item.key.clone(),
-                label: item.label.clone(),
-                page: item.page.clone(),
-                labels: item.labels.clone(),
+            .filter_map(|item| match menu_item_of(item, "site.menu") {
+                Ok(item) => Some(item),
+                Err(problem) => {
+                    problems.push(problem);
+                    None
+                }
             })
             .collect(),
         theme: site.theme.as_ref().map(|theme| SiteTheme {
@@ -190,11 +226,19 @@ fn bundle_of(
         account: site
             .account
             .iter()
-            .map(|item| SiteMenuItem {
-                key: item.key.clone(),
-                label: item.label.clone(),
-                page: item.page.clone(),
-                labels: item.labels.clone(),
+            .filter_map(|item| match menu_item_of(item, "site.account") {
+                Ok(item) if item.records.is_some() => {
+                    problems.push(format!(
+                        "site.account {}: account links cannot use where",
+                        item.key
+                    ));
+                    None
+                }
+                Ok(item) => Some(item),
+                Err(problem) => {
+                    problems.push(problem);
+                    None
+                }
             })
             .collect(),
     };

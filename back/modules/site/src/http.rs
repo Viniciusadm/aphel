@@ -115,12 +115,28 @@ pub(crate) struct CreateSitePathRedirect {
 pub(crate) struct StartSitePreview {
     #[schema(example = "clean_theme")]
     pub theme: Option<String>,
+    pub record: Option<StartSitePreviewRecord>,
+    #[schema(example = "/about-us")]
+    pub path: Option<String>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub(crate) struct StartSitePreviewRecord {
+    #[schema(example = "pages.page")]
+    pub record_type: String,
+    #[schema(example = "01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a")]
+    pub record_id: String,
+    #[schema(example = json!({ "blocks": "draft_blocks" }))]
+    #[serde(default)]
+    pub fields: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SitePreviewResponse {
     #[schema(example = "https://www.example.com/_aphel/site/preview/3f2a...")]
     pub url: String,
+    #[schema(example = "https://www.example.com/about-us")]
+    pub page_url: String,
     pub expires_in_minutes: i64,
 }
 
@@ -139,7 +155,7 @@ fn require_manage(
     path = "/site",
     tag = TAG,
     operation_id = "site_overview",
-    description = "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
+    description = "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Site overview", body = Data<SiteOverviewResponse>),
@@ -163,6 +179,7 @@ async fn overview(
             .map(|organization| organization.locale)
             .unwrap_or_default()
     };
+    let (record_lines, _) = crate::handler::record_menu(&state, &runtime, None).await?;
     Ok(Json(Data::new(SiteOverviewResponse {
         base_url: config.site_base_url(),
         themes: runtime
@@ -178,11 +195,17 @@ async fn overview(
         menu_items: runtime
             .menu
             .iter()
+            .filter(|item| item.item.records.is_none())
             .map(|item| SiteMenuItemResponse {
                 id: item.id.clone(),
                 label: item.item.label.clone(),
                 path: item.path.clone(),
             })
+            .chain(record_lines.into_iter().map(|line| SiteMenuItemResponse {
+                id: line.id,
+                label: line.label,
+                path: line.path,
+            }))
             .collect(),
         pages: runtime.routes.len(),
         customers_required: runtime.uses_customers,
@@ -568,7 +591,7 @@ async fn delete_path_redirect(
     path = "/site/preview",
     tag = TAG,
     operation_id = "site_preview_start",
-    description = "Creates a link that shows the site with another theme (`theme` null for the built-in one) in the browser that opens it, for 30 minutes, without changing the site for visitors. Preview pages are not cached and carry a banner with a link that ends the preview. Requires `settings.manage`.",
+    description = "Creates a link that, in the browser that opens it and for 30 minutes, shows the site without changing it for visitors: with another theme (`theme`, null for the built-in one; requires `settings.manage`) or with one record as it would look before publication (`record`: its pages show it even when it fails the public conditions, with each public field named in `fields` replaced by the value of another field of the record, such as `{\"blocks\": \"draft_blocks\"}`, and its images are served; requires permission to update that record or `settings.manage`). `path` is the site path the link opens (default `/`); `page_url` is its public address. Preview pages are not cached and carry a banner with a link that ends the preview.",
     security(("session_cookie" = [])),
     request_body = StartSitePreview,
     responses(
@@ -583,30 +606,117 @@ async fn start_preview(
     tenant: AuthContext,
     Json(input): Json<StartSitePreview>,
 ) -> Result<(StatusCode, Json<Data<SitePreviewResponse>>), ApiError> {
-    require_manage(&tenant.scope)?;
     let config = state.organization_config.snapshot();
-    let theme = input
-        .theme
+    let current = site_settings(&config).theme;
+    let runtime = runtime::current(&state.app, current.as_deref()).await?;
+    let path = match input
+        .path
         .as_deref()
         .map(str::trim)
-        .filter(|theme| !theme.is_empty());
-    if let Some(theme) = theme {
-        let current = site_settings(&config).theme;
-        let runtime = runtime::current(&state.app, current.as_deref()).await?;
-        if !runtime
+        .filter(|path| !path.is_empty())
+    {
+        Some(path) => Some(crate::preview::local_path(path).ok_or_else(|| {
+            AppError::Validation("path must be a site path such as /about-us".to_owned())
+        })?),
+        None => None,
+    };
+    let record = match &input.record {
+        Some(record) => Some(preview_record(&state, &tenant, &runtime, record).await?),
+        None => {
+            require_manage(&tenant.scope)?;
+            None
+        }
+    };
+    let theme = match &record {
+        Some(_) => None,
+        None => input
+            .theme
+            .as_deref()
+            .map(str::trim)
+            .filter(|theme| !theme.is_empty()),
+    };
+    if let Some(theme) = theme
+        && !runtime
             .themes
             .iter()
             .any(|candidate| candidate.key == theme)
-        {
-            return Err(AppError::Validation(format!("the theme {theme} is not installed")).into());
-        }
+    {
+        return Err(AppError::Validation(format!("the theme {theme} is not installed")).into());
     }
-    let token = crate::preview::start(&state.db()?, theme).await?;
+    let token = crate::preview::start(&state.db()?, theme, record.as_ref(), path).await?;
     Ok((
         StatusCode::CREATED,
         Json(Data::new(SitePreviewResponse {
             url: crate::preview::link(&config.site_base_url(), &token),
+            page_url: format!(
+                "{}{}",
+                config.site_base_url().trim_end_matches('/'),
+                path.unwrap_or("/")
+            ),
             expires_in_minutes: crate::preview::PREVIEW_MINUTES,
         })),
     ))
+}
+
+const MAX_PREVIEW_FIELDS: usize = 10;
+
+async fn preview_record(
+    state: &AppState,
+    tenant: &AuthContext,
+    runtime: &runtime::SiteRuntime,
+    input: &StartSitePreviewRecord,
+) -> Result<crate::preview::PreviewRecord, AppError> {
+    let exposure = runtime.entity_exposure(&input.record_type).ok_or_else(|| {
+        AppError::Validation(format!("{} has no public pages", input.record_type))
+    })?;
+    let id = uuid::Uuid::parse_str(&input.record_id)
+        .map_err(|_| AppError::Validation("record_id must be a record id".to_owned()))?;
+    if input.fields.len() > MAX_PREVIEW_FIELDS {
+        return Err(AppError::Validation(format!(
+            "fields replaces at most {MAX_PREVIEW_FIELDS} fields"
+        )));
+    }
+    let registry = state.registry().await?;
+    let may_update = registry
+        .require(&input.record_type)?
+        .action_permission("update")
+        .is_some_and(|permission| tenant.scope.require(&permission).is_ok());
+    if !may_update && require_manage(&tenant.scope).is_err() {
+        return Err(AppError::Forbidden(
+            "previewing this record needs permission to change it".to_owned(),
+        ));
+    }
+    let loaded = registry
+        .handler(&input.record_type)?
+        .load(
+            &aphel_kernel::records::RecordCtx::new(&tenant.scope, state),
+            id,
+        )
+        .await?
+        .ok_or_else(|| AppError::NotFound("the record does not exist".to_owned()))?;
+    let readable = |field: &str| {
+        loaded.get(field).is_some()
+            || loaded
+                .get("custom_fields")
+                .is_some_and(|custom| custom.get(field).is_some())
+    };
+    for (target, source) in &input.fields {
+        if !exposure.exposes(target)
+            || aphel_contract_site::ALWAYS_PUBLIC_FIELDS.contains(&target.as_str())
+        {
+            return Err(AppError::Validation(format!(
+                "{target} is not a public field that a draft can replace"
+            )));
+        }
+        if !readable(source) {
+            return Err(AppError::Validation(format!(
+                "{source} is not a field of the record"
+            )));
+        }
+    }
+    Ok(crate::preview::PreviewRecord {
+        record_type: input.record_type.clone(),
+        record_id: id.to_string(),
+        fields: input.fields.clone(),
+    })
 }

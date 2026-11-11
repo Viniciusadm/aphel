@@ -4,7 +4,8 @@ use std::time::Duration;
 
 use aphel_contract_site::SiteCustomer;
 use aphel_contract_site::{
-    MAX_PER_PAGE, PageSource, ROBOTS_PATH, SITEMAP_PATH, decode_segment, template_name,
+    MAX_MENU_RECORDS, MAX_PER_PAGE, PageSource, PathPattern, ROBOTS_PATH, SITEMAP_PATH,
+    decode_segment, menu_record_item_id, template_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{SiteMountPrefix, SiteRequestHandler};
@@ -36,6 +37,7 @@ const PAGE_CACHE_CONTROL: &str = "public, max-age=60, stale-while-revalidate=600
 const RENDERS_PER_ADDRESS: u32 = 120;
 const RENDER_WINDOW: Duration = Duration::from_secs(60);
 const DESCRIPTION_MAX_CHARS: usize = 200;
+const MAX_MENU_LABEL_CHARS: usize = 60;
 const RATE_LIMITED: &str = "muitas páginas em sequência; aguarde um pouco e tente novamente";
 
 static RENDER_LIMIT: LazyLock<SharedRateLimiter> = LazyLock::new(|| {
@@ -66,6 +68,78 @@ struct SiteContext {
     site: serde_json::Value,
     customer: Option<SiteCustomer>,
     suffix: Option<String>,
+    tags: Vec<String>,
+}
+
+pub(crate) struct RecordMenuLine {
+    pub id: String,
+    pub parent: String,
+    pub label: String,
+    pub path: String,
+}
+
+fn value_text(value: Option<&serde_json::Value>) -> Option<String> {
+    match value? {
+        serde_json::Value::String(text) if !text.trim().is_empty() => Some(text.trim().to_owned()),
+        serde_json::Value::Number(number) => Some(number.to_string()),
+        _ => None,
+    }
+}
+
+pub(crate) async fn record_menu(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    suffix: Option<&str>,
+) -> Result<(Vec<RecordMenuLine>, Vec<String>), AppError> {
+    let mut lines = Vec::new();
+    let mut tags = Vec::new();
+    for candidate in &runtime.menu {
+        let Some(records) = &candidate.item.records else {
+            continue;
+        };
+        let PageSource::Record {
+            entity,
+            match_field,
+        } = &candidate.source
+        else {
+            continue;
+        };
+        let (Some(exposure), Ok(pattern)) = (
+            runtime.exposure(&candidate.owner, entity),
+            PathPattern::parse(&candidate.path),
+        ) else {
+            continue;
+        };
+        tags.push(cache::entity_tag(entity));
+        let found = data::matching(
+            state,
+            exposure,
+            &records.conditions,
+            records.sort.as_deref(),
+            MAX_MENU_RECORDS,
+            suffix,
+        )
+        .await?;
+        for record in found {
+            let (Some(id), Some(label), Some(value)) = (
+                value_text(record.get("id")),
+                value_text(record.get(&records.label_field)),
+                value_text(record.get(match_field)),
+            ) else {
+                continue;
+            };
+            let Some(path) = pattern.build(&BTreeMap::from([(match_field.clone(), value)])) else {
+                continue;
+            };
+            lines.push(RecordMenuLine {
+                id: menu_record_item_id(&candidate.owner, &candidate.item.key, &id),
+                parent: candidate.id.clone(),
+                label: label.chars().take(MAX_MENU_LABEL_CHARS).collect(),
+                path,
+            });
+        }
+    }
+    Ok((lines, tags))
 }
 
 enum Outcome {
@@ -175,8 +249,8 @@ async fn serve(state: &AppState, request: Request) -> Response {
     let settings = site_settings(&config);
     let previewing = preview::active(state, &parts.headers).await;
     let theme = match &previewing {
-        Some(previewing) => previewing.theme.clone(),
-        None => settings.theme.clone(),
+        Some(previewing) if previewing.record.is_none() => previewing.theme.clone(),
+        _ => settings.theme.clone(),
     };
     let runtime = match runtime::current(&state.app, theme.as_deref()).await {
         Ok(runtime) => runtime,
@@ -333,13 +407,35 @@ async fn serve(state: &AppState, request: Request) -> Response {
     let query = parts.uri.query().unwrap_or_default();
     let owner = route.owner.clone();
     let cacheable = !personal && !route.page.needs_customer();
-    match render_route(state, &runtime, &context, route, params, &path, query).await {
-        Ok(Outcome::Page { html, tags, live }) => {
-            let html = match previewing {
+    match render_route(
+        state,
+        &runtime,
+        &context,
+        RouteRequest {
+            route,
+            params,
+            path: &path,
+            query,
+            preview: previewing.as_ref(),
+        },
+    )
+    .await
+    {
+        Ok(Outcome::Page {
+            html,
+            mut tags,
+            live,
+        }) => {
+            tags.extend(context.tags.iter().cloned());
+            let locale = context.site["locale"].as_str().unwrap_or_default();
+            let html = match &previewing {
+                Some(previewing) if previewing.record.is_some() => {
+                    preview::with_banner(html, preview::BannerSubject::Draft, locale)
+                }
                 Some(_) => preview::with_banner(
                     html,
-                    &theme_name(&runtime),
-                    context.site["locale"].as_str().unwrap_or_default(),
+                    preview::BannerSubject::Theme(&theme_name(&runtime)),
+                    locale,
                 ),
                 None => html,
             };
@@ -535,6 +631,7 @@ impl Language {
 
 struct MenuLine<'a> {
     id: String,
+    parent: Option<&'a str>,
     label: &'a str,
     url: String,
     path: Option<&'a str>,
@@ -562,6 +659,7 @@ impl MenuPrefixes<'_> {
 
 fn menu_of(
     runtime: &SiteRuntime,
+    records: &[RecordMenuLine],
     settings: &crate::settings::SiteSettings,
     prefixes: &MenuPrefixes<'_>,
     current: &str,
@@ -581,16 +679,29 @@ fn menu_of(
             .iter()
             .any(|entry| entry.item == id && entry.hidden)
     };
-    let plugin_items = runtime.menu.iter().map(|item| MenuLine {
-        id: item.id.clone(),
-        label: item.label(locale),
-        url: format!("{prefix}{}", item.path),
-        path: Some(item.path.as_str()),
+    let plugin_items = runtime
+        .menu
+        .iter()
+        .filter(|item| item.item.records.is_none())
+        .map(|item| MenuLine {
+            id: item.id.clone(),
+            parent: None,
+            label: item.label(locale),
+            url: format!("{prefix}{}", item.path),
+            path: Some(item.path.as_str()),
+        });
+    let record_items = records.iter().map(|line| MenuLine {
+        id: line.id.clone(),
+        parent: Some(line.parent.as_str()),
+        label: line.label.as_str(),
+        url: format!("{prefix}{}", line.path),
+        path: Some(line.path.as_str()),
     });
     let links = settings.links.iter().map(|link| {
         let url = link.url.trim();
         MenuLine {
             id: format!("{}{}", crate::settings::LINK_PREFIX, link.id),
+            parent: None,
             label: link.label.trim(),
             url: match url.starts_with('/') {
                 true => format!("{}{url}", prefixes.for_path(url)),
@@ -600,8 +711,9 @@ fn menu_of(
         }
     });
     let mut items: Vec<_> = plugin_items
+        .chain(record_items)
         .chain(links)
-        .filter(|line| !hidden(&line.id))
+        .filter(|line| !hidden(&line.id) && !line.parent.is_some_and(hidden))
         .enumerate()
         .collect();
     items.sort_by_key(|(index, line)| (position(&line.id), *index));
@@ -643,6 +755,7 @@ async fn site_context(
     let mount_url = config.site_base_url().trim_end_matches('/').to_owned();
     let origin = origin_of(&mount_url).to_owned();
     let base_url = format!("{origin}{prefix}");
+    let (record_lines, tags) = record_menu(state, runtime, language.suffix().as_deref()).await?;
     let alternates: Vec<serde_json::Value> = if language.available.is_empty() {
         Vec::new()
     } else {
@@ -690,6 +803,7 @@ async fn site_context(
             "tagline": settings.tagline.as_deref().map(str::trim).filter(|tagline| !tagline.is_empty()),
             "menu": menu_of(
                 runtime,
+                &record_lines,
                 &settings,
                 &MenuPrefixes {
                     language: prefix,
@@ -706,18 +820,32 @@ async fn site_context(
             "account": accounts.then(|| account::urls(prefix, &account::paths(&locale))),
         }),
         customer: customer.cloned(),
+        tags,
     })
+}
+
+struct RouteRequest<'a> {
+    route: &'a Route,
+    params: BTreeMap<String, String>,
+    path: &'a str,
+    query: &'a str,
+    preview: Option<&'a preview::Preview>,
 }
 
 async fn render_route(
     state: &AppState,
     runtime: &SiteRuntime,
     context: &SiteContext,
-    route: &Route,
-    params: BTreeMap<String, String>,
-    path: &str,
-    query: &str,
+    request: RouteRequest<'_>,
 ) -> Result<Outcome, AppError> {
+    let RouteRequest {
+        route,
+        params,
+        path,
+        query,
+        preview,
+    } = request;
+    let draft_of = |entity: &str| preview.and_then(|preview| preview.draft_for(entity));
     let customer = context.customer.as_ref();
     let params: BTreeMap<String, String> = params
         .into_iter()
@@ -762,16 +890,34 @@ async fn render_route(
                 .exposure(&route.owner, entity)
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
             let value = params.get(match_field).cloned().unwrap_or_default();
-            let Some(mut record) = data::record(
-                state,
-                exposure,
-                match_field,
-                &value,
-                restriction,
-                context.suffix.as_deref(),
-            )
-            .await?
-            else {
+            let drafted = match draft_of(entity) {
+                Some(draft) => {
+                    data::draft(
+                        state,
+                        exposure,
+                        &draft,
+                        &BTreeMap::from([(match_field.clone(), json!(value))]),
+                        context.suffix.as_deref(),
+                    )
+                    .await?
+                }
+                None => None,
+            };
+            let published = match drafted {
+                Some(record) => Some(record),
+                None => {
+                    data::record(
+                        state,
+                        exposure,
+                        match_field,
+                        &value,
+                        restriction,
+                        context.suffix.as_deref(),
+                    )
+                    .await?
+                }
+            };
+            let Some(mut record) = published else {
                 let moved = redirects::lookup(&state.db()?, entity, match_field, &value).await?;
                 let location = moved.and_then(|moved| {
                     route
@@ -789,6 +935,36 @@ async fn render_route(
             if let Some(id) = record.get("id").and_then(serde_json::Value::as_str) {
                 tags.push(cache::record_tag(entity, id));
             }
+            images::attach_images(state, exposure, &mut record).await?;
+            values.insert("record".to_owned(), record);
+        }
+        PageSource::Single { entity, conditions } => {
+            let exposure = runtime
+                .exposure(&route.owner, entity)
+                .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
+            let drafted = match draft_of(entity) {
+                Some(draft) => {
+                    data::draft(
+                        state,
+                        exposure,
+                        &draft,
+                        conditions,
+                        context.suffix.as_deref(),
+                    )
+                    .await?
+                }
+                None => None,
+            };
+            let found = match drafted {
+                Some(record) => Some(record),
+                None => {
+                    data::single(state, exposure, conditions, context.suffix.as_deref()).await?
+                }
+            };
+            tags.push(cache::entity_tag(entity));
+            let Some(mut record) = found else {
+                return Ok(Outcome::NotFound);
+            };
             images::attach_images(state, exposure, &mut record).await?;
             values.insert("record".to_owned(), record);
         }
@@ -924,7 +1100,7 @@ fn structured_data(page: StructuredPage<'_>) -> String {
         publisher["logo"] = json!(absolute_url(base_url, logo));
     }
     let default_schema = match (page.home, page.source) {
-        (true, PageSource::Static) => "WebSite",
+        (true, PageSource::Static | PageSource::Single { .. }) => "WebSite",
         (_, PageSource::Record { .. }) => "Article",
         (_, PageSource::List { .. }) => "CollectionPage",
         _ => "WebPage",

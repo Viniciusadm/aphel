@@ -191,6 +191,12 @@ pub struct SiteMenuSpec {
     pub page: String,
     #[serde(default)]
     pub labels: std::collections::BTreeMap<String, String>,
+    #[serde(default, rename = "where")]
+    pub conditions: Option<std::collections::BTreeMap<String, Value>>,
+    #[serde(default)]
+    pub label_field: Option<String>,
+    #[serde(default)]
+    pub sort: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -224,6 +230,8 @@ pub struct SitePageSpec {
     pub entity: Option<String>,
     #[serde(default, rename = "match")]
     pub match_field: Option<String>,
+    #[serde(default, rename = "where")]
+    pub conditions: Option<std::collections::BTreeMap<String, Value>>,
     #[serde(default)]
     pub list: Option<SiteListSpec>,
     #[serde(default)]

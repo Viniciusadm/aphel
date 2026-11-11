@@ -148,6 +148,21 @@ pub struct SiteMenuItem {
     pub page: String,
     #[serde(default)]
     pub labels: BTreeMap<String, String>,
+    #[serde(default)]
+    pub records: Option<SiteMenuRecords>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SiteMenuRecords {
+    pub conditions: BTreeMap<String, Value>,
+    pub label_field: String,
+    pub sort: Option<String>,
+}
+
+pub const MAX_MENU_RECORDS: u64 = 20;
+
+pub fn menu_record_item_id(owner: &str, key: &str, record_id: &str) -> String {
+    format!("{owner}.{key}.{record_id}")
 }
 
 impl SiteMenuItem {
@@ -231,6 +246,10 @@ pub enum PageSource {
         entity: String,
         match_field: String,
     },
+    Single {
+        entity: String,
+        conditions: BTreeMap<String, Value>,
+    },
     List {
         entity: String,
         sort: Option<String>,
@@ -242,7 +261,9 @@ impl PageSource {
     pub fn entity(&self) -> Option<&str> {
         match self {
             Self::Static => None,
-            Self::Record { entity, .. } | Self::List { entity, .. } => Some(entity),
+            Self::Record { entity, .. }
+            | Self::Single { entity, .. }
+            | Self::List { entity, .. } => Some(entity),
         }
     }
 }
@@ -612,6 +633,16 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                     problems.push(format!("{label}: the field {match_field} is not public"));
                 }
             }
+            (PageSource::Single { conditions, .. }, Some(Some(exposure))) => {
+                if !pattern.params().is_empty() {
+                    problems.push(format!("{label}: a page with where has no parameters"));
+                }
+                for field in conditions.keys() {
+                    if !exposure.exposes(field) {
+                        problems.push(format!("{label}: the where field {field} is not public"));
+                    }
+                }
+            }
             (PageSource::List { sort, per_page, .. }, Some(Some(exposure))) => {
                 if !pattern.params().is_empty() {
                     problems.push(format!("{label}: a list page has no parameters"));
@@ -649,9 +680,12 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 "{label}: the label must have between 1 and {MAX_LABEL_LENGTH} characters"
             ));
         }
-        match bundle.pages.iter().find(|page| page.key == item.page) {
-            None => problems.push(format!("{label}: the page {} does not exist", item.page)),
-            Some(page) => {
+        match (
+            bundle.pages.iter().find(|page| page.key == item.page),
+            &item.records,
+        ) {
+            (None, _) => problems.push(format!("{label}: the page {} does not exist", item.page)),
+            (Some(page), None) => {
                 if PathPattern::parse(&page.path).is_ok_and(|pattern| !pattern.params().is_empty())
                 {
                     problems.push(format!(
@@ -659,6 +693,9 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                         item.page
                     ));
                 }
+            }
+            (Some(page), Some(records)) => {
+                problems.extend(check_menu_records(bundle, &label, page, records));
             }
         }
     }
@@ -721,6 +758,40 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         }
     }
     problems.extend(check_templates(bundle));
+    problems
+}
+
+fn check_menu_records(
+    bundle: &SiteBundle,
+    label: &str,
+    page: &SitePage,
+    records: &SiteMenuRecords,
+) -> Vec<String> {
+    let PageSource::Record { entity, .. } = &page.source else {
+        return vec![format!(
+            "{label}: a menu item with where needs a page with match"
+        )];
+    };
+    let Some(exposure) = bundle
+        .exposures
+        .iter()
+        .find(|exposure| &exposure.entity == entity)
+    else {
+        return Vec::new();
+    };
+    let mut problems = Vec::new();
+    let sorted = records.sort.as_deref().map(sort_fields).unwrap_or_default();
+    for field in records
+        .conditions
+        .keys()
+        .map(String::as_str)
+        .chain(std::iter::once(records.label_field.as_str()))
+        .chain(sorted)
+    {
+        if !exposure.exposes(field) {
+            problems.push(format!("{label}: the field {field} is not public"));
+        }
+    }
     problems
 }
 

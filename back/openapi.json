@@ -54141,7 +54141,7 @@
         "tags": [
           "site"
         ],
-        "description": "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
+        "description": "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
         "operationId": "site_overview",
         "responses": {
           "200": {
@@ -54521,7 +54521,7 @@
         "tags": [
           "site"
         ],
-        "description": "Creates a link that shows the site with another theme (`theme` null for the built-in one) in the browser that opens it, for 30 minutes, without changing the site for visitors. Preview pages are not cached and carry a banner with a link that ends the preview. Requires `settings.manage`.",
+        "description": "Creates a link that, in the browser that opens it and for 30 minutes, shows the site without changing it for visitors: with another theme (`theme`, null for the built-in one; requires `settings.manage`) or with one record as it would look before publication (`record`: its pages show it even when it fails the public conditions, with each public field named in `fields` replaced by the value of another field of the record, such as `{\"blocks\": \"draft_blocks\"}`, and its images are served; requires permission to update that record or `settings.manage`). `path` is the site path the link opens (default `/`); `page_url` is its public address. Preview pages are not cached and carry a banner with a link that ends the preview.",
         "operationId": "site_preview_start",
         "parameters": [
           {
@@ -87142,12 +87142,17 @@
             "type": "object",
             "required": [
               "url",
+              "page_url",
               "expires_in_minutes"
             ],
             "properties": {
               "expires_in_minutes": {
                 "type": "integer",
                 "format": "int64"
+              },
+              "page_url": {
+                "type": "string",
+                "example": "https://www.example.com/about-us"
               },
               "url": {
                 "type": "string",
@@ -118313,12 +118318,17 @@
         "type": "object",
         "required": [
           "url",
+          "page_url",
           "expires_in_minutes"
         ],
         "properties": {
           "expires_in_minutes": {
             "type": "integer",
             "format": "int64"
+          },
+          "page_url": {
+            "type": "string",
+            "example": "https://www.example.com/about-us"
           },
           "url": {
             "type": "string",
@@ -118761,12 +118771,58 @@
       "StartSitePreview": {
         "type": "object",
         "properties": {
+          "path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "/about-us"
+          },
+          "record": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StartSitePreviewRecord"
+              }
+            ]
+          },
           "theme": {
             "type": [
               "string",
               "null"
             ],
             "example": "clean_theme"
+          }
+        }
+      },
+      "StartSitePreviewRecord": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "record_id"
+        ],
+        "properties": {
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            },
+            "example": {
+              "blocks": "draft_blocks"
+            }
+          },
+          "record_id": {
+            "type": "string",
+            "example": "01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a"
+          },
+          "record_type": {
+            "type": "string",
+            "example": "pages.page"
           }
         }
       },

@@ -59,12 +59,13 @@ title = "{{ record.title }}"
 | `template` | string | A file of the package under `site/`, ending in `.html`. |
 | `entity` | string | Optional. An entity listed in `[[site.public]]`. |
 | `match` | string | One record: the public field compared with the only path parameter, which must have the same name (`/blog/{slug}` with `match = "slug"`). |
+| `where` | table | One record chosen by equality conditions on public fields, for a page without parameters (`path = "/"` with `where = { is_home = true }`). When several records match, the most recently updated wins; when none does, the page answers 404. |
 | `list` | table | A paginated list: `sort` (public fields, `-` for descending, comma separated) and `per_page` (1 to 50, default 10). The page reads `?page=N`. |
 | `title` | string | Optional. A template expression rendered with the page context, used in `<title>` and in the share previews. |
 | `data` | string | Optional. Path of a GET route of the plugin declared with `site = true`, using the page parameters (`/products/{slug}`). Its JSON answer reaches the template as `data`; a 404 answer makes the page 404. See [Dynamic pages](#dynamic-pages). |
 | `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap; `schema` and `structured_data` shape the JSON-LD. See [Search engines](#search-engines). |
 
-A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs either `match` or `list`.
+A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs exactly one of `match`, `where` or `list`.
 
 Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
 
@@ -96,6 +97,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | `url_for(key, **params)` | Address of a page of the same plugin, including the site path. |
 | `value \| markdown` | Renders Markdown and removes unsafe HTML (scripts, event handlers). |
 | `value \| date(format)` | Formats an ISO date or date-time. Default `%d/%m/%Y`. |
+| `text \| from_json` | Parses a JSON text (up to 512 KB and 16 levels deep) into lists and objects, for content stored as JSON in a `long_text` field: `{% for block in record.blocks \| from_json %}`. Empty text gives nothing; invalid JSON fails the render. |
 | `image \| image_url(width)` | Address of an image, resized to the smallest of 320, 640, 960, 1280 or 1920 pixels that is at least `width` wide. Without `width`, the original file. |
 
 Templates are compiled when the plugin is installed: a syntax error, a missing template or a page that breaks the rules above fails the install with `422 plugin_site_invalid`, listing every problem. Templates cannot reach the network, files or the database: they only see the variables above. A render that runs too long stops and the visitor sees the theme's error page.
@@ -221,7 +223,19 @@ label = "Blog"
 page = "index"
 ```
 
-Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin. `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin, hides the ones it does not want and adds its own links (a site path or an `https://` address, such as the booking page or a social profile); new items appear at the end. Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
+Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin.
+
+An item can also list records: point it at a `match` page and add `label_field` (the public field shown as the label), optionally `where` (equality conditions on public fields) and `sort`. Every published record that meets the conditions becomes its own menu item, up to 20, with the id `<plugin>.<key>.<record id>`; the organization orders and hides them in Settings → Site like any other item, and hiding the parent id `<plugin>.<key>` hides them all. Pages that show the menu are refreshed when a record of that entity changes.
+
+```toml
+[[site.menu]]
+key = "pages"
+label = "Pages"
+page = "page"
+where = { show_in_menu = true }
+label_field = "title"
+sort = "created_at"
+``` `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin, hides the ones it does not want and adds its own links (a site path or an `https://` address, such as the booking page or a social profile); new items appear at the end. Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
 
 The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).
 
@@ -244,6 +258,19 @@ description = "Serif type and a centered menu."
 Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
 
 Settings → Site → *Preview* opens the site with another theme only in that browser, for 30 minutes, without changing it for visitors. Preview pages are never cached and show a banner with a link that ends the preview.
+
+## Drafts
+
+A plugin that keeps a draft next to the published content (for example `draft_blocks` next to `blocks`) can let people see the draft before publishing. Its web bundle calls `POST /api/v1/site/preview` with `record` and opens the returned `url` (in a new tab, or in an `iframe` when the site and the app share an origin):
+
+```json
+{
+  "record": { "record_type": "blog.post", "record_id": "0192…", "fields": { "body": "draft_body" } },
+  "path": "/blog/my-post"
+}
+```
+
+In that browser, for 30 minutes, the pages of that record show it even when it fails the `where` conditions of `site.public`, with each public field named in `fields` replaced by the value of the other field (and `<field>_<code>` by `<source>_<code>` in other languages); its images are served too. Only that record changes: lists and other records stay as published. The caller needs permission to update the record (or `settings.manage`), the targets must be public fields and the sources fields the caller can read. The answer also carries `page_url`, the public address of `path`.
 
 ## Languages
 

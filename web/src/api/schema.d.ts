@@ -7169,7 +7169,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`. */
+        /** @description What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`. */
         get: operations["site_overview"];
         put?: never;
         post?: never;
@@ -7240,7 +7240,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Creates a link that shows the site with another theme (`theme` null for the built-in one) in the browser that opens it, for 30 minutes, without changing the site for visitors. Preview pages are not cached and carry a banner with a link that ends the preview. Requires `settings.manage`. */
+        /** @description Creates a link that, in the browser that opens it and for 30 minutes, shows the site without changing it for visitors: with another theme (`theme`, null for the built-in one; requires `settings.manage`) or with one record as it would look before publication (`record`: its pages show it even when it fails the public conditions, with each public field named in `fields` replaced by the value of another field of the record, such as `{"blocks": "draft_blocks"}`, and its images are served; requires permission to update that record or `settings.manage`). `path` is the site path the link opens (default `/`); `page_url` is its public address. Preview pages are not cached and carry a banner with a link that ends the preview. */
         post: operations["site_preview_start"];
         delete?: never;
         options?: never;
@@ -14112,6 +14112,8 @@ export interface components {
             data: {
                 /** Format: int64 */
                 expires_in_minutes: number;
+                /** @example https://www.example.com/about-us */
+                page_url: string;
                 /** @example https://www.example.com/_aphel/site/preview/3f2a... */
                 url: string;
             };
@@ -22147,6 +22149,8 @@ export interface components {
         SitePreviewResponse: {
             /** Format: int64 */
             expires_in_minutes: number;
+            /** @example https://www.example.com/about-us */
+            page_url: string;
             /** @example https://www.example.com/_aphel/site/preview/3f2a... */
             url: string;
         };
@@ -22270,8 +22274,25 @@ export interface components {
             view_id: string;
         };
         StartSitePreview: {
+            /** @example /about-us */
+            path?: string | null;
+            record?: null | components["schemas"]["StartSitePreviewRecord"];
             /** @example clean_theme */
             theme?: string | null;
+        };
+        StartSitePreviewRecord: {
+            /**
+             * @example {
+             *       "blocks": "draft_blocks"
+             *     }
+             */
+            fields?: {
+                [key: string]: string;
+            };
+            /** @example 01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a */
+            record_id: string;
+            /** @example pages.page */
+            record_type: string;
         };
         StartedCallResponse: {
             provider: string;

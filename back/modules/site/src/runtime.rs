@@ -31,6 +31,8 @@ fn import_map_tag() -> String {
     format!("<script type=\"importmap\">{IMPORT_MAP}</script>")
 }
 const RENDER_FUEL: u64 = 2_000_000;
+const MAX_JSON_BYTES: usize = 512 * 1024;
+const MAX_JSON_DEPTH: usize = 16;
 const DEFAULT_DATE_FORMAT: &str = "%d/%m/%Y";
 
 pub(crate) struct Route {
@@ -41,8 +43,10 @@ pub(crate) struct Route {
 
 pub(crate) struct MenuCandidate {
     pub id: String,
+    pub owner: String,
     pub item: aphel_contract_site::SiteMenuItem,
     pub path: String,
+    pub source: aphel_contract_site::PageSource,
 }
 
 impl MenuCandidate {
@@ -80,6 +84,13 @@ impl SiteRuntime {
         self.exposures
             .iter()
             .find(|((_, exposed), exposure)| exposed == entity && exposure.images)
+            .map(|(_, exposure)| exposure)
+    }
+
+    pub fn entity_exposure(&self, entity: &str) -> Option<&SiteExposure> {
+        self.exposures
+            .iter()
+            .find(|((_, exposed), _)| exposed == entity)
             .map(|(_, exposure)| exposure)
     }
 
@@ -221,8 +232,10 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
                 account_links.push(MenuCandidate {
                     id: menu_item_id(&bundle.owner, &item.key),
+                    owner: bundle.owner.clone(),
                     item: item.clone(),
                     path: page.path.clone(),
+                    source: page.source.clone(),
                 });
             }
         }
@@ -230,8 +243,10 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
                 menu.push(MenuCandidate {
                     id: menu_item_id(&bundle.owner, &item.key),
+                    owner: bundle.owner.clone(),
                     item: item.clone(),
                     path: page.path.clone(),
+                    source: page.source.clone(),
                 });
             }
         }
@@ -313,6 +328,7 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
     environment.add_filter("markdown", markdown);
     environment.add_filter("date", date);
     environment.add_filter("image_url", image_url);
+    environment.add_filter("from_json", from_json);
     environment.add_function("url_for", url_for);
     environment
 }
@@ -323,6 +339,35 @@ fn markdown(text: Option<String>) -> Value {
     let mut html = String::new();
     pulldown_cmark::html::push_html(&mut html, parser);
     Value::from_safe_string(ammonia::clean(&html))
+}
+
+fn depth_of(value: &serde_json::Value) -> usize {
+    match value {
+        serde_json::Value::Array(items) => 1 + items.iter().map(depth_of).max().unwrap_or(0),
+        serde_json::Value::Object(fields) => 1 + fields.values().map(depth_of).max().unwrap_or(0),
+        _ => 0,
+    }
+}
+
+fn from_json(text: Option<String>) -> Result<Value, Error> {
+    let Some(text) = text.filter(|text| !text.trim().is_empty()) else {
+        return Ok(Value::from(()));
+    };
+    if text.len() > MAX_JSON_BYTES {
+        return Err(Error::new(
+            ErrorKind::InvalidOperation,
+            format!("from_json: the text is larger than {MAX_JSON_BYTES} bytes"),
+        ));
+    }
+    let parsed: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|error| Error::new(ErrorKind::InvalidOperation, format!("from_json: {error}")))?;
+    if depth_of(&parsed) > MAX_JSON_DEPTH {
+        return Err(Error::new(
+            ErrorKind::InvalidOperation,
+            format!("from_json: nested deeper than {MAX_JSON_DEPTH} levels"),
+        ));
+    }
+    Ok(Value::from_serialize(&parsed))
 }
 
 fn date(value: Option<String>, format: Option<String>) -> String {
