@@ -8,6 +8,7 @@ use aphel_contract_site::{
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::App;
+use aphel_sdk::platform::tenancy::TenantLocal;
 use minijinja::value::Kwargs;
 use minijinja::{Environment, Error, ErrorKind, State, Value};
 
@@ -132,7 +133,7 @@ impl SiteRuntime {
     }
 }
 
-static CURRENT: RwLock<Option<Arc<SiteRuntime>>> = RwLock::new(None);
+static CURRENT: TenantLocal<RwLock<Option<Arc<SiteRuntime>>>> = TenantLocal::new(RwLock::default);
 
 pub(crate) async fn current(app: &App, theme: Option<&str>) -> Result<Arc<SiteRuntime>, AppError> {
     let mut bundles = Vec::new();
@@ -147,7 +148,8 @@ pub(crate) async fn current(app: &App, theme: Option<&str>) -> Result<Arc<SiteRu
         .join(",")
         + "|theme="
         + theme.unwrap_or_default();
-    if let Some(runtime) = CURRENT
+    let current = CURRENT.try_get()?;
+    if let Some(runtime) = current
         .read()
         .ok()
         .and_then(|current| current.clone())
@@ -163,7 +165,7 @@ pub(crate) async fn current(app: &App, theme: Option<&str>) -> Result<Arc<SiteRu
         })
         .map(str::to_owned);
     let runtime = Arc::new(build(revision, bundles, theme));
-    if let Ok(mut current) = CURRENT.write() {
+    if let Ok(mut current) = current.write() {
         *current = Some(runtime.clone());
     }
     Ok(runtime)

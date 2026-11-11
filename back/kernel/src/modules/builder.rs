@@ -28,6 +28,7 @@ use crate::records::types::{assemble_registry, describe_records};
 use crate::records::{
     RecordContributionInfo, RecordHandlerFactory, RecordTypeExtension, RecordTypeHandler,
 };
+use crate::tenancy::TenantLocal;
 
 pub const KERNEL_MODULE: &str = "kernel";
 pub const MODULE_DEPENDENCY_CYCLE: &str = "module_dependency_cycle";
@@ -564,7 +565,7 @@ impl AppBuilder {
 
             contributions: self.contributions,
             contribution_names: self.contribution_names,
-            runtime: RwLock::new(HashMap::new()),
+            runtime: TenantLocal::new(RwLock::default),
             enabled,
         };
         crate::application::fields::field_types::validate_registry(&app)?;
@@ -713,7 +714,7 @@ pub struct App {
 
     contributions: Contributions,
     contribution_names: HashMap<TypeId, &'static str>,
-    runtime: RwLock<HashMap<&'static str, Contributions>>,
+    runtime: TenantLocal<RwLock<HashMap<&'static str, Contributions>>>,
     enabled: Arc<EnabledModules>,
 }
 
@@ -777,8 +778,14 @@ impl App {
                 (type_id, items)
             })
             .collect();
-        let mut runtime = self
-            .runtime
+        let Some(runtime) = self.runtime.get() else {
+            tracing::error!(
+                owner,
+                "runtime contributions were replaced outside a tenant scope"
+            );
+            return;
+        };
+        let mut runtime = runtime
             .write()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         if contributions.is_empty() {
@@ -884,8 +891,10 @@ impl App {
         }
         let mut found = Vec::new();
         collect(&self.contributions, &mut found);
-        let runtime = self
-            .runtime
+        let Some(runtime) = self.runtime.get() else {
+            return found;
+        };
+        let runtime = runtime
             .read()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         let mut owners: Vec<_> = runtime.keys().copied().collect();

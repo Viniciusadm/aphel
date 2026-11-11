@@ -23,6 +23,9 @@ Boolean variables accept `0`, `false`, `no` and `off` as false unless the table 
 | `HTTP_HOST` | `127.0.0.1` | IP address the server binds to. An invalid value falls back to the default. The Docker image sets `0.0.0.0`. |
 | `HTTP_PORT` | `3001` | TCP port. |
 | `DATABASE_URL` | none | MySQL connection URL, `mysql://user:password@host:port/database`. Without it the server still starts, but every endpoint that needs the database fails with a configuration error. Commands such as `migrate`, `worker` and `upgrade` refuse to run. |
+| `CONTROL_DATABASE_URL` | none | MySQL connection URL of the control database, which lists the tenants of a multi-tenant installation. Mutually exclusive with `DATABASE_URL`. Every tenant database lives on the same server, with the same credentials and its own database name. Multi-tenant support is partial in this build: `serve` routes requests by host to the tenants of the control database, `worker` (or `serve --with-worker`) runs the jobs and schedules of every active tenant, `migrate` only migrates the control database, and tenant databases are created and migrated by hand. |
+| `CONSOLE_HOST` | none | Host name of the operator console in a multi-tenant installation. Requires `CONTROL_DATABASE_URL`. |
+| `TENANT_DATABASE_MAX_CONNECTIONS` | `10` | Maximum connections of each tenant's database pool in a multi-tenant installation. |
 | `RUN_MIGRATIONS` | `true` | Apply pending migrations when `serve` or `worker` starts. Set to a false value to run them only through `aphel migrate` or `aphel upgrade`. |
 | `RUST_LOG` | `info` | Log filter in `tracing` syntax. Logs go to standard error. |
 | `HTTP_TRUSTED_PROXIES` | empty | Comma-separated list of IP addresses or CIDR networks (for example `10.0.0.0/8, 192.168.1.5`) of reverse proxies. When the direct peer is in the list, the client address is taken from `X-Forwarded-For`. Invalid entries are ignored with a warning. |
@@ -38,7 +41,7 @@ Boolean variables accept `0`, `false`, `no` and `off` as false unless the table 
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `WORKER_CONCURRENCY` | `4` | Jobs a worker runs at the same time. Must be greater than 0. |
+| `WORKER_CONCURRENCY` | `4` | Jobs a worker runs at the same time. Must be greater than 0. In a multi-tenant installation the budget is shared by every tenant of the process, handed out in turn to the tenants with pending jobs. |
 | `WORKER_POLL_INTERVAL_MS` | `1000` | How often the worker looks for ready jobs, in milliseconds. |
 | `WORKER_JOB_TIMEOUT_SECS` | `300` | Time a job may run. A job that holds its lock longer than this plus 60 seconds is considered lost and is released for another attempt, or failed when attempts are exhausted. |
 | `SCHEDULER_INTERVAL_SECS` | `5` | How often the scheduler checks for due recurring schedules. |

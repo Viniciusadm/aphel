@@ -276,6 +276,12 @@ impl AppState {
 static RUNTIME_STATE: OnceLock<AppState> = OnceLock::new();
 
 pub fn install_runtime_state(state: AppState) {
+    if crate::tenancy::is_multi() {
+        tracing::error!(
+            "a process-wide runtime state cannot be installed when serving many tenants"
+        );
+        return;
+    }
     if RUNTIME_STATE.set(state).is_err() {
         tracing::debug!("runtime state already installed");
     }
@@ -286,6 +292,12 @@ pub fn runtime_pool() -> Result<MySqlPool, AppError> {
 }
 
 pub fn runtime_state() -> Result<AppState, AppError> {
+    if let Some(state) = crate::tenancy::current_state() {
+        return Ok(state);
+    }
+    if crate::tenancy::is_multi() {
+        return Err(crate::tenancy::outside_scope());
+    }
     RUNTIME_STATE
         .get()
         .cloned()

@@ -1,11 +1,17 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 
-static ACCESS_CATALOG_GENERATION: AtomicU64 = AtomicU64::new(0);
+use crate::tenancy::TenantLocal;
+
+static ACCESS_CATALOG_GENERATION: TenantLocal<AtomicU64> = TenantLocal::new(AtomicU64::default);
 
 pub fn invalidate_access_catalog() {
-    ACCESS_CATALOG_GENERATION.fetch_add(1, Ordering::SeqCst);
+    if let Some(generation) = ACCESS_CATALOG_GENERATION.get() {
+        generation.fetch_add(1, Ordering::SeqCst);
+    }
 }
 
 pub fn access_catalog_generation() -> u64 {
-    ACCESS_CATALOG_GENERATION.load(Ordering::SeqCst)
+    ACCESS_CATALOG_GENERATION
+        .get()
+        .map_or(u64::MAX, |generation| generation.load(Ordering::SeqCst))
 }

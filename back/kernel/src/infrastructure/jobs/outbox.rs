@@ -9,6 +9,7 @@ use serde_json::Value;
 use sqlx::mysql::MySqlRow;
 use sqlx::types::Json;
 use sqlx::{MySqlPool, Row};
+
 use tracing::{debug, warn};
 use uuid::Uuid;
 
@@ -20,6 +21,7 @@ use crate::errors::AppError;
 use crate::infrastructure::events::{causation_column, origin_columns};
 use crate::infrastructure::jobs::queue::insert_job;
 use crate::infrastructure::repositories::mapper;
+use crate::tenancy::TenantLocal;
 
 pub(crate) const OUTBOX_DISPATCH_KIND: &str = "outbox.dispatch";
 pub(crate) const EVENT_CONSUME_KIND: &str = "event.consume";
@@ -28,11 +30,14 @@ pub(crate) const DEFAULT_OUTBOX_BATCH_SIZE: u32 = 100;
 pub(crate) const OUTBOX_DISPATCH_TIME_BUDGET: Duration = Duration::from_secs(20);
 const FOLLOW_UP_UNIQUE_KEY: &str = "outbox.dispatch:follow-up";
 
-static LAST_DISPATCH_REQUEST: AtomicI64 = AtomicI64::new(0);
+static LAST_DISPATCH_REQUEST: TenantLocal<AtomicI64> = TenantLocal::new(AtomicI64::default);
 
 pub(crate) async fn request_dispatch(pool: &MySqlPool) {
     let second = chrono::Utc::now().timestamp();
-    if LAST_DISPATCH_REQUEST.fetch_max(second, Ordering::SeqCst) >= second {
+    if LAST_DISPATCH_REQUEST
+        .get()
+        .is_some_and(|last| last.fetch_max(second, Ordering::SeqCst) >= second)
+    {
         return;
     }
     let job = Job::new(OUTBOX_DISPATCH_KIND, Value::Object(Default::default()))

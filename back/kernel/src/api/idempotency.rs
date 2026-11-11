@@ -226,12 +226,12 @@ impl Drop for PendingKey {
         if !self.armed {
             return;
         }
-        let Ok(runtime) = tokio::runtime::Handle::try_current() else {
+        if tokio::runtime::Handle::try_current().is_err() {
             return;
-        };
+        }
         let store = MySqlIdempotencyStore::new(self.pool.clone());
         let request = self.request.clone();
-        runtime.spawn(async move {
+        crate::tenancy::spawn(async move {
             if let Err(error) = IdempotencyUseCases::new(store).release(&request).await {
                 tracing::warn!(error = %error, "could not release the idempotency key");
             }

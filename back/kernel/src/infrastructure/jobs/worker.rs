@@ -5,6 +5,7 @@ use serde_json::Value;
 use sqlx::mysql::MySqlRow;
 use sqlx::types::Json;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
@@ -141,11 +142,15 @@ impl JobWorker {
             } else {
                 LoopRole::Helper
             };
-            tasks.spawn(async move { worker.process_until(shutdown, role).await });
+            tasks.spawn(crate::tenancy::bind(async move {
+                worker.process_until(shutdown, role).await
+            }));
         }
         let worker = self.clone();
         let maintenance_shutdown = shutdown.clone();
-        tasks.spawn(async move { worker.recover_until(maintenance_shutdown).await });
+        tasks.spawn(crate::tenancy::bind(async move {
+            worker.recover_until(maintenance_shutdown).await
+        }));
 
         while let Some(result) = tasks.join_next().await {
             if let Err(join_error) = result {
@@ -155,6 +160,85 @@ impl JobWorker {
 
         info!(worker_id = %self.settings.worker_id, "job worker stopped");
         Ok(())
+    }
+
+    pub(crate) async fn run_shared(
+        &self,
+        shutdown: Shutdown,
+        slots: Arc<Semaphore>,
+    ) -> Result<(), AppError> {
+        info!(
+            worker_id = %self.settings.worker_id,
+            handlers = ?self.registry.kinds().collect::<Vec<_>>(),
+            "job worker started on the shared slots"
+        );
+        let worker = self.clone();
+        let maintenance_shutdown = shutdown.clone();
+        let maintenance =
+            crate::tenancy::spawn(async move { worker.recover_until(maintenance_shutdown).await });
+        self.process_shared(shutdown, slots).await;
+        if let Err(join_error) = maintenance.await {
+            error!("job lock recovery stopped unexpectedly: {join_error}");
+        }
+        info!(worker_id = %self.settings.worker_id, "job worker stopped");
+        Ok(())
+    }
+
+    async fn process_shared(&self, mut shutdown: Shutdown, slots: Arc<Semaphore>) {
+        let busiest_wait = self.settings.poll_interval.max(MAX_IDLE_POLL_INTERVAL);
+        let mut idle_wait = self.settings.poll_interval;
+        let signal = jobs_available().unwrap_or_default();
+        let mut running = JoinSet::new();
+        loop {
+            while let Some(result) = running.try_join_next() {
+                if let Err(join_error) = result {
+                    error!("job task stopped unexpectedly: {join_error}");
+                }
+            }
+            if shutdown.is_triggered() {
+                break;
+            }
+            let woken = signal.notified();
+            tokio::pin!(woken);
+            woken.as_mut().enable();
+            let permit = tokio::select! {
+                () = shutdown.wait() => break,
+                permit = slots.clone().acquire_owned() => match permit {
+                    Ok(permit) => permit,
+                    Err(_) => break,
+                },
+            };
+            match self.reserve().await {
+                Ok(Some(job)) => {
+                    idle_wait = self.settings.poll_interval;
+                    let worker = self.clone();
+                    running.spawn(crate::tenancy::bind(async move {
+                        let _permit = permit;
+                        if let Err(failure) = worker.execute(job).await {
+                            error!("job worker failed to process the queue: {failure}");
+                        }
+                    }));
+                    continue;
+                }
+                Ok(None) => drop(permit),
+                Err(failure) => {
+                    drop(permit);
+                    error!("job worker failed to process the queue: {failure}");
+                }
+            }
+            tokio::select! {
+                () = shutdown.wait() => break,
+                () = &mut woken => idle_wait = self.settings.poll_interval,
+                () = tokio::time::sleep(idle_wait) => {
+                    idle_wait = (idle_wait * 2).min(busiest_wait);
+                }
+            }
+        }
+        while let Some(result) = running.join_next().await {
+            if let Err(join_error) = result {
+                error!("job task stopped unexpectedly: {join_error}");
+            }
+        }
     }
 
     pub(crate) async fn reserve(&self) -> Result<Option<ReservedJob>, AppError> {
@@ -249,11 +333,12 @@ impl JobWorker {
     async fn process_until(&self, mut shutdown: Shutdown, role: LoopRole) {
         let busiest_wait = self.settings.poll_interval.max(MAX_IDLE_POLL_INTERVAL);
         let mut idle_wait = self.settings.poll_interval;
+        let signal = jobs_available().unwrap_or_default();
         loop {
             if shutdown.is_triggered() {
                 break;
             }
-            let woken = jobs_available().notified();
+            let woken = signal.notified();
             tokio::pin!(woken);
             woken.as_mut().enable();
             match self.reserve().await {
@@ -306,7 +391,8 @@ impl JobWorker {
     ) -> Result<(), AppError> {
         let context = job.context();
         let payload = job.payload.clone();
-        let mut task = tokio::spawn(async move { handler.handle(&context, payload).await });
+        let mut task =
+            crate::tenancy::spawn(async move { handler.handle(&context, payload).await });
         match tokio::time::timeout(self.settings.job_timeout, &mut task).await {
             Ok(Ok(result)) => result,
             Ok(Err(join_error)) if join_error.is_panic() => {

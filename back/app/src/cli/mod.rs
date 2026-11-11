@@ -150,6 +150,7 @@ pub(crate) async fn run() -> CliResult {
     }
 
     let config = AppConfig::from_env();
+    aphel_kernel::tenancy::install_mode((&config.tenancy()?).into())?;
 
     if let Some((name, arguments)) = matches.subcommand()
         && let Some((_, module_command)) = commands

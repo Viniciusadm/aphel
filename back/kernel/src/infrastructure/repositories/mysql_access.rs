@@ -1,4 +1,4 @@
-use std::sync::{Arc, LazyLock, RwLock};
+use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -18,6 +18,7 @@ use crate::errors::AppError;
 use crate::infrastructure::api_tokens::MySqlApiTokenRepository;
 use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::repositories::runtime_permissions::active_runtime_permissions;
+use crate::tenancy::TenantLocal;
 
 #[derive(Clone)]
 pub struct MySqlAccessRepository {
@@ -128,12 +129,13 @@ struct AccessCatalog {
     enabled_modules: Vec<String>,
 }
 
-static ACCESS_CATALOG: LazyLock<RwLock<Option<Arc<AccessCatalog>>>> =
-    LazyLock::new(RwLock::default);
+static ACCESS_CATALOG: TenantLocal<RwLock<Option<Arc<AccessCatalog>>>> =
+    TenantLocal::new(RwLock::default);
 
 async fn access_catalog(pool: &MySqlPool) -> Result<Arc<AccessCatalog>, AppError> {
     let generation = access_catalog_generation();
-    let cached = ACCESS_CATALOG.read().ok().and_then(|cache| cache.clone());
+    let cache = ACCESS_CATALOG.try_get()?;
+    let cached = cache.read().ok().and_then(|cache| cache.clone());
     if let Some(cached) = cached
         && cached.generation == generation
         && cached.loaded_at.elapsed() < ACCESS_CATALOG_TTL
@@ -153,7 +155,7 @@ async fn access_catalog(pool: &MySqlPool) -> Result<Arc<AccessCatalog>, AppError
         enabled_modules: enabled_modules(pool).await?,
     });
     if access_catalog_generation() == generation
-        && let Ok(mut cache) = ACCESS_CATALOG.write()
+        && let Ok(mut cache) = cache.write()
     {
         *cache = Some(catalog.clone());
     }

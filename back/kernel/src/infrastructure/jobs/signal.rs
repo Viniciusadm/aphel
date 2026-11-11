@@ -1,13 +1,17 @@
-use std::sync::LazyLock;
+use std::sync::Arc;
 
 use tokio::sync::Notify;
 
-static JOBS_AVAILABLE: LazyLock<Notify> = LazyLock::new(Notify::new);
+use crate::tenancy::TenantLocal;
+
+static JOBS_AVAILABLE: TenantLocal<Notify> = TenantLocal::new(Notify::new);
 
 pub(crate) fn wake_workers() {
-    JOBS_AVAILABLE.notify_one();
+    if let Some(signal) = JOBS_AVAILABLE.get() {
+        signal.notify_one();
+    }
 }
 
-pub(crate) fn jobs_available() -> &'static Notify {
-    &JOBS_AVAILABLE
+pub(crate) fn jobs_available() -> Option<Arc<Notify>> {
+    JOBS_AVAILABLE.get()
 }

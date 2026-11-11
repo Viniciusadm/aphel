@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::sync::{Arc, LazyLock, Mutex};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -20,6 +20,7 @@ use crate::infrastructure::fields::MySqlFieldDefinitionRepository;
 use crate::infrastructure::query::aggregate::MySqlAggregateExecutor;
 use crate::infrastructure::query::compiler::{Projection, build_query};
 use crate::records::constrain_query;
+use crate::tenancy::TenantLocal;
 
 #[derive(Clone)]
 pub struct MySqlRecordQueryExecutor {
@@ -49,7 +50,7 @@ impl MySqlRecordQueryExecutor {
 const COUNT_CACHE_TTL: Duration = Duration::from_secs(3);
 const TIMEZONE_CACHE_TTL: Duration = Duration::from_secs(5);
 
-static TIMEZONE: LazyLock<Mutex<Option<(Tz, Instant)>>> = LazyLock::new(Mutex::default);
+static TIMEZONE: TenantLocal<Mutex<Option<(Tz, Instant)>>> = TenantLocal::new(Mutex::default);
 const COUNT_CACHE_CAPACITY: usize = 512;
 
 struct CachedCount {
@@ -57,7 +58,7 @@ struct CachedCount {
     stored_at: Instant,
 }
 
-static COUNTS: LazyLock<Mutex<HashMap<u128, CachedCount>>> = LazyLock::new(Mutex::default);
+static COUNTS: TenantLocal<Mutex<HashMap<u128, CachedCount>>> = TenantLocal::new(Mutex::default);
 
 fn count_key(sql: &str, scope: &AccessScope, plan: &QueryPlan) -> u128 {
     let mut first = DefaultHasher::new();
@@ -76,13 +77,17 @@ fn count_key(sql: &str, scope: &AccessScope, plan: &QueryPlan) -> u128 {
 }
 
 fn cached_count(key: u128) -> Option<u64> {
-    let counts = COUNTS.lock().ok()?;
+    let counts = COUNTS.get()?;
+    let counts = counts.lock().ok()?;
     let cached = counts.get(&key)?;
     (cached.stored_at.elapsed() < COUNT_CACHE_TTL).then_some(cached.total)
 }
 
 fn store_count(key: u128, total: u64) {
-    let Ok(mut counts) = COUNTS.lock() else {
+    let Some(counts) = COUNTS.get() else {
+        return;
+    };
+    let Ok(mut counts) = counts.lock() else {
         return;
     };
     if counts.len() >= COUNT_CACHE_CAPACITY {
@@ -101,7 +106,9 @@ fn store_count(key: u128, total: u64) {
 }
 
 pub fn invalidate_counts() {
-    if let Ok(mut counts) = COUNTS.lock() {
+    if let Some(counts) = COUNTS.get()
+        && let Ok(mut counts) = counts.lock()
+    {
         counts.clear();
     }
 }
@@ -109,7 +116,8 @@ pub fn invalidate_counts() {
 #[async_trait]
 impl RecordQueryExecutor for MySqlRecordQueryExecutor {
     async fn timezone(&self) -> Result<Tz, AppError> {
-        if let Some(timezone) = TIMEZONE
+        let cache = TIMEZONE.try_get()?;
+        if let Some(timezone) = cache
             .lock()
             .ok()
             .and_then(|cached| *cached)
@@ -125,7 +133,7 @@ impl RecordQueryExecutor for MySqlRecordQueryExecutor {
         let timezone = timezone
             .and_then(|timezone| timezone.parse::<Tz>().ok())
             .unwrap_or(chrono_tz::UTC);
-        if let Ok(mut cached) = TIMEZONE.lock() {
+        if let Ok(mut cached) = cache.lock() {
             *cached = Some((timezone, Instant::now()));
         }
         Ok(timezone)

@@ -16,8 +16,15 @@ fn max_connections() -> u32 {
 }
 
 pub async fn connect(database_url: &str) -> Result<MySqlPool, sqlx::Error> {
+    connect_with(database_url.parse()?, max_connections()).await
+}
+
+pub async fn connect_with(
+    options: MySqlConnectOptions,
+    max_connections: u32,
+) -> Result<MySqlPool, sqlx::Error> {
     MySqlPoolOptions::new()
-        .max_connections(max_connections())
+        .max_connections(max_connections)
         .idle_timeout(IDLE_BEFORE_CLOSE)
         .max_lifetime(CONNECTION_LIFETIME)
         .acquire_timeout(Duration::from_secs(10))
@@ -30,10 +37,6 @@ pub async fn connect(database_url: &str) -> Result<MySqlPool, sqlx::Error> {
                 Ok(true)
             })
         })
-        .connect_with(
-            database_url
-                .parse::<MySqlConnectOptions>()?
-                .collation("utf8mb4_unicode_ci"),
-        )
+        .connect_with(options.collation("utf8mb4_unicode_ci"))
         .await
 }

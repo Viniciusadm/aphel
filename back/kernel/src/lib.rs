@@ -11,6 +11,7 @@ pub(crate) mod kernel_module;
 pub mod modules;
 pub mod records;
 pub mod state;
+pub mod tenancy;
 pub mod worker;
 
 pub use context::Ctx;

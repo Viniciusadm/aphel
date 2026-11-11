@@ -8,6 +8,7 @@ use aphel_contract_site::{
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::state::runtime_pool;
+use aphel_sdk::platform::tenancy::TenantLocal;
 use async_trait::async_trait;
 use axum::response::Response;
 
@@ -369,7 +370,7 @@ pub(crate) fn public_routes(manifest: &PluginManifest) -> Vec<String> {
 
 type CachedBundles = Option<(Option<u64>, Arc<Vec<SiteBundle>>)>;
 
-static BUNDLES: RwLock<CachedBundles> = RwLock::new(None);
+static BUNDLES: TenantLocal<RwLock<CachedBundles>> = TenantLocal::new(RwLock::default);
 
 pub(crate) struct PluginSiteContent;
 
@@ -378,7 +379,8 @@ impl SiteContentSource for PluginSiteContent {
     async fn bundles(&self) -> Result<Vec<SiteBundle>, AppError> {
         let pool = runtime_pool()?;
         let snapshot = registry::current(&pool).await?;
-        if let Some((_, bundles)) = BUNDLES
+        let cache = BUNDLES.try_get()?;
+        if let Some((_, bundles)) = cache
             .read()
             .ok()
             .and_then(|cached| cached.clone())
@@ -412,7 +414,7 @@ impl SiteContentSource for PluginSiteContent {
             }
         }
         let bundles = Arc::new(bundles);
-        if let Ok(mut cached) = BUNDLES.write() {
+        if let Ok(mut cached) = cache.write() {
             *cached = Some((snapshot.version, bundles.clone()));
         }
         Ok(bundles.as_ref().clone())

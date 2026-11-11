@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
+use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 
 use chrono::{DateTime, Utc};
@@ -69,7 +69,7 @@ impl SlidingWindowLimiter {
                     .is_some_and(|last| now.duration_since(*last) < window)
             });
         }
-        let entries = hits.entry(key.to_owned()).or_default();
+        let entries = hits.entry(tenant_key(key)).or_default();
         while entries
             .front()
             .is_some_and(|first| now.duration_since(*first) >= window)
@@ -90,6 +90,13 @@ impl SlidingWindowLimiter {
             remaining: self.limit.saturating_sub(entries.len() as u32),
             reset_after,
         })
+    }
+}
+
+fn tenant_key(key: &str) -> String {
+    match crate::tenancy::current() {
+        Some(tenant) => format!("{}\u{1f}{key}", tenant.tenant().id),
+        None => key.to_owned(),
     }
 }
 
@@ -145,12 +152,7 @@ pub async fn shared_hit(
 }
 
 fn shared_pool() -> Option<MySqlPool> {
-    static POOL: OnceLock<MySqlPool> = OnceLock::new();
-    if let Some(pool) = POOL.get() {
-        return Some(pool.clone());
-    }
-    let pool = crate::state::runtime_state().ok()?.db?;
-    Some(POOL.get_or_init(|| pool).clone())
+    crate::state::runtime_state().ok()?.db
 }
 
 fn bucket(scope: &str, key: &str) -> String {

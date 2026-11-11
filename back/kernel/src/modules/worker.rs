@@ -31,6 +31,18 @@ pub struct WorkerEnv {
 }
 
 impl WorkerEnv {
+    pub fn from_state(state: &AppState) -> Result<Self, AppError> {
+        Ok(Self {
+            pool: state.db()?,
+            secrets: state.secrets.clone(),
+            mailer: state.mailer(),
+            storage: state.storage.clone(),
+            public_url: state.public_base_url(),
+            outbound_http: state.outbound_http.clone(),
+            record_types: state.record_types.clone(),
+        })
+    }
+
     pub fn state(&self) -> AppState {
         AppState::new(Some(self.pool.clone()))
             .with_secrets(self.secrets.clone())

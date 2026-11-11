@@ -6,13 +6,14 @@ use sqlx::MySqlPool;
 use tokio::task::JoinHandle;
 
 use crate::errors::AppError;
+use crate::tenancy::TenantLocal;
 
 pub const REFRESH_INTERVAL: Duration = Duration::from_secs(5);
 
 pub struct EnabledModules {
     required: HashSet<&'static str>,
     compiled: HashSet<&'static str>,
-    enabled: RwLock<HashSet<String>>,
+    enabled: TenantLocal<RwLock<HashSet<String>>>,
 }
 
 impl EnabledModules {
@@ -23,7 +24,7 @@ impl EnabledModules {
         Self {
             required: required.into_iter().collect(),
             compiled: compiled.into_iter().collect(),
-            enabled: RwLock::new(HashSet::new()),
+            enabled: TenantLocal::new(RwLock::default),
         }
     }
 
@@ -33,18 +34,24 @@ impl EnabledModules {
 
     pub fn is_enabled(&self, key: &str) -> bool {
         self.required.contains(key)
-            || self
-                .enabled
-                .read()
-                .map(|enabled| enabled.contains(key))
-                .unwrap_or(false)
+            || self.enabled.get().is_some_and(|enabled| {
+                enabled
+                    .read()
+                    .map(|enabled| enabled.contains(key))
+                    .unwrap_or(false)
+            })
     }
 
     pub fn snapshot(&self) -> Vec<String> {
         let mut keys: Vec<String> = self
             .enabled
-            .read()
-            .map(|enabled| enabled.iter().cloned().collect())
+            .get()
+            .and_then(|enabled| {
+                enabled
+                    .read()
+                    .map(|enabled| enabled.iter().cloned().collect())
+                    .ok()
+            })
             .unwrap_or_default();
         keys.extend(
             self.required
@@ -62,7 +69,10 @@ impl EnabledModules {
             .into_iter()
             .filter(|key| self.compiled.contains(key.as_str()))
             .collect();
-        if let Ok(mut enabled) = self.enabled.write()
+        let Some(enabled) = self.enabled.get() else {
+            return;
+        };
+        if let Ok(mut enabled) = enabled.write()
             && *enabled != keys
         {
             *enabled = keys;
@@ -77,7 +87,7 @@ impl EnabledModules {
     }
 
     pub fn spawn_refresh(self: Arc<Self>, pool: MySqlPool) -> JoinHandle<()> {
-        tokio::spawn(async move {
+        crate::tenancy::spawn(async move {
             let mut interval = tokio::time::interval(REFRESH_INTERVAL);
             loop {
                 interval.tick().await;

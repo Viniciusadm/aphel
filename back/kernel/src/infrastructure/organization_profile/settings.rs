@@ -20,6 +20,7 @@ use crate::infrastructure::mail::SmtpMailerProvider;
 use crate::infrastructure::platform::{SharedAuditLog, SharedEventPublisher, SharedSecretVault};
 use crate::infrastructure::storage::ObjectStorageProbe;
 use crate::infrastructure::transactions::MySqlTransactionManager;
+use crate::tenancy::TenantLocal;
 
 const REFRESH_INTERVAL: Duration = Duration::from_secs(5);
 
@@ -75,14 +76,17 @@ impl OrganizationConfigSource for MySqlOrganizationConfigSource {
 }
 
 pub fn organization_config_catalog(pool: &MySqlPool) -> Arc<OrganizationConfigCatalog> {
-    static CATALOG: OnceLock<Arc<OrganizationConfigCatalog>> = OnceLock::new();
-    CATALOG
-        .get_or_init(|| {
-            Arc::new(OrganizationConfigCatalog::new(Arc::new(
-                MySqlOrganizationConfigSource::new(pool.clone()),
-            )))
-        })
-        .clone()
+    static CATALOG: TenantLocal<OnceLock<Arc<OrganizationConfigCatalog>>> =
+        TenantLocal::new(OnceLock::new);
+    let create = || {
+        Arc::new(OrganizationConfigCatalog::new(Arc::new(
+            MySqlOrganizationConfigSource::new(pool.clone()),
+        )))
+    };
+    match CATALOG.get() {
+        Some(catalog) => catalog.get_or_init(create).clone(),
+        None => create(),
+    }
 }
 
 pub async fn reset_app_mount(
@@ -126,7 +130,7 @@ pub async fn reset_app_mount(
 pub fn spawn_config_refresh(
     catalog: Arc<OrganizationConfigCatalog>,
 ) -> tokio::task::JoinHandle<()> {
-    tokio::spawn(async move {
+    crate::tenancy::spawn(async move {
         let mut interval = tokio::time::interval(REFRESH_INTERVAL);
         loop {
             interval.tick().await;

@@ -379,6 +379,30 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
         }
     }
 
+    let tenant_sources: Vec<&PathBuf> = kernel_sources
+        .iter()
+        .chain(plugin_sources.iter().map(|(_, file)| file))
+        .filter(|file| !relative(back, file).starts_with(TENANCY_SOURCE))
+        .collect();
+    let mut unscoped_spawns = Vec::new();
+    let mut mutable_statics = Vec::new();
+    for file in &tenant_sources {
+        let text = fs::read_to_string(file)?;
+        let text = without_tests(&text);
+        let spawns: usize = UNSCOPED_SPAWNS
+            .iter()
+            .map(|pattern| text.matches(pattern).count())
+            .sum();
+        for _ in 0..spawns {
+            unscoped_spawns.push(relative(back, file));
+        }
+        for line in text.lines() {
+            if let Some(name) = mutable_static(line) {
+                mutable_statics.push(format!("{}: {name}", relative(back, file)));
+            }
+        }
+    }
+
     let mut conflicts = Vec::new();
     for (_, file) in &plugin_sources {
         let text = fs::read_to_string(file)?;
@@ -465,6 +489,16 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
             "kernel_public_modules",
             "kernel modules declared pub instead of pub(crate)",
             public_modules,
+        ),
+        Metric::new(
+            "unscoped_spawns",
+            "tokio::spawn and runtime handle spawns outside kernel/src/tenancy; tenant work uses tenancy::spawn",
+            unscoped_spawns,
+        ),
+        Metric::new(
+            "mutable_statics",
+            "static items holding locks, atomics, notifiers or cells outside TenantLocal; tenant state belongs in TenantLocal or AppState",
+            mutable_statics,
         ),
         Metric::new(
             "plugin_state_escapes",
@@ -814,6 +848,43 @@ fn relative(root: &Path, file: &Path) -> String {
         .unwrap_or(file)
         .to_string_lossy()
         .to_string()
+}
+
+const TENANCY_SOURCE: &str = "kernel/src/tenancy/";
+const UNSCOPED_SPAWNS: [&str; 5] = [
+    "tokio::spawn(",
+    "tokio::task::spawn(",
+    "handle.spawn(",
+    "runtime.spawn(",
+    "Handle::current().spawn(",
+];
+const MUTABLE_STATIC_TYPES: [&str; 6] = [
+    "Mutex<",
+    "RwLock<",
+    "Atomic",
+    "Notify",
+    "OnceCell<",
+    "Semaphore",
+];
+
+fn without_tests(text: &str) -> &str {
+    text.find("#[cfg(test)]")
+        .map_or(text, |start| &text[..start])
+}
+
+fn mutable_static(line: &str) -> Option<String> {
+    let line = line.trim_start();
+    let declaration = line
+        .strip_prefix("pub(crate) static ")
+        .or_else(|| line.strip_prefix("pub static "))
+        .or_else(|| line.strip_prefix("static "))?;
+    let (name, kind) = declaration.split_once(':')?;
+    let kind = kind.split('=').next().unwrap_or(kind);
+    (!kind.contains("TenantLocal<")
+        && MUTABLE_STATIC_TYPES
+            .iter()
+            .any(|marker| kind.contains(marker)))
+    .then(|| name.trim().to_string())
 }
 
 fn rust_files(root: &Path) -> Vec<PathBuf> {

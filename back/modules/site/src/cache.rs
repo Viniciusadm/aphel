@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::tenancy::TenantLocal;
 use sha2::{Digest, Sha256};
 use sqlx::{MySqlPool, Row};
 
@@ -70,11 +71,12 @@ impl PageCache {
     }
 }
 
-static CACHE: Mutex<Option<PageCache>> = Mutex::new(None);
+static CACHE: TenantLocal<Mutex<PageCache>> = TenantLocal::new(Mutex::default);
 
 fn with_cache<T>(apply: impl FnOnce(&mut PageCache) -> T) -> Option<T> {
-    let mut guard = CACHE.lock().ok()?;
-    Some(apply(guard.get_or_insert_with(PageCache::default)))
+    let cache = CACHE.get()?;
+    let mut guard = cache.lock().ok()?;
+    Some(apply(&mut guard))
 }
 
 pub(crate) fn etag_of(html: &str) -> String {

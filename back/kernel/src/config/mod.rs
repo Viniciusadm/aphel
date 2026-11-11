@@ -3,12 +3,16 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::time::Duration;
 
 use crate::domain::Secret;
+use crate::errors::AppError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppConfig {
     pub host: IpAddr,
     pub port: u16,
     pub database_url: Option<String>,
+    pub control_database_url: Option<String>,
+    pub console_host: Option<String>,
+    pub tenant_max_connections: u32,
     pub run_migrations: bool,
     pub worker: WorkerConfig,
     pub encryption: EncryptionConfig,
@@ -46,7 +50,7 @@ impl AppConfig {
             .ok()
             .and_then(|value| value.parse().ok())
             .unwrap_or(3001);
-        let database_url = env::var("DATABASE_URL").ok();
+        let database_url = non_empty_var("DATABASE_URL");
         let run_migrations = env::var("RUN_MIGRATIONS")
             .map(|value| !is_falsy(&value))
             .unwrap_or(true);
@@ -55,6 +59,11 @@ impl AppConfig {
             host,
             port,
             database_url,
+            control_database_url: non_empty_var("CONTROL_DATABASE_URL"),
+            console_host: non_empty_var("CONSOLE_HOST"),
+            tenant_max_connections: parsed_var("TENANT_DATABASE_MAX_CONNECTIONS")
+                .filter(|value: &u32| *value > 0)
+                .unwrap_or(10),
             run_migrations,
             worker: WorkerConfig::from_env(),
             encryption: EncryptionConfig::from_env(),
@@ -65,6 +74,36 @@ impl AppConfig {
     pub fn http_addr(&self) -> SocketAddr {
         SocketAddr::new(self.host, self.port)
     }
+
+    pub fn tenancy(&self) -> Result<Tenancy, AppError> {
+        match (&self.database_url, &self.control_database_url) {
+            (Some(_), Some(_)) => Err(AppError::Configuration(
+                "DATABASE_URL and CONTROL_DATABASE_URL are mutually exclusive: set DATABASE_URL for a single organization or CONTROL_DATABASE_URL to serve many".to_owned(),
+            )),
+            (_, Some(control_database_url)) => Ok(Tenancy::Multi(MultiTenancyConfig {
+                control_database_url: control_database_url.clone(),
+                console_host: self.console_host.clone(),
+                tenant_max_connections: self.tenant_max_connections,
+            })),
+            (_, None) if self.console_host.is_some() => Err(AppError::Configuration(
+                "CONSOLE_HOST requires CONTROL_DATABASE_URL".to_owned(),
+            )),
+            (_, None) => Ok(Tenancy::Single),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Tenancy {
+    Single,
+    Multi(MultiTenancyConfig),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MultiTenancyConfig {
+    pub control_database_url: String,
+    pub console_host: Option<String>,
+    pub tenant_max_connections: u32,
 }
 
 impl EncryptionConfig {

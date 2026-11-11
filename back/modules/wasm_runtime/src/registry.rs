@@ -11,6 +11,7 @@ use crate::widgets::PluginWidget;
 use crate::{notify, runtime, store};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications as intern;
+use aphel_sdk::platform::tenancy::TenantLocal;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
 const REFRESH_INTERVAL: Duration = Duration::from_secs(1);
@@ -122,45 +123,40 @@ impl Snapshot {
 
 type LoadedBackend = (Option<Arc<BackendSlot>>, Option<String>);
 
+#[derive(Default)]
 struct Cache {
     checked_at: Option<Instant>,
     compiled: HashMap<String, (String, LoadedBackend)>,
 }
 
-fn cache() -> &'static Mutex<Cache> {
-    static CACHE: OnceLock<Mutex<Cache>> = OnceLock::new();
-    CACHE.get_or_init(|| {
-        Mutex::new(Cache {
-            checked_at: None,
-            compiled: HashMap::new(),
-        })
-    })
+#[derive(Default)]
+struct RegistryState {
+    cache: Mutex<Cache>,
+    verified_at: RwLock<Option<Instant>>,
+    published: RwLock<Arc<Snapshot>>,
+    refreshing: OnceLock<()>,
 }
 
-fn verified_at() -> &'static RwLock<Option<Instant>> {
-    static VERIFIED_AT: OnceLock<RwLock<Option<Instant>>> = OnceLock::new();
-    VERIFIED_AT.get_or_init(|| RwLock::new(None))
-}
+static REGISTRY: TenantLocal<RegistryState> = TenantLocal::new(RegistryState::default);
 
 fn mark_verified(at: Option<Instant>) {
-    if let Ok(mut verified) = verified_at().write() {
+    if let Some(state) = REGISTRY.get()
+        && let Ok(mut verified) = state.verified_at.write()
+    {
         *verified = at;
     }
 }
 
 pub fn has_event_consumers(event_type: &str) -> Option<bool> {
-    let fresh = verified_at()
+    let state = REGISTRY.get()?;
+    let fresh = state
+        .verified_at
         .read()
         .ok()
         .and_then(|verified| *verified)
         .is_some_and(|verified| verified.elapsed() < CHECK_INTERVAL);
     let snapshot = cached();
     (fresh && snapshot.version.is_some()).then(|| !snapshot.event_consumers(event_type).is_empty())
-}
-
-fn published() -> &'static RwLock<Arc<Snapshot>> {
-    static PUBLISHED: OnceLock<RwLock<Arc<Snapshot>>> = OnceLock::new();
-    PUBLISHED.get_or_init(|| RwLock::new(Arc::new(Snapshot::default())))
 }
 
 #[derive(serde::Serialize, utoipa::ToSchema)]
@@ -193,16 +189,18 @@ pub fn readiness() -> CatalogReadiness {
 }
 
 pub fn cached() -> Arc<Snapshot> {
-    published()
-        .read()
-        .map(|snapshot| snapshot.clone())
+    REGISTRY
+        .get()
+        .and_then(|state| state.published.read().ok().map(|snapshot| snapshot.clone()))
         .unwrap_or_default()
 }
 
 pub async fn invalidate() {
     aphel_sdk::platform::application::access::invalidate_access_catalog();
     mark_verified(None);
-    cache().lock().await.checked_at = None;
+    if let Some(state) = REGISTRY.get() {
+        state.cache.lock().await.checked_at = None;
+    }
 }
 
 pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
@@ -216,11 +214,12 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
 }
 
 async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
+    let state = REGISTRY.try_get()?;
     let available = cached();
-    let mut cache = match cache().try_lock() {
+    let mut cache = match state.cache.try_lock() {
         Ok(cache) => cache,
         Err(_) if available.version.is_some() => return Ok(available),
-        Err(_) => cache().lock().await,
+        Err(_) => state.cache.lock().await,
     };
     let snapshot = cached();
     if snapshot.version.is_some()
@@ -299,7 +298,7 @@ async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
         plugins,
     });
     publish_extensions(&snapshot);
-    if let Ok(mut published) = published().write() {
+    if let Ok(mut published) = state.published.write() {
         *published = snapshot.clone();
     }
     mark_verified(Some(verified));
@@ -406,11 +405,13 @@ pub fn spawn_refresh(pool: MySqlPool) {
     if tokio::runtime::Handle::try_current().is_err() {
         return;
     }
-    static STARTED: OnceLock<()> = OnceLock::new();
-    if STARTED.set(()).is_err() {
+    let Some(state) = REGISTRY.get() else {
+        return;
+    };
+    if state.refreshing.set(()).is_err() {
         return;
     }
-    tokio::spawn(async move {
+    aphel_sdk::platform::tenancy::spawn(async move {
         loop {
             if let Err(error) = current(&pool).await {
                 tracing::warn!(error = %error, "could not refresh the installed plugins");

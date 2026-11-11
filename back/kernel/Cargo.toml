@@ -34,6 +34,7 @@ sha2.workspace = true
 getrandom.workspace = true
 bytes.workspace = true
 futures.workspace = true
+http-body.workspace = true
 object_store.workspace = true
 cron.workspace = true
 infer.workspace = true

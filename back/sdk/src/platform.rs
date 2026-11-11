@@ -13,6 +13,10 @@ pub mod application {
     };
 }
 
+pub mod tenancy {
+    pub use aphel_kernel::tenancy::{TenantLocal, spawn};
+}
+
 pub mod database {
     pub use aphel_kernel::database::{receipt, transaction};
 }

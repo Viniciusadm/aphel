@@ -93,7 +93,7 @@ pub fn spawn_heartbeat(
     shutdown: Shutdown,
 ) -> JoinHandle<()> {
     let recorder = HeartbeatRecorder::new(pool, instance_id, WORKER_ROLE);
-    tokio::spawn(recorder.run(interval, shutdown))
+    crate::tenancy::spawn(recorder.run(interval, shutdown))
 }
 
 pub fn hostname() -> Option<String> {

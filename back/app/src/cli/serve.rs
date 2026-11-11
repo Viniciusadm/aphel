@@ -10,7 +10,7 @@ use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::organization_profile::PublicBaseUrl;
-use aphel_kernel::config::AppConfig;
+use aphel_kernel::config::{AppConfig, MultiTenancyConfig, Tenancy};
 use aphel_kernel::database;
 use aphel_kernel::infrastructure::custom_objects::{
     MySqlCustomSchemaSource, sync_custom_object_fields,
@@ -26,9 +26,75 @@ use aphel_kernel::infrastructure::platform::SharedSecretVault;
 use aphel_kernel::infrastructure::secrets::{EncryptionKeyring, build_secret_vault};
 use aphel_kernel::infrastructure::storage::DynamicFileStorage;
 use aphel_kernel::modules::WorkerEnv;
+use aphel_kernel::tenancy::{self, ControlPlane, TenantDirectory, TenantRuntimes};
 use aphel_kernel::worker::WorkerRuntime;
 
 pub(crate) async fn run(config: AppConfig, args: ServeArgs) -> CliResult {
+    match config.tenancy()? {
+        Tenancy::Single => run_single(config, args).await,
+        Tenancy::Multi(tenancy) => run_multi(config, tenancy, args).await,
+    }
+}
+
+async fn run_multi(config: AppConfig, tenancy: MultiTenancyConfig, args: ServeArgs) -> CliResult {
+    tenancy::ensure_multi_tenant_ready()?;
+    let control = ControlPlane::connect(&tenancy).await?;
+    if config.run_migrations {
+        info!("running control database migrations");
+        control.migrate().await?;
+    }
+    let directory = TenantDirectory::load(control.pool().clone()).await?;
+    let runtimes = TenantRuntimes::new(control.clone(), config.clone());
+    let refresher = tenancy::spawn_directory_refresh(directory.clone(), runtimes.clone());
+    let app = tenancy::router(directory, runtimes.clone(), tenancy.console_host.as_deref());
+    let (trigger, shutdown) = shutdown_channel();
+    let worker = args.with_worker.then(|| {
+        tokio::spawn(tenancy::run_workers(
+            control.clone(),
+            config.clone(),
+            shutdown,
+        ))
+    });
+    let listener = TcpListener::bind(config.http_addr()).await?;
+
+    info!(
+        "backend listening on {} for {} companies",
+        config.http_addr(),
+        directory_size(&control).await
+    );
+    let served = axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .with_graceful_shutdown(async move {
+        termination_signal().await;
+        info!("shutdown requested");
+    })
+    .await;
+
+    trigger.trigger();
+    if let Some(worker) = worker {
+        match worker.await {
+            Ok(Ok(())) => {}
+            Ok(Err(failure)) => error!("tenant workers stopped with an error: {failure}"),
+            Err(join_error) => error!("tenant workers stopped unexpectedly: {join_error}"),
+        }
+    }
+    refresher.abort();
+    runtimes.clear();
+    control.close().await;
+    served?;
+    Ok(())
+}
+
+async fn directory_size(control: &ControlPlane) -> i64 {
+    sqlx::query_scalar("SELECT COUNT(*) FROM tenants WHERE status = 'active'")
+        .fetch_one(control.pool())
+        .await
+        .unwrap_or_default()
+}
+
+async fn run_single(config: AppConfig, args: ServeArgs) -> CliResult {
     let db = if let Some(database_url) = &config.database_url {
         let pool = database::pool::connect(database_url).await?;
         if config.run_migrations {

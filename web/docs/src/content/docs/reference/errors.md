@@ -78,7 +78,7 @@ These apply to every route.
 
 ## Error codes by area
 
-The tables below list every code that the platform and the built-in modules define: 533 codes. A code can be returned with more than one status when it is raised in different situations; all statuses are listed. Runtime plugins can also raise errors with codes of their own; those are not listed here. Messages shown here are summaries; the exact text in a response can carry more detail, such as the name of a field or a limit.
+The tables below list every code that the platform and the built-in modules define: 536 codes. A code can be returned with more than one status when it is raised in different situations; all statuses are listed. Runtime plugins can also raise errors with codes of their own; those are not listed here. Messages shown here are summaries; the exact text in a response can carry more detail, such as the name of a field or a limit.
 
 ### Platform
 
@@ -90,6 +90,7 @@ The tables below list every code that the platform and the built-in modules defi
 | `api_token_not_found` | 404 | API token was not found. |
 | `attachment_not_found` | 404 | Attachment was not found. |
 | `concurrent_modification` | 409 | The record was changed by another request; retry. |
+| `console_unavailable` | 503 | The operator console is not available in this build yet (multi-tenant installations only). |
 | `contract_unavailable` | 503 | No enabled module provides the operation or contract that was called. |
 | `csrf_header_missing` | 403 | Requests that change data must send the X-Requested-With: aphel header. |
 | `current_session_not_revocable` | 422 | The current session is ended by signing out. |
@@ -177,6 +178,8 @@ The tables below list every code that the platform and the built-in modules defi
 | `team_cycle` | 422 | A team cannot be placed under itself or one of its sub-teams. |
 | `team_not_found` | 404 | Team was not found. |
 | `too_many_api_tokens` | 422 | The user already has the maximum number of active API tokens (50). |
+| `tenant_not_found` | 404 | No tenant is served at the requested host (multi-tenant installations only). |
+| `tenant_unavailable` | 503 | The tenant at the requested host is suspended, being provisioned or being deleted, or could not be started. |
 | `too_many_fields` | 422 | The record type reached the maximum number of custom fields. |
 | `two_factor_already_enabled` | 409 | Two-factor authentication is already enabled. |
 | `two_factor_attempts_exceeded` | 401 | Too many wrong codes; the partial session was revoked and the user must sign in again. |

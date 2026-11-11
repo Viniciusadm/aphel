@@ -6,7 +6,7 @@ use crate::cli::CliResult;
 use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::organization_profile::PublicBaseUrl;
-use aphel_kernel::config::AppConfig;
+use aphel_kernel::config::{AppConfig, MultiTenancyConfig, Tenancy};
 use aphel_kernel::database;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::custom_objects::{
@@ -21,9 +21,13 @@ use aphel_kernel::infrastructure::organization_profile::{
 use aphel_kernel::infrastructure::secrets::build_secret_vault;
 use aphel_kernel::infrastructure::storage::DynamicFileStorage;
 use aphel_kernel::modules::WorkerEnv;
+use aphel_kernel::tenancy::{self, ControlPlane};
 use aphel_kernel::worker::WorkerRuntime;
 
 pub(crate) async fn run(config: AppConfig) -> CliResult {
+    if let Tenancy::Multi(tenancy) = config.tenancy()? {
+        return run_multi(config, tenancy).await;
+    }
     let database_url = config
         .database_url
         .as_deref()
@@ -73,6 +77,26 @@ pub(crate) async fn run(config: AppConfig) -> CliResult {
     refresher.abort();
     signal.abort();
     pool.close().await;
+    result?;
+    Ok(())
+}
+
+async fn run_multi(config: AppConfig, multi: MultiTenancyConfig) -> CliResult {
+    tenancy::ensure_multi_tenant_ready()?;
+    let control = ControlPlane::connect(&multi).await?;
+    if config.run_migrations {
+        info!("running control database migrations");
+        control.migrate().await?;
+    }
+    let (trigger, shutdown) = shutdown_channel();
+    let signal = tokio::spawn(async move {
+        termination_signal().await;
+        info!("shutdown requested; waiting for running jobs to finish");
+        trigger.trigger();
+    });
+    let result = tenancy::run_workers(control.clone(), config, shutdown).await;
+    signal.abort();
+    control.close().await;
     result?;
     Ok(())
 }

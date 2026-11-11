@@ -12,12 +12,13 @@ use aphel_kernel::domain::Secret;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
 use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
+use aphel_sdk::platform::tenancy::TenantLocal;
 
 pub const VAPID_OWNER_TYPE: &str = "web_push";
 pub const VAPID_OWNER_ID: &str = "vapid";
 pub const VAPID_PRIVATE_KEY_NAME: &str = "private_key_pkcs8";
 
-static VAPID_KEY_PAIR: OnceCell<Arc<VapidKeyPair>> = OnceCell::const_new();
+static VAPID_KEY_PAIR: TenantLocal<OnceCell<Arc<VapidKeyPair>>> = TenantLocal::new(OnceCell::new);
 
 pub struct VapidKeyPair {
     pair: EcdsaKeyPair,
@@ -94,6 +95,7 @@ impl VaultVapidKeys {
 
     pub async fn key_pair(&self) -> Result<Arc<VapidKeyPair>, AppError> {
         VAPID_KEY_PAIR
+            .try_get()?
             .get_or_try_init(|| load_or_create(&self.secrets))
             .await
             .cloned()

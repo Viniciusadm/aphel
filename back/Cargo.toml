@@ -76,6 +76,7 @@ sha2 = "0.11"
 getrandom = "0.4"
 bytes = "1"
 futures = "0.3"
+http-body = "1"
 object_store = { version = "0.14", features = ["aws"] }
 cron = "0.17"
 infer = "0.22"

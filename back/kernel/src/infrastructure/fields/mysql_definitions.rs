@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{LazyLock, Mutex, RwLock};
+use std::sync::{Mutex, RwLock};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -23,14 +23,20 @@ use crate::domain::fields::{FieldDefinition, FieldKey, FieldOption, resolve_decl
 use crate::errors::AppError;
 use crate::infrastructure::fields::permissions::scope_access_rules;
 use crate::infrastructure::repositories::mapper;
+use crate::tenancy::TenantLocal;
 
 const DEFINITION_CACHE_TTL: Duration = Duration::from_secs(2);
 
 type DefinitionCache = HashMap<String, (Instant, Vec<FieldDefinition>)>;
 
-static DEFINITIONS: LazyLock<RwLock<DefinitionCache>> = LazyLock::new(RwLock::default);
-static DEFINITIONS_GENERATION: AtomicU64 = AtomicU64::new(0);
-static REFRESHING: LazyLock<Mutex<HashSet<String>>> = LazyLock::new(Mutex::default);
+#[derive(Default)]
+struct DefinitionState {
+    cache: RwLock<DefinitionCache>,
+    generation: AtomicU64,
+    refreshing: Mutex<HashSet<String>>,
+}
+
+static DEFINITIONS: TenantLocal<DefinitionState> = TenantLocal::new(DefinitionState::default);
 
 enum CachedDefinitions {
     Fresh(Vec<FieldDefinition>),
@@ -39,7 +45,10 @@ enum CachedDefinitions {
 }
 
 fn cached_definitions(record_type: &RecordType) -> CachedDefinitions {
-    let Ok(cache) = DEFINITIONS.read() else {
+    let Some(state) = DEFINITIONS.get() else {
+        return CachedDefinitions::Missing;
+    };
+    let Ok(cache) = state.cache.read() else {
         return CachedDefinitions::Missing;
     };
     match cache.get(record_type.as_str()) {
@@ -52,10 +61,13 @@ fn cached_definitions(record_type: &RecordType) -> CachedDefinitions {
 }
 
 fn store_definitions(record_type: &RecordType, definitions: &[FieldDefinition], generation: u64) {
-    if DEFINITIONS_GENERATION.load(Ordering::SeqCst) != generation {
+    let Some(state) = DEFINITIONS.get() else {
+        return;
+    };
+    if state.generation.load(Ordering::SeqCst) != generation {
         return;
     }
-    if let Ok(mut cache) = DEFINITIONS.write() {
+    if let Ok(mut cache) = state.cache.write() {
         cache.insert(
             record_type.as_str().to_owned(),
             (Instant::now(), definitions.to_vec()),
@@ -64,8 +76,11 @@ fn store_definitions(record_type: &RecordType, definitions: &[FieldDefinition], 
 }
 
 pub fn invalidate_definitions() {
-    DEFINITIONS_GENERATION.fetch_add(1, Ordering::SeqCst);
-    if let Ok(mut cache) = DEFINITIONS.write() {
+    let Some(state) = DEFINITIONS.get() else {
+        return;
+    };
+    state.generation.fetch_add(1, Ordering::SeqCst);
+    if let Ok(mut cache) = state.cache.write() {
         cache.clear();
     }
 }
@@ -74,7 +89,8 @@ struct RefreshClaim(String);
 
 impl RefreshClaim {
     fn claim(record_type: &RecordType) -> Option<Self> {
-        let mut refreshing = REFRESHING.lock().ok()?;
+        let state = DEFINITIONS.get()?;
+        let mut refreshing = state.refreshing.lock().ok()?;
         refreshing
             .insert(record_type.as_str().to_owned())
             .then(|| Self(record_type.as_str().to_owned()))
@@ -83,7 +99,9 @@ impl RefreshClaim {
 
 impl Drop for RefreshClaim {
     fn drop(&mut self) {
-        if let Ok(mut refreshing) = REFRESHING.lock() {
+        if let Some(state) = DEFINITIONS.get()
+            && let Ok(mut refreshing) = state.refreshing.lock()
+        {
             refreshing.remove(&self.0);
         }
     }
@@ -288,7 +306,9 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
             },
             CachedDefinitions::Missing => None,
         };
-        let generation = DEFINITIONS_GENERATION.load(Ordering::SeqCst);
+        let generation = DEFINITIONS
+            .get()
+            .map_or(u64::MAX, |state| state.generation.load(Ordering::SeqCst));
         let definitions = self.load(record_type).await?;
         store_definitions(record_type, &definitions, generation);
         Ok(definitions)

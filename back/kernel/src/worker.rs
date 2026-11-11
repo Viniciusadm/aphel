@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use chrono::Utc;
 use sqlx::MySqlPool;
+use tokio::sync::Semaphore;
 
 use crate::application::custom_objects::RecordTypeCatalog;
 use crate::application::fields::RecordTypeRegistry;
@@ -29,6 +30,7 @@ pub struct WorkerRuntime {
     secrets: SharedSecretVault,
     record_types: Arc<RecordTypeCatalog>,
     schedule_gate: Option<ScheduleGate>,
+    slots: Option<Arc<Semaphore>>,
 }
 
 impl WorkerRuntime {
@@ -47,11 +49,14 @@ impl WorkerRuntime {
             secrets: Arc::new(UnavailableSecretVault),
             record_types,
             schedule_gate: None,
+            slots: None,
         }
     }
 
     pub fn from_app(app: &App, env: &WorkerEnv, config: &WorkerConfig) -> Self {
-        crate::state::install_runtime_state(env.runtime_state());
+        if !crate::tenancy::is_multi() {
+            crate::state::install_runtime_state(env.runtime_state());
+        }
         let mut parts = app.worker_parts(env);
         let mut runtime =
             Self::new(env.pool.clone(), config).with_secret_vault(env.secrets.clone());
@@ -86,6 +91,11 @@ impl WorkerRuntime {
         self.schedules
             .retain(|existing| existing.kind != schedule.kind);
         self.schedules.push(schedule);
+        self
+    }
+
+    pub fn with_shared_slots(mut self, slots: Arc<Semaphore>) -> Self {
+        self.slots = Some(slots);
         self
     }
 
@@ -134,7 +144,7 @@ impl WorkerRuntime {
         let scheduler_shutdown = shutdown.clone();
         let interval = self.scheduler_interval;
         let scheduler_task =
-            tokio::spawn(async move { scheduler.run(interval, scheduler_shutdown).await });
+            crate::tenancy::spawn(async move { scheduler.run(interval, scheduler_shutdown).await });
         let heartbeat_task = crate::infrastructure::system::spawn_heartbeat(
             self.pool.clone(),
             &self.settings.worker_id,
@@ -142,7 +152,10 @@ impl WorkerRuntime {
             shutdown.clone(),
         );
 
-        let result = worker.run(shutdown).await;
+        let result = match &self.slots {
+            Some(slots) => worker.run_shared(shutdown, slots.clone()).await,
+            None => worker.run(shutdown).await,
+        };
         if let Err(join_error) = scheduler_task.await {
             tracing::error!("job scheduler stopped unexpectedly: {join_error}");
         }

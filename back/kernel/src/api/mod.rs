@@ -26,6 +26,14 @@ use state::AppState;
 
 pub fn router(state: AppState) -> Router {
     crate::state::install_runtime_state(state.clone());
+    with_process_layers(tenant_router(state))
+}
+
+pub fn with_process_layers(router: Router) -> Router {
+    telemetry::apply(routes::health::track_responses(router))
+}
+
+pub fn tenant_router(state: AppState) -> Router {
     let (api_router, mut openapi) = openapi_router(&state).split_for_parts();
     let mounted: Router = Router::from(state.app.app_mount_router(&state))
         .fallback(web::serve_app_shell)
@@ -33,7 +41,7 @@ pub fn router(state: AppState) -> Router {
     docs::add_api_token_security(&mut openapi);
     idempotency::document(&mut openapi);
 
-    let app = api_router
+    api_router
         .layer(middleware::from_fn(payload_limit::envelope))
         .layer(middleware::from_fn_with_state(
             state.clone(),
@@ -53,9 +61,7 @@ pub fn router(state: AppState) -> Router {
             },
         )
         .with_state(state)
-        .layer(CorsLayer::permissive());
-
-    telemetry::apply(routes::health::track_responses(app))
+        .layer(CorsLayer::permissive())
 }
 
 pub fn openapi() -> utoipa::openapi::OpenApi {

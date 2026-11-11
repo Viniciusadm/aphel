@@ -76,14 +76,14 @@ impl ActiveTriggers {
     }
 
     fn refresh(self: &Arc<Self>, store: AutomationStore) {
-        let Ok(handle) = tokio::runtime::Handle::try_current() else {
+        if tokio::runtime::Handle::try_current().is_err() {
             return;
-        };
+        }
         if self.loading.swap(true, Ordering::SeqCst) {
             return;
         }
         let cache = self.clone();
-        handle.spawn(async move {
+        aphel_sdk::platform::tenancy::spawn(async move {
             let generation = cache.generation.load(Ordering::SeqCst);
             match store.active_trigger_pairs().await {
                 Ok(pairs) => {
