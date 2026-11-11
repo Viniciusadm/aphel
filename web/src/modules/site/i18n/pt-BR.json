@@ -35,7 +35,10 @@
     "taglineHint": "Aparece abaixo do nome da empresa no topo do site. Até 160 caracteres. O nome, o logo e a cor vêm de Configurações → Organização.",
     "taglinePlaceholder": "Ex.: Doces artesanais desde 1998",
     "save": "Salvar aparência",
-    "preview": "Pré-visualizar"
+    "preview": "Pré-visualizar",
+    "home": "Página inicial",
+    "homeHint": "Mais de um plugin oferece a página inicial do site. Escolha qual aparece no endereço principal.",
+    "homeDefault": "Automático ({{name}})"
   },
   "menu": {
     "title": "Menu",

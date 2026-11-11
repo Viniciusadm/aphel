@@ -1,9 +1,10 @@
 use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
-    ALWAYS_PUBLIC_FIELDS, ISLANDS_DIR, PageSource, PathPattern, SiteApiHandler, SiteApiRequest,
-    SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem, SiteMenuRecords, SitePage,
-    SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle, is_island_name,
+    ALWAYS_PUBLIC_FIELDS, HOME_PATH, ISLANDS_DIR, PageSource, PathPattern, SiteApiHandler,
+    SiteApiRequest, SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem,
+    SiteMenuRecords, SitePage, SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR,
+    check_bundle, is_island_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
@@ -203,6 +204,7 @@ fn bundle_of(
         .collect();
     let bundle = SiteBundle {
         owner: manifest.key.clone(),
+        name: Some(manifest.name.clone()),
         revision,
         pages,
         exposures,
@@ -310,6 +312,9 @@ pub(crate) fn validate_package(
                 SITE_ROUTE_CONFLICT,
                 format!("the site page {path} uses /{first}, reserved for public app pages"),
             ));
+        }
+        if shape == HOME_PATH {
+            continue;
         }
         if let Some(other) = others
             .iter()

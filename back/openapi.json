@@ -54141,7 +54141,7 @@
         "tags": [
           "site"
         ],
-        "description": "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
+        "description": "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address, and the plugins that offer a home page (`home_candidates`; the organization picks one in the `home` key of the `site` setting, otherwise the first one answers). Requires `settings.manage`.",
         "operationId": "site_overview",
         "responses": {
           "200": {
@@ -54345,6 +54345,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Data_Vec_SiteEmbedSourceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/languages": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Settings → Site, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
+        "operationId": "site_languages_list",
+        "responses": {
+          "200": {
+            "description": "Languages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_SiteLanguageResponse"
                 }
               }
             }
@@ -87144,7 +87194,8 @@
               "customers_required",
               "default_language",
               "available_languages",
-              "people_available"
+              "people_available",
+              "home_candidates"
             ],
             "properties": {
               "active_theme": {
@@ -87169,6 +87220,12 @@
               "default_language": {
                 "type": "string",
                 "example": "pt-BR"
+              },
+              "home_candidates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SiteHomeCandidateResponse"
+                }
               },
               "menu_items": {
                 "type": "array",
@@ -91461,6 +91518,43 @@
                   "items": {
                     "$ref": "#/components/schemas/SiteEmbedOptionResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_SiteLanguageResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code",
+                "prefix",
+                "field_suffix",
+                "default"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "example": "en"
+                },
+                "default": {
+                  "type": "boolean"
+                },
+                "field_suffix": {
+                  "type": "string",
+                  "example": "en"
+                },
+                "prefix": {
+                  "type": "string",
+                  "example": "/en"
                 }
               }
             }
@@ -118447,6 +118541,48 @@
           }
         }
       },
+      "SiteHomeCandidateResponse": {
+        "type": "object",
+        "required": [
+          "owner",
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "example": "pages"
+          }
+        }
+      },
+      "SiteLanguageResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "prefix",
+          "field_suffix",
+          "default"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "en"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "field_suffix": {
+            "type": "string",
+            "example": "en"
+          },
+          "prefix": {
+            "type": "string",
+            "example": "/en"
+          }
+        }
+      },
       "SiteMenuItemResponse": {
         "type": "object",
         "required": [
@@ -118478,7 +118614,8 @@
           "customers_required",
           "default_language",
           "available_languages",
-          "people_available"
+          "people_available",
+          "home_candidates"
         ],
         "properties": {
           "active_theme": {
@@ -118503,6 +118640,12 @@
           "default_language": {
             "type": "string",
             "example": "pt-BR"
+          },
+          "home_candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteHomeCandidateResponse"
+            }
           },
           "menu_items": {
             "type": "array",

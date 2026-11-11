@@ -42,6 +42,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(purge_cache))
         .routes(routes!(list_embeds))
         .routes(routes!(list_collections))
+        .routes(routes!(list_languages))
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -74,6 +75,14 @@ pub(crate) struct SiteOverviewResponse {
     pub default_language: String,
     pub available_languages: Vec<String>,
     pub people_available: bool,
+    pub home_candidates: Vec<SiteHomeCandidateResponse>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteHomeCandidateResponse {
+    #[schema(example = "pages")]
+    pub owner: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -157,6 +166,17 @@ pub(crate) struct SiteEmbedSourceResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteLanguageResponse {
+    #[schema(example = "en")]
+    pub code: String,
+    #[schema(example = "/en")]
+    pub prefix: String,
+    #[schema(example = "en")]
+    pub field_suffix: String,
+    pub default: bool,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SiteCollectionResponse {
     #[schema(example = "blog")]
     pub owner: String,
@@ -183,7 +203,7 @@ fn require_manage(
     path = "/site",
     tag = TAG,
     operation_id = "site_overview",
-    description = "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`.",
+    description = "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address, and the plugins that offer a home page (`home_candidates`; the organization picks one in the `home` key of the `site` setting, otherwise the first one answers). Requires `settings.manage`.",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Site overview", body = Data<SiteOverviewResponse>),
@@ -244,6 +264,11 @@ async fn overview(
             .map(|language| (*language).to_owned())
             .collect(),
         people_available: state.app.is_enabled(aphel_sdk::people::KEY),
+        home_candidates: runtime
+            .home_candidates()
+            .into_iter()
+            .map(|(owner, name)| SiteHomeCandidateResponse { owner, name })
+            .collect(),
     })))
 }
 
@@ -839,4 +864,49 @@ async fn list_collections(
         })
         .collect();
     Ok(Json(Data::new(collections)))
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/languages",
+    tag = TAG,
+    operation_id = "site_languages_list",
+    description = "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Settings → Site, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Languages", body = Data<Vec<SiteLanguageResponse>>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+    )
+)]
+async fn list_languages(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<Vec<SiteLanguageResponse>>>, ApiError> {
+    use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
+    let default_language = aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(state.db()?)
+        .find()
+        .await?
+        .map(|organization| organization.locale)
+        .unwrap_or_default();
+    let settings = site_settings(&state.organization_config.snapshot());
+    let languages = std::iter::once(SiteLanguageResponse {
+        prefix: String::new(),
+        field_suffix: crate::settings::field_suffix(&default_language),
+        code: default_language.clone(),
+        default: true,
+    })
+    .chain(
+        settings
+            .languages
+            .iter()
+            .filter(|code| !code.eq_ignore_ascii_case(&default_language))
+            .map(|code| SiteLanguageResponse {
+                prefix: format!("/{}", crate::settings::language_slug(code)),
+                field_suffix: crate::settings::field_suffix(code),
+                code: code.clone(),
+                default: false,
+            }),
+    )
+    .collect();
+    Ok(Json(Data::new(languages)))
 }

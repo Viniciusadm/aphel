@@ -9,6 +9,7 @@ const SETTINGS_KEY: &str = "site";
 const MAX_TAGLINE_CHARS: usize = 160;
 const MAX_MENU_ENTRIES: usize = 100;
 const MAX_LANGUAGES: usize = 5;
+const MAX_HOME_KEY_CHARS: usize = 64;
 pub(crate) const SITE_LANGUAGES: &[&str] = &["pt-BR", "en", "es", "fr", "de", "it"];
 
 pub(crate) fn language_slug(language: &str) -> String {
@@ -31,6 +32,7 @@ pub(crate) struct SiteSettings {
     pub link_people: bool,
     pub people_owner: Option<String>,
     pub links: Vec<SiteLink>,
+    pub home: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -90,6 +92,7 @@ impl Default for SiteSettings {
             link_people: false,
             people_owner: None,
             links: Vec::new(),
+            home: None,
         }
     }
 }
@@ -160,6 +163,18 @@ impl OrganizationConfigExtension for SiteConfiguration {
                 format!(
                     "must have at most {MAX_LINKS} links with a unique id, a label of up to {MAX_LINK_LABEL_CHARS} characters and a site path (/page) or an address starting with https://"
                 ),
+            ));
+        }
+        if settings.home.as_deref().is_some_and(|home| {
+            home.is_empty()
+                || home.len() > MAX_HOME_KEY_CHARS
+                || !home.chars().all(|character| {
+                    character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
+                })
+        }) {
+            violations.push(FieldViolation::new(
+                "site.home",
+                "must be the key of a plugin that serves the home page",
             ));
         }
         if settings.menu.len() > MAX_MENU_ENTRIES {

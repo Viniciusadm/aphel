@@ -23,6 +23,12 @@ export interface SiteOverview {
   default_language: string
   available_languages: string[]
   people_available: boolean
+  home_candidates: SiteHomeCandidate[]
+}
+
+export interface SiteHomeCandidate {
+  owner: string
+  name: string
 }
 
 export interface SiteCustomer {

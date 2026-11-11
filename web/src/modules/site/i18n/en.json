@@ -35,7 +35,10 @@
     "taglineHint": "Shown below the company name at the top of the site. Up to 160 characters. Name, logo and color come from Settings → Organization.",
     "taglinePlaceholder": "E.g.: Handmade sweets since 1998",
     "save": "Save appearance",
-    "preview": "Preview"
+    "preview": "Preview",
+    "home": "Home page",
+    "homeHint": "More than one plugin offers the site home page. Choose which one shows at the main address.",
+    "homeDefault": "Automatic ({{name}})"
   },
   "menu": {
     "title": "Menu",

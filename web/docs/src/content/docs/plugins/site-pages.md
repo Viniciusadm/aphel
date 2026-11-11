@@ -67,7 +67,7 @@ title = "{{ record.title }}"
 
 A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs exactly one of `match`, `where` or `list`.
 
-Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
+Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. The home page `/` is the exception: several plugins may declare it, and the organization picks the one that answers in Settings → Site (the `home` key of the `site` setting, listed as `home_candidates` by `GET /api/v1/site`); without a choice the first plugin in alphabetical order answers. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
 
 ## Write the templates
 
@@ -296,7 +296,7 @@ For each request in an extra language:
 - Menu and *My account* labels come from `labels`.
 - Theme texts and account pages are in Portuguese for `pt*` languages and in English for the others.
 
-`aphel/head.html` writes `<link rel="alternate" hreflang>` for every language plus `x-default`, and `site.alternates` lists `{ code, url, path, current }` for a language switcher (the built-in theme shows one in the header). The sitemap lists every page in every language. Values used in `match` (a slug) are shared by all languages.
+Editors learn the active languages, their address prefixes and field suffixes from `GET /api/v1/site/languages` (any signed-in user). A draft preview (see [Drafts](#drafts)) also swaps `<field>_<code>` from `<source>_<code>`, so `path = "/en/about"` previews the English draft. `aphel/head.html` writes `<link rel="alternate" hreflang>` for every language plus `x-default`, and `site.alternates` lists `{ code, url, path, current }` for a language switcher (the built-in theme shows one in the header). The sitemap lists every page in every language. Values used in `match` (a slug) are shared by all languages.
 
 ## Search engines
 

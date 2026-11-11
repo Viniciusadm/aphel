@@ -7169,7 +7169,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address. Requires `settings.manage`. */
+        /** @description What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address, and the plugins that offer a home page (`home_candidates`; the organization picks one in the `home` key of the `site` setting, otherwise the first one answers). Requires `settings.manage`. */
         get: operations["site_overview"];
         put?: never;
         post?: never;
@@ -7222,6 +7222,23 @@ export interface paths {
         };
         /** @description What site pages can embed with the template function `embed(kind, key)`: for each kind contributed by an enabled module (such as `form` or `booking`), the active items with their key and label. Only things that are already public are listed. Any signed-in user. */
         get: operations["site_embeds_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/languages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Settings → Site, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user. */
+        get: operations["site_languages_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -14124,6 +14141,7 @@ export interface components {
                 customers_required: boolean;
                 /** @example pt-BR */
                 default_language: string;
+                home_candidates: components["schemas"]["SiteHomeCandidateResponse"][];
                 menu_items: components["schemas"]["SiteMenuItemResponse"][];
                 pages: number;
                 people_available: boolean;
@@ -15248,6 +15266,17 @@ export interface components {
                 /** @example form */
                 kind: string;
                 options: components["schemas"]["SiteEmbedOptionResponse"][];
+            }[];
+        };
+        Data_Vec_SiteLanguageResponse: {
+            data: {
+                /** @example en */
+                code: string;
+                default: boolean;
+                /** @example en */
+                field_suffix: string;
+                /** @example /en */
+                prefix: string;
             }[];
         };
         Data_Vec_SitePathRedirectResponse: {
@@ -22189,6 +22218,20 @@ export interface components {
             kind: string;
             options: components["schemas"]["SiteEmbedOptionResponse"][];
         };
+        SiteHomeCandidateResponse: {
+            name: string;
+            /** @example pages */
+            owner: string;
+        };
+        SiteLanguageResponse: {
+            /** @example en */
+            code: string;
+            default: boolean;
+            /** @example en */
+            field_suffix: string;
+            /** @example /en */
+            prefix: string;
+        };
         SiteMenuItemResponse: {
             /** @example blog.index */
             id: string;
@@ -22204,6 +22247,7 @@ export interface components {
             customers_required: boolean;
             /** @example pt-BR */
             default_language: string;
+            home_candidates: components["schemas"]["SiteHomeCandidateResponse"][];
             menu_items: components["schemas"]["SiteMenuItemResponse"][];
             pages: number;
             people_available: boolean;
@@ -61479,6 +61523,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Data_Vec_SiteEmbedSourceResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_languages_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Languages */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_SiteLanguageResponse"];
                 };
             };
             /** @description Missing or invalid session */

@@ -59,6 +59,7 @@ const DEFAULT_SETTINGS: SiteModuleSettings = {
   link_people: false,
   people_owner: null,
   links: [],
+  home: null,
 }
 
 const LINK_PREFIX = 'link.'
@@ -104,7 +105,7 @@ export function SiteSettingsPage() {
         <div className="grid max-w-3xl gap-6">
           <SiteSummary overview={overview.data} />
           <AddressCard configuration={configuration.data} />
-          <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
+          <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.home, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
           <MenuCard key={overview.data.menu_items.map((item) => item.id).join()} configuration={configuration.data} overview={overview.data} />
           <LanguagesCard configuration={configuration.data} overview={overview.data} />
           <CustomersCard configuration={configuration.data} overview={overview.data} />
@@ -291,6 +292,7 @@ function AddressCard({ configuration }: { configuration: OrganizationConfigurati
 
 const appearanceSchema = z.object({
   theme: z.string(),
+  home: z.string(),
   tagline: z.string().trim().max(TAGLINE_MAX, 'errors.tagline'),
 })
 
@@ -309,7 +311,7 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
     formState: { errors, isSubmitting, isDirty },
   } = useForm<AppearanceValues>({
     resolver: zodResolver(appearanceSchema),
-    defaultValues: { theme: settings.theme ?? '', tagline: settings.tagline ?? '' },
+    defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', tagline: settings.tagline ?? '' },
   })
   const theme = useWatch({ control, name: 'theme' })
   const [previewing, setPreviewing] = useState(false)
@@ -332,8 +334,8 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const saved = await saveSite({ theme: values.theme || null, tagline: values.tagline.trim() || null })
-      reset({ theme: saved.site?.theme ?? '', tagline: saved.site?.tagline ?? '' })
+      const saved = await saveSite({ theme: values.theme || null, home: values.home || null, tagline: values.tagline.trim() || null })
+      reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', tagline: saved.site?.tagline ?? '' })
       void invalidate()
       notifySuccess(t('saved'))
     } catch (error) {
@@ -369,6 +371,20 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
                 </div>
               )}
             </FormRow>
+            {overview.home_candidates.length > 1 && (
+              <FormRow id="site-home" label={t('appearance.home')} hint={t('appearance.homeHint')}>
+                {(describedBy) => (
+                  <NativeSelect id="site-home" className="min-w-48" aria-describedby={describedBy} {...register('home')}>
+                    <option value="">{t('appearance.homeDefault', { name: overview.home_candidates[0].name })}</option>
+                    {overview.home_candidates.map((candidate) => (
+                      <option key={candidate.owner} value={candidate.owner}>
+                        {candidate.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                )}
+              </FormRow>
+            )}
             <FormRow
               id="site-tagline"
               label={t('appearance.tagline')}

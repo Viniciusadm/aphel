@@ -61,6 +61,7 @@ export interface SiteSettings {
   menu: SiteMenuEntry[]
   languages: string[]
   links: SiteLink[]
+  home?: string | null
 }
 
 export interface OrganizationConfiguration {

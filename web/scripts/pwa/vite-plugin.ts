@@ -12,6 +12,8 @@ interface BundleEntry {
   fileName: string
   isEntry?: boolean
   imports?: string[]
+  code?: string
+  source?: string | Uint8Array
 }
 
 function precacheUrls(entries: BundleEntry[], base: string): string[] {
@@ -43,15 +45,14 @@ export function serviceWorkerPlugin(): Plugin {
     },
     generateBundle(_options, bundle) {
       const entries = Object.values(bundle) as BundleEntry[]
-      const version = createHash('sha256')
-        .update(
-          entries
-            .map((entry) => entry.fileName)
-            .sort()
-            .join('\n'),
-        )
-        .digest('hex')
-        .slice(0, 16)
+      const hash = createHash('sha256')
+      for (const entry of [...entries].sort((left, right) => left.fileName.localeCompare(right.fileName))) {
+        hash.update(entry.fileName)
+        hash.update('\0')
+        hash.update(entry.type === 'chunk' ? (entry.code ?? '') : (entry.source ?? ''))
+        hash.update('\0')
+      }
+      const version = hash.digest('hex').slice(0, 16)
       const source = readFileSync(TEMPLATE_PATH, 'utf8')
         .replace(VERSION_PLACEHOLDER, JSON.stringify(version))
         .replace(PRECACHE_PLACEHOLDER, JSON.stringify(precacheUrls(entries, base)))

@@ -340,7 +340,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if !readable_method(&parts.method) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
-    let found = runtime.find(&path);
+    let found = runtime.find(&path, settings.home.as_deref());
     let personal = customer.is_some() || previewing.is_some();
     let key = found
         .as_ref()

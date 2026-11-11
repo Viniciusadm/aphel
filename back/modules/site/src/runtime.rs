@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, LazyLock, RwLock};
 
 use aphel_contract_site::{
-    HEAD_PARTIAL, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle, SiteContentSource,
-    SiteCsp, SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND, check_bundle,
-    join_template_path, menu_item_id, template_name,
+    HEAD_PARTIAL, HOME_PATH, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle,
+    SiteContentSource, SiteCsp, SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND,
+    check_bundle, join_template_path, menu_item_id, template_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::App;
@@ -66,6 +66,8 @@ pub(crate) struct ThemeInfo {
 pub(crate) struct SiteRuntime {
     revision: String,
     pub routes: Vec<Route>,
+    home_alternatives: Vec<Route>,
+    names: BTreeMap<String, String>,
     exposures: BTreeMap<(String, String), SiteExposure>,
     pub environment: Environment<'static>,
     pub menu: Vec<MenuCandidate>,
@@ -132,10 +134,45 @@ impl SiteRuntime {
         )
     }
 
-    pub fn find(&self, path: &str) -> Option<(&Route, BTreeMap<String, String>)> {
+    pub fn find(
+        &self,
+        path: &str,
+        home: Option<&str>,
+    ) -> Option<(&Route, BTreeMap<String, String>)> {
+        self.effective_routes(home)
+            .into_iter()
+            .find_map(|route| route.pattern.matches(path).map(|params| (route, params)))
+    }
+
+    pub fn effective_routes(&self, home: Option<&str>) -> Vec<&Route> {
+        let chosen = home.and_then(|home| {
+            self.home_alternatives
+                .iter()
+                .find(|route| route.owner == home)
+        });
         self.routes
             .iter()
-            .find_map(|route| route.pattern.matches(path).map(|params| (route, params)))
+            .map(|route| match chosen {
+                Some(chosen) if route.pattern.shape() == HOME_PATH => chosen,
+                _ => route,
+            })
+            .collect()
+    }
+
+    pub fn home_candidates(&self) -> Vec<(String, String)> {
+        self.routes
+            .iter()
+            .filter(|route| route.pattern.shape() == HOME_PATH)
+            .chain(&self.home_alternatives)
+            .map(|route| {
+                let name = self
+                    .names
+                    .get(&route.owner)
+                    .cloned()
+                    .unwrap_or_else(|| route.owner.clone());
+                (route.owner.clone(), name)
+            })
+            .collect()
     }
 }
 
@@ -186,6 +223,8 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     let mut account_links = Vec::new();
     let mut islands: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut routes: Vec<Route> = Vec::new();
+    let mut home_alternatives: Vec<Route> = Vec::new();
+    let mut names = BTreeMap::new();
     let mut exposures = BTreeMap::new();
     let mut paths: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
     for bundle in bundles {
@@ -201,6 +240,9 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             ) {
                 tracing::warn!(owner = %bundle.owner, template = %template.name, %error, "skipping a site template");
             }
+        }
+        if let Some(name) = &bundle.name {
+            names.insert(bundle.owner.clone(), name.clone());
         }
         if !bundle.csp.is_empty() {
             csp.insert(bundle.owner.clone(), bundle.csp.clone());
@@ -268,6 +310,18 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             let Ok(pattern) = PathPattern::parse(&page.path) else {
                 continue;
             };
+            if pattern.shape() == HOME_PATH
+                && routes
+                    .iter()
+                    .any(|route| route.pattern.shape() == HOME_PATH)
+            {
+                home_alternatives.push(Route {
+                    owner: bundle.owner.clone(),
+                    page,
+                    pattern,
+                });
+                continue;
+            }
             if let Some(taken) = routes
                 .iter()
                 .find(|route| route.pattern.shape() == pattern.shape())
@@ -292,6 +346,8 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     SiteRuntime {
         revision,
         routes,
+        home_alternatives,
+        names,
         exposures,
         environment,
         menu,

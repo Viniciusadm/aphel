@@ -11,6 +11,7 @@ pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::Contr
 };
 
 pub const LAYOUT_TEMPLATE: &str = "layout.html";
+pub const HOME_PATH: &str = "/";
 pub const MAX_PER_PAGE: u64 = 50;
 pub const IMAGE_WIDTHS: &[u32] = &[320, 640, 960, 1280, 1920];
 pub const SITEMAP_PATH: &str = "/sitemap.xml";
@@ -42,6 +43,8 @@ const MAX_KEY_LENGTH: usize = 40;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SiteBundle {
     pub owner: String,
+    #[serde(default)]
+    pub name: Option<String>,
     pub revision: String,
     pub pages: Vec<SitePage>,
     pub exposures: Vec<SiteExposure>,
@@ -930,6 +933,7 @@ mod tests {
     fn bundle_with(templates: &[(&str, &str)]) -> SiteBundle {
         SiteBundle {
             owner: "blog".to_owned(),
+            name: None,
             revision: String::new(),
             pages: Vec::new(),
             exposures: Vec::new(),

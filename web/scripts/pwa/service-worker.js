@@ -16,7 +16,11 @@ const CSRF_VALUE = 'aphel'
 const SUBSCRIPTIONS_URL = '/api/v1/notifications/push/subscriptions'
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([SHELL_URL, ...PRECACHE_URLS])))
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll([SHELL_URL, ...PRECACHE_URLS].map((url) => new Request(url, { cache: 'reload' })))),
+  )
 })
 
 self.addEventListener('activate', (event) => {
