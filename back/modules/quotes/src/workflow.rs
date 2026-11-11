@@ -471,7 +471,7 @@ pub(crate) async fn apply_approval(ctx: &Ctx<'_>, event: &DomainEvent) -> Result
         return Ok(());
     }
     let moment = event.payload.get("moment").and_then(Value::as_str);
-    if moment.is_some_and(|moment| moment != ApprovalMoment::QuoteSend.as_str()) {
+    if moment.is_some_and(|moment| moment != ApprovalMoment::QUOTE_SEND.as_str()) {
         return Ok(());
     }
     let scope = AccessScope::system();
@@ -492,7 +492,7 @@ pub(crate) async fn apply_approval(ctx: &Ctx<'_>, event: &DomainEvent) -> Result
         .requests_for(&scope, record)
         .await?
         .into_iter()
-        .filter(|request| request.moment == ApprovalMoment::QuoteSend)
+        .filter(|request| request.moment == ApprovalMoment::QUOTE_SEND)
         .collect();
     let pending = requests
         .iter()

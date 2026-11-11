@@ -2,6 +2,7 @@ import { DialogForm } from '@/components/ui/dialog-form'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { momentKey } from '@/sdk'
 import { isApiError } from '@/api'
 import {
   Dialog,
@@ -12,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { FilterBuilder, NativeSelect, activeFields, emptyGroup, useCustomObjects, useFieldSchema, usePipelines } from '@/sdk'
-import {approvalsApi, usePolicyMutation, useQuoteRecordTypeAvailable} from '@/sdk'
+import {approvalsApi, useApprovalMoments, usePolicyMutation, useQuoteRecordTypeAvailable} from '@/sdk'
 import {CONDITION_KINDS, CORE_RECORD_TYPES, DEAL_RECORD_TYPE, MAX_DUE_HOURS, MIN_DUE_HOURS, QUOTE_RECORD_TYPE} from '@/sdk'
 import {approvalErrorKey} from '@/sdk'
 import { useRecordTypeLabel } from '../lib/labels'
@@ -99,7 +100,8 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
     return types
   }, [quoteAvailable.data, objects.data, draft.recordType])
 
-  const moments = availableMoments(draft.recordType)
+  const knownMoments = useApprovalMoments()
+  const moments = availableMoments(draft.recordType, knownMoments.data)
   const pipeline = workflow.data?.find((item) => item.id === draft.pipelineId)
   const lockable = schema.data ? activeFields(schema.data) : []
 
@@ -135,7 +137,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
   )
 
   const changeRecordType = (recordType: string) => {
-    const allowed = availableMoments(recordType)
+    const allowed = availableMoments(recordType, knownMoments.data)
     patch({
       recordType,
       moment: allowed.includes(draft.moment) ? draft.moment : 'on_demand',
@@ -265,7 +267,7 @@ function PolicyForm({ policy, pipelineOfStage, onOpenChange }: PolicyFormProps) 
           >
             {moments.map((moment) => (
               <option key={moment} value={moment}>
-                {t(`moments.${moment}`)}
+                {t(`moments.${momentKey(moment)}`, { defaultValue: moment })}
               </option>
             ))}
           </NativeSelect>

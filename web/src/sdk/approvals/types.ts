@@ -5,6 +5,7 @@ type Schemas = components['schemas']
 export type { RecordsPage as Page, PageMeta } from '@/sdk'
 
 export type ApprovalMoment = Schemas['ApprovalMoment']
+export type ApprovalMomentInfo = Schemas['ApprovalMomentResponse']
 export type ApprovalStatus = Schemas['ApprovalStatus']
 export type ApproverKind = Schemas['ApproverKind']
 export type ApprovalRule = Schemas['ApprovalRule']

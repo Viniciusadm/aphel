@@ -28,6 +28,7 @@ aphel-contract-notifications = { path = "contracts/notifications" }
 aphel-contract-email = { path = "contracts/email" }
 aphel-contract-pricing = { path = "contracts/pricing" }
 aphel-contract-approvals = { path = "contracts/approvals" }
+aphel-contract-publication = { path = "contracts/publication" }
 aphel-contract-webhooks = { path = "contracts/webhooks" }
 aphel-contract-imports = { path = "contracts/imports" }
 aphel-contract-automation = { path = "contracts/automation" }

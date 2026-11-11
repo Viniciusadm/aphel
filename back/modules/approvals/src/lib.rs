@@ -6,6 +6,7 @@ pub(crate) mod engine;
 pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
+pub(crate) mod moments;
 pub(crate) mod notifications;
 pub(crate) mod runtime;
 pub(crate) mod section;

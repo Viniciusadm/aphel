@@ -424,7 +424,7 @@ impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
                     violation.message,
                 ));
             }
-            if shape.moment == Some(ApprovalMoment::StageChange) {
+            if shape.moment == Some(ApprovalMoment::STAGE_CHANGE) {
                 let known = entry
                     .target_stage
                     .as_deref()
@@ -549,7 +549,7 @@ impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
                 continue;
             };
             let mut target_id = None;
-            if moment == ApprovalMoment::StageChange {
+            if moment == ApprovalMoment::STAGE_CHANGE {
                 let Some((pipeline_key, stage_key)) =
                     entry.target_stage.as_deref().and_then(split_stage)
                 else {
@@ -625,6 +625,7 @@ impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
                 record_type: entry.record_type.trim().to_owned(),
                 moment,
                 target_id,
+                version: current.as_ref().map_or(1, |current| current.version + 1),
                 condition,
                 locked_fields: entry
                     .locked_fields

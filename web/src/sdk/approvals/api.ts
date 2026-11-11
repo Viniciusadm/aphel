@@ -4,6 +4,7 @@ import { recordsApi } from '@/sdk'
 import { APPROVALS_PER_PAGE, PENDING_COUNT_REFETCH_MS, POLICIES_PER_PAGE, QUOTE_RECORD_TYPE } from './constants'
 import type {
   ApprovalBox,
+  ApprovalMomentInfo,
   ApprovalPendingCount,
   ApprovalPolicy,
   ApprovalPolicyRequest,
@@ -35,6 +36,7 @@ export const approvalsKeys = {
   request: (requestId: string) => [...approvalsKeys.requests(), 'detail', requestId] as const,
   pendingCount: () => [...approvalsKeys.requests(), 'pending-count'] as const,
   quoteAvailable: () => [...approvalsKeys.all, 'quote-available'] as const,
+  moments: () => [...approvalsKeys.all, 'moments'] as const,
 }
 
 function ifMatch(version?: string | null): HeadersInit | undefined {
@@ -42,6 +44,7 @@ function ifMatch(version?: string | null): HeadersInit | undefined {
 }
 
 export const approvalsApi = {
+  listMoments: () => api.get<ApprovalMomentInfo[]>('/v1/approval-moments'),
   listPolicies: () =>
     api.get<Page<ApprovalPolicy>>('/v1/approval-policies', {
       query: { per_page: POLICIES_PER_PAGE },
@@ -70,6 +73,10 @@ export const approvalsApi = {
   submit: (request: ApprovalSubmissionRequest) => api.post<ApprovalSubmission>('/v1/approval-requests', request),
   decide: (requestId: string, action: ApprovalDecisionAction, comment: string | null) =>
     api.post<ApprovalRequest>(`/v1/approval-requests/${id(requestId)}/${action}`, comment ? { comment } : {}),
+}
+
+export function useApprovalMoments() {
+  return useQuery({ queryKey: approvalsKeys.moments(), queryFn: approvalsApi.listMoments, staleTime: 5 * 60_000 })
 }
 
 export function useApprovalPolicies(enabled = true) {

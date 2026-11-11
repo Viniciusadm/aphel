@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { momentKey } from '@/sdk'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import type {ApprovalRequest} from '@/sdk'
 
@@ -9,7 +10,7 @@ export function RequestSummary({ request }: { request: ApprovalRequest }) {
     <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_minmax(0,1fr)]">
       <dt className="text-muted-foreground">{t('request.moment')}</dt>
       <dd>
-        {t(`moments.${request.moment}`)}
+        {t(`moments.${momentKey(request.moment)}`, { defaultValue: request.moment })}
         {request.target_name && ` · ${request.target_name}`}
       </dd>
       <dt className="text-muted-foreground">{t('request.requestedBy')}</dt>

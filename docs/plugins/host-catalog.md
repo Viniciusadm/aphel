@@ -44,7 +44,8 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `approvals.cancel` | approvals | write | yes | Cancel a pending request (needs a user actor): { id, comment? } |
 | `approvals.reject` | approvals | write | yes | Reject a request as an approver of its current step (needs a user actor): { id, comment } |
 | `approvals.requests` | approvals | read | — | Approval requests of a record the actor can read: { record_type, record_id, status?, page?, per_page? } -> { data, total } |
-| `approvals.submit` | approvals | write | yes | Ask for the approvals a record needs at a moment (needs edit access): { record_type, record_id, moment: on_demand\|stage_change\|quote_send, target_id?, comment?, policy_key? } -> { outcome, requests } |
+| `approvals.revoke` | approvals | write | yes | Revoke an approval that was not used yet (needs approvals.manage and a user actor): { id, comment? } |
+| `approvals.submit` | approvals | write | yes | Ask for the approvals a record needs at a moment (needs edit access): { record_type, record_id, moment: on_demand, stage_change, quote_send or a contributed moment, target_id?, comment?, policy_key? } -> { outcome, requests } |
 | `assignment.assign` | assignment | write | yes | Pick the next owner of a record with a lead distribution rule and set its owner_id (needs update access to the record): { record_type, record_id, rule? (rule id; optional when exactly one active rule distributes the type), idempotency_key? } -> { rule_id, user_id, user_name, selection, route_index, reused, skipped } |
 | `booking.bookings` | booking | read | — | Meeting bookings of the hosts within the actor's booking.manage scope: { status?: confirmed\|canceled, meeting_type_id?, upcoming?, page?, per_page? } -> { data, total } |
 | `booking.cancel` | booking | write | yes | Cancel a booking as the host (the guest receives the cancellation): { id, reason? } |
@@ -87,6 +88,15 @@ Writing operations are refused inside hooks (409 `plugin_write_in_hook`). Each o
 | `pricing.list` | pricing | read | — | Price lists, the default of each currency first: { currency?, active?, search?, page?, per_page? } -> { data, total } |
 | `pricing.resolve` | pricing | read | — | Unit price of a product from a price list (quantity tiers applied): { product_id, price_list_id? , currency? (required without price_list_id; picks the list for the company or the currency default), company_id?, quantity? (default 1), on? (YYYY-MM-DD, default today) } -> { price_list: { id, name, currency } \| null, unit_price (string) \| null, currency, quantity, on } |
 | `proposals.generate` | proposals | write | yes | Generate a PDF proposal for a deal and attach it (needs proposals.generate and edit access to the deal; the default active template when none is given): { deal_id, template_id?, template_key?, quote_id? } |
+| `publication.cancel` | publication | write | yes | Cancel an open publication request: { id } -> request |
+| `publication.capture` | publication | write | yes | Capture the saved draft of a publishable record as a revision: { record_type, record_id, expected_version, note? } -> revision |
+| `publication.request` | publication | write | yes | Publish a revision now or at a time (UTC), subject to approval policies: { revision_id, at?, idempotency_key } -> request |
+| `publication.restore` | publication | write | yes | Copy a revision back into the draft fields: { revision_id, expected_version } -> record |
+| `publication.retry` | publication | write | yes | Retry a failed publication request: { id } -> request |
+| `publication.revision` | publication | read | — | One revision with its payload: { id } -> revision |
+| `publication.revisions` | publication | read | — | Revisions of a record without payloads: { record_type, record_id, page?, per_page? } -> { data, total } |
+| `publication.status` | publication | read | — | Publication status of a record: { record_type, record_id } -> status |
+| `publication.withdraw` | publication | write | yes | Withdraw the published revision of a record: { record_type, record_id, idempotency_key } -> request |
 | `quotes.accept` | quotes | write | yes | Record the acceptance of a quote on behalf of the customer: { id, name?, email?, note? } |
 | `quotes.new_version` | quotes | write | yes | Create a new version of the current quote: { id } |
 | `quotes.send` | quotes | write | yes | Queue the quote link e-mail to the customer: { id, to?: [{ address, name? }], cc?: [{ address, name? }], subject?, body_html?, mailbox_id? } |

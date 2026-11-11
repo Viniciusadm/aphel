@@ -11,10 +11,18 @@ pub struct ApprovalCheckpoint {
 }
 
 impl ApprovalCheckpoint {
+    pub fn new(record: RecordRef, moment: ApprovalMoment, target_id: Option<Uuid>) -> Self {
+        Self {
+            record,
+            moment,
+            target_id,
+        }
+    }
+
     pub fn stage_change(record: RecordRef, stage_id: Uuid) -> Self {
         Self {
             record,
-            moment: ApprovalMoment::StageChange,
+            moment: ApprovalMoment::STAGE_CHANGE,
             target_id: Some(stage_id),
         }
     }
@@ -22,7 +30,7 @@ impl ApprovalCheckpoint {
     pub fn quote_send(record: RecordRef) -> Self {
         Self {
             record,
-            moment: ApprovalMoment::QuoteSend,
+            moment: ApprovalMoment::QUOTE_SEND,
             target_id: None,
         }
     }
@@ -84,6 +92,13 @@ pub trait ApprovalGate: Send + Sync {
         ctx: &Ctx<'_>,
         record: &RecordRef,
     ) -> Result<Vec<ApprovalRequestSummary>, AppError>;
+
+    async fn retained_targets(
+        &self,
+        ctx: &Ctx<'_>,
+        record: &RecordRef,
+        moment: &ApprovalMoment,
+    ) -> Result<Vec<Uuid>, AppError>;
 }
 
 pub fn approval_gate(ctx: &Ctx<'_>) -> Option<std::sync::Arc<dyn ApprovalGate>> {

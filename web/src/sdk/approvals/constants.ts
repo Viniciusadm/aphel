@@ -74,3 +74,7 @@ export type ApprovalErrorCode = (typeof APPROVAL_ERROR_CODES)[number];
 export function approvalPath(id: string): string {
   return `${APPROVALS_PATH}/${encodeURIComponent(id)}`;
 }
+
+export function momentKey(moment: string): string {
+  return moment.replaceAll('.', '_')
+}

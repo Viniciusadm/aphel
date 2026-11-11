@@ -46,7 +46,8 @@
   "moments": {
     "stage_change": "Stage change",
     "quote_send": "Quote sending",
-    "on_demand": "On demand"
+    "on_demand": "On demand",
+    "publication_activate": "Publication"
   },
   "approverKinds": {
     "user": "User",
@@ -116,7 +117,8 @@
     "descriptions": {
       "stage_change": "Moving the deal to this stage requires approval. Send a request to the approvers; once approved, repeat the stage change.",
       "quote_send": "Sending this quote requires approval. Send a request to the approvers.",
-      "on_demand": "Send this record for approval according to the configured policies."
+      "on_demand": "Send this record for approval according to the configured policies.",
+      "publication_activate": "Publishing this version needs approval. The request goes to the approvers and the version is published once it is approved."
     },
     "comment": "Comment for the approvers (optional)",
     "commentPlaceholder": "Explain the context of the request",

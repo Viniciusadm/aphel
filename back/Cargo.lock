@@ -196,6 +196,7 @@ dependencies = [
  "aphel-mod-pricing",
  "aphel-mod-privacy",
  "aphel-mod-proposals",
+ "aphel-mod-publication",
  "aphel-mod-quotes",
  "aphel-mod-record-layouts",
  "aphel-mod-reminders",
@@ -466,6 +467,15 @@ version = "0.1.0"
 dependencies = [
  "aphel-contract",
  "serde",
+]
+
+[[package]]
+name = "aphel-contract-publication"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1575,6 +1585,26 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde_json",
+ "sqlx",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
+name = "aphel-mod-publication"
+version = "0.1.0"
+dependencies = [
+ "aphel-contract-publication",
+ "aphel-kernel",
+ "aphel-sdk",
+ "async-trait",
+ "axum",
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
  "sqlx",
  "tracing",
  "utoipa",

@@ -27,6 +27,7 @@ pub(crate) const QUOTE_RECORD_TYPE: &str = aphel_contract_crm::keys::QUOTE;
 pub(crate) const STAGE_FIELD: &str = "stage_id";
 const INVALID_POLICY: &str = "invalid approval policy";
 const POLICY_DELETED_REASON: &str = "policy_deleted";
+const POLICY_CHANGED_REASON: &str = "policy_changed";
 
 pub(crate) fn policy_not_found() -> AppError {
     AppError::not_found_code(APPROVAL_POLICY_NOT_FOUND, "approval policy was not found")
@@ -155,13 +156,15 @@ pub(crate) fn check_shape(
             "must be a record type of the organization",
         ));
     }
-    let moment = ApprovalMoment::parse(draft.moment.trim());
-    match moment {
+    let known = ApprovalMoment::parse(draft.moment.trim())
+        .and_then(|moment| crate::moments::definition(&moment));
+    let moment = known.as_ref().map(|known| known.moment.clone());
+    match &known {
         None => violations.push(FieldViolation::new(
             "moment",
-            "must be stage_change, quote_send or on_demand",
+            "must be a known approval moment",
         )),
-        Some(ApprovalMoment::StageChange) => {
+        Some(known) if known.moment == ApprovalMoment::STAGE_CHANGE => {
             if definition
                 .is_some_and(|definition| definition.system_field_by_key(STAGE_FIELD).is_none())
             {
@@ -171,18 +174,17 @@ pub(crate) fn check_shape(
                 ));
             }
         }
-        Some(ApprovalMoment::QuoteSend) => {
-            if draft.record_type.trim() != QUOTE_RECORD_TYPE {
+        Some(known) => {
+            if !known.applies_to(draft.record_type.trim()) {
                 violations.push(FieldViolation::new(
                     "moment",
-                    "quote_send is only available for quotes",
+                    format!("{} is not available for this record type", known.moment),
                 ));
             }
         }
-        Some(ApprovalMoment::OnDemand) => {}
     }
-    if let Some(moment) = moment
-        && !moment.requires_target()
+    if let Some(known) = &known
+        && known.target != MomentTarget::Policy
         && trimmed(draft.target_id.as_deref()).is_some()
     {
         violations.push(FieldViolation::new(
@@ -303,7 +305,7 @@ pub(crate) async fn build_policy(
         .ok()
         .and_then(|record_type| registry.get(&record_type));
     let mut target_id = None;
-    if shape.moment == Some(ApprovalMoment::StageChange) {
+    if shape.moment == Some(ApprovalMoment::STAGE_CHANGE) {
         match trimmed(draft.target_id.as_deref()).and_then(|id| Uuid::parse_str(&id).ok()) {
             Some(id) => {
                 if directory.stage_names(&[id]).await?.contains_key(&id) {
@@ -366,6 +368,7 @@ pub(crate) async fn build_policy(
         record_type: draft.record_type.trim().to_owned(),
         moment,
         target_id,
+        version: base.map_or(1, |base| base.version + 1),
         condition,
         locked_fields,
         due_hours: draft.due_hours.and_then(|hours| u32::try_from(hours).ok()),
@@ -575,6 +578,19 @@ pub(crate) async fn update_policy(
         return Ok(current);
     }
     let mut tx = ctx.begin().await?;
+    for request in ApprovalStore::of(ctx)
+        .pending_for_policy(&mut tx, policy.id)
+        .await?
+    {
+        engine::cancel(
+            ctx,
+            &mut tx,
+            request,
+            Some(POLICY_CHANGED_REASON.to_owned()),
+            command.ip.clone(),
+        )
+        .await?;
+    }
     ApprovalStore::of(ctx)
         .update_policy(&mut tx, &policy)
         .await?;
@@ -876,7 +892,8 @@ pub(crate) async fn submit(
 ) -> Result<SubmissionView, AppError> {
     let record = parse_record(&command.record_type, &command.record_id)?;
     let moment = ApprovalMoment::parse(command.moment.trim())
-        .ok_or_else(|| invalid("moment", "must be stage_change, quote_send or on_demand"))?;
+        .filter(|moment| crate::moments::definition(moment).is_some())
+        .ok_or_else(|| invalid("moment", "must be a known approval moment"))?;
     let target_id = match command
         .target_id
         .as_deref()
@@ -1122,6 +1139,38 @@ pub(crate) async fn cancel(
     view(ctx, record).await
 }
 
+pub(crate) async fn revoke(
+    ctx: &Ctx<'_>,
+    id: &str,
+    command: DecideCommand,
+) -> Result<RequestView, AppError> {
+    ctx.scope.require(&Permission::APPROVALS_MANAGE)?;
+    let id = Uuid::parse_str(id.trim()).map_err(|_| request_not_found())?;
+    let mut violations = Vec::new();
+    let comment = clean_comment(command.comment.as_deref(), "comment", &mut violations);
+    if !violations.is_empty() {
+        return Err(AppError::invalid_fields(INVALID_REQUEST, violations));
+    }
+    let mut tx = ctx.begin().await?;
+    let record = ApprovalStore::of(ctx)
+        .lock_request(&mut tx, id)
+        .await?
+        .ok_or_else(request_not_found)?;
+    if !record.request.is_unconsumed_approval() {
+        return Err(AppError::conflict_code(
+            "approval_not_revocable",
+            "only an approval that was not used yet can be revoked",
+        ));
+    }
+    engine::cancel(ctx, &mut tx, record.request, comment, command.ip).await?;
+    tx.commit().await?;
+    let record = ApprovalStore::of(ctx)
+        .request(id)
+        .await?
+        .ok_or_else(request_not_found)?;
+    view(ctx, record).await
+}
+
 pub(crate) async fn view(
     ctx: &Ctx<'_>,
     record: ApprovalRequestRecord,
@@ -1154,7 +1203,7 @@ pub(crate) async fn views(
             .entry(request.record.record_type.clone())
             .or_default()
             .push(request.record.record_id);
-        if request.moment == ApprovalMoment::StageChange
+        if request.moment == ApprovalMoment::STAGE_CHANGE
             && let Some(target) = request.target_id
         {
             stages.push(target);

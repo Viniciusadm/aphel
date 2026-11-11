@@ -1,6 +1,7 @@
 import { CheckCircle2, Hourglass, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { momentKey } from '../constants'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import {
@@ -110,7 +111,7 @@ function RequestApprovalBody({
           <ShieldCheck className="size-5 text-muted-foreground" aria-hidden="true" />
           {t('submit.title')}
         </DialogTitle>
-        <DialogDescription>{t(`submit.descriptions.${moment}`)}</DialogDescription>
+        <DialogDescription>{t(`submit.descriptions.${momentKey(moment)}`, { defaultValue: t('submit.descriptions.on_demand') })}</DialogDescription>
       </DialogHeader>
       <Field label={t('submit.comment')}>
         {(control) => <Textarea

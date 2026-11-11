@@ -249,7 +249,7 @@ pub(crate) async fn request_for_automation(
         SubmitApprovalCommand {
             record_type: request.record.record_type.as_str().to_owned(),
             record_id: request.record.record_id.to_string(),
-            moment: ApprovalMoment::OnDemand.as_str().to_owned(),
+            moment: ApprovalMoment::ON_DEMAND.as_str().to_owned(),
             target_id: None,
             comment: request.comment,
             ip: None,

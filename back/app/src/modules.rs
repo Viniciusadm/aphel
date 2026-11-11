@@ -138,6 +138,8 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         Box::new(module_documents::DocumentsModule),
         #[cfg(feature = "plugins")]
         Box::new(module_site::SiteModule),
+        #[cfg(feature = "plugins")]
+        Box::new(module_publication::PublicationModule),
     ]
 }
 

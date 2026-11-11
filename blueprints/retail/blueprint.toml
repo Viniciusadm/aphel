@@ -19,6 +19,7 @@ recommended = [
   "privacy",
   "trash",
   "site",
+  "publication",
 ]
 
 [navigation]

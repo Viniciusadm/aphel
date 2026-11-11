@@ -88,6 +88,8 @@ The tables below list every code that the platform and the built-in modules defi
 | `already_member` | 409 | This user already belongs to the organization. |
 | `api_token_not_allowed` | 403 | This route only accepts a browser session, not an API token. |
 | `api_token_not_found` | 404 | API token was not found. |
+| `approval_moment_unknown` | 422 | The approval moment is not one of the moments known to this installation. |
+| `approval_not_revocable` | 409 | Only an approval that was not used yet can be revoked. |
 | `attachment_not_found` | 404 | Attachment was not found. |
 | `concurrent_modification` | 409 | The record was changed by another request; retry. |
 | `contract_unavailable` | 503 | No enabled module provides the operation or contract that was called. |
@@ -153,6 +155,16 @@ The tables below list every code that the platform and the built-in modules defi
 | `permission_denied` | 403 | The caller lacks the permission, or the record is outside the caller's record scope. |
 | `plugin_authority_inactive` | 403 | The original authority is no longer active. |
 | `plugin_execution_cycle` | 409 | The plugin execution chain is cyclic or exceeds 16 entries. |
+| `publication_approvals_unavailable` | 503 | Approvals are enabled but could not be evaluated, so the publication waits. |
+| `publication_definition_invalid` | 409 | The publication definition of the record type does not match its fields. |
+| `publication_idempotency_conflict` | 409 | The idempotency key was already used for a different publication command. |
+| `publication_not_publishable` | 422 | The record type does not take part in publication. |
+| `publication_payload_too_large` | 413 | The content is larger than 2 MiB and cannot be published. |
+| `publication_record_not_found` | 404 | The record does not exist or you cannot see it. |
+| `publication_request_not_failed` | 409 | Only a failed publication request can be retried. |
+| `publication_request_not_found` | 404 | The publication request does not exist or you cannot see it. |
+| `publication_request_not_open` | 409 | The publication request is no longer open. |
+| `publication_revision_not_found` | 404 | The revision does not exist or you cannot see it. |
 | `rate_limited` | 429 | Too many requests; wait for `Retry-After` seconds. Also returned for an API token above its limit and by a few module-specific throttles. |
 | `record_has_relations` | 409 | The record still has linked records that block its deletion. |
 | `record_not_accessible` | 403 | The record does not exist or you cannot access it. |

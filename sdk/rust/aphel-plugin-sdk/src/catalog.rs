@@ -7,6 +7,7 @@ pub mod operations {
     pub const APPROVALS_CANCEL: &str = "approvals.cancel";
     pub const APPROVALS_REJECT: &str = "approvals.reject";
     pub const APPROVALS_REQUESTS: &str = "approvals.requests";
+    pub const APPROVALS_REVOKE: &str = "approvals.revoke";
     pub const APPROVALS_SUBMIT: &str = "approvals.submit";
     pub const ASSIGNMENT_ASSIGN: &str = "assignment.assign";
     pub const BOOKING_BOOKINGS: &str = "booking.bookings";
@@ -50,6 +51,15 @@ pub mod operations {
     pub const PRICING_LIST: &str = "pricing.list";
     pub const PRICING_RESOLVE: &str = "pricing.resolve";
     pub const PROPOSALS_GENERATE: &str = "proposals.generate";
+    pub const PUBLICATION_CANCEL: &str = "publication.cancel";
+    pub const PUBLICATION_CAPTURE: &str = "publication.capture";
+    pub const PUBLICATION_REQUEST: &str = "publication.request";
+    pub const PUBLICATION_RESTORE: &str = "publication.restore";
+    pub const PUBLICATION_RETRY: &str = "publication.retry";
+    pub const PUBLICATION_REVISION: &str = "publication.revision";
+    pub const PUBLICATION_REVISIONS: &str = "publication.revisions";
+    pub const PUBLICATION_STATUS: &str = "publication.status";
+    pub const PUBLICATION_WITHDRAW: &str = "publication.withdraw";
     pub const QUOTES_ACCEPT: &str = "quotes.accept";
     pub const QUOTES_NEW_VERSION: &str = "quotes.new_version";
     pub const QUOTES_SEND: &str = "quotes.send";

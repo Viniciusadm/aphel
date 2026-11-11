@@ -1,7 +1,7 @@
 import { type DraftGroup, emptyGroup, type FieldDefinition, type FieldSchema, fieldViolations, serializeFilter, toDraft } from '@/sdk'
 import { identifierFrom } from './identifier'
-import {MAX_DUE_HOURS, MIN_DUE_HOURS, QUOTE_RECORD_TYPE, STAGE_RECORD_TYPES} from '@/sdk'
-import type {ApprovalMoment, ApprovalPolicy, ApprovalPolicyRequest, ApprovalRule, ApproverKind, ConditionKind} from '@/sdk'
+import {MAX_DUE_HOURS, MIN_DUE_HOURS, STAGE_RECORD_TYPES} from '@/sdk'
+import type {ApprovalMoment, ApprovalMomentInfo, ApprovalPolicy, ApprovalPolicyRequest, ApprovalRule, ApproverKind, ConditionKind} from '@/sdk'
 
 export const CUSTOM_FIELD_PREFIX = 'custom_fields.'
 
@@ -101,12 +101,12 @@ export function draftFromPolicy(policy: ApprovalPolicy, pipelineOfStage: (stageI
   }
 }
 
-export function availableMoments(recordType: string): ApprovalMoment[] {
-  const moments: ApprovalMoment[] = []
-  if (STAGE_RECORD_TYPES.includes(recordType)) moments.push('stage_change')
-  if (recordType === QUOTE_RECORD_TYPE) moments.push('quote_send')
-  moments.push('on_demand')
-  return moments
+export function availableMoments(recordType: string, known: ApprovalMomentInfo[] | undefined): ApprovalMoment[] {
+  const fallback: ApprovalMomentInfo[] = [{ moment: 'on_demand', label: '', target: 'none', record_types: null }]
+  return (known ?? fallback)
+    .filter((info) => info.moment !== 'stage_change' || STAGE_RECORD_TYPES.includes(recordType))
+    .filter((info) => !info.record_types || info.record_types.includes(recordType))
+    .map((info) => info.moment)
 }
 
 export function lockableKey(field: FieldDefinition): string {

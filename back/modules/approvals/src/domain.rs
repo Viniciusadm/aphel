@@ -13,7 +13,7 @@ pub use aphel_sdk::approvals::APPROVAL_CANCELLED;
 pub use aphel_sdk::approvals::APPROVAL_REJECTED;
 
 pub use aphel_sdk::approvals::APPROVAL_PENDING;
-pub(crate) const APPROVAL_REQUIRED: &str = "approval_required";
+pub use aphel_sdk::approvals::APPROVAL_REQUIRED;
 pub(crate) const APPROVAL_NO_APPROVER: &str = "approval_no_approver";
 
 pub(crate) const APPROVAL_STEP_ADVANCED: &str = "approval.step_advanced";
@@ -94,6 +94,7 @@ pub struct ApprovalPolicy {
     pub(crate) record_type: String,
     pub(crate) moment: ApprovalMoment,
     pub(crate) target_id: Option<Uuid>,
+    pub(crate) version: u32,
     pub(crate) condition: PolicyCondition,
     pub(crate) locked_fields: Vec<String>,
     pub(crate) due_hours: Option<u32>,
@@ -175,6 +176,7 @@ pub(crate) struct ApprovalRequest {
     pub(crate) record: RecordRef,
     pub(crate) moment: ApprovalMoment,
     pub(crate) target_id: Option<Uuid>,
+    pub(crate) policy_version: Option<u32>,
     pub(crate) status: ApprovalStatus,
     pub(crate) current_step: u32,
     pub(crate) steps: Vec<StepSnapshot>,
@@ -197,7 +199,7 @@ impl ApprovalRequest {
             policy_id: self.policy_id.unwrap_or_default(),
             policy_name: self.policy_name.clone(),
             record: self.record.clone(),
-            moment: self.moment,
+            moment: self.moment.clone(),
             target_id: self.target_id,
             status: self.status,
             current_step: self.current_step,
@@ -207,6 +209,10 @@ impl ApprovalRequest {
 
     pub(crate) fn is_unconsumed_approval(&self) -> bool {
         self.status == ApprovalStatus::Approved && self.consumed_at.is_none()
+    }
+
+    pub(crate) fn approves_current(&self, policy: &ApprovalPolicy) -> bool {
+        self.is_unconsumed_approval() && self.policy_version == Some(policy.version)
     }
 
     pub(crate) fn current(&self) -> Option<&StepSnapshot> {
@@ -373,7 +379,7 @@ pub(crate) const MAX_POLICY_NAME_LENGTH: usize = 140;
 pub(crate) const MAX_DECISION_COMMENT_LENGTH: usize = 2_000;
 pub(crate) const MAX_DUE_HOURS: u32 = 24 * 90;
 
-pub use aphel_sdk::approvals::{ApprovalMoment, ApprovalStatus};
+pub use aphel_sdk::approvals::{ApprovalMoment, ApprovalStatus, MomentTarget};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub(crate) enum ApproverKind {

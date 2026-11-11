@@ -42,12 +42,12 @@ fn parse_uuid(value: &str, column: &str) -> Result<Uuid, AppError> {
     Uuid::parse_str(value).map_err(|_| invalid_column(column, value))
 }
 
-const POLICY_COLUMNS: &str = "SELECT id, `key`, name, description, record_type, moment, target_id, \
+const POLICY_COLUMNS: &str = "SELECT id, `key`, name, description, record_type, moment, target_id, version, \
      condition_kind, condition_filter, condition_formula, locked_fields, due_hours, is_active, \
      position, created_by, created_at, updated_at FROM approval_policies WHERE TRUE";
 
 const REQUEST_COLUMNS: &str = "SELECT r.id, r.policy_id, p.`key` AS policy_key, r.policy_name, \
-     r.record_type, r.record_id, r.moment, r.target_id, r.status, r.current_step, r.steps, \
+     r.record_type, r.record_id, r.moment, r.target_id, r.policy_version, r.status, r.current_step, r.steps, \
      r.locked_fields, r.comment, r.requested_by, r.requested_at, r.due_at, r.resolved_at, \
      r.resolved_by, r.resolution_comment, r.consumed_at, r.updated_at FROM approval_requests r \
      LEFT JOIN approval_policies p ON p.id = r.policy_id WHERE TRUE";
@@ -108,6 +108,7 @@ fn policy_from_row(row: &MySqlRow) -> Result<ApprovalPolicy, AppError> {
         moment: ApprovalMoment::parse(&moment)
             .ok_or_else(|| invalid_column("approval_policies.moment", &moment))?,
         target_id: optional_uuid(row, "target_id")?,
+        version: row.try_get("version")?,
         condition,
         locked_fields: strings(locked),
         due_hours: row.try_get("due_hours")?,
@@ -162,6 +163,7 @@ fn request_from_row(row: &MySqlRow) -> Result<ApprovalRequest, AppError> {
         moment: ApprovalMoment::parse(&moment)
             .ok_or_else(|| invalid_column("approval_requests.moment", &moment))?,
         target_id: optional_uuid(row, "target_id")?,
+        policy_version: row.try_get("policy_version")?,
         status: ApprovalStatus::parse(&status)
             .ok_or_else(|| invalid_column("approval_requests.status", &status))?,
         current_step: row.try_get("current_step")?,
@@ -399,7 +401,7 @@ impl ApprovalStore {
         &self,
         tx: &mut MySqlTx,
         record_type: &str,
-        moment: ApprovalMoment,
+        moment: &ApprovalMoment,
         target_id: Option<Uuid>,
     ) -> Result<Vec<ApprovalPolicy>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(POLICY_COLUMNS);
@@ -407,7 +409,7 @@ impl ApprovalStore {
             .push(" AND is_active = TRUE AND record_type = ")
             .push_bind(record_type.to_owned())
             .push(" AND moment = ")
-            .push_bind(moment.as_str());
+            .push_bind(moment.as_str().to_owned());
         match target_id {
             Some(target) => {
                 builder
@@ -479,8 +481,8 @@ impl ApprovalStore {
         sqlx::query(
             "UPDATE approval_policies SET name = ?, description = ?, record_type = ?, moment = ?, \
              target_id = ?, condition_kind = ?, condition_filter = ?, condition_formula = ?, \
-             locked_fields = ?, due_hours = ?, is_active = ?, position = ?, updated_at = ? \
-             WHERE id = ?",
+             locked_fields = ?, due_hours = ?, is_active = ?, position = ?, updated_at = ?, \
+             version = version + 1 WHERE id = ?",
         )
         .bind(&policy.name)
         .bind(&policy.description)
@@ -538,7 +540,7 @@ impl ApprovalStore {
         &self,
         tx: &mut MySqlTx,
         record: &RecordRef,
-        moment: ApprovalMoment,
+        moment: &ApprovalMoment,
         target_id: Option<Uuid>,
     ) -> Result<Vec<ApprovalRequest>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
@@ -548,7 +550,7 @@ impl ApprovalStore {
             .push(" AND r.record_id = ")
             .push_bind(record.record_id.to_string())
             .push(" AND r.moment = ")
-            .push_bind(moment.as_str())
+            .push_bind(moment.as_str().to_owned())
             .push(" AND r.target_marker = ")
             .push_bind(target_id.map(|id| id.to_string()).unwrap_or_default())
             .push(
@@ -596,9 +598,9 @@ impl ApprovalStore {
     ) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO approval_requests (id, policy_id, policy_name, \
-             record_type, record_id, moment, target_id, status, current_step, steps, locked_fields, \
-             comment, requested_by, requested_at, due_at, updated_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             record_type, record_id, moment, target_id, policy_version, status, current_step, steps, \
+             locked_fields, comment, requested_by, requested_at, due_at, updated_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(request.id.to_string())
         .bind(request.policy_id.map(|id| id.to_string()))
@@ -607,6 +609,7 @@ impl ApprovalStore {
         .bind(request.record.record_id.to_string())
         .bind(request.moment.as_str())
         .bind(request.target_id.map(|id| id.to_string()))
+        .bind(request.policy_version)
         .bind(request.status.as_str())
         .bind(request.current_step)
         .bind(Json(&request.steps))

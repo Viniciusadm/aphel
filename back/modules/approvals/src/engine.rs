@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::domain::{
     APPROVAL_CANCELLED, APPROVAL_NO_APPROVER, APPROVAL_PENDING, APPROVAL_RECORD_NOT_FOUND,
     APPROVAL_REQUESTED, APPROVAL_REQUIRED, ApprovalCheckpoint, ApprovalPolicy, ApprovalRequest,
-    ApprovalStatus, ApprovalSubmission, MAX_DECISION_COMMENT_LENGTH, MAX_DUE_HOURS,
+    ApprovalStatus, ApprovalSubmission, MAX_DECISION_COMMENT_LENGTH, MAX_DUE_HOURS, MomentTarget,
     SubmissionOutcome, locks_field,
 };
 use crate::store::{ApprovalDirectory, ApprovalStore};
@@ -155,9 +155,21 @@ pub(crate) fn required_error(
 }
 
 fn check_target(checkpoint: &ApprovalCheckpoint) -> Result<(), AppError> {
-    let violation = match (checkpoint.moment.requires_target(), checkpoint.target_id) {
-        (true, None) => Some("is required for this moment"),
-        (false, Some(_)) => Some("must be empty for this moment"),
+    let target = crate::moments::definition(&checkpoint.moment)
+        .ok_or_else(|| {
+            AppError::invalid_fields_code(
+                "approval_moment_unknown",
+                "invalid approval request",
+                vec![FieldViolation::new(
+                    "moment",
+                    "is not a known approval moment",
+                )],
+            )
+        })?
+        .target;
+    let violation = match (target, checkpoint.target_id) {
+        (MomentTarget::Policy | MomentTarget::Subject, None) => Some("is required for this moment"),
+        (MomentTarget::None, Some(_)) => Some("must be empty for this moment"),
         _ => None,
     };
     match violation {
@@ -183,8 +195,11 @@ pub(crate) async fn applicable(
         .active_policies(
             tx,
             checkpoint.record.record_type.as_str(),
-            checkpoint.moment,
-            checkpoint.target_id,
+            &checkpoint.moment,
+            match crate::moments::target(&checkpoint.moment) {
+                MomentTarget::Subject => None,
+                _ => checkpoint.target_id,
+            },
         )
         .await?;
     if policies.is_empty() {
@@ -222,7 +237,7 @@ pub(crate) async fn checkpoint(
         .open_requests(
             tx,
             &checkpoint.record,
-            checkpoint.moment,
+            &checkpoint.moment,
             checkpoint.target_id,
         )
         .await?;
@@ -242,7 +257,7 @@ pub(crate) async fn checkpoint(
         match existing
             .iter()
             .filter(|request| of_policy(policy, request))
-            .find(|request| request.is_unconsumed_approval())
+            .find(|request| request.approves_current(policy))
         {
             Some(request) => consumed.push(request.id),
             None => missing.push(policy),
@@ -297,7 +312,7 @@ pub(crate) async fn submit(
         .open_requests(
             tx,
             &checkpoint.record,
-            checkpoint.moment,
+            &checkpoint.moment,
             checkpoint.target_id,
         )
         .await?;
@@ -315,7 +330,7 @@ pub(crate) async fn submit(
             pending.push(request.summary());
             continue;
         }
-        if let Some(request) = current.find(|request| request.is_unconsumed_approval()) {
+        if let Some(request) = current.find(|request| request.approves_current(&policy)) {
             approved.push(request.summary());
             continue;
         }
@@ -325,8 +340,9 @@ pub(crate) async fn submit(
             policy_key: Some(policy.key.clone()),
             policy_name: policy.name.clone(),
             record: checkpoint.record.clone(),
-            moment: checkpoint.moment,
+            moment: checkpoint.moment.clone(),
             target_id: checkpoint.target_id,
+            policy_version: Some(policy.version),
             status: ApprovalStatus::Pending,
             current_step: 0,
             steps: policy.step_snapshots(),
@@ -507,6 +523,7 @@ pub(crate) async fn cancel(
 ) -> Result<ApprovalRequest, AppError> {
     let scope = ctx.scope;
     let now = ctx.now();
+    let previous = request.status;
     request.status = ApprovalStatus::Cancelled;
     request.resolved_at = Some(now);
     request.resolved_by = acting_user(scope);
@@ -520,10 +537,7 @@ pub(crate) async fn cancel(
         tx,
         RequestEvent::new(APPROVAL_CANCELLED, &request)
             .step(request.current_step)
-            .changes(status_change(
-                ApprovalStatus::Pending,
-                ApprovalStatus::Cancelled,
-            ))
+            .changes(status_change(previous, ApprovalStatus::Cancelled))
             .ip(ip),
     )
     .await?;

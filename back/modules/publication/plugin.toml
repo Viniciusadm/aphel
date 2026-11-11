@@ -1,0 +1,8 @@
+key = "publication"
+name = "Publication"
+version = "0.1.0"
+layer = "capability"
+runtime = "native"
+
+[provides]
+contracts = ["publication@1"]

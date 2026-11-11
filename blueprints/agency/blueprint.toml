@@ -25,6 +25,7 @@ recommended = [
   "enrichment",
   "esign",
   "site",
+  "publication",
 ]
 
 [configuration]

@@ -12,4 +12,5 @@ recommended = [
   "automations",
   "reports",
   "site",
+  "publication",
 ]

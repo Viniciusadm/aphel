@@ -1,9 +1,11 @@
 use std::sync::Arc;
+use uuid::Uuid;
 
 use async_trait::async_trait;
 
 use crate::domain::{
-    ApprovalCheckpoint, ApprovalRequestSummary, ApprovalSubmission, SubmissionOutcome,
+    ApprovalCheckpoint, ApprovalMoment, ApprovalRequestSummary, ApprovalStatus, ApprovalSubmission,
+    SubmissionOutcome,
 };
 use crate::engine::{self, record_not_found};
 use crate::store::{ApprovalDirectory, ApprovalStore};
@@ -70,6 +72,24 @@ impl ApprovalGate for EngineApprovalGate {
             .await?
             .iter()
             .map(|request| request.summary())
+            .collect())
+    }
+
+    async fn retained_targets(
+        &self,
+        ctx: &Ctx<'_>,
+        record: &RecordRef,
+        moment: &ApprovalMoment,
+    ) -> Result<Vec<Uuid>, AppError> {
+        Ok(ApprovalStore::of(ctx)
+            .requests_for_record(record)
+            .await?
+            .iter()
+            .filter(|request| &request.moment == moment)
+            .filter(|request| {
+                request.status == ApprovalStatus::Pending || request.is_unconsumed_approval()
+            })
+            .filter_map(|request| request.target_id)
             .collect())
     }
 }

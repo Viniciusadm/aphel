@@ -46,7 +46,8 @@
   "moments": {
     "stage_change": "Mudança de etapa",
     "quote_send": "Envio de cotação",
-    "on_demand": "Sob demanda"
+    "on_demand": "Sob demanda",
+    "publication_activate": "Publicação"
   },
   "approverKinds": {
     "user": "Usuário",
@@ -116,7 +117,8 @@
     "descriptions": {
       "stage_change": "Mover a oportunidade para esta etapa exige aprovação. Envie um pedido aos aprovadores; quando aprovado, repita a mudança de etapa.",
       "quote_send": "O envio desta cotação exige aprovação. Envie um pedido aos aprovadores.",
-      "on_demand": "Envie este registro para aprovação conforme as políticas configuradas."
+      "on_demand": "Envie este registro para aprovação conforme as políticas configuradas.",
+      "publication_activate": "Publicar esta versão exige aprovação. O pedido vai aos aprovadores e a publicação acontece quando for aprovado."
     },
     "comment": "Comentário para os aprovadores (opcional)",
     "commentPlaceholder": "Explique o contexto do pedido",

@@ -221,7 +221,8 @@ The live list, including whether each module is enabled, is `GET /api/v1/wasm-ru
 | `approvals.cancel` | write | yes | `{ id, comment? }`, needs a user actor |
 | `approvals.reject` | write | yes | `{ id, comment }`, needs a user actor |
 | `approvals.requests` | read | | `{ record_type, record_id, status?, page?, per_page? }` returns `{ data, total }` |
-| `approvals.submit` | write | yes | `{ record_type, record_id, moment: on_demand\|stage_change\|quote_send, target_id?, comment?, policy_key? }` returns `{ outcome, requests }` |
+| `approvals.revoke` | write | yes | `{ id, comment? }`, revokes an approval that was not used yet; needs `approvals.manage` and a user actor |
+| `approvals.submit` | write | yes | `{ record_type, record_id, moment, target_id?, comment?, policy_key? }` returns `{ outcome, requests }`; `moment` is `on_demand`, `stage_change`, `quote_send` or a contributed moment such as `publication.activate` (see `GET /api/v1/approval-moments`) |
 | `assignment.assign` | write | yes | `{ record_type, record_id, rule?, idempotency_key? }` returns `{ rule_id, user_id, user_name, selection, route_index, reused, skipped }` |
 | `booking.bookings` | read | | `{ status?, meeting_type_id?, upcoming?, page?, per_page? }` returns `{ data, total }` |
 | `booking.cancel` | write | yes | `{ id, reason? }` |
@@ -264,6 +265,15 @@ The live list, including whether each module is enabled, is `GET /api/v1/wasm-ru
 | `pricing.list` | read | | `{ currency?, active?, search?, page?, per_page? }` returns `{ data, total }` |
 | `pricing.resolve` | read | | `{ product_id, price_list_id?, currency?, company_id?, quantity?, on? }` returns `{ price_list, unit_price, currency, quantity, on }` |
 | `proposals.generate` | write | yes | `{ deal_id, template_id?, template_key?, quote_id? }` |
+| `publication.cancel` | write | yes | `{ id }` cancels an open publication request; needs the definition's permission |
+| `publication.capture` | write | yes | `{ record_type, record_id, expected_version, note? }` captures the saved draft as a revision |
+| `publication.request` | write | yes | `{ revision_id, at?, idempotency_key }` publishes a revision now or at `at`, subject to approval policies |
+| `publication.restore` | write | yes | `{ revision_id, expected_version }` copies a revision back into the draft fields |
+| `publication.retry` | write | yes | `{ id }` retries a failed publication request |
+| `publication.revision` | read | | `{ id }` returns one revision with its payload |
+| `publication.revisions` | read | | `{ record_type, record_id, page?, per_page? }` returns `{ data, total }` |
+| `publication.status` | read | | `{ record_type, record_id }` returns the published revision, generation and latest requests |
+| `publication.withdraw` | write | yes | `{ record_type, record_id, idempotency_key }` withdraws the published revision |
 | `quotes.accept` | write | yes | `{ id, name?, email?, note? }` |
 | `quotes.new_version` | write | yes | `{ id }` |
 | `quotes.send` | write | yes | `{ id, to?, cc?, subject?, body_html?, mailbox_id? }` |

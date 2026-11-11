@@ -43,6 +43,76 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(approve_approval_request))
         .routes(routes!(reject_approval_request))
         .routes(routes!(cancel_approval_request))
+        .routes(routes!(revoke_approval_request))
+        .routes(routes!(list_approval_moments))
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ApprovalMomentResponse {
+    pub(crate) moment: ApprovalMomentSchema,
+    pub(crate) label: String,
+    #[schema(value_type = String, example = "none")]
+    pub(crate) target: aphel_sdk::approvals::MomentTarget,
+    pub(crate) record_types: Option<Vec<String>>,
+}
+
+#[utoipa::path(
+    get,
+    path = "/approval-moments",
+    tag = TAG,
+    operation_id = "approval_moments_list",
+    security(("session_cookie" = [])),
+    description = "Moments at which a policy can require approval: the built-in `stage_change`, `quote_send` and `on_demand` plus moments contributed by modules (such as `publication.activate`). `target` is `none` (no target), `policy` (the policy names the target, such as a stage) or `subject` (each request names its own target, such as a revision). `record_types` limits the moment to those types when present.",
+    responses(
+        (status = 200, description = "Known approval moments", body = Data<Vec<ApprovalMomentResponse>>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
+    )
+)]
+async fn list_approval_moments(_tenant: AuthContext) -> Json<Data<Vec<ApprovalMomentResponse>>> {
+    Json(Data::new(
+        crate::moments::all()
+            .into_iter()
+            .map(|definition| ApprovalMomentResponse {
+                moment: definition.moment.into(),
+                label: definition.label,
+                target: definition.target,
+                record_types: definition.record_types,
+            })
+            .collect(),
+    ))
+}
+
+#[utoipa::path(
+    post,
+    path = "/approval-requests/{request_id}/revoke",
+    tag = TAG,
+    operation_id = "approval_requests_revoke",
+    security(("session_cookie" = [])),
+    description = "Revokes an approval that was not used yet (`approval.cancelled`), so the action it allowed needs a new request. Requires `approvals.manage`.",
+    params(("request_id" = String, Path, description = "Approval request id")),
+    request_body = ApprovalDecisionRequest,
+    responses(
+        (status = 200, description = "Revoked approval request", body = Data<ApprovalRequestResponse>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `approvals.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Approval request not found (`approval_request_not_found`)", body = ErrorEnvelope),
+        (status = 409, description = "The request is not an unused approval (`approval_not_revocable`)", body = ErrorEnvelope),
+    )
+)]
+async fn revoke_approval_request(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Path(request_id): Path<String>,
+    JsonBody(request): JsonBody<ApprovalDecisionRequest>,
+) -> Result<Json<Data<ApprovalRequestResponse>>, ApiError> {
+    let view = service::revoke(
+        &Ctx::from_state(&state, &tenant.scope).await?,
+        &request_id,
+        request.into_command(client.0.ip),
+    )
+    .await?;
+    Ok(Json(Data::new(view.into())))
 }
 
 #[utoipa::path(
@@ -456,32 +526,20 @@ async fn cancel_approval_request(
     Ok(Json(Data::new(view.into())))
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-#[schema(as = ApprovalMoment)]
-pub(crate) enum ApprovalMomentSchema {
-    StageChange,
-    QuoteSend,
-    OnDemand,
-}
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(transparent)]
+#[schema(as = ApprovalMoment, value_type = String, example = "on_demand")]
+pub(crate) struct ApprovalMomentSchema(String);
 
 impl From<ApprovalMoment> for ApprovalMomentSchema {
     fn from(value: ApprovalMoment) -> Self {
-        match value {
-            ApprovalMoment::StageChange => Self::StageChange,
-            ApprovalMoment::QuoteSend => Self::QuoteSend,
-            ApprovalMoment::OnDemand => Self::OnDemand,
-        }
+        Self(value.as_str().to_owned())
     }
 }
 
-impl From<ApprovalMomentSchema> for ApprovalMoment {
-    fn from(value: ApprovalMomentSchema) -> Self {
-        match value {
-            ApprovalMomentSchema::StageChange => Self::StageChange,
-            ApprovalMomentSchema::QuoteSend => Self::QuoteSend,
-            ApprovalMomentSchema::OnDemand => Self::OnDemand,
-        }
+impl ApprovalMomentSchema {
+    fn into_key(self) -> String {
+        self.0
     }
 }
 
@@ -742,9 +800,7 @@ impl ApprovalPolicyRequest {
             name: self.name,
             description: self.description,
             record_type: self.record_type,
-            moment: self
-                .moment
-                .map(|moment| ApprovalMoment::from(moment).as_str().to_owned()),
+            moment: self.moment.map(ApprovalMomentSchema::into_key),
             target_id: self.target_id,
             condition_kind: self
                 .condition_kind
@@ -1013,7 +1069,7 @@ impl ApprovalSubmitRequest {
             SubmitApprovalCommand {
                 record_type: self.record_type,
                 record_id: self.record_id,
-                moment: ApprovalMoment::from(self.moment).as_str().to_owned(),
+                moment: self.moment.into_key(),
                 target_id: self.target_id,
                 comment: self.comment,
                 ip,

@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp, Pencil, Plus, ShieldCheck, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { momentKey } from '@/sdk'
 import { ConfirmDialog, PageLoader } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -187,7 +188,7 @@ function PolicyRow({ policy, first, last, busy, onMoveUp, onMoveDown, onToggle, 
           {!policy.is_active && <Badge variant="secondary">{t('settings.inactive')}</Badge>}
         </div>
         <span className="text-xs text-muted-foreground">
-          {recordTypeLabel(policy.record_type)} · {t(`moments.${policy.moment}`)}
+          {recordTypeLabel(policy.record_type)} · {t(`moments.${momentKey(policy.moment)}`, { defaultValue: policy.moment })}
           {stage && ` · ${stage.name}`} · {t(`conditionKinds.${policy.condition_kind}`)} ·{' '}
           {t('settings.stepsCount', { count: policy.steps.length })}
         </span>

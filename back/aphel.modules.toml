@@ -69,6 +69,7 @@ calendar = { path = "modules/calendar" }
 
 documents = { path = "modules/documents" }
 site = { path = "modules/site" }
+publication = { path = "modules/publication" }
 
 [build]
 blueprints = ["agency", "consultancy", "crm", "freelancer", "other", "real_estate", "saas", "sales"]

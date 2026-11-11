@@ -1,6 +1,7 @@
 import { ShieldCheck } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { momentKey } from '@/sdk'
 import { Link } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
@@ -153,7 +154,7 @@ function RequestsTable({ requests }: { requests: ApprovalRequest[] }) {
                   {request.policy_name}
                 </Link>
                 <div className="text-xs text-muted-foreground">
-                  {t(`moments.${request.moment}`)}
+                  {t(`moments.${momentKey(request.moment)}`, { defaultValue: request.moment })}
                   {request.target_name && ` · ${request.target_name}`}
                 </div>
               </TableCell>
