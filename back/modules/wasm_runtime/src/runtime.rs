@@ -339,8 +339,11 @@ fn execution_context(
     parent: Option<&ExecutionContext>,
     event_id: Option<Uuid>,
 ) -> Result<ExecutionContext, AppError> {
-    if trigger == "hook" && parent.is_some_and(|parent| parent.executor == plugin.key) {
-        return Ok(parent.unwrap().clone());
+    if trigger == "hook"
+        && let Some(parent) = parent
+        && (parent.executor == plugin.key || parent.chain.contains(&plugin.key))
+    {
+        return Ok(parent.clone());
     }
     let actor = scope
         .map(Actor::from_scope)

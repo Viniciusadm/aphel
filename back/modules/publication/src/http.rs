@@ -28,6 +28,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(cancel_request))
         .routes(routes!(retry_request))
         .routes(routes!(publication_status))
+        .routes(routes!(publication_statuses))
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -464,4 +465,53 @@ async fn publication_status(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let view = service::status(&ctx, &query.record_type, &query.record_id).await?;
     Ok(Json(Data::new(view.into())))
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub(crate) struct StatusesQuery {
+    pub(crate) record_type: String,
+    #[param(example = "0190a1b2-0000-7000-8000-000000000001,0190a1b2-0000-7000-8000-000000000002")]
+    pub(crate) record_ids: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[schema(as = PublicationRecordStatus)]
+pub(crate) struct RecordStatusResponse {
+    pub(crate) record_id: String,
+    pub(crate) published: bool,
+    pub(crate) open_request: Option<RequestResponse>,
+}
+
+#[utoipa::path(
+    get,
+    path = "/publication/statuses",
+    tag = TAG,
+    operation_id = "publication_statuses_list",
+    security(("session_cookie" = [])),
+    params(StatusesQuery),
+    description = "Whether each record has a published revision and its open request (waiting for approval, scheduled or ready), for up to 100 records of one type. Records the caller cannot read are left out.",
+    responses(
+        (status = 200, description = "Publication status per readable record", body = Data<Vec<RecordStatusResponse>>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 422, description = "Invalid ids or record type not publishable (`publication_not_publishable`)", body = ErrorEnvelope),
+    )
+)]
+async fn publication_statuses(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Query(query): Query<StatusesQuery>,
+) -> Result<Json<Data<Vec<RecordStatusResponse>>>, ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let statuses = service::statuses(&ctx, &query.record_type, &query.record_ids).await?;
+    Ok(Json(Data::new(
+        statuses
+            .into_iter()
+            .map(|status| RecordStatusResponse {
+                record_id: status.record_id.to_string(),
+                published: status.published,
+                open_request: status.open_request.map(Into::into),
+            })
+            .collect(),
+    )))
 }

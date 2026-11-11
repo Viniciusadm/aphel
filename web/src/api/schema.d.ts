@@ -6434,6 +6434,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/publication/statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Whether each record has a published revision and its open request (waiting for approval, scheduled or ready), for up to 100 records of one type. Records the caller cannot read are left out. */
+        get: operations["publication_statuses_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/publication/withdrawals": {
         parameters: {
             query?: never;
@@ -15297,6 +15314,13 @@ export interface components {
                 key: string;
             }[];
         };
+        Data_Vec_PublicationRecordStatus: {
+            data: {
+                open_request?: null | components["schemas"]["PublicationRequest"];
+                published: boolean;
+                record_id: string;
+            }[];
+        };
         Data_Vec_QuoteResponse: {
             data: {
                 accepted_at?: string | null;
@@ -21286,6 +21310,11 @@ export interface components {
         };
         PublicSlotsResponse: {
             slots: components["schemas"]["PublicSlot"][];
+        };
+        PublicationRecordStatus: {
+            open_request?: null | components["schemas"]["PublicationRequest"];
+            published: boolean;
+            record_id: string;
         };
         PublicationRequest: {
             /** @example activate */
@@ -56703,6 +56732,57 @@ export interface operations {
                 };
             };
             /** @description The record type does not take part in publication (`publication_not_publishable`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    publication_statuses_list: {
+        parameters: {
+            query: {
+                record_type: string;
+                /** @example 0190a1b2-0000-7000-8000-000000000001,0190a1b2-0000-7000-8000-000000000002 */
+                record_ids: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Publication status per readable record */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_PublicationRecordStatus"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid ids or record type not publishable (`publication_not_publishable`) */
             422: {
                 headers: {
                     [name: string]: unknown;

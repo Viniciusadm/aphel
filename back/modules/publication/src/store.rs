@@ -446,3 +446,59 @@ pub(crate) async fn delete_revision(tx: &mut MySqlTx, id: Uuid) -> Result<(), Ap
         .await?;
     Ok(())
 }
+
+pub(crate) async fn subjects_of(
+    pool: &MySqlPool,
+    record_type: &str,
+    ids: &[Uuid],
+) -> Result<Vec<(Uuid, Subject)>, AppError> {
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut builder = QueryBuilder::<MySql>::new(
+        "SELECT record_id, active_revision_id, generation, first_published_at FROM publication_subjects WHERE record_type = ",
+    );
+    builder
+        .push_bind(record_type.to_owned())
+        .push(" AND record_id IN (");
+    let mut separated = builder.separated(", ");
+    for id in ids {
+        separated.push_bind(id.to_string());
+    }
+    builder.push(")");
+    let rows = builder.build().fetch_all(pool).await?;
+    rows.iter()
+        .map(|row| {
+            Ok((
+                uuid_of(row, "record_id")?,
+                Subject {
+                    active_revision_id: optional_uuid(row, "active_revision_id")?,
+                    generation: row.try_get("generation")?,
+                    first_published_at: optional_time(row, "first_published_at")?,
+                },
+            ))
+        })
+        .collect()
+}
+
+pub(crate) async fn open_requests_of(
+    pool: &MySqlPool,
+    record_type: &str,
+    ids: &[Uuid],
+) -> Result<Vec<PublicationRequest>, AppError> {
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
+    builder
+        .push(" AND status IN ('awaiting_approval', 'scheduled', 'ready') AND record_type = ")
+        .push_bind(record_type.to_owned())
+        .push(" AND record_id IN (");
+    let mut separated = builder.separated(", ");
+    for id in ids {
+        separated.push_bind(id.to_string());
+    }
+    builder.push(") ORDER BY created_at, id");
+    let rows = builder.build().fetch_all(pool).await?;
+    rows.iter().map(request_from_row).collect()
+}

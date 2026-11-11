@@ -22,6 +22,10 @@ use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::fields::EntityDefinition;
+use aphel_sdk::platform::application::organization_admin::ListWindow;
+use aphel_sdk::platform::application::query::{
+    ArchivedFilter, Filter, FilterCondition, FilterOperator, RecordQuery, RecordQueryEngine,
+};
 use aphel_sdk::platform::application::shared::{Job, JobQueue, RecordRef, RecordType};
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::domain::access::Permission;
@@ -675,4 +679,71 @@ pub(crate) async fn revision(ctx: &Ctx<'_>, id: &str) -> Result<Revision, AppErr
     .await
     .map_err(|_| revision_not_found())?;
     Ok(revision)
+}
+
+pub(crate) const MAX_STATUS_IDS: usize = 100;
+
+pub(crate) struct RecordStatus {
+    pub(crate) record_id: Uuid,
+    pub(crate) published: bool,
+    pub(crate) open_request: Option<PublicationRequest>,
+}
+
+pub(crate) async fn statuses(
+    ctx: &Ctx<'_>,
+    record_type: &str,
+    record_ids: &str,
+) -> Result<Vec<RecordStatus>, AppError> {
+    let record_type = record_type.trim();
+    definitions::find(ctx.registry(), record_type)?;
+    let mut ids = record_ids
+        .split(',')
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .map(|id| {
+            Uuid::parse_str(id)
+                .map_err(|_| invalid("record_ids", "must be record ids separated by commas"))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    ids.sort();
+    ids.dedup();
+    if ids.len() > MAX_STATUS_IDS {
+        return Err(invalid("record_ids", "can list at most 100 records"));
+    }
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let query = RecordQuery {
+        filter: Some(Filter::Condition(FilterCondition {
+            field: "id".to_owned(),
+            operator: FilterOperator::In,
+            value: json!(ids.iter().map(Uuid::to_string).collect::<Vec<_>>()),
+        })),
+        archived: ArchivedFilter::Include,
+        window: ListWindow {
+            offset: 0,
+            limit: MAX_STATUS_IDS as u64,
+        },
+        ..Default::default()
+    };
+    let visible = RecordQueryEngine::new(&ctx.query())
+        .query(ctx.scope, record_type, query)
+        .await?
+        .items;
+    let subjects = store::subjects_of(ctx.pool(), record_type, &visible).await?;
+    let requests = store::open_requests_of(ctx.pool(), record_type, &visible).await?;
+    Ok(visible
+        .into_iter()
+        .map(|record_id| RecordStatus {
+            record_id,
+            published: subjects
+                .iter()
+                .any(|(id, subject)| *id == record_id && subject.active_revision_id.is_some()),
+            open_request: requests
+                .iter()
+                .rev()
+                .find(|request| request.record.record_id == record_id)
+                .cloned(),
+        })
+        .collect())
 }

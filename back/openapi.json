@@ -46734,6 +46734,85 @@
         "x-aphel-module": "publication"
       }
     },
+    "/api/v1/publication/statuses": {
+      "get": {
+        "tags": [
+          "publication"
+        ],
+        "description": "Whether each record has a published revision and its open request (waiting for approval, scheduled or ready), for up to 100 records of one type. Records the caller cannot read are left out.",
+        "operationId": "publication_statuses_list",
+        "parameters": [
+          {
+            "name": "record_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "record_ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "0190a1b2-0000-7000-8000-000000000001,0190a1b2-0000-7000-8000-000000000002"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Publication status per readable record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_PublicationRecordStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid ids or record type not publishable (`publication_not_publishable`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "publication"
+      }
+    },
     "/api/v1/publication/withdrawals": {
       "post": {
         "tags": [
@@ -92218,6 +92297,42 @@
           }
         }
       },
+      "Data_Vec_PublicationRecordStatus": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "record_id",
+                "published"
+              ],
+              "properties": {
+                "open_request": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PublicationRequest"
+                    }
+                  ]
+                },
+                "published": {
+                  "type": "boolean"
+                },
+                "record_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_QuoteResponse": {
         "type": "object",
         "required": [
@@ -115544,6 +115659,31 @@
             "items": {
               "$ref": "#/components/schemas/PublicSlot"
             }
+          }
+        }
+      },
+      "PublicationRecordStatus": {
+        "type": "object",
+        "required": [
+          "record_id",
+          "published"
+        ],
+        "properties": {
+          "open_request": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicationRequest"
+              }
+            ]
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "record_id": {
+            "type": "string"
           }
         }
       },

@@ -64,6 +64,7 @@ Expose only the published fields on the site and filter on the state, for exampl
 | Retry a failed request | `POST /api/v1/publication/requests/{id}/retry` | `publication.retry` | the `permission` of the definition |
 | Copy a revision back into the draft | `POST /api/v1/publication/revisions/{id}/restore` `{ expected_version }` | `publication.restore` | update access to the record |
 | Status, revisions | `GET /api/v1/publication/status`, `GET /api/v1/publication/revisions[/{id}]` | `publication.status`, `publication.revisions`, `publication.revision` | read access to the record |
+| Status of a list of records | `GET /api/v1/publication/statuses?record_type=…&record_ids=a,b` (up to 100) | | read access; unreadable records are left out |
 
 `expected_version` is the `updated_at` of the saved draft; a newer save answers `409`. Capture and request are separate on purpose: a request names an immutable revision, so approving or scheduling it never publishes later edits of the draft.
 

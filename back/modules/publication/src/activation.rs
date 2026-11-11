@@ -311,14 +311,15 @@ async fn attempt(request_id: Uuid, inline: Option<AccessScope>) -> Result<Step, 
         RequestAction::Activate => ACTIVATED,
         RequestAction::Withdraw => WITHDRAWN,
     };
-    emit(
-        &ctx,
-        &mut tx,
-        &request,
-        event,
-        json!({ "payload_hash": revision.as_ref().map(|found| found.payload_hash.clone()) }),
-    )
-    .await?;
+    execution
+        .scope(emit(
+            &ctx,
+            &mut tx,
+            &request,
+            event,
+            json!({ "payload_hash": revision.as_ref().map(|found| found.payload_hash.clone()) }),
+        ))
+        .await?;
     tx.commit().await?;
     pending.committed(&ctx).await;
     Ok(Step::Done(RequestStatus::Completed))

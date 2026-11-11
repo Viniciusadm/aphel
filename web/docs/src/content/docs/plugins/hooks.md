@@ -182,7 +182,7 @@ The example assumes the manifest declares `[[notifications]]` with `name = "new_
 
 ### Read-only re-entry
 
-When a hook is triggered by a write that the same plugin made earlier in the same execution chain (for example, a deferred effect of the plugin creates a record the plugin also hooks), the hook still runs, but read-only: `effects_allowed` is false, and any attempt to defer or perform an effect fails with `403 plugin_read_only`. The exception is `record.committed`. This prevents a plugin from reacting to its own writes in a loop. An execution chain also stops with `409 plugin_execution_cycle` when it would enter the same plugin twice outside a hook or exceed 16 plugins.
+When a hook is triggered by a write that the same plugin made earlier in the same execution chain (for example, a deferred effect of the plugin creates a record the plugin also hooks, or a route of the plugin calls an operation such as `publication.withdraw` that writes the plugin's record), the hook still runs, but read-only: `effects_allowed` is false, and any attempt to defer or perform an effect fails with `403 plugin_read_only`. The exception is `record.committed`. This prevents a plugin from reacting to its own writes in a loop. An execution chain also stops with `409 plugin_execution_cycle` when it would enter the same plugin twice outside a hook or exceed 16 plugins.
 
 ## Writing hook handlers well
 
