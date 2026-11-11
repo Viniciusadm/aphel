@@ -134,6 +134,7 @@ fn bundle_of(
                 fields: public.fields.clone(),
                 conditions: public.conditions.clone(),
                 images: public.images,
+                translated: public.translated.clone(),
             }
         })
         .collect();
@@ -175,6 +176,7 @@ fn bundle_of(
                 key: item.key.clone(),
                 label: item.label.clone(),
                 page: item.page.clone(),
+                labels: item.labels.clone(),
             })
             .collect(),
         theme: site.theme.as_ref().map(|theme| SiteTheme {
@@ -190,6 +192,7 @@ fn bundle_of(
                 key: item.key.clone(),
                 label: item.label.clone(),
                 page: item.page.clone(),
+                labels: item.labels.clone(),
             })
             .collect(),
     };

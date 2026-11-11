@@ -132,6 +132,7 @@ Settings that live in the database are edited under Settings in the app. They re
 | Site | Theme | Default theme | A theme from an installed plugin (`[site.theme]`) or the built-in one. |
 | Site | Tagline | none | Up to 160 characters, shown below the company name. Name, logo and color come from the organization. |
 | Site | Menu | Declaration order, all shown | Order and visibility of the menu items that plugins contribute. |
+| Site | Languages | Only the organization language | Up to five extra languages for the site, each under its own code (`/en`, `/es`). |
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |
 | File storage | Type | Local disk, folder `./storage` | `Local disk` or `S3 compatible`. The folder is relative to the working directory of the server and the worker, which must see the same folder. |
 | File storage | S3 options | bucket `aphel`, region `us-east-1`, path-style on, plain http off | Bucket, region, optional endpoint (MinIO, SeaweedFS, R2, B2), access key, secret key. The secret key goes to the secret vault. A test button writes, reads and deletes a small object. |

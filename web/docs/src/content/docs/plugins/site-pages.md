@@ -28,6 +28,7 @@ where = { status = "published" }
 | `fields` | array of strings | Fields of the entity that templates receive. `id`, `created_at` and `updated_at` are always available. Other fields never reach the template. |
 | `where` | table | Equality conditions applied to every read on the site, including direct links and images. A field used here must also be in `fields`. |
 | `images` | boolean | When `true`, image attachments of a public record (JPEG, PNG, WebP, GIF) become public too and reach templates as `images`. Default `false`. |
+| `translated` | array of strings | Public fields that have versions per language. See [Languages](#languages). |
 
 A record that fails the conditions does not exist for the site: its page answers 404. The consent dialog lists the public entities and fields.
 
@@ -218,7 +219,7 @@ label = "Blog"
 page = "index"
 ```
 
-Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin and hides the ones it does not want; new items appear at the end. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
+Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin. `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin and hides the ones it does not want; new items appear at the end. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
 
 The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).
 
@@ -239,6 +240,19 @@ description = "Serif type and a centered menu."
 | `site/theme/assets/*` | CSS, images and fonts, served at `/_aphel/site/themes/<plugin key>/<file>`. Link them with `{{ theme_asset('style.css') }}`. |
 
 Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
+
+## Languages
+
+The site speaks the organization language. In Settings → Site an administrator adds up to five more (Portuguese, English, Spanish, French, German, Italian). Each extra language answers under its code after the site address: `/s/en/blog`, `/s/es/blog`. The default language keeps the addresses without a code.
+
+For each request in an extra language:
+
+- `site.language` (and `site.locale`, used in `<html lang>`) is the language code; `site.prefix`, `site.home`, `url_for`, pagination, the menu and the account pages carry the language code, so links stay in the language.
+- Fields listed in `translated` take the value of `<field>_<code>` when the record has it filled (`title_en`, `body_pt_br`; the code is lowercase with `-` replaced by `_`). Otherwise the original value is used. Declare the variant fields in the entity; they do not need to be listed in `fields`.
+- Menu and *My account* labels come from `labels`.
+- Theme texts and account pages are in Portuguese for `pt*` languages and in English for the others.
+
+`aphel/head.html` writes `<link rel="alternate" hreflang>` for every language plus `x-default`, and `site.alternates` lists `{ code, url, path, current }` for a language switcher (the built-in theme shows one in the header). The sitemap lists every page in every language. Values used in `match` (a slug) are shared by all languages.
 
 ## Search engines
 

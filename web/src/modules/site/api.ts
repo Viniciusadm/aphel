@@ -20,6 +20,8 @@ export interface SiteOverview {
   menu_items: SiteMenuItem[]
   pages: number
   customers_required: boolean
+  default_language: string
+  available_languages: string[]
 }
 
 export interface SiteCustomer {

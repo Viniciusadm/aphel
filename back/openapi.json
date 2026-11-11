@@ -86684,7 +86684,9 @@
               "themes",
               "menu_items",
               "pages",
-              "customers_required"
+              "customers_required",
+              "default_language",
+              "available_languages"
             ],
             "properties": {
               "active_theme": {
@@ -86693,12 +86695,22 @@
                   "null"
                 ]
               },
+              "available_languages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "base_url": {
                 "type": "string",
                 "example": "https://www.example.com"
               },
               "customers_required": {
                 "type": "boolean"
+              },
+              "default_language": {
+                "type": "string",
+                "example": "pt-BR"
               },
               "menu_items": {
                 "type": "array",
@@ -117749,7 +117761,9 @@
           "themes",
           "menu_items",
           "pages",
-          "customers_required"
+          "customers_required",
+          "default_language",
+          "available_languages"
         ],
         "properties": {
           "active_theme": {
@@ -117758,12 +117772,22 @@
               "null"
             ]
           },
+          "available_languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "base_url": {
             "type": "string",
             "example": "https://www.example.com"
           },
           "customers_required": {
             "type": "boolean"
+          },
+          "default_language": {
+            "type": "string",
+            "example": "pt-BR"
           },
           "menu_items": {
             "type": "array",

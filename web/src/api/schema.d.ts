@@ -14025,9 +14025,12 @@ export interface components {
         Data_SiteOverviewResponse: {
             data: {
                 active_theme?: string | null;
+                available_languages: string[];
                 /** @example https://www.example.com */
                 base_url: string;
                 customers_required: boolean;
+                /** @example pt-BR */
+                default_language: string;
                 menu_items: components["schemas"]["SiteMenuItemResponse"][];
                 pages: number;
                 themes: components["schemas"]["SiteThemeResponse"][];
@@ -22028,9 +22031,12 @@ export interface components {
         };
         SiteOverviewResponse: {
             active_theme?: string | null;
+            available_languages: string[];
             /** @example https://www.example.com */
             base_url: string;
             customers_required: boolean;
+            /** @example pt-BR */
+            default_language: string;
             menu_items: components["schemas"]["SiteMenuItemResponse"][];
             pages: number;
             themes: components["schemas"]["SiteThemeResponse"][];

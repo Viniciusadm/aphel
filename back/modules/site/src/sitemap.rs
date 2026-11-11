@@ -86,9 +86,16 @@ async fn collect(
                 tags.push(cache::entity_tag(entity));
                 let mut page = 1;
                 loop {
-                    let listed =
-                        data::list(state, exposure, Some(RECORD_ID_SORT), page, BATCH, None)
-                            .await?;
+                    let listed = data::list(
+                        state,
+                        exposure,
+                        Some(RECORD_ID_SORT),
+                        page,
+                        BATCH,
+                        None,
+                        None,
+                    )
+                    .await?;
                     for record in &listed.records {
                         let Some(value) = value_text(record.get(match_field)) else {
                             continue;
@@ -180,9 +187,27 @@ pub(crate) async fn respond(
             Some(&cached.etag),
         );
     }
-    let base_url = config.site_base_url();
-    match collect(state, runtime, base_url.trim_end_matches('/')).await {
-        Ok((urls, tags)) => {
+    let base_url = config.site_base_url().trim_end_matches('/').to_owned();
+    let bases: Vec<String> = std::iter::once(base_url.clone())
+        .chain(
+            site_settings(&config)
+                .languages
+                .iter()
+                .map(|language| format!("{base_url}/{}", crate::settings::language_slug(language))),
+        )
+        .collect();
+    match collect(state, runtime, "").await {
+        Ok((paths, tags)) => {
+            let urls: Vec<SitemapUrl> = bases
+                .iter()
+                .flat_map(|base| {
+                    paths.iter().map(move |url| SitemapUrl {
+                        location: format!("{base}{}", url.location),
+                        modified: url.modified.clone(),
+                    })
+                })
+                .take(MAX_URLS)
+                .collect();
             let cached = cache::put(key, cache::page(render(&urls), String::new()), tags, None);
             text_response(
                 "application/xml; charset=utf-8",

@@ -28,6 +28,9 @@ img{max-width:100%;height:auto}
 nav.pagination{display:flex;justify-content:space-between;margin-top:2rem}
 .header-end{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem}
 a.account-entry{font-size:.875rem}
+nav.languages{display:flex;gap:.5rem;font-size:.8125rem}
+nav.languages a{color:var(--muted);text-decoration:none}
+nav.languages a[aria-current]{color:var(--fg);font-weight:600}
 .account{max-width:26rem}
 .account .stack{display:grid;gap:.85rem;margin:1rem 0}
 .account label{display:grid;gap:.3rem;font-size:.9rem}
@@ -50,6 +53,7 @@ details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem
 <a class="brand" href="{{ site.home }}">{% if site.logo_url %}<img src="{{ site.logo_url }}" alt="">{% endif %}<span>{{ site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
 <div class="header-end">
 {% if site.menu %}<nav class="menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>{% endif %}
+{% if site.alternates %}<nav class="languages" aria-label="{{ site.texts.languages }}">{% for alternate in site.alternates %}<a href="{{ alternate.path }}" hreflang="{{ alternate.code }}" lang="{{ alternate.code }}"{% if alternate.current %} aria-current="true"{% endif %}>{{ alternate.code | upper }}</a>{% endfor %}</nav>{% endif %}
 {% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}
 </div>
 </div></header>

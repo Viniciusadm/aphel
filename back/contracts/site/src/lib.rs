@@ -138,6 +138,18 @@ pub struct SiteMenuItem {
     pub key: String,
     pub label: String,
     pub page: String,
+    #[serde(default)]
+    pub labels: BTreeMap<String, String>,
+}
+
+impl SiteMenuItem {
+    pub fn label_for(&self, language: &str) -> &str {
+        self.labels
+            .iter()
+            .find(|(candidate, _)| candidate.eq_ignore_ascii_case(language))
+            .map(|(_, label)| label.as_str())
+            .unwrap_or(&self.label)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -222,6 +234,8 @@ pub struct SiteExposure {
     pub conditions: BTreeMap<String, Value>,
     #[serde(default)]
     pub images: bool,
+    #[serde(default)]
+    pub translated: Vec<String>,
 }
 
 impl SiteExposure {
@@ -450,6 +464,14 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 "site.public: {} is declared more than once",
                 exposure.entity
             ));
+        }
+        for field in &exposure.translated {
+            if !exposure.exposes(field) {
+                problems.push(format!(
+                    "site.public {}: the translated field {field} must also be listed in fields",
+                    exposure.entity
+                ));
+            }
         }
         for field in exposure.conditions.keys() {
             if !exposure.exposes(field) {

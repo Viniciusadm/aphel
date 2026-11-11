@@ -14,5 +14,7 @@
 <meta name="twitter:title" content="{{ page.title or site.name }}">
 {% if page.seo.description %}<meta name="twitter:description" content="{{ page.seo.description }}">{% endif %}
 {% endif %}
-{{ __site_import_map }}
+{% for alternate in site.alternates %}<link rel="alternate" hreflang="{{ alternate.code }}" href="{{ alternate.url }}">
+{% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ site.alternates[0].url }}">
+{% endif %}{{ __site_import_map }}
 <script type="module" src="/_aphel/site/islands.js"></script>

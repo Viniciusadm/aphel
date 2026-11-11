@@ -32,13 +32,32 @@ fn publication_filter(exposure: &SiteExposure, extra: Option<Filter>) -> Option<
     }
 }
 
-fn project(exposure: &SiteExposure, record: Value) -> Value {
+fn filled(value: &Value) -> bool {
+    match value {
+        Value::Null => false,
+        Value::String(text) => !text.trim().is_empty(),
+        _ => true,
+    }
+}
+
+fn project(exposure: &SiteExposure, record: Value, suffix: Option<&str>) -> Value {
     let Value::Object(mut record) = record else {
         return Value::Null;
     };
     if let Some(Value::Object(custom)) = record.remove("custom_fields") {
         for (field, value) in custom {
             record.entry(field).or_insert(value);
+        }
+    }
+    if let Some(suffix) = suffix {
+        for field in &exposure.translated {
+            if let Some(translation) = record
+                .get(&format!("{field}_{suffix}"))
+                .filter(|value| filled(value))
+                .cloned()
+            {
+                record.insert(field.clone(), translation);
+            }
         }
     }
     Value::Object(
@@ -53,6 +72,7 @@ async fn query(
     state: &AppState,
     exposure: &SiteExposure,
     query: RecordQuery,
+    suffix: Option<&str>,
 ) -> Result<RecordPage, AppError> {
     let scope = site_scope();
     let ports = query_ports(state).await?;
@@ -68,7 +88,7 @@ async fn query(
     Ok(RecordPage {
         records: loaded
             .into_iter()
-            .map(|record| project(exposure, record))
+            .map(|record| project(exposure, record, suffix))
             .collect(),
         total: listing.total,
     })
@@ -92,6 +112,7 @@ pub(crate) async fn record(
     field: &str,
     value: &str,
     restriction: Restriction<'_>,
+    suffix: Option<&str>,
 ) -> Result<Option<Value>, AppError> {
     let found = query(
         state,
@@ -116,6 +137,7 @@ pub(crate) async fn record(
                 limit: 1,
             },
         },
+        suffix,
     )
     .await?;
     Ok(found.records.into_iter().next())
@@ -128,6 +150,7 @@ pub(crate) async fn list(
     page: u64,
     per_page: u64,
     restriction: Restriction<'_>,
+    suffix: Option<&str>,
 ) -> Result<RecordPage, AppError> {
     query(
         state,
@@ -142,6 +165,7 @@ pub(crate) async fn list(
                 limit: per_page,
             },
         },
+        suffix,
     )
     .await
 }

@@ -81,5 +81,11 @@
     "listLabel": "Clientes do site",
     "unverified": "e-mail não confirmado",
     "since": "desde {{date}}"
+  },
+  "languages": {
+    "title": "Idiomas",
+    "description": "O site abre em {{language}}, o idioma da organização. Outros idiomas ganham um endereço próprio.",
+    "extra": "Idiomas adicionais",
+    "hint": "Os plugins mostram o conteúdo traduzido quando o registro tem a versão no idioma (por exemplo, um campo title_en). Sem tradução, aparece o texto original. As páginas de conta e os textos do tema vêm em português ou inglês."
   }
 }

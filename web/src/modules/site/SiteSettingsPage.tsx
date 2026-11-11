@@ -33,7 +33,7 @@ import { siteApi, useInvalidateSite, useSiteCustomers, useSiteOverview, useSiteR
 
 const RESERVED_SEGMENTS = ['api']
 const TAGLINE_MAX = 160
-const DEFAULT_SETTINGS: SiteSettings = { indexing: true, accounts: false, theme: null, tagline: null, menu: [] }
+const DEFAULT_SETTINGS: SiteSettings = { indexing: true, accounts: false, theme: null, tagline: null, menu: [], languages: [] }
 
 function segmentOf(basePath: string): string {
   return basePath.replace(/^\/+|\/+$/g, '')
@@ -77,6 +77,7 @@ export function SiteSettingsPage() {
           <AddressCard configuration={configuration.data} />
           <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
           <MenuCard key={overview.data.menu_items.map((item) => item.id).join()} configuration={configuration.data} overview={overview.data} />
+          <LanguagesCard configuration={configuration.data} overview={overview.data} />
           <CustomersCard configuration={configuration.data} overview={overview.data} />
           <RedirectsCard />
           <CacheCard />
@@ -416,6 +417,63 @@ function MenuCard({ configuration, overview }: { configuration: OrganizationConf
             )}
           />
         )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function languageName(code: string, locale: string): string {
+  try {
+    return new Intl.DisplayNames([locale], { type: 'language' }).of(code) ?? code
+  } catch {
+    return code
+  }
+}
+
+function LanguagesCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+  const { t, i18n } = useTranslation('site')
+  const saveSite = useSaveSite(configuration)
+  const invalidate = useInvalidateSite()
+  const [saving, setSaving] = useState(false)
+  const selected = currentSettings(configuration).languages
+
+  const toggle = async (code: string, checked: boolean) => {
+    const next = checked ? [...selected, code] : selected.filter((candidate) => candidate !== code)
+    setSaving(true)
+    try {
+      await saveSite({ languages: overview.available_languages.filter((candidate) => next.includes(candidate)) })
+      void invalidate()
+      notifySuccess(t('saved'))
+    } catch (error) {
+      notifyError(error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('languages.title')}</CardTitle>
+        <CardDescription>
+          {t('languages.description', { language: languageName(overview.default_language, i18n.language) })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        <fieldset className="grid gap-2" disabled={saving}>
+          <legend className="mb-1 text-sm font-medium">{t('languages.extra')}</legend>
+          {overview.available_languages.map((code) => (
+            <ToggleField
+              key={code}
+              id={`site-language-${code}`}
+              label={languageName(code, i18n.language)}
+              description={`${overview.base_url}/${code.toLowerCase()}/`}
+              checked={selected.includes(code)}
+              onCheckedChange={(checked) => void toggle(code, checked === true)}
+            />
+          ))}
+        </fieldset>
+        <p className="text-sm text-muted-foreground">{t('languages.hint')}</p>
       </CardContent>
     </Card>
   )

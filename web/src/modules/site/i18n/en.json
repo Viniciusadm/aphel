@@ -81,5 +81,11 @@
     "listLabel": "Site customers",
     "unverified": "email not confirmed",
     "since": "since {{date}}"
+  },
+  "languages": {
+    "title": "Languages",
+    "description": "The site opens in {{language}}, the organization language. Other languages get their own address.",
+    "extra": "Additional languages",
+    "hint": "Plugins show translated content when the record has a version in that language (for example a title_en field). Without a translation, the original text appears. Account pages and theme texts come in Portuguese or English."
   }
 }

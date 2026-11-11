@@ -53,6 +53,7 @@ export interface SiteSettings {
   theme: string | null
   tagline: string | null
   menu: SiteMenuEntry[]
+  languages: string[]
 }
 
 export interface OrganizationConfiguration {

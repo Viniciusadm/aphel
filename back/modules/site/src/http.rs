@@ -62,6 +62,9 @@ pub(crate) struct SiteOverviewResponse {
     pub menu_items: Vec<SiteMenuItemResponse>,
     pub pages: usize,
     pub customers_required: bool,
+    #[schema(example = "pt-BR")]
+    pub default_language: String,
+    pub available_languages: Vec<String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -107,6 +110,14 @@ async fn overview(
     let config = state.organization_config.snapshot();
     let theme = site_settings(&config).theme;
     let runtime = runtime::current(&state.app, theme.as_deref()).await?;
+    let default_language = {
+        use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
+        aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(state.db()?)
+            .find()
+            .await?
+            .map(|organization| organization.locale)
+            .unwrap_or_default()
+    };
     Ok(Json(Data::new(SiteOverviewResponse {
         base_url: config.site_base_url(),
         themes: runtime
@@ -124,12 +135,18 @@ async fn overview(
             .iter()
             .map(|item| SiteMenuItemResponse {
                 id: item.id.clone(),
-                label: item.label.clone(),
+                label: item.item.label.clone(),
                 path: item.path.clone(),
             })
             .collect(),
         pages: runtime.routes.len(),
         customers_required: runtime.uses_customers,
+        default_language: default_language.clone(),
+        available_languages: crate::settings::SITE_LANGUAGES
+            .iter()
+            .filter(|language| !language.eq_ignore_ascii_case(&default_language))
+            .map(|language| (*language).to_owned())
+            .collect(),
     })))
 }
 

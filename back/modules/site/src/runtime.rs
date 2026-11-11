@@ -41,8 +41,14 @@ pub(crate) struct Route {
 
 pub(crate) struct MenuCandidate {
     pub id: String,
-    pub label: String,
+    pub item: aphel_contract_site::SiteMenuItem,
     pub path: String,
+}
+
+impl MenuCandidate {
+    pub fn label(&self, language: &str) -> &str {
+        self.item.label_for(language)
+    }
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -215,7 +221,7 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
                 account_links.push(MenuCandidate {
                     id: menu_item_id(&bundle.owner, &item.key),
-                    label: item.label.clone(),
+                    item: item.clone(),
                     path: page.path.clone(),
                 });
             }
@@ -224,7 +230,7 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
                 menu.push(MenuCandidate {
                     id: menu_item_id(&bundle.owner, &item.key),
-                    label: item.label.clone(),
+                    item: item.clone(),
                     path: page.path.clone(),
                 });
             }

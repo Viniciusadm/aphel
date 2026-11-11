@@ -65,6 +65,7 @@ impl SiteRequestHandler for SiteHandler {
 struct SiteContext {
     site: serde_json::Value,
     customer: Option<SiteCustomer>,
+    suffix: Option<String>,
 }
 
 enum Outcome {
@@ -138,7 +139,7 @@ fn requested_page(query: &str) -> u64 {
         .unwrap_or(1)
 }
 
-fn cache_key(parts: &Parts, prefix: &str, runtime: &SiteRuntime, route: &Route) -> String {
+fn cache_key(parts: &Parts, path: &str, runtime: &SiteRuntime, route: &Route) -> String {
     let host = parts
         .headers
         .get(header::HOST)
@@ -149,11 +150,7 @@ fn cache_key(parts: &Parts, prefix: &str, runtime: &SiteRuntime, route: &Route) 
         PageSource::List { .. } => requested_page(parts.uri.query().unwrap_or_default()),
         _ => 1,
     };
-    format!(
-        "{host}|{prefix}|{}|{}|{page}",
-        runtime.revision(),
-        parts.uri.path()
-    )
+    format!("{host}|{}|{path}|{page}", runtime.revision())
 }
 
 const ACCOUNT_BODY_LIMIT: usize = 64 * 1024;
@@ -176,7 +173,15 @@ async fn serve(state: &AppState, request: Request) -> Response {
         }
     };
     let accounts = settings.accounts || runtime.uses_customers;
-    let path = parts.uri.path().to_owned();
+    let full_path = parts.uri.path().to_owned();
+    if readable_method(&parts.method) && full_path == SITEMAP_PATH {
+        return sitemap::respond(state, &runtime, &parts, &prefix).await;
+    }
+    if readable_method(&parts.method) && full_path == ROBOTS_PATH && prefix.is_empty() {
+        return sitemap::robots(state);
+    }
+    let (language, path) = Language::resolve(&prefix, &full_path, &settings.languages);
+    let prefix = language.prefix();
     let customer = match accounts {
         true => session::customer(state, &parts.headers).await,
         false => None,
@@ -193,7 +198,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if accounts && ACCOUNT_ROOTS.contains(&first_segment) {
         let context = match site_context(
             state,
-            &prefix,
+            &language,
             &runtime,
             &path,
             customer.as_ref(),
@@ -221,7 +226,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
         let links = runtime
             .account_links
             .iter()
-            .map(|link| json!({ "label": link.label, "url": format!("{prefix}{}", link.path) }))
+            .map(|link| json!({ "label": link.label(&locale), "url": format!("{prefix}{}", link.path) }))
             .collect();
         let segments: Vec<&str> = segments;
         return account::handle(
@@ -245,18 +250,12 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if !readable_method(&parts.method) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
-    if path == SITEMAP_PATH {
-        return sitemap::respond(state, &runtime, &parts, &prefix).await;
-    }
-    if path == ROBOTS_PATH && prefix.is_empty() {
-        return sitemap::robots(state);
-    }
-    let found = runtime.find(parts.uri.path());
+    let found = runtime.find(&path);
     let personal = customer.is_some();
     let key = found
         .as_ref()
         .filter(|_| !personal)
-        .map(|(route, _)| cache_key(&parts, &prefix, &runtime, route));
+        .map(|(route, _)| cache_key(&parts, &full_path, &runtime, route));
     if let Some(key) = &key {
         if let Ok(pool) = state.db()
             && let Err(error) = cache::sync(&pool).await
@@ -275,14 +274,22 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if RENDER_LIMIT.check(address, RATE_LIMITED).await.is_err() {
         return (StatusCode::TOO_MANY_REQUESTS, RATE_LIMITED).into_response();
     }
-    let context =
-        match site_context(state, &prefix, &runtime, &path, customer.as_ref(), accounts).await {
-            Ok(context) => context,
-            Err(error) => {
-                tracing::error!(%error, "could not load the site context");
-                return StatusCode::SERVICE_UNAVAILABLE.into_response();
-            }
-        };
+    let context = match site_context(
+        state,
+        &language,
+        &runtime,
+        &path,
+        customer.as_ref(),
+        accounts,
+    )
+    .await
+    {
+        Ok(context) => context,
+        Err(error) => {
+            tracing::error!(%error, "could not load the site context");
+            return StatusCode::SERVICE_UNAVAILABLE.into_response();
+        }
+    };
     let Some((route, params)) = found else {
         return fallback(&context, StatusCode::NOT_FOUND, Some(&runtime));
     };
@@ -304,17 +311,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
     let query = parts.uri.query().unwrap_or_default();
     let owner = route.owner.clone();
     let cacheable = !personal && !route.page.needs_customer();
-    match render_route(
-        state,
-        &runtime,
-        &context,
-        route,
-        params,
-        parts.uri.path(),
-        query,
-    )
-    .await
-    {
+    match render_route(state, &runtime, &context, route, params, &path, query).await {
         Ok(Outcome::Page { html, tags, live }) => {
             let page = cache::page(html, runtime.content_security_policy(Some(&owner)));
             let page = match key.filter(|_| cacheable) {
@@ -355,6 +352,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "next": "Próxima",
             "menu": "Menu principal",
             "sign_in": "Entrar",
+            "languages": "Idiomas",
             "my_account": "Minha conta",
         })
     } else {
@@ -368,6 +366,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "next": "Next",
             "menu": "Main menu",
             "sign_in": "Sign in",
+            "languages": "Languages",
             "my_account": "My account",
         })
     }
@@ -385,11 +384,64 @@ fn safe_color(color: Option<&str>) -> &str {
         .unwrap_or(DEFAULT_COLOR)
 }
 
+pub(crate) struct Language {
+    mount: String,
+    slug: Option<String>,
+    code: Option<String>,
+    available: Vec<String>,
+}
+
+impl Language {
+    fn resolve(mount: &str, path: &str, languages: &[String]) -> (Self, String) {
+        let first = path
+            .trim_start_matches('/')
+            .split('/')
+            .next()
+            .unwrap_or_default();
+        let code = languages
+            .iter()
+            .find(|language| crate::settings::language_slug(language) == first && !first.is_empty())
+            .cloned();
+        let rest = match &code {
+            Some(_) => {
+                let rest = &path.trim_start_matches('/')[first.len()..];
+                if rest.is_empty() {
+                    "/".to_owned()
+                } else {
+                    rest.to_owned()
+                }
+            }
+            None => path.to_owned(),
+        };
+        (
+            Self {
+                mount: mount.to_owned(),
+                slug: code.as_deref().map(crate::settings::language_slug),
+                code,
+                available: languages.to_vec(),
+            },
+            rest,
+        )
+    }
+
+    fn prefix(&self) -> String {
+        match &self.slug {
+            Some(slug) => format!("{}/{slug}", self.mount),
+            None => self.mount.clone(),
+        }
+    }
+
+    fn suffix(&self) -> Option<String> {
+        self.code.as_deref().map(crate::settings::field_suffix)
+    }
+}
+
 fn menu_of(
     runtime: &SiteRuntime,
     settings: &crate::settings::SiteSettings,
     prefix: &str,
     current: &str,
+    locale: &str,
 ) -> Vec<serde_json::Value> {
     let position = |id: &str| {
         settings
@@ -416,7 +468,7 @@ fn menu_of(
             let active = current == item.path
                 || (item.path != "/" && current.starts_with(&format!("{}/", item.path)));
             json!({
-                "label": item.label,
+                "label": item.label(locale),
                 "url": format!("{prefix}{}", item.path),
                 "active": active,
             })
@@ -426,7 +478,7 @@ fn menu_of(
 
 async fn site_context(
     state: &AppState,
-    prefix: &str,
+    language: &Language,
     runtime: &SiteRuntime,
     current: &str,
     customer: Option<&SiteCustomer>,
@@ -438,24 +490,66 @@ async fn site_context(
         .find()
         .await?
         .ok_or_else(|| AppError::NotFound("the organization is not installed".to_owned()))?;
+    let prefix = language.prefix();
+    let prefix = prefix.as_str();
+    let locale = language
+        .code
+        .clone()
+        .unwrap_or_else(|| organization.locale.clone());
+    let mount_url = config.site_base_url().trim_end_matches('/').to_owned();
+    let origin = origin_of(&mount_url).to_owned();
+    let base_url = format!("{origin}{prefix}");
+    let alternates: Vec<serde_json::Value> = if language.available.is_empty() {
+        Vec::new()
+    } else {
+        std::iter::once((organization.locale.clone(), language.mount.clone()))
+            .chain(
+                language
+                    .available
+                    .iter()
+                    .filter(|code| **code != organization.locale)
+                    .map(|code| {
+                        (
+                            code.clone(),
+                            format!(
+                                "{}/{}",
+                                language.mount,
+                                crate::settings::language_slug(code)
+                            ),
+                        )
+                    }),
+            )
+            .map(|(code, base)| {
+                json!({
+                    "code": code,
+                    "url": format!("{origin}{base}{current}"),
+                    "path": format!("{base}{current}"),
+                    "current": code == locale,
+                })
+            })
+            .collect()
+    };
     Ok(SiteContext {
+        suffix: language.suffix(),
         site: json!({
             "name": organization.name.as_str(),
-            "locale": organization.locale,
+            "locale": locale,
+            "language": locale,
+            "alternates": alternates,
             "color": safe_color(organization.primary_color.as_deref()),
             "prefix": prefix,
             "home": format!("{prefix}/"),
             "year": chrono::Utc::now().format("%Y").to_string(),
-            "texts": texts(&organization.locale),
-            "base_url": config.site_base_url().trim_end_matches('/'),
+            "texts": texts(&locale),
+            "base_url": base_url,
             "indexing": settings.indexing,
             "tagline": settings.tagline.as_deref().map(str::trim).filter(|tagline| !tagline.is_empty()),
-            "menu": menu_of(runtime, &settings, prefix, current),
+            "menu": menu_of(runtime, &settings, prefix, current, &locale),
             "logo_url": organization
                 .logo_file_id
                 .as_ref()
                 .map(|file| format!("/_aphel/site{LOGO_PATH}?v={file}")),
-            "account": accounts.then(|| account::urls(prefix, &account::paths(&organization.locale))),
+            "account": accounts.then(|| account::urls(prefix, &account::paths(&locale))),
         }),
         customer: customer.cloned(),
     })
@@ -514,8 +608,15 @@ async fn render_route(
                 .exposure(&route.owner, entity)
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
             let value = params.get(match_field).cloned().unwrap_or_default();
-            let Some(mut record) =
-                data::record(state, exposure, match_field, &value, restriction).await?
+            let Some(mut record) = data::record(
+                state,
+                exposure,
+                match_field,
+                &value,
+                restriction,
+                context.suffix.as_deref(),
+            )
+            .await?
             else {
                 let moved = redirects::lookup(&state.db()?, entity, match_field, &value).await?;
                 let location = moved.and_then(|moved| {
@@ -554,6 +655,7 @@ async fn render_route(
                 current,
                 per_page,
                 restriction,
+                context.suffix.as_deref(),
             )
             .await?;
             let pages = listed.total.div_ceil(per_page).max(1);

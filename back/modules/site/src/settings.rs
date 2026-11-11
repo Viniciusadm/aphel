@@ -8,6 +8,16 @@ use serde_json::Value;
 const SETTINGS_KEY: &str = "site";
 const MAX_TAGLINE_CHARS: usize = 160;
 const MAX_MENU_ENTRIES: usize = 100;
+const MAX_LANGUAGES: usize = 5;
+pub(crate) const SITE_LANGUAGES: &[&str] = &["pt-BR", "en", "es", "fr", "de", "it"];
+
+pub(crate) fn language_slug(language: &str) -> String {
+    language.to_ascii_lowercase()
+}
+
+pub(crate) fn field_suffix(language: &str) -> String {
+    language.to_ascii_lowercase().replace('-', "_")
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
@@ -17,6 +27,7 @@ pub(crate) struct SiteSettings {
     pub theme: Option<String>,
     pub tagline: Option<String>,
     pub menu: Vec<MenuEntry>,
+    pub languages: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,6 +45,7 @@ impl Default for SiteSettings {
             theme: None,
             tagline: None,
             menu: Vec::new(),
+            languages: Vec::new(),
         }
     }
 }
@@ -76,6 +88,20 @@ impl OrganizationConfigExtension for SiteConfiguration {
             violations.push(FieldViolation::new(
                 "site.tagline",
                 format!("must have at most {MAX_TAGLINE_CHARS} characters"),
+            ));
+        }
+        if settings.languages.len() > MAX_LANGUAGES
+            || settings
+                .languages
+                .iter()
+                .any(|language| !SITE_LANGUAGES.contains(&language.as_str()))
+        {
+            violations.push(FieldViolation::new(
+                "site.languages",
+                format!(
+                    "must have at most {MAX_LANGUAGES} of {}",
+                    SITE_LANGUAGES.join(", ")
+                ),
             ));
         }
         if settings.menu.len() > MAX_MENU_ENTRIES {

@@ -189,6 +189,8 @@ pub struct SiteMenuSpec {
     pub key: String,
     pub label: String,
     pub page: String,
+    #[serde(default)]
+    pub labels: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -208,6 +210,8 @@ pub struct SitePublicSpec {
     pub conditions: std::collections::BTreeMap<String, Value>,
     #[serde(default)]
     pub images: bool,
+    #[serde(default)]
+    pub translated: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
