@@ -346,6 +346,10 @@
       "minimal": "Minimal"
     },
     "unsupported": "This theme does not declare some saved options. Review the preview before applying, or restore defaults.",
-    "emptyPreview": "Preview empty collection"
+    "emptyPreview": "Preview empty collection",
+    "remoteChange": "The saved draft changed. Your edits are preserved. Reload this page to load the latest version before saving again.",
+    "publicationFailed": "Appearance was not published. Review the request in Publication, resolve its blocking reason and retry.",
+    "approvalsUnavailable": "Appearance was not published. Enable Approvals to process the configured policy, then retry the publication request.",
+    "reload": "Load latest draft"
   }
 }

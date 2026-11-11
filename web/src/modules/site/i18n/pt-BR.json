@@ -346,6 +346,10 @@
       "minimal": "Minimalista"
     },
     "unsupported": "Este tema não declara algumas opções salvas. Confira o preview antes de aplicar ou restaure os padrões.",
-    "emptyPreview": "Pré-visualizar coleção vazia"
+    "emptyPreview": "Pré-visualizar coleção vazia",
+    "remoteChange": "O rascunho salvo mudou. Suas alterações foram preservadas. Recarregue a página para carregar a versão mais recente antes de salvar novamente.",
+    "publicationFailed": "A aparência não foi publicada. Confira a solicitação em Publicação, resolva o impedimento e tente novamente.",
+    "approvalsUnavailable": "A aparência não foi publicada. Ative Aprovações para processar a política configurada e tente novamente a solicitação de publicação.",
+    "reload": "Carregar rascunho mais recente"
   }
 }

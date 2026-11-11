@@ -74,8 +74,14 @@ async fn catalog(
             .chain(runtime.themes.iter().map(|theme| theme.key.clone()))
             .collect();
     }
+    let mut theme_catalogs = serde_json::Map::new();
+    for key in std::iter::once("").chain(runtime.themes.iter().map(|theme| theme.key.as_str())) {
+        let selected =
+            crate::runtime::current(&state.app, (!key.is_empty()).then_some(key)).await?;
+        theme_catalogs.insert(key.to_owned(), json!({ "properties": selected.appearance.properties, "defaults": selected.appearance.defaults }));
+    }
     Ok(Json(Data::new(
-        json!({ "available": state.app.is_enabled("publication"), "properties": properties.into_iter().filter(|property| property.key != "show_terms" || state.app.is_enabled("tagging")).collect::<Vec<_>>(), "presets": appearance_presets(), "targets": targets, "theme_properties": runtime.appearance.properties, "theme_defaults": runtime.appearance.defaults, "themes": runtime.themes, "frame": { "configuration": { "site": settings }, "overview": { "base_url": state.organization_config.snapshot().site_base_url(), "default_language": locale } } }),
+        json!({ "available": state.app.is_enabled("publication"), "properties": properties.into_iter().filter(|property| property.key != "show_terms" || state.app.is_enabled("tagging")).collect::<Vec<_>>(), "presets": appearance_presets(), "targets": targets, "theme_catalogs": theme_catalogs, "theme_properties": runtime.appearance.properties, "theme_defaults": runtime.appearance.defaults, "themes": runtime.themes, "frame": { "configuration": { "site": settings }, "overview": { "base_url": state.organization_config.snapshot().site_base_url(), "default_language": locale } } }),
     )))
 }
 
