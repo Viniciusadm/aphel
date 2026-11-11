@@ -38,7 +38,11 @@
     "preview": "Pré-visualizar",
     "home": "Página inicial",
     "homeHint": "Mais de um plugin oferece a página inicial do site. Escolha qual aparece no endereço principal.",
-    "homeDefault": "Automático ({{name}})"
+    "homeDefault": "Automático ({{name}})",
+    "scrollbar": "Barra de rolagem",
+    "scrollbarHint": "Vale para a página e para áreas que rolam de lado, como carrosséis.",
+    "scrollbarDefault": "Padrão do navegador",
+    "scrollbarThemed": "Fina, na cor do site"
   },
   "menu": {
     "title": "Menu",

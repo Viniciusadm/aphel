@@ -804,6 +804,7 @@ async fn site_context(
             "texts": texts(&locale),
             "base_url": base_url,
             "indexing": settings.indexing,
+            "scrollbar": settings.scrollbar,
             "tagline": settings.tagline.as_deref().map(str::trim).filter(|tagline| !tagline.is_empty()),
             "menu": menu_of(
                 runtime,

@@ -33,7 +33,10 @@ pub(crate) struct SiteSettings {
     pub people_owner: Option<String>,
     pub links: Vec<SiteLink>,
     pub home: Option<String>,
+    pub scrollbar: String,
 }
+
+pub(crate) const SCROLLBAR_STYLES: &[&str] = &["default", "themed"];
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub(crate) struct SiteLink {
@@ -93,6 +96,7 @@ impl Default for SiteSettings {
             people_owner: None,
             links: Vec::new(),
             home: None,
+            scrollbar: SCROLLBAR_STYLES[0].to_owned(),
         }
     }
 }
@@ -163,6 +167,12 @@ impl OrganizationConfigExtension for SiteConfiguration {
                 format!(
                     "must have at most {MAX_LINKS} links with a unique id, a label of up to {MAX_LINK_LABEL_CHARS} characters and a site path (/page) or an address starting with https://"
                 ),
+            ));
+        }
+        if !SCROLLBAR_STYLES.contains(&settings.scrollbar.as_str()) {
+            violations.push(FieldViolation::new(
+                "site.scrollbar",
+                format!("must be one of {}", SCROLLBAR_STYLES.join(", ")),
             ));
         }
         if settings.home.as_deref().is_some_and(|home| {

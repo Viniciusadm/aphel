@@ -268,7 +268,7 @@ description = "Serif type and a centered menu."
 | `site/theme/not_found.html`, `site/theme/error.html` | Optional. Replace the 404 and error pages. They receive `site` and an empty `page`. |
 | `site/theme/assets/*` | CSS, images and fonts, served at `/_aphel/site/themes/<plugin key>/<file>`. Link them with `{{ theme_asset('style.css') }}`. |
 
-Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
+Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader, and, when the organization chooses a thin scrollbar in the site color (Settings → Site → Appearance, `site.scrollbar = "themed"`), the scrollbar styles. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
 
 Settings → Site → *Preview* opens the site with another theme only in that browser, for 30 minutes, without changing it for visitors. Preview pages are never cached and show a banner with a link that ends the preview.
 

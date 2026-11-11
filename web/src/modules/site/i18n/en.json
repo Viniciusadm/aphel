@@ -38,7 +38,11 @@
     "preview": "Preview",
     "home": "Home page",
     "homeHint": "More than one plugin offers the site home page. Choose which one shows at the main address.",
-    "homeDefault": "Automatic ({{name}})"
+    "homeDefault": "Automatic ({{name}})",
+    "scrollbar": "Scrollbar",
+    "scrollbarHint": "Applies to the page and to areas that scroll sideways, such as carousels.",
+    "scrollbarDefault": "Browser default",
+    "scrollbarThemed": "Thin, in the site color"
   },
   "menu": {
     "title": "Menu",

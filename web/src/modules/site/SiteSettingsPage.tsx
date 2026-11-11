@@ -60,6 +60,7 @@ const DEFAULT_SETTINGS: SiteModuleSettings = {
   people_owner: null,
   links: [],
   home: null,
+  scrollbar: 'default',
 }
 
 const LINK_PREFIX = 'link.'
@@ -105,7 +106,7 @@ export function SiteSettingsPage() {
         <div className="grid max-w-3xl gap-6">
           <SiteSummary overview={overview.data} />
           <AddressCard configuration={configuration.data} />
-          <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.home, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
+          <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.home, configuration.data.site?.scrollbar, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
           <MenuCard key={overview.data.menu_items.map((item) => item.id).join()} configuration={configuration.data} overview={overview.data} />
           <LanguagesCard configuration={configuration.data} overview={overview.data} />
           <CustomersCard configuration={configuration.data} overview={overview.data} />
@@ -293,6 +294,7 @@ function AddressCard({ configuration }: { configuration: OrganizationConfigurati
 const appearanceSchema = z.object({
   theme: z.string(),
   home: z.string(),
+  scrollbar: z.enum(['default', 'themed']),
   tagline: z.string().trim().max(TAGLINE_MAX, 'errors.tagline'),
 })
 
@@ -311,7 +313,7 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
     formState: { errors, isSubmitting, isDirty },
   } = useForm<AppearanceValues>({
     resolver: zodResolver(appearanceSchema),
-    defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', tagline: settings.tagline ?? '' },
+    defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default', tagline: settings.tagline ?? '' },
   })
   const theme = useWatch({ control, name: 'theme' })
   const [previewing, setPreviewing] = useState(false)
@@ -334,8 +336,8 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const saved = await saveSite({ theme: values.theme || null, home: values.home || null, tagline: values.tagline.trim() || null })
-      reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', tagline: saved.site?.tagline ?? '' })
+      const saved = await saveSite({ theme: values.theme || null, home: values.home || null, scrollbar: values.scrollbar, tagline: values.tagline.trim() || null })
+      reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default', tagline: saved.site?.tagline ?? '' })
       void invalidate()
       notifySuccess(t('saved'))
     } catch (error) {
@@ -385,6 +387,14 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
                 )}
               </FormRow>
             )}
+            <FormRow id="site-scrollbar" label={t('appearance.scrollbar')} hint={t('appearance.scrollbarHint')}>
+              {(describedBy) => (
+                <NativeSelect id="site-scrollbar" className="min-w-48" aria-describedby={describedBy} {...register('scrollbar')}>
+                  <option value="default">{t('appearance.scrollbarDefault')}</option>
+                  <option value="themed">{t('appearance.scrollbarThemed')}</option>
+                </NativeSelect>
+              )}
+            </FormRow>
             <FormRow
               id="site-tagline"
               label={t('appearance.tagline')}

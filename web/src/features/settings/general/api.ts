@@ -62,6 +62,7 @@ export interface SiteSettings {
   languages: string[]
   links: SiteLink[]
   home?: string | null
+  scrollbar?: 'default' | 'themed'
 }
 
 export interface OrganizationConfiguration {

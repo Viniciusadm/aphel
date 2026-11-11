@@ -19,3 +19,5 @@
 {% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ site.alternates[0].url }}">
 {% endif %}{{ __site_import_map }}
 <script type="module" src="/_aphel/site/islands.js"></script>
+{% if site.scrollbar == 'themed' %}<style>html{scrollbar-color:{{ site.color }} transparent}*{scrollbar-width:thin}::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:{{ site.color }};border-radius:999px}</style>
+{% endif %}
