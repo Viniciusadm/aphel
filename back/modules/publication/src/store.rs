@@ -16,8 +16,9 @@ const REVISION_COLUMNS: &str = "SELECT id, record_type, record_id, number, forma
      payload_hash, draft_version, note, created_by, created_at FROM publication_revisions WHERE TRUE";
 
 const REVISION_SUMMARY_COLUMNS: &str = "SELECT id, record_type, record_id, number, format, \
-     JSON_OBJECT() AS payload, payload_hash, draft_version, note, created_by, created_at \
-     FROM publication_revisions WHERE TRUE";
+     JSON_OBJECT() AS payload, payload_hash, draft_version, note, created_by, created_at, \
+     JSON_UNQUOTE(JSON_EXTRACT(payload, ";
+const REVISION_SUMMARY_FROM: &str = ")) AS title FROM publication_revisions WHERE TRUE";
 
 const REQUEST_COLUMNS: &str = "SELECT id, record_type, record_id, action, revision_id, generation, \
      expected_active_revision_id, status, run_at, requested_by, idempotency_key, input_hash, \
@@ -60,6 +61,11 @@ fn revision_from_row(row: &MySqlRow) -> Result<Revision, AppError> {
         note: row.try_get("note")?,
         created_by: row.try_get("created_by")?,
         created_at: utc(row.try_get("created_at")?),
+        title: row
+            .try_get::<Option<String>, _>("title")
+            .ok()
+            .flatten()
+            .filter(|title| !title.is_empty() && title != "null"),
     })
 }
 
@@ -246,11 +252,17 @@ pub(crate) async fn revision_in(tx: &mut MySqlTx, id: Uuid) -> Result<Option<Rev
 pub(crate) async fn revisions(
     pool: &MySqlPool,
     record: &RecordRef,
+    title_field: Option<&str>,
     limit: u32,
     offset: u32,
 ) -> Result<(Vec<Revision>, u64), AppError> {
     let mut builder = QueryBuilder::<MySql>::new(REVISION_SUMMARY_COLUMNS);
     builder
+        .push_bind(match title_field {
+            Some(field) => format!("$.fields.\"{field}\""),
+            None => "$.title_unavailable".to_owned(),
+        })
+        .push(REVISION_SUMMARY_FROM)
         .push(" AND record_type = ")
         .push_bind(record.record_type.as_str().to_owned())
         .push(" AND record_id = ")

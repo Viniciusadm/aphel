@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use aphel_contract_site::{PageSource, SITEMAP_PATH};
+use aphel_contract_site::{PageSource, SITEMAP_PATH, SiteExposure};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
 use axum::http::request::Parts;
@@ -9,8 +9,9 @@ use axum::response::{IntoResponse, Response};
 use serde_json::Value;
 
 use crate::cache;
-use crate::data;
-use crate::runtime::SiteRuntime;
+use crate::data::{self, Restriction};
+use crate::prefixes;
+use crate::runtime::{Route, SiteRuntime};
 use crate::settings::site_settings;
 
 const MAX_URLS: usize = 50_000;
@@ -45,6 +46,135 @@ fn value_text(value: Option<&Value>) -> Option<String> {
         Value::Number(number) => Some(number.to_string()),
         _ => None,
     }
+}
+
+async fn record_urls(
+    state: &AppState,
+    exposure: &SiteExposure,
+    route: &Route,
+    match_field: &str,
+    restriction: Restriction<'_>,
+    base: &str,
+    urls: &mut Vec<SitemapUrl>,
+) -> Result<(), AppError> {
+    let mut page = 1;
+    loop {
+        let listed = data::list(
+            state,
+            exposure,
+            Some(RECORD_ID_SORT),
+            page,
+            BATCH,
+            restriction,
+            None,
+        )
+        .await?;
+        for record in &listed.records {
+            let Some(value) = value_text(record.get(match_field)) else {
+                continue;
+            };
+            if let Some(path) = route
+                .pattern
+                .build(&BTreeMap::from([(match_field.to_owned(), value)]))
+            {
+                urls.push(SitemapUrl {
+                    location: joined(base, &path),
+                    modified: day_of(record.get("updated_at")),
+                });
+            }
+        }
+        if listed.records.len() < BATCH as usize
+            || page * BATCH >= listed.total
+            || urls.len() >= MAX_URLS
+        {
+            return Ok(());
+        }
+        page += 1;
+    }
+}
+
+async fn page_params(
+    state: &AppState,
+    route: &Route,
+    tags: &mut Vec<String>,
+) -> Result<Vec<BTreeMap<String, String>>, AppError> {
+    let Some(page_term) = &route.page.term else {
+        return Ok(vec![BTreeMap::new()]);
+    };
+    tags.extend(crate::terms::cache_tags());
+    Ok(crate::terms::slugs(state, page_term)
+        .await?
+        .into_iter()
+        .map(|slug| BTreeMap::from([(aphel_contract_site::TERM_PARAM.to_owned(), slug)]))
+        .collect())
+}
+
+fn joined(base: &str, path: &str) -> String {
+    if base.is_empty() {
+        return path.to_owned();
+    }
+    format!("{base}{}", path.trim_end_matches('/'))
+}
+
+async fn prefixed_urls(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    urls: &mut Vec<SitemapUrl>,
+    tags: &mut Vec<String>,
+) -> Result<(), AppError> {
+    for route in &runtime.prefixed {
+        let Some(prefix) = &route.page.prefix else {
+            continue;
+        };
+        if route.page.seo.noindex || route.page.needs_customer() {
+            continue;
+        }
+        tags.push(cache::entity_tag(&prefix.entity));
+        for candidate in prefixes::candidates(state, runtime, &route.owner, prefix).await? {
+            if urls.len() >= MAX_URLS {
+                return Ok(());
+            }
+            let (Some(segment), Some(id)) = (
+                value_text(candidate.get(&prefix.field)),
+                candidate.get("id").and_then(Value::as_str),
+            ) else {
+                continue;
+            };
+            let base = format!("/{segment}");
+            match &route.page.source {
+                PageSource::Record {
+                    entity,
+                    match_field,
+                } => {
+                    let Some(exposure) = runtime.exposure(&route.owner, entity) else {
+                        continue;
+                    };
+                    tags.push(cache::entity_tag(entity));
+                    record_urls(
+                        state,
+                        exposure,
+                        route,
+                        match_field,
+                        Some((prefix.scope.as_str(), id)),
+                        &base,
+                        urls,
+                    )
+                    .await?;
+                }
+                _ => {
+                    for params in page_params(state, route, tags).await? {
+                        if let Some(path) = route.pattern.build(&params) {
+                            urls.push(SitemapUrl {
+                                location: joined(&base, &path),
+                                modified: day_of(candidate.get("updated_at")),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 async fn collect(
@@ -83,11 +213,13 @@ async fn collect(
             }
             PageSource::List { entity, .. } => {
                 tags.push(cache::entity_tag(entity));
-                if let Some(path) = route.pattern.build(&BTreeMap::new()) {
-                    urls.push(SitemapUrl {
-                        location: format!("{base_url}{path}"),
-                        modified: None,
-                    });
+                for params in page_params(state, route, &mut tags).await? {
+                    if let Some(path) = route.pattern.build(&params) {
+                        urls.push(SitemapUrl {
+                            location: format!("{base_url}{path}"),
+                            modified: None,
+                        });
+                    }
                 }
             }
             PageSource::Record {
@@ -98,43 +230,11 @@ async fn collect(
                     continue;
                 };
                 tags.push(cache::entity_tag(entity));
-                let mut page = 1;
-                loop {
-                    let listed = data::list(
-                        state,
-                        exposure,
-                        Some(RECORD_ID_SORT),
-                        page,
-                        BATCH,
-                        None,
-                        None,
-                    )
-                    .await?;
-                    for record in &listed.records {
-                        let Some(value) = value_text(record.get(match_field)) else {
-                            continue;
-                        };
-                        if let Some(path) = route
-                            .pattern
-                            .build(&BTreeMap::from([(match_field.clone(), value)]))
-                        {
-                            urls.push(SitemapUrl {
-                                location: format!("{base_url}{path}"),
-                                modified: day_of(record.get("updated_at")),
-                            });
-                        }
-                    }
-                    if listed.records.len() < BATCH as usize
-                        || page * BATCH >= listed.total
-                        || urls.len() >= MAX_URLS
-                    {
-                        break;
-                    }
-                    page += 1;
-                }
+                record_urls(state, exposure, route, match_field, None, "", &mut urls).await?;
             }
         }
     }
+    prefixed_urls(state, runtime, &mut urls, &mut tags).await?;
     urls.truncate(MAX_URLS);
     Ok((urls, tags))
 }
@@ -193,6 +293,7 @@ pub(crate) async fn respond(
         && let Err(error) = cache::sync(&pool).await
     {
         tracing::warn!(%error, "could not read the site cache invalidations");
+        cache::forget_all();
     }
     if let Some(cached) = cache::get(&key) {
         return text_response(

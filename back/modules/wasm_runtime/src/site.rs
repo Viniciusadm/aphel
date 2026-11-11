@@ -170,6 +170,7 @@ fn bundle_of(
                 entity: manifest.entity_record_type(&public.entity),
                 fields: public.fields.clone(),
                 conditions: public.conditions.clone(),
+                filter: public.filter.clone(),
                 images: public.images,
                 translated: public.translated.clone(),
             }
@@ -195,6 +196,22 @@ fn bundle_of(
                 data: page.data.clone(),
                 requires_customer: page.requires_customer,
                 customer_field: page.customer_field.clone(),
+                prefix: page
+                    .prefix
+                    .as_ref()
+                    .map(|prefix| aphel_contract_site::PagePrefix {
+                        entity: manifest.entity_record_type(&prefix.entity),
+                        field: prefix.field.clone(),
+                        conditions: prefix.conditions.clone(),
+                        scope: prefix.scope.clone(),
+                    }),
+                term: page
+                    .term
+                    .as_ref()
+                    .map(|term| aphel_contract_site::PageTerm {
+                        field: term.field.clone(),
+                        vocabulary: term.vocabulary.clone(),
+                    }),
             }),
             Err(problem) => {
                 problems.push(problem);
@@ -274,6 +291,7 @@ fn shapes(manifest: &PluginManifest) -> Vec<(String, String)> {
         .site
         .iter()
         .flat_map(|site| &site.pages)
+        .filter(|page| page.prefix.is_none())
         .filter_map(|page| {
             PathPattern::parse(&page.path)
                 .ok()

@@ -27,6 +27,7 @@ where = { status = "published" }
 | `entity` | string | An entity of this plugin. |
 | `fields` | array of strings | Fields of the entity that templates receive. `id`, `created_at` and `updated_at` are always available. Other fields never reach the template. |
 | `where` | table | Equality conditions applied to every read on the site, including direct links and images. A field used here must also be in `fields`. |
+| `filter` | table | A record filter (the same tree as the record API's `filter`) added to `where`, for conditions equality cannot express, such as a related record: `{ related = { relationship = "parent", filter = { field = "state", operator = "eq", value = "active" } } }`. See [relations](/_aphel/docs/plugins/entities-and-fields/#record-fields-and-references). An invalid filter makes nothing public. |
 | `images` | boolean | When `true`, image attachments of a public record (JPEG, PNG, WebP, GIF) become public too and reach templates as `images`. Default `false`. |
 | `translated` | array of strings | Public fields that have versions per language. See [Languages](#languages). |
 
@@ -97,7 +98,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | `url_for(key, **params)` | Address of a page of the same plugin, including the site path. |
 | `site_path(path)` | Address of a site path typed by people (`/contact`, `/book/intro`): adds the site path and the language code, except for public app pages (`book`, `quote`, `p`), which keep the site path only. Other values (`https://…`, `#anchor`) are returned unchanged. |
 | `embed(kind, key)` | Places something another module publishes, rendered on the server: `embed('form', <form id>)` (a form of the Forms module, which also works without JavaScript) or `embed('booking', <slug>)` (a card with a button to the booking page). Unknown or inactive items render nothing. The kinds and items available come from `GET /api/v1/site/embeds`. |
-| `site_list(owner, entity, sort=, limit=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`), `limit` is 1 to 24 (default 6). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one. |
+| `site_list(owner, entity, sort=, limit=, where=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`), `limit` is 1 to 24 (default 6), `where` is a map of public fields to values (`where={'collection': prefix.id}`). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one. |
 | `value \| markdown` | Renders Markdown and removes unsafe HTML (scripts, event handlers). |
 | `value \| date(format)` | Formats an ISO date or date-time. Default `%d/%m/%Y`. |
 | `text \| from_json` | Parses a JSON text (up to 512 KB and 16 levels deep) into lists and objects, for content stored as JSON in a `long_text` field: `{% for block in record.blocks \| from_json %}`. Empty text gives nothing; invalid JSON fails the render. |
@@ -110,9 +111,59 @@ Templates are compiled when the plugin is installed: a syntax error, a missing t
 - Only `GET` and `HEAD` are answered.
 - Every response carries a content security policy that allows scripts, fonts and connections only from the same origin (plus the import map, by hash), images from the same origin, `data:` and `https:`, and the origins the page's plugin and the active theme declare in `[site.csp]`.
 - Unknown paths, records that fail the publication conditions and list pages past the last one answer 404 with the theme's page.
-- Rendered pages are kept in a cache in each server process. A change to a public record (create, update, delete, archive, restore, attachments) clears the pages that show it: its own page and the list pages of its entity. A change to the organization (name, color, settings) clears every page. Other server processes see the change within a few seconds. Plugin installs and upgrades start a new cache.
+- Rendered pages are kept in a cache in each server process. A change to a public record (create, update, delete, archive, restore) records the pages to clear in the same transaction as the change, so every process stops serving them within about a second; attachments and organization changes (name, color, settings, which clear every page) follow a few seconds later. When a process cannot read those records it stops serving from its cache instead of serving old pages. Plugin installs and upgrades start a new cache.
 - Pages carry an `ETag` and `Cache-Control: public, max-age=60, stale-while-revalidate=600`, and answer `304` to a matching `If-None-Match`. Error pages are never cached.
 - Renders (pages not in the cache) are limited to 120 per minute per client address; above that the site answers `429`.
+
+## Pages under a record's address
+
+A page can live under an address that comes from a record, such as `/blog/{slug}` where `blog` is the address of a collection chosen by people. Declare the record entity in `prefix`:
+
+```toml
+[[site.pages]]
+key = "entry"
+path = "/{slug}"
+template = "site/entry.html"
+entity = "entry"
+match = "slug"
+prefix = { entity = "collection", field = "path", where = { state = "active" }, scope = "collection" }
+```
+
+| Key | Notes |
+| --- | --- |
+| `entity` | A public entity of this plugin whose records give the first segment of the address. |
+| `field` | The public field of that entity holding the segment. |
+| `where` | Equality conditions the prefix record must meet, on public fields. |
+| `scope` | The public field of the page's own entity that points to the prefix record; record and list pages only see records of that prefix. |
+
+The page answers at `/<segment>` + `path` for every prefix record. Templates receive the prefix record as `prefix`, and `url_for` takes it as a parameter: `url_for('entry', prefix=prefix.path, slug=record.slug)`. Records listed by `site_list` or a list page of the same entity carry `site_prefix`, the segment of their prefix record, for links from cards: `url_for('entry', prefix=record.site_prefix, slug=record.slug)`. Prefix pages work for record (`match`) and list pages, not for customer pages.
+
+### Category and tag pages
+
+A list page can show the records of one public term of a `tagging` vocabulary, and of the terms below it when the vocabulary is hierarchical. Add `term` and put `{term}` in the path; it receives the term address:
+
+```toml
+[[site.pages]]
+key = "category"
+path = "/categoria/{term}"
+template = "site/collection.html"
+entity = "entry"
+list = { sort = "-published_at", per_page = 12 }
+prefix = { entity = "collection", field = "path", where = { state = "active" }, scope = "collection" }
+term = { field = "terms", vocabulary = "categories" }
+title = "{{ term.name }} · {{ prefix.name }}"
+```
+
+| Key | Notes |
+| --- | --- |
+| `field` | A public `references` field of the page's entity holding the term ids. |
+| `vocabulary` | Key of a public vocabulary. Terms of other vocabularies, or of vocabularies that are not public, answer 404. |
+
+The template receives the term as `term` (`id`, `vocabulary`, `name`, `slug`, `parent_id`). The sitemap lists one address per term of the vocabulary.
+
+Records of an entity that keeps a selection of terms (`tagging.classifiable` with `published`) carry `site_terms` when that field is public: the public terms of the selection, in order, with the same keys as `term`. Use it to show and link categories and tags: `url_for('category', prefix=record.site_prefix, term=term.slug)`. Without `tagging`, `site_terms` is empty and term pages answer 404. Renaming or moving a term refreshes the cached pages that use it.
+
+A literal path of a manifest wins over a prefix, and a prefix wins over a page that is only a parameter (such as `/{slug}`). The site refuses to save a prefix record whose segment is a literal path of the site, a reserved address or the address of a record served by a one-parameter page, and refuses the opposite too, with `422 site_path_taken`.
 
 ## Cards
 

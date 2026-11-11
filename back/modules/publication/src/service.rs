@@ -245,6 +245,7 @@ pub(crate) async fn capture(ctx: &Ctx<'_>, input: CaptureInput) -> Result<Revisi
         number: store::next_revision_number(&mut tx, &target.record).await?,
         format: target.definition.format,
         payload_hash: hash(&payload),
+        title: title_in(&payload, target.entity),
         payload,
         draft_version: expected,
         note,
@@ -654,6 +655,16 @@ pub(crate) async fn status(
     })
 }
 
+fn title_in(payload: &Value, entity: &EntityDefinition) -> Option<String> {
+    let field = entity.title_field.as_deref()?;
+    payload
+        .get("fields")?
+        .get(field)?
+        .as_str()
+        .filter(|title| !title.is_empty())
+        .map(str::to_owned)
+}
+
 pub(crate) async fn revisions(
     ctx: &Ctx<'_>,
     record_type: &str,
@@ -663,7 +674,14 @@ pub(crate) async fn revisions(
 ) -> Result<(Vec<Revision>, u64), AppError> {
     let record_id = parse_id(record_id, record_not_found)?;
     let target = visible_target(ctx, record_type.trim(), record_id).await?;
-    store::revisions(ctx.pool(), &target.record, limit, offset).await
+    store::revisions(
+        ctx.pool(),
+        &target.record,
+        target.entity.title_field.as_deref(),
+        limit,
+        offset,
+    )
+    .await
 }
 
 pub(crate) async fn revision(ctx: &Ctx<'_>, id: &str) -> Result<Revision, AppError> {

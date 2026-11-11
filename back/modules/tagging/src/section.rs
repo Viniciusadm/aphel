@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::domain::{Tag, normalize_tag_color, normalize_tag_name};
+use crate::domain::{GENERAL_VOCABULARY_ID, Tag, normalize_tag_color, normalize_tag_name, slugify};
 use crate::store::TagStore;
 use crate::taggable_record_type;
 use aphel_kernel::errors::AppError;
@@ -55,7 +55,13 @@ where
     }
 
     async fn keyed(&self) -> Result<Vec<(Tag, KeyedItem)>, AppError> {
-        let mut tags = self.tags.list().await?;
+        let mut tags: Vec<Tag> = self
+            .tags
+            .list()
+            .await?
+            .into_iter()
+            .filter(|tag| tag.vocabulary_id == GENERAL_VOCABULARY_ID)
+            .collect();
         tags.sort_by(|left, right| {
             left.created_at
                 .cmp(&right.created_at)
@@ -89,6 +95,9 @@ where
                 None => {
                     let created = Tag {
                         id: Uuid::now_v7(),
+                        vocabulary_id: GENERAL_VOCABULARY_ID,
+                        slug: free_slug(&existing, &slugify(&name)),
+                        parent_id: None,
                         name: name.clone(),
                         color,
                         record_types,
@@ -145,6 +154,22 @@ where
         }
         Ok(plans)
     }
+}
+
+fn free_slug(existing: &[(Tag, KeyedItem)], base: &str) -> Option<String> {
+    if base.is_empty() {
+        return None;
+    }
+    (1..=50)
+        .map(|attempt| match attempt {
+            1 => base.to_owned(),
+            _ => format!("{base}-{attempt}"),
+        })
+        .find(|candidate| {
+            !existing
+                .iter()
+                .any(|(tag, _)| tag.slug.as_deref() == Some(candidate.as_str()))
+        })
 }
 
 fn normalized_record_types(values: &[String]) -> Vec<String> {

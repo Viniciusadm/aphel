@@ -343,22 +343,30 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if !readable_method(&parts.method) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
-    let found = runtime.find(&path, settings.home.as_deref());
+    let found = match crate::prefixes::find(state, &runtime, &path, settings.home.as_deref()).await
+    {
+        Ok(found) => found,
+        Err(error) => {
+            tracing::error!(%error, "could not resolve the site route");
+            return StatusCode::SERVICE_UNAVAILABLE.into_response();
+        }
+    };
     let personal = customer.is_some() || previewing.is_some();
     let key = found
         .as_ref()
         .filter(|_| !personal)
-        .map(|(route, _)| cache_key(&parts, &full_path, &runtime, route));
+        .map(|found| cache_key(&parts, &full_path, &runtime, found.route));
     if let Some(key) = &key {
         if let Ok(pool) = state.db()
             && let Err(error) = cache::sync(&pool).await
         {
             tracing::warn!(%error, "could not read the site cache invalidations");
+            cache::forget_all();
         }
         if let Some(page) = cache::get(key)
             && !found
                 .as_ref()
-                .is_some_and(|(route, _)| route.page.needs_customer())
+                .is_some_and(|found| found.route.page.needs_customer())
         {
             return page_response(&page, &parts.headers, false);
         }
@@ -383,7 +391,12 @@ async fn serve(state: &AppState, request: Request) -> Response {
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }
     };
-    let Some((route, params)) = found else {
+    let Some(crate::prefixes::Found {
+        route,
+        params,
+        prefix: matched_prefix,
+    }) = found
+    else {
         return not_found(
             state,
             &mount,
@@ -422,6 +435,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
             path: &path,
             query,
             preview: previewing.as_ref(),
+            prefix: matched_prefix.as_ref(),
         },
     )
     .await
@@ -482,7 +496,12 @@ pub(crate) async fn render_draft(
     let (language, path) = Language::resolve(&mount, full_path, &settings.languages);
     let accounts = settings.accounts || runtime.uses_customers;
     let context = site_context(state, &language, runtime, &path, None, accounts).await?;
-    let Some((route, params)) = runtime.find(&path, settings.home.as_deref()) else {
+    let Some(crate::prefixes::Found {
+        route,
+        params,
+        prefix: matched_prefix,
+    }) = crate::prefixes::find(state, runtime, &path, settings.home.as_deref()).await?
+    else {
         return Ok(None);
     };
     let outcome = render_route(
@@ -495,6 +514,7 @@ pub(crate) async fn render_draft(
             path: &path,
             query: "",
             preview: Some(previewing),
+            prefix: matched_prefix.as_ref(),
         },
     )
     .await?;
@@ -542,7 +562,14 @@ async fn not_found(
                 false => found_elsewhere(&location),
             }
         }
-        Ok(None) => fallback(context, StatusCode::NOT_FOUND, Some(runtime)),
+        Ok(None) => match crate::prefixes::moved(state, runtime, path).await {
+            Ok(Some(location)) => moved_permanently(&format!("{language_prefix}{location}")),
+            Ok(None) => fallback(context, StatusCode::NOT_FOUND, Some(runtime)),
+            Err(error) => {
+                tracing::warn!(%error, "could not read the site redirects");
+                fallback(context, StatusCode::NOT_FOUND, Some(runtime))
+            }
+        },
         Err(error) => {
             tracing::warn!(%error, "could not read the site redirects");
             fallback(context, StatusCode::NOT_FOUND, Some(runtime))
@@ -865,6 +892,7 @@ struct RouteRequest<'a> {
     path: &'a str,
     query: &'a str,
     preview: Option<&'a preview::Preview>,
+    prefix: Option<&'a crate::prefixes::PrefixMatch>,
 }
 
 async fn render_route(
@@ -879,6 +907,7 @@ async fn render_route(
         path,
         query,
         preview,
+        prefix,
     } = request;
     let draft_of = |entity: &str| preview.and_then(|preview| preview.draft_for(entity));
     let customer = context.customer.as_ref();
@@ -893,7 +922,8 @@ async fn render_route(
         .page
         .customer_field
         .as_deref()
-        .zip(customer.map(|customer| customer.id.as_str()));
+        .zip(customer.map(|customer| customer.id.as_str()))
+        .or_else(|| prefix.map(|prefix| (prefix.scope.as_str(), prefix.id.as_str())));
     let mut page = json!({
         "owner": route.owner,
         "key": route.page.key,
@@ -901,6 +931,11 @@ async fn render_route(
         "params": params,
     });
     let mut tags = Vec::new();
+    if let Some(prefix) = prefix {
+        values.insert("prefix".to_owned(), prefix.record.clone());
+        tags.push(cache::entity_tag(&prefix.entity));
+        tags.push(cache::record_tag(&prefix.entity, &prefix.id));
+    }
     let mut live = false;
     if let Some(data) = &route.page.data {
         let path = aphel_contract_site::PathPattern::parse(data)
@@ -961,8 +996,12 @@ async fn render_route(
                 });
                 return Ok(match location {
                     Some(location) => Outcome::Redirect(format!(
-                        "{}{location}",
-                        context.site["prefix"].as_str().unwrap_or_default()
+                        "{}{}{location}",
+                        context.site["prefix"].as_str().unwrap_or_default(),
+                        params
+                            .get(aphel_contract_site::PREFIX_PARAM)
+                            .map(|segment| format!("/{segment}"))
+                            .unwrap_or_default()
                     )),
                     None => Outcome::NotFound,
                 });
@@ -971,6 +1010,13 @@ async fn render_route(
                 tags.push(cache::record_tag(entity, id));
             }
             images::attach_images(state, exposure, &mut record).await?;
+            crate::terms::annotate(
+                state,
+                exposure,
+                std::slice::from_mut(&mut record),
+                &mut tags,
+            )
+            .await?;
             values.insert("record".to_owned(), record);
         }
         PageSource::Single { entity, conditions } => {
@@ -1001,6 +1047,13 @@ async fn render_route(
                 return Ok(Outcome::NotFound);
             };
             images::attach_images(state, exposure, &mut record).await?;
+            crate::terms::annotate(
+                state,
+                exposure,
+                std::slice::from_mut(&mut record),
+                &mut tags,
+            )
+            .await?;
             values.insert("record".to_owned(), record);
         }
         PageSource::List {
@@ -1013,13 +1066,27 @@ async fn render_route(
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
             let per_page = (*per_page).clamp(1, MAX_PER_PAGE);
             let current = requested_page(query);
-            let mut listed = data::list(
+            let term_filter = match &route.page.term {
+                Some(page_term) => {
+                    let slug = params
+                        .get(aphel_contract_site::TERM_PARAM)
+                        .cloned()
+                        .unwrap_or_default();
+                    let Some(found) = crate::terms::find(state, page_term, &slug).await? else {
+                        return Ok(Outcome::NotFound);
+                    };
+                    tags.extend(crate::terms::cache_tags());
+                    values.insert("term".to_owned(), json!(found.term));
+                    Some(data::any_of(&page_term.field, &found.ids))
+                }
+                None => None,
+            };
+            let mut listed = data::list_in(
                 state,
                 exposure,
-                sort.as_deref(),
-                current,
-                per_page,
+                (sort.as_deref(), current, per_page),
                 restriction,
+                term_filter,
                 context.suffix.as_deref(),
             )
             .await?;
@@ -1031,6 +1098,8 @@ async fn render_route(
             for record in &mut listed.records {
                 images::attach_images(state, exposure, record).await?;
             }
+            crate::prefixes::annotate(state, runtime, entity, &mut listed.records).await?;
+            crate::terms::annotate(state, exposure, &mut listed.records, &mut tags).await?;
             let base = format!(
                 "{}{}",
                 context.site["prefix"].as_str().unwrap_or_default(),

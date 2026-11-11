@@ -210,7 +210,7 @@ pub struct MySqlOrganizationConfigPorts {
 }
 
 impl MySqlOrganizationConfigPorts {
-    pub(crate) fn new(
+    pub fn new(
         pool: MySqlPool,
         secrets: SharedSecretVault,
         events: SharedEventPublisher,

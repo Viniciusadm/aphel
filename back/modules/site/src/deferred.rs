@@ -32,6 +32,8 @@ pub(crate) enum Deferred {
         entity: String,
         sort: Option<String>,
         limit: u64,
+        #[serde(default)]
+        conditions: std::collections::BTreeMap<String, serde_json::Value>,
     },
 }
 
@@ -122,7 +124,8 @@ async fn resolve_one(
             entity,
             sort,
             limit,
-        } => list(owner, entity, sort.as_deref(), *limit, context).await,
+            conditions,
+        } => list(owner, entity, sort.as_deref(), *limit, conditions, context).await,
     }
 }
 
@@ -184,6 +187,7 @@ async fn list(
     entity: &str,
     sort: Option<&str>,
     limit: u64,
+    conditions: &std::collections::BTreeMap<String, serde_json::Value>,
     context: &ResolveContext<'_>,
 ) -> Result<Resolution, AppError> {
     let record_type = format!("{owner}.{entity}");
@@ -203,18 +207,23 @@ async fn list(
         return Ok(empty);
     };
     let sort = sort_of(sort, |field| exposure.exposes(field));
-    let mut found = data::list(
+    if conditions.keys().any(|field| !exposure.exposes(field)) {
+        return Ok(empty);
+    }
+    let mut records = data::matching(
         context.state,
         exposure,
+        conditions,
         Some(&sort),
-        1,
         limit.clamp(1, MAX_LIST_LIMIT),
-        None,
         context.suffix,
     )
     .await?;
+    crate::prefixes::annotate(context.state, context.runtime, &record_type, &mut records).await?;
+    let mut tags = vec![cache::entity_tag(&record_type)];
+    crate::terms::annotate(context.state, exposure, &mut records, &mut tags).await?;
     let mut cards = String::new();
-    for record in &mut found.records {
+    for record in &mut records {
         images::attach_images(context.state, exposure, record).await?;
         let values = json!({
             "site": context.site,
@@ -232,13 +241,13 @@ async fn list(
     if cards.is_empty() {
         return Ok(Resolution {
             html: String::new(),
-            tags: vec![cache::entity_tag(&record_type)],
+            tags,
             live: false,
         });
     }
     Ok(Resolution {
         html: format!("<ul class=\"site-list site-list-{owner}-{entity}\">{cards}</ul>"),
-        tags: vec![cache::entity_tag(&record_type)],
+        tags,
         live: false,
     })
 }

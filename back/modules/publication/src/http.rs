@@ -45,6 +45,7 @@ pub(crate) struct RevisionResponse {
     #[schema(value_type = String, format = DateTime)]
     pub(crate) draft_version: DateTime<Utc>,
     pub(crate) note: Option<String>,
+    pub(crate) title: Option<String>,
     pub(crate) created_by: Option<String>,
     #[schema(value_type = String, format = DateTime)]
     pub(crate) created_at: DateTime<Utc>,
@@ -62,6 +63,7 @@ impl RevisionResponse {
             payload_hash: revision.payload_hash,
             draft_version: revision.draft_version,
             note: revision.note,
+            title: revision.title,
             created_by: revision.created_by,
             created_at: revision.created_at,
         }
@@ -187,7 +189,7 @@ pub(crate) struct WithdrawRequest {
     operation_id = "publication_revisions_list",
     security(("session_cookie" = [])),
     params(RecordQuery, PaginationQuery),
-    description = "Revisions of a publishable record, newest first, without payloads. Needs read access to the record.",
+    description = "Revisions of a publishable record, newest first, without payloads; `title` is the record's title field in each revision. Needs read access to the record.",
     responses(
         (status = 200, description = "Revisions", body = Page<RevisionResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),

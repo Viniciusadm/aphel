@@ -215,6 +215,8 @@ pub struct SitePublicSpec {
     #[serde(default, rename = "where")]
     pub conditions: std::collections::BTreeMap<String, Value>,
     #[serde(default)]
+    pub filter: Option<Value>,
+    #[serde(default)]
     pub images: bool,
     #[serde(default)]
     pub translated: Vec<String>,
@@ -244,6 +246,27 @@ pub struct SitePageSpec {
     pub requires_customer: bool,
     #[serde(default)]
     pub customer_field: Option<String>,
+    #[serde(default)]
+    pub prefix: Option<SitePrefixSpec>,
+    #[serde(default)]
+    pub term: Option<SiteTermSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteTermSpec {
+    pub field: String,
+    pub vocabulary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SitePrefixSpec {
+    pub entity: String,
+    pub field: String,
+    #[serde(default, rename = "where")]
+    pub conditions: std::collections::BTreeMap<String, Value>,
+    pub scope: String,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]

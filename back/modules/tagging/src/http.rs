@@ -36,7 +36,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     security(("session_cookie" = [])),
     params(TagListParams, PaginationQuery),
     responses(
-        (status = 200, description = "Tags of the organization ordered by name, with how many records use each one. With `record_type`, only tags allowed on that type. Any member (and any valid API token) can list them", body = Page<TagResponse>),
+        (status = 200, description = "Terms of one vocabulary (`vocabulary`, default `general`: the tags of records) ordered by name, with how many records use each one. With `record_type`, only tags allowed on that type. Any member (and any valid API token) can list them", body = Page<TagResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 422, description = "Record type cannot be tagged (`record_type_not_taggable`) or invalid pagination (`validation_error`)", body = ErrorEnvelope),
     )
@@ -50,6 +50,7 @@ async fn list_tags(
     let tags = service::list(
         &Ctx::from_state(&state, &tenant.scope).await?,
         params.record_type.as_deref(),
+        params.vocabulary.as_deref(),
     )
     .await?;
     let total = tags.len() as u64;
@@ -75,8 +76,9 @@ async fn list_tags(
         (status = 201, description = "Tag created (`tag.created`). Empty `record_types` means the tag can be used on all supported record types", body = Data<TagResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
-        (status = 409, description = "Another tag already has this name (`tag_name_taken`)", body = ErrorEnvelope),
-        (status = 422, description = "Invalid name, color or record types (`validation_error`) or the organization already has the maximum number of tags (`too_many_tags`)", body = ErrorEnvelope),
+        (status = 404, description = "Vocabulary not found (`tag_vocabulary_not_found`)", body = ErrorEnvelope),
+        (status = 409, description = "Another term of the vocabulary already has this name (`tag_name_taken`) or address (`tag_slug_taken`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid name, address, parent, color or record types (`validation_error`) or the organization already has the maximum number of tags (`too_many_tags`)", body = ErrorEnvelope),
     )
 )]
 async fn create_tag(
@@ -131,7 +133,7 @@ async fn get_tag(
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Tag not found (`tag_not_found`)", body = ErrorEnvelope),
-        (status = 409, description = "Another tag already has this name (`tag_name_taken`) or the tag changed since the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
+        (status = 409, description = "Another term of the vocabulary already has this name (`tag_name_taken`) or address (`tag_slug_taken`), or the tag changed since the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid name, color or record types, or malformed `If-Match` (`validation_error`)", body = ErrorEnvelope),
     )
 )]
@@ -161,6 +163,7 @@ async fn update_tag(
     params(("tag_id" = String, Path, description = "Tag id")),
     responses(
         (status = 204, description = "Tag and all its taggings deleted (`tag.deleted`)"),
+        (status = 409, description = "The term has terms below it (`tag_has_children`) or is selected in records that keep their own classification (`tag_in_use`, `details.records` counts them per entity)", body = ErrorEnvelope),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "Tag not found (`tag_not_found`)", body = ErrorEnvelope),

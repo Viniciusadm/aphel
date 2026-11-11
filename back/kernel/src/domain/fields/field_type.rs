@@ -14,6 +14,7 @@ pub enum FieldType {
     Phone,
     User,
     Record,
+    References,
     Custom {
         key: &'static str,
         base: &'static str,
@@ -47,7 +48,7 @@ impl ValueColumn {
 }
 
 impl FieldType {
-    pub const ALL: [Self; 14] = [
+    pub const ALL: [Self; 15] = [
         Self::Text,
         Self::LongText,
         Self::Number,
@@ -62,6 +63,7 @@ impl FieldType {
         Self::Phone,
         Self::User,
         Self::Record,
+        Self::References,
     ];
 
     pub fn as_str(&self) -> &'static str {
@@ -80,6 +82,7 @@ impl FieldType {
             Self::Phone => "phone",
             Self::User => "user",
             Self::Record => "record",
+            Self::References => "references",
             Self::Custom { key, .. } => key,
         }
     }
@@ -115,7 +118,7 @@ impl FieldType {
             Self::DateTime => ValueColumn::DateTime,
             Self::Checkbox => ValueColumn::Bool,
             Self::Select => ValueColumn::Option,
-            Self::MultiSelect => ValueColumn::MultiOption,
+            Self::MultiSelect | Self::References => ValueColumn::MultiOption,
             Self::Custom { .. } => unreachable!(),
         }
     }
@@ -141,7 +144,7 @@ impl FieldType {
     pub fn is_sortable(&self) -> bool {
         !matches!(
             self.base_type(),
-            Self::MultiSelect | Self::LongText | Self::User | Self::Record
+            Self::MultiSelect | Self::LongText | Self::User | Self::Record | Self::References
         )
     }
 

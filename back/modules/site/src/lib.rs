@@ -11,16 +11,23 @@ pub(crate) mod handler;
 pub(crate) mod http;
 pub(crate) mod images;
 pub(crate) mod invalidation;
+pub(crate) mod paths;
 pub(crate) mod people_link;
+pub(crate) mod prefixes;
 pub(crate) mod preview;
 pub(crate) mod privacy;
+pub(crate) mod provision;
 pub(crate) mod redirects;
 pub(crate) mod runtime;
 pub(crate) mod session;
 pub(crate) mod settings;
 pub(crate) mod sitemap;
+mod terms;
 
 use std::sync::Arc;
+
+const INVALIDATION_PRIORITY: i32 = 90;
+const PATH_PRIORITY: i32 = 30;
 
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, SiteRequestHandler};
@@ -107,6 +114,7 @@ impl Module for SiteModule {
                 "site_customer_tokens",
                 "site_path_redirects",
                 "site_previews",
+                "site_path_lock",
             ])
             .migration(Migration::new(
                 1,
@@ -143,6 +151,11 @@ impl Module for SiteModule {
                 "add site preview record",
                 include_str!("../migrations/0007_add_site_preview_record.sql"),
             ))
+            .migration(Migration::new(
+                8,
+                "create site path lock",
+                include_str!("../migrations/0008_create_site_path_lock.sql"),
+            ))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
@@ -152,6 +165,34 @@ impl Module for SiteModule {
         app.permission(PermissionDefinition::record(CUSTOMERS_READ.clone()))
             .grant_to(["admin", "manager"]);
         app.contribute::<dyn SiteRequestHandler>(Arc::new(handler::SiteHandler));
+        app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(Arc::new(
+            provision::LinkProvisioner,
+        ));
+        app.on(
+            aphel_kernel::records::RecordSaved,
+            INVALIDATION_PRIORITY,
+            |ctx, args| Box::pin(invalidation::invalidate_in_tx(ctx.tx, &args.record)),
+        )
+        .on(
+            aphel_kernel::records::RecordDeleted,
+            INVALIDATION_PRIORITY,
+            |ctx, args| Box::pin(invalidation::invalidate_in_tx(ctx.tx, &args.record)),
+        )
+        .on(
+            aphel_kernel::records::RecordArchiving,
+            INVALIDATION_PRIORITY,
+            |ctx, args| Box::pin(invalidation::invalidate_in_tx(ctx.tx, &args.record)),
+        )
+        .on(
+            aphel_kernel::records::RecordRestored,
+            INVALIDATION_PRIORITY,
+            |ctx, args| Box::pin(invalidation::invalidate_in_tx(ctx.tx, &args.record)),
+        )
+        .on(
+            aphel_kernel::records::RecordValidating,
+            PATH_PRIORITY,
+            |ctx, args| Box::pin(paths::guard(ctx, args)),
+        );
         app.contribute::<dyn aphel_sdk::merges::MergeReferences>(Arc::new(
             people_link::PersonMerges,
         ));

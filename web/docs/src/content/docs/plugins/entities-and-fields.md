@@ -97,8 +97,37 @@ To write a record, send only the values you want to set. To avoid overwriting a 
 | `phone` | string, normalized | `unique` |
 | `user` | user id | |
 | `record` | record id | `target` (required): the record type referenced |
+| `references` | array of ids | Stored as a JSON list. Filters with `in` match records whose list holds any of the ids. A single-field index on it is a multi-valued index. Not available to fields administrators create. |
 
 A type registered by a module through the field type registry can also be used by its key. Options that a type does not support are rejected: for example `min` on a `text` field gives `is not supported by text fields`.
+
+### Categories and tags
+
+An entity can keep its own selection of terms from `tagging` vocabularies, such as categories and tags, in a `references` field. Declare it with a contribution; `tagging` is then an optional dependency:
+
+```toml
+[uses]
+optional = ["tagging@1"]
+
+[[entities.fields]]
+key = "draft_terms"
+label = "Categorias e tags (rascunho)"
+type = "references"
+
+[[contribute]]
+point = "tagging.classifiable"
+name = "entry"
+data = { entity = "content.entry", field = "draft_terms", published = "terms", vocabularies = ["categories", "tags"] }
+```
+
+| Key | Notes |
+| --- | --- |
+| `entity` | The entity that keeps the selection. |
+| `field` | The `references` field people edit. On every save, ids of terms that no longer exist are dropped, and a term of a vocabulary not listed in `vocabularies` fails with `422 tag_not_allowed`. |
+| `published` | Optional field that receives the selection when the record is published (for example a `publication` projection). Public site pages and filters read this one. |
+| `vocabularies` | Keys of the vocabularies the entity accepts. |
+
+A term selected in `field` or `published` of any record cannot be deleted (`409 tag_in_use`). Without `tagging`, the field keeps its values and nothing is validated.
 
 Common options for every type: `label`, `required`, `searchable`, `personal`, `sensitive`. Mark fields that hold personal data as `personal`; `sensitive` implies `personal` and redacts the value in audit entries. See [Manifest](/_aphel/docs/plugins/manifest/) for the full table.
 
@@ -123,6 +152,14 @@ entity = "library.author"
 ```
 
 `restrict` blocks the deletion, `clear` sets the field to empty (not allowed for required fields) and `cascade` deletes the referencing records.
+
+A reference to an entity can also be named as a relation, so filters can look at the referenced record (for example, the site exposure of an entry that is public only while its collection is active):
+
+```toml
+relations = [{ key = "parent", field = "collection" }]
+```
+
+`field` must be listed in `references` with an `entity` target, and `key` must differ from every field key. Filters then use `{ related = { relationship = "parent", filter = { field = "state", operator = "eq", value = "active" } } }`.
 
 ### Unique fields
 

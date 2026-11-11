@@ -652,7 +652,7 @@ async fn install_plugin(
     scope.require(&Permission::SYSTEM_MANAGE)?;
     let (bytes, presets) = package_bytes(multipart).await?;
     let package = read_package(&bytes)?;
-    let prepared = prepare_install(&state, scope, package, &[], &[]).await?;
+    let prepared = prepare_install(&state, scope, package, &[], &[], &[]).await?;
     let presets = grants::selected_presets(&prepared.package.manifest, &presets)?;
     if params.dry_run {
         return Ok(Json(Data::new(consent_of(&state, &prepared).await?)).into_response());
@@ -684,6 +684,7 @@ pub(crate) async fn prepare_install(
     package: crate::package::PluginPackage,
     extra_operations: &[String],
     pack: &[PluginManifest],
+    pending_contracts: &[String],
 ) -> Result<PreparedInstall, AppError> {
     let compiled: Vec<String> = state
         .app
@@ -734,7 +735,7 @@ pub(crate) async fn prepare_install(
         )
         .await?;
     }
-    schema::check_with(state, &package.manifest, pack).await?;
+    schema::check_with(state, &package.manifest, pack, pending_contracts).await?;
     let conflicts = crate::conflicts::detect_for(&pool, &package.manifest).await?;
     let module_conflicts = crate::modules::plan(state, scope, &package.manifest).await?;
     Ok(PreparedInstall {
@@ -881,6 +882,8 @@ pub(crate) struct PluginPackConsentResponse {
     role_presets: Vec<String>,
     web: bool,
     plugins: Vec<PackPluginConsentResponse>,
+    modules_to_enable: Vec<String>,
+    provisions: Vec<crate::provision::ProvisionPlanResponse>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -900,6 +903,8 @@ pub(crate) struct PluginPackResponse {
     description: Option<String>,
     complete: bool,
     plugins: Vec<PackPluginResultResponse>,
+    modules_enabled: Vec<String>,
+    provisions: Vec<crate::provision::ProvisionResultResponse>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -986,7 +991,7 @@ async fn list_packs(
     tag = TAG,
     operation_id = "plugin_packs_install",
     security(("session_cookie" = [])),
-    description = "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. Publishes `plugin.pack_installed`.",
+    description = "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins. After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`.",
     params(InstallParams),
     request_body(content_type = "multipart/form-data", description = "Field `package` with the .aphelpack file and optional `role_presets` (comma separated)"),
     responses(
@@ -1010,6 +1015,9 @@ async fn install_pack(
     scope.require(&Permission::SYSTEM_MANAGE)?;
     let (bytes, presets) = package_bytes(multipart).await?;
     let pack = crate::pack::read_pack(&bytes)?;
+    let requirements = crate::provision::requirements(&state, scope, &pack.manifest).await?;
+    let pending_contracts =
+        crate::provision::module_contracts(&state, &requirements.modules_to_enable);
     let catalog = crate::bridge::host_catalog();
     crate::pack::ensure_dependencies(&pack, &catalog.operations)?;
     let provided = pack.provided_operations();
@@ -1026,26 +1034,33 @@ async fn install_pack(
     };
     let mut prepared = Vec::with_capacity(pack.members.len());
     for member in &pack.members {
-        let outcome = prepare_install(&state, scope, member.package.clone(), &provided, &manifests)
-            .await
-            .and_then(|mut ready| {
-                ready
-                    .conflicts
-                    .retain(|conflict| !keys.contains(&conflict.other_plugin));
-                let own: Vec<String> = selected
-                    .iter()
-                    .filter(|preset| {
-                        ready
-                            .package
-                            .manifest
-                            .role_presets
-                            .iter()
-                            .any(|candidate| &&candidate.key == preset)
-                    })
-                    .cloned()
-                    .collect();
-                grants::selected_presets(&ready.package.manifest, &own).map(|own| (ready, own))
-            });
+        let outcome = prepare_install(
+            &state,
+            scope,
+            member.package.clone(),
+            &provided,
+            &manifests,
+            &pending_contracts,
+        )
+        .await
+        .and_then(|mut ready| {
+            ready
+                .conflicts
+                .retain(|conflict| !keys.contains(&conflict.other_plugin));
+            let own: Vec<String> = selected
+                .iter()
+                .filter(|preset| {
+                    ready
+                        .package
+                        .manifest
+                        .role_presets
+                        .iter()
+                        .any(|candidate| &&candidate.key == preset)
+                })
+                .cloned()
+                .collect();
+            grants::selected_presets(&ready.package.manifest, &own).map(|own| (ready, own))
+        });
         prepared.push(outcome);
     }
     let previous_pack = store::find_pack(&state.db()?, &pack.manifest.key).await?;
@@ -1089,6 +1104,8 @@ async fn install_pack(
                 .iter()
                 .any(|member| member.package.manifest.web.is_some()),
             plugins,
+            modules_to_enable: requirements.modules_to_enable.clone(),
+            provisions: crate::provision::plan(&state, scope, &pack.manifest).await?,
         };
         return Ok(Json(Data::new(consent)).into_response());
     }
@@ -1134,6 +1151,7 @@ async fn install_pack(
         crate::conflicts::require_acknowledged(&plan.conflicts, params.acknowledge_conflicts)?;
         crate::modules::ensure_unblocked(&plan.module_conflicts)?;
     }
+    crate::provision::enable_modules(&state, scope, &requirements.modules_to_enable).await?;
     let pool = state.db()?;
     let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         pool.begin().await.map_err(AppError::from)?,
@@ -1228,6 +1246,14 @@ async fn install_pack(
     .await?;
     tx.commit().await.map_err(AppError::from)?;
     registry::invalidate().await;
+    let provisions = if failed {
+        Vec::new()
+    } else {
+        let (provisions, provision_failed) =
+            crate::provision::run(&state, scope, &pack.manifest).await?;
+        failed = provision_failed;
+        provisions
+    };
     let status = if failed {
         StatusCode::MULTI_STATUS
     } else {
@@ -1242,6 +1268,8 @@ async fn install_pack(
             description: pack.manifest.description.clone(),
             complete: !failed,
             plugins: results,
+            modules_enabled: requirements.modules_to_enable,
+            provisions,
         })),
     )
         .into_response())

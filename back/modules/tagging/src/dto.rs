@@ -4,6 +4,7 @@ use utoipa::{IntoParams, ToSchema};
 
 use crate::domain::Tag;
 use crate::{CreateTagCommand, TagView, UpdateTagCommand};
+use aphel_sdk::platform::api::dto::common::double_option;
 
 fn timestamp(value: DateTime<Utc>) -> String {
     value.to_rfc3339_opts(SecondsFormat::Secs, true)
@@ -14,6 +15,8 @@ fn timestamp(value: DateTime<Utc>) -> String {
 pub(crate) struct TagListParams {
     #[param(example = "people.person")]
     pub(crate) record_type: Option<String>,
+    #[param(example = "categories")]
+    pub(crate) vocabulary: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
@@ -41,8 +44,13 @@ impl RecordTagLookupParams {
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct CreateTagRequest {
+    #[schema(example = "categories")]
+    pub(crate) vocabulary: Option<String>,
     #[schema(example = "VIP customer")]
     pub(crate) name: String,
+    #[schema(example = "vip-customer")]
+    pub(crate) slug: Option<String>,
+    pub(crate) parent_id: Option<String>,
     #[schema(example = "#1f6feb")]
     pub(crate) color: Option<String>,
     #[serde(default)]
@@ -53,7 +61,10 @@ pub(crate) struct CreateTagRequest {
 impl CreateTagRequest {
     pub(crate) fn into_command(self, ip: Option<String>) -> CreateTagCommand {
         CreateTagCommand {
+            vocabulary: self.vocabulary,
             name: self.name,
+            slug: self.slug,
+            parent_id: self.parent_id,
             color: self.color,
             record_types: self.record_types,
             ip,
@@ -65,6 +76,10 @@ impl CreateTagRequest {
 #[serde(deny_unknown_fields)]
 pub(crate) struct UpdateTagRequest {
     pub(crate) name: Option<String>,
+    pub(crate) slug: Option<String>,
+    #[serde(default, deserialize_with = "double_option")]
+    #[schema(value_type = Option<String>)]
+    pub(crate) parent_id: Option<Option<String>>,
     pub(crate) color: Option<String>,
     pub(crate) record_types: Option<Vec<String>>,
 }
@@ -77,6 +92,8 @@ impl UpdateTagRequest {
     ) -> UpdateTagCommand {
         UpdateTagCommand {
             name: self.name,
+            slug: self.slug,
+            parent_id: self.parent_id,
             color: self.color,
             record_types: self.record_types,
             ip,
@@ -113,7 +130,11 @@ impl From<Tag> for TagSummary {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct TagResponse {
     pub(crate) id: String,
+    #[schema(example = "general")]
+    pub(crate) vocabulary: String,
     pub(crate) name: String,
+    pub(crate) slug: Option<String>,
+    pub(crate) parent_id: Option<String>,
     pub(crate) color: String,
     #[schema(example = json!(["contact"]))]
     pub(crate) record_types: Vec<String>,
@@ -130,7 +151,10 @@ impl From<TagView> for TagResponse {
         let tag = view.tag;
         Self {
             id: tag.id.to_string(),
+            vocabulary: view.vocabulary,
             name: tag.name,
+            slug: tag.slug,
+            parent_id: tag.parent_id.map(|id| id.to_string()),
             color: tag.color,
             record_types: tag.record_types,
             usage_count: view.usage_count,

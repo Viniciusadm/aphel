@@ -2,11 +2,15 @@ use aphel_contract::{
     Contract, ContractDescriptor, KeyEntry, KeyKind, OperationKey, ReferenceKind, contract,
     operation, reference,
 };
+use aphel_kernel::errors::AppError;
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 pub const TAGGABLE: &str = "tagging.taggable";
+pub const CLASSIFIABLE: &str = "tagging.classifiable";
+pub const VOCABULARY_PROVISION: &str = "tagging.vocabulary";
 
-pub const CONTRACT: Contract = contract!("tagging", "1.0.0");
+pub const CONTRACT: Contract = contract!("tagging", "1.1.0");
 
 pub const APPLY: OperationKey<TagRecord, Tagging> = operation!("tagging.apply");
 pub const REMOVE: OperationKey<TagRecord, Tagging> = operation!("tagging.remove");
@@ -22,6 +26,11 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
             TAGGABLE,
             KeyKind::ExtensionPoint,
             "Entities that accept tags",
+        ),
+        KeyEntry::new(
+            CLASSIFIABLE,
+            KeyKind::ExtensionPoint,
+            "Entities that keep their own selection of terms in a references field",
         ),
         KeyEntry::new(
             "tagging.apply",
@@ -67,6 +76,8 @@ pub struct Tagging {
 pub struct ListTags {
     #[serde(default)]
     pub record_type: Option<String>,
+    #[serde(default)]
+    pub vocabulary: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -77,7 +88,13 @@ pub struct GetTag {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TagInfo {
     pub id: String,
+    #[serde(default)]
+    pub vocabulary: String,
     pub name: String,
+    #[serde(default)]
+    pub slug: Option<String>,
+    #[serde(default)]
+    pub parent_id: Option<String>,
     pub color: String,
     pub record_types: Vec<String>,
     pub usage_count: u64,
@@ -89,4 +106,31 @@ pub struct TagInfo {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TagList {
     pub data: Vec<TagInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ClassifiableDefinition {
+    pub entity: String,
+    pub field: String,
+    #[serde(default)]
+    pub published: Option<String>,
+    pub vocabularies: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PublicTerm {
+    pub id: String,
+    pub vocabulary: String,
+    pub name: String,
+    pub slug: String,
+    pub parent_id: Option<String>,
+}
+
+#[async_trait]
+pub trait TermResolver: Send + Sync {
+    async fn resolve(&self, ids: &[String]) -> Result<Vec<PublicTerm>, AppError>;
+    async fn find(&self, vocabulary: &str, slug: &str) -> Result<Option<PublicTerm>, AppError>;
+    async fn descendants(&self, id: &str) -> Result<Vec<String>, AppError>;
+    async fn terms(&self, vocabulary: &str) -> Result<Vec<PublicTerm>, AppError>;
 }

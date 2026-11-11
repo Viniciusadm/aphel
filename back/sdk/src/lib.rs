@@ -136,6 +136,8 @@ pub mod timeline;
 
 pub mod privacy;
 
+pub mod provisioning;
+
 pub mod favorites;
 
 pub mod followers;

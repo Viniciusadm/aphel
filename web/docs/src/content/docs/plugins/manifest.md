@@ -76,7 +76,7 @@ Both tables use the same keys. In `[[fields]]` (top-level) there is one more key
 | `record_type` | string | only in `[[fields]]` | | The record type that receives the field. Extending a custom object of another owner is refused (`cannot extend custom objects of other plugins`). |
 | `key` | string | yes | | Lowercase key, at most 64 characters. |
 | `label` | string | yes | | |
-| `type` | string | yes | | One of `text`, `long_text`, `number`, `currency`, `date`, `datetime`, `select`, `multi_select`, `checkbox`, `url`, `email`, `phone`, `user`, `record`, or a field type registered by a module. Error: `is not a known field type`. |
+| `type` | string | yes | | One of `text`, `long_text`, `number`, `currency`, `date`, `datetime`, `select`, `multi_select`, `checkbox`, `url`, `email`, `phone`, `user`, `record`, `references`, or a field type registered by a module. Error: `is not a known field type`. |
 | `required` | boolean | no | `false` | |
 | `searchable` | boolean | no | `false` | Included in global search. |
 | `unique` | boolean | no | `false` | Only for `text`, `number`, `url`, `email`, `phone`. Error: `is only supported by text, number, url, email and phone fields`. |

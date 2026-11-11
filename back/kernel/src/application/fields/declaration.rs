@@ -30,6 +30,15 @@ pub struct EntityDeclaration {
     pub title_field: Option<String>,
     #[serde(default)]
     pub fields: Vec<FieldDef>,
+    #[serde(default)]
+    pub relations: Vec<RelationDeclaration>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RelationDeclaration {
+    pub key: String,
+    pub field: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -140,6 +149,38 @@ impl EntityDeclaration {
         ))?);
         definition.storage = self.storage;
         definition.references = self.references.clone();
+        for relation in &self.relations {
+            let target = self
+                .references
+                .iter()
+                .find(|reference| reference.field == relation.field)
+                .and_then(|reference| match &reference.target {
+                    super::ReferenceTarget::Entity { entity } => Some(entity.clone()),
+                    _ => None,
+                })
+                .ok_or_else(|| {
+                    crate::errors::AppError::Configuration(format!(
+                        "relation {} needs a reference to an entity in field {}",
+                        relation.key, relation.field
+                    ))
+                })?;
+            let label = self
+                .fields
+                .iter()
+                .find(|field| field.key == relation.field)
+                .map(|field| field.label.clone())
+                .unwrap_or_else(|| relation.key.clone());
+            definition = definition.relation(
+                super::RecordRelation::new(
+                    &relation.key,
+                    label,
+                    crate::application::shared::RecordType::parse(target)?,
+                )
+                .path(super::RelationPath::BelongsTo {
+                    column: relation.field.clone(),
+                }),
+            );
+        }
         for reference in &self.references {
             let field = self
                 .fields

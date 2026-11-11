@@ -51,7 +51,7 @@ pub fn operators_for(field_type: FieldType) -> Vec<FilterOperator> {
         FieldType::Select | FieldType::User | FieldType::Record => {
             vec![Eq, Neq, In, NotIn, IsEmpty, IsNotEmpty]
         }
-        FieldType::MultiSelect => vec![In, NotIn, IsEmpty, IsNotEmpty],
+        FieldType::MultiSelect | FieldType::References => vec![In, NotIn, IsEmpty, IsNotEmpty],
         FieldType::Checkbox => vec![Eq, Neq],
         FieldType::Custom { .. } => unreachable!("native field representation"),
     }

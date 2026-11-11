@@ -5,7 +5,10 @@ use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::domain::{DEFAULT_TAG_COLOR, Tag, normalize_tag_color, normalize_tag_name};
+use crate::domain::{
+    DEFAULT_TAG_COLOR, GENERAL_VOCABULARY, MAX_TERM_DEPTH, Tag, Vocabulary, normalize_slug,
+    normalize_tag_color, normalize_tag_name, slugify,
+};
 use crate::store::{TagStore, Tagging};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -27,6 +30,10 @@ use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 
 pub(crate) const TAG_NOT_FOUND: &str = "tag_not_found";
 pub(crate) const TAG_NAME_TAKEN: &str = "tag_name_taken";
+pub(crate) const TAG_SLUG_TAKEN: &str = "tag_slug_taken";
+pub(crate) const TAG_HAS_CHILDREN: &str = "tag_has_children";
+pub(crate) const TAG_IN_USE: &str = "tag_in_use";
+pub(crate) const VOCABULARY_NOT_FOUND: &str = "tag_vocabulary_not_found";
 pub(crate) const TAG_NOT_ALLOWED: &str = "tag_not_allowed";
 pub(crate) const RECORD_TYPE_NOT_TAGGABLE: &str = "record_type_not_taggable";
 
@@ -37,7 +44,12 @@ pub(crate) const RECORD_TAGGED: &str = "record.tagged";
 pub(crate) const RECORD_UNTAGGED: &str = "record.untagged";
 
 pub(crate) const TAG_RECORD_TYPE: RecordType = RecordType::from_static("tagging.tag");
-pub(crate) const MAX_TAGS_PER_ORGANIZATION: usize = 500;
+pub(crate) const MAX_TAGS_PER_ORGANIZATION: usize = 2000;
+const MAX_SLUG_ATTEMPTS: usize = 50;
+
+pub(crate) fn vocabulary_not_found() -> AppError {
+    AppError::not_found_code(VOCABULARY_NOT_FOUND, "the vocabulary was not found")
+}
 
 pub(crate) fn tag_not_found() -> AppError {
     AppError::not_found_code(TAG_NOT_FOUND, "tag was not found")
@@ -72,7 +84,10 @@ pub(crate) fn taggable_record_type(record_type: &str) -> Result<RecordType, AppE
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct CreateTagCommand {
+    pub(crate) vocabulary: Option<String>,
     pub(crate) name: String,
+    pub(crate) slug: Option<String>,
+    pub(crate) parent_id: Option<String>,
     pub(crate) color: Option<String>,
     pub(crate) record_types: Vec<String>,
     pub(crate) ip: Option<String>,
@@ -81,6 +96,8 @@ pub(crate) struct CreateTagCommand {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct UpdateTagCommand {
     pub(crate) name: Option<String>,
+    pub(crate) slug: Option<String>,
+    pub(crate) parent_id: Option<Option<String>>,
     pub(crate) color: Option<String>,
     pub(crate) record_types: Option<Vec<String>>,
     pub(crate) ip: Option<String>,
@@ -90,12 +107,15 @@ pub(crate) struct UpdateTagCommand {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TagView {
     pub tag: Tag,
+    pub vocabulary: String,
     pub(crate) usage_count: u64,
 }
 
 fn tag_snapshot(tag: &Tag) -> Value {
     json!({
         "name": tag.name,
+        "slug": tag.slug,
+        "parent_id": tag.parent_id.map(|id| id.to_string()),
         "color": tag.color,
         "record_types": tag.record_types,
     })
@@ -124,17 +144,43 @@ fn record_access(ctx: &Ctx<'_>) -> MySqlRecordAccessChecker {
     MySqlRecordAccessChecker::new(ctx.pool().clone(), ctx.registry().clone())
 }
 
-pub async fn list(ctx: &Ctx<'_>, record_type: Option<&str>) -> Result<Vec<TagView>, AppError> {
+pub(crate) async fn vocabulary(ctx: &Ctx<'_>, key: Option<&str>) -> Result<Vocabulary, AppError> {
+    let key = key
+        .map(str::trim)
+        .filter(|key| !key.is_empty())
+        .unwrap_or(GENERAL_VOCABULARY);
+    TagStore::of(ctx)
+        .vocabulary_by_key(key)
+        .await?
+        .ok_or_else(vocabulary_not_found)
+}
+
+async fn vocabulary_keys(ctx: &Ctx<'_>) -> Result<HashMap<Uuid, String>, AppError> {
+    Ok(TagStore::of(ctx)
+        .vocabularies()
+        .await?
+        .into_iter()
+        .map(|vocabulary| (vocabulary.id, vocabulary.key))
+        .collect())
+}
+
+pub async fn list(
+    ctx: &Ctx<'_>,
+    record_type: Option<&str>,
+    vocabulary_key: Option<&str>,
+) -> Result<Vec<TagView>, AppError> {
     let record_type = record_type
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .map(taggable_record_type)
         .transpose()?;
+    let vocabulary = vocabulary(ctx, vocabulary_key).await?;
     let usage = TagStore::of(ctx).usage().await?;
     Ok(TagStore::of(ctx)
         .list()
         .await?
         .into_iter()
+        .filter(|tag| tag.vocabulary_id == vocabulary.id)
         .filter(|tag| {
             record_type
                 .as_ref()
@@ -142,6 +188,7 @@ pub async fn list(ctx: &Ctx<'_>, record_type: Option<&str>) -> Result<Vec<TagVie
         })
         .map(|tag| TagView {
             usage_count: usage.get(&tag.id).copied().unwrap_or_default(),
+            vocabulary: vocabulary.key.clone(),
             tag,
         })
         .collect())
@@ -149,11 +196,130 @@ pub async fn list(ctx: &Ctx<'_>, record_type: Option<&str>) -> Result<Vec<TagVie
 
 pub async fn get(ctx: &Ctx<'_>, tag_id: &str) -> Result<TagView, AppError> {
     let tag = find(ctx, tag_id).await?;
+    view(ctx, tag).await
+}
+
+async fn view(ctx: &Ctx<'_>, tag: Tag) -> Result<TagView, AppError> {
     let usage = TagStore::of(ctx).usage().await?;
     Ok(TagView {
         usage_count: usage.get(&tag.id).copied().unwrap_or_default(),
+        vocabulary: vocabulary_keys(ctx)
+            .await?
+            .remove(&tag.vocabulary_id)
+            .unwrap_or_default(),
         tag,
     })
+}
+
+fn parse_parent(value: &str, violations: &mut Vec<FieldViolation>) -> Option<Uuid> {
+    match Uuid::parse_str(value.trim()) {
+        Ok(id) => Some(id),
+        Err(_) => {
+            violations.push(FieldViolation::new("parent_id", "must be the id of a term"));
+            None
+        }
+    }
+}
+
+async fn check_parent(
+    ctx: &Ctx<'_>,
+    vocabulary: &Vocabulary,
+    tag_id: Uuid,
+    parent_id: Option<Uuid>,
+) -> Result<(), AppError> {
+    let Some(parent_id) = parent_id else {
+        return Ok(());
+    };
+    let invalid = |message: &str| {
+        AppError::invalid_fields(
+            "invalid tag",
+            vec![FieldViolation::new("parent_id", message.to_owned())],
+        )
+    };
+    if !vocabulary.hierarchical {
+        return Err(invalid("the vocabulary has no hierarchy"));
+    }
+    let tags: HashMap<Uuid, Tag> = TagStore::of(ctx)
+        .list()
+        .await?
+        .into_iter()
+        .filter(|tag| tag.vocabulary_id == vocabulary.id)
+        .map(|tag| (tag.id, tag))
+        .collect();
+    if !tags.contains_key(&parent_id) {
+        return Err(invalid("must be a term of the same vocabulary"));
+    }
+    let mut depth = 1;
+    let mut current = Some(parent_id);
+    while let Some(id) = current {
+        if id == tag_id {
+            return Err(invalid(
+                "cannot be the term itself or one of its descendants",
+            ));
+        }
+        depth += 1;
+        if depth > MAX_TERM_DEPTH {
+            return Err(invalid("the hierarchy can have at most 8 levels"));
+        }
+        current = tags.get(&id).and_then(|tag| tag.parent_id);
+    }
+    let mut below = 0;
+    let mut level = vec![tag_id];
+    while !level.is_empty() {
+        level = tags
+            .values()
+            .filter(|tag| tag.parent_id.is_some_and(|parent| level.contains(&parent)))
+            .map(|tag| tag.id)
+            .collect();
+        if !level.is_empty() {
+            below += 1;
+        }
+    }
+    if depth + below > MAX_TERM_DEPTH {
+        return Err(invalid("the hierarchy can have at most 8 levels"));
+    }
+    Ok(())
+}
+
+async fn free_slug(
+    ctx: &Ctx<'_>,
+    vocabulary_id: Uuid,
+    base: &str,
+    except: Option<Uuid>,
+) -> Result<String, AppError> {
+    for attempt in 1..=MAX_SLUG_ATTEMPTS {
+        let candidate = if attempt == 1 {
+            base.to_owned()
+        } else {
+            format!("{base}-{attempt}")
+        };
+        match TagStore::of(ctx)
+            .find_by_slug(vocabulary_id, &candidate)
+            .await?
+        {
+            Some(existing) if Some(existing.id) != except => continue,
+            _ => return Ok(candidate),
+        }
+    }
+    Err(AppError::conflict_code(
+        TAG_SLUG_TAKEN,
+        format!("the address {base} is already used in this vocabulary"),
+    ))
+}
+
+async fn ensure_slug_free(
+    ctx: &Ctx<'_>,
+    vocabulary_id: Uuid,
+    slug: &str,
+    except: Option<Uuid>,
+) -> Result<(), AppError> {
+    match TagStore::of(ctx).find_by_slug(vocabulary_id, slug).await? {
+        Some(existing) if Some(existing.id) != except => Err(AppError::conflict_code(
+            TAG_SLUG_TAKEN,
+            format!("the address {slug} is already used in this vocabulary"),
+        )),
+        _ => Ok(()),
+    }
 }
 
 pub(crate) async fn create(ctx: &Ctx<'_>, command: CreateTagCommand) -> Result<TagView, AppError> {
@@ -166,13 +332,46 @@ pub(crate) async fn create(ctx: &Ctx<'_>, command: CreateTagCommand) -> Result<T
         .map_err(|message| violations.push(FieldViolation::new("color", message)))
         .ok();
     let record_types = parse_record_types(&command.record_types, &mut violations);
+    let slug = command
+        .slug
+        .as_deref()
+        .map(str::trim)
+        .filter(|slug| !slug.is_empty())
+        .and_then(|slug| {
+            normalize_slug(slug)
+                .map_err(|message| violations.push(FieldViolation::new("slug", message)))
+                .ok()
+        });
+    let parent_id = command
+        .parent_id
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .and_then(|value| parse_parent(value, &mut violations));
     let (Some(name), Some(color)) = (name, color) else {
         return Err(AppError::invalid_fields("invalid tag", violations));
     };
     if !violations.is_empty() {
         return Err(AppError::invalid_fields("invalid tag", violations));
     }
-    ensure_name_free(ctx, &name, None).await?;
+    let vocabulary = vocabulary(ctx, command.vocabulary.as_deref()).await?;
+    ensure_name_free(ctx, vocabulary.id, &name, None).await?;
+    let id = Uuid::now_v7();
+    check_parent(ctx, &vocabulary, id, parent_id).await?;
+    let slug = match slug {
+        Some(slug) => {
+            ensure_slug_free(ctx, vocabulary.id, &slug, None).await?;
+            slug
+        }
+        None => {
+            let base = slugify(&name);
+            let base = if base.is_empty() {
+                "termo".to_owned()
+            } else {
+                base
+            };
+            free_slug(ctx, vocabulary.id, &base, None).await?
+        }
+    };
     if TagStore::of(ctx).list().await?.len() >= MAX_TAGS_PER_ORGANIZATION {
         return Err(AppError::validation_code(
             "too_many_tags",
@@ -181,8 +380,11 @@ pub(crate) async fn create(ctx: &Ctx<'_>, command: CreateTagCommand) -> Result<T
     }
     let now = ctx.now();
     let tag = Tag {
-        id: Uuid::now_v7(),
+        id,
+        vocabulary_id: vocabulary.id,
         name,
+        slug: Some(slug),
+        parent_id,
         color,
         record_types,
         created_by: Some(ctx.scope.user_id().clone()),
@@ -203,6 +405,7 @@ pub(crate) async fn create(ctx: &Ctx<'_>, command: CreateTagCommand) -> Result<T
     tx.commit().await?;
     Ok(TagView {
         tag,
+        vocabulary: vocabulary.key,
         usage_count: 0,
     })
 }
@@ -232,6 +435,18 @@ pub(crate) async fn update(
     if let Some(record_types) = &command.record_types {
         tag.record_types = parse_record_types(record_types, &mut violations);
     }
+    if let Some(slug) = &command.slug {
+        match normalize_slug(slug) {
+            Ok(slug) => tag.slug = Some(slug),
+            Err(message) => violations.push(FieldViolation::new("slug", message)),
+        }
+    }
+    if let Some(parent) = &command.parent_id {
+        tag.parent_id = parent
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .and_then(|value| parse_parent(value, &mut violations));
+    }
     if !violations.is_empty() {
         return Err(AppError::invalid_fields("invalid tag", violations));
     }
@@ -241,15 +456,29 @@ pub(crate) async fn update(
         .get(&tag.id)
         .copied()
         .unwrap_or_default();
+    let vocabulary_key = vocabulary_keys(ctx)
+        .await?
+        .remove(&tag.vocabulary_id)
+        .unwrap_or_default();
     let mut diff = changes(&tag_snapshot(&current), &tag_snapshot(&tag));
     if diff.is_empty() {
         return Ok(TagView {
             tag: current,
+            vocabulary: vocabulary_key,
             usage_count,
         });
     }
     if tag.name != current.name {
-        ensure_name_free(ctx, &tag.name, Some(tag.id)).await?;
+        ensure_name_free(ctx, tag.vocabulary_id, &tag.name, Some(tag.id)).await?;
+    }
+    if tag.slug != current.slug
+        && let Some(slug) = &tag.slug
+    {
+        ensure_slug_free(ctx, tag.vocabulary_id, slug, Some(tag.id)).await?;
+    }
+    if tag.parent_id != current.parent_id {
+        let vocabulary = vocabulary(ctx, Some(&vocabulary_key)).await?;
+        check_parent(ctx, &vocabulary, tag.id, tag.parent_id).await?;
     }
     tag.updated_at = ctx.now();
     let mut tx = ctx.begin().await?;
@@ -261,6 +490,7 @@ pub(crate) async fn update(
     tx.commit().await?;
     Ok(TagView {
         tag,
+        vocabulary: vocabulary_key,
         usage_count: usage_count.saturating_sub(removed),
     })
 }
@@ -272,6 +502,25 @@ pub(crate) async fn delete(
 ) -> Result<(), AppError> {
     ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     let tag = find(ctx, tag_id).await?;
+    if TagStore::of(ctx).children_count(tag.id).await? > 0 {
+        return Err(AppError::conflict_code(
+            TAG_HAS_CHILDREN,
+            format!("{} has terms below it; move or delete them first", tag.name),
+        ));
+    }
+    let uses = crate::classifiable::uses(tag.id).await?;
+    if !uses.is_empty() {
+        return Err(AppError::with_details(
+            aphel_kernel::errors::CodedKind::Conflict,
+            TAG_IN_USE,
+            format!(
+                "{} is selected in {} records; remove it from them first",
+                tag.name,
+                uses.values().sum::<u64>()
+            ),
+            json!({ "records": uses }),
+        ));
+    }
     let mut tx = ctx.begin().await?;
     let removed = TagStore::of(ctx).delete(&mut tx, tag.id).await?;
     let mut diff = changes(&tag_snapshot(&tag), &Value::Null);
@@ -442,8 +691,13 @@ async fn find(ctx: &Ctx<'_>, tag_id: &str) -> Result<Tag, AppError> {
     TagStore::of(ctx).find(id).await?.ok_or_else(tag_not_found)
 }
 
-async fn ensure_name_free(ctx: &Ctx<'_>, name: &str, except: Option<Uuid>) -> Result<(), AppError> {
-    match TagStore::of(ctx).find_by_name(name).await? {
+async fn ensure_name_free(
+    ctx: &Ctx<'_>,
+    vocabulary_id: Uuid,
+    name: &str,
+    except: Option<Uuid>,
+) -> Result<(), AppError> {
+    match TagStore::of(ctx).find_by_name(vocabulary_id, name).await? {
         Some(existing) if Some(existing.id) != except => Err(AppError::conflict_code(
             TAG_NAME_TAKEN,
             format!("a tag named {name} already exists"),

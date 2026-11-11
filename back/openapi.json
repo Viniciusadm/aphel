@@ -46228,7 +46228,7 @@
         "tags": [
           "publication"
         ],
-        "description": "Revisions of a publishable record, newest first, without payloads. Needs read access to the record.",
+        "description": "Revisions of a publishable record, newest first, without payloads; `title` is the record's title field in each revision. Needs read access to the record.",
         "operationId": "publication_revisions_list",
         "parameters": [
           {
@@ -56803,6 +56803,15 @@
             "example": "people.person"
           },
           {
+            "name": "vocabulary",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "categories"
+          },
+          {
             "name": "page",
             "in": "query",
             "required": false,
@@ -56828,7 +56837,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Tags of the organization ordered by name, with how many records use each one. With `record_type`, only tags allowed on that type. Any member (and any valid API token) can list them",
+            "description": "Terms of one vocabulary (`vocabulary`, default `general`: the tags of records) ordered by name, with how many records use each one. With `record_type`, only tags allowed on that type. Any member (and any valid API token) can list them",
             "content": {
               "application/json": {
                 "schema": {
@@ -56936,8 +56945,18 @@
               }
             }
           },
+          "404": {
+            "description": "Vocabulary not found (`tag_vocabulary_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
           "409": {
-            "description": "Another tag already has this name (`tag_name_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "Another term of the vocabulary already has this name (`tag_name_taken`) or address (`tag_slug_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -56947,7 +56966,7 @@
             }
           },
           "422": {
-            "description": "Invalid name, color or record types (`validation_error`) or the organization already has the maximum number of tags (`too_many_tags`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "description": "Invalid name, address, parent, color or record types (`validation_error`) or the organization already has the maximum number of tags (`too_many_tags`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -57374,6 +57393,345 @@
         "x-aphel-module": "tagging"
       }
     },
+    "/api/v1/tagging/vocabularies": {
+      "get": {
+        "tags": [
+          "tagging"
+        ],
+        "operationId": "tag_vocabularies_list",
+        "responses": {
+          "200": {
+            "description": "Vocabularies of the organization. `general` holds the tags of records; others, such as categories, can be hierarchical and public on the site. Any member can list them",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_TagVocabulary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "tagging"
+      },
+      "post": {
+        "tags": [
+          "tagging"
+        ],
+        "operationId": "tag_vocabularies_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVocabularyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Vocabulary created (`tag_vocabulary.created`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TagVocabulary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The key is taken (`tag_vocabulary_key_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid key or name (`validation_error`) or too many vocabularies (`too_many_tag_vocabularies`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "tagging"
+      }
+    },
+    "/api/v1/tagging/vocabularies/{key}": {
+      "delete": {
+        "tags": [
+          "tagging"
+        ],
+        "operationId": "tag_vocabularies_delete",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Vocabulary key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Vocabulary deleted (`tag_vocabulary.deleted`)"
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vocabulary not found (`tag_vocabulary_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The vocabulary still has terms (`tag_vocabulary_not_empty`) or is `general` (`tag_vocabulary_protected`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "tagging"
+      },
+      "patch": {
+        "tags": [
+          "tagging"
+        ],
+        "operationId": "tag_vocabularies_update",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Vocabulary key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVocabularyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Vocabulary updated (`tag_vocabulary.updated`). The key never changes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TagVocabulary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vocabulary not found (`tag_vocabulary_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Turning the hierarchy off while terms are nested (`tag_vocabulary_has_hierarchy`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid name (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "tagging"
+      }
+    },
     "/api/v1/tagging/{tag_id}": {
       "get": {
         "tags": [
@@ -57493,6 +57851,16 @@
               }
             }
           },
+          "409": {
+            "description": "The term has terms below it (`tag_has_children`) or is selected in records that keep their own classification (`tag_in_use`, `details.records` counts them per entity)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
           "429": {
             "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
             "content": {
@@ -57594,7 +57962,7 @@
             }
           },
           "409": {
-            "description": "Another tag already has this name (`tag_name_taken`) or the tag changed since the `If-Match` version (`version_conflict`)",
+            "description": "Another term of the vocabulary already has this name (`tag_name_taken`) or address (`tag_slug_taken`), or the tag changed since the `If-Match` version (`version_conflict`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -63714,7 +64082,7 @@
         "tags": [
           "plugins"
         ],
-        "description": "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. Publishes `plugin.pack_installed`.",
+        "description": "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins. After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`.",
         "operationId": "plugin_packs_install",
         "parameters": [
           {
@@ -76080,6 +76448,12 @@
             "type": "string",
             "example": "VIP customer"
           },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "record_types": {
             "type": "array",
             "items": {
@@ -76089,6 +76463,20 @@
               "people.person",
               "organizations.organization"
             ]
+          },
+          "slug": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "vip-customer"
+          },
+          "vocabulary": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "categories"
           }
         },
         "additionalProperties": false
@@ -76236,6 +76624,30 @@
             ]
           }
         }
+      },
+      "CreateVocabularyRequest": {
+        "type": "object",
+        "required": [
+          "key",
+          "name"
+        ],
+        "properties": {
+          "hierarchical": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string",
+            "example": "categories"
+          },
+          "name": {
+            "type": "string",
+            "example": "Categorias"
+          },
+          "public": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
       },
       "CreateWebhookEndpointRequest": {
         "type": "object",
@@ -85542,7 +85954,9 @@
               "version",
               "role_presets",
               "web",
-              "plugins"
+              "plugins",
+              "modules_to_enable",
+              "provisions"
             ],
             "properties": {
               "description": {
@@ -85560,6 +85974,12 @@
               "key": {
                 "type": "string"
               },
+              "modules_to_enable": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "name": {
                 "type": "string"
               },
@@ -85567,6 +85987,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/PackPluginConsentResponse"
+                }
+              },
+              "provisions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ProvisionPlanResponse"
                 }
               },
               "role_presets": {
@@ -85598,7 +86024,9 @@
               "name",
               "version",
               "complete",
-              "plugins"
+              "plugins",
+              "modules_enabled",
+              "provisions"
             ],
             "properties": {
               "complete": {
@@ -85613,6 +86041,12 @@
               "key": {
                 "type": "string"
               },
+              "modules_enabled": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "name": {
                 "type": "string"
               },
@@ -85620,6 +86054,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/PackPluginResultResponse"
+                }
+              },
+              "provisions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ProvisionResultResponse"
                 }
               },
               "version": {
@@ -86903,6 +87343,12 @@
               },
               "record_type": {
                 "type": "string"
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }
@@ -89165,6 +89611,7 @@
             "type": "object",
             "required": [
               "id",
+              "vocabulary",
               "name",
               "color",
               "record_types",
@@ -89192,6 +89639,12 @@
               "name": {
                 "type": "string"
               },
+              "parent_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "record_types": {
                 "type": "array",
                 "items": {
@@ -89199,6 +89652,12 @@
                 },
                 "example": [
                   "contact"
+                ]
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
                 ]
               },
               "updated_at": {
@@ -89209,6 +89668,54 @@
                 "type": "integer",
                 "format": "int64",
                 "minimum": 0
+              },
+              "vocabulary": {
+                "type": "string",
+                "example": "general"
+              }
+            }
+          }
+        }
+      },
+      "Data_TagVocabulary": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "key",
+              "name",
+              "hierarchical",
+              "public",
+              "created_at",
+              "updated_at"
+            ],
+            "properties": {
+              "created_at": {
+                "type": "string"
+              },
+              "hierarchical": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string",
+                "example": "categories"
+              },
+              "name": {
+                "type": "string"
+              },
+              "public": {
+                "type": "boolean"
+              },
+              "updated_at": {
+                "type": "string"
               }
             }
           }
@@ -93385,6 +93892,53 @@
                 "name": {
                   "type": "string",
                   "example": "VIP customer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_TagVocabulary": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "key",
+                "name",
+                "hierarchical",
+                "public",
+                "created_at",
+                "updated_at"
+              ],
+              "properties": {
+                "created_at": {
+                  "type": "string"
+                },
+                "hierarchical": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "example": "categories"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "public": {
+                  "type": "boolean"
+                },
+                "updated_at": {
+                  "type": "string"
                 }
               }
             }
@@ -110709,6 +111263,12 @@
                 },
                 "record_type": {
                   "type": "string"
+                },
+                "title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 }
               }
             }
@@ -111941,6 +112501,7 @@
               "type": "object",
               "required": [
                 "id",
+                "vocabulary",
                 "name",
                 "color",
                 "record_types",
@@ -111968,6 +112529,12 @@
                 "name": {
                   "type": "string"
                 },
+                "parent_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "record_types": {
                   "type": "array",
                   "items": {
@@ -111975,6 +112542,12 @@
                   },
                   "example": [
                     "contact"
+                  ]
+                },
+                "slug": {
+                  "type": [
+                    "string",
+                    "null"
                   ]
                 },
                 "updated_at": {
@@ -111985,6 +112558,10 @@
                   "type": "integer",
                   "format": "int64",
                   "minimum": 0
+                },
+                "vocabulary": {
+                  "type": "string",
+                  "example": "general"
                 }
               }
             }
@@ -113360,7 +113937,9 @@
           "version",
           "role_presets",
           "web",
-          "plugins"
+          "plugins",
+          "modules_to_enable",
+          "provisions"
         ],
         "properties": {
           "description": {
@@ -113378,6 +113957,12 @@
           "key": {
             "type": "string"
           },
+          "modules_to_enable": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "name": {
             "type": "string"
           },
@@ -113385,6 +113970,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PackPluginConsentResponse"
+            }
+          },
+          "provisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProvisionPlanResponse"
             }
           },
           "role_presets": {
@@ -113408,7 +113999,9 @@
           "name",
           "version",
           "complete",
-          "plugins"
+          "plugins",
+          "modules_enabled",
+          "provisions"
         ],
         "properties": {
           "complete": {
@@ -113423,6 +114016,12 @@
           "key": {
             "type": "string"
           },
+          "modules_enabled": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "name": {
             "type": "string"
           },
@@ -113430,6 +114029,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PackPluginResultResponse"
+            }
+          },
+          "provisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProvisionResultResponse"
             }
           },
           "version": {
@@ -115089,6 +115694,72 @@
           }
         }
       },
+      "ProvisionPlanResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "kind",
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "example": "create"
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PackPluginError"
+              }
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        }
+      },
+      "ProvisionResultResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "kind",
+          "status"
+        ],
+        "properties": {
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PackPluginError"
+              }
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "example": "created"
+          }
+        }
+      },
       "PublicAcceptQuoteRequest": {
         "type": "object",
         "required": [
@@ -115817,6 +116488,12 @@
           },
           "record_type": {
             "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -121566,6 +122243,7 @@
         "type": "object",
         "required": [
           "id",
+          "vocabulary",
           "name",
           "color",
           "record_types",
@@ -121593,6 +122271,12 @@
           "name": {
             "type": "string"
           },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "record_types": {
             "type": "array",
             "items": {
@@ -121600,6 +122284,12 @@
             },
             "example": [
               "contact"
+            ]
+          },
+          "slug": {
+            "type": [
+              "string",
+              "null"
             ]
           },
           "updated_at": {
@@ -121610,6 +122300,10 @@
             "type": "integer",
             "format": "int64",
             "minimum": 0
+          },
+          "vocabulary": {
+            "type": "string",
+            "example": "general"
           }
         }
       },
@@ -121631,6 +122325,42 @@
           "name": {
             "type": "string",
             "example": "VIP customer"
+          }
+        }
+      },
+      "TagVocabulary": {
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "name",
+          "hierarchical",
+          "public",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "hierarchical": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string",
+            "example": "categories"
+          },
+          "name": {
+            "type": "string"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string"
           }
         }
       },
@@ -123855,6 +124585,12 @@
               "null"
             ]
           },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "record_types": {
             "type": [
               "array",
@@ -123863,6 +124599,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "slug": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "additionalProperties": false
@@ -124026,6 +124768,30 @@
             ]
           }
         }
+      },
+      "UpdateVocabularyRequest": {
+        "type": "object",
+        "properties": {
+          "hierarchical": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "public": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
       },
       "UpdateWebhookEndpointRequest": {
         "type": "object",

@@ -8,7 +8,7 @@ use sha2::{Digest, Sha256};
 use sqlx::{MySqlPool, Row};
 
 pub(crate) const ALL_TAG: &str = "*";
-const CHECK_INTERVAL: Duration = Duration::from_secs(2);
+const CHECK_INTERVAL: Duration = Duration::from_secs(1);
 const ENTRY_LIFETIME: Duration = Duration::from_secs(600);
 const MAX_BYTES: usize = 32 * 1024 * 1024;
 const INVALIDATION_BATCH: i64 = 1000;

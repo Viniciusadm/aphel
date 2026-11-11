@@ -42,8 +42,21 @@ fn combined(mut conditions: Vec<Filter>) -> Option<Filter> {
     }
 }
 
+fn nothing() -> Filter {
+    Filter::condition("id".to_owned(), FilterOperator::IsEmpty, Value::Null)
+}
+
 fn publication_filter(exposure: &SiteExposure, extra: Option<Filter>) -> Option<Filter> {
     let mut conditions = equalities(&exposure.conditions);
+    if let Some(filter) = &exposure.filter {
+        match serde_json::from_value::<Filter>(filter.clone()) {
+            Ok(filter) => conditions.push(filter),
+            Err(error) => {
+                tracing::warn!(entity = %exposure.entity, %error, "invalid site exposure filter; nothing is public");
+                conditions.push(nothing());
+            }
+        }
+    }
     conditions.extend(extra);
     combined(conditions)
 }
@@ -193,11 +206,38 @@ pub(crate) async fn list(
     restriction: Restriction<'_>,
     suffix: Option<&str>,
 ) -> Result<RecordPage, AppError> {
+    list_in(
+        state,
+        exposure,
+        (sort, page, per_page),
+        restriction,
+        None,
+        suffix,
+    )
+    .await
+}
+
+pub(crate) fn any_of(field: &str, ids: &[String]) -> Filter {
+    Filter::condition(
+        field,
+        FilterOperator::In,
+        Value::Array(ids.iter().cloned().map(Value::String).collect()),
+    )
+}
+
+pub(crate) async fn list_in(
+    state: &AppState,
+    exposure: &SiteExposure,
+    (sort, page, per_page): (Option<&str>, u64, u64),
+    restriction: Restriction<'_>,
+    extra: Option<Filter>,
+    suffix: Option<&str>,
+) -> Result<RecordPage, AppError> {
     query(
         state,
         exposure,
         RecordQuery {
-            filter: publication_filter(exposure, restricted(None, restriction)),
+            filter: publication_filter(exposure, restricted(extra, restriction)),
             sort: sort.map(parse_sort).unwrap_or_default(),
             search: None,
             archived: ArchivedFilter::Exclude,

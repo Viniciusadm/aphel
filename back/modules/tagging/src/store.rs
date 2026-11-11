@@ -7,7 +7,7 @@ use sqlx::types::Json;
 use sqlx::{MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;
 
-use crate::domain::Tag;
+use crate::domain::{Tag, Vocabulary};
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
@@ -15,8 +15,10 @@ use aphel_sdk::platform::application::shared::RecordRef;
 use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
-const TAG_COLUMNS: &str =
-    "t.id, t.name, t.color, t.record_types, t.created_by, t.created_at, t.updated_at";
+const TAG_COLUMNS: &str = "t.id, t.vocabulary_id, t.name, t.slug, t.parent_id, t.color, \
+     t.record_types, t.created_by, t.created_at, t.updated_at";
+const VOCABULARY_COLUMNS: &str =
+    "v.id, v.`key`, v.name, v.hierarchical, v.public, v.created_at, v.updated_at";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Tagging {
@@ -42,7 +44,13 @@ fn tag_from_row(row: &MySqlRow) -> Result<Tag, AppError> {
     let updated_at: NaiveDateTime = row.try_get("updated_at")?;
     Ok(Tag {
         id: uuid_column(row, "id")?,
+        vocabulary_id: uuid_column(row, "vocabulary_id")?,
         name: row.try_get("name")?,
+        slug: row.try_get("slug")?,
+        parent_id: row
+            .try_get::<Option<String>, _>("parent_id")?
+            .map(|id| Uuid::parse_str(&id).map_err(|_| mapper::invalid_column("parent_id", &id)))
+            .transpose()?,
         color: row.try_get("color")?,
         record_types: serde_json::from_value(record_types.clone())
             .map_err(|_| mapper::invalid_column("record_types", &record_types.to_string()))?,
@@ -50,6 +58,20 @@ fn tag_from_row(row: &MySqlRow) -> Result<Tag, AppError> {
             .try_get::<Option<String>, _>("created_by")?
             .map(|id| mapper::typed_id(id, UserId::new))
             .transpose()?,
+        created_at: mapper::utc(created_at),
+        updated_at: mapper::utc(updated_at),
+    })
+}
+
+fn vocabulary_from_row(row: &MySqlRow) -> Result<Vocabulary, AppError> {
+    let created_at: NaiveDateTime = row.try_get("created_at")?;
+    let updated_at: NaiveDateTime = row.try_get("updated_at")?;
+    Ok(Vocabulary {
+        id: uuid_column(row, "id")?,
+        key: row.try_get("key")?,
+        name: row.try_get("name")?,
+        hierarchical: row.try_get("hierarchical")?,
+        public: row.try_get("public")?,
         created_at: mapper::utc(created_at),
         updated_at: mapper::utc(updated_at),
     })
@@ -84,9 +106,17 @@ impl TagStore {
             .transpose()
     }
 
-    pub(crate) async fn find_by_name(&self, name: &str) -> Result<Option<Tag>, AppError> {
+    pub(crate) async fn find_by_name(
+        &self,
+        vocabulary_id: Uuid,
+        name: &str,
+    ) -> Result<Option<Tag>, AppError> {
         let mut builder = QueryBuilder::new(format!("SELECT {TAG_COLUMNS} FROM tags t WHERE "));
-        builder.push("t.name = ").push_bind(name.to_owned());
+        builder
+            .push("t.vocabulary_id = ")
+            .push_bind(vocabulary_id.to_string())
+            .push(" AND t.name = ")
+            .push_bind(name.to_owned());
         builder
             .build()
             .fetch_optional(&self.pool)
@@ -94,6 +124,124 @@ impl TagStore {
             .as_ref()
             .map(tag_from_row)
             .transpose()
+    }
+
+    pub(crate) async fn find_by_slug(
+        &self,
+        vocabulary_id: Uuid,
+        slug: &str,
+    ) -> Result<Option<Tag>, AppError> {
+        let mut builder = QueryBuilder::new(format!("SELECT {TAG_COLUMNS} FROM tags t WHERE "));
+        builder
+            .push("t.vocabulary_id = ")
+            .push_bind(vocabulary_id.to_string())
+            .push(" AND t.slug = ")
+            .push_bind(slug.to_owned());
+        builder
+            .build()
+            .fetch_optional(&self.pool)
+            .await?
+            .as_ref()
+            .map(tag_from_row)
+            .transpose()
+    }
+
+    pub(crate) async fn find_many(&self, ids: &[Uuid]) -> Result<Vec<Tag>, AppError> {
+        if ids.is_empty() {
+            return Ok(Vec::new());
+        }
+        let mut builder =
+            QueryBuilder::new(format!("SELECT {TAG_COLUMNS} FROM tags t WHERE t.id IN ("));
+        let mut separated = builder.separated(", ");
+        for id in ids {
+            separated.push_bind(id.to_string());
+        }
+        builder.push(")");
+        let rows = builder.build().fetch_all(&self.pool).await?;
+        rows.iter().map(tag_from_row).collect()
+    }
+
+    pub(crate) async fn children_count(&self, tag_id: Uuid) -> Result<u64, AppError> {
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM tags WHERE parent_id = ?")
+            .bind(tag_id.to_string())
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(u64::try_from(count).unwrap_or_default())
+    }
+
+    pub async fn vocabularies(&self) -> Result<Vec<Vocabulary>, AppError> {
+        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
+            "SELECT {VOCABULARY_COLUMNS} FROM tag_vocabularies v ORDER BY v.name, v.id"
+        )))
+        .fetch_all(&self.pool)
+        .await?;
+        rows.iter().map(vocabulary_from_row).collect()
+    }
+
+    pub(crate) async fn vocabulary_by_key(
+        &self,
+        key: &str,
+    ) -> Result<Option<Vocabulary>, AppError> {
+        sqlx::query(sqlx::AssertSqlSafe(format!(
+            "SELECT {VOCABULARY_COLUMNS} FROM tag_vocabularies v WHERE v.`key` = ?"
+        )))
+        .bind(key)
+        .fetch_optional(&self.pool)
+        .await?
+        .as_ref()
+        .map(vocabulary_from_row)
+        .transpose()
+    }
+
+    pub(crate) async fn insert_vocabulary(
+        &self,
+        tx: &mut MySqlTx,
+        vocabulary: &Vocabulary,
+    ) -> Result<(), AppError> {
+        sqlx::query(
+            "INSERT INTO tag_vocabularies (id, `key`, name, hierarchical, public, created_at, updated_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(vocabulary.id.to_string())
+        .bind(&vocabulary.key)
+        .bind(&vocabulary.name)
+        .bind(vocabulary.hierarchical)
+        .bind(vocabulary.public)
+        .bind(mapper::naive(vocabulary.created_at))
+        .bind(mapper::naive(vocabulary.updated_at))
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    pub(crate) async fn update_vocabulary(
+        &self,
+        tx: &mut MySqlTx,
+        vocabulary: &Vocabulary,
+    ) -> Result<(), AppError> {
+        sqlx::query(
+            "UPDATE tag_vocabularies SET name = ?, hierarchical = ?, public = ?, updated_at = ? WHERE id = ?",
+        )
+        .bind(&vocabulary.name)
+        .bind(vocabulary.hierarchical)
+        .bind(vocabulary.public)
+        .bind(mapper::naive(vocabulary.updated_at))
+        .bind(vocabulary.id.to_string())
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    pub(crate) async fn delete_vocabulary(
+        &self,
+        tx: &mut MySqlTx,
+        vocabulary_id: Uuid,
+    ) -> Result<(), AppError> {
+        sqlx::query("DELETE FROM tag_vocabularies WHERE id = ?")
+            .bind(vocabulary_id.to_string())
+            .execute(&mut **tx)
+            .await?;
+        Ok(())
     }
 
     pub(crate) async fn usage(&self) -> Result<HashMap<Uuid, u64>, AppError> {
@@ -112,11 +260,14 @@ impl TagStore {
 
     pub(crate) async fn insert(&self, tx: &mut MySqlTx, tag: &Tag) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO tags (id, name, color, record_types, created_by, created_at, updated_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO tags (id, vocabulary_id, name, slug, parent_id, color, record_types, \
+             created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(tag.id.to_string())
+        .bind(tag.vocabulary_id.to_string())
         .bind(&tag.name)
+        .bind(&tag.slug)
+        .bind(tag.parent_id.map(|id| id.to_string()))
         .bind(&tag.color)
         .bind(Json(&tag.record_types))
         .bind(tag.created_by.as_ref().map(UserId::as_str))
@@ -129,10 +280,12 @@ impl TagStore {
 
     pub(crate) async fn update(&self, tx: &mut MySqlTx, tag: &Tag) -> Result<u64, AppError> {
         sqlx::query(
-            "UPDATE tags SET name = ?, color = ?, record_types = ?, updated_at = ? \
-             WHERE id = ?",
+            "UPDATE tags SET name = ?, slug = ?, parent_id = ?, color = ?, record_types = ?, \
+             updated_at = ? WHERE id = ?",
         )
         .bind(&tag.name)
+        .bind(&tag.slug)
+        .bind(tag.parent_id.map(|id| id.to_string()))
         .bind(&tag.color)
         .bind(Json(&tag.record_types))
         .bind(mapper::naive(tag.updated_at))

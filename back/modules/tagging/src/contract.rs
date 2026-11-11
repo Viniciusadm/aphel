@@ -86,7 +86,10 @@ fn remove<'a>(ctx: &'a Ctx<'_>, input: TagRecord) -> BoxFuture<'a, Result<Taggin
 fn info(response: TagResponse) -> TagInfo {
     TagInfo {
         id: response.id,
+        vocabulary: response.vocabulary,
         name: response.name,
+        slug: response.slug,
+        parent_id: response.parent_id,
         color: response.color,
         record_types: response.record_types,
         usage_count: response.usage_count,
@@ -98,7 +101,12 @@ fn info(response: TagResponse) -> TagInfo {
 
 fn list<'a>(ctx: &'a Ctx<'_>, input: ListTags) -> BoxFuture<'a, Result<TagList, AppError>> {
     Box::pin(async move {
-        let tags = service::list(ctx, input.record_type.as_deref()).await?;
+        let tags = service::list(
+            ctx,
+            input.record_type.as_deref(),
+            input.vocabulary.as_deref(),
+        )
+        .await?;
         Ok(TagList {
             data: tags
                 .into_iter()

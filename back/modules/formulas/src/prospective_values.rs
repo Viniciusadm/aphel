@@ -68,7 +68,10 @@ pub fn stored_formula_value(
             .map_or(FormulaValue::Null, |option| {
                 FormulaValue::Text(option.label.clone())
             }),
-        FieldValue::Options(_) | FieldValue::User(_) | FieldValue::Record(_) => FormulaValue::Null,
+        FieldValue::Options(_)
+        | FieldValue::User(_)
+        | FieldValue::Record(_)
+        | FieldValue::References(_) => FormulaValue::Null,
     }
 }
 
@@ -124,7 +127,9 @@ pub fn json_formula_value(
             Value::Bool(flag) => FormulaValue::Text(flag.to_string()),
             _ => FormulaValue::Null,
         },
-        FieldType::MultiSelect | FieldType::User | FieldType::Record => FormulaValue::Null,
+        FieldType::MultiSelect | FieldType::User | FieldType::Record | FieldType::References => {
+            FormulaValue::Null
+        }
         FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }

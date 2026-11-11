@@ -213,7 +213,9 @@ fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>,
             .try_get::<Option<String>, _>("value_option_id")?
             .and_then(|id| Uuid::parse_str(&id).ok())
             .map(FieldValue::Option),
-        FieldType::MultiSelect | FieldType::User | FieldType::Record => None,
+        FieldType::MultiSelect | FieldType::User | FieldType::Record | FieldType::References => {
+            None
+        }
         FieldType::Custom { .. } => unreachable!("native field representation"),
     })
 }

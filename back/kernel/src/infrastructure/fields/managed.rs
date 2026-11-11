@@ -11,7 +11,7 @@ pub fn column_type(field_type: FieldType) -> &'static str {
         FieldType::Date => "DATE",
         FieldType::DateTime => "DATETIME(6)",
         FieldType::Checkbox => "BOOLEAN",
-        FieldType::MultiSelect => "JSON",
+        FieldType::MultiSelect | FieldType::References => "JSON",
         FieldType::Select => "VARCHAR(64)",
         FieldType::Url => "VARCHAR(2048)",
         FieldType::Email => "VARCHAR(320)",
@@ -121,6 +121,21 @@ pub fn managed_schema(definition: &EntityDefinition) -> Result<Vec<String>, AppE
                 index.key
             )));
         }
+        if let [key] = index.fields.as_slice()
+            && let Some(field) = definition.system_field_by_key(key)
+            && field.field_type.base_type() == FieldType::References
+        {
+            if index.unique || field.is_computed() || field.contributed_by.is_some() {
+                return Err(AppError::Configuration(format!(
+                    "field {key} can only have a non-unique index"
+                )));
+            }
+            statements.push(format!(
+                "CREATE INDEX `{}` ON `{}` ((CAST(`{}` AS CHAR(36) ARRAY)))",
+                index.key, definition.table, field.column
+            ));
+            continue;
+        }
         let mut width = 0;
         let columns = index
             .fields
@@ -133,7 +148,10 @@ pub fn managed_schema(definition: &EntityDefinition) -> Result<Vec<String>, AppE
                     || field.contributed_by.is_some()
                     || matches!(
                         field.field_type.base_type(),
-                        FieldType::LongText | FieldType::MultiSelect | FieldType::Url
+                        FieldType::LongText
+                            | FieldType::MultiSelect
+                            | FieldType::Url
+                            | FieldType::References
                     )
                 {
                     return Err(AppError::Configuration(format!(
@@ -261,12 +279,31 @@ async fn reconcile(
         .await?;
     }
     for (index, statement) in definition.indexes.iter().zip(&statements[1..]) {
-        let rows = sqlx::query("SELECT COLUMN_NAME, NON_UNIQUE FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? ORDER BY SEQ_IN_INDEX")
+        let rows = sqlx::query("SELECT COLUMN_NAME, NON_UNIQUE, EXPRESSION FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? ORDER BY SEQ_IN_INDEX")
                 .bind(&definition.table).bind(&index.key).fetch_all(&mut *connection).await?;
+        let expression = rows
+            .first()
+            .map(|row| row.try_get::<Option<String>, _>("EXPRESSION"))
+            .transpose()?
+            .flatten();
         if rows.is_empty() {
             sqlx::raw_sql(sqlx::AssertSqlSafe(statement.as_str()))
                 .execute(&mut *connection)
                 .await?;
+        } else if let Some(expression) = expression {
+            let matches = rows.len() == 1
+                && statement.contains("ARRAY")
+                && index.fields.iter().all(|key| {
+                    definition
+                        .system_field_by_key(key)
+                        .is_some_and(|field| expression.contains(&field.column))
+                });
+            if !matches {
+                return Err(AppError::Configuration(format!(
+                    "changing index {} needs a data migration",
+                    index.key
+                )));
+            }
         } else {
             let columns = rows
                 .iter()

@@ -44,7 +44,33 @@
     "updated": "Etiqueta {{name}} atualizada",
     "deleted": "Etiqueta {{name}} excluída",
     "typesLoadFailed": "Não foi possível carregar os tipos de registro disponíveis.",
-    "retryTypes": "Tentar novamente"
+    "retryTypes": "Tentar novamente",
+    "generalVocabulary": "Etiquetas",
+    "vocabularies": "Vocabulários",
+    "newTerm": "Novo termo",
+    "newTermTitle": "Novo termo em {{vocabulary}}",
+    "editTermTitle": "Editar termo de {{vocabulary}}",
+    "termDialogDescription": "O nome aparece no site; o endereço forma o link da página do termo.",
+    "emptyTermsTitle": "Nenhum termo em {{vocabulary}}",
+    "emptyTermsDescription": "Crie termos aqui ou direto no editor de conteúdo.",
+    "deleteTermDescription": "O termo \"{{name}}\" será excluído. Essa ação não pode ser desfeita.",
+    "termCreated": "Termo {{name}} criado",
+    "termUpdated": "Termo {{name}} atualizado",
+    "termNameTaken": "Já existe um termo com esse nome neste vocabulário.",
+    "slug": "Endereço",
+    "slugHelp": "Deixe em branco para gerar a partir do nome.",
+    "slugPlaceholder": "ex.: noticias-da-empresa",
+    "slugTaken": "Outro termo deste vocabulário já usa esse endereço.",
+    "slugInvalid": "Use letras minúsculas sem acento, números e hífen.",
+    "parent": "Dentro de",
+    "parentHelp": "Escolha um termo para criar uma subcategoria.",
+    "noParent": "Nenhum (primeiro nível)",
+    "errors": {
+      "tag_has_children": "\"{{name}}\" tem termos abaixo dele. Mova ou exclua esses termos antes.",
+      "tag_in_use_one": "\"{{name}}\" está em {{count}} publicação. Retire o termo dela antes de excluir.",
+      "tag_in_use_other": "\"{{name}}\" está em {{count}} publicações. Retire o termo delas antes de excluir.",
+      "tag_slug_taken": "Outro termo deste vocabulário já usa esse endereço."
+    }
   },
   "list": {
     "field": "Etiquetas"

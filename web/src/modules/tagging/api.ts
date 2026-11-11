@@ -13,6 +13,9 @@ export type CreateTagBody = Schemas['CreateTagRequest']
 export type UpdateTagBody = Schemas['UpdateTagRequest']
 export type TaggingResult = Schemas['TaggingResponse']
 export type RecordTagsEntry = Schemas['RecordTagsEntry']
+export type Vocabulary = Schemas['TagVocabulary']
+
+export const GENERAL_VOCABULARY = 'general'
 
 export type TaggableRecordType = string
 export const DEFAULT_TAG_COLOR = '#64748b'
@@ -45,7 +48,8 @@ export function useTaggingEntity(recordType: string) {
 
 export const tagsKeys = {
   all: ['tags'] as const,
-  list: (recordType?: string) => [...tagsKeys.all, 'list', recordType ?? null] as const,
+  list: (recordType?: string, vocabulary?: string) => [...tagsKeys.all, 'list', recordType ?? null, vocabulary ?? GENERAL_VOCABULARY] as const,
+  vocabularies: () => [...tagsKeys.all, 'vocabularies'] as const,
   record: (recordType: string, recordId: string) => [...tagsKeys.all, 'record', recordType, recordId] as const,
   lookups: () => [...tagsKeys.all, 'lookup'] as const,
   lookup: (recordType: string, ids: string[]) => [...tagsKeys.lookups(), recordType, ids] as const,
@@ -57,8 +61,9 @@ function recordPath(recordType: string, recordId: string, tagId?: string) {
 }
 
 export const tagsApi = {
-  list: (recordType?: string) =>
-    api.get<TagsPage>('/v1/tagging', { query: { record_type: recordType, per_page: TAGS_PER_PAGE } }),
+  list: (recordType?: string, vocabulary?: string) =>
+    api.get<TagsPage>('/v1/tagging', { query: { record_type: recordType, vocabulary, per_page: TAGS_PER_PAGE } }),
+  vocabularies: () => api.get<Vocabulary[]>('/v1/tagging/vocabularies'),
   create: (body: CreateTagBody) => api.post<Tag>('/v1/tagging', body),
   update: (id: string, body: UpdateTagBody) => api.patch<Tag>(`/v1/tagging/${encodeURIComponent(id)}`, body),
   remove: (id: string) => api.delete<void>(`/v1/tagging/${encodeURIComponent(id)}`),
@@ -71,10 +76,14 @@ export const tagsApi = {
     api.delete<void>(recordPath(recordType, recordId, tagId)),
 }
 
-export function useTags(recordType?: string, options: { enabled?: boolean } = {}) {
+export function useVocabularies() {
+  return useQuery({ queryKey: tagsKeys.vocabularies(), queryFn: tagsApi.vocabularies, staleTime: 60_000 })
+}
+
+export function useTags(recordType?: string, options: { enabled?: boolean; vocabulary?: string } = {}) {
   return useQuery({
-    queryKey: tagsKeys.list(recordType),
-    queryFn: async () => (await tagsApi.list(recordType)).data,
+    queryKey: tagsKeys.list(recordType, options.vocabulary),
+    queryFn: async () => (await tagsApi.list(recordType, options.vocabulary)).data,
     staleTime: 60_000,
     enabled: options.enabled ?? true,
   })

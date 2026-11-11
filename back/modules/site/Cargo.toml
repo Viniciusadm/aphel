@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 aphel-contract-site.workspace = true
+aphel-contract-tagging.workspace = true
 aphel-kernel.workspace = true
 aphel-sdk.workspace = true
 ammonia.workspace = true

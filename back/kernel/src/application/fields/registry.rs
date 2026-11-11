@@ -818,8 +818,10 @@ impl EntityDefinition {
             if !keys.insert(field.key.as_str()) {
                 return Err(invalid("duplicated system field", field.key.as_str()));
             }
-            if field.field_type.base_type() == FieldType::MultiSelect
-                && self.storage != super::EntityStorage::Managed
+            if matches!(
+                field.field_type.base_type(),
+                FieldType::MultiSelect | FieldType::References
+            ) && self.storage != super::EntityStorage::Managed
             {
                 return Err(invalid("multi_select system field", field.key.as_str()));
             }

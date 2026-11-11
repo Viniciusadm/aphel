@@ -8,4 +8,6 @@ publish = false
 
 [dependencies]
 aphel-contract.workspace = true
+aphel-kernel.workspace = true
+async-trait.workspace = true
 serde.workspace = true

@@ -21,6 +21,7 @@ pub mod net;
 pub mod notify;
 pub mod pack;
 pub mod package;
+pub mod provision;
 pub mod registry;
 pub mod runtime;
 pub mod schedule;
@@ -75,9 +76,13 @@ impl Module for WasmRuntimeModule {
             .migration(Migration::new(6, "plugin change feed", include_str!("../migrations/0006_create_plugins_changes.sql")))
             .migration(Migration::new(7, "plugin module conflicts", include_str!("../migrations/0007_create_plugins_module_conflicts.sql")))
             .migration(Migration::new(8, "plugin packs", include_str!("../migrations/0008_create_plugins_packs.sql")))
+            .migration(Migration::new(9, "plugin pack resources", include_str!("../migrations/0009_create_plugins_pack_resources.sql")))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
+        app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(std::sync::Arc::new(
+            provision::RecordProvisioner,
+        ));
         app.contribute(std::sync::Arc::new(aphel_sdk::module::PublicAppPath(
             "p",
         )));

@@ -481,6 +481,7 @@ async fn options(
             aphel_sdk::tagging::LIST,
             aphel_sdk::tagging::ListTags {
                 record_type: Some(aphel_contract_crm::keys::CONTACT.to_owned()),
+                vocabulary: None,
             },
         )
         .await?

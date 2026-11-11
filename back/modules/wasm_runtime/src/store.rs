@@ -426,3 +426,81 @@ pub async fn set_pack(pool: &MySqlPool, plugin: &str, pack: &str) -> Result<(), 
         .await?;
     Ok(())
 }
+
+#[derive(Debug, Clone)]
+pub struct PackResource {
+    pub kind: String,
+    pub resource_id: Option<String>,
+    pub data_hash: String,
+    pub applied: serde_json::Value,
+    pub status: String,
+}
+
+pub async fn pack_resources(
+    pool: &MySqlPool,
+    pack: &str,
+) -> Result<std::collections::BTreeMap<String, PackResource>, AppError> {
+    let rows = sqlx::query(
+        "SELECT resource_key, kind, resource_id, data_hash, applied, status \
+         FROM plugins_pack_resources WHERE pack_key = ?",
+    )
+    .bind(pack)
+    .fetch_all(pool)
+    .await?;
+    let mut resources = std::collections::BTreeMap::new();
+    for row in rows {
+        let applied: Option<Json<serde_json::Value>> = row.try_get("applied")?;
+        resources.insert(
+            row.try_get::<String, _>("resource_key")?,
+            PackResource {
+                kind: row.try_get("kind")?,
+                resource_id: row.try_get("resource_id")?,
+                data_hash: row.try_get("data_hash")?,
+                applied: applied.map(|Json(value)| value).unwrap_or_default(),
+                status: row.try_get("status")?,
+            },
+        );
+    }
+    Ok(resources)
+}
+
+pub struct SavedResource<'a> {
+    pub pack: &'a str,
+    pub key: &'a str,
+    pub kind: &'a str,
+    pub target: Option<&'a str>,
+    pub resource_id: Option<&'a str>,
+    pub mode: &'a str,
+    pub data_hash: &'a str,
+    pub applied: Option<&'a serde_json::Value>,
+    pub status: &'a str,
+    pub error: Option<serde_json::Value>,
+}
+
+pub async fn save_pack_resource(
+    pool: &MySqlPool,
+    resource: SavedResource<'_>,
+) -> Result<(), AppError> {
+    sqlx::query(
+        "INSERT INTO plugins_pack_resources (pack_key, resource_key, kind, target, resource_id, mode, \
+         data_hash, applied, status, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
+         ON DUPLICATE KEY UPDATE kind = VALUES(kind), target = VALUES(target), \
+         resource_id = COALESCE(VALUES(resource_id), resource_id), mode = VALUES(mode), \
+         data_hash = IF(VALUES(status) = 'failed', data_hash, VALUES(data_hash)), \
+         applied = COALESCE(VALUES(applied), applied), status = VALUES(status), error = VALUES(error), \
+         applied_at = CURRENT_TIMESTAMP(6)",
+    )
+    .bind(resource.pack)
+    .bind(resource.key)
+    .bind(resource.kind)
+    .bind(resource.target)
+    .bind(resource.resource_id)
+    .bind(resource.mode)
+    .bind(resource.data_hash)
+    .bind(resource.applied.map(Json))
+    .bind(resource.status)
+    .bind(resource.error.map(Json))
+    .execute(pool)
+    .await?;
+    Ok(())
+}

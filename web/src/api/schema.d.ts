@@ -6372,7 +6372,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Revisions of a publishable record, newest first, without payloads. Needs read access to the record. */
+        /** @description Revisions of a publishable record, newest first, without payloads; `title` is the record's title field in each revision. Needs read access to the record. */
         get: operations["publication_revisions_list"];
         put?: never;
         /** @description Captures the saved draft fields of a record as an immutable revision (`publication.revision_captured`). `expected_version` is the `updated_at` of the saved draft; a newer save answers 409. Needs update access to the record. */
@@ -7730,6 +7730,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tagging/vocabularies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["tag_vocabularies_list"];
+        put?: never;
+        post: operations["tag_vocabularies_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tagging/vocabularies/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["tag_vocabularies_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["tag_vocabularies_update"];
+        trace?: never;
+    };
     "/api/v1/tagging/{tag_id}": {
         parameters: {
             query?: never;
@@ -8521,7 +8553,7 @@ export interface paths {
         /** @description Lists the plugin packs installed in this Aphel with the plugins that still belong to each (permission `system.manage`). */
         get: operations["plugin_packs_list"];
         put?: never;
-        /** @description Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. Publishes `plugin.pack_installed`. */
+        /** @description Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins. After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`. */
         post: operations["plugin_packs_install"];
         delete?: never;
         options?: never;
@@ -11221,6 +11253,7 @@ export interface components {
             color?: string | null;
             /** @example VIP customer */
             name: string;
+            parent_id?: string | null;
             /**
              * @example [
              *       "people.person",
@@ -11228,6 +11261,10 @@ export interface components {
              *     ]
              */
             record_types?: string[];
+            /** @example vip-customer */
+            slug?: string | null;
+            /** @example categories */
+            vocabulary?: string | null;
         };
         CreateTrackingObjectionRequest: {
             /** @example maria@customer.com */
@@ -11257,6 +11294,14 @@ export interface components {
             team_id?: string | null;
             view_type?: null | components["schemas"]["ViewType"];
             visibility?: null | components["schemas"]["ViewVisibility"];
+        };
+        CreateVocabularyRequest: {
+            hierarchical?: boolean;
+            /** @example categories */
+            key: string;
+            /** @example Categorias */
+            name: string;
+            public?: boolean;
         };
         CreateWebhookEndpointRequest: {
             /** @example ERP sync */
@@ -13591,8 +13636,10 @@ export interface components {
                 description?: string | null;
                 installed_version?: string | null;
                 key: string;
+                modules_to_enable: string[];
                 name: string;
                 plugins: components["schemas"]["PackPluginConsentResponse"][];
+                provisions: components["schemas"]["ProvisionPlanResponse"][];
                 role_presets: string[];
                 version: string;
                 web: boolean;
@@ -13603,8 +13650,10 @@ export interface components {
                 complete: boolean;
                 description?: string | null;
                 key: string;
+                modules_enabled: string[];
                 name: string;
                 plugins: components["schemas"]["PackPluginResultResponse"][];
+                provisions: components["schemas"]["ProvisionResultResponse"][];
                 version: string;
             };
         };
@@ -13933,6 +13982,7 @@ export interface components {
                 payload_hash: string;
                 record_id: string;
                 record_type: string;
+                title?: string | null;
             };
         };
         Data_PublicationStatus: {
@@ -14514,16 +14564,32 @@ export interface components {
                 created_by?: string | null;
                 id: string;
                 name: string;
+                parent_id?: string | null;
                 /**
                  * @example [
                  *       "contact"
                  *     ]
                  */
                 record_types: string[];
+                slug?: string | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
                 /** Format: int64 */
                 usage_count: number;
+                /** @example general */
+                vocabulary: string;
+            };
+        };
+        Data_TagVocabulary: {
+            data: {
+                created_at: string;
+                hierarchical: boolean;
+                id: string;
+                /** @example categories */
+                key: string;
+                name: string;
+                public: boolean;
+                updated_at: string;
             };
         };
         Data_TaggingResponse: {
@@ -15614,6 +15680,18 @@ export interface components {
                 id: string;
                 /** @example VIP customer */
                 name: string;
+            }[];
+        };
+        Data_Vec_TagVocabulary: {
+            data: {
+                created_at: string;
+                hierarchical: boolean;
+                id: string;
+                /** @example categories */
+                key: string;
+                name: string;
+                public: boolean;
+                updated_at: string;
             }[];
         };
         Data_Vec_TelephonyProviderResponse: {
@@ -20061,6 +20139,7 @@ export interface components {
                 payload_hash: string;
                 record_id: string;
                 record_type: string;
+                title?: string | null;
             }[];
             meta: components["schemas"]["PageMeta"];
         };
@@ -20366,16 +20445,20 @@ export interface components {
                 created_by?: string | null;
                 id: string;
                 name: string;
+                parent_id?: string | null;
                 /**
                  * @example [
                  *       "contact"
                  *     ]
                  */
                 record_types: string[];
+                slug?: string | null;
                 /** @example 2026-10-20T13:45:00Z */
                 updated_at: string;
                 /** Format: int64 */
                 usage_count: number;
+                /** @example general */
+                vocabulary: string;
             }[];
             meta: components["schemas"]["PageMeta"];
         };
@@ -20744,8 +20827,10 @@ export interface components {
             description?: string | null;
             installed_version?: string | null;
             key: string;
+            modules_to_enable: string[];
             name: string;
             plugins: components["schemas"]["PackPluginConsentResponse"][];
+            provisions: components["schemas"]["ProvisionPlanResponse"][];
             role_presets: string[];
             version: string;
             web: boolean;
@@ -20754,8 +20839,10 @@ export interface components {
             complete: boolean;
             description?: string | null;
             key: string;
+            modules_enabled: string[];
             name: string;
             plugins: components["schemas"]["PackPluginResultResponse"][];
+            provisions: components["schemas"]["ProvisionResultResponse"][];
             version: string;
         };
         PluginPermissionResponse: {
@@ -21166,6 +21253,21 @@ export interface components {
             key: string;
             label: string;
         };
+        ProvisionPlanResponse: {
+            /** @example create */
+            action: string;
+            error?: null | components["schemas"]["PackPluginError"];
+            key: string;
+            kind: string;
+        };
+        ProvisionResultResponse: {
+            error?: null | components["schemas"]["PackPluginError"];
+            key: string;
+            kind: string;
+            resource_id?: string | null;
+            /** @example created */
+            status: string;
+        };
         PublicAcceptQuoteRequest: {
             /** @example maria@customer.com */
             email: string;
@@ -21352,6 +21454,7 @@ export interface components {
             payload_hash: string;
             record_id: string;
             record_type: string;
+            title?: string | null;
         };
         PublicationStatus: {
             active_revision?: null | components["schemas"]["PublicationRevision"];
@@ -22893,16 +22996,20 @@ export interface components {
             created_by?: string | null;
             id: string;
             name: string;
+            parent_id?: string | null;
             /**
              * @example [
              *       "contact"
              *     ]
              */
             record_types: string[];
+            slug?: string | null;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
             /** Format: int64 */
             usage_count: number;
+            /** @example general */
+            vocabulary: string;
         };
         TagSummary: {
             /** @example #1f6feb */
@@ -22910,6 +23017,16 @@ export interface components {
             id: string;
             /** @example VIP customer */
             name: string;
+        };
+        TagVocabulary: {
+            created_at: string;
+            hierarchical: boolean;
+            id: string;
+            /** @example categories */
+            key: string;
+            name: string;
+            public: boolean;
+            updated_at: string;
         };
         TaggingResponse: {
             changed: boolean;
@@ -23438,7 +23555,9 @@ export interface components {
         UpdateTagRequest: {
             color?: string | null;
             name?: string | null;
+            parent_id?: string | null;
             record_types?: string[] | null;
+            slug?: string | null;
         };
         UpdateTeamRequest: {
             members?: components["schemas"]["TeamMemberRequest"][] | null;
@@ -23467,6 +23586,11 @@ export interface components {
             team_id?: string | null;
             view_type?: null | components["schemas"]["ViewType"];
             visibility?: null | components["schemas"]["ViewVisibility"];
+        };
+        UpdateVocabularyRequest: {
+            hierarchical?: boolean | null;
+            name?: string | null;
+            public?: boolean | null;
         };
         UpdateWebhookEndpointRequest: {
             description?: string | null;
@@ -63683,6 +63807,8 @@ export interface operations {
             query?: {
                 /** @example people.person */
                 record_type?: string;
+                /** @example categories */
+                vocabulary?: string;
                 page?: number;
                 per_page?: number;
             };
@@ -63692,7 +63818,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Tags of the organization ordered by name, with how many records use each one. With `record_type`, only tags allowed on that type. Any member (and any valid API token) can list them */
+            /** @description Terms of one vocabulary (`vocabulary`, default `general`: the tags of records) ordered by name, with how many records use each one. With `record_type`, only tags allowed on that type. Any member (and any valid API token) can list them */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -63773,7 +63899,16 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Another tag already has this name (`tag_name_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description Vocabulary not found (`tag_vocabulary_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Another term of the vocabulary already has this name (`tag_name_taken`) or address (`tag_slug_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -63782,7 +63917,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Invalid name, color or record types (`validation_error`) or the organization already has the maximum number of tags (`too_many_tags`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            /** @description Invalid name, address, parent, color or record types (`validation_error`) or the organization already has the maximum number of tags (`too_many_tags`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -64071,6 +64206,263 @@ export interface operations {
             };
         };
     };
+    tag_vocabularies_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vocabularies of the organization. `general` holds the tags of records; others, such as categories, can be hierarchical and public on the site. Any member can list them */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_TagVocabulary"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    tag_vocabularies_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVocabularyRequest"];
+            };
+        };
+        responses: {
+            /** @description Vocabulary created (`tag_vocabulary.created`) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_TagVocabulary"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The key is taken (`tag_vocabulary_key_taken`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid key or name (`validation_error`) or too many vocabularies (`too_many_tag_vocabularies`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    tag_vocabularies_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Vocabulary key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Vocabulary deleted (`tag_vocabulary.deleted`) */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Vocabulary not found (`tag_vocabulary_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The vocabulary still has terms (`tag_vocabulary_not_empty`) or is `general` (`tag_vocabulary_protected`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    tag_vocabularies_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Vocabulary key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVocabularyRequest"];
+            };
+        };
+        responses: {
+            /** @description Vocabulary updated (`tag_vocabulary.updated`). The key never changes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_TagVocabulary"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Vocabulary not found (`tag_vocabulary_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Turning the hierarchy off while terms are nested (`tag_vocabulary_has_hierarchy`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid name (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     tags_get: {
         parameters: {
             query?: never;
@@ -64167,6 +64559,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            /** @description The term has terms below it (`tag_has_children`) or is selected in records that keep their own classification (`tag_in_use`, `details.records` counts them per entity) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
             429: {
                 headers: {
@@ -64233,7 +64634,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Another tag already has this name (`tag_name_taken`) or the tag changed since the `If-Match` version (`version_conflict`) */
+            /** @description Another term of the vocabulary already has this name (`tag_name_taken`) or address (`tag_slug_taken`), or the tag changed since the `If-Match` version (`version_conflict`) */
             409: {
                 headers: {
                     [name: string]: unknown;

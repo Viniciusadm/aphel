@@ -35,6 +35,7 @@ pub enum FieldValue {
     Options(Vec<Uuid>),
     User(UserId),
     Record(Uuid),
+    References(Vec<Uuid>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -232,6 +233,22 @@ pub fn validate_native_value(
             )
         }
         FieldType::Record => FieldValue::Record(parse_uuid(expect_text(raw)?)?),
+        FieldType::References => {
+            let RawValue::List(items) = raw else {
+                return Err(FieldValueError::ExpectedList);
+            };
+            if items.len() > MAX_MULTI_SELECT_VALUES {
+                return Err(FieldValueError::TooManyOptions(MAX_MULTI_SELECT_VALUES));
+            }
+            let mut ids = Vec::with_capacity(items.len());
+            for item in items {
+                let id = parse_uuid(expect_text(item)?)?;
+                if !ids.contains(&id) {
+                    ids.push(id);
+                }
+            }
+            FieldValue::References(ids)
+        }
         FieldType::Custom { .. } => unreachable!("native field representation"),
     };
     Ok(Some(value))

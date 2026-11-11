@@ -127,7 +127,10 @@ fn source_value(definition: &FieldDefinition, value: &FieldValue, timezone: Tz) 
             .map_or(FormulaValue::Null, |option| {
                 FormulaValue::Text(option.label.clone())
             }),
-        FieldValue::Options(_) | FieldValue::User(_) | FieldValue::Record(_) => FormulaValue::Null,
+        FieldValue::Options(_)
+        | FieldValue::User(_)
+        | FieldValue::Record(_)
+        | FieldValue::References(_) => FormulaValue::Null,
     }
 }
 

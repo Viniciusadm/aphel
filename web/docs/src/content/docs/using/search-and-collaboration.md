@@ -77,7 +77,8 @@ Following a record means you are told when something happens on it.
 Tags label records so you can filter, segment and bulk-edit them.
 
 - **Apply tags.** On a record page click **Tags**, search and tick the tags. You need the update permission of the record type (for example `people.update`). Tags also appear as a **Tags** column and filter in lists, and you can add or remove a tag on many records at once with the **Tags** bulk action (see [Data tools](/_aphel/docs/using/data-tools/#bulk-actions)).
-- **Manage tags.** Users with `settings.manage` open **Settings**, then **Tags**. Each tag has a name (up to 60 characters, unique), a color and the record types where it can be used; with nothing selected, it applies to all types. An organization can have up to 500 tags. The settings list shows how many records use each tag.
+- **Manage tags.** Users with `settings.manage` open **Settings**, then **Tags**. Each tag has a name (up to 60 characters, unique), a color and the record types where it can be used; with nothing selected, it applies to all types. An organization can have up to 2000 tags and terms. The settings list shows how many records use each tag.
+- **Categories and other vocabularies.** Tags are the `general` vocabulary. Other vocabularies, such as the **Categorias** and **Tags** of a blog, appear as tabs on the same screen. Their terms have a name, an address used on the site and, in hierarchical vocabularies, a parent term (up to 8 levels). A term with terms below it, or selected in a post, cannot be deleted until it is moved or removed from those posts.
 - Deleting a tag removes it from every record. Narrowing the record types of a tag keeps the tags already applied.
 
 ## Segments

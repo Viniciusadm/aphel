@@ -22,7 +22,9 @@ pub fn kind_of(field_type: FieldType) -> Option<ValueKind> {
         | FieldType::Phone
         | FieldType::Select => Some(ValueKind::Text),
         FieldType::Checkbox => Some(ValueKind::Bool),
-        FieldType::MultiSelect | FieldType::User | FieldType::Record => None,
+        FieldType::MultiSelect | FieldType::User | FieldType::Record | FieldType::References => {
+            None
+        }
         FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }

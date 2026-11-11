@@ -76,7 +76,10 @@ fn numeric(field_type: FieldType) -> bool {
 fn functions_for(field_type: FieldType) -> Vec<AggregateFunction> {
     if numeric(field_type) {
         AggregateFunction::NUMERIC.to_vec()
-    } else if field_type.base_type() == FieldType::MultiSelect {
+    } else if matches!(
+        field_type.base_type(),
+        FieldType::MultiSelect | FieldType::References
+    ) {
         Vec::new()
     } else {
         vec![AggregateFunction::Count]

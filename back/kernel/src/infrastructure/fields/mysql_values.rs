@@ -135,7 +135,7 @@ fn columns_of(value: &FieldValue) -> ColumnValues {
         FieldValue::Option(id) => columns.option = Some(id.to_string()),
         FieldValue::User(id) => columns.text = Some(id.as_str().to_owned()),
         FieldValue::Record(id) => columns.text = Some(id.to_string()),
-        FieldValue::Options(_) => {}
+        FieldValue::Options(_) | FieldValue::References(_) => {}
     }
     columns
 }
@@ -164,7 +164,7 @@ fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>,
             .try_get::<Option<String>, _>("value_option_id")?
             .and_then(|id| Uuid::parse_str(&id).ok())
             .map(FieldValue::Option),
-        FieldType::MultiSelect => None,
+        FieldType::MultiSelect | FieldType::References => None,
         FieldType::User => row
             .try_get::<Option<String>, _>("value_text")?
             .and_then(|id| UserId::new(id).ok())

@@ -246,6 +246,30 @@ fn push_predicate(
     predicate: &Predicate,
     field_type: FieldType,
 ) {
+    if field_type.base_type() == FieldType::References {
+        match predicate {
+            Predicate::In(values) => {
+                builder.push(format!("JSON_OVERLAPS({column}, JSON_ARRAY("));
+                let mut list = builder.separated(", ");
+                for value in values {
+                    match value {
+                        PlanValue::Text(text) => list.push_bind(text.clone()),
+                        _ => list.push("NULL"),
+                    };
+                }
+                builder.push("))");
+            }
+            Predicate::Present => {
+                builder.push(format!(
+                    "({column} IS NOT NULL AND JSON_LENGTH({column}) > 0)"
+                ));
+            }
+            _ => {
+                builder.push("FALSE");
+            }
+        }
+        return;
+    }
     if field_type.base_type() == FieldType::MultiSelect {
         match predicate {
             Predicate::In(values) => {

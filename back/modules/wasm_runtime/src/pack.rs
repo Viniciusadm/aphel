@@ -29,6 +29,109 @@ pub struct PackManifest {
     #[serde(default)]
     pub role_presets: Vec<String>,
     pub plugins: Vec<PackPluginEntry>,
+    #[serde(default)]
+    pub requires_aphel: Option<String>,
+    #[serde(default)]
+    pub requires_modules: Vec<String>,
+    #[serde(default)]
+    pub provision: Vec<ProvisionSpec>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProvisionSpec {
+    pub key: String,
+    pub kind: String,
+    #[serde(default)]
+    pub target: Option<String>,
+    #[serde(default)]
+    pub mode: aphel_sdk::provisioning::ProvisionMode,
+    #[serde(default)]
+    pub data: Value,
+    #[serde(default)]
+    pub depends_on: Vec<String>,
+    #[serde(default)]
+    pub unique: Option<String>,
+    #[serde(default)]
+    pub path_conflict: aphel_sdk::provisioning::PathConflict,
+}
+
+const MAX_PROVISIONS: usize = 64;
+
+fn is_provision_key(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 80
+        && value.split('.').all(|segment| {
+            !segment.is_empty()
+                && segment.chars().all(|character| {
+                    character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
+                })
+        })
+}
+
+pub fn provision_order(provisions: &[ProvisionSpec]) -> Result<Vec<usize>, Vec<FieldViolation>> {
+    let mut violations = Vec::new();
+    if provisions.len() > MAX_PROVISIONS {
+        violations.push(FieldViolation::new(
+            "provision",
+            format!("must list at most {MAX_PROVISIONS} resources"),
+        ));
+    }
+    let mut keys = BTreeSet::new();
+    for (index, spec) in provisions.iter().enumerate() {
+        let path = format!("provision[{index}]");
+        if !is_provision_key(&spec.key) {
+            violations.push(FieldViolation::new(
+                format!("{path}.key"),
+                "must be dotted lowercase segments such as blog.collection",
+            ));
+        }
+        if !keys.insert(spec.key.as_str()) {
+            violations.push(FieldViolation::new(format!("{path}.key"), "must be unique"));
+        }
+        if !spec.data.is_object() {
+            violations.push(FieldViolation::new(
+                format!("{path}.data"),
+                "must be a table",
+            ));
+        }
+    }
+    for (index, spec) in provisions.iter().enumerate() {
+        for dependency in &spec.depends_on {
+            if !keys.contains(dependency.as_str()) {
+                violations.push(FieldViolation::new(
+                    format!("provision[{index}].depends_on"),
+                    format!("{dependency} is not a resource of the pack"),
+                ));
+            }
+        }
+    }
+    if !violations.is_empty() {
+        return Err(violations);
+    }
+    let mut order = Vec::with_capacity(provisions.len());
+    let mut placed = BTreeSet::new();
+    while order.len() < provisions.len() {
+        let before = order.len();
+        for (index, spec) in provisions.iter().enumerate() {
+            if !placed.contains(spec.key.as_str())
+                && spec
+                    .depends_on
+                    .iter()
+                    .all(|dependency| placed.contains(dependency.as_str()))
+            {
+                placed.insert(spec.key.as_str());
+                order.push(index);
+            }
+        }
+        if order.len() == before {
+            return Err(vec![FieldViolation::new(
+                "provision",
+                "depends_on forms a cycle",
+            )]);
+        }
+    }
+    Ok(order)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,7 +178,7 @@ impl PluginPack {
     }
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct PackPluginError {
     pub code: String,
     pub message: String,
@@ -188,6 +291,19 @@ pub fn read_pack(bytes: &[u8]) -> Result<PluginPack, AppError> {
             "version",
             "must be a semantic version such as 1.0.0",
         ));
+    }
+    if manifest
+        .requires_aphel
+        .as_deref()
+        .is_some_and(|requirement| semver::VersionReq::parse(requirement).is_err())
+    {
+        violations.push(FieldViolation::new(
+            "requires_aphel",
+            "must be a version requirement such as >=0.2.0",
+        ));
+    }
+    if let Err(problems) = provision_order(&manifest.provision) {
+        violations.extend(problems);
     }
     if manifest.plugins.is_empty() || manifest.plugins.len() > MAX_PACK_PLUGINS {
         violations.push(FieldViolation::new(

@@ -104,7 +104,7 @@ pub fn decode_record_field(
             row.try_get::<Option<chrono::NaiveDate>, _>(column)?
                 .map(|date| date.to_string())
         ),
-        FieldType::MultiSelect => row
+        FieldType::MultiSelect | FieldType::References => row
             .try_get::<Option<sqlx::types::Json<Value>>, _>(column)?
             .map(|json| json.0)
             .unwrap_or(Value::Null),

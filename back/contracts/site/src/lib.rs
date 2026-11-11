@@ -223,7 +223,30 @@ pub struct SitePage {
     pub requires_customer: bool,
     #[serde(default)]
     pub customer_field: Option<String>,
+    #[serde(default)]
+    pub prefix: Option<PagePrefix>,
+    #[serde(default)]
+    pub term: Option<PageTerm>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PageTerm {
+    pub field: String,
+    pub vocabulary: String,
+}
+
+pub const TERM_PARAM: &str = "term";
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PagePrefix {
+    pub entity: String,
+    pub field: String,
+    #[serde(default)]
+    pub conditions: BTreeMap<String, Value>,
+    pub scope: String,
+}
+
+pub const PREFIX_PARAM: &str = "prefix";
 
 impl SitePage {
     pub fn needs_customer(&self) -> bool {
@@ -288,6 +311,8 @@ pub struct SiteExposure {
     pub entity: String,
     pub fields: Vec<String>,
     pub conditions: BTreeMap<String, Value>,
+    #[serde(default)]
+    pub filter: Option<Value>,
     #[serde(default)]
     pub images: bool,
     #[serde(default)]
@@ -657,7 +682,80 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         if [SITEMAP_PATH, ROBOTS_PATH].contains(&pattern.shape().as_str()) {
             problems.push(format!("{label}: {} is reserved for the site", page.path));
         }
-        if let Some(other) = shapes.insert(pattern.shape(), page.key.as_str()) {
+        if let Some(prefix) = &page.prefix {
+            match bundle
+                .exposures
+                .iter()
+                .find(|exposure| exposure.entity == prefix.entity)
+            {
+                None => problems.push(format!(
+                    "{label}: the prefix entity {} is not listed in site.public",
+                    prefix.entity
+                )),
+                Some(exposure) => {
+                    for field in std::iter::once(&prefix.field).chain(prefix.conditions.keys()) {
+                        if !exposure.exposes(field) {
+                            problems
+                                .push(format!("{label}: the prefix field {field} is not public"));
+                        }
+                    }
+                }
+            }
+            if page.needs_customer() {
+                problems.push(format!(
+                    "{label}: a page with a prefix cannot require a customer"
+                ));
+            }
+            if pattern.params().contains(&PREFIX_PARAM) {
+                problems.push(format!(
+                    "{label}: {{{PREFIX_PARAM}}} is filled by the prefix and cannot be in the path"
+                ));
+            }
+            if matches!(page.source, PageSource::Static | PageSource::Single { .. }) {
+                problems.push(format!(
+                    "{label}: a page with a prefix lists or shows records of its entity"
+                ));
+            }
+            if let Some(exposure) = page.source.entity().and_then(|entity| {
+                bundle
+                    .exposures
+                    .iter()
+                    .find(|exposure| exposure.entity == entity)
+            }) && !exposure.exposes(&prefix.scope)
+            {
+                problems.push(format!(
+                    "{label}: the scope field {} is not public",
+                    prefix.scope
+                ));
+            }
+        }
+        if let Some(term) = &page.term {
+            if !matches!(page.source, PageSource::List { .. }) {
+                problems.push(format!("{label}: a page with a term lists records"));
+            }
+            if !pattern.params().contains(&TERM_PARAM) {
+                problems.push(format!(
+                    "{label}: a page with a term needs {{{TERM_PARAM}}} in the path"
+                ));
+            }
+            if let Some(exposure) = page.source.entity().and_then(|entity| {
+                bundle
+                    .exposures
+                    .iter()
+                    .find(|exposure| exposure.entity == entity)
+            }) && !exposure.exposes(&term.field)
+            {
+                problems.push(format!(
+                    "{label}: the term field {} is not public",
+                    term.field
+                ));
+            }
+        }
+        let shape_key = match &page.prefix {
+            Some(prefix) => format!("{}:{}", prefix.entity, pattern.shape()),
+            None => pattern.shape(),
+        };
+        if let Some(other) = shapes.insert(shape_key, page.key.as_str()) {
             problems.push(format!("{label}: the path overlaps page {other}"));
         }
         if !templates.contains(page.template.as_str()) {
@@ -705,8 +803,18 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 }
             }
             (PageSource::List { sort, per_page, .. }, Some(Some(exposure))) => {
-                if !pattern.params().is_empty() {
-                    problems.push(format!("{label}: a list page has no parameters"));
+                let allowed: &[&str] = match page.term {
+                    Some(_) => &[TERM_PARAM],
+                    None => &[],
+                };
+                if pattern
+                    .params()
+                    .iter()
+                    .any(|param| !allowed.contains(param))
+                {
+                    problems.push(format!(
+                        "{label}: a list page has no parameters other than {{{TERM_PARAM}}} of a term page"
+                    ));
                 }
                 if *per_page == 0 || *per_page > MAX_PER_PAGE {
                     problems.push(format!(

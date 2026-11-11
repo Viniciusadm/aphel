@@ -66,6 +66,7 @@ pub(crate) struct ThemeInfo {
 pub(crate) struct SiteRuntime {
     revision: String,
     pub routes: Vec<Route>,
+    pub prefixed: Vec<Route>,
     home_alternatives: Vec<Route>,
     names: BTreeMap<String, String>,
     exposures: BTreeMap<(String, String), SiteExposure>,
@@ -223,6 +224,7 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     let mut account_links = Vec::new();
     let mut islands: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut routes: Vec<Route> = Vec::new();
+    let mut prefixed: Vec<Route> = Vec::new();
     let mut home_alternatives: Vec<Route> = Vec::new();
     let mut names = BTreeMap::new();
     let mut exposures = BTreeMap::new();
@@ -310,6 +312,19 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
             let Ok(pattern) = PathPattern::parse(&page.path) else {
                 continue;
             };
+            if page.prefix.is_some() {
+                let relative = page.path.trim_end_matches('/');
+                paths.entry(bundle.owner.clone()).or_default().insert(
+                    page.key.clone(),
+                    format!("/{{{}}}{relative}", aphel_contract_site::PREFIX_PARAM),
+                );
+                prefixed.push(Route {
+                    owner: bundle.owner.clone(),
+                    page,
+                    pattern,
+                });
+                continue;
+            }
             if pattern.shape() == HOME_PATH
                 && routes
                     .iter()
@@ -343,9 +358,11 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     routes.sort_by_key(|route| std::cmp::Reverse(route.pattern.specificity()));
     environment.add_global("__site_pages", Value::from_serialize(&paths));
     environment.add_global("__site_islands", Value::from_serialize(&islands));
+    prefixed.sort_by_key(|route| std::cmp::Reverse(route.pattern.specificity()));
     SiteRuntime {
         revision,
         routes,
+        prefixed,
         home_alternatives,
         names,
         exposures,
@@ -578,12 +595,28 @@ fn embed(source: String, key: String) -> Result<Value, Error> {
 fn site_list(owner: String, entity: String, kwargs: Kwargs) -> Result<Value, Error> {
     let sort: Option<String> = kwargs.get("sort")?;
     let limit: Option<u64> = kwargs.get("limit")?;
+    let conditions: Option<Value> = kwargs.get("where")?;
     kwargs.assert_all_used()?;
+    let conditions = match conditions {
+        None => BTreeMap::new(),
+        Some(value) => serde_json::to_value(&value)
+            .ok()
+            .and_then(|value| {
+                serde_json::from_value::<BTreeMap<String, serde_json::Value>>(value).ok()
+            })
+            .ok_or_else(|| {
+                Error::new(
+                    ErrorKind::InvalidOperation,
+                    "site_list: where is a map of field to value",
+                )
+            })?,
+    };
     Ok(crate::deferred::marker(&crate::deferred::Deferred::List {
         owner,
         entity,
         sort,
         limit: limit.unwrap_or(6).clamp(1, crate::deferred::MAX_LIST_LIMIT),
+        conditions,
     }))
 }
 

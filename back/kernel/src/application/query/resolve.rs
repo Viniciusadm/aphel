@@ -932,7 +932,7 @@ impl FilterResolver<'_> {
                 }
                 uuid_text(&text)
             }
-            FieldType::Record => uuid_text(&non_empty_text(value)?),
+            FieldType::Record | FieldType::References => uuid_text(&non_empty_text(value)?),
             FieldType::Custom { .. } => unreachable!("native field representation"),
         }
     }

@@ -38,6 +38,9 @@ path = "../retail_catalog"
 | `role_presets` | array of strings | no | Role presets that come checked on the consent screen. Each must be declared by a plugin of the pack. |
 | `plugins[].path` | string | yes in the source | Folder of the plugin, relative to `pack.toml`. |
 | `plugins[].settings` | table | no | Setting values for that plugin. Secrets are refused. |
+| `requires_aphel` | string | no | Semantic version requirement for Aphel, such as `">=0.1.0"`. |
+| `requires_modules` | array of strings | no | Native modules the pack needs, such as `["site", "publication"]`. |
+| `provision` | array of tables | no | Records and settings the pack creates after installing, see [Provisioning](#provisioning). |
 
 The order of `[[plugins]]` does not matter. Aphel computes it.
 
@@ -77,6 +80,56 @@ Every plugin is validated before anything is installed. If one of them has a pro
 
 Pack settings only fill settings that have no value yet. A value the administrator changed on the instance is never overwritten, not even by a newer version of the pack.
 
+## Requirements
+
+`requires_aphel` is checked before anything is installed: an older Aphel fails with 422 `plugin_pack_aphel_incompatible`. Each module in `requires_modules` must be part of the Aphel build, or the pack fails with 422 `plugin_pack_module_unavailable`. A required module that is built in but disabled is listed on the consent screen and enabled by the install, before the plugins.
+
+## Provisioning
+
+A pack can create what its plugins need to be useful right away, such as a first blog and a menu link to it. Each `[[provision]]` describes one resource:
+
+```toml
+[[provision]]
+key = "blog.collection"
+kind = "record"
+target = "content.collection"
+mode = "seed"
+unique = "path"
+path_conflict = "suffix"
+data = { name = "Blog", path = "blog", description = "News and articles." }
+
+[[provision]]
+key = "blog.menu"
+kind = "site.link"
+depends_on = ["blog.collection"]
+data = { id = "blog", label = "Blog", url = { provision = "blog.collection", field = "path", prefix = "/" } }
+```
+
+| Key | Type | Required | Meaning |
+| --- | --- | --- | --- |
+| `key` | string | yes | Unique key of the resource inside the pack. Aphel remembers what it created under this key. |
+| `kind` | string | yes | What to create. `record` (module `wasm_runtime`) creates a record of `target`; `site.link` (module `site`) adds a link to the site menu; `tagging.vocabulary` (module `tagging`) creates a vocabulary from `key`, `name`, `hierarchical` and `public`. |
+| `target` | string | for `record` | Entity key, such as `content.collection`. |
+| `mode` | `seed` or `managed` | no | `seed` (default) creates the resource once and never touches it again. `managed` updates it when a newer pack changes `data`, unless an administrator changed or removed it. |
+| `data` | table | yes | Field values. A value `{ provision = "<key>", field = "<field>", prefix = "..." }` takes a field of a resource created earlier in the pack, with an optional prefix. |
+| `depends_on` | array of strings | no | Resources that must be created first. Referenced resources must be listed here. |
+| `unique` | string | no | Field that must be unique, such as an address. |
+| `path_conflict` | `fail` or `suffix` | no | With `suffix`, a taken `unique` value gets `-2`, `-3` and so on instead of failing. |
+
+Resources are created after the plugins, in dependency order. The result of each one is reported with a status:
+
+| Status | Meaning |
+| --- | --- |
+| `created` | Created by this install. |
+| `updated` | A `managed` resource was updated to the new `data`. |
+| `kept` | Already created by an earlier install and left as it is. |
+| `user_changed` | An administrator changed it, so the pack left it alone. |
+| `removed` | An administrator deleted it, so the pack did not create it again. |
+| `failed` | It could not be created; `error` says why. The install answers 207. |
+| `skipped` | A resource it depends on failed. |
+
+Sending the same pack again creates nothing twice. A resource that failed is retried on the next install. A `kind` that no enabled module provides fails with `plugin_pack_provisioner_unknown`, and a reference to a resource the pack does not create, or to a field it does not have, fails with `plugin_pack_provision_reference`.
+
 ## Upgrades
 
 Send a newer version of the pack. Plugins whose package is identical to the installed one (same checksum) are skipped; the others are upgraded in order. A plugin installed by itself over a pack plugin leaves the pack.
@@ -87,8 +140,8 @@ If a plugin fails while installing, the following plugins are skipped and the sc
 
 | Request | What it does |
 | --- | --- |
-| `POST /api/v1/wasm-runtime/packs?dry_run=true` | Multipart field `package`. Returns the pack, its plugins in order with `action`, `consent`, `error` and `settings`. Nothing is installed. |
-| `POST /api/v1/wasm-runtime/packs` | Installs. `acknowledge_web_version=<pack version>` admits the frontend code of every plugin of the pack, `acknowledge_conflicts=true` acknowledges overlaps with plugins outside the pack and `role_presets` (comma separated) picks the roles. 201 when everything went in, 207 when a plugin failed. |
+| `POST /api/v1/wasm-runtime/packs?dry_run=true` | Multipart field `package`. Returns the pack, its plugins in order with `action`, `consent`, `error` and `settings`, the modules it will enable (`modules_to_enable`) and the planned resources (`provisions`). Nothing is installed. |
+| `POST /api/v1/wasm-runtime/packs` | Installs. `acknowledge_web_version=<pack version>` admits the frontend code of every plugin of the pack, `acknowledge_conflicts=true` acknowledges overlaps with plugins outside the pack and `role_presets` (comma separated) picks the roles. Returns `modules_enabled` and the status of every resource in `provisions`. 201 when everything went in, 207 when a plugin or a resource failed. |
 | `GET /api/v1/wasm-runtime/packs` | Installed packs and the plugins that belong to each. |
 
 All of them need `system.manage`. Installing publishes `plugin.pack_installed` and one `plugin.installed` per plugin.

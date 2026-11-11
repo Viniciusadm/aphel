@@ -52,6 +52,7 @@ pub(crate) struct Revision {
     pub(crate) note: Option<String>,
     pub(crate) created_by: Option<String>,
     pub(crate) created_at: DateTime<Utc>,
+    pub(crate) title: Option<String>,
 }
 
 #[derive(Debug, Clone)]

@@ -211,6 +211,7 @@ pub(crate) fn format_cell(
             Value::String(text) => ExportCell::Text(option_label(field, text)),
             other => ExportCell::Text(other.to_string()),
         },
+        FieldType::References => ExportCell::Text(texts(value).join("; ")),
         FieldType::MultiSelect => ExportCell::Text(
             texts(value)
                 .into_iter()

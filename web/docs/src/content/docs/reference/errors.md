@@ -766,9 +766,18 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | Code | Status | Meaning |
 | --- | --- | --- |
 | `record_type_not_taggable` | 422 | The record type cannot be tagged. |
-| `tag_name_taken` | 409 | A tag with that name already exists. |
-| `tag_not_allowed` | 422 | The tag cannot be used on that record type. |
+| `tag_has_children` | 409 | The term has terms below it; move or delete them first. |
+| `tag_in_use` | 409 | The term is selected in records that keep their own classification; `details.records` counts them per entity. |
+| `tag_name_taken` | 409 | A term of the same vocabulary already has that name. |
+| `tag_not_allowed` | 422 | The tag cannot be used on that record type, or the term belongs to a vocabulary the record does not use. |
 | `tag_not_found` | 404 | Tag was not found. |
+| `tag_slug_taken` | 409 | A term of the same vocabulary already uses that address. |
+| `tag_vocabulary_has_hierarchy` | 409 | The hierarchy cannot be turned off while terms are nested. |
+| `tag_vocabulary_key_taken` | 409 | A vocabulary with that key already exists. |
+| `tag_vocabulary_not_empty` | 409 | The vocabulary still has terms. |
+| `tag_vocabulary_not_found` | 404 | The vocabulary was not found. |
+| `tag_vocabulary_protected` | 409 | The `general` vocabulary cannot be deleted. |
+| `too_many_tag_vocabularies` | 422 | The organization reached the maximum of 50 vocabularies. |
 | `too_many_tags` | 422 | The organization reached the maximum number of tags. |
 
 ### Tasks (`tasks`)
@@ -852,6 +861,15 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `plugin_operation_timeout` | 503 | The operation did not finish within the plugin call time. |
 | `plugin_operation_unknown` | 404 | The operation does not exist or its module is disabled. |
 | `plugin_owner_inactive` | 503 | The plugin acts with the permissions of the member who installed it, who is no longer active. |
+| `plugin_pack_aphel_incompatible` | 422 | The pack needs a newer version of Aphel (`requires_aphel`). |
+| `plugin_pack_dependency_cycle` | 422 | Two plugins of the pack depend on each other. |
+| `plugin_pack_invalid` | 422 | The `.aphelpack` file or its `pack.toml` is invalid. |
+| `plugin_pack_missing_dependency` | 422 | A plugin of the pack needs an operation that neither Aphel nor the pack offers. |
+| `plugin_pack_module_unavailable` | 422 | The pack needs a module that is not part of this Aphel build (`requires_modules`). |
+| `plugin_pack_plugins_invalid` | 422 | One or more plugins of the pack are invalid; each plugin lists its own error. |
+| `plugin_pack_provision_reference` | 422 | A pack resource references a resource or field the pack does not create. |
+| `plugin_pack_provisioner_unknown` | 422 | No enabled module creates resources of that `kind`. |
+| `plugin_pack_setting_invalid` | 422 | A setting of the pack is unknown, a secret or has an invalid value. |
 | `plugin_package_invalid` | 422 | The `.aphelplugin` package is invalid. |
 | `plugin_query_authority_changed` | 403 | The authority of the cached external query has changed. |
 | `plugin_query_outcome_unknown` | 409 | The external query already started and has no completed result; it will not be called again automatically. |
@@ -861,6 +879,7 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `plugin_read_only` | 403 | This plugin execution cannot produce side effects. |
 | `plugin_site_invalid` | 422 | The `[site]` section or the `site/` templates of the package break a rule; the message lists every problem. |
 | `site_route_conflict` | 409 | A site page of the plugin has the same path shape as a page of another installed plugin. |
+| `site_path_taken` | 422 | The address is already used by another page of the site. |
 | `site_request_forbidden` | 403 | A site route call that changes data came without the `X-Aphel-Site` header sent by the site scripts. |
 | `site_route_not_found` | 404 | No installed plugin has this site route. |
 | `site_redirect_not_found` | 404 | The site redirect does not exist. |

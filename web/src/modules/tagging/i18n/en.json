@@ -44,7 +44,33 @@
     "updated": "Tag {{name}} updated",
     "deleted": "Tag {{name}} deleted",
     "typesLoadFailed": "Could not load the available record types.",
-    "retryTypes": "Retry"
+    "retryTypes": "Retry",
+    "generalVocabulary": "Tags",
+    "vocabularies": "Vocabularies",
+    "newTerm": "New term",
+    "newTermTitle": "New term in {{vocabulary}}",
+    "editTermTitle": "Edit term of {{vocabulary}}",
+    "termDialogDescription": "The name shows on the site; the address makes the link of the term page.",
+    "emptyTermsTitle": "No terms in {{vocabulary}}",
+    "emptyTermsDescription": "Create terms here or right in the content editor.",
+    "deleteTermDescription": "The term \"{{name}}\" will be deleted. This cannot be undone.",
+    "termCreated": "Term {{name}} created",
+    "termUpdated": "Term {{name}} updated",
+    "termNameTaken": "Another term of this vocabulary has this name.",
+    "slug": "Address",
+    "slugHelp": "Leave it empty to build it from the name.",
+    "slugPlaceholder": "e.g. company-news",
+    "slugTaken": "Another term of this vocabulary uses this address.",
+    "slugInvalid": "Use lowercase letters without accents, digits and hyphens.",
+    "parent": "Inside",
+    "parentHelp": "Pick a term to make a subcategory.",
+    "noParent": "None (top level)",
+    "errors": {
+      "tag_has_children": "\"{{name}}\" has terms below it. Move or delete them first.",
+      "tag_in_use_one": "\"{{name}}\" is on {{count}} post. Remove the term from it before deleting.",
+      "tag_in_use_other": "\"{{name}}\" is on {{count}} posts. Remove the term from them before deleting.",
+      "tag_slug_taken": "Another term of this vocabulary uses this address."
+    }
   },
   "list": {
     "field": "Tags"

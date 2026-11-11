@@ -45,6 +45,16 @@ pub(crate) fn coerce_cell(
                 .map(|item| match_option(definition, item).map(Value::String))
                 .collect::<Result<_, _>>()?,
         )),
+        FieldType::References => CellValue::Value(Value::Array(
+            split_list(text)
+                .into_iter()
+                .map(|item| {
+                    Uuid::parse_str(item)
+                        .map(|_| Value::String(item.to_owned()))
+                        .map_err(|_| format!("{item} is not an identifier"))
+                })
+                .collect::<Result<_, _>>()?,
+        )),
         FieldType::User => {
             if Uuid::parse_str(text).is_ok() {
                 CellValue::Value(Value::String(text.to_owned()))

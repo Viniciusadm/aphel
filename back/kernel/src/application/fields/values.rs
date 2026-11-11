@@ -96,6 +96,9 @@ pub fn value_to_json(definition: &FieldDefinition, value: &FieldValue) -> Value 
         }
         FieldValue::User(id) => Value::String(id.as_str().to_owned()),
         FieldValue::Record(id) => Value::String(id.to_string()),
+        FieldValue::References(ids) => {
+            Value::Array(ids.iter().map(|id| Value::String(id.to_string())).collect())
+        }
     }
 }
 
