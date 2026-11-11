@@ -22,6 +22,7 @@ export interface SiteOverview {
   customers_required: boolean
   default_language: string
   available_languages: string[]
+  people_available: boolean
 }
 
 export interface SiteCustomer {
@@ -49,12 +50,32 @@ export interface SiteRedirect {
   created_at: string
 }
 
+export interface SitePathRedirect {
+  id: number
+  source_path: string
+  target: string
+  permanent: boolean
+  created_at: string
+}
+
+export interface NewSitePathRedirect {
+  source_path: string
+  target: string
+  permanent: boolean
+}
+
+interface SitePreview {
+  url: string
+  expires_in_minutes: number
+}
+
 const SITE_PATH = '/v1/site'
 
 export const siteKeys = {
   all: ['site'] as const,
   overview: ['site', 'overview'] as const,
   redirects: ['site', 'redirects'] as const,
+  pathRedirects: ['site', 'path-redirects'] as const,
 }
 
 export function useSiteOverview() {
@@ -63,6 +84,13 @@ export function useSiteOverview() {
 
 export function useSiteRedirects() {
   return useQuery({ queryKey: siteKeys.redirects, queryFn: () => api.get<SiteRedirect[]>(`${SITE_PATH}/redirects`) })
+}
+
+export function useSitePathRedirects() {
+  return useQuery({
+    queryKey: siteKeys.pathRedirects,
+    queryFn: () => api.get<SitePathRedirect[]>(`${SITE_PATH}/path-redirects`),
+  })
 }
 
 export function useSiteCustomers(search: string) {
@@ -83,4 +111,8 @@ export function useInvalidateSite() {
 export const siteApi = {
   deleteRedirect: (id: number) => api.delete<void>(`${SITE_PATH}/redirects/${id}`),
   purgeCache: () => api.post<void>(`${SITE_PATH}/cache/purge`),
+  createPathRedirect: (redirect: NewSitePathRedirect) =>
+    api.post<SitePathRedirect>(`${SITE_PATH}/path-redirects`, redirect),
+  deletePathRedirect: (id: number) => api.delete<void>(`${SITE_PATH}/path-redirects/${id}`),
+  startPreview: (theme: string | null) => api.post<SitePreview>(`${SITE_PATH}/preview`, { theme }),
 }

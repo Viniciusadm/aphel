@@ -15,6 +15,7 @@ use minijinja::Value;
 use serde_json::json;
 
 use crate::customers::{self, SignUpError, TokenPurpose};
+use crate::people_link;
 use crate::runtime::SiteRuntime;
 use crate::session;
 
@@ -611,6 +612,7 @@ async fn serve(
             }
             match customers::authenticate(&pool, &email, field("password")).await? {
                 Some(customer) => {
+                    people_link::link(request.state, &customer.id).await;
                     let cookie = request.start_session(&customer.id).await?;
                     Ok(redirect(&posted_next, cookie))
                 }
@@ -742,6 +744,7 @@ async fn serve(
             )
             .await?;
             customers::mark_verified(&pool, &customer_id).await?;
+            people_link::link(request.state, &customer_id).await;
             let cookie = request.start_session(&customer_id).await?;
             Ok(redirect(&home, cookie))
         }
@@ -770,6 +773,7 @@ async fn serve(
                 ));
             };
             customers::mark_verified(&pool, &customer_id).await?;
+            people_link::link(request.state, &customer_id).await;
             let cookie = request.start_session(&customer_id).await?;
             Ok(redirect(&posted_next, cookie))
         }
@@ -777,6 +781,7 @@ async fn serve(
             match customers::redeem_token(&pool, token, TokenPurpose::Verify).await? {
                 Some(customer_id) => {
                     customers::mark_verified(&pool, &customer_id).await?;
+                    people_link::link(request.state, &customer_id).await;
                     Ok(request.render(View::message(text(&texts, "verified")), paths, &home))
                 }
                 None => {

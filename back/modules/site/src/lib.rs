@@ -8,6 +8,8 @@ pub(crate) mod handler;
 pub(crate) mod http;
 pub(crate) mod images;
 pub(crate) mod invalidation;
+pub(crate) mod people_link;
+pub(crate) mod preview;
 pub(crate) mod privacy;
 pub(crate) mod redirects;
 pub(crate) mod runtime;
@@ -48,6 +50,14 @@ fn customer_entity() -> Result<EntityDefinition, AppError> {
             .read_only()
             .searchable()
             .personal(),
+    )
+    .system_field(
+        aphel_sdk::platform::application::fields::builtin::record_field(
+            "person_id",
+            "Person",
+            aphel_sdk::people::RECORD_TYPE,
+        )?
+        .read_only(),
     )
     .system_field(
         SystemField::new(
@@ -92,6 +102,8 @@ impl Module for SiteModule {
                 "site_customers",
                 "site_customer_sessions",
                 "site_customer_tokens",
+                "site_path_redirects",
+                "site_previews",
             ])
             .migration(Migration::new(
                 1,
@@ -107,6 +119,21 @@ impl Module for SiteModule {
                 3,
                 "create site customers",
                 include_str!("../migrations/0003_create_site_customers.sql"),
+            ))
+            .migration(Migration::new(
+                4,
+                "create site path redirects",
+                include_str!("../migrations/0004_create_site_path_redirects.sql"),
+            ))
+            .migration(Migration::new(
+                5,
+                "create site previews",
+                include_str!("../migrations/0005_create_site_previews.sql"),
+            ))
+            .migration(Migration::new(
+                6,
+                "add site customer person",
+                include_str!("../migrations/0006_add_site_customer_person.sql"),
             ))
     }
 

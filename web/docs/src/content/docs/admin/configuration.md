@@ -133,6 +133,7 @@ Settings that live in the database are edited under Settings in the app. They re
 | Site | Tagline | none | Up to 160 characters, shown below the company name. Name, logo and color come from the organization. |
 | Site | Menu | Declaration order, all shown | Order and visibility of the menu items that plugins contribute. |
 | Site | Languages | Only the organization language | Up to five extra languages for the site, each under its own code (`/en`, `/es`). |
+| Site | Create a contact in People | off | With the `people` module, links each customer with a confirmed email to the person with the same email, creating one for the chosen owner when none exists. |
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |
 | File storage | Type | Local disk, folder `./storage` | `Local disk` or `S3 compatible`. The folder is relative to the working directory of the server and the worker, which must see the same folder. |
 | File storage | S3 options | bucket `aphel`, region `us-east-1`, path-style on, plain http off | Bucket, region, optional endpoint (MinIO, SeaweedFS, R2, B2), access key, secret key. The secret key goes to the secret vault. A test button writes, reads and deletes a small object. |
@@ -145,7 +146,7 @@ Settings that live in the database are edited under Settings in the app. They re
 | API tokens | Window | 60 s | 1 to 3600. |
 | Community catalog | Source | Built-in catalog | `builtin` (no internet), `remote` (with an index URL) or `off`. A remote index must be an https URL unless the development option allows http. Fetch time is 1 to 120 s, default 10. |
 
-The Site screen exists only when the `site` module is enabled. It also lists the redirects of moved addresses (remove one to make the old address answer 404 again) and refreshes every page on demand.
+The Site screen exists only when the `site` module is enabled. It also previews a theme before it goes live (only in the browser that opens the preview, for 30 minutes), manages redirects added by hand (an old path to a site path or another website, permanent or temporary), lists the redirects of moved addresses (remove one to make the old address answer 404 again) and refreshes every page on demand.
 
 Changing the storage type does not copy existing files: they stay in the previous storage. Move them yourself before switching. The secret values in these settings are written to the audit log as `[redacted]`.
 

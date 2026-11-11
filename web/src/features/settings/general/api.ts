@@ -54,6 +54,8 @@ export interface SiteSettings {
   tagline: string | null
   menu: SiteMenuEntry[]
   languages: string[]
+  link_people: boolean
+  people_owner: string | null
 }
 
 export interface OrganizationConfiguration {

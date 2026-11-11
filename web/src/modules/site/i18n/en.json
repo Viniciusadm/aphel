@@ -34,7 +34,8 @@
     "tagline": "Tagline",
     "taglineHint": "Shown below the company name at the top of the site. Up to 160 characters. Name, logo and color come from Settings → Organization.",
     "taglinePlaceholder": "E.g.: Handmade sweets since 1998",
-    "save": "Save appearance"
+    "save": "Save appearance",
+    "preview": "Preview"
   },
   "menu": {
     "title": "Menu",
@@ -63,7 +64,9 @@
     "pathReserved": "This path is used by the API. Choose another one.",
     "host": "Enter only the domain, such as www.yourcompany.com, without http:// or a path.",
     "pathTaken": "The app already uses this path. Choose another one or set a domain for the site.",
-    "tagline": "Use up to 160 characters."
+    "tagline": "Use up to 160 characters.",
+    "redirectSource": "Start with / and do not use spaces, ? or #.",
+    "redirectTarget": "Use a site path (/blog) or an address starting with https://."
   },
   "saved": "Site settings saved",
   "customers": {
@@ -80,12 +83,32 @@
     "total_other": "{{count}} customers",
     "listLabel": "Site customers",
     "unverified": "email not confirmed",
-    "since": "since {{date}}"
+    "since": "since {{date}}",
+    "linkPeople": "Create a contact in People",
+    "linkPeopleHint": "When the customer confirms the email, the account is linked to the person with the same email. If there is none, a new contact is created for the owner below.",
+    "owner": "Owner of new contacts",
+    "ownerHint": "Without an owner, the site only links customers to people that already exist.",
+    "noOwner": "Nobody (do not create contacts)"
   },
   "languages": {
     "title": "Languages",
     "description": "The site opens in {{language}}, the organization language. Other languages get their own address.",
     "extra": "Additional languages",
     "hint": "Plugins show translated content when the record has a version in that language (for example a title_en field). Without a translation, the original text appears. Account pages and theme texts come in Portuguese or English."
+  },
+  "pathRedirects": {
+    "title": "Redirects",
+    "description": "Send visitors of an old address to a site page or to another website. Useful when replacing a website: old links keep working. A site page that answers the old address takes precedence.",
+    "source": "Old address",
+    "sourceHint": "Path after the site address, starting with /.",
+    "target": "Target",
+    "targetHint": "A site path (/blog) or a full address (https://…).",
+    "permanent": "Permanent move",
+    "permanentHint": "Tells search engines to replace the old address with the new one. Turn off for promotions and short-lived changes.",
+    "add": "Add redirect",
+    "added": "Redirect added",
+    "empty": "No redirects yet.",
+    "listLabel": "Redirects",
+    "temporary": "temporary"
   }
 }

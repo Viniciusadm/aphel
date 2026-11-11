@@ -28,7 +28,7 @@ use crate::runtime::{
     self, ERROR_TEMPLATE, ISLANDS_SEGMENT, NOT_FOUND_TEMPLATE, Route, SiteRuntime, THEMES_SEGMENT,
 };
 use crate::settings::site_settings;
-use crate::{account, assets, data, dynamic, images, redirects, session, sitemap};
+use crate::{account, assets, data, dynamic, images, preview, redirects, session, sitemap};
 
 const LIVE_DATA_LIFETIME: Duration = Duration::from_secs(60);
 const DEFAULT_COLOR: &str = "#4f46e5";
@@ -100,6 +100,14 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if let Some(rest) = request
         .uri()
         .path()
+        .strip_prefix(&format!("/{}/", preview::PREVIEW_SEGMENT))
+        .map(str::to_owned)
+    {
+        return preview::serve(state, &rest).await;
+    }
+    if let Some(rest) = request
+        .uri()
+        .path()
         .strip_prefix(&format!("/{ISLANDS_SEGMENT}/"))
         .map(str::to_owned)
     {
@@ -165,7 +173,12 @@ async fn serve(state: &AppState, request: Request) -> Response {
         .unwrap_or_default();
     let config = state.organization_config.snapshot();
     let settings = site_settings(&config);
-    let runtime = match runtime::current(&state.app, settings.theme.as_deref()).await {
+    let previewing = preview::active(state, &parts.headers).await;
+    let theme = match &previewing {
+        Some(previewing) => previewing.theme.clone(),
+        None => settings.theme.clone(),
+    };
+    let runtime = match runtime::current(&state.app, theme.as_deref()).await {
         Ok(runtime) => runtime,
         Err(error) => {
             tracing::error!(%error, "could not load the site pages");
@@ -180,6 +193,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if readable_method(&parts.method) && full_path == ROBOTS_PATH && prefix.is_empty() {
         return sitemap::robots(state);
     }
+    let mount = prefix.clone();
     let (language, path) = Language::resolve(&prefix, &full_path, &settings.languages);
     let prefix = language.prefix();
     let customer = match accounts {
@@ -251,7 +265,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
     let found = runtime.find(&path);
-    let personal = customer.is_some();
+    let personal = customer.is_some() || previewing.is_some();
     let key = found
         .as_ref()
         .filter(|_| !personal)
@@ -291,7 +305,15 @@ async fn serve(state: &AppState, request: Request) -> Response {
         }
     };
     let Some((route, params)) = found else {
-        return fallback(&context, StatusCode::NOT_FOUND, Some(&runtime));
+        return not_found(
+            state,
+            &mount,
+            &full_path,
+            (&prefix, &path),
+            &context,
+            &runtime,
+        )
+        .await;
     };
     if route.page.needs_customer() && customer.is_none() {
         if !accounts {
@@ -313,6 +335,14 @@ async fn serve(state: &AppState, request: Request) -> Response {
     let cacheable = !personal && !route.page.needs_customer();
     match render_route(state, &runtime, &context, route, params, &path, query).await {
         Ok(Outcome::Page { html, tags, live }) => {
+            let html = match previewing {
+                Some(_) => preview::with_banner(
+                    html,
+                    &theme_name(&runtime),
+                    context.site["locale"].as_str().unwrap_or_default(),
+                ),
+                None => html,
+            };
             let page = cache::page(html, runtime.content_security_policy(Some(&owner)));
             let page = match key.filter(|_| cacheable) {
                 Some(key) => cache::put(key, page, tags, live.then_some(LIVE_DATA_LIFETIME)),
@@ -321,12 +351,79 @@ async fn serve(state: &AppState, request: Request) -> Response {
             page_response(&page, &parts.headers, !cacheable)
         }
         Ok(Outcome::Redirect(location)) => moved_permanently(&location),
-        Ok(Outcome::NotFound) => fallback(&context, StatusCode::NOT_FOUND, Some(&runtime)),
+        Ok(Outcome::NotFound) => {
+            not_found(
+                state,
+                &mount,
+                &full_path,
+                (&prefix, &path),
+                &context,
+                &runtime,
+            )
+            .await
+        }
         Err(error) => {
             tracing::warn!(%error, path = %parts.uri.path(), "could not render a site page");
             fallback(&context, StatusCode::INTERNAL_SERVER_ERROR, Some(&runtime))
         }
     }
+}
+
+fn theme_name(runtime: &SiteRuntime) -> String {
+    runtime
+        .theme
+        .as_ref()
+        .and_then(|key| runtime.themes.iter().find(|theme| &theme.key == key))
+        .map(|theme| theme.name.clone())
+        .unwrap_or_else(|| "Aphel".to_owned())
+}
+
+async fn not_found(
+    state: &AppState,
+    mount: &str,
+    full_path: &str,
+    (language_prefix, path): (&str, &str),
+    context: &SiteContext,
+    runtime: &SiteRuntime,
+) -> Response {
+    let found = match state.db() {
+        Ok(pool) => match redirects::find_path(&pool, full_path).await {
+            Ok(Some(redirect)) => Ok(Some((mount, redirect))),
+            Ok(None) if path != full_path => redirects::find_path(&pool, path)
+                .await
+                .map(|redirect| redirect.map(|redirect| (language_prefix, redirect))),
+            other => other.map(|redirect| redirect.map(|redirect| (mount, redirect))),
+        },
+        Err(error) => Err(error),
+    };
+    match found {
+        Ok(Some((base, redirect))) => {
+            let location = match redirect.target.starts_with('/') {
+                true => format!("{base}{}", redirect.target),
+                false => redirect.target,
+            };
+            match redirect.permanent {
+                true => moved_permanently(&location),
+                false => found_elsewhere(&location),
+            }
+        }
+        Ok(None) => fallback(context, StatusCode::NOT_FOUND, Some(runtime)),
+        Err(error) => {
+            tracing::warn!(%error, "could not read the site redirects");
+            fallback(context, StatusCode::NOT_FOUND, Some(runtime))
+        }
+    }
+}
+
+fn found_elsewhere(location: &str) -> Response {
+    let mut response = StatusCode::FOUND.into_response();
+    if let Ok(value) = HeaderValue::from_str(location) {
+        response.headers_mut().insert(header::LOCATION, value);
+    }
+    response
+        .headers_mut()
+        .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    response
 }
 
 fn see_other(location: &str) -> Response {
@@ -715,13 +812,30 @@ async fn render_route(
         _ => format!("{base_url}{path}"),
     };
     let indexing = context.site["indexing"].as_bool().unwrap_or(true);
+    let extra = render(&route.page.seo.structured_data).unwrap_or_else(|error| {
+        tracing::warn!(%error, page = %route.page.key, "could not render the structured data");
+        None
+    });
+    let image = image.map(|image| absolute_url(base_url, &image));
+    let json_ld = structured_data(StructuredPage {
+        site: &context.site,
+        schema: route.page.seo.schema.as_deref(),
+        source: &route.page.source,
+        home: path == "/",
+        title: title.as_deref(),
+        description: description.as_deref(),
+        image: image.as_deref(),
+        canonical: &canonical,
+        extra: extra.as_deref(),
+    });
     page["title"] = json!(title);
     page["seo"] = json!({
         "canonical": canonical,
         "description": description,
-        "image": image.map(|image| absolute_url(base_url, &image)),
+        "image": image,
         "noindex": route.page.seo.noindex || !indexing,
         "type": if matches!(route.page.source, PageSource::Record { .. }) { "article" } else { "website" },
+        "json_ld": json_ld,
     });
     values.insert("page".to_owned(), page);
     let html = runtime
@@ -730,6 +844,76 @@ async fn render_route(
         .and_then(|template| template.render(Value::from_serialize(&values)))
         .map_err(render_error)?;
     Ok(Outcome::Page { html, tags, live })
+}
+
+struct StructuredPage<'a> {
+    site: &'a serde_json::Value,
+    schema: Option<&'a str>,
+    source: &'a PageSource,
+    home: bool,
+    title: Option<&'a str>,
+    description: Option<&'a str>,
+    image: Option<&'a str>,
+    canonical: &'a str,
+    extra: Option<&'a str>,
+}
+
+fn structured_data(page: StructuredPage<'_>) -> String {
+    let site_name = page.site["name"].as_str().unwrap_or_default();
+    let base_url = page.site["base_url"].as_str().unwrap_or_default();
+    let home_url = format!("{base_url}/");
+    let mut publisher = json!({ "@type": "Organization", "name": site_name, "url": home_url });
+    if let Some(logo) = page.site["logo_url"].as_str() {
+        publisher["logo"] = json!(absolute_url(base_url, logo));
+    }
+    let default_schema = match (page.home, page.source) {
+        (true, PageSource::Static) => "WebSite",
+        (_, PageSource::Record { .. }) => "Article",
+        (_, PageSource::List { .. }) => "CollectionPage",
+        _ => "WebPage",
+    };
+    let schema = page.schema.unwrap_or(default_schema);
+    let name = page.title.unwrap_or(site_name);
+    let mut data = json!({
+        "@context": "https://schema.org",
+        "@type": schema,
+        "name": name,
+        "url": page.canonical,
+        "inLanguage": page.site["locale"],
+    });
+    if let Some(description) = page.description {
+        data["description"] = json!(description);
+    }
+    if let Some(image) = page.image {
+        data["image"] = json!(image);
+    }
+    match schema {
+        "WebSite" => data["publisher"] = publisher,
+        "Article" | "BlogPosting" | "NewsArticle" => {
+            data["headline"] = json!(name);
+            data["publisher"] = publisher;
+            data["mainEntityOfPage"] = json!(page.canonical);
+        }
+        _ => {
+            data["isPartOf"] = json!({ "@type": "WebSite", "name": site_name, "url": home_url });
+        }
+    }
+    if let Some(serde_json::Value::Object(extra)) = page
+        .extra
+        .and_then(|extra| serde_json::from_str::<serde_json::Value>(extra.trim()).ok())
+        && let Some(target) = data.as_object_mut()
+    {
+        for (key, value) in extra {
+            if key != "@context" {
+                target.insert(key, value);
+            }
+        }
+    }
+    serde_json::to_string(&data)
+        .unwrap_or_default()
+        .replace('<', "\\u003c")
+        .replace('>', "\\u003e")
+        .replace('&', "\\u0026")
 }
 
 fn plain_summary(text: &str) -> String {

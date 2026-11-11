@@ -152,6 +152,8 @@ fn bundle_of(
                     description: page.seo.description.clone(),
                     image: page.seo.image.clone(),
                     noindex: page.seo.noindex,
+                    schema: page.seo.schema.clone(),
+                    structured_data: page.seo.structured_data.clone(),
                 },
                 data: page.data.clone(),
                 requires_customer: page.requires_customer,

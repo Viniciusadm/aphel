@@ -7196,6 +7196,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site/path-redirects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Redirects added by hand: an old address of the site (relative to the site address) that sends visitors to a site path or to another website, newest first, up to 500. They apply only when no page answers the old address. Requires `settings.manage`. */
+        get: operations["site_path_redirects_list"];
+        put?: never;
+        /** @description Sends visitors of an old address to a site path (`/blog`) or to another website (`https://...`). The old address is a plain path relative to the site address, without query or fragment; a trailing slash is ignored. Answers 301 when `permanent` (the default) and 302 otherwise. Publishes `site.path_redirect_created` and writes the audit entry. Requires `settings.manage`. */
+        post: operations["site_path_redirects_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/path-redirects/{redirect_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Removes a redirect added by hand; the old address answers 404 again unless a page takes it. Publishes `site.path_redirect_deleted` and writes the audit entry. Requires `settings.manage`. */
+        delete: operations["site_path_redirects_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Creates a link that shows the site with another theme (`theme` null for the built-in one) in the browser that opens it, for 30 minutes, without changing the site for visitors. Preview pages are not cached and carry a banner with a link that ends the preview. Requires `settings.manage`. */
+        post: operations["site_preview_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/site/redirects": {
         parameters: {
             query?: never;
@@ -10870,6 +10922,13 @@ export interface components {
             /** @example people.person */
             record_type: string;
         };
+        CreateSitePathRedirect: {
+            permanent?: boolean;
+            /** @example /old-page */
+            source_path: string;
+            /** @example /blog */
+            target: string;
+        };
         CreateStageRequest: {
             entry_required_fields?: string[];
             exit_required_fields?: string[];
@@ -14033,7 +14092,28 @@ export interface components {
                 default_language: string;
                 menu_items: components["schemas"]["SiteMenuItemResponse"][];
                 pages: number;
+                people_available: boolean;
                 themes: components["schemas"]["SiteThemeResponse"][];
+            };
+        };
+        Data_SitePathRedirectResponse: {
+            data: {
+                created_at: string;
+                /** Format: int64 */
+                id: number;
+                permanent: boolean;
+                /** @example /old-page */
+                source_path: string;
+                /** @example /blog */
+                target: string;
+            };
+        };
+        Data_SitePreviewResponse: {
+            data: {
+                /** Format: int64 */
+                expires_in_minutes: number;
+                /** @example https://www.example.com/_aphel/site/preview/3f2a... */
+                url: string;
             };
         };
         Data_SsoLoginStatus: {
@@ -15113,6 +15193,18 @@ export interface components {
                 /** Format: date-time */
                 last_seen_at: string;
                 user_agent?: string | null;
+            }[];
+        };
+        Data_Vec_SitePathRedirectResponse: {
+            data: {
+                created_at: string;
+                /** Format: int64 */
+                id: number;
+                permanent: boolean;
+                /** @example /old-page */
+                source_path: string;
+                /** @example /blog */
+                target: string;
             }[];
         };
         Data_Vec_SiteRedirectResponse: {
@@ -22039,7 +22131,24 @@ export interface components {
             default_language: string;
             menu_items: components["schemas"]["SiteMenuItemResponse"][];
             pages: number;
+            people_available: boolean;
             themes: components["schemas"]["SiteThemeResponse"][];
+        };
+        SitePathRedirectResponse: {
+            created_at: string;
+            /** Format: int64 */
+            id: number;
+            permanent: boolean;
+            /** @example /old-page */
+            source_path: string;
+            /** @example /blog */
+            target: string;
+        };
+        SitePreviewResponse: {
+            /** Format: int64 */
+            expires_in_minutes: number;
+            /** @example https://www.example.com/_aphel/site/preview/3f2a... */
+            url: string;
         };
         SiteRedirectResponse: {
             created_at: string;
@@ -22159,6 +22268,10 @@ export interface components {
             name?: string | null;
             script?: string | null;
             view_id: string;
+        };
+        StartSitePreview: {
+            /** @example clean_theme */
+            theme?: string | null;
         };
         StartedCallResponse: {
             provider: string;
@@ -61199,6 +61312,253 @@ export interface operations {
                 };
             };
             /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_path_redirects_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirects */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_SitePathRedirectResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_path_redirects_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSitePathRedirect"];
+            };
+        };
+        responses: {
+            /** @description Redirect created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SitePathRedirectResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The old address already redirects (`site_path_redirect_exists`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid address or target (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_path_redirects_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                redirect_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirect removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown redirect (`site_path_redirect_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_preview_start: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartSitePreview"];
+            };
+        };
+        responses: {
+            /** @description Preview link */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SitePreviewResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown theme (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -158,6 +158,14 @@ pub struct SiteTheme {
     pub description: Option<String>,
 }
 
+fn is_schema_type(value: &str) -> bool {
+    value.len() <= MAX_KEY_LENGTH
+        && value.starts_with(|character: char| character.is_ascii_uppercase())
+        && value
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric())
+}
+
 pub fn menu_item_id(owner: &str, key: &str) -> String {
     format!("{owner}.{key}")
 }
@@ -201,6 +209,10 @@ pub struct SitePageSeo {
     pub description: Option<String>,
     pub image: Option<String>,
     pub noindex: bool,
+    #[serde(default)]
+    pub schema: Option<String>,
+    #[serde(default)]
+    pub structured_data: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -491,6 +503,18 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         }
         if !keys.insert(page.key.as_str()) {
             problems.push(format!("{label}: the key is repeated"));
+        }
+        if let Some(schema) = &page.seo.schema
+            && !is_schema_type(schema)
+        {
+            problems.push(format!(
+                "{label}: seo.schema is a schema.org type such as Product or Article"
+            ));
+        }
+        if let Some(structured_data) = &page.seo.structured_data
+            && let Err(error) = minijinja::Environment::new().template_from_str(structured_data)
+        {
+            problems.push(format!("{label}: seo.structured_data: {error}"));
         }
         let pattern = match PathPattern::parse(&page.path) {
             Ok(pattern) => pattern,

@@ -34,7 +34,8 @@
     "tagline": "Frase de apresentação",
     "taglineHint": "Aparece abaixo do nome da empresa no topo do site. Até 160 caracteres. O nome, o logo e a cor vêm de Configurações → Organização.",
     "taglinePlaceholder": "Ex.: Doces artesanais desde 1998",
-    "save": "Salvar aparência"
+    "save": "Salvar aparência",
+    "preview": "Pré-visualizar"
   },
   "menu": {
     "title": "Menu",
@@ -63,7 +64,9 @@
     "pathReserved": "Esse caminho é usado pela API. Escolha outro.",
     "host": "Informe só o domínio, como www.suaempresa.com.br, sem http:// nem caminho.",
     "pathTaken": "O sistema já usa esse caminho. Escolha outro ou informe um domínio próprio para o site.",
-    "tagline": "Use até 160 caracteres."
+    "tagline": "Use até 160 caracteres.",
+    "redirectSource": "Comece com / e não use espaços, ? ou #.",
+    "redirectTarget": "Use um caminho do site (/blog) ou um endereço com https://."
   },
   "saved": "Configurações do site salvas",
   "customers": {
@@ -80,12 +83,32 @@
     "total_other": "{{count}} clientes",
     "listLabel": "Clientes do site",
     "unverified": "e-mail não confirmado",
-    "since": "desde {{date}}"
+    "since": "desde {{date}}",
+    "linkPeople": "Criar contato em Pessoas",
+    "linkPeopleHint": "Quando o cliente confirma o e-mail, a conta fica ligada à pessoa com o mesmo e-mail. Se ela não existir, um contato novo é criado com o responsável abaixo.",
+    "owner": "Responsável pelos contatos novos",
+    "ownerHint": "Sem responsável, o site só liga clientes a pessoas que já existem.",
+    "noOwner": "Ninguém (não criar contatos)"
   },
   "languages": {
     "title": "Idiomas",
     "description": "O site abre em {{language}}, o idioma da organização. Outros idiomas ganham um endereço próprio.",
     "extra": "Idiomas adicionais",
     "hint": "Os plugins mostram o conteúdo traduzido quando o registro tem a versão no idioma (por exemplo, um campo title_en). Sem tradução, aparece o texto original. As páginas de conta e os textos do tema vêm em português ou inglês."
+  },
+  "pathRedirects": {
+    "title": "Redirecionamentos",
+    "description": "Leve visitantes de um endereço antigo para uma página do site ou para outro site. Útil ao trocar de site: os links antigos continuam funcionando. Se uma página do site responder no endereço antigo, ela tem prioridade.",
+    "source": "Endereço antigo",
+    "sourceHint": "Caminho depois do endereço do site, começando com /.",
+    "target": "Destino",
+    "targetHint": "Um caminho do site (/blog) ou um endereço completo (https://…).",
+    "permanent": "Mudança definitiva",
+    "permanentHint": "Avisa os buscadores para trocarem o endereço antigo pelo novo. Desligue para promoções e mudanças passageiras.",
+    "add": "Adicionar redirecionamento",
+    "added": "Redirecionamento adicionado",
+    "empty": "Nenhum redirecionamento criado.",
+    "listLabel": "Redirecionamentos criados",
+    "temporary": "temporário"
   }
 }

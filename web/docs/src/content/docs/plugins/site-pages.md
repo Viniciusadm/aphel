@@ -62,7 +62,7 @@ title = "{{ record.title }}"
 | `list` | table | A paginated list: `sort` (public fields, `-` for descending, comma separated) and `per_page` (1 to 50, default 10). The page reads `?page=N`. |
 | `title` | string | Optional. A template expression rendered with the page context, used in `<title>` and in the share previews. |
 | `data` | string | Optional. Path of a GET route of the plugin declared with `site = true`, using the page parameters (`/products/{slug}`). Its JSON answer reaches the template as `data`; a 404 answer makes the page 404. See [Dynamic pages](#dynamic-pages). |
-| `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap. See [Search engines](#search-engines). |
+| `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap; `schema` and `structured_data` shape the JSON-LD. See [Search engines](#search-engines). |
 
 A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs either `match` or `list`.
 
@@ -208,7 +208,9 @@ Templates receive `customer` (`{ id, email, name, email_verified }` or nothing) 
 
 Site routes receive the customer in `request.customer` (see [Routes](/_aphel/docs/plugins/routes/#the-request)), so a route can create an order for whoever is signed in. Store the customer id in a field of your entity (for example `customer`), or point a `record` field at the entity `site.customer`.
 
-Customers are the record type `site.customer` (name, email, confirmation and last sign-in dates), readable with the permission `site.customers.read` and listed in Settings → Site. Account creation, changes and closing publish `site.customer.created|updated|deleted` with an audit entry. Closing an account, or a privacy request for it, erases the name, email and password and signs the customer out everywhere.
+Customers are the record type `site.customer` (name, email, linked person, confirmation and last sign-in dates), readable with the permission `site.customers.read` and listed in Settings → Site. Account creation, changes and closing publish `site.customer.created|updated|deleted` with an audit entry. Closing an account, or a privacy request for it, erases the name, email and password and signs the customer out everywhere.
+
+When the `people` module is enabled, Settings → Site can link customers to people: once a customer confirms the email (or signs in with a confirmed one), the account points (`person_id`) to the person with the same email, or to a new contact owned by the user the organization chose. Without an owner, only existing people are linked.
 
 ## Menu
 
@@ -241,6 +243,8 @@ description = "Serif type and a centered menu."
 
 Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
 
+Settings → Site → *Preview* opens the site with another theme only in that browser, for 30 minutes, without changing it for visitors. Preview pages are never cached and show a banner with a link that ends the preview.
+
 ## Languages
 
 The site speaks the organization language. In Settings → Site an administrator adds up to five more (Portuguese, English, Spanish, French, German, Italian). Each extra language answers under its code after the site address: `/s/en/blog`, `/s/es/blog`. The default language keeps the addresses without a code.
@@ -267,12 +271,24 @@ title = "{{ record.title }}"
 seo = { description = "{{ record.excerpt }}", image = "{% if record.images %}{{ record.images[0] | image_url(1280) }}{% endif %}" }
 ```
 
-The theme writes, for every page: `<title>`, `<link rel="canonical">` with the absolute address of the page (list pages after the first keep `?page=N`), `<meta name="description">`, Open Graph (`og:type` is `article` on `match` pages and `website` on the others, plus title, description, image, URL, site name and locale) and Twitter Card tags (`summary_large_image` when there is an image). The description is collapsed to one line and cut at 200 characters; an image path is turned into an absolute address. A theme of your own reads the same values from `page.seo` (`canonical`, `description`, `image`, `noindex`, `type`).
+The theme writes, for every page: `<title>`, `<link rel="canonical">` with the absolute address of the page (list pages after the first keep `?page=N`), `<meta name="description">`, Open Graph (`og:type` is `article` on `match` pages and `website` on the others, plus title, description, image, URL, site name and locale) and Twitter Card tags (`summary_large_image` when there is an image). The description is collapsed to one line and cut at 200 characters; an image path is turned into an absolute address. A theme of your own reads the same values from `page.seo` (`canonical`, `description`, `image`, `noindex`, `type`, `json_ld`).
+
+Every page also carries [JSON-LD](https://schema.org) in a `<script type="application/ld+json">`: `name`, `url`, `inLanguage`, `description` and `image` when the page has them, typed `WebSite` on the home page, `Article` on `match` pages (with `headline`, `mainEntityOfPage` and the organization as `publisher`, with its logo), `CollectionPage` on `list` pages and `WebPage` on the others. A page changes it with two `seo` keys:
+
+| Key | Notes |
+| --- | --- |
+| `schema` | A schema.org type such as `Product`, `BlogPosting` or `Event` (letters and digits, starting with a capital letter). |
+| `structured_data` | A template expression that renders a JSON object; its keys are added to the generated one and replace keys with the same name (`@context` is kept). Use the `tojson` filter for values. If it does not render a JSON object, the page keeps the generated data and the server logs a warning. |
+
+```toml
+seo = { schema = "BlogPosting", structured_data = '{"datePublished": {{ record.published_at | tojson }}}' }
+```
 
 - **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. It is cached and refreshed with the pages it lists.
 - **robots.txt.** When the site is at the root of a host, `/robots.txt` allows everything except `/api/`, `/_aphel/app/` and the app path, and points to the sitemap.
 - **Indexing switch.** Settings → Site → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
 - **Moved records.** When the field used by a `match` page changes (a new slug), the old address answers `301` to the new one. Chains collapse (`a → b → c` becomes `a → c`, `b → c`), and a record that takes an address back stops its redirect. Redirects only apply when no public record has the old value.
+- **Redirects by hand.** Settings → Site → *Redirects* sends an old address (a path relative to the site address, such as `/old-page`) to a site path or to another website, with `301` or, for temporary moves, `302`. They apply only when no page answers the address, also under the language prefixes (`/en/old-page` goes to `/en/<target>`).
 
 ## Images
 

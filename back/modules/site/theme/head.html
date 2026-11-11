@@ -13,6 +13,7 @@
 <meta name="twitter:image" content="{{ page.seo.image }}">{% else %}<meta name="twitter:card" content="summary">{% endif %}
 <meta name="twitter:title" content="{{ page.title or site.name }}">
 {% if page.seo.description %}<meta name="twitter:description" content="{{ page.seo.description }}">{% endif %}
+{% if page.seo.json_ld %}<script type="application/ld+json">{{ page.seo.json_ld | safe }}</script>{% endif %}
 {% endif %}
 {% for alternate in site.alternates %}<link rel="alternate" hreflang="{{ alternate.code }}" href="{{ alternate.url }}">
 {% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ site.alternates[0].url }}">

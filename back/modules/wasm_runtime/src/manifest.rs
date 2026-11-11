@@ -247,6 +247,10 @@ pub struct SiteSeoSpec {
     pub image: Option<String>,
     #[serde(default)]
     pub noindex: bool,
+    #[serde(default)]
+    pub schema: Option<String>,
+    #[serde(default)]
+    pub structured_data: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

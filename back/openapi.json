@@ -54281,6 +54281,343 @@
         "x-aphel-module": "site"
       }
     },
+    "/api/v1/site/path-redirects": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "Redirects added by hand: an old address of the site (relative to the site address) that sends visitors to a site path or to another website, newest first, up to 500. They apply only when no page answers the old address. Requires `settings.manage`.",
+        "operationId": "site_path_redirects_list",
+        "responses": {
+          "200": {
+            "description": "Redirects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_SitePathRedirectResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      },
+      "post": {
+        "tags": [
+          "site"
+        ],
+        "description": "Sends visitors of an old address to a site path (`/blog`) or to another website (`https://...`). The old address is a plain path relative to the site address, without query or fragment; a trailing slash is ignored. Answers 301 when `permanent` (the default) and 302 otherwise. Publishes `site.path_redirect_created` and writes the audit entry. Requires `settings.manage`.",
+        "operationId": "site_path_redirects_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSitePathRedirect"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Redirect created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SitePathRedirectResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The old address already redirects (`site_path_redirect_exists`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid address or target (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/path-redirects/{redirect_id}": {
+      "delete": {
+        "tags": [
+          "site"
+        ],
+        "description": "Removes a redirect added by hand; the old address answers 404 again unless a page takes it. Publishes `site.path_redirect_deleted` and writes the audit entry. Requires `settings.manage`.",
+        "operationId": "site_path_redirects_delete",
+        "parameters": [
+          {
+            "name": "redirect_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Redirect removed"
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown redirect (`site_path_redirect_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/preview": {
+      "post": {
+        "tags": [
+          "site"
+        ],
+        "description": "Creates a link that shows the site with another theme (`theme` null for the built-in one) in the browser that opens it, for 30 minutes, without changing the site for visitors. Preview pages are not cached and carry a banner with a link that ends the preview. Requires `settings.manage`.",
+        "operationId": "site_preview_start",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSitePreview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Preview link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SitePreviewResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unknown theme (`validation_error`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
     "/api/v1/site/redirects": {
       "get": {
         "tags": [
@@ -74133,6 +74470,26 @@
         },
         "additionalProperties": false
       },
+      "CreateSitePathRedirect": {
+        "type": "object",
+        "required": [
+          "source_path",
+          "target"
+        ],
+        "properties": {
+          "permanent": {
+            "type": "boolean"
+          },
+          "source_path": {
+            "type": "string",
+            "example": "/old-page"
+          },
+          "target": {
+            "type": "string",
+            "example": "/blog"
+          }
+        }
+      },
       "CreateStageRequest": {
         "type": "object",
         "required": [
@@ -86686,7 +87043,8 @@
               "pages",
               "customers_required",
               "default_language",
-              "available_languages"
+              "available_languages",
+              "people_available"
             ],
             "properties": {
               "active_theme": {
@@ -86722,11 +87080,78 @@
                 "type": "integer",
                 "minimum": 0
               },
+              "people_available": {
+                "type": "boolean"
+              },
               "themes": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/SiteThemeResponse"
                 }
+              }
+            }
+          }
+        }
+      },
+      "Data_SitePathRedirectResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "source_path",
+              "target",
+              "permanent",
+              "created_at"
+            ],
+            "properties": {
+              "created_at": {
+                "type": "string"
+              },
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "permanent": {
+                "type": "boolean"
+              },
+              "source_path": {
+                "type": "string",
+                "example": "/old-page"
+              },
+              "target": {
+                "type": "string",
+                "example": "/blog"
+              }
+            }
+          }
+        }
+      },
+      "Data_SitePreviewResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "url",
+              "expires_in_minutes"
+            ],
+            "properties": {
+              "expires_in_minutes": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "url": {
+                "type": "string",
+                "example": "https://www.example.com/_aphel/site/preview/3f2a..."
               }
             }
           }
@@ -90857,6 +91282,48 @@
                     "string",
                     "null"
                   ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_SitePathRedirectResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "source_path",
+                "target",
+                "permanent",
+                "created_at"
+              ],
+              "properties": {
+                "created_at": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                },
+                "permanent": {
+                  "type": "boolean"
+                },
+                "source_path": {
+                  "type": "string",
+                  "example": "/old-page"
+                },
+                "target": {
+                  "type": "string",
+                  "example": "/blog"
                 }
               }
             }
@@ -117763,7 +118230,8 @@
           "pages",
           "customers_required",
           "default_language",
-          "available_languages"
+          "available_languages",
+          "people_available"
         ],
         "properties": {
           "active_theme": {
@@ -117799,11 +118267,62 @@
             "type": "integer",
             "minimum": 0
           },
+          "people_available": {
+            "type": "boolean"
+          },
           "themes": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SiteThemeResponse"
             }
+          }
+        }
+      },
+      "SitePathRedirectResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "source_path",
+          "target",
+          "permanent",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "permanent": {
+            "type": "boolean"
+          },
+          "source_path": {
+            "type": "string",
+            "example": "/old-page"
+          },
+          "target": {
+            "type": "string",
+            "example": "/blog"
+          }
+        }
+      },
+      "SitePreviewResponse": {
+        "type": "object",
+        "required": [
+          "url",
+          "expires_in_minutes"
+        ],
+        "properties": {
+          "expires_in_minutes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://www.example.com/_aphel/site/preview/3f2a..."
           }
         }
       },
@@ -118238,6 +118757,18 @@
           }
         },
         "additionalProperties": false
+      },
+      "StartSitePreview": {
+        "type": "object",
+        "properties": {
+          "theme": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "clean_theme"
+          }
+        }
       },
       "StartedCallResponse": {
         "type": "object",

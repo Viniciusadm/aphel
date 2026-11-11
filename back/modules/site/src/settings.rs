@@ -28,6 +28,8 @@ pub(crate) struct SiteSettings {
     pub tagline: Option<String>,
     pub menu: Vec<MenuEntry>,
     pub languages: Vec<String>,
+    pub link_people: bool,
+    pub people_owner: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -46,6 +48,8 @@ impl Default for SiteSettings {
             tagline: None,
             menu: Vec::new(),
             languages: Vec::new(),
+            link_people: false,
+            people_owner: None,
         }
     }
 }

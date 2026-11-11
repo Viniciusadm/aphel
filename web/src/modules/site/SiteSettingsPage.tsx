@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRight, ExternalLink, RefreshCw, Trash2 } from 'lucide-react'
+import { ArrowRight, ExternalLink, Eye, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -26,14 +26,33 @@ import {
   type SiteSettings,
   SortableList,
   SYSTEM_MANAGE,
+  useAllMembers,
   useOrganizationConfiguration,
   useSaveConfiguration,
 } from '@/sdk'
-import { siteApi, useInvalidateSite, useSiteCustomers, useSiteOverview, useSiteRedirects, type SiteMenuItem, type SiteOverview } from './api'
+import {
+  siteApi,
+  useInvalidateSite,
+  useSiteCustomers,
+  useSiteOverview,
+  useSitePathRedirects,
+  useSiteRedirects,
+  type SiteMenuItem,
+  type SiteOverview,
+} from './api'
 
 const RESERVED_SEGMENTS = ['api']
 const TAGLINE_MAX = 160
-const DEFAULT_SETTINGS: SiteSettings = { indexing: true, accounts: false, theme: null, tagline: null, menu: [], languages: [] }
+const DEFAULT_SETTINGS: SiteSettings = {
+  indexing: true,
+  accounts: false,
+  theme: null,
+  tagline: null,
+  menu: [],
+  languages: [],
+  link_people: false,
+  people_owner: null,
+}
 
 function segmentOf(basePath: string): string {
   return basePath.replace(/^\/+|\/+$/g, '')
@@ -79,6 +98,7 @@ export function SiteSettingsPage() {
           <MenuCard key={overview.data.menu_items.map((item) => item.id).join()} configuration={configuration.data} overview={overview.data} />
           <LanguagesCard configuration={configuration.data} overview={overview.data} />
           <CustomersCard configuration={configuration.data} overview={overview.data} />
+          <PathRedirectsCard />
           <RedirectsCard />
           <CacheCard />
         </div>
@@ -273,6 +293,7 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
   const settings = currentSettings(configuration)
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting, isDirty },
@@ -280,6 +301,24 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
     resolver: zodResolver(appearanceSchema),
     defaultValues: { theme: settings.theme ?? '', tagline: settings.tagline ?? '' },
   })
+  const theme = useWatch({ control, name: 'theme' })
+  const [previewing, setPreviewing] = useState(false)
+
+  const preview = async () => {
+    const tab = window.open('about:blank', '_blank')
+    if (tab) tab.opener = null
+    setPreviewing(true)
+    try {
+      const { url } = await siteApi.startPreview(theme || null)
+      if (tab) tab.location.href = url
+      else window.location.assign(url)
+    } catch (error) {
+      tab?.close()
+      notifyError(error)
+    } finally {
+      setPreviewing(false)
+    }
+  }
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -304,14 +343,20 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
           <fieldset className="grid gap-4" disabled={isSubmitting}>
             <FormRow id="site-theme" label={t('appearance.theme')} hint={t('appearance.themeHint')}>
               {(describedBy) => (
-                <NativeSelect id="site-theme" aria-describedby={describedBy} {...register('theme')}>
-                  <option value="">{t('appearance.defaultTheme')}</option>
-                  {overview.themes.map((theme) => (
-                    <option key={theme.key} value={theme.key}>
-                      {theme.name}
-                    </option>
-                  ))}
-                </NativeSelect>
+                <div className="flex flex-wrap items-center gap-2">
+                  <NativeSelect id="site-theme" className="min-w-48 flex-1" aria-describedby={describedBy} {...register('theme')}>
+                    <option value="">{t('appearance.defaultTheme')}</option>
+                    {overview.themes.map((option) => (
+                      <option key={option.key} value={option.key}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <Button type="button" variant="outline" disabled={previewing} onClick={() => void preview()}>
+                    <Eye aria-hidden="true" />
+                    {t('appearance.preview')}
+                  </Button>
+                </div>
               )}
             </FormRow>
             <FormRow
@@ -485,15 +530,18 @@ function CustomersCard({ configuration, overview }: { configuration: Organizatio
   const invalidate = useInvalidateSite()
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
-  const enabled = currentSettings(configuration).accounts || overview.customers_required
+  const settings = currentSettings(configuration)
+  const enabled = settings.accounts || overview.customers_required
   const customers = useSiteCustomers(search.trim())
+  const members = useAllMembers()
+  const activeMembers = (members.data ?? []).filter((member) => member.status === 'active')
   const formatDate = (value: string | null) =>
     value ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short' }).format(new Date(value)) : '—'
 
-  const toggle = async (checked: boolean) => {
+  const save = async (site: Partial<SiteSettings>) => {
     setSaving(true)
     try {
-      await saveSite({ accounts: checked })
+      await saveSite(site)
       void invalidate()
       notifySuccess(t('saved'))
     } catch (error) {
@@ -517,8 +565,41 @@ function CustomersCard({ configuration, overview }: { configuration: Organizatio
           description={overview.customers_required ? t('customers.required') : t('customers.enableHint')}
           checked={enabled}
           disabled={saving || overview.customers_required}
-          onCheckedChange={(checked) => void toggle(checked === true)}
+          onCheckedChange={(checked) => void save({ accounts: checked === true })}
         />
+        {enabled && overview.people_available && (
+          <div className="grid gap-3 rounded-md border bg-muted/30 p-3">
+            <ToggleField
+              id="site-link-people"
+              type="switch"
+              label={t('customers.linkPeople')}
+              description={t('customers.linkPeopleHint')}
+              checked={settings.link_people}
+              disabled={saving}
+              onCheckedChange={(checked) => void save({ link_people: checked === true })}
+            />
+            {settings.link_people && (
+              <FormRow id="site-people-owner" label={t('customers.owner')} hint={t('customers.ownerHint')}>
+                {(describedBy) => (
+                  <NativeSelect
+                    id="site-people-owner"
+                    aria-describedby={describedBy}
+                    value={settings.people_owner ?? ''}
+                    disabled={saving || members.isPending}
+                    onChange={(event) => void save({ people_owner: event.target.value || null })}
+                  >
+                    <option value="">{t('customers.noOwner')}</option>
+                    {activeMembers.map((member) => (
+                      <option key={member.user_id} value={member.user_id}>
+                        {member.display_name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                )}
+              </FormRow>
+            )}
+          </div>
+        )}
         {enabled && (
           <>
             <FormRow id="site-customer-search" label={t('customers.search')}>
@@ -561,6 +642,165 @@ function CustomersCard({ configuration, overview }: { configuration: Organizatio
               </>
             )}
           </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+const pathRedirectSchema = z.object({
+  source_path: z
+    .string()
+    .trim()
+    .regex(/^\/[^\s?#]*$/, 'errors.redirectSource'),
+  target: z
+    .string()
+    .trim()
+    .regex(/^(\/(?!\/)\S*|https?:\/\/\S+)$/, 'errors.redirectTarget'),
+  permanent: z.boolean(),
+})
+
+type PathRedirectValues = z.infer<typeof pathRedirectSchema>
+
+const EMPTY_PATH_REDIRECT: PathRedirectValues = { source_path: '', target: '', permanent: true }
+
+function PathRedirectsCard() {
+  const { t } = useTranslation('site')
+  const redirects = useSitePathRedirects()
+  const invalidate = useInvalidateSite()
+  const [removing, setRemoving] = useState<number | null>(null)
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<PathRedirectValues>({ resolver: zodResolver(pathRedirectSchema), defaultValues: EMPTY_PATH_REDIRECT })
+  const errorText = (message?: string) => (message?.startsWith('errors.') ? t(message as 'errors.redirectSource') : message)
+
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      await siteApi.createPathRedirect(values)
+      reset(EMPTY_PATH_REDIRECT)
+      await invalidate()
+      notifySuccess(t('pathRedirects.added'))
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error, {})
+      for (const [field, message] of fieldErrors) setError(field as keyof PathRedirectValues, { message })
+      if (fieldErrors.length === 0) notifyError(error)
+    }
+  })
+
+  const remove = async (id: number) => {
+    setRemoving(id)
+    try {
+      await siteApi.deletePathRedirect(id)
+      await invalidate()
+      notifySuccess(t('redirects.removed'))
+    } catch (error) {
+      notifyError(error)
+    } finally {
+      setRemoving(null)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('pathRedirects.title')}</CardTitle>
+        <CardDescription>{t('pathRedirects.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <form className="grid gap-4" onSubmit={onSubmit} noValidate>
+          <fieldset className="grid gap-4 sm:grid-cols-2" disabled={isSubmitting}>
+            <FormRow
+              id="site-redirect-source"
+              label={t('pathRedirects.source')}
+              error={errorText(errors.source_path?.message)}
+              hint={t('pathRedirects.sourceHint')}
+            >
+              {(describedBy) => (
+                <Input
+                  id="site-redirect-source"
+                  placeholder="/pagina-antiga"
+                  autoComplete="off"
+                  spellCheck={false}
+                  aria-invalid={errors.source_path ? true : undefined}
+                  aria-describedby={describedBy}
+                  {...register('source_path')}
+                />
+              )}
+            </FormRow>
+            <FormRow
+              id="site-redirect-target"
+              label={t('pathRedirects.target')}
+              error={errorText(errors.target?.message)}
+              hint={t('pathRedirects.targetHint')}
+            >
+              {(describedBy) => (
+                <Input
+                  id="site-redirect-target"
+                  placeholder="/blog"
+                  autoComplete="off"
+                  spellCheck={false}
+                  inputMode="url"
+                  aria-invalid={errors.target ? true : undefined}
+                  aria-describedby={describedBy}
+                  {...register('target')}
+                />
+              )}
+            </FormRow>
+            <div className="sm:col-span-2">
+              <Controller
+                control={control}
+                name="permanent"
+                render={({ field }) => (
+                  <ToggleField
+                    id="site-redirect-permanent"
+                    type="switch"
+                    label={t('pathRedirects.permanent')}
+                    description={t('pathRedirects.permanentHint')}
+                    checked={field.value}
+                    onCheckedChange={(checked) => field.onChange(checked === true)}
+                  />
+                )}
+              />
+            </div>
+          </fieldset>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSubmitting}>
+              <Plus aria-hidden="true" />
+              {t('pathRedirects.add')}
+            </Button>
+          </div>
+        </form>
+        {redirects.isPending ? (
+          <Skeleton className="h-16" />
+        ) : redirects.isError ? (
+          <ErrorState onRetry={() => void redirects.refetch()} />
+        ) : redirects.data.length === 0 ? (
+          <EmptyState title={t('pathRedirects.empty')} />
+        ) : (
+          <ul className="grid gap-2" aria-label={t('pathRedirects.listLabel')}>
+            {redirects.data.map((redirect) => (
+              <li key={redirect.id} className="flex flex-wrap items-center gap-2 rounded-md border bg-card px-3 py-2">
+                <code className="min-w-0 truncate text-sm">{redirect.source_path}</code>
+                <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <code className="min-w-0 flex-1 truncate text-sm">{redirect.target}</code>
+                {!redirect.permanent && <span className="text-xs text-muted-foreground">{t('pathRedirects.temporary')}</span>}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={removing === redirect.id}
+                  onClick={() => void remove(redirect.id)}
+                  aria-label={t('redirects.remove', { path: redirect.source_path })}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              </li>
+            ))}
+          </ul>
         )}
       </CardContent>
     </Card>
