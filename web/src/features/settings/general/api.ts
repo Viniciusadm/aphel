@@ -42,6 +42,10 @@ export interface MailSettings {
   security: string
 }
 
+export interface SiteSettings {
+  indexing: boolean
+}
+
 export interface OrganizationConfiguration {
   public_base_url: string | null
   effective_public_base_url: string
@@ -51,6 +55,7 @@ export interface OrganizationConfiguration {
   site_host: string | null
   site_base_url: string
   site_available: boolean
+  site?: SiteSettings
   secure_cookies: boolean
   max_upload_mb: number
   storage: StorageSettings
@@ -70,6 +75,7 @@ export interface UpdateOrganizationConfiguration {
   app_base_path?: string
   site_base_path?: string
   site_host?: string | null
+  site?: SiteSettings
   max_upload_mb?: number
   storage?: StorageSettings
   storage_secret_access_key?: string | null

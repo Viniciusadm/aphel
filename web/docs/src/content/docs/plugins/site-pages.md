@@ -54,12 +54,13 @@ title = "{{ record.title }}"
 | Key | Type | Notes |
 | --- | --- | --- |
 | `key` | string | Unique in the plugin. Lowercase letters, digits and `_`. Used by `url_for`. |
-| `path` | string | Starts with `/`. Segments use lowercase letters, digits, `-`, `_` and `.`, and cannot start with `_`. A parameter looks like `{slug}`. |
+| `path` | string | Starts with `/`. Segments use lowercase letters, digits, `-`, `_` and `.`, and cannot start with `_`. A parameter looks like `{slug}`. `/sitemap.xml` and `/robots.txt` are reserved. |
 | `template` | string | A file of the package under `site/`, ending in `.html`. |
 | `entity` | string | Optional. An entity listed in `[[site.public]]`. |
 | `match` | string | One record: the public field compared with the only path parameter, which must have the same name (`/blog/{slug}` with `match = "slug"`). |
 | `list` | table | A paginated list: `sort` (public fields, `-` for descending, comma separated) and `per_page` (1 to 50, default 10). The page reads `?page=N`. |
-| `title` | string | Optional. A template expression rendered with the page context, used in `<title>`. |
+| `title` | string | Optional. A template expression rendered with the page context, used in `<title>` and in the share previews. |
+| `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap. See [Search engines](#search-engines). |
 
 A page without `entity` is static and has no parameters. A page with `entity` needs either `match` or `list`.
 
@@ -105,6 +106,26 @@ Templates are compiled when the plugin is installed: a syntax error, a missing t
 - Rendered pages are kept in a cache in each server process. A change to a public record (create, update, delete, archive, restore, attachments) clears the pages that show it: its own page and the list pages of its entity. A change to the organization (name, color, settings) clears every page. Other server processes see the change within a few seconds. Plugin installs and upgrades start a new cache.
 - Pages carry an `ETag` and `Cache-Control: public, max-age=60, stale-while-revalidate=600`, and answer `304` to a matching `If-None-Match`. Error pages are never cached.
 - Renders (pages not in the cache) are limited to 120 per minute per client address; above that the site answers `429`.
+
+## Search engines
+
+```toml
+[[site.pages]]
+key = "post"
+path = "/blog/{slug}"
+template = "site/post.html"
+entity = "post"
+match = "slug"
+title = "{{ record.title }}"
+seo = { description = "{{ record.excerpt }}", image = "{% if record.images %}{{ record.images[0] | image_url(1280) }}{% endif %}" }
+```
+
+The theme writes, for every page: `<title>`, `<link rel="canonical">` with the absolute address of the page (list pages after the first keep `?page=N`), `<meta name="description">`, Open Graph (`og:type` is `article` on `match` pages and `website` on the others, plus title, description, image, URL, site name and locale) and Twitter Card tags (`summary_large_image` when there is an image). The description is collapsed to one line and cut at 200 characters; an image path is turned into an absolute address. A theme of your own reads the same values from `page.seo` (`canonical`, `description`, `image`, `noindex`, `type`).
+
+- **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. It is cached and refreshed with the pages it lists.
+- **robots.txt.** When the site is at the root of a host, `/robots.txt` allows everything except `/api/`, `/_aphel/app/` and the app path, and points to the sitemap.
+- **Indexing switch.** Settings → General → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
+- **Moved records.** When the field used by a `match` page changes (a new slug), the old address answers `301` to the new one. Chains collapse (`a → b → c` becomes `a → c`, `b → c`), and a record that takes an address back stops its redirect. Redirects only apply when no public record has the old value.
 
 ## Images
 

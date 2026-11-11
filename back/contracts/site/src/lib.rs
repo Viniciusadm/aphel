@@ -13,6 +13,8 @@ pub const DESCRIPTOR: aphel_contract::ContractDescriptor = aphel_contract::Contr
 pub const LAYOUT_TEMPLATE: &str = "layout.html";
 pub const MAX_PER_PAGE: u64 = 50;
 pub const IMAGE_WIDTHS: &[u32] = &[320, 640, 960, 1280, 1920];
+pub const SITEMAP_PATH: &str = "/sitemap.xml";
+pub const ROBOTS_PATH: &str = "/robots.txt";
 pub const ALWAYS_PUBLIC_FIELDS: &[&str] = &["id", "created_at", "updated_at"];
 const MAX_SEGMENTS: usize = 8;
 const MAX_KEY_LENGTH: usize = 40;
@@ -33,6 +35,15 @@ pub struct SitePage {
     pub template: String,
     pub source: PageSource,
     pub title: Option<String>,
+    #[serde(default)]
+    pub seo: SitePageSeo,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct SitePageSeo {
+    pub description: Option<String>,
+    pub image: Option<String>,
+    pub noindex: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -317,6 +328,9 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 continue;
             }
         };
+        if [SITEMAP_PATH, ROBOTS_PATH].contains(&pattern.shape().as_str()) {
+            problems.push(format!("{label}: {} is reserved for the site", page.path));
+        }
         if let Some(other) = shapes.insert(pattern.shape(), page.key.as_str()) {
             problems.push(format!("{label}: the path overlaps page {other}"));
         }

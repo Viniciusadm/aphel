@@ -3,7 +3,10 @@ pub(crate) mod data;
 pub(crate) mod handler;
 pub(crate) mod images;
 pub(crate) mod invalidation;
+pub(crate) mod redirects;
 pub(crate) mod runtime;
+pub(crate) mod settings;
+pub(crate) mod sitemap;
 
 use std::sync::Arc;
 
@@ -21,16 +24,24 @@ impl Module for SiteModule {
             .description(
                 "Public pages that plugins declare (blog posts, catalogs, landing pages), rendered on the server from their published records",
             )
-            .owned_tables(&["site_cache_invalidations"])
+            .owned_tables(&["site_cache_invalidations", "site_redirects"])
             .migration(Migration::new(
                 1,
                 "create site cache invalidations",
                 include_str!("../migrations/0001_create_site_cache_invalidations.sql"),
             ))
+            .migration(Migration::new(
+                2,
+                "create site redirects",
+                include_str!("../migrations/0002_create_site_redirects.sql"),
+            ))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute::<dyn SiteRequestHandler>(Arc::new(handler::SiteHandler));
+        app.contribute::<dyn aphel_sdk::platform::application::organization_profile::OrganizationConfigExtension>(
+            Arc::new(settings::SiteConfiguration),
+        );
         app.consumer(|env| invalidation::SiteInvalidationConsumer::shared(env.pool.clone()));
         Ok(())
     }

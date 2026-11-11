@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { z } from 'zod'
@@ -8,6 +8,7 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { MailNotConfiguredNotice } from '../email/MailNotConfiguredNotice'
 import { FormRow } from '../organization/components/FormRow'
 import { positiveInteger, useSaveConfiguration, type OrganizationConfiguration } from './api'
@@ -42,6 +43,7 @@ const schema = z.object({
     .trim()
     .toLowerCase()
     .regex(/^([a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d{1,5})?)?$/, 'configuration.errors.siteHost'),
+  siteIndexing: z.boolean(),
   maxUploadMb: z.string().refine((value) => positiveInteger(value, 1, 4096), 'configuration.errors.uploadRange'),
 }).refine((values) => values.siteHost.trim() !== '' || values.siteSegment.trim().toLowerCase() !== values.appSegment.trim().toLowerCase(), {
   path: ['siteSegment'],
@@ -65,6 +67,7 @@ function toFormValues(configuration: OrganizationConfiguration): FormValues {
     appSegment: segmentOf(configuration.app_base_path),
     siteSegment: segmentOf(configuration.site_base_path),
     siteHost: configuration.site_host ?? '',
+    siteIndexing: configuration.site?.indexing ?? true,
     maxUploadMb: String(configuration.max_upload_mb),
   }
 }
@@ -113,6 +116,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
         ...(canMoveApp && configuration.site_available
           ? { site_base_path: basePathOf(values.siteSegment), site_host: values.siteHost.trim().toLowerCase() || null }
           : {}),
+        ...(configuration.site_available ? { site: { indexing: values.siteIndexing } } : {}),
         max_upload_mb: Number(values.maxUploadMb),
       })
       if (saved.app_base_path !== configuration.app_base_path) {
@@ -242,6 +246,20 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
                 </div>
               )}
             </FormRow>
+            <Controller
+              control={control}
+              name="siteIndexing"
+              render={({ field }) => (
+                <ToggleField
+                  id="general-site-indexing"
+                  type="switch"
+                  label={t('configuration.general.siteIndexing')}
+                  description={t('configuration.general.siteIndexingHint')}
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
           </>
         )}
         <FormRow

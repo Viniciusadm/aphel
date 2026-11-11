@@ -183,6 +183,19 @@ pub struct SitePageSpec {
     pub list: Option<SiteListSpec>,
     #[serde(default)]
     pub title: Option<String>,
+    #[serde(default)]
+    pub seo: SiteSeoSpec,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SiteSeoSpec {
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub image: Option<String>,
+    #[serde(default)]
+    pub noindex: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -2,7 +2,9 @@ use std::collections::BTreeMap;
 use std::sync::LazyLock;
 use std::time::Duration;
 
-use aphel_contract_site::{MAX_PER_PAGE, PageSource, decode_segment, template_name};
+use aphel_contract_site::{
+    MAX_PER_PAGE, PageSource, ROBOTS_PATH, SITEMAP_PATH, decode_segment, template_name,
+};
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{SiteMountPrefix, SiteRequestHandler};
 use aphel_sdk::platform::api::extractors::ClientInfo;
@@ -20,13 +22,15 @@ use serde_json::json;
 
 use crate::cache::{self, CachedPage};
 use crate::runtime::{self, ERROR_TEMPLATE, NOT_FOUND_TEMPLATE, Route, SiteRuntime};
-use crate::{data, images};
+use crate::settings::site_settings;
+use crate::{data, images, redirects, sitemap};
 
 const SITE_CSP: &str = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
 const DEFAULT_COLOR: &str = "#4f46e5";
 const PAGE_CACHE_CONTROL: &str = "public, max-age=60, stale-while-revalidate=600";
 const RENDERS_PER_ADDRESS: u32 = 120;
 const RENDER_WINDOW: Duration = Duration::from_secs(60);
+const DESCRIPTION_MAX_CHARS: usize = 200;
 const RATE_LIMITED: &str = "muitas páginas em sequência; aguarde um pouco e tente novamente";
 
 static RENDER_LIMIT: LazyLock<SharedRateLimiter> = LazyLock::new(|| {
@@ -59,6 +63,7 @@ struct SiteContext {
 
 enum Outcome {
     Page { html: String, tags: Vec<String> },
+    Redirect(String),
     NotFound,
 }
 
@@ -131,6 +136,13 @@ async fn serve(state: &AppState, request: Request) -> Response {
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }
     };
+    let path = parts.uri.path().to_owned();
+    if path == SITEMAP_PATH {
+        return sitemap::respond(state, &runtime, &parts, &prefix).await;
+    }
+    if path == ROBOTS_PATH && prefix.is_empty() {
+        return sitemap::robots(state);
+    }
     let found = runtime.find(parts.uri.path());
     let key = found
         .as_ref()
@@ -185,6 +197,7 @@ async fn serve(state: &AppState, request: Request) -> Response {
             };
             page_response(&page, &parts.headers)
         }
+        Ok(Outcome::Redirect(location)) => moved_permanently(&location),
         Ok(Outcome::NotFound) => fallback(&context, StatusCode::NOT_FOUND, Some(&runtime)),
         Err(error) => {
             tracing::warn!(%error, path = %parts.uri.path(), "could not render a site page");
@@ -230,6 +243,7 @@ fn safe_color(color: Option<&str>) -> &str {
 }
 
 async fn site_context(state: &AppState, prefix: &str) -> Result<SiteContext, AppError> {
+    let config = state.organization_config.snapshot();
     let organization = MySqlOrganizationRepository::new(state.db()?)
         .find()
         .await?
@@ -243,6 +257,8 @@ async fn site_context(state: &AppState, prefix: &str) -> Result<SiteContext, App
             "home": format!("{prefix}/"),
             "year": chrono::Utc::now().format("%Y").to_string(),
             "texts": texts(&organization.locale),
+            "base_url": config.site_base_url().trim_end_matches('/'),
+            "indexing": site_settings(&config).indexing,
         }),
     })
 }
@@ -280,7 +296,19 @@ async fn render_route(
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
             let value = params.get(match_field).cloned().unwrap_or_default();
             let Some(mut record) = data::record(state, exposure, match_field, &value).await? else {
-                return Ok(Outcome::NotFound);
+                let moved = redirects::lookup(&state.db()?, entity, match_field, &value).await?;
+                let location = moved.and_then(|moved| {
+                    route
+                        .pattern
+                        .build(&BTreeMap::from([(match_field.clone(), moved)]))
+                });
+                return Ok(match location {
+                    Some(location) => Outcome::Redirect(format!(
+                        "{}{location}",
+                        context.site["prefix"].as_str().unwrap_or_default()
+                    )),
+                    None => Outcome::NotFound,
+                });
             };
             if let Some(id) = record.get("id").and_then(serde_json::Value::as_str) {
                 tags.push(cache::record_tag(entity, id));
@@ -331,20 +359,86 @@ async fn render_route(
         }
     }
     values.insert("page".to_owned(), page.clone());
-    if let Some(title) = &route.page.title {
-        let rendered = runtime
-            .environment
-            .render_str(title, Value::from_serialize(&values))
-            .map_err(render_error)?;
-        page["title"] = json!(rendered);
-        values.insert("page".to_owned(), page);
-    }
+    let render = |expression: &Option<String>| -> Result<Option<String>, AppError> {
+        expression
+            .as_ref()
+            .map(|expression| {
+                runtime
+                    .environment
+                    .render_str(expression, Value::from_serialize(&values))
+                    .map_err(render_error)
+            })
+            .transpose()
+    };
+    let title = render(&route.page.title)?;
+    let description = render(&route.page.seo.description)?
+        .map(|description| plain_summary(&description))
+        .filter(|description| !description.is_empty());
+    let image = render(&route.page.seo.image)?
+        .map(|image| image.trim().to_owned())
+        .filter(|image| !image.is_empty());
+    let base_url = context.site["base_url"].as_str().unwrap_or_default();
+    let canonical = match requested_page(query) {
+        number if number > 1 && matches!(route.page.source, PageSource::List { .. }) => {
+            format!("{base_url}{path}?page={number}")
+        }
+        _ => format!("{base_url}{path}"),
+    };
+    let indexing = context.site["indexing"].as_bool().unwrap_or(true);
+    page["title"] = json!(title);
+    page["seo"] = json!({
+        "canonical": canonical,
+        "description": description,
+        "image": image.map(|image| absolute_url(base_url, &image)),
+        "noindex": route.page.seo.noindex || !indexing,
+        "type": if matches!(route.page.source, PageSource::Record { .. }) { "article" } else { "website" },
+    });
+    values.insert("page".to_owned(), page);
     let html = runtime
         .environment
         .get_template(&template_name(&route.owner, &route.page.template))
         .and_then(|template| template.render(Value::from_serialize(&values)))
         .map_err(render_error)?;
     Ok(Outcome::Page { html, tags })
+}
+
+fn plain_summary(text: &str) -> String {
+    let collapsed = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    if collapsed.chars().count() <= DESCRIPTION_MAX_CHARS {
+        return collapsed;
+    }
+    let cut: String = collapsed.chars().take(DESCRIPTION_MAX_CHARS - 1).collect();
+    format!("{}…", cut.trim_end())
+}
+
+pub(crate) fn origin_of(base_url: &str) -> &str {
+    let after_scheme = base_url.find("://").map(|index| index + 3).unwrap_or(0);
+    match base_url[after_scheme..].find('/') {
+        Some(index) => &base_url[..after_scheme + index],
+        None => base_url,
+    }
+}
+
+fn absolute_url(base_url: &str, url: &str) -> String {
+    if url.starts_with("http://") || url.starts_with("https://") {
+        url.to_owned()
+    } else if url.starts_with('/') {
+        format!("{}{url}", origin_of(base_url))
+    } else {
+        format!("{base_url}/{url}")
+    }
+}
+
+fn moved_permanently(location: &str) -> Response {
+    let mut response = StatusCode::MOVED_PERMANENTLY.into_response();
+    if let Ok(value) = HeaderValue::from_str(location) {
+        response.headers_mut().insert(header::LOCATION, value);
+    }
+    response.headers_mut().insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static("public, max-age=3600"),
+    );
+    response
 }
 
 fn render_error(error: minijinja::Error) -> AppError {

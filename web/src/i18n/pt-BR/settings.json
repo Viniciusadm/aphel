@@ -505,7 +505,9 @@
       "siteHostHint": "Use quando o site público tiver um domínio próprio, como www.suaempresa.com.br, apontado para este servidor. Vazio, o site usa o mesmo endereço do sistema.",
       "siteHostPlaceholder": "www.suaempresa.com.br",
       "sitePath": "Caminho do site",
-      "sitePathHint": "Onde as páginas públicas dos plugins (blog, loja) aparecem. Vazio = raiz. Sem domínio próprio, precisa ser diferente do caminho do sistema."
+      "sitePathHint": "Onde as páginas públicas dos plugins (blog, loja) aparecem. Vazio = raiz. Sem domínio próprio, precisa ser diferente do caminho do sistema.",
+      "siteIndexing": "Deixar buscadores encontrarem o site",
+      "siteIndexingHint": "Desligado, o site continua aberto para quem tem o link, mas pede aos buscadores (Google, Bing) que não o mostrem e não publica o mapa do site. Útil enquanto o site está sendo montado."
     },
     "mail": {
       "title": "E-mail de envio",

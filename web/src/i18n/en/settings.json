@@ -505,7 +505,9 @@
       "siteHostHint": "Use it when the public site has its own domain, such as www.yourcompany.com, pointed at this server. Empty, the site uses the same address as the app.",
       "siteHostPlaceholder": "www.yourcompany.com",
       "sitePath": "Site path",
-      "sitePathHint": "Where the public pages of plugins (blog, shop) appear. Empty = root. Without its own domain, it must differ from the app path."
+      "sitePathHint": "Where the public pages of plugins (blog, shop) appear. Empty = root. Without its own domain, it must differ from the app path.",
+      "siteIndexing": "Let search engines find the site",
+      "siteIndexingHint": "When off, the site stays open to anyone with the link but asks search engines (Google, Bing) not to list it and does not publish the sitemap. Useful while the site is being built."
     },
     "mail": {
       "title": "Outgoing email",

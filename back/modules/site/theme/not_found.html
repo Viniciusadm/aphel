@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}{{ site.texts.not_found_title }} · {{ site.name }}{% endblock %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
 <h1>{{ site.texts.not_found_title }}</h1>
 <p class="muted">{{ site.texts.not_found_body }}</p>

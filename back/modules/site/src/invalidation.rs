@@ -1,13 +1,14 @@
-use std::collections::BTreeSet;
 use std::sync::Arc;
 
-use aphel_contract_site::SiteContentSource;
+use aphel_contract_site::{PageSource, SiteBundle, SiteContentSource};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
 use async_trait::async_trait;
+use serde_json::Value;
 use sqlx::MySqlPool;
 
 use crate::cache::{self, ALL_TAG};
+use crate::redirects;
 
 const CONSUMER_NAME: &str = "site.invalidate";
 const RECORD_ACTIONS: &[&str] = &[
@@ -19,6 +20,7 @@ const RECORD_ACTIONS: &[&str] = &[
     "archived",
     "unarchived",
 ];
+const UPDATED_ACTION: &str = "updated";
 const ATTACHMENT_EVENTS: &[&str] = &["attachment.added", "attachment.removed"];
 const SITE_WIDE_EVENTS: &[&str] = &["organization.updated", "organization.settings_updated"];
 
@@ -32,23 +34,66 @@ impl SiteInvalidationConsumer {
     }
 }
 
-async fn exposed_entities() -> Result<BTreeSet<String>, AppError> {
-    let mut exposed = BTreeSet::new();
+async fn bundles() -> Result<Vec<SiteBundle>, AppError> {
+    let mut bundles = Vec::new();
     let Some(app) = aphel_sdk::platform::modules::try_app() else {
-        return Ok(exposed);
+        return Ok(bundles);
     };
     for source in app.contributions::<dyn SiteContentSource>() {
-        for bundle in source.bundles().await? {
-            exposed.extend(bundle.exposures.into_iter().map(|exposure| exposure.entity));
-        }
+        bundles.extend(source.bundles().await?);
     }
-    Ok(exposed)
+    Ok(bundles)
 }
 
 fn is_record_event(event_type: &str) -> bool {
     event_type
         .rsplit_once('.')
         .is_some_and(|(_, action)| RECORD_ACTIONS.contains(&action))
+}
+
+fn changed_value(value: Option<&Value>) -> Option<String> {
+    match value? {
+        Value::String(text) => Some(text.clone()),
+        Value::Number(number) => Some(number.to_string()),
+        _ => None,
+    }
+}
+
+async fn record_redirects(
+    pool: &MySqlPool,
+    bundles: &[SiteBundle],
+    record_type: &str,
+    payload: &Value,
+) -> Result<(), AppError> {
+    let Some(changes) = payload.get("changes").and_then(Value::as_array) else {
+        return Ok(());
+    };
+    let match_fields =
+        bundles
+            .iter()
+            .flat_map(|bundle| &bundle.pages)
+            .filter_map(|page| match &page.source {
+                PageSource::Record {
+                    entity,
+                    match_field,
+                } if entity == record_type => Some(match_field.as_str()),
+                _ => None,
+            });
+    for field in match_fields {
+        let Some(change) = changes
+            .iter()
+            .find(|change| change.get("field").and_then(Value::as_str) == Some(field))
+        else {
+            continue;
+        };
+        if let (Some(old), Some(new)) = (
+            changed_value(change.get("old")),
+            changed_value(change.get("new")),
+        ) {
+            redirects::record_change(pool, record_type, field, &old, &new).await?;
+        }
+    }
+    Ok(())
 }
 
 #[async_trait]
@@ -71,8 +116,16 @@ impl EventConsumer for SiteInvalidationConsumer {
             return Ok(());
         };
         let record_type = record.record_type.as_str();
-        if !exposed_entities().await?.contains(record_type) {
+        let bundles = bundles().await?;
+        let exposed = bundles
+            .iter()
+            .flat_map(|bundle| &bundle.exposures)
+            .any(|exposure| exposure.entity == record_type);
+        if !exposed {
             return Ok(());
+        }
+        if event.event_type.rsplit_once('.').map(|(_, action)| action) == Some(UPDATED_ACTION) {
+            record_redirects(&self.pool, &bundles, record_type, &event.payload).await?;
         }
         let record_id = record.record_id.to_string();
         cache::invalidate(

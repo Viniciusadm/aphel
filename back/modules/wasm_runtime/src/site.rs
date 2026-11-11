@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
     ALWAYS_PUBLIC_FIELDS, PageSource, PathPattern, SiteBundle, SiteContentSource, SiteExposure,
-    SitePage, SiteTemplate, check_bundle,
+    SitePage, SitePageSeo, SiteTemplate, check_bundle,
 };
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::state::runtime_pool;
@@ -107,6 +107,11 @@ fn bundle_of(
                 template: page.template.clone(),
                 source,
                 title: page.title.clone(),
+                seo: SitePageSeo {
+                    description: page.seo.description.clone(),
+                    image: page.seo.image.clone(),
+                    noindex: page.seo.noindex,
+                },
             }),
             Err(problem) => {
                 problems.push(problem);
