@@ -5,6 +5,7 @@ pub(crate) mod customers;
 pub(crate) mod data;
 pub(crate) mod deferred;
 pub(crate) mod dynamic;
+pub(crate) mod frame;
 pub(crate) mod handler;
 pub(crate) mod http;
 pub(crate) mod images;

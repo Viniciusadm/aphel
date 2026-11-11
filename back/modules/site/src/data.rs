@@ -24,6 +24,7 @@ fn site_scope() -> AccessScope {
 pub(crate) struct Draft<'a> {
     pub record_id: &'a str,
     pub fields: &'a BTreeMap<String, String>,
+    pub values: &'a BTreeMap<String, Value>,
 }
 
 fn equalities(conditions: &BTreeMap<String, Value>) -> Vec<Filter> {
@@ -55,12 +56,8 @@ fn filled(value: &Value) -> bool {
     }
 }
 
-fn swap_drafts(
-    record: &mut Map<String, Value>,
-    fields: &BTreeMap<String, String>,
-    suffix: Option<&str>,
-) {
-    for (target, source) in fields {
+fn swap_drafts(record: &mut Map<String, Value>, draft: &Draft<'_>, suffix: Option<&str>) {
+    for (target, source) in draft.fields {
         let pairs = std::iter::once((target.clone(), source.clone())).chain(
             suffix.map(|suffix| (format!("{target}_{suffix}"), format!("{source}_{suffix}"))),
         );
@@ -69,13 +66,16 @@ fn swap_drafts(
             record.insert(target, value);
         }
     }
+    for (target, value) in draft.values {
+        record.insert(target.clone(), value.clone());
+    }
 }
 
 fn project(
     exposure: &SiteExposure,
     record: Value,
     suffix: Option<&str>,
-    drafts: Option<&BTreeMap<String, String>>,
+    drafts: Option<&Draft<'_>>,
 ) -> Value {
     let Value::Object(mut record) = record else {
         return Value::Null;
@@ -112,7 +112,7 @@ async fn query(
     exposure: &SiteExposure,
     query: RecordQuery,
     suffix: Option<&str>,
-    drafts: Option<&BTreeMap<String, String>>,
+    drafts: Option<&Draft<'_>>,
 ) -> Result<RecordPage, AppError> {
     let scope = site_scope();
     let ports = query_ports(state).await?;
@@ -217,7 +217,7 @@ async fn first(
     exposure: &SiteExposure,
     filter: Option<Filter>,
     suffix: Option<&str>,
-    drafts: Option<&BTreeMap<String, String>>,
+    drafts: Option<&Draft<'_>>,
 ) -> Result<Option<Value>, AppError> {
     let found = query(
         state,
@@ -269,14 +269,7 @@ pub(crate) async fn draft(
         FilterOperator::Eq,
         Value::String(draft.record_id.to_owned()),
     ));
-    first(
-        state,
-        exposure,
-        combined(filters),
-        suffix,
-        Some(draft.fields),
-    )
-    .await
+    first(state, exposure, combined(filters), suffix, Some(draft)).await
 }
 
 pub(crate) async fn matching(

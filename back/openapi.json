@@ -54386,7 +54386,7 @@
         "tags": [
           "site"
         ],
-        "description": "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Settings → Site, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
+        "description": "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
         "operationId": "site_languages_list",
         "responses": {
           "200": {
@@ -54748,6 +54748,118 @@
           },
           "429": {
             "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/preview/render": {
+      "post": {
+        "tags": [
+          "site"
+        ],
+        "description": "Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity, or `<translated field>_<language suffix>` for an extra site language; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user.",
+        "operationId": "site_preview_render",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenderSitePreview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SitePreviewRenderResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The record or the page does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid record, path or values. `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many renders (`rate_limited`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -87289,6 +87401,25 @@
           }
         }
       },
+      "Data_SitePreviewRenderResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "html"
+            ],
+            "properties": {
+              "html": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "Data_SitePreviewResponse": {
         "type": "object",
         "required": [
@@ -115750,6 +115881,50 @@
           }
         }
       },
+      "RenderSitePreview": {
+        "type": "object",
+        "required": [
+          "record",
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "example": "/about-us"
+          },
+          "record": {
+            "$ref": "#/components/schemas/RenderSitePreviewRecord"
+          }
+        }
+      },
+      "RenderSitePreviewRecord": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "record_id"
+        ],
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "example": "01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a"
+          },
+          "record_type": {
+            "type": "string",
+            "example": "pages.page"
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {},
+            "propertyNames": {
+              "type": "string"
+            },
+            "example": {
+              "blocks": "[]",
+              "title": "About us"
+            }
+          }
+        }
+      },
       "RenewalOwnerMode": {
         "type": "string",
         "enum": [
@@ -118696,6 +118871,17 @@
           "target": {
             "type": "string",
             "example": "/blog"
+          }
+        }
+      },
+      "SitePreviewRenderResponse": {
+        "type": "object",
+        "required": [
+          "html"
+        ],
+        "properties": {
+          "html": {
+            "type": "string"
           }
         }
       },

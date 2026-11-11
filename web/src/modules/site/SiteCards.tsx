@@ -11,8 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
-import { Page } from '@/components/ui/page'
-import { PageHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleField } from '@/components/ui/toggle-field'
 import { cn } from '@/lib/utils'
@@ -24,45 +22,22 @@ import {
   SETTINGS_MANAGE,
   type SiteLink,
   type SiteMenuEntry,
-  type SiteSettings,
   SortableList,
   SYSTEM_MANAGE,
   useAllMembers,
-  useOrganizationConfiguration,
-  useSaveConfiguration,
 } from '@/sdk'
 import {
   siteApi,
   useInvalidateSite,
   useSiteCustomers,
-  useSiteOverview,
   useSitePathRedirects,
   useSiteRedirects,
   type SiteMenuItem,
   type SiteOverview,
 } from './api'
+import { currentSettings, languageName, type SiteModuleSettings, useSaveSite } from './siteSettings'
 
 const RESERVED_SEGMENTS = ['api']
-const TAGLINE_MAX = 160
-interface SiteModuleSettings extends SiteSettings {
-  link_people: boolean
-  people_owner: string | null
-}
-
-const DEFAULT_SETTINGS: SiteModuleSettings = {
-  indexing: true,
-  accounts: false,
-  theme: null,
-  tagline: null,
-  menu: [],
-  languages: [],
-  link_people: false,
-  people_owner: null,
-  links: [],
-  home: null,
-  scrollbar: 'default',
-}
-
 const LINK_PREFIX = 'link.'
 const LINK_LABEL_MAX = 60
 
@@ -75,51 +50,7 @@ function basePathOf(segment: string): string {
   return trimmed ? `/${trimmed}` : '/'
 }
 
-function currentSettings(configuration: OrganizationConfiguration): SiteModuleSettings {
-  return { ...DEFAULT_SETTINGS, ...configuration.site }
-}
-
-function useSaveSite(configuration: OrganizationConfiguration) {
-  const save = useSaveConfiguration()
-  return (site: Partial<SiteModuleSettings>, extra: Record<string, unknown> = {}) =>
-    save({ ...extra, site: { ...currentSettings(configuration), ...site } })
-}
-
-export function SiteSettingsPage() {
-  const { t } = useTranslation('site')
-  const configuration = useOrganizationConfiguration()
-  const overview = useSiteOverview()
-  const loading = configuration.isPending || overview.isPending
-  const failed = configuration.isError || overview.isError
-
-  return (
-    <Page aria-labelledby="site-settings-title">
-      <PageHeader title={t('page.title')} description={t('page.description')} />
-      {loading ? (
-        <div className="grid max-w-3xl gap-4">
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
-        </div>
-      ) : failed || !configuration.data || !overview.data ? (
-        <ErrorState onRetry={() => { void configuration.refetch(); void overview.refetch() }} />
-      ) : (
-        <div className="grid max-w-3xl gap-6">
-          <SiteSummary overview={overview.data} />
-          <AddressCard configuration={configuration.data} />
-          <AppearanceCard key={JSON.stringify([configuration.data.site?.theme, configuration.data.site?.home, configuration.data.site?.scrollbar, configuration.data.site?.tagline])} configuration={configuration.data} overview={overview.data} />
-          <MenuCard key={overview.data.menu_items.map((item) => item.id).join()} configuration={configuration.data} overview={overview.data} />
-          <LanguagesCard configuration={configuration.data} overview={overview.data} />
-          <CustomersCard configuration={configuration.data} overview={overview.data} />
-          <PathRedirectsCard />
-          <RedirectsCard />
-          <CacheCard />
-        </div>
-      )}
-    </Page>
-  )
-}
-
-function SiteSummary({ overview }: { overview: SiteOverview }) {
+export function SiteSummary({ overview }: { overview: SiteOverview }) {
   const { t } = useTranslation('site')
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3">
@@ -162,7 +93,7 @@ const addressSchema = (appSegment: string) =>
 
 type AddressValues = z.infer<ReturnType<typeof addressSchema>>
 
-function AddressCard({ configuration }: { configuration: OrganizationConfiguration }) {
+export function AddressCard({ configuration }: { configuration: OrganizationConfiguration }) {
   const { t } = useTranslation('site')
   const { hasPermission } = useSession()
   const canMove = hasPermission(SYSTEM_MANAGE)
@@ -295,12 +226,11 @@ const appearanceSchema = z.object({
   theme: z.string(),
   home: z.string(),
   scrollbar: z.enum(['default', 'themed']),
-  tagline: z.string().trim().max(TAGLINE_MAX, 'errors.tagline'),
 })
 
 type AppearanceValues = z.infer<typeof appearanceSchema>
 
-function AppearanceCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+export function AppearanceCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
   const { t } = useTranslation('site')
   const saveSite = useSaveSite(configuration)
   const invalidate = useInvalidateSite()
@@ -310,10 +240,10 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
     control,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { isSubmitting, isDirty },
   } = useForm<AppearanceValues>({
     resolver: zodResolver(appearanceSchema),
-    defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default', tagline: settings.tagline ?? '' },
+    defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default' },
   })
   const theme = useWatch({ control, name: 'theme' })
   const [previewing, setPreviewing] = useState(false)
@@ -336,8 +266,8 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const saved = await saveSite({ theme: values.theme || null, home: values.home || null, scrollbar: values.scrollbar, tagline: values.tagline.trim() || null })
-      reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default', tagline: saved.site?.tagline ?? '' })
+      const saved = await saveSite({ theme: values.theme || null, home: values.home || null, scrollbar: values.scrollbar })
+      reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default' })
       void invalidate()
       notifySuccess(t('saved'))
     } catch (error) {
@@ -395,23 +325,6 @@ function AppearanceCard({ configuration, overview }: { configuration: Organizati
                 </NativeSelect>
               )}
             </FormRow>
-            <FormRow
-              id="site-tagline"
-              label={t('appearance.tagline')}
-              error={errors.tagline?.message ? t('errors.tagline') : undefined}
-              hint={t('appearance.taglineHint')}
-            >
-              {(describedBy) => (
-                <Input
-                  id="site-tagline"
-                  maxLength={TAGLINE_MAX}
-                  placeholder={t('appearance.taglinePlaceholder')}
-                  aria-invalid={errors.tagline ? true : undefined}
-                  aria-describedby={describedBy}
-                  {...register('tagline')}
-                />
-              )}
-            </FormRow>
           </fieldset>
           <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting || !isDirty}>
@@ -462,7 +375,7 @@ function newLinkId(): string {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 12)
 }
 
-function MenuCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+export function MenuCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
   const { t } = useTranslation('site')
   const saveSite = useSaveSite(configuration)
   const [links, setLinks] = useState(() => currentSettings(configuration).links)
@@ -606,15 +519,7 @@ function MenuCard({ configuration, overview }: { configuration: OrganizationConf
   )
 }
 
-function languageName(code: string, locale: string): string {
-  try {
-    return new Intl.DisplayNames([locale], { type: 'language' }).of(code) ?? code
-  } catch {
-    return code
-  }
-}
-
-function LanguagesCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+export function LanguagesCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
   const { t, i18n } = useTranslation('site')
   const saveSite = useSaveSite(configuration)
   const invalidate = useInvalidateSite()
@@ -663,7 +568,7 @@ function LanguagesCard({ configuration, overview }: { configuration: Organizatio
   )
 }
 
-function CustomersCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+export function CustomersCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
   const { t, i18n } = useTranslation('site')
   const saveSite = useSaveSite(configuration)
   const invalidate = useInvalidateSite()
@@ -803,7 +708,7 @@ type PathRedirectValues = z.infer<typeof pathRedirectSchema>
 
 const EMPTY_PATH_REDIRECT: PathRedirectValues = { source_path: '', target: '', permanent: true }
 
-function PathRedirectsCard() {
+export function PathRedirectsCard() {
   const { t } = useTranslation('site')
   const redirects = useSitePathRedirects()
   const invalidate = useInvalidateSite()
@@ -946,7 +851,7 @@ function PathRedirectsCard() {
   )
 }
 
-function RedirectsCard() {
+export function RedirectsCard() {
   const { t } = useTranslation('site')
   const redirects = useSiteRedirects()
   const invalidate = useInvalidateSite()
@@ -1007,7 +912,7 @@ function RedirectsCard() {
   )
 }
 
-function CacheCard() {
+export function CacheCard() {
   const { t } = useTranslation('site')
   const { hasPermission } = useSession()
   const [busy, setBusy] = useState(false)

@@ -43,6 +43,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(list_embeds))
         .routes(routes!(list_collections))
         .routes(routes!(list_languages))
+        .routes(routes!(render_preview))
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -140,6 +141,29 @@ pub(crate) struct StartSitePreviewRecord {
     #[schema(example = json!({ "blocks": "draft_blocks" }))]
     #[serde(default)]
     pub fields: std::collections::BTreeMap<String, String>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub(crate) struct RenderSitePreview {
+    pub record: RenderSitePreviewRecord,
+    #[schema(example = "/about-us")]
+    pub path: String,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub(crate) struct RenderSitePreviewRecord {
+    #[schema(example = "pages.page")]
+    pub record_type: String,
+    #[schema(example = "01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a")]
+    pub record_id: String,
+    #[schema(example = json!({ "title": "About us", "blocks": "[]" }))]
+    #[serde(default)]
+    pub values: std::collections::BTreeMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SitePreviewRenderResponse {
+    pub html: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -712,6 +736,119 @@ async fn start_preview(
 }
 
 const MAX_PREVIEW_FIELDS: usize = 10;
+const MAX_PREVIEW_VALUE_BYTES: usize = 64 * 1024;
+const PREVIEW_RENDERS_PER_USER: u32 = 300;
+const PREVIEW_RATE_LIMITED: &str = "too many preview renders; wait a moment";
+
+static PREVIEW_RENDER_LIMIT: std::sync::LazyLock<
+    aphel_sdk::platform::api::rate_limit::SharedRateLimiter,
+> = std::sync::LazyLock::new(|| {
+    aphel_sdk::platform::api::rate_limit::SharedRateLimiter::new(
+        "site.preview_render",
+        PREVIEW_RENDERS_PER_USER,
+        std::time::Duration::from_secs(60),
+    )
+});
+
+fn preview_value_target(
+    exposure: &aphel_contract_site::SiteExposure,
+    languages: &[String],
+    target: &str,
+) -> bool {
+    let plain =
+        exposure.exposes(target) && !aphel_contract_site::ALWAYS_PUBLIC_FIELDS.contains(&target);
+    let translated = exposure.translated.iter().any(|field| {
+        languages.iter().any(|language| {
+            target == format!("{field}_{}", crate::settings::field_suffix(language))
+        })
+    });
+    plain || translated
+}
+
+#[utoipa::path(
+    post,
+    path = "/site/preview/render",
+    tag = TAG,
+    operation_id = "site_preview_render",
+    description = "Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity, or `<translated field>_<language suffix>` for an extra site language; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user.",
+    security(("session_cookie" = [])),
+    request_body = RenderSitePreview,
+    responses(
+        (status = 200, description = "Rendered page", body = Data<SitePreviewRenderResponse>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "No permission to update the record", body = ErrorEnvelope),
+        (status = 404, description = "The record or the page does not exist", body = ErrorEnvelope),
+        (status = 422, description = "Invalid record, path or values", body = ErrorEnvelope),
+        (status = 429, description = "Too many renders (`rate_limited`)", body = ErrorEnvelope),
+    )
+)]
+async fn render_preview(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Json(input): Json<RenderSitePreview>,
+) -> Result<Json<Data<SitePreviewRenderResponse>>, ApiError> {
+    PREVIEW_RENDER_LIMIT
+        .check(tenant.scope.user_id().as_str(), PREVIEW_RATE_LIMITED)
+        .await?;
+    let path = crate::preview::local_path(&input.path).ok_or_else(|| {
+        AppError::Validation("path must be a site path such as /about-us".to_owned())
+    })?;
+    let config = state.organization_config.snapshot();
+    let settings = site_settings(&config);
+    let runtime = runtime::current(&state.app, settings.theme.as_deref()).await?;
+    let mut record = preview_record(
+        &state,
+        &tenant,
+        &runtime,
+        &StartSitePreviewRecord {
+            record_type: input.record.record_type.clone(),
+            record_id: input.record.record_id.clone(),
+            fields: std::collections::BTreeMap::new(),
+        },
+    )
+    .await?;
+    if input.record.values.len() > MAX_PREVIEW_FIELDS {
+        return Err(AppError::Validation(format!(
+            "values replaces at most {MAX_PREVIEW_FIELDS} fields"
+        ))
+        .into());
+    }
+    let exposure = runtime
+        .entity_exposure(&record.record_type)
+        .ok_or_else(|| {
+            AppError::Validation(format!("{} has no public pages", record.record_type))
+        })?;
+    for (target, value) in &input.record.values {
+        if !preview_value_target(exposure, &settings.languages, target) {
+            return Err(AppError::Validation(format!(
+                "{target} is not a public field that a preview can replace"
+            ))
+            .into());
+        }
+        let size = match value {
+            serde_json::Value::String(text) => text.len(),
+            serde_json::Value::Null => 0,
+            _ => {
+                return Err(AppError::Validation(format!("{target} must be text")).into());
+            }
+        };
+        if size > MAX_PREVIEW_VALUE_BYTES {
+            return Err(AppError::Validation(format!(
+                "{target} has more than {MAX_PREVIEW_VALUE_BYTES} bytes"
+            ))
+            .into());
+        }
+    }
+    record.values = input.record.values;
+    let previewing = crate::preview::Preview {
+        theme: None,
+        record: Some(record),
+    };
+    let html = crate::handler::render_draft(&state, &runtime, &previewing, path)
+        .await?
+        .ok_or_else(|| AppError::NotFound("no site page answers this path".to_owned()))?;
+    Ok(Json(Data::new(SitePreviewRenderResponse { html })))
+}
 
 async fn preview_record(
     state: &AppState,
@@ -771,6 +908,7 @@ async fn preview_record(
         record_type: input.record_type.clone(),
         record_id: id.to_string(),
         fields: input.fields.clone(),
+        values: std::collections::BTreeMap::new(),
     })
 }
 
@@ -871,7 +1009,7 @@ async fn list_collections(
     path = "/site/languages",
     tag = TAG,
     operation_id = "site_languages_list",
-    description = "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Settings → Site, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
+    description = "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Languages", body = Data<Vec<SiteLanguageResponse>>),

@@ -49,4 +49,12 @@ async function mount(element) {
   }
 }
 
-for (const element of document.querySelectorAll('[data-island]')) void mount(element)
+function scan() {
+  for (const element of document.querySelectorAll('[data-island]:not([data-island-mounted])')) {
+    element.setAttribute('data-island-mounted', '')
+    void mount(element)
+  }
+}
+
+document.addEventListener('aphel:islands', scan)
+scan()

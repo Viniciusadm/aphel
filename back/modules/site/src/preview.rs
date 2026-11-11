@@ -25,6 +25,7 @@ pub(crate) struct PreviewRecord {
     pub record_type: String,
     pub record_id: String,
     pub fields: BTreeMap<String, String>,
+    pub values: BTreeMap<String, serde_json::Value>,
 }
 
 impl Preview {
@@ -35,6 +36,7 @@ impl Preview {
             .map(|record| crate::data::Draft {
                 record_id: &record.record_id,
                 fields: &record.fields,
+                values: &record.values,
             })
     }
 
@@ -126,6 +128,7 @@ async fn find(
                 fields: fields
                     .and_then(|fields| serde_json::from_str(&fields).ok())
                     .unwrap_or_default(),
+                values: BTreeMap::new(),
             });
         (Preview { theme, record }, path)
     }))
@@ -229,6 +232,7 @@ pub(crate) fn with_banner(html: String, subject: BannerSubject<'_>, locale: &str
         true => "Sair",
         false => "Leave",
     };
+    let draft = matches!(subject, BannerSubject::Draft);
     let label = match (subject, portuguese) {
         (BannerSubject::Theme(name), true) => {
             format!(
@@ -245,8 +249,15 @@ pub(crate) fn with_banner(html: String, subject: BannerSubject<'_>, locale: &str
         (BannerSubject::Draft, true) => "Pré-visualização do rascunho".to_owned(),
         (BannerSubject::Draft, false) => "Previewing the draft".to_owned(),
     };
+    let script = match draft {
+        true => format!(
+            "<script type=\"module\" src=\"/_aphel/site{}\"></script>",
+            crate::dynamic::PREVIEW_SCRIPT_PATH
+        ),
+        false => String::new(),
+    };
     let banner = format!(
-        "<div role=\"status\" style=\"position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)\">{label} · <a href=\"/_aphel/site/{PREVIEW_SEGMENT}/{END_SEGMENT}\" style=\"color:#fff;text-decoration:underline\">{leave}</a></div>"
+        "{script}<div role=\"status\" data-aphel-preview-banner style=\"position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)\">{label} · <a href=\"/_aphel/site/{PREVIEW_SEGMENT}/{END_SEGMENT}\" style=\"color:#fff;text-decoration:underline\">{leave}</a></div>"
     );
     match html.rfind("</body>") {
         Some(index) => {

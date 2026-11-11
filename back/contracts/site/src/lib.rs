@@ -21,9 +21,11 @@ pub const THEME_NOT_FOUND: &str = "site/theme/not_found.html";
 pub const THEME_ERROR: &str = "site/theme/error.html";
 pub const THEME_ASSETS_DIR: &str = "site/theme/assets";
 pub const HEAD_PARTIAL: &str = "aphel/head.html";
+pub const ICONS_PARTIAL: &str = "aphel/icons.html";
 pub const BUILTIN_TEMPLATES: &[&str] = &[
     LAYOUT_TEMPLATE,
     HEAD_PARTIAL,
+    ICONS_PARTIAL,
     "aphel/not_found.html",
     "aphel/error.html",
     "aphel/account.html",

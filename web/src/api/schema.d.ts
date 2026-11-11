@@ -7237,7 +7237,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Settings → Site, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user. */
+        /** @description Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user. */
         get: operations["site_languages_list"];
         put?: never;
         post?: never;
@@ -7293,6 +7293,23 @@ export interface paths {
         put?: never;
         /** @description Creates a link that, in the browser that opens it and for 30 minutes, shows the site without changing it for visitors: with another theme (`theme`, null for the built-in one; requires `settings.manage`) or with one record as it would look before publication (`record`: its pages show it even when it fails the public conditions, with each public field named in `fields` replaced by the value of another field of the record, such as `{"blocks": "draft_blocks"}`, and its images are served; requires permission to update that record or `settings.manage`). `path` is the site path the link opens (default `/`); `page_url` is its public address. Preview pages are not cached and carry a banner with a link that ends the preview. */
         post: operations["site_preview_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/preview/render": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity, or `<translated field>_<language suffix>` for an extra site language; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user. */
+        post: operations["site_preview_render"];
         delete?: never;
         options?: never;
         head?: never;
@@ -14158,6 +14175,11 @@ export interface components {
                 source_path: string;
                 /** @example /blog */
                 target: string;
+            };
+        };
+        Data_SitePreviewRenderResponse: {
+            data: {
+                html: string;
             };
         };
         Data_SitePreviewResponse: {
@@ -21474,6 +21496,26 @@ export interface components {
         RemovePushSubscriptionRequest: {
             endpoint: string;
         };
+        RenderSitePreview: {
+            /** @example /about-us */
+            path: string;
+            record: components["schemas"]["RenderSitePreviewRecord"];
+        };
+        RenderSitePreviewRecord: {
+            /** @example 01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a */
+            record_id: string;
+            /** @example pages.page */
+            record_type: string;
+            /**
+             * @example {
+             *       "blocks": "[]",
+             *       "title": "About us"
+             *     }
+             */
+            values?: {
+                [key: string]: unknown;
+            };
+        };
         /** @enum {string} */
         RenewalOwnerMode: "original" | "none";
         RenewalSettingsRequest: {
@@ -22262,6 +22304,9 @@ export interface components {
             source_path: string;
             /** @example /blog */
             target: string;
+        };
+        SitePreviewRenderResponse: {
+            html: string;
         };
         SitePreviewResponse: {
             /** Format: int64 */
@@ -61820,6 +61865,87 @@ export interface operations {
                 };
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_preview_render: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenderSitePreview"];
+            };
+        };
+        responses: {
+            /** @description Rendered page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SitePreviewRenderResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description No permission to update the record */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The record or the page does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid record, path or values. `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Too many renders (`rate_limited`) */
             429: {
                 headers: {
                     [name: string]: unknown;

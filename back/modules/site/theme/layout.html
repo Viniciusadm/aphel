@@ -1,4 +1,4 @@
-<!doctype html>
+{% from "aphel/icons.html" import social_icon %}<!doctype html>
 <html lang="{{ site.locale }}">
 <head>
 <meta charset="utf-8">
@@ -22,6 +22,22 @@ nav.menu a:hover,nav.menu a[aria-current=page]{color:var(--fg)}
 nav.menu a[aria-current=page]{box-shadow:inset 0 -2px 0 var(--link)}
 main{padding:2rem 0 3rem}
 footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.875rem;padding:1.5rem 0}
+header.site[data-align=center] .wrap{flex-direction:column;justify-content:center;text-align:center}
+header.site[data-align=center] a.brand{flex-direction:column;gap:.35rem}
+header.site[data-align=center] .header-end{justify-content:center}
+a.cta{display:inline-flex;align-items:center;min-height:2.5rem;padding:.4rem 1rem;border-radius:.5rem;background:var(--accent);color:#fff;font-size:.9375rem;font-weight:600;text-decoration:none}
+a.cta:hover{filter:brightness(1.08)}
+footer.site .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1.5rem 2rem;margin-bottom:1.25rem}
+footer.site p{margin:0}
+footer.site .footer-grid+p{padding-top:1rem;border-top:1px solid var(--line)}
+footer.site ul{list-style:none;margin:0;padding:0}
+footer.site .footer-about{display:grid;gap:.75rem}
+footer.site .footer-contact,footer.site .footer-links{display:grid;gap:.4rem;align-content:start}
+footer.site a{color:var(--muted);text-decoration:none;overflow-wrap:anywhere}
+footer.site a:hover,footer.site a[aria-current=page]{color:var(--fg);text-decoration:underline}
+footer.site .footer-social{display:flex;flex-wrap:wrap;gap:.5rem;align-content:start}
+footer.site .footer-social a{display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border:1px solid var(--line);border-radius:999px}
+footer.site .footer-social a:hover{color:var(--fg);border-color:var(--muted)}
 h1,h2,h3{line-height:1.25}
 img{max-width:100%;height:auto}
 .muted{color:var(--muted)}
@@ -49,15 +65,31 @@ details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem
 {% block head %}{% endblock %}
 </head>
 <body>
-<header class="site"><div class="wrap">
+<header class="site" data-align="{{ site.header.align or 'left' }}"><div class="wrap">
 <a class="brand" href="{{ site.home }}">{% if site.logo_url %}<img src="{{ site.logo_url }}" alt="">{% endif %}<span>{{ site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
 <div class="header-end">
 {% if site.menu %}<nav class="menu" aria-label="{{ site.texts.menu }}">{% for item in site.menu %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>{% endif %}
 {% if site.alternates %}<nav class="languages" aria-label="{{ site.texts.languages }}">{% for alternate in site.alternates %}<a href="{{ alternate.path }}" hreflang="{{ alternate.code }}" lang="{{ alternate.code }}"{% if alternate.current %} aria-current="true"{% endif %}>{{ alternate.code | upper }}</a>{% endfor %}</nav>{% endif %}
+{% if site.header.cta %}<a class="cta" href="{{ site.header.cta.url }}">{{ site.header.cta.label }}</a>{% endif %}
 {% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}
 </div>
 </div></header>
 <main><div class="wrap">{% block content %}{% endblock %}</div></main>
-<footer class="site"><div class="wrap">© {{ site.year }} {{ site.name }}</div></footer>
+{% set footer = site.footer %}{% if not footer.empty or footer.credit %}<footer class="site"><div class="wrap">
+{% if not footer.empty %}<div class="footer-grid">
+{% if footer.text or footer.contact %}<div class="footer-about">
+{% if footer.text %}<p>{% for line in footer.text %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>{% endif %}
+{% if footer.contact %}{% set contact = footer.contact %}<ul class="footer-contact" aria-label="{{ site.texts.contact }}">
+{% if contact.phone %}<li><a href="{{ contact.phone.url }}">{{ contact.phone.label }}</a></li>{% endif %}
+{% if contact.whatsapp %}<li><a href="{{ contact.whatsapp.url }}" target="_blank" rel="noopener">WhatsApp {{ contact.whatsapp.label }}</a></li>{% endif %}
+{% if contact.email %}<li><a href="{{ contact.email.url }}">{{ contact.email.label }}</a></li>{% endif %}
+{% if contact.address %}<li><a href="{{ contact.address.url }}" target="_blank" rel="noopener">{% for line in contact.address.lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</a></li>{% endif %}
+</ul>{% endif %}
+</div>{% endif %}
+{% if footer.links %}<nav aria-label="{{ site.texts.footer_links }}"><ul class="footer-links">{% for link in footer.links %}<li><a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.label }}</a></li>{% endfor %}</ul></nav>{% endif %}
+{% if footer.social %}<ul class="footer-social" aria-label="{{ site.texts.social }}">{% for link in footer.social %}<li><a href="{{ link.url }}" target="_blank" rel="noopener" aria-label="{{ link.label }}" title="{{ link.label }}">{{ social_icon(link.network) }}</a></li>{% endfor %}</ul>{% endif %}
+</div>{% endif %}
+{% if footer.credit %}<p>© {{ site.year }} {{ site.name }}</p>{% endif %}
+</div></footer>{% endif %}
 </body>
 </html>

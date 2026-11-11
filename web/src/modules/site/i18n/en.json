@@ -1,8 +1,4 @@
 {
-  "settings": {
-    "label": "Site",
-    "description": "Address, appearance, menu and redirects of the public site."
-  },
   "page": {
     "title": "Site",
     "description": "The public site shows the pages that plugins publish (blog, shop, catalog).",
@@ -13,7 +9,7 @@
   },
   "address": {
     "title": "Address",
-    "description": "Where the site answers. The app stays at the path set in General.",
+    "description": "Where the site answers. The app stays at the path set in Settings → General.",
     "host": "Site domain (optional)",
     "hostHint": "Use it when the site has its own domain, such as www.yourcompany.com, pointed at this server. Empty, the site uses the same address as the app.",
     "hostPlaceholder": "www.yourcompany.com",
@@ -82,7 +78,14 @@
     "tagline": "Use up to 160 characters.",
     "redirectSource": "Start with / and do not use spaces, ? or #.",
     "redirectTarget": "Use a site path (/blog) or an address starting with https://.",
-    "linkLabel": "Enter a text of up to 60 characters."
+    "linkLabel": "Enter a text of up to 60 characters.",
+    "ctaLabel": "Enter a text of up to 40 characters.",
+    "phone": "Check the number: include the area code.",
+    "email": "Enter a valid e-mail, such as hello@yourcompany.com.",
+    "address": "Use up to {{max}} characters.",
+    "social": "Paste the link to the {{network}} profile, starting with https://.",
+    "footerText": "Use up to {{max}} characters.",
+    "footerServer": "Check this field."
   },
   "saved": "Site settings saved",
   "customers": {
@@ -126,5 +129,92 @@
     "empty": "No redirects yet.",
     "listLabel": "Redirects",
     "temporary": "temporary"
+  },
+  "frame": {
+    "language": "Text language",
+    "languageHint": "Pick another language to translate the texts of this section.",
+    "translatingHint": "Only texts show here. Leave a field empty to use the default language text; everything else applies to all languages.",
+    "defaultLanguage": "{{language}} (default)"
+  },
+  "header": {
+    "title": "Site header",
+    "description": "What shows at the top of every page. Name, logo and color come from Settings → Organization; links are in the Menu section just below.",
+    "align": "Menu position",
+    "alignHint": "Next to the name or centered below it.",
+    "alignLeft": "Name on the left, menu on the right",
+    "alignCenter": "Everything centered",
+    "cta": "Highlighted button",
+    "ctaHint": "A button in the site color at the end of the menu, for example to order or book.",
+    "ctaLabel": "Button text",
+    "ctaLabelPlaceholder": "E.g. Order now",
+    "menuLinks": "Menu links",
+    "save": "Save header",
+    "saved": "Site header saved"
+  },
+  "footer": {
+    "title": "Footer",
+    "description": "What shows at the bottom of every page.",
+    "text": "Text",
+    "textHint": "{{count}} of {{max}} characters. Line breaks are kept.",
+    "textPlaceholder": "E.g. Handmade sweets baked every day.",
+    "contact": "Contact",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail",
+    "emailPlaceholder": "hello@yourcompany.com",
+    "address": "Address",
+    "addressHint": "Becomes a link to the map.",
+    "addressPlaceholder": "Street, number, district, city",
+    "social": "Social networks",
+    "socialEmpty": "No social networks.",
+    "network": "Network",
+    "profileUrl": "Profile link",
+    "addSocial": "Add social network",
+    "removeSocial": "Remove {{network}}",
+    "links": "Footer links",
+    "linksEmpty": "No links. Use them for pages such as Privacy policy or Careers.",
+    "linkLabelPlaceholder": "E.g. Privacy policy",
+    "untitledLink": "link without text",
+    "addLink": "Add link",
+    "credit": "Show \"© year and company name\"",
+    "creditHint": "Last line of the footer.",
+    "viewSite": "View site",
+    "save": "Save footer",
+    "saved": "Footer saved"
+  },
+  "nav": {
+    "site": "Site",
+    "frame": "Header and footer",
+    "appearance": "Appearance",
+    "languages": "Languages",
+    "customers": "Customers",
+    "redirects": "Redirects",
+    "general": "Address and cache"
+  },
+  "screens": {
+    "frame": {
+      "title": "Header and footer",
+      "description": "What shows at the top and bottom of every page of the site, including the menu."
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Theme, home page and scrollbar of the site."
+    },
+    "languages": {
+      "title": "Languages",
+      "description": "Which languages the site answers in."
+    },
+    "customers": {
+      "title": "Site customers",
+      "description": "Accounts visitors create on the site itself."
+    },
+    "redirects": {
+      "title": "Redirects",
+      "description": "Send visitors from old addresses to the right pages."
+    },
+    "general": {
+      "title": "Address and cache",
+      "description": "Where the site lives, whether search engines see it and cache clearing."
+    }
   }
 }

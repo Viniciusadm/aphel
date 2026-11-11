@@ -1,8 +1,4 @@
 {
-  "settings": {
-    "label": "Site",
-    "description": "Endereço, aparência, menu e redirecionamentos do site público."
-  },
   "page": {
     "title": "Site",
     "description": "O site público mostra as páginas que os plugins publicam (blog, loja, catálogo).",
@@ -13,7 +9,7 @@
   },
   "address": {
     "title": "Endereço",
-    "description": "Onde o site responde. O sistema continua no caminho definido em Geral.",
+    "description": "Onde o site responde. O sistema continua no caminho definido em Configurações → Geral.",
     "host": "Domínio do site (opcional)",
     "hostHint": "Use quando o site tiver um domínio próprio, como www.suaempresa.com.br, apontado para este servidor. Vazio, o site usa o mesmo endereço do sistema.",
     "hostPlaceholder": "www.suaempresa.com.br",
@@ -82,7 +78,14 @@
     "tagline": "Use até 160 caracteres.",
     "redirectSource": "Comece com / e não use espaços, ? ou #.",
     "redirectTarget": "Use um caminho do site (/blog) ou um endereço com https://.",
-    "linkLabel": "Informe um texto de até 60 caracteres."
+    "linkLabel": "Informe um texto de até 60 caracteres.",
+    "ctaLabel": "Informe um texto de até 40 caracteres.",
+    "phone": "Confira o número: informe DDD e telefone.",
+    "email": "Informe um e-mail válido, como contato@suaempresa.com.br.",
+    "address": "Use até {{max}} caracteres.",
+    "social": "Cole o link do perfil no {{network}}, começando com https://.",
+    "footerText": "Use até {{max}} caracteres.",
+    "footerServer": "Confira este campo."
   },
   "saved": "Configurações do site salvas",
   "customers": {
@@ -126,5 +129,92 @@
     "empty": "Nenhum redirecionamento criado.",
     "listLabel": "Redirecionamentos criados",
     "temporary": "temporário"
+  },
+  "frame": {
+    "language": "Idioma dos textos",
+    "languageHint": "Escolha outro idioma para traduzir os textos deste bloco.",
+    "translatingHint": "Só os textos aparecem aqui. Deixe em branco para usar o texto do idioma padrão; o resto vale para todos os idiomas.",
+    "defaultLanguage": "{{language}} (padrão)"
+  },
+  "header": {
+    "title": "Topo do site",
+    "description": "O que aparece no topo de todas as páginas. O nome, o logo e a cor vêm de Configurações → Organização; os links ficam no bloco Menu, logo abaixo.",
+    "align": "Posição do menu",
+    "alignHint": "Ao lado do nome ou centralizado abaixo dele.",
+    "alignLeft": "Nome à esquerda, menu à direita",
+    "alignCenter": "Tudo centralizado",
+    "cta": "Botão em destaque",
+    "ctaHint": "Um botão na cor do site no fim do menu, por exemplo para encomendar ou agendar.",
+    "ctaLabel": "Texto do botão",
+    "ctaLabelPlaceholder": "Ex.: Encomendar",
+    "menuLinks": "Links do menu",
+    "save": "Salvar topo",
+    "saved": "Topo do site salvo"
+  },
+  "footer": {
+    "title": "Rodapé",
+    "description": "O que aparece no fim de todas as páginas.",
+    "text": "Texto",
+    "textHint": "{{count}} de {{max}} caracteres. Quebras de linha são mantidas.",
+    "textPlaceholder": "Ex.: Doces artesanais feitos todos os dias.",
+    "contact": "Contato",
+    "phone": "Telefone",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail",
+    "emailPlaceholder": "contato@suaempresa.com.br",
+    "address": "Endereço",
+    "addressHint": "Vira um link para o mapa.",
+    "addressPlaceholder": "Rua, número, bairro, cidade",
+    "social": "Redes sociais",
+    "socialEmpty": "Nenhuma rede social.",
+    "network": "Rede",
+    "profileUrl": "Link do perfil",
+    "addSocial": "Adicionar rede social",
+    "removeSocial": "Remover {{network}}",
+    "links": "Links do rodapé",
+    "linksEmpty": "Nenhum link. Use para páginas como Política de privacidade ou Trabalhe conosco.",
+    "linkLabelPlaceholder": "Ex.: Política de privacidade",
+    "untitledLink": "link sem texto",
+    "addLink": "Adicionar link",
+    "credit": "Mostrar \"© ano e nome da empresa\"",
+    "creditHint": "Linha final do rodapé.",
+    "viewSite": "Ver no site",
+    "save": "Salvar rodapé",
+    "saved": "Rodapé salvo"
+  },
+  "nav": {
+    "site": "Site",
+    "frame": "Topo e rodapé",
+    "appearance": "Aparência",
+    "languages": "Idiomas",
+    "customers": "Clientes",
+    "redirects": "Redirecionamentos",
+    "general": "Endereço e cache"
+  },
+  "screens": {
+    "frame": {
+      "title": "Topo e rodapé",
+      "description": "O que aparece no topo e no fim de todas as páginas do site, incluindo o menu."
+    },
+    "appearance": {
+      "title": "Aparência",
+      "description": "Tema, página inicial e barra de rolagem do site."
+    },
+    "languages": {
+      "title": "Idiomas",
+      "description": "Em quais idiomas o site responde."
+    },
+    "customers": {
+      "title": "Clientes do site",
+      "description": "Contas que visitantes criam no próprio site."
+    },
+    "redirects": {
+      "title": "Redirecionamentos",
+      "description": "Leve visitantes de endereços antigos para as páginas certas."
+    },
+    "general": {
+      "title": "Endereço e cache",
+      "description": "Onde o site fica, se aparece em buscadores e a limpeza do cache."
+    }
   }
 }

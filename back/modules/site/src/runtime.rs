@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, LazyLock, RwLock};
 
 use aphel_contract_site::{
-    HEAD_PARTIAL, HOME_PATH, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle,
+    HEAD_PARTIAL, HOME_PATH, ICONS_PARTIAL, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle,
     SiteContentSource, SiteCsp, SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND,
     check_bundle, join_template_path, menu_item_id, template_name,
 };
@@ -380,6 +380,7 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
         (HEAD_PARTIAL, include_str!("../theme/head.html")),
+        (ICONS_PARTIAL, include_str!("../theme/icons.html")),
         (
             crate::account::ACCOUNT_TEMPLATE,
             include_str!("../theme/account.html"),

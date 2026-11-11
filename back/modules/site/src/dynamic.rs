@@ -11,11 +11,13 @@ use serde_json::Value;
 
 pub(crate) const API_SEGMENT: &str = "api";
 pub(crate) const ISLANDS_LOADER_PATH: &str = "/islands.js";
+pub(crate) const PREVIEW_SCRIPT_PATH: &str = "/preview.js";
 const ISLAND_EXTENSION: &str = ".js";
 const MAX_BODY_BYTES: usize = 1024 * 1024;
 const MAX_DATA_BYTES: usize = 2 * 1024 * 1024;
 const LOADER_CACHE_CONTROL: &str = "public, max-age=3600";
 const ISLAND_CACHE_CONTROL: &str = "public, max-age=300";
+const PREVIEW_CACHE_CONTROL: &str = "no-cache";
 const JAVASCRIPT: &str = "text/javascript; charset=utf-8";
 const SITE_HEADER_VALUE: &str = "1";
 
@@ -38,6 +40,13 @@ pub(crate) fn islands_loader() -> Response {
     javascript(
         include_str!("../theme/islands.js").as_bytes().to_vec(),
         LOADER_CACHE_CONTROL,
+    )
+}
+
+pub(crate) fn preview_script() -> Response {
+    javascript(
+        include_str!("../theme/preview.js").as_bytes().to_vec(),
+        PREVIEW_CACHE_CONTROL,
     )
 }
 

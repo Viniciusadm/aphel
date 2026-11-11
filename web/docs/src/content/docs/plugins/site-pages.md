@@ -9,7 +9,7 @@ Site pages are public HTML pages rendered on the server by the `site` module. A 
 
 Use site pages for content that visitors read: posts, products, categories, portfolios. Use a [public web app](/_aphel/docs/plugins/public-web-apps/) for an interactive single-page tool.
 
-The `site` module must be enabled. An administrator chooses where the site answers under Settings → Site: its path (`/s` by default, or `/` when the app moves to a path such as `/app`) and, optionally, its own domain. Page paths in this guide are relative to that address.
+The `site` module must be enabled. An administrator chooses where the site answers under Site → *Address and cache*: its path (`/s` by default, or `/` when the app moves to a path such as `/app`) and, optionally, its own domain. Page paths in this guide are relative to that address.
 
 ## Declare what is public
 
@@ -67,7 +67,7 @@ title = "{{ record.title }}"
 
 A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs exactly one of `match`, `where` or `list`.
 
-Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. The home page `/` is the exception: several plugins may declare it, and the organization picks the one that answers in Settings → Site (the `home` key of the `site` setting, listed as `home_candidates` by `GET /api/v1/site`); without a choice the first plugin in alphabetical order answers. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
+Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. The home page `/` is the exception: several plugins may declare it, and the organization picks the one that answers in Site → *Appearance* (the `home` key of the `site` setting, listed as `home_candidates` by `GET /api/v1/site`); without a choice the first plugin in alphabetical order answers. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
 
 ## Write the templates
 
@@ -194,7 +194,7 @@ frame = ["https://js.stripe.com"]
 
 ## Customer accounts
 
-Visitors can have an account on the site, separate from the people who use Aphel. Accounts turn on by themselves when an installed plugin has customer pages, and an administrator can also turn them on in Settings → Site.
+Visitors can have an account on the site, separate from the people who use Aphel. Accounts turn on by themselves when an installed plugin has customer pages, and an administrator can also turn them on in Site → *Customers*.
 
 The site then serves, under `/conta` (`/account` when the organization language is not Portuguese): sign in with password or with a one-time link by email, sign up, password reset, email confirmation, and *My account* (name, sign out, close account). Pages are rendered by the site theme; emails go through the organization's outgoing email. The session is an `HttpOnly`, `SameSite=Lax` cookie valid for 30 days of use; form posts must come from the site itself, and sign-in attempts are rate limited.
 
@@ -223,9 +223,9 @@ Templates receive `customer` (`{ id, email, name, email_verified }` or nothing) 
 
 Site routes receive the customer in `request.customer` (see [Routes](/_aphel/docs/plugins/routes/#the-request)), so a route can create an order for whoever is signed in. Store the customer id in a field of your entity (for example `customer`), or point a `record` field at the entity `site.customer`.
 
-Customers are the record type `site.customer` (name, email, linked person, confirmation and last sign-in dates), readable with the permission `site.customers.read` and listed in Settings → Site. Account creation, changes and closing publish `site.customer.created|updated|deleted` with an audit entry. Closing an account, or a privacy request for it, erases the name, email and password and signs the customer out everywhere.
+Customers are the record type `site.customer` (name, email, linked person, confirmation and last sign-in dates), readable with the permission `site.customers.read` and listed in Site → *Customers*. Account creation, changes and closing publish `site.customer.created|updated|deleted` with an audit entry. Closing an account, or a privacy request for it, erases the name, email and password and signs the customer out everywhere.
 
-When the `people` module is enabled, Settings → Site can link customers to people: once a customer confirms the email (or signs in with a confirmed one), the account points (`person_id`) to the person with the same email, or to a new contact owned by the user the organization chose. Without an owner, only existing people are linked. Merging people moves the link to the person that stays; purging the person from the trash clears it.
+When the `people` module is enabled, Site → *Customers* can link customers to people: once a customer confirms the email (or signs in with a confirmed one), the account points (`person_id`) to the person with the same email, or to a new contact owned by the user the organization chose. Without an owner, only existing people are linked. Merging people moves the link to the person that stays; purging the person from the trash clears it.
 
 ## Menu
 
@@ -238,7 +238,7 @@ page = "index"
 
 Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin.
 
-An item can also list records: point it at a `match` page and add `label_field` (the public field shown as the label), optionally `where` (equality conditions on public fields) and `sort`. Every published record that meets the conditions becomes its own menu item, up to 20, with the id `<plugin>.<key>.<record id>`; the organization orders and hides them in Settings → Site like any other item, and hiding the parent id `<plugin>.<key>` hides them all. Pages that show the menu are refreshed when a record of that entity changes.
+An item can also list records: point it at a `match` page and add `label_field` (the public field shown as the label), optionally `where` (equality conditions on public fields) and `sort`. Every published record that meets the conditions becomes its own menu item, up to 20, with the id `<plugin>.<key>.<record id>`; the organization orders and hides them in Site → *Header and footer* → *Menu* like any other item, and hiding the parent id `<plugin>.<key>` hides them all. Pages that show the menu are refreshed when a record of that entity changes.
 
 ```toml
 [[site.menu]]
@@ -248,9 +248,25 @@ page = "page"
 where = { show_in_menu = true }
 label_field = "title"
 sort = "created_at"
-``` `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Settings → Site the organization reorders the items of every plugin, hides the ones it does not want and adds its own links (a site path or an `https://` address, such as the booking page or a social profile); new items appear at the end. Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
+``` `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Site → *Header and footer* → *Menu* the organization reorders the items of every plugin, hides the ones it does not want and adds its own links (a site path or an `https://` address, such as the booking page or a social profile); new items appear at the end. Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
 
 The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).
+
+### Header and footer
+
+The *Site → Header and footer* screen fills two more objects, so every theme can draw them its own way:
+
+| Variable | Contents |
+| --- | --- |
+| `site.header` | `{ align, cta }`: `align` is `left` or `center`; `cta` is `{ label, url }` for a highlighted button, or nothing. |
+| `site.footer.text` | List of lines of the footer text (plain text; join them with `<br>`). |
+| `site.footer.contact` | `{ phone, whatsapp, email, address }` or nothing. `phone`, `whatsapp` and `email` are `{ label, url }` (`tel:`, `https://wa.me/…`, `mailto:`); `address` is `{ lines, url }` with a map link. |
+| `site.footer.social` | List of `{ network, label, url }`; `network` is `instagram`, `facebook`, `whatsapp`, `youtube`, `tiktok`, `linkedin` or `x`. |
+| `site.footer.links` | List of `{ label, url, active }`, like `site.menu`. |
+| `site.footer.credit` | `true` when the organization wants the “© year name” line. |
+| `site.footer.empty` | `true` when there is no text, contact, network or link. |
+
+`{% from "aphel/icons.html" import social_icon %}` gives `social_icon(network)`, an inline SVG icon in `currentColor` for each network. In an extra language, the tagline, the footer text, the button text and the labels of the organization's menu and footer links come from the translations saved on that screen; an empty translation falls back to the default text.
 
 ## Themes
 
@@ -268,9 +284,9 @@ description = "Serif type and a centered menu."
 | `site/theme/not_found.html`, `site/theme/error.html` | Optional. Replace the 404 and error pages. They receive `site` and an empty `page`. |
 | `site/theme/assets/*` | CSS, images and fonts, served at `/_aphel/site/themes/<plugin key>/<file>`. Link them with `{{ theme_asset('style.css') }}`. |
 
-Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader, and, when the organization chooses a thin scrollbar in the site color (Settings → Site → Appearance, `site.scrollbar = "themed"`), the scrollbar styles. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Settings → Site; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
+Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader, and, when the organization chooses a thin scrollbar in the site color (Site → *Appearance*, `site.scrollbar = "themed"`), the scrollbar styles. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Site → *Appearance*; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
 
-Settings → Site → *Preview* opens the site with another theme only in that browser, for 30 minutes, without changing it for visitors. Preview pages are never cached and show a banner with a link that ends the preview.
+Site → *Appearance* → *Preview* opens the site with another theme only in that browser, for 30 minutes, without changing it for visitors. Preview pages are never cached and show a banner with a link that ends the preview.
 
 ## Drafts
 
@@ -285,9 +301,24 @@ A plugin that keeps a draft next to the published content (for example `draft_bl
 
 In that browser, for 30 minutes, the pages of that record show it even when it fails the `where` conditions of `site.public`, with each public field named in `fields` replaced by the value of the other field (and `<field>_<code>` by `<source>_<code>` in other languages); its images are served too. Only that record changes: lists and other records stay as published. The caller needs permission to update the record (or `settings.manage`), the targets must be public fields and the sources fields the caller can read. The answer also carries `page_url`, the public address of `path`.
 
+### Live preview
+
+An editor can show unsaved changes without reloading the preview. `POST /api/v1/site/preview/render` renders `path` with literal values for the record and answers `{ "html": "<!doctype html>…" }`, writing nothing:
+
+```json
+{
+  "record": { "record_type": "blog.post", "record_id": "0192…", "values": { "body": "<p>Unsaved text</p>", "title_en": "Hello" } },
+  "path": "/en/blog/my-post"
+}
+```
+
+The keys of `values` are public fields or `<translated field>_<code>` of an active language; at most 10 values, each a string or `null` up to 64 KB. Permissions match `POST /site/preview`, and each user may render 300 times per minute.
+
+Draft previews load `/_aphel/site/preview.js`. Once loaded it posts `{ "type": "aphel:preview-ready" }` to the parent window. The parent (same origin only) answers with `{ "type": "aphel:preview-html", "html", "anchor" }`. The script swaps the body and the head styles in place, keeps the scroll position (or scrolls to `#anchor`), runs the new scripts again and mounts new islands. When the ready message does not arrive, for example because the site has its own host, the editor should fall back to reloading the frame after saving.
+
 ## Languages
 
-The site speaks the organization language. In Settings → Site an administrator adds up to five more (Portuguese, English, Spanish, French, German, Italian). Each extra language answers under its code after the site address: `/s/en/blog`, `/s/es/blog`. The default language keeps the addresses without a code.
+The site speaks the organization language. In Site → *Languages* an administrator adds up to five more (Portuguese, English, Spanish, French, German, Italian). Each extra language answers under its code after the site address: `/s/en/blog`, `/s/es/blog`. The default language keeps the addresses without a code.
 
 For each request in an extra language:
 
@@ -326,9 +357,9 @@ seo = { schema = "BlogPosting", structured_data = '{"datePublished": {{ record.p
 
 - **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. It is cached and refreshed with the pages it lists.
 - **robots.txt.** When the site is at the root of a host, `/robots.txt` allows everything except `/api/`, `/_aphel/app/` and the app path, and points to the sitemap.
-- **Indexing switch.** Settings → Site → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
+- **Indexing switch.** Site → *Address and cache* → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
 - **Moved records.** When the field used by a `match` page changes (a new slug), the old address answers `301` to the new one. Chains collapse (`a → b → c` becomes `a → c`, `b → c`), and a record that takes an address back stops its redirect. Redirects only apply when no public record has the old value.
-- **Redirects by hand.** Settings → Site → *Redirects* sends an old address (a path relative to the site address, such as `/old-page`) to a site path or to another website, with `301` or, for temporary moves, `302`. They apply only when no page answers the address, also under the language prefixes (`/en/old-page` goes to `/en/<target>`).
+- **Redirects by hand.** Site → *Redirects* sends an old address (a path relative to the site address, such as `/old-page`) to a site path or to another website, with `301` or, for temporary moves, `302`. They apply only when no page answers the address, also under the language prefixes (`/en/old-page` goes to `/en/<target>`).
 
 ## Images
 

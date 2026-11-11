@@ -173,6 +173,9 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if request.uri().path() == ISLANDS_LOADER_PATH {
         return dynamic::islands_loader();
     }
+    if request.uri().path() == dynamic::PREVIEW_SCRIPT_PATH {
+        return dynamic::preview_script();
+    }
     if let Some(rest) = request
         .uri()
         .path()
@@ -467,6 +470,40 @@ async fn serve(state: &AppState, request: Request) -> Response {
     }
 }
 
+pub(crate) async fn render_draft(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    previewing: &preview::Preview,
+    full_path: &str,
+) -> Result<Option<String>, AppError> {
+    let config = state.organization_config.snapshot();
+    let settings = site_settings(&config);
+    let mount = config.mounts.site.prefix().to_owned();
+    let (language, path) = Language::resolve(&mount, full_path, &settings.languages);
+    let accounts = settings.accounts || runtime.uses_customers;
+    let context = site_context(state, &language, runtime, &path, None, accounts).await?;
+    let Some((route, params)) = runtime.find(&path, settings.home.as_deref()) else {
+        return Ok(None);
+    };
+    let outcome = render_route(
+        state,
+        runtime,
+        &context,
+        RouteRequest {
+            route,
+            params,
+            path: &path,
+            query: "",
+            preview: Some(previewing),
+        },
+    )
+    .await?;
+    Ok(match outcome {
+        Outcome::Page { html, .. } => Some(html),
+        Outcome::Redirect(_) | Outcome::NotFound => None,
+    })
+}
+
 fn theme_name(runtime: &SiteRuntime) -> String {
     runtime
         .theme
@@ -548,6 +585,9 @@ fn texts(locale: &str) -> serde_json::Value {
             "menu": "Menu principal",
             "sign_in": "Entrar",
             "languages": "Idiomas",
+            "footer_links": "Links do rodapé",
+            "social": "Redes sociais",
+            "contact": "Contato",
             "my_account": "Minha conta",
         })
     } else {
@@ -562,6 +602,9 @@ fn texts(locale: &str) -> serde_json::Value {
             "menu": "Main menu",
             "sign_in": "Sign in",
             "languages": "Languages",
+            "footer_links": "Footer links",
+            "social": "Social networks",
+            "contact": "Contact",
             "my_account": "My account",
         })
     }
@@ -639,33 +682,14 @@ struct MenuLine<'a> {
     path: Option<&'a str>,
 }
 
-struct MenuPrefixes<'a> {
-    language: &'a str,
-    mount: &'a str,
-    tools: &'a [&'static str],
-}
-
-impl MenuPrefixes<'_> {
-    fn for_path(&self, path: &str) -> &str {
-        let first = path
-            .trim_start_matches('/')
-            .split('/')
-            .next()
-            .unwrap_or_default();
-        match self.tools.contains(&first) {
-            true => self.mount,
-            false => self.language,
-        }
-    }
-}
-
 fn menu_of(
     runtime: &SiteRuntime,
     records: &[RecordMenuLine],
     settings: &crate::settings::SiteSettings,
-    prefixes: &MenuPrefixes<'_>,
+    prefixes: &crate::frame::SitePrefixes<'_>,
     current: &str,
     locale: &str,
+    texts: Option<&crate::settings::SiteTexts>,
 ) -> Vec<serde_json::Value> {
     let prefix = prefixes.language;
     let position = |id: &str| {
@@ -704,11 +728,8 @@ fn menu_of(
         MenuLine {
             id: format!("{}{}", crate::settings::LINK_PREFIX, link.id),
             parent: None,
-            label: link.label.trim(),
-            url: match url.starts_with('/') {
-                true => format!("{}{url}", prefixes.for_path(url)),
-                false => url.to_owned(),
-            },
+            label: crate::frame::link_label(texts, &link.id, &link.label),
+            url: prefixes.link(url),
             path: url.starts_with('/').then_some(url),
         }
     });
@@ -722,9 +743,9 @@ fn menu_of(
     items
         .into_iter()
         .map(|(_, line)| {
-            let active = line.path.is_some_and(|path| {
-                current == path || (path != "/" && current.starts_with(&format!("{path}/")))
-            });
+            let active = line
+                .path
+                .is_some_and(|path| crate::frame::is_active(path, current));
             json!({
                 "label": line.label,
                 "url": line.url,
@@ -788,6 +809,16 @@ async fn site_context(
             })
             .collect()
     };
+    let tools = aphel_sdk::module::public_app_paths(state);
+    let prefixes = crate::frame::SitePrefixes {
+        language: prefix,
+        mount: &language.mount,
+        tools: &tools,
+    };
+    let site_texts = language
+        .code
+        .as_ref()
+        .and_then(|code| settings.translations.get(code));
     Ok(SiteContext {
         suffix: language.suffix(),
         site: json!({
@@ -798,25 +829,24 @@ async fn site_context(
             "color": safe_color(organization.primary_color.as_deref()),
             "prefix": prefix,
             "mount": language.mount,
-            "tools": aphel_sdk::module::public_app_paths(state),
+            "tools": tools,
             "home": format!("{prefix}/"),
             "year": chrono::Utc::now().format("%Y").to_string(),
             "texts": texts(&locale),
             "base_url": base_url,
             "indexing": settings.indexing,
             "scrollbar": settings.scrollbar,
-            "tagline": settings.tagline.as_deref().map(str::trim).filter(|tagline| !tagline.is_empty()),
+            "tagline": crate::frame::tagline(&settings, site_texts),
+            "header": crate::frame::header(&settings, site_texts, &prefixes),
+            "footer": crate::frame::footer(&settings, site_texts, &prefixes, current),
             "menu": menu_of(
                 runtime,
                 &record_lines,
                 &settings,
-                &MenuPrefixes {
-                    language: prefix,
-                    mount: &language.mount,
-                    tools: &aphel_sdk::module::public_app_paths(state),
-                },
+                &prefixes,
                 current,
                 &locale,
+                site_texts,
             ),
             "logo_url": organization
                 .logo_file_id
