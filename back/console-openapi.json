@@ -1,0 +1,2141 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Aphel console API",
+    "description": "Operator console of a multi-tenant Aphel installation, served only on CONSOLE_HOST. Sessions use the `aphel_console_session` cookie; requests that change data send `X-Requested-With: aphel`.",
+    "license": {
+      "name": "AGPL-3.0-only",
+      "identifier": "AGPL-3.0-only"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/console/v1/audit": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_audit",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operator actions, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AuditEntryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/catalog": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_catalog",
+        "responses": {
+          "200": {
+            "description": "Optional modules and blueprints a new tenant can start with, and whether tenants can be exported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_CatalogResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/invitations/{token}": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_invitation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token from the invitation link",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Who the invitation is for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_InvitationDetailsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid or expired link (`operator_invitation_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_accept_invitation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token from the invitation link",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Password chosen, operator active and signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_OperatorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid or expired link (`operator_invitation_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid password (`operator_password_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/operators": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_list_operators",
+        "responses": {
+          "200": {
+            "description": "Every operator, deactivated ones last",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_OperatorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_invite_operator",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteOperatorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Operator invited; `invite_url` is shown once and valid for 7 days",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_InvitationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already used (`operator_email_taken`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid email (`operator_email_invalid`) or name (`operator_name_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/operators/{id}/deactivate": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_deactivate_operator",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Operator id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operator deactivated and signed out everywhere",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_OperatorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown or already deactivated operator (`operator_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operators cannot deactivate themselves (`operator_self_deactivation`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/operators/{id}/invitation": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_renew_invitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Operator id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A new invitation link; the previous one stops working",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_InvitationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The operator is not invited (`operator_not_invited`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/session": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_session",
+        "responses": {
+          "200": {
+            "description": "The signed-in operator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_OperatorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session (`console_session_required`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_sign_in",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in; sets the `aphel_console_session` cookie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_OperatorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong email or password (`console_invalid_credentials`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many attempts (`rate_limited`) or the account is locked for a few minutes (`console_sign_in_locked`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_sign_out",
+        "responses": {
+          "204": {
+            "description": "Signed out; clears the cookie"
+          }
+        }
+      }
+    },
+    "/api/console/v1/session/password": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed; the operator's other sessions are revoked"
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Wrong current password (`operator_password_wrong`) or invalid new password (`operator_password_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_list_tenants",
+        "responses": {
+          "200": {
+            "description": "Every tenant with its hosts, state, database size and last write",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_create_tenant",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Tenant registered as `provisioning`; the database, migrations and installation run in the background and the tenant turns `active`, or keeps `last_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Slug or host already used (`tenant_slug_taken`, `tenant_host_taken`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid slug, name, host or administrator password (`tenant_slug_invalid`, `tenant_name_invalid`, `tenant_host_invalid`, `operator_password_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_tenant",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tenant (`tenant_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_delete_tenant",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTenantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Tenant marked `deleting`; the export (into TENANT_EXPORT_DIR), file removal and database drop run in the background",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tenant (`tenant_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`confirm` does not repeat the slug (`tenant_deletion_unconfirmed`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Export asked but this build cannot export (`configuration_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/health": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_tenant_health",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jobs, workers, pending migrations, plugin backend errors and recent failures of an active tenant; `available` is false otherwise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantHealthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tenant (`tenant_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/hosts": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_add_tenant_host",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HostRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Host added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Host already used (`tenant_host_taken`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid host (`tenant_host_invalid`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/hosts/{host}": {
+      "delete": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_remove_tenant_host",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "host",
+            "in": "path",
+            "description": "Host to remove",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host removed; the next host becomes primary when the primary is removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown host (`tenant_host_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "It is the only host (`tenant_last_host`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/hosts/{host}/primary": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_set_primary_tenant_host",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "host",
+            "in": "path",
+            "description": "Host to make primary",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Primary host changed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown host (`tenant_host_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/resume": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_resume_tenant",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant served again",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The tenant is not suspended (`tenant_status_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/suspend": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_suspend_tenant",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant suspended: its hosts answer 503 and its jobs stop",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The tenant is not active (`tenant_status_conflict`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AcceptInvitationRequest": {
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8
+          }
+        }
+      },
+      "AuditEntryResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "action",
+          "details",
+          "occurred_at"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "ip": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "operator_email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tenant_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "CatalogModuleResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "description",
+          "dependencies"
+        ],
+        "properties": {
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CatalogResponse": {
+        "type": "object",
+        "required": [
+          "modules",
+          "blueprints",
+          "export_available"
+        ],
+        "properties": {
+          "blueprints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstallerProfile"
+            }
+          },
+          "export_available": {
+            "type": "boolean"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogModuleResponse"
+            }
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "properties": {
+          "current_password": {
+            "type": "string"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8
+          }
+        }
+      },
+      "CreateTenantRequest": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "host",
+          "admin_name",
+          "admin_email",
+          "admin_password",
+          "timezone",
+          "currency",
+          "locale"
+        ],
+        "properties": {
+          "admin_email": {
+            "type": "string"
+          },
+          "admin_name": {
+            "type": "string"
+          },
+          "admin_password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8
+          },
+          "blueprint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "example": "BRL"
+          },
+          "host": {
+            "type": "string",
+            "example": "acme.example.com"
+          },
+          "locale": {
+            "type": "string",
+            "example": "pt-BR"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "example": "acme"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Sao_Paulo"
+          }
+        }
+      },
+      "Data_CatalogResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "modules",
+              "blueprints",
+              "export_available"
+            ],
+            "properties": {
+              "blueprints": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/InstallerProfile"
+                }
+              },
+              "export_available": {
+                "type": "boolean"
+              },
+              "modules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CatalogModuleResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_InvitationDetailsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "email",
+              "display_name"
+            ],
+            "properties": {
+              "display_name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Data_InvitationResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "operator",
+              "invite_url"
+            ],
+            "properties": {
+              "invite_url": {
+                "type": "string"
+              },
+              "operator": {
+                "$ref": "#/components/schemas/OperatorResponse"
+              }
+            }
+          }
+        }
+      },
+      "Data_OperatorResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "email",
+              "display_name",
+              "status",
+              "created_at"
+            ],
+            "properties": {
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "display_name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "last_login_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "status": {
+                "type": "string",
+                "example": "active"
+              }
+            }
+          }
+        }
+      },
+      "Data_TenantHealthResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "available",
+              "queue",
+              "workers",
+              "pending_migrations",
+              "plugin_backend_errors",
+              "recent_failures"
+            ],
+            "properties": {
+              "available": {
+                "type": "boolean"
+              },
+              "error": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "oldest_ready_age_seconds": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int64"
+              },
+              "pending_migrations": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "plugin_backend_errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "queue": {
+                "$ref": "#/components/schemas/QueueTotalsResponse"
+              },
+              "recent_failures": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "workers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WorkerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_TenantResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "slug",
+              "name",
+              "status",
+              "database_name",
+              "created_at",
+              "hosts"
+            ],
+            "properties": {
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "database_bytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int64",
+                "minimum": 0
+              },
+              "database_name": {
+                "type": "string"
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TenantHostResponse"
+                }
+              },
+              "id": {
+                "type": "string"
+              },
+              "last_error": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "last_write_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "migrated_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "name": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "example": "active"
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_OperatorResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "email",
+                "display_name",
+                "status",
+                "created_at"
+              ],
+              "properties": {
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "last_login_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "status": {
+                  "type": "string",
+                  "example": "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_TenantResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "slug",
+                "name",
+                "status",
+                "database_name",
+                "created_at",
+                "hosts"
+              ],
+              "properties": {
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "database_bytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "int64",
+                  "minimum": 0
+                },
+                "database_name": {
+                  "type": "string"
+                },
+                "hosts": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantHostResponse"
+                  }
+                },
+                "id": {
+                  "type": "string"
+                },
+                "last_error": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "last_write_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "migrated_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "example": "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "DeleteTenantRequest": {
+        "type": "object",
+        "required": [
+          "confirm",
+          "export"
+        ],
+        "properties": {
+          "confirm": {
+            "type": "string"
+          },
+          "export": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "validation_error"
+          },
+          "details": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        }
+      },
+      "HostRequest": {
+        "type": "object",
+        "required": [
+          "host"
+        ],
+        "properties": {
+          "host": {
+            "type": "string",
+            "example": "app.acme.example.com"
+          }
+        }
+      },
+      "InstallerProfile": {
+        "type": "object",
+        "required": [
+          "key",
+          "required",
+          "modules"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "InvitationDetailsResponse": {
+        "type": "object",
+        "required": [
+          "email",
+          "display_name"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "InvitationResponse": {
+        "type": "object",
+        "required": [
+          "operator",
+          "invite_url"
+        ],
+        "properties": {
+          "invite_url": {
+            "type": "string"
+          },
+          "operator": {
+            "$ref": "#/components/schemas/OperatorResponse"
+          }
+        }
+      },
+      "InviteOperatorRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "display_name"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "OperatorResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "last_login_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "example": "active"
+          }
+        }
+      },
+      "PageMeta": {
+        "type": "object",
+        "required": [
+          "total",
+          "page",
+          "per_page"
+        ],
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "example": {
+          "page": 1,
+          "per_page": 25,
+          "total": 120
+        }
+      },
+      "Page_AuditEntryResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "action",
+                "details",
+                "occurred_at"
+              ],
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "object"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "ip": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "occurred_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "operator_email": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "tenant_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        }
+      },
+      "QueueTotalsResponse": {
+        "type": "object",
+        "required": [
+          "ready",
+          "scheduled",
+          "running",
+          "failed"
+        ],
+        "properties": {
+          "failed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "ready": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "running": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "scheduled": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "SignInRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "TenantHealthResponse": {
+        "type": "object",
+        "required": [
+          "available",
+          "queue",
+          "workers",
+          "pending_migrations",
+          "plugin_backend_errors",
+          "recent_failures"
+        ],
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "oldest_ready_age_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "pending_migrations": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "plugin_backend_errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "queue": {
+            "$ref": "#/components/schemas/QueueTotalsResponse"
+          },
+          "recent_failures": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "workers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkerResponse"
+            }
+          }
+        }
+      },
+      "TenantHostResponse": {
+        "type": "object",
+        "required": [
+          "host",
+          "is_primary"
+        ],
+        "properties": {
+          "host": {
+            "type": "string"
+          },
+          "is_primary": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TenantResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "status",
+          "database_name",
+          "created_at",
+          "hosts"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "database_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "minimum": 0
+          },
+          "database_name": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantHostResponse"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "last_error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_write_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "migrated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "example": "active"
+          }
+        }
+      },
+      "WorkerResponse": {
+        "type": "object",
+        "required": [
+          "instance_id",
+          "version",
+          "last_seen_at"
+        ],
+        "properties": {
+          "hostname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

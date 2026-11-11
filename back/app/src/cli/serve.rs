@@ -51,7 +51,7 @@ async fn run_multi(config: AppConfig, tenancy: MultiTenancyConfig, args: ServeAr
     let directory = TenantDirectory::load(control.pool().clone()).await?;
     let runtimes = TenantRuntimes::new(control.clone(), config.clone());
     let refresher = tenancy::spawn_directory_refresh(directory.clone(), runtimes.clone());
-    let app = tenancy::router(directory, runtimes.clone(), tenancy.console_host.as_deref());
+    let app = tenancy::router(&control, &config, directory, runtimes.clone());
     let (trigger, shutdown) = shutdown_channel();
     let worker = args.with_worker.then(|| {
         tokio::spawn(tenancy::run_workers(

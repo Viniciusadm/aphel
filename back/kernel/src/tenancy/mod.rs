@@ -1,4 +1,5 @@
 mod audit;
+mod console;
 mod control;
 mod directory;
 mod local;
@@ -11,13 +12,18 @@ mod worker;
 
 use std::sync::OnceLock;
 
-pub use audit::{OperatorAction, record_operator_action};
+pub use audit::{OperatorActor, record_operator_action};
+pub use console::{
+    Operator, create_operator, openapi as console_openapi, openapi_json as console_openapi_json,
+};
 pub use control::ControlPlane;
 pub use directory::TenantDirectory;
 pub use local::TenantLocal;
 pub use provisioning::{
-    MigrationSummary, NewTenant, begin_deletion, create_tenant, finish_deletion, migrate_all,
-    migrate_tenant, resume_tenant, suspend_tenant, validate_slug,
+    MigrationSummary, TenantHost, TenantRegistration, TenantSummary, add_host, begin_deletion,
+    create_tenant, delete_tenant, export_available, list_tenants, migrate_all, migrate_tenant,
+    provision_tenant, register_tenant, remove_host, resume_tenant, set_primary_host,
+    suspend_tenant, tenant_summary, validate_slug,
 };
 pub use router::{router, spawn_directory_refresh};
 pub use runtime::{TenantRuntime, TenantRuntimes};

@@ -37,6 +37,7 @@ docker compose -f docker-compose.prod.yml exec app aphel doctor
 | `secrets rotate` | Re-encrypt stored secrets with the current key |
 | `db reset` | Delete and recreate the database |
 | `tenants list`, `create`, `suspend`, `resume`, `delete`, `migrate` | Manage the tenants of a multi-tenant installation |
+| `console create-operator` | Create an operator of the multi-tenant console |
 | `modules list`, `modules doctor`, `modules uninstall` | Inspect and remove modules |
 | `mounts reset` | Serve the internal app at `/` again |
 | `org export`, `org import` | Full export and restore |
@@ -93,6 +94,12 @@ Manages the tenants of a multi-tenant installation (`CONTROL_DATABASE_URL`). Eve
 | `tenants migrate [<slug>]` | Same as `migrate` with or without `--tenant` |
 
 Commands that act on one organization (`doctor`, `modules`, `mounts`, `secrets rotate`, `search`, `org`, `demo`) take `--tenant <slug>` in a multi-tenant installation and refuse to run without it. `db reset` and `upgrade` only work on a single-company installation.
+
+The console on `CONSOLE_HOST` offers the same actions to operators, plus hosts, health and the action history. Its first operator comes from the command line; the others are invited from the console with a link valid for 7 days:
+
+```bash
+aphel console create-operator --email ops@example.com --name "Operations"
+```
 
 ```bash
 aphel tenants create --slug acme --name "Acme" --host acme.example.com \
@@ -262,8 +269,11 @@ Do not seed demo data into a production installation. The `docker/demo` folder i
 
 Prints the OpenAPI document of the API as JSON to standard output. No database needed.
 
+`--console` prints the API of the multi-tenant console instead (`back/console-openapi.json`, from which `make api-types` generates `web/src/console/api-types.d.ts`).
+
 ```bash
 aphel openapi > openapi.json
+aphel openapi --console > console-openapi.json
 ```
 
 A running server also serves it at `/api/openapi.json`, with interactive docs at `/api/docs`. See the [REST API reference](/_aphel/docs/reference/rest-api/).

@@ -9,7 +9,10 @@ const toolDir = resolve(webDir, 'scripts/api-types')
 const outputFile = resolve(webDir, 'src/api/schema.d.ts')
 const remoteUrl = process.env.APHEL_OPENAPI_URL ?? 'http://127.0.0.1:3001/api/openapi.json'
 const fallbackFile = resolve(webDir, '../back/openapi.json')
-const explicitSource = process.argv[2]
+const consoleSpecFile = resolve(webDir, '../back/console-openapi.json')
+const consoleOutputFile = resolve(webDir, 'src/console/api-types.d.ts')
+const consoleOnly = process.argv.includes('--console')
+const explicitSource = process.argv.slice(2).find((argument) => !argument.startsWith('--'))
 
 function ensureToolInstalled() {
   if (existsSync(resolve(toolDir, 'node_modules/openapi-typescript'))) return
@@ -120,11 +123,20 @@ async function writeModuleTypes(spec, openapiTS, astToString) {
   return written
 }
 
+async function writeConsoleTypes(openapiTS, astToString) {
+  if (!existsSync(consoleSpecFile)) return
+  const spec = JSON.parse(await readFile(consoleSpecFile, 'utf8'))
+  await writeFile(consoleOutputFile, astToString(await openapiTS(spec)))
+  console.log(`console api types generated from ${consoleSpecFile} -> ${consoleOutputFile}`)
+}
+
 async function main() {
   ensureToolInstalled()
-  const { label, spec } = await loadSpec()
   const entry = resolve(toolDir, 'node_modules/openapi-typescript/dist/index.mjs')
   const { default: openapiTS, astToString } = await import(pathToFileURL(entry).href)
+  await writeConsoleTypes(openapiTS, astToString)
+  if (consoleOnly) return
+  const { label, spec } = await loadSpec()
   const ast = await openapiTS(spec)
   await writeFile(outputFile, astToString(ast))
   console.log(`api types generated from ${label} -> ${outputFile}`)

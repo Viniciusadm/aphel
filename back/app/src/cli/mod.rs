@@ -1,4 +1,5 @@
 mod catalog;
+mod console;
 mod db;
 mod doctor;
 mod entity_schema;
@@ -27,6 +28,7 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::ModuleCommand;
 use aphel_kernel::tenancy::{ControlPlane, TenantRuntime};
 pub(crate) use catalog::CatalogArgs;
+pub(crate) use console::ConsoleCommand;
 pub(crate) use db::DbCommand;
 pub(crate) use healthcheck::HealthcheckArgs;
 pub(crate) use modules::ModulesCommand;
@@ -75,7 +77,7 @@ pub(crate) enum Command {
     #[command(subcommand, about = "Maintain the configured database")]
     Db(DbCommand),
     #[command(about = "Print the OpenAPI document as JSON to stdout")]
-    Openapi,
+    Openapi(openapi::OpenapiArgs),
     #[command(
         about = "Generate managed entity DDL from a JSON declaration without connecting to a database"
     )]
@@ -102,6 +104,8 @@ pub(crate) enum Command {
         about = "Create, list, suspend, resume, delete and migrate the tenants of a multi-tenant installation"
     )]
     Tenants(TenantsCommand),
+    #[command(subcommand, about = "Manage the operators of the multi-tenant console")]
+    Console(ConsoleCommand),
     #[command(
         about = "List everything this build offers to plugins: plugins, operations, hooks, events, permissions"
     )]
@@ -256,7 +260,7 @@ async fn dispatch(
         Command::Worker => worker::run(config).await,
         Command::Migrate => migrate::run(config, tenant.as_deref()).await,
         Command::Db(command) => db::run(config, command).await,
-        Command::Openapi => openapi::run(),
+        Command::Openapi(args) => openapi::run(args),
         Command::EntitySchema(args) => entity_schema::run(args),
         Command::Secrets(command) => secrets::run(config, command).await,
         Command::Doctor => doctor::run(config).await,
@@ -265,6 +269,7 @@ async fn dispatch(
         Command::Modules(command) => modules::run(config, command).await,
         Command::Mounts(command) => mounts::run(config, command).await,
         Command::Tenants(command) => tenants::run(config, command).await,
+        Command::Console(command) => console::run(config, command).await,
         Command::Catalog(args) => catalog::run(args),
         Command::Probe => unreachable!("the probe runs before configuration is loaded"),
         Command::Plugin(_) => unreachable!("plugin commands run before configuration is loaded"),

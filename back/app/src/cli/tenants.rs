@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use clap::{Args, Subcommand};
-use sqlx::types::chrono::NaiveDateTime;
 
 use crate::cli::CliResult;
 use aphel_kernel::application::installer::InstallCommand;
@@ -9,12 +8,7 @@ use aphel_kernel::config::{AppConfig, MultiTenancyConfig, Tenancy};
 use aphel_kernel::domain::Secret;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::system::read_password;
-use aphel_kernel::modules::ModuleCommand;
-use aphel_kernel::tenancy::{
-    self, ControlPlane, NewTenant, TenantRuntime, begin_deletion, finish_deletion,
-};
-
-const EXPORT_COMMAND: &str = "org";
+use aphel_kernel::tenancy::{self, ControlPlane, OperatorActor, TenantRegistration};
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 pub(crate) enum TenantsCommand {
@@ -119,12 +113,16 @@ pub(crate) async fn run(config: AppConfig, command: TenantsCommand) -> CliResult
         TenantsCommand::List => list(&control).await,
         TenantsCommand::Create(args) => create(&control, &config, &multi, *args).await,
         TenantsCommand::Suspend(args) => {
-            let tenant = tenancy::suspend_tenant(&control, &args.slug).await?;
+            let tenant =
+                tenancy::suspend_tenant(&control, &OperatorActor::command_line(), &args.slug)
+                    .await?;
             println!("Tenant {} suspended.", tenant.slug);
             Ok(())
         }
         TenantsCommand::Resume(args) => {
-            let tenant = tenancy::resume_tenant(&control, &args.slug).await?;
+            let tenant =
+                tenancy::resume_tenant(&control, &OperatorActor::command_line(), &args.slug)
+                    .await?;
             println!("Tenant {} resumed.", tenant.slug);
             Ok(())
         }
@@ -162,39 +160,54 @@ pub(crate) async fn migrate(control: &ControlPlane, slug: Option<&str>) -> CliRe
     }
 }
 
-type TenantRow = (
-    String,
-    String,
-    String,
-    String,
-    Option<String>,
-    Option<NaiveDateTime>,
-    Option<String>,
-);
-
 async fn list(control: &ControlPlane) -> CliResult {
-    let rows: Vec<TenantRow> = sqlx::query_as(
-        "SELECT t.slug, t.name, t.status, t.database_name, \
-         GROUP_CONCAT(h.host ORDER BY h.is_primary DESC, h.host SEPARATOR ', '), \
-         t.migrated_at, t.last_error \
-         FROM tenants t LEFT JOIN tenant_hosts h ON h.tenant_id = t.id \
-         GROUP BY t.id ORDER BY t.slug",
-    )
-    .fetch_all(control.pool())
-    .await?;
-    if rows.is_empty() {
+    let tenants = tenancy::list_tenants(control).await?;
+    if tenants.is_empty() {
         println!("No tenants.");
         return Ok(());
     }
-    for (slug, name, status, database, hosts, migrated_at, last_error) in rows {
-        println!("{slug}  [{status}]  {name}");
-        println!("  database: {database}");
-        println!("  hosts: {}", hosts.unwrap_or_else(|| "none".to_owned()));
+    for summary in tenants {
+        let tenant = &summary.tenant;
+        println!(
+            "{}  [{}]  {}",
+            tenant.slug,
+            tenant.status.as_str(),
+            tenant.name
+        );
+        println!(
+            "  database: {} ({})",
+            tenant.database_name,
+            summary.database_bytes.map_or_else(
+                || "missing".to_owned(),
+                |bytes| format!("{} MB", bytes / 1_048_576)
+            )
+        );
+        let hosts: Vec<String> = summary
+            .hosts
+            .iter()
+            .map(|host| {
+                if host.is_primary {
+                    format!("{} (primary)", host.host)
+                } else {
+                    host.host.clone()
+                }
+            })
+            .collect();
+        println!(
+            "  hosts: {}",
+            if hosts.is_empty() {
+                "none".to_owned()
+            } else {
+                hosts.join(", ")
+            }
+        );
         println!(
             "  migrated: {}",
-            migrated_at.map_or_else(|| "never".to_owned(), |at| format!("{at} UTC"))
+            summary
+                .migrated_at
+                .map_or_else(|| "never".to_owned(), |at| at.to_rfc3339())
         );
-        if let Some(error) = last_error {
+        if let Some(error) = &summary.last_error {
             println!("  last error: {error}");
         }
     }
@@ -231,26 +244,27 @@ async fn create(
     let tenant = tenancy::create_tenant(
         control,
         config,
-        NewTenant {
+        &OperatorActor::command_line(),
+        TenantRegistration {
             slug: args.slug,
             name: args.name.clone(),
             hosts: args.hosts,
-            install: InstallCommand {
-                organization_name: args.name,
-                timezone: args.timezone,
-                currency: args.currency,
-                locale: args.locale,
-                admin_name: args.admin_name,
-                admin_email: args.admin_email,
-                admin_password: Secret::new(password),
-                public_base_url: public_url,
-                business: args
-                    .blueprint
-                    .map(|blueprint| serde_json::json!({ "business_type": blueprint })),
-                ip: None,
-                modules: args.modules,
-                module_settings: Default::default(),
-            },
+        },
+        InstallCommand {
+            organization_name: args.name,
+            timezone: args.timezone,
+            currency: args.currency,
+            locale: args.locale,
+            admin_name: args.admin_name,
+            admin_email: args.admin_email,
+            admin_password: Secret::new(password),
+            public_base_url: public_url,
+            business: args
+                .blueprint
+                .map(|blueprint| serde_json::json!({ "business_type": blueprint })),
+            ip: None,
+            modules: args.modules,
+            module_settings: Default::default(),
         },
     )
     .await?;
@@ -274,43 +288,21 @@ async fn delete(control: &ControlPlane, config: &AppConfig, args: DeleteArgs) ->
         )
         .into());
     }
-    let exporter = aphel_kernel::modules::app()
-        .all_contributions::<dyn ModuleCommand>()
-        .into_iter()
-        .map(|(_, command)| command)
-        .find(|command| command.command().get_name() == EXPORT_COMMAND);
     if args.export.is_none() && !args.no_export {
         return Err(AppError::Validation(
-            "pass --export <zip> to keep a copy of the tenant, or --no-export to delete without one".to_owned(),
+            "pass --export <zip> to keep a copy of the tenant, or --no-export to delete without one"
+                .to_owned(),
         )
         .into());
     }
-    if args.export.is_some() && exporter.is_none() {
-        return Err(AppError::Configuration(
-            "this build has no `org` command to export the tenant; pass --no-export to delete without an export".to_owned(),
-        )
-        .into());
-    }
-    control.require_tenant(&args.slug).await?;
-    let tenant = begin_deletion(control, &args.slug).await?;
-    if let (Some(path), Some(exporter)) = (&args.export, exporter) {
-        let mut tenant_config = config.clone();
-        tenant_config.database_url = Some(control.tenant_database_url(&tenant));
-        tenant_config.control_database_url = None;
-        let matches = exporter.command().try_get_matches_from([
-            std::ffi::OsString::from(EXPORT_COMMAND),
-            "export".into(),
-            "--output".into(),
-            path.clone().into_os_string(),
-        ])?;
-        let runtime = TenantRuntime::open(control, config, tenant.clone()).await?;
-        let exported = tenancy::scope(runtime.clone(), exporter.run(tenant_config, &matches)).await;
-        runtime.stop();
-        exported?;
+    let actor = OperatorActor::command_line();
+    let tenant =
+        tenancy::begin_deletion(control, &actor, &args.slug, args.export.as_deref()).await?;
+    let removed =
+        tenancy::delete_tenant(control, config, &actor, &tenant, args.export.as_deref()).await?;
+    if let Some(path) = &args.export {
         println!("Tenant {} exported to {}.", tenant.slug, path.display());
     }
-    let exported_to = args.export.as_ref().map(|path| path.display().to_string());
-    let removed = finish_deletion(control, config, &tenant, exported_to.as_deref()).await?;
     println!(
         "Tenant {} deleted ({removed} stored files removed, database {} dropped).",
         tenant.slug, tenant.database_name

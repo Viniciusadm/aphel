@@ -8,26 +8,43 @@ use axum::response::{Html, IntoResponse, Response};
 use tokio::task::JoinHandle;
 
 use crate::api::error::app_error;
+use crate::config::AppConfig;
 use crate::errors::AppError;
-use crate::tenancy::{TenantDirectory, TenantRuntimes, normalize_host};
+use crate::tenancy::{ControlPlane, TenantDirectory, TenantRuntimes, normalize_host};
+use tower::ServiceExt;
 
 const DIRECTORY_REFRESH_INTERVAL: Duration = Duration::from_secs(5);
 
 struct Dispatcher {
     directory: Arc<TenantDirectory>,
     runtimes: Arc<TenantRuntimes>,
-    console_host: Option<String>,
+    console: Option<(String, Router)>,
 }
 
 pub fn router(
+    control: &ControlPlane,
+    config: &AppConfig,
     directory: Arc<TenantDirectory>,
     runtimes: Arc<TenantRuntimes>,
-    console_host: Option<&str>,
 ) -> Router {
+    let console = config
+        .console_host
+        .as_deref()
+        .and_then(normalize_host)
+        .map(|host| {
+            let console = crate::tenancy::console::router(
+                control.clone(),
+                config.clone(),
+                directory.clone(),
+                runtimes.clone(),
+                &host,
+            );
+            (host, console)
+        });
     let dispatcher = Arc::new(Dispatcher {
         directory,
         runtimes,
-        console_host: console_host.and_then(normalize_host),
+        console,
     });
     crate::api::with_process_layers(Router::new().fallback(dispatch).with_state(dispatcher))
 }
@@ -53,8 +70,13 @@ async fn dispatch(State(dispatcher): State<Arc<Dispatcher>>, request: Request) -
     let Some(host) = request_host(&request) else {
         return unknown_host(&path);
     };
-    if dispatcher.console_host.as_deref() == Some(host.as_str()) {
-        return console_unavailable(&path);
+    if let Some((console_host, console)) = &dispatcher.console
+        && *console_host == host
+    {
+        return match console.clone().oneshot(request).await {
+            Ok(response) => response,
+            Err(infallible) => match infallible {},
+        };
     }
     let Some(tenant) = dispatcher.directory.resolve(&host) else {
         return unknown_host(&path);
@@ -118,20 +140,6 @@ fn tenant_unavailable(path: &str) -> Response {
         StatusCode::SERVICE_UNAVAILABLE,
         "Temporarily unavailable",
         "This organization is temporarily unavailable. Please try again later.",
-    )
-}
-
-fn console_unavailable(path: &str) -> Response {
-    if is_api(path) {
-        return app_error(AppError::unavailable_code(
-            "console_unavailable",
-            "the console is not available in this build yet",
-        ));
-    }
-    plain_page(
-        StatusCode::SERVICE_UNAVAILABLE,
-        "Console unavailable",
-        "The console is not available in this build yet.",
     )
 }
 

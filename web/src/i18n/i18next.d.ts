@@ -16,6 +16,7 @@ import type commandPaletteNamespace from './pt-BR/command-palette.json'
 import type commonNamespace from './pt-BR/common.json'
 import type configPackageVersioningNamespace from './pt-BR/config-package-versioning.json'
 import type configPackagesNamespace from './pt-BR/config-packages.json'
+import type consoleNamespace from './pt-BR/console.json'
 import type dashboardNamespace from '../modules/dashboard/i18n/pt-BR.json'
 import type dealsNamespace from '../modules/deals/i18n/pt-BR.json'
 import type dealsRevenueNamespace from '../modules/deals_revenue/i18n/pt-BR.json'
@@ -116,6 +117,7 @@ declare module 'i18next' {
       common: typeof commonNamespace
       'config-package-versioning': typeof configPackageVersioningNamespace
       'config-packages': typeof configPackagesNamespace
+      console: typeof consoleNamespace
       dashboard: typeof dashboardNamespace
       deals: typeof dealsNamespace
       deals_revenue: typeof dealsRevenueNamespace

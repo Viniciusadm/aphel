@@ -2,31 +2,45 @@ use serde_json::Value;
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-pub struct OperatorAction<'a> {
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct OperatorActor {
     pub operator_id: Option<Uuid>,
-    pub action: &'a str,
-    pub tenant_id: Option<Uuid>,
-    pub details: Value,
-    pub ip: Option<&'a str>,
+    pub ip: Option<String>,
 }
 
-pub async fn record_operator_action(pool: &MySqlPool, action: OperatorAction<'_>) {
+impl OperatorActor {
+    pub fn command_line() -> Self {
+        Self::default()
+    }
+
+    pub fn operator(operator_id: Uuid, ip: Option<String>) -> Self {
+        Self {
+            operator_id: Some(operator_id),
+            ip,
+        }
+    }
+}
+
+pub async fn record_operator_action(
+    pool: &MySqlPool,
+    actor: &OperatorActor,
+    action: &str,
+    tenant_id: Option<Uuid>,
+    details: Value,
+) {
     let result = sqlx::query(
         "INSERT INTO operator_audit (id, operator_id, action, tenant_id, details, ip) \
          VALUES (?, ?, ?, ?, ?, ?)",
     )
     .bind(Uuid::now_v7().to_string())
-    .bind(action.operator_id.map(|id| id.to_string()))
-    .bind(action.action)
-    .bind(action.tenant_id.map(|id| id.to_string()))
-    .bind(sqlx::types::Json(&action.details))
-    .bind(action.ip)
+    .bind(actor.operator_id.map(|id| id.to_string()))
+    .bind(action)
+    .bind(tenant_id.map(|id| id.to_string()))
+    .bind(sqlx::types::Json(&details))
+    .bind(actor.ip.as_deref())
     .execute(pool)
     .await;
     if let Err(error) = result {
-        tracing::error!(
-            action = action.action,
-            "could not record the operator action: {error}"
-        );
+        tracing::error!(action, "could not record the operator action: {error}");
     }
 }

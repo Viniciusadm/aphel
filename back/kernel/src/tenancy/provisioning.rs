@@ -1,5 +1,9 @@
+use std::collections::HashMap;
+use std::ffi::OsString;
+use std::path::Path;
 use std::sync::Arc;
 
+use chrono::{DateTime, NaiveDateTime, Utc};
 use serde_json::json;
 use uuid::Uuid;
 
@@ -10,24 +14,43 @@ use crate::database;
 use crate::errors::AppError;
 use crate::infrastructure::custom_objects::sync_custom_object_fields;
 use crate::infrastructure::fields::sync_system_fields;
-use crate::tenancy::audit::{OperatorAction, record_operator_action};
+use crate::modules::ModuleCommand;
+use crate::tenancy::audit::{OperatorActor, record_operator_action};
 use crate::tenancy::{ControlPlane, Tenant, TenantRuntime, TenantStatus, normalize_host, scope};
 
 const SLUG_MIN: usize = 3;
 const SLUG_MAX: usize = 40;
+const NAME_MAX: usize = 140;
 const DATABASE_NAME_MAX: usize = 64;
+const EXPORT_COMMAND: &str = "org";
 
-pub struct NewTenant {
+pub struct TenantRegistration {
     pub slug: String,
     pub name: String,
     pub hosts: Vec<String>,
-    pub install: InstallCommand,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct MigrationSummary {
     pub migrated: usize,
     pub failed: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TenantHost {
+    pub host: String,
+    pub is_primary: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TenantSummary {
+    pub tenant: Tenant,
+    pub hosts: Vec<TenantHost>,
+    pub database_bytes: Option<u64>,
+    pub last_write_at: Option<DateTime<Utc>>,
+    pub migrated_at: Option<DateTime<Utc>>,
+    pub last_error: Option<String>,
+    pub created_at: DateTime<Utc>,
 }
 
 pub fn validate_slug(slug: &str) -> Result<(), AppError> {
@@ -48,6 +71,97 @@ pub fn validate_slug(slug: &str) -> Result<(), AppError> {
             ),
         ))
     }
+}
+
+fn validate_host(host: &str) -> Result<String, AppError> {
+    normalize_host(host).ok_or_else(|| {
+        AppError::validation_code(
+            "tenant_host_invalid",
+            format!("{host:?} is not a valid host"),
+        )
+    })
+}
+
+pub fn export_available() -> bool {
+    export_command().is_some()
+}
+
+fn export_command() -> Option<Arc<dyn ModuleCommand>> {
+    crate::modules::app()
+        .all_contributions::<dyn ModuleCommand>()
+        .into_iter()
+        .map(|(_, command)| command)
+        .find(|command| command.command().get_name() == EXPORT_COMMAND)
+}
+
+pub async fn list_tenants(control: &ControlPlane) -> Result<Vec<TenantSummary>, AppError> {
+    type Row = (
+        String,
+        String,
+        Option<NaiveDateTime>,
+        Option<String>,
+        NaiveDateTime,
+    );
+    let rows: Vec<Row> = sqlx::query_as(
+        "SELECT id, slug, migrated_at, last_error, created_at FROM tenants ORDER BY slug",
+    )
+    .fetch_all(control.pool())
+    .await?;
+    let hosts: Vec<(String, String, bool)> = sqlx::query_as(
+        "SELECT tenant_id, host, is_primary FROM tenant_hosts ORDER BY is_primary DESC, host",
+    )
+    .fetch_all(control.pool())
+    .await?;
+    let sizes: Vec<(String, Option<u64>, Option<NaiveDateTime>)> = sqlx::query_as(
+        "SELECT table_schema, CAST(SUM(data_length + index_length) AS UNSIGNED), MAX(update_time) \
+         FROM information_schema.tables WHERE table_schema IN (SELECT database_name FROM tenants) \
+         GROUP BY table_schema",
+    )
+    .fetch_all(control.pool())
+    .await
+    .unwrap_or_default();
+    let sizes: HashMap<String, (Option<u64>, Option<NaiveDateTime>)> = sizes
+        .into_iter()
+        .map(|(schema, bytes, updated)| (schema, (bytes, updated)))
+        .collect();
+    let mut summaries = Vec::with_capacity(rows.len());
+    for (id, slug, migrated_at, last_error, created_at) in rows {
+        let tenant = control.require_tenant(&slug).await?;
+        let (database_bytes, last_write_at) = sizes
+            .get(&tenant.database_name)
+            .cloned()
+            .unwrap_or_default();
+        summaries.push(TenantSummary {
+            hosts: hosts
+                .iter()
+                .filter(|(tenant_id, _, _)| *tenant_id == id)
+                .map(|(_, host, is_primary)| TenantHost {
+                    host: host.clone(),
+                    is_primary: *is_primary,
+                })
+                .collect(),
+            tenant,
+            database_bytes,
+            last_write_at: last_write_at.map(|at| at.and_utc()),
+            migrated_at: migrated_at.map(|at| at.and_utc()),
+            last_error,
+            created_at: created_at.and_utc(),
+        });
+    }
+    Ok(summaries)
+}
+
+pub async fn tenant_summary(control: &ControlPlane, slug: &str) -> Result<TenantSummary, AppError> {
+    list_tenants(control)
+        .await?
+        .into_iter()
+        .find(|summary| summary.tenant.slug == slug)
+        .ok_or_else(|| {
+            AppError::not_found_code(
+                "tenant_not_found",
+                format!("no tenant has the slug {slug:?}"),
+            )
+        })
 }
 
 pub async fn migrate_tenant(control: &ControlPlane, tenant: &Tenant) -> Result<(), AppError> {
@@ -119,35 +233,41 @@ pub async fn migrate_all(control: &ControlPlane) -> Result<MigrationSummary, App
 pub async fn create_tenant(
     control: &ControlPlane,
     config: &AppConfig,
-    request: NewTenant,
+    actor: &OperatorActor,
+    registration: TenantRegistration,
+    install: InstallCommand,
 ) -> Result<Tenant, AppError> {
-    validate_slug(&request.slug)?;
-    let name = request.name.trim().to_owned();
-    if name.is_empty() || name.chars().count() > 140 {
+    let tenant = register_tenant(control, actor, registration).await?;
+    provision_tenant(control, config, &tenant, install).await
+}
+
+pub async fn register_tenant(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    registration: TenantRegistration,
+) -> Result<Tenant, AppError> {
+    validate_slug(&registration.slug)?;
+    let name = registration.name.trim().to_owned();
+    if name.is_empty() || name.chars().count() > NAME_MAX {
         return Err(AppError::validation_code(
             "tenant_name_invalid",
-            "the tenant name must have 1 to 140 characters",
+            format!("the tenant name must have 1 to {NAME_MAX} characters"),
         ));
     }
-    let hosts = request
-        .hosts
-        .iter()
-        .map(|host| {
-            normalize_host(host).ok_or_else(|| {
-                AppError::validation_code(
-                    "tenant_host_invalid",
-                    format!("{host:?} is not a valid host"),
-                )
-            })
-        })
-        .collect::<Result<Vec<_>, _>>()?;
+    let mut hosts = Vec::new();
+    for host in &registration.hosts {
+        let host = validate_host(host)?;
+        if !hosts.contains(&host) {
+            hosts.push(host);
+        }
+    }
     if hosts.is_empty() {
         return Err(AppError::validation_code(
             "tenant_host_invalid",
             "a tenant needs at least one host",
         ));
     }
-    let database_name = control.tenant_database_name(&request.slug);
+    let database_name = control.tenant_database_name(&registration.slug);
     if database_name.len() > DATABASE_NAME_MAX {
         return Err(AppError::validation_code(
             "tenant_slug_invalid",
@@ -158,55 +278,30 @@ pub async fn create_tenant(
     }
     let tenant = Tenant {
         id: Uuid::now_v7(),
-        slug: request.slug,
+        slug: registration.slug,
         name,
         database_name,
         status: TenantStatus::Provisioning,
     };
-    register(control, &tenant, &hosts).await?;
+    insert_registration(control, &tenant, &hosts).await?;
     record_operator_action(
         control.pool(),
-        OperatorAction {
-            operator_id: None,
-            action: "tenant.created",
-            tenant_id: Some(tenant.id),
-            details: json!({ "slug": tenant.slug, "hosts": hosts, "database": tenant.database_name }),
-            ip: None,
-        },
+        actor,
+        "tenant.created",
+        Some(tenant.id),
+        json!({ "slug": tenant.slug, "hosts": hosts, "database": tenant.database_name }),
     )
     .await;
-    match provision(control, config, &tenant, request.install).await {
-        Ok(()) => {
-            set_status(control, &tenant, TenantStatus::Active).await?;
-            Ok(Tenant {
-                status: TenantStatus::Active,
-                ..tenant
-            })
-        }
-        Err(error) => {
-            if let Err(recording) = sqlx::query("UPDATE tenants SET last_error = ? WHERE id = ?")
-                .bind(format!("provisioning failed: {error}"))
-                .bind(tenant.id.to_string())
-                .execute(control.pool())
-                .await
-            {
-                tracing::error!(
-                    tenant = tenant.slug,
-                    "could not record the provisioning error: {recording}"
-                );
-            }
-            Err(error)
-        }
-    }
+    Ok(tenant)
 }
 
-async fn register(
+async fn insert_registration(
     control: &ControlPlane,
     tenant: &Tenant,
     hosts: &[String],
 ) -> Result<(), AppError> {
     let mut transaction = control.pool().begin().await?;
-    let inserted = sqlx::query(
+    sqlx::query(
         "INSERT INTO tenants (id, slug, name, database_name, status) VALUES (?, ?, ?, ?, ?)",
     )
     .bind(tenant.id.to_string())
@@ -215,35 +310,52 @@ async fn register(
     .bind(&tenant.database_name)
     .bind(tenant.status.as_str())
     .execute(&mut *transaction)
-    .await;
-    if let Err(error) = inserted {
-        return Err(if is_unique_violation(&error) {
-            AppError::conflict_code("tenant_slug_taken", "another tenant already uses this slug")
-        } else {
-            error.into()
-        });
-    }
+    .await
+    .map_err(|error| {
+        unique_conflict(
+            error,
+            "tenant_slug_taken",
+            "another tenant already uses this slug",
+        )
+    })?;
     for (index, host) in hosts.iter().enumerate() {
-        let inserted =
-            sqlx::query("INSERT INTO tenant_hosts (host, tenant_id, is_primary) VALUES (?, ?, ?)")
-                .bind(host)
-                .bind(tenant.id.to_string())
-                .bind(index == 0)
-                .execute(&mut *transaction)
-                .await;
-        if let Err(error) = inserted {
-            return Err(if is_unique_violation(&error) {
-                AppError::conflict_code(
+        sqlx::query("INSERT INTO tenant_hosts (host, tenant_id, is_primary) VALUES (?, ?, ?)")
+            .bind(host)
+            .bind(tenant.id.to_string())
+            .bind(index == 0)
+            .execute(&mut *transaction)
+            .await
+            .map_err(|error| {
+                unique_conflict(
+                    error,
                     "tenant_host_taken",
-                    format!("the host {host} is already in use"),
+                    &format!("the host {host} is already in use"),
                 )
-            } else {
-                error.into()
-            });
-        }
+            })?;
     }
     transaction.commit().await?;
     Ok(())
+}
+
+pub async fn provision_tenant(
+    control: &ControlPlane,
+    config: &AppConfig,
+    tenant: &Tenant,
+    install: InstallCommand,
+) -> Result<Tenant, AppError> {
+    match provision(control, config, tenant, install).await {
+        Ok(()) => {
+            set_status(control, tenant, TenantStatus::Active).await?;
+            Ok(Tenant {
+                status: TenantStatus::Active,
+                ..tenant.clone()
+            })
+        }
+        Err(error) => {
+            record_error(control, tenant, &format!("provisioning failed: {error}")).await;
+            Err(error)
+        }
+    }
 }
 
 async fn provision(
@@ -271,7 +383,21 @@ async fn provision(
     result.map(|_| ())
 }
 
-pub async fn set_status(
+async fn record_error(control: &ControlPlane, tenant: &Tenant, message: &str) {
+    if let Err(error) = sqlx::query("UPDATE tenants SET last_error = ? WHERE id = ?")
+        .bind(message)
+        .bind(tenant.id.to_string())
+        .execute(control.pool())
+        .await
+    {
+        tracing::error!(
+            tenant = tenant.slug,
+            "could not record the tenant error: {error}"
+        );
+    }
+}
+
+async fn set_status(
     control: &ControlPlane,
     tenant: &Tenant,
     status: TenantStatus,
@@ -284,9 +410,14 @@ pub async fn set_status(
     Ok(())
 }
 
-pub async fn suspend_tenant(control: &ControlPlane, slug: &str) -> Result<Tenant, AppError> {
+pub async fn suspend_tenant(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+) -> Result<Tenant, AppError> {
     change_status(
         control,
+        actor,
         slug,
         TenantStatus::Active,
         TenantStatus::Suspended,
@@ -295,9 +426,14 @@ pub async fn suspend_tenant(control: &ControlPlane, slug: &str) -> Result<Tenant
     .await
 }
 
-pub async fn resume_tenant(control: &ControlPlane, slug: &str) -> Result<Tenant, AppError> {
+pub async fn resume_tenant(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+) -> Result<Tenant, AppError> {
     change_status(
         control,
+        actor,
         slug,
         TenantStatus::Suspended,
         TenantStatus::Active,
@@ -308,6 +444,7 @@ pub async fn resume_tenant(control: &ControlPlane, slug: &str) -> Result<Tenant,
 
 async fn change_status(
     control: &ControlPlane,
+    actor: &OperatorActor,
     slug: &str,
     from: TenantStatus,
     to: TenantStatus,
@@ -327,13 +464,10 @@ async fn change_status(
     set_status(control, &tenant, to).await?;
     record_operator_action(
         control.pool(),
-        OperatorAction {
-            operator_id: None,
-            action,
-            tenant_id: Some(tenant.id),
-            details: json!({ "slug": tenant.slug }),
-            ip: None,
-        },
+        actor,
+        action,
+        Some(tenant.id),
+        json!({ "slug": tenant.slug }),
     )
     .await;
     Ok(Tenant {
@@ -342,20 +476,175 @@ async fn change_status(
     })
 }
 
-pub async fn begin_deletion(control: &ControlPlane, slug: &str) -> Result<Tenant, AppError> {
+pub async fn add_host(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+    host: &str,
+) -> Result<String, AppError> {
+    let tenant = control.require_tenant(slug).await?;
+    let host = validate_host(host)?;
+    sqlx::query(
+        "INSERT INTO tenant_hosts (host, tenant_id, is_primary) \
+         SELECT ?, ?, NOT EXISTS (SELECT 1 FROM tenant_hosts WHERE tenant_id = ?)",
+    )
+    .bind(&host)
+    .bind(tenant.id.to_string())
+    .bind(tenant.id.to_string())
+    .execute(control.pool())
+    .await
+    .map_err(|error| {
+        unique_conflict(
+            error,
+            "tenant_host_taken",
+            &format!("the host {host} is already in use"),
+        )
+    })?;
+    record_operator_action(
+        control.pool(),
+        actor,
+        "tenant.host_added",
+        Some(tenant.id),
+        json!({ "slug": tenant.slug, "host": host }),
+    )
+    .await;
+    Ok(host)
+}
+
+pub async fn remove_host(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+    host: &str,
+) -> Result<(), AppError> {
+    let tenant = control.require_tenant(slug).await?;
+    let host = validate_host(host)?;
+    let mut transaction = control.pool().begin().await?;
+    let hosts: Vec<(String, bool)> =
+        sqlx::query_as("SELECT host, is_primary FROM tenant_hosts WHERE tenant_id = ? FOR UPDATE")
+            .bind(tenant.id.to_string())
+            .fetch_all(&mut *transaction)
+            .await?;
+    let Some((_, was_primary)) = hosts.iter().find(|(existing, _)| *existing == host) else {
+        return Err(AppError::not_found_code(
+            "tenant_host_not_found",
+            format!("the tenant has no host {host}"),
+        ));
+    };
+    if hosts.len() == 1 {
+        return Err(AppError::conflict_code(
+            "tenant_last_host",
+            "a tenant needs at least one host",
+        ));
+    }
+    sqlx::query("DELETE FROM tenant_hosts WHERE host = ?")
+        .bind(&host)
+        .execute(&mut *transaction)
+        .await?;
+    if *was_primary && let Some((next, _)) = hosts.iter().find(|(existing, _)| *existing != host) {
+        sqlx::query("UPDATE tenant_hosts SET is_primary = TRUE WHERE host = ?")
+            .bind(next)
+            .execute(&mut *transaction)
+            .await?;
+    }
+    transaction.commit().await?;
+    record_operator_action(
+        control.pool(),
+        actor,
+        "tenant.host_removed",
+        Some(tenant.id),
+        json!({ "slug": tenant.slug, "host": host }),
+    )
+    .await;
+    Ok(())
+}
+
+pub async fn set_primary_host(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+    host: &str,
+) -> Result<(), AppError> {
+    let tenant = control.require_tenant(slug).await?;
+    let host = validate_host(host)?;
+    let mut transaction = control.pool().begin().await?;
+    let updated =
+        sqlx::query("UPDATE tenant_hosts SET is_primary = (host = ?) WHERE tenant_id = ?")
+            .bind(&host)
+            .bind(tenant.id.to_string())
+            .execute(&mut *transaction)
+            .await?;
+    let exists: Option<i32> =
+        sqlx::query_scalar("SELECT 1 FROM tenant_hosts WHERE host = ? AND tenant_id = ?")
+            .bind(&host)
+            .bind(tenant.id.to_string())
+            .fetch_optional(&mut *transaction)
+            .await?;
+    if updated.rows_affected() == 0 || exists.is_none() {
+        return Err(AppError::not_found_code(
+            "tenant_host_not_found",
+            format!("the tenant has no host {host}"),
+        ));
+    }
+    transaction.commit().await?;
+    record_operator_action(
+        control.pool(),
+        actor,
+        "tenant.primary_host_changed",
+        Some(tenant.id),
+        json!({ "slug": tenant.slug, "host": host }),
+    )
+    .await;
+    Ok(())
+}
+
+pub async fn begin_deletion(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+    export_to: Option<&Path>,
+) -> Result<Tenant, AppError> {
+    if export_to.is_some() && !export_available() {
+        return Err(AppError::Configuration(
+            "this build has no `org` command to export the tenant".to_owned(),
+        ));
+    }
     let tenant = control.require_tenant(slug).await?;
     set_status(control, &tenant, TenantStatus::Deleting).await?;
+    record_operator_action(
+        control.pool(),
+        actor,
+        "tenant.deletion_started",
+        Some(tenant.id),
+        json!({ "slug": tenant.slug, "export": export_to.map(|path| path.display().to_string()) }),
+    )
+    .await;
     Ok(Tenant {
         status: TenantStatus::Deleting,
         ..tenant
     })
 }
 
-pub async fn finish_deletion(
+pub async fn delete_tenant(
     control: &ControlPlane,
     config: &AppConfig,
+    actor: &OperatorActor,
     tenant: &Tenant,
-    exported_to: Option<&str>,
+    export_to: Option<&Path>,
+) -> Result<u64, AppError> {
+    let result = remove(control, config, actor, tenant, export_to).await;
+    if let Err(error) = &result {
+        record_error(control, tenant, &format!("deletion failed: {error}")).await;
+    }
+    result
+}
+
+async fn remove(
+    control: &ControlPlane,
+    config: &AppConfig,
+    actor: &OperatorActor,
+    tenant: &Tenant,
+    export_to: Option<&Path>,
 ) -> Result<u64, AppError> {
     if tenant.status != TenantStatus::Deleting {
         return Err(AppError::conflict_code(
@@ -364,7 +653,10 @@ pub async fn finish_deletion(
         ));
     }
     let runtime = TenantRuntime::open(control, config, tenant.clone()).await?;
-    let removed_files = scope(runtime.clone(), async {
+    let cleared = scope(runtime.clone(), async {
+        if let Some(path) = export_to {
+            export(control, config, tenant, path).await?;
+        }
         let state = runtime
             .state()
             .ok_or_else(|| AppError::Internal("the tenant state is not ready".to_owned()))?;
@@ -372,7 +664,7 @@ pub async fn finish_deletion(
     })
     .await;
     runtime.stop();
-    let removed_files = removed_files?;
+    let removed_files = cleared?;
     sqlx::query(sqlx::AssertSqlSafe(format!(
         "DROP DATABASE IF EXISTS `{}`",
         checked_database_name(&tenant.database_name)?
@@ -385,21 +677,57 @@ pub async fn finish_deletion(
         .await?;
     record_operator_action(
         control.pool(),
-        OperatorAction {
-            operator_id: None,
-            action: "tenant.deleted",
-            tenant_id: Some(tenant.id),
-            details: json!({
-                "slug": tenant.slug,
-                "database": tenant.database_name,
-                "removed_files": removed_files,
-                "exported_to": exported_to,
-            }),
-            ip: None,
-        },
+        actor,
+        "tenant.deleted",
+        Some(tenant.id),
+        json!({
+            "slug": tenant.slug,
+            "database": tenant.database_name,
+            "removed_files": removed_files,
+            "exported_to": export_to.map(|path| path.display().to_string()),
+        }),
     )
     .await;
     Ok(removed_files)
+}
+
+async fn export(
+    control: &ControlPlane,
+    config: &AppConfig,
+    tenant: &Tenant,
+    path: &Path,
+) -> Result<(), AppError> {
+    let command = export_command().ok_or_else(|| {
+        AppError::Configuration("this build has no `org` command to export the tenant".to_owned())
+    })?;
+    if let Some(directory) = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+    {
+        std::fs::create_dir_all(directory).map_err(|error| {
+            AppError::Configuration(format!(
+                "the export directory {} cannot be created: {error}",
+                directory.display()
+            ))
+        })?;
+    }
+    let mut tenant_config = config.clone();
+    tenant_config.database_url = Some(control.tenant_database_url(tenant));
+    tenant_config.control_database_url = None;
+    tenant_config.console_host = None;
+    let matches = command
+        .command()
+        .try_get_matches_from([
+            OsString::from(EXPORT_COMMAND),
+            "export".into(),
+            "--output".into(),
+            path.as_os_str().to_owned(),
+        ])
+        .map_err(|error| AppError::Internal(format!("invalid export command: {error}")))?;
+    command
+        .run(tenant_config, &matches)
+        .await
+        .map_err(|error| AppError::Internal(format!("the tenant export failed: {error}")))
 }
 
 fn checked_database_name(name: &str) -> Result<&str, AppError> {
@@ -417,6 +745,11 @@ fn checked_database_name(name: &str) -> Result<&str, AppError> {
     }
 }
 
-fn is_unique_violation(error: &sqlx::Error) -> bool {
-    matches!(error, sqlx::Error::Database(database) if database.is_unique_violation())
+fn unique_conflict(error: sqlx::Error, code: &'static str, message: &str) -> AppError {
+    match &error {
+        sqlx::Error::Database(database) if database.is_unique_violation() => {
+            AppError::conflict_code(code, message.to_owned())
+        }
+        _ => error.into(),
+    }
 }

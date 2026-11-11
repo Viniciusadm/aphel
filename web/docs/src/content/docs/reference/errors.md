@@ -78,7 +78,7 @@ These apply to every route.
 
 ## Error codes by area
 
-The tables below list every code that the platform and the built-in modules define: 536 codes. A code can be returned with more than one status when it is raised in different situations; all statuses are listed. Runtime plugins can also raise errors with codes of their own; those are not listed here. Messages shown here are summaries; the exact text in a response can carry more detail, such as the name of a field or a limit.
+The tables below list every code that the platform and the built-in modules define: 556 codes. A code can be returned with more than one status when it is raised in different situations; all statuses are listed. Runtime plugins can also raise errors with codes of their own; those are not listed here. Messages shown here are summaries; the exact text in a response can carry more detail, such as the name of a field or a limit.
 
 ### Platform
 
@@ -90,7 +90,6 @@ The tables below list every code that the platform and the built-in modules defi
 | `api_token_not_found` | 404 | API token was not found. |
 | `attachment_not_found` | 404 | Attachment was not found. |
 | `concurrent_modification` | 409 | The record was changed by another request; retry. |
-| `console_unavailable` | 503 | The operator console is not available in this build yet (multi-tenant installations only). |
 | `contract_unavailable` | 503 | No enabled module provides the operation or contract that was called. |
 | `csrf_header_missing` | 403 | Requests that change data must send the X-Requested-With: aphel header. |
 | `current_session_not_revocable` | 422 | The current session is ended by signing out. |
@@ -188,6 +187,34 @@ The tables below list every code that the platform and the built-in modules defi
 | `two_factor_setup_required` | 403 | This organization requires two-factor authentication; enable it in your security settings. |
 | `unsupported_record_type` | 422 | The record type is not supported for this operation. |
 | `version_conflict` | 409 | The record changed since the `If-Match` version; read it again and re-apply the change. |
+
+### Multi-tenant console
+
+Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
+
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `console_invalid_credentials` | 401 | Wrong email or password at the console sign-in. |
+| `console_session_required` | 401 | The console request has no valid `aphel_console_session` cookie; sign in again. |
+| `console_sign_in_locked` | 429 | Too many wrong passwords for this operator; sign-in is locked for a few minutes. |
+| `operator_email_invalid` | 422 | The operator email is not valid. |
+| `operator_email_taken` | 409 | Another operator already uses this email. |
+| `operator_invitation_invalid` | 404 | The invitation link is invalid, expired or already used. |
+| `operator_name_invalid` | 422 | The operator name needs 1 to 140 characters. |
+| `operator_not_found` | 404 | Operator was not found, or is already deactivated. |
+| `operator_not_invited` | 409 | Only invited operators get a new invitation link. |
+| `operator_password_invalid` | 422 | The password needs 8 to 128 characters. |
+| `operator_password_wrong` | 422 | The current password is wrong. |
+| `operator_self_deactivation` | 409 | Operators cannot deactivate themselves. |
+| `tenant_deletion_unconfirmed` | 422 | The deletion was not confirmed by repeating the tenant slug. |
+| `tenant_host_invalid` | 422 | The host is not a valid host name (no scheme, path or port). |
+| `tenant_host_not_found` | 404 | The tenant has no such host. |
+| `tenant_host_taken` | 409 | Another tenant already uses this host. |
+| `tenant_last_host` | 409 | A tenant needs at least one host. |
+| `tenant_name_invalid` | 422 | The tenant name needs 1 to 140 characters. |
+| `tenant_slug_invalid` | 422 | The slug needs 3 to 40 lowercase letters, digits or single hyphens, and must fit the database name. |
+| `tenant_slug_taken` | 409 | Another tenant already uses this slug. |
+| `tenant_status_conflict` | 409 | The tenant is not in the state the action needs (for example resuming a tenant that is not suspended). |
 
 ### AI assistant (`ai`)
 

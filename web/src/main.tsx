@@ -7,16 +7,23 @@ import { APP_THEME, applyResolvedTheme } from '@/lib/theme'
 import { registerPwa } from '@/pwa/register'
 
 applyResolvedTheme(APP_THEME)
-registerPwa()
 
-await loadWebPlugins()
-const { App } = await import('@/app/App')
+const surface = document.querySelector<HTMLMetaElement>('meta[name="aphel-surface"]')?.content
 
-const rootElement = document.getElementById('root')
-if (!rootElement) throw new Error('root element not found')
+if (surface === 'console') {
+  const { startConsole } = await import('@/console/main')
+  await startConsole()
+} else {
+  registerPwa()
+  await loadWebPlugins()
+  const { App } = await import('@/app/App')
 
-createRoot(rootElement).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+  const rootElement = document.getElementById('root')
+  if (!rootElement) throw new Error('root element not found')
+
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+}

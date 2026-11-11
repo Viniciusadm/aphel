@@ -441,6 +441,10 @@ impl aphel_sdk::platform::modules::runtime_catalog::RuntimeCatalogSource for Pub
         current(pool).await?;
         Ok(())
     }
+
+    fn backend_errors(&self) -> Vec<String> {
+        readiness().backend_errors
+    }
 }
 
 pub(crate) struct DeferredPluginPolicy;

@@ -30,6 +30,8 @@ CREATE TABLE operators (
   password_hash VARCHAR(255) NOT NULL,
   display_name VARCHAR(140) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'active',
+  invite_token_hash CHAR(64) NULL,
+  invite_expires_at DATETIME(6) NULL,
   failed_logins INT UNSIGNED NOT NULL DEFAULT 0,
   locked_until DATETIME(6) NULL,
   last_login_at DATETIME(6) NULL,
@@ -37,6 +39,7 @@ CREATE TABLE operators (
   updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
   UNIQUE KEY operators_email_unique (email),
+  UNIQUE KEY operators_invite_token_unique (invite_token_hash),
   CONSTRAINT operators_status_check CHECK (status IN ('invited', 'active', 'deactivated'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

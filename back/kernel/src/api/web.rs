@@ -259,6 +259,41 @@ pub async fn serve_app_shell(request: Request) -> Response {
         .into_response()
 }
 
+pub(crate) fn serve_console_shell(path: &str) -> Response {
+    if looks_like_file(path) {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    let Some(index) = WebAssets::get(INDEX_FILE) else {
+        return (
+            StatusCode::SERVICE_UNAVAILABLE,
+            "frontend build not found; run `npm run build` in web/",
+        )
+            .into_response();
+    };
+    let html = String::from_utf8_lossy(&index.data).replacen(
+        BASE_META_PLACEHOLDER,
+        &format!(
+            "{BASE_META_PLACEHOLDER}<meta name=\"aphel-base\" content=\"\" /><meta name=\"aphel-surface\" content=\"console\" />"
+        ),
+        1,
+    );
+    (
+        [
+            (header::CONTENT_TYPE, "text/html; charset=utf-8"),
+            (header::CACHE_CONTROL, "no-cache"),
+        ],
+        html,
+    )
+        .into_response()
+}
+
+pub(crate) fn serve_console_asset(path: &str) -> Response {
+    match path {
+        MANIFEST_FILE | SERVICE_WORKER_FILE => StatusCode::NOT_FOUND.into_response(),
+        other => serve_reserved(other, ""),
+    }
+}
+
 fn serve_reserved(path: &str, app_prefix: &str) -> Response {
     let requested = match path {
         "" => return StatusCode::NOT_FOUND.into_response(),

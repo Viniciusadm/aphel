@@ -13,6 +13,7 @@ pub struct AppConfig {
     pub control_database_url: Option<String>,
     pub console_host: Option<String>,
     pub tenant_max_connections: u32,
+    pub tenant_export_dir: String,
     pub run_migrations: bool,
     pub worker: WorkerConfig,
     pub encryption: EncryptionConfig,
@@ -64,6 +65,8 @@ impl AppConfig {
             tenant_max_connections: parsed_var("TENANT_DATABASE_MAX_CONNECTIONS")
                 .filter(|value: &u32| *value > 0)
                 .unwrap_or(10),
+            tenant_export_dir: non_empty_var("TENANT_EXPORT_DIR")
+                .unwrap_or_else(|| "storage/tenant-exports".to_owned()),
             run_migrations,
             worker: WorkerConfig::from_env(),
             encryption: EncryptionConfig::from_env(),
@@ -84,6 +87,7 @@ impl AppConfig {
                 control_database_url: control_database_url.clone(),
                 console_host: self.console_host.clone(),
                 tenant_max_connections: self.tenant_max_connections,
+                tenant_export_dir: self.tenant_export_dir.clone(),
             })),
             (_, None) if self.console_host.is_some() => Err(AppError::Configuration(
                 "CONSOLE_HOST requires CONTROL_DATABASE_URL".to_owned(),
@@ -104,6 +108,7 @@ pub struct MultiTenancyConfig {
     pub control_database_url: String,
     pub console_host: Option<String>,
     pub tenant_max_connections: u32,
+    pub tenant_export_dir: String,
 }
 
 impl EncryptionConfig {
