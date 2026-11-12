@@ -549,11 +549,16 @@ fn escape_attribute(value: &str) -> String {
 }
 
 fn island(state: &State, name: String, props: Kwargs) -> Result<Value, Error> {
-    let owner = state
+    let current = state
         .lookup("page")
         .and_then(|current| current.get_attr("owner").ok())
         .and_then(|owner| owner.as_str().map(str::to_owned))
         .unwrap_or_default();
+    let (owner, name, foreign) = match name.split_once(':') {
+        Some((owner, island)) if owner != current => (owner.to_owned(), island.to_owned(), true),
+        Some((_, island)) => (current, island.to_owned(), false),
+        None => (current, name, false),
+    };
     let known = state
         .lookup("__site_islands")
         .and_then(|islands| islands.get_attr(&owner).ok())
@@ -563,6 +568,12 @@ fn island(state: &State, name: String, props: Kwargs) -> Result<Value, Error> {
                 .iter()
                 .any(|candidate| candidate.as_str() == Some(name.as_str()))
         });
+    if !known && foreign {
+        for key in props.args() {
+            let _: Value = props.get(key)?;
+        }
+        return Ok(Value::from(""));
+    }
     if !known {
         return Err(Error::new(
             ErrorKind::InvalidOperation,

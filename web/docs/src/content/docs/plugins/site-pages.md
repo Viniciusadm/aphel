@@ -230,7 +230,7 @@ The route's JSON is `data` in the template (and in `title` and `seo`). A `404` f
 
 ### Islands
 
-An island is an ES module in the package at `site/islands/<name>.js` (lowercase letters, digits, `-` and `_`; at most 30). A template places it with `island`:
+An island is an ES module in the package at `site/islands/<name>.js` (lowercase letters, digits, `-` and `_`; at most 30). The plugin must declare `[site]`, even empty when it has no pages. A template places it with `island`:
 
 ```html
 {{ island("like-button", slug=page.params.slug, label="Like") }}
@@ -253,7 +253,7 @@ export default function mount(element, props, site) {
 }
 ```
 
-`react`, `react/jsx-runtime`, `react-dom`, `react-dom/client` and `@aphel/ui` resolve through the site's import map to the same files the application uses; anything else must be bundled into the island. An island only exists in pages of its own plugin; asking for an unknown island fails the render.
+`react`, `react/jsx-runtime`, `react-dom`, `react-dom/client` and `@aphel/ui` resolve through the site's import map to the same files the application uses; anything else must be bundled into the island. A plain name refers to an island of the page's own plugin, and asking for an unknown one fails the render. A qualified name places an island of another plugin, `island('comments:thread', record_type='content.entry', record_id=record.id)`, which keeps calling its own plugin's site routes; when that plugin is not installed or has no such island, it renders nothing, so templates can offer optional features.
 
 ### Content security policy
 
