@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router'
 import { NativeSelect } from './native-select'
 import { cn } from '@/lib/utils'
+import { tabsListVariants, tabsTriggerVariants } from './tabs-variants'
 import { NavLink } from 'react-router'
 
 export interface AreaDestination {
@@ -16,8 +17,8 @@ export function AreaNavigation({ items, label, active }: { items: AreaDestinatio
     <NativeSelect className="w-full sm:hidden" aria-label={label} value={active} onChange={(event) => void navigate(event.target.value)}>
       {items.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
     </NativeSelect>
-    <div className="hidden flex-wrap gap-2 sm:flex">
-      {items.map((item) => <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => cn('inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground hover:bg-muted')}>{item.label}</NavLink>)}
+    <div className={cn(tabsListVariants({ variant: 'line' }), 'hidden flex-wrap sm:flex')}>
+      {items.map((item) => <NavLink key={item.to} to={item.to} end={item.end} className={tabsTriggerVariants({ variant: 'line' })}>{item.label}</NavLink>)}
     </div>
   </nav>
 }

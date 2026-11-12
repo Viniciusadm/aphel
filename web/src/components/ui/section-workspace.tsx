@@ -61,7 +61,7 @@ export function SectionIndex({ className, children, ...props }: ComponentProps<'
       </SectionLinkLayout.Provider>
     </details>
     <SectionLinkLayout.Provider value="tabs">
-      <div className={cn(tabsListVariants({ variant: 'line' }), 'hidden overflow-x-auto lg:flex')}>{children}</div>
+      <div className={cn(tabsListVariants({ variant: 'line' }), 'hidden flex-wrap lg:flex')}>{children}</div>
     </SectionLinkLayout.Provider>
   </nav>
 }
