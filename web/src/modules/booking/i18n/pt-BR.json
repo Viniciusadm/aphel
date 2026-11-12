@@ -14,7 +14,8 @@
     "save": "Salvar",
     "saving": "Salvando...",
     "cancel": "Cancelar",
-    "back": "Voltar"
+    "back": "Voltar",
+    "discard": "Descartar"
   },
   "errors": {
     "generic": "Não foi possível salvar. Tente novamente.",
@@ -104,7 +105,9 @@
       "hoursHint": "O fuso e os intervalos em que você aceita reuniões.",
       "rules": "Regras de agendamento",
       "rulesHint": "Antecedência mínima, limite por dia, intervalos entre reuniões e até quando o cliente pode marcar."
-    }
+    },
+    "unsaved": "Você tem alterações não salvas.",
+    "allSaved": "Tudo salvo."
   },
   "meetingTypes": {
     "description": "Cada tipo de reunião tem um link público próprio.",

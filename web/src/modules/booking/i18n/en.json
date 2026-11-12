@@ -14,7 +14,8 @@
     "save": "Save",
     "saving": "Saving...",
     "cancel": "Cancel",
-    "back": "Back"
+    "back": "Back",
+    "discard": "Discard"
   },
   "errors": {
     "generic": "Could not save. Please try again.",
@@ -104,7 +105,9 @@
       "hoursHint": "The time zone and the intervals when you accept meetings.",
       "rules": "Booking rules",
       "rulesHint": "Minimum notice, daily limit, buffers between meetings and how far ahead guests can book."
-    }
+    },
+    "unsaved": "You have unsaved changes.",
+    "allSaved": "All saved."
   },
   "meetingTypes": {
     "description": "Each meeting type has its own public link.",
