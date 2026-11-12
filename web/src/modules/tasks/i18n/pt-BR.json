@@ -15,7 +15,9 @@
       "overdue": "Atrasadas",
       "today": "Para hoje",
       "upcoming": "Próximas",
-      "none": "Sem prazo"
+      "none": "Sem prazo",
+      "done": "Concluídas",
+      "canceled": "Canceladas"
     },
     "shown": "Mostrando {{shown}} de {{total}} tarefas abertas.",
     "loadMore": "Carregar mais",
@@ -453,5 +455,11 @@
       "created": "criou a atividade",
       "completed": "concluiu a atividade"
     }
+  },
+  "presets": {
+    "mine": "Minhas abertas",
+    "open": "Todas abertas",
+    "done": "Concluídas",
+    "all": "Todas"
   }
 }

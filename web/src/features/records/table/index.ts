@@ -6,6 +6,7 @@ export {
   RecordListView,
   type BulkActionContext,
   type BulkSelectionQuery,
+  type RecordListPreset,
   type RecordListViewProps,
 } from './RecordListView'
 export { ARCHIVED_PARAM, parseArchivedParam } from './archived'

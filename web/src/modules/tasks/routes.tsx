@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router'
+import { Navigate, type RouteObject } from 'react-router'
 import './resource'
 
 export const activitiesRoutes: RouteObject[] = [
@@ -6,8 +6,8 @@ export const activitiesRoutes: RouteObject[] = [
     path: 'tasks',
     lazy: async () => ({ Component: (await import('./TasksLayout')).TasksLayout }),
     children: [
-      { index: true, lazy: async () => ({ Component: (await import('./MyTasksPage')).MyTasksPage }) },
-      { path: 'all', lazy: async () => ({ Component: (await import('./AllActivitiesPage')).AllActivitiesPage }) },
+      { index: true, lazy: async () => ({ Component: (await import('./ActivitiesPage')).ActivitiesPage }) },
+      { path: 'all', element: <Navigate to="/tasks?preset=all" replace /> },
     ],
   },
   {

@@ -4,12 +4,16 @@ import { useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
-import { RecordListView } from '@/sdk'
+import { RecordListView, type FilterNode, type RecordListPreset, type SortSpec } from '@/sdk'
 import { activityResource } from './resource'
 import { activitiesApi, useInvalidateActivities } from '@/sdk'
 import { ACTIVITY_RECORD_TYPE } from '@/sdk'
 
-export function AllActivitiesPage() {
+const OPEN: FilterNode = { field: 'status', operator: 'eq', value: 'open' }
+const MINE: FilterNode = { field: 'owner_id', operator: 'eq', value: 'me' }
+const BY_DUE: SortSpec[] = [{ field: 'due_at', direction: 'asc' }]
+
+export function ActivitiesPage() {
   const { t } = useTranslation('tasks')
   const { hasPermission } = useSession()
   const navigate = useNavigate()
@@ -27,9 +31,30 @@ export function AllActivitiesPage() {
     }
   }
 
+  const presets: RecordListPreset[] = [
+    {
+      key: 'mine',
+      label: t('presets.mine'),
+      filter: { op: 'and', conditions: [OPEN, MINE] },
+      sort: BY_DUE,
+      emptyTitle: t('mine.emptyTitle'),
+      emptyDescription: t('mine.emptyDescription'),
+    },
+    { key: 'open', label: t('presets.open'), filter: OPEN, sort: BY_DUE },
+    {
+      key: 'done',
+      label: t('presets.done'),
+      filter: { field: 'status', operator: 'eq', value: 'done' },
+      sort: [{ field: 'completed_at', direction: 'desc' }],
+    },
+    { key: 'all', label: t('presets.all'), filter: null },
+  ]
+
   return (
     <RecordListView
       recordType={ACTIVITY_RECORD_TYPE}
+      presets={presets}
+      defaultPreset="mine"
       onRowClick={(record) => navigate(activityResource.detailPath?.(record.id) ?? '')}
       bulkActions={
         hasPermission('tasks.update')

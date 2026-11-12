@@ -15,7 +15,9 @@
       "overdue": "Overdue",
       "today": "Today",
       "upcoming": "Upcoming",
-      "none": "No due date"
+      "none": "No due date",
+      "done": "Completed",
+      "canceled": "Canceled"
     },
     "shown": "Showing {{shown}} of {{total}} open tasks.",
     "loadMore": "Load more",
@@ -453,5 +455,11 @@
       "created": "created the activity",
       "completed": "completed the activity"
     }
+  },
+  "presets": {
+    "mine": "My open",
+    "open": "All open",
+    "done": "Completed",
+    "all": "All"
   }
 }
