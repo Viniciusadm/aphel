@@ -826,7 +826,7 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `plugin_conflicts_unacknowledged` | 409 | The plugin overlaps with another installed plugin; send `acknowledge_conflicts=true` to proceed. |
 | `plugin_contract_unavailable` | 422 | No enabled provider exists for a contract the plugin requires. |
 | `plugin_contribution_unknown` | 404 | The plugin does not contribute the requested item to the extension point. |
-| `plugin_dependency_unavailable` | 422 | A declared permission depends on a module that is not enabled. |
+| `plugin_dependency_unavailable` | 422 | A declared permission depends on a module that is not enabled, or the plugin declares entities while the module that administers objects is disabled. |
 | `plugin_directory_unavailable` | 403 | The directory needs a signed-in actor or the plugin installer. |
 | `plugin_disabled` | 403/503 | The plugin is disabled or uninstalled. |
 | `plugin_effect_invalid` | 422 | Effect keys must have 1 to 128 bytes; commands are limited to 64 KiB and 100 per hook. |

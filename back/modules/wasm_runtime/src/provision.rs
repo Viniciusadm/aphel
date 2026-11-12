@@ -124,6 +124,7 @@ pub async fn requirements(
     state: &AppState,
     scope: &AccessScope,
     manifest: &PackManifest,
+    declares_entities: bool,
 ) -> Result<Requirements, AppError> {
     if let Some(requirement) = &manifest.requires_aphel {
         let matches = semver::VersionReq::parse(requirement)
@@ -139,7 +140,14 @@ pub async fn requirements(
             ));
         }
     }
-    if manifest.requires_modules.is_empty() {
+    let mut required = manifest.requires_modules.clone();
+    if declares_entities
+        && let Some(module) = crate::schema::object_administration_module(state)
+        && !required.iter().any(|key| key == module)
+    {
+        required.push(module.to_owned());
+    }
+    if required.is_empty() {
         return Ok(Requirements {
             modules_to_enable: Vec::new(),
         });
@@ -148,7 +156,7 @@ pub async fn requirements(
         .list(scope)
         .await?;
     let mut modules_to_enable = Vec::new();
-    for key in &manifest.requires_modules {
+    for key in &required {
         match modules.iter().find(|view| view.descriptor.key() == key) {
             None => {
                 return Err(AppError::conflict_code(

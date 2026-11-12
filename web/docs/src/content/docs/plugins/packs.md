@@ -82,7 +82,7 @@ Pack settings only fill settings that have no value yet. A value the administrat
 
 ## Requirements
 
-`requires_aphel` is checked before anything is installed: an older Aphel fails with 422 `plugin_pack_aphel_incompatible`. Each module in `requires_modules` must be part of the Aphel build, or the pack fails with 422 `plugin_pack_module_unavailable`. A required module that is built in but disabled is listed on the consent screen and enabled by the install, before the plugins.
+`requires_aphel` is checked before anything is installed: an older Aphel fails with 422 `plugin_pack_aphel_incompatible`. Each module in `requires_modules` must be part of the Aphel build, or the pack fails with 422 `plugin_pack_module_unavailable`. A required module that is built in but disabled is listed on the consent screen and enabled by the install, before the plugins. When a plugin of the pack declares entities, the module that administers objects (`objects`) is required too, even if `requires_modules` does not list it.
 
 ## Provisioning
 

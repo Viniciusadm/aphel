@@ -5,7 +5,9 @@ use uuid::Uuid;
 use crate::manifest::{FieldDef, PluginManifest};
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::state::AppState;
-use aphel_sdk::objects::{CreateObjectCommand, ManagedObject, managed_object_writer};
+use aphel_sdk::objects::{
+    CreateObjectCommand, ManagedObject, ManagedObjectWriter, managed_object_writer,
+};
 use aphel_sdk::platform::application::custom_objects::custom_record_definition;
 use aphel_sdk::platform::application::fields::config_to_json;
 use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
@@ -195,6 +197,38 @@ pub async fn check(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
     check_with(state, manifest, &[], &[]).await
 }
 
+pub fn object_administration_module(state: &AppState) -> Option<&'static str> {
+    let wanted = std::any::type_name::<dyn ManagedObjectWriter>();
+    state
+        .app
+        .services()
+        .describe()
+        .into_iter()
+        .find(|service| service.type_name == wanted)
+        .map(|service| service.module)
+}
+
+fn ensure_object_administration(
+    state: &AppState,
+    pending_modules: &[String],
+) -> Result<(), AppError> {
+    let Some(module) = object_administration_module(state) else {
+        return Err(AppError::validation_code(
+            "plugin_dependency_unavailable",
+            "the plugin declares entities, but this Aphel build has no module that administers objects",
+        ));
+    };
+    if state.app.is_enabled(module) || pending_modules.iter().any(|key| key == module) {
+        return Ok(());
+    }
+    Err(AppError::validation_code(
+        "plugin_dependency_unavailable",
+        format!(
+            "the plugin declares entities, which require enabled module {module}; enable it before installing"
+        ),
+    ))
+}
+
 pub async fn check_with(
     state: &AppState,
     manifest: &PluginManifest,
@@ -221,6 +255,9 @@ pub async fn check_with(
         if entity.storage == aphel_sdk::platform::application::fields::EntityStorage::Managed {
             aphel_sdk::platform::infrastructure::fields::managed_schema(&definition)?;
         }
+    }
+    if !manifest.entities.is_empty() {
+        ensure_object_administration(state, pending_modules)?;
     }
     validate_dependencies_with(state, manifest, pack, pending_modules).await?;
     let pool = state.db()?;

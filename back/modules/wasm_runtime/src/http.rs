@@ -991,7 +991,7 @@ async fn list_packs(
     tag = TAG,
     operation_id = "plugin_packs_install",
     security(("session_cookie" = [])),
-    description = "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins. After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`.",
+    description = "Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins (the module that administers objects counts as required when a plugin declares entities). After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`.",
     params(InstallParams),
     request_body(content_type = "multipart/form-data", description = "Field `package` with the .aphelpack file and optional `role_presets` (comma separated)"),
     responses(
@@ -1015,7 +1015,12 @@ async fn install_pack(
     scope.require(&Permission::SYSTEM_MANAGE)?;
     let (bytes, presets) = package_bytes(multipart).await?;
     let pack = crate::pack::read_pack(&bytes)?;
-    let requirements = crate::provision::requirements(&state, scope, &pack.manifest).await?;
+    let declares_entities = pack
+        .members
+        .iter()
+        .any(|member| !member.package.manifest.entities.is_empty());
+    let requirements =
+        crate::provision::requirements(&state, scope, &pack.manifest, declares_entities).await?;
     let catalog = crate::bridge::host_catalog();
     crate::pack::ensure_dependencies(&pack, &catalog.operations)?;
     let provided = pack.provided_operations();
