@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useModulesApi, type ModuleInfo } from '@/kernel/modules/api'
+import { moduleDefinition } from '@/kernel/modules/registry'
 import { useModuleSurface } from '@/kernel/modules/surface'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { disableChain, enableChain, moduleAnchor } from './chain'
@@ -52,6 +53,7 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
   const formatting = useRecordFormatting()
   const surface = useModuleSurface(module.key)
   const [configuring, setConfiguring] = useState<SettingViolation[] | null>(null)
+  const [enableAfterSave, setEnableAfterSave] = useState(false)
   const [confirmDisable, setConfirmDisable] = useState(false)
   const [confirmEnable, setConfirmEnable] = useState(false)
   const [purging, setPurging] = useState(false)
@@ -65,6 +67,8 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
   const shortList = (items: string[]) =>
     items.length > MAX_LISTED ? t('adds.more', { items: items.slice(0, MAX_LISTED).join(', '), count: items.length - MAX_LISTED }) : items.join(', ')
   const date = (value: string) => formatDateTime(value, formatting)
+  const needsSetup = module.settings_schema.some((field) => field.required)
+  const hasSettings = module.settings_schema.length > 0 || Boolean(moduleDefinition(module.key)?.settingsPanel)
 
   const enable = async () => {
     setBusy(true)
@@ -86,6 +90,17 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
       await onChanged()
     }
   }
+
+  const proceedEnable = () => {
+    if (needsSetup) {
+      setEnableAfterSave(true)
+      setConfiguring([])
+      return
+    }
+    void enable()
+  }
+
+  const startEnable = () => (toEnable.length > 0 ? setConfirmEnable(true) : proceedEnable())
 
   const disable = async () => {
     try {
@@ -245,15 +260,24 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
               size="sm"
               disabled={busy || problem !== null || Boolean(module.held_by)}
               aria-busy={busy}
-              onClick={() => (toEnable.length > 0 ? setConfirmEnable(true) : void enable())}
+              onClick={startEnable}
             >
               {toEnable.length > 0 ? t('actions.enableWith', { names: pendingNames(toEnable) }) : t('actions.enable')}
             </Button>
           )}
-          <Button size="sm" variant="outline" onClick={() => setConfiguring([])}>
-            <Settings2 aria-hidden="true" />
-            {t('actions.configure')}
-          </Button>
+          {hasSettings && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setEnableAfterSave(false)
+                setConfiguring([])
+              }}
+            >
+              <Settings2 aria-hidden="true" />
+              {t('actions.configure')}
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="ghost" className="ml-auto size-8" aria-label={t('actions.more', { name })}>
@@ -279,8 +303,12 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
         <ModuleSettingsDialog
           module={module}
           initialViolations={configuring}
-          onClose={() => setConfiguring(null)}
-          onSaved={onChanged}
+          enableAfterSave={enableAfterSave}
+          onClose={() => {
+            setConfiguring(null)
+            setEnableAfterSave(false)
+          }}
+          onSaved={enableAfterSave ? enable : onChanged}
         />
       )}
       {purging && (
@@ -292,7 +320,7 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
         title={t('enableChain.title', { name })}
         description={t('enableChain.description', { name, names: pendingNames(toEnable) })}
         confirmLabel={t('enableChain.confirm')}
-        onConfirm={enable}
+        onConfirm={proceedEnable}
       />
       <ConfirmDialog
         open={confirmDisable}

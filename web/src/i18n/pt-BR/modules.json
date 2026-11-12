@@ -61,7 +61,10 @@
     "extraPanel": "Mais opções",
     "extraPanelDisabled": "Habilite o módulo para ver as demais opções.",
     "cancel": "Cancelar",
-    "save": "Salvar"
+    "save": "Salvar",
+    "titleSetup": "Configurar {{name}} para habilitar",
+    "descriptionSetup": "Este módulo precisa de configuração antes de ser habilitado. Confira os campos abaixo e salve para habilitá-lo.",
+    "saveAndEnable": "Salvar e habilitar"
   },
   "validation": {
     "required": "Campo obrigatório.",

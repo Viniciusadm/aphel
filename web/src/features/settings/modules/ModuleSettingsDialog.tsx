@@ -42,11 +42,12 @@ import { Field } from '@/components/ui/field'
 interface ModuleSettingsDialogProps {
   module: ModuleInfo
   initialViolations: SettingViolation[]
+  enableAfterSave?: boolean
   onClose: () => void
   onSaved: () => Promise<unknown>
 }
 
-export function ModuleSettingsDialog({ module, initialViolations, onClose, onSaved }: ModuleSettingsDialogProps) {
+export function ModuleSettingsDialog({ module, initialViolations, enableAfterSave = false, onClose, onSaved }: ModuleSettingsDialogProps) {
   const { t } = useTranslation('modules')
   const modulesApi = useModulesApi()
   const text = useModuleText(module)
@@ -81,7 +82,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
     setFormError(null)
     try {
       await modulesApi.updateSettings(module.key, toSettings(module, values, clearedSecrets))
-      notifySuccess(t('toast.saved', { name: text.name }))
+      if (!enableAfterSave) notifySuccess(t('toast.saved', { name: text.name }))
       await onSaved()
       onClose()
     } catch (error) {
@@ -111,8 +112,8 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
     <Dialog open onOpenChange={(open) => !open && !isSubmitting && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('settings.title', { name: text.name })}</DialogTitle>
-          <DialogDescription>{t('settings.description')}</DialogDescription>
+          <DialogTitle>{t(enableAfterSave ? 'settings.titleSetup' : 'settings.title', { name: text.name })}</DialogTitle>
+          <DialogDescription>{t(enableAfterSave ? 'settings.descriptionSetup' : 'settings.description')}</DialogDescription>
         </DialogHeader>
         {initialViolations.length > 0 && (
           <p role="status" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
@@ -245,7 +246,7 @@ export function ModuleSettingsDialog({ module, initialViolations, onClose, onSav
           </Button>
           {fields.length > 0 && (
             <Button type="submit" form={formId} disabled={isSubmitting} aria-busy={isSubmitting}>
-              {t('settings.save')}
+              {t(enableAfterSave ? 'settings.saveAndEnable' : 'settings.save')}
             </Button>
           )}
         </DialogFooter>

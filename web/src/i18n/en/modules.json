@@ -61,7 +61,10 @@
     "extraPanel": "More options",
     "extraPanelDisabled": "Enable the module to see the other options.",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "titleSetup": "Set up {{name}} to enable it",
+    "descriptionSetup": "This module needs to be configured before it can be enabled. Check the fields below and save to enable it.",
+    "saveAndEnable": "Save and enable"
   },
   "validation": {
     "required": "Required field.",
