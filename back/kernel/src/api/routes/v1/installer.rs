@@ -148,7 +148,7 @@ async fn install(
     Ok(response)
 }
 
-pub(crate) async fn install_organization(
+pub async fn install_organization(
     state: &AppState,
     command: InstallCommand,
 ) -> Result<crate::application::installer::Installation, AppError> {
