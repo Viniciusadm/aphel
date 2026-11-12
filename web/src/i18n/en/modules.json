@@ -2,7 +2,7 @@
   "managementDisabledTitle": "Module management is turned off",
   "managementDisabledDescription": "The platform operator turned module and plugin management off for this organization. Contact the platform operator to enable or disable modules.",
   "title": "Modules",
-  "description": "Optional features built into Aphel. Enable only what your organization uses: disabling stops the module's screens and routines, but its data is kept.",
+  "description": "Each module turns on a set of Aphel features. Some bring everyday screens and records; others are support modules that only work when another module uses them. Disabling a module stops its screens and routines, but the data stays stored.",
   "listLabel": "Available modules",
   "emptyTitle": "No modules available",
   "emptyDescription": "This Aphel build includes no modules.",
@@ -24,22 +24,8 @@
   "disabledAt": "Disabled on {{date}}",
   "dataExportedAt": "Data exported on {{date}}",
   "dataPurgedAt": "Data removed on {{date}}",
-  "dependencies": {
-    "title": "Depends on",
-    "none": "No dependencies",
-    "requirement": "version {{requirement}}",
-    "state": {
-      "enabled": "enabled",
-      "disabled": "disabled",
-      "missing": "not installed"
-    }
-  },
-  "dependents": {
-    "title": "Used by",
-    "hint": "First disable what depends on this module: {{names}}."
-  },
   "details": {
-    "summary": "Permissions and events",
+    "summary": "Technical details",
     "permissions": "Permissions it adds",
     "noPermissions": "No permissions of its own",
     "recordScoped": "per record",
@@ -52,12 +38,15 @@
     "configure": "Configure",
     "more": "More actions for {{name}}",
     "export": "Export data",
-    "purge": "Remove data"
+    "purge": "Remove data",
+    "enableWith": "Enable with {{names}}"
   },
   "disable": {
     "title": "Disable {{name}}?",
     "description": "The module's screens, menus, widgets and automatic routines stop working for the whole organization. No data is deleted: enabling it again restores everything.",
-    "confirm": "Disable"
+    "confirm": "Disable",
+    "withDependents": "These enabled modules depend on {{name}} and will be disabled first, in this order: {{names}}. No data is deleted: when you enable them again, everything comes back as it was.",
+    "confirmAll": "Disable all"
   },
   "settings": {
     "title": "Configure {{name}}",
@@ -117,7 +106,8 @@
     "module_export_required": "Export the data after disabling the module before removing it.",
     "module_confirmation_required": "The typed key does not match.",
     "actionFailed": "The action could not be completed",
-    "generic": "Could not save. Please try again."
+    "generic": "Could not save. Please try again.",
+    "actionFailedFor": "Could not complete the action on {{name}}"
   },
   "applyUpdate": "Apply update",
   "plugins": {
@@ -255,5 +245,100 @@
   "placeholders": {
     "none": "None",
     "value": "Enter the value"
+  },
+  "nature": {
+    "screens": "Has screens",
+    "support": "Support"
+  },
+  "sections": {
+    "screens": {
+      "title": "With their own screens",
+      "description": "They appear in the menu or bring records the team uses every day."
+    },
+    "support": {
+      "title": "Support",
+      "description": "They have no everyday screen: they work when another module uses them, such as automations, imports and webhooks."
+    }
+  },
+  "filters": {
+    "search": "Search modules",
+    "searchPlaceholder": "Search modules",
+    "state": "Status",
+    "all": "All",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "noResults": "No modules found",
+    "noResultsDescription": "Try another search or change the status filter."
+  },
+  "adds": {
+    "title": "What it adds",
+    "menu": "in the menu: {{items}}",
+    "settings": "in Settings: {{items}}",
+    "nothing": "nothing in the menu or in Settings; it serves other modules."
+  },
+  "relations": {
+    "requires": "Needs",
+    "prefers": "Works better with",
+    "usedBy": "Used by",
+    "standalone": "It does not depend on other modules and no module uses it.",
+    "state": {
+      "enabled": "enabled",
+      "disabled": "disabled"
+    }
+  },
+  "enableChain": {
+    "title": "Enable {{name}}?",
+    "description": "{{name}} needs modules that are disabled. They will be enabled first, in this order: {{names}}.",
+    "confirm": "Enable all"
+  },
+  "catalog": {
+    "config_packages": {
+      "name": "Configuration packages",
+      "description": "Exports and installs the system configuration (fields, pipelines, rules and other settings) as versioned packages, to repeat a setup in another organization."
+    },
+    "documents": {
+      "name": "Documents",
+      "description": "Shared document rendering, layout and owner-authorized sources."
+    },
+    "formulas": {
+      "name": "Formulas",
+      "description": "Formula fields with validation, a result preview and recalculation when the fields they use change."
+    },
+    "marketplace": {
+      "name": "Marketplace",
+      "description": "Catalog to find and install plugins and configuration packages."
+    },
+    "notifications": {
+      "name": "Notifications",
+      "description": "In-app and push notices, with delivery preferences per person."
+    },
+    "objects": {
+      "name": "Custom objects",
+      "description": "Creates the organization's own record types, with fields and relationships, without coding."
+    },
+    "publication": {
+      "name": "Publication",
+      "description": "Immutable revisions of publishable records, immediate and scheduled publication with approval policies, withdrawal and retention."
+    },
+    "record_layouts": {
+      "name": "Record layouts",
+      "description": "Defines how each record type is arranged on screen: tabs, sections and field order."
+    },
+    "saved_views": {
+      "name": "Saved views",
+      "description": "Saved filters, columns and sorting for each list, personal or shared."
+    },
+    "search": {
+      "name": "Search",
+      "description": "Global search over records, with an index kept up to date in the background."
+    },
+    "reminders": {
+      "name": "Reminders",
+      "description": "Reminders before a task is due, the morning notice of tasks due today and standalone reminders linked to a record."
+    },
+    "validation_rules": {
+      "name": "Validation rules",
+      "description": "Rules that block saving a record when a condition set by the organization is not met."
+    }
   }
 }

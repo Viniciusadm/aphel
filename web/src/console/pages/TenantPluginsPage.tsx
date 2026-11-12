@@ -327,7 +327,14 @@ export function TenantPluginsPage() {
               <ModulesApiContext.Provider value={modulesApi}>
                 <ul className="grid gap-3 md:grid-cols-2" aria-label={tModules('listLabel')}>
                   {optionalModules.map((module) => (
-                    <ModuleCard key={module.key} module={module} nameOf={moduleName} onChanged={refreshModules} />
+                    <ModuleCard
+                      key={module.key}
+                      module={module}
+                      modules={modules.data ?? []}
+                      nameOf={moduleName}
+                      onChanged={refreshModules}
+                      showSurface={false}
+                    />
                   ))}
                 </ul>
               </ModulesApiContext.Provider>

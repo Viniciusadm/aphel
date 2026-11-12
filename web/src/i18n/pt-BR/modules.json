@@ -2,7 +2,7 @@
   "managementDisabledTitle": "O gerenciamento de módulos está desativado",
   "managementDisabledDescription": "O operador da plataforma desativou o gerenciamento de módulos e plugins desta empresa. Para ativar ou desativar módulos, fale com o operador da plataforma.",
   "title": "Módulos",
-  "description": "Recursos opcionais compilados no Aphel. Habilite só o que a organização usa: ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
+  "description": "Cada módulo liga um conjunto de recursos do Aphel. Alguns trazem telas e registros do dia a dia; outros são apoio e só funcionam quando outro módulo os usa. Ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
   "listLabel": "Módulos disponíveis",
   "emptyTitle": "Nenhum módulo disponível",
   "emptyDescription": "Este binário do Aphel não inclui módulos.",
@@ -24,22 +24,8 @@
   "disabledAt": "Desabilitado em {{date}}",
   "dataExportedAt": "Dados exportados em {{date}}",
   "dataPurgedAt": "Dados removidos em {{date}}",
-  "dependencies": {
-    "title": "Depende de",
-    "none": "Sem dependências",
-    "requirement": "versão {{requirement}}",
-    "state": {
-      "enabled": "habilitado",
-      "disabled": "desabilitado",
-      "missing": "não instalado"
-    }
-  },
-  "dependents": {
-    "title": "Usado por",
-    "hint": "Desabilite antes o que depende deste módulo: {{names}}."
-  },
   "details": {
-    "summary": "Permissões e eventos",
+    "summary": "Detalhes técnicos",
     "permissions": "Permissões que adiciona",
     "noPermissions": "Nenhuma permissão própria",
     "recordScoped": "por registro",
@@ -52,12 +38,15 @@
     "configure": "Configurar",
     "more": "Mais ações de {{name}}",
     "export": "Exportar dados",
-    "purge": "Remover dados"
+    "purge": "Remover dados",
+    "enableWith": "Habilitar com {{names}}"
   },
   "disable": {
     "title": "Desabilitar {{name}}?",
     "description": "As telas, menus, widgets e rotinas automáticas do módulo deixam de funcionar para toda a organização. Nenhum dado é apagado: ao habilitar de novo, tudo volta como estava.",
-    "confirm": "Desabilitar"
+    "confirm": "Desabilitar",
+    "withDependents": "Estes módulos habilitados dependem de {{name}} e serão desabilitados antes, nesta ordem: {{names}}. Nenhum dado é apagado: ao habilitar de novo, tudo volta como estava.",
+    "confirmAll": "Desabilitar todos"
   },
   "settings": {
     "title": "Configurar {{name}}",
@@ -117,7 +106,8 @@
     "module_export_required": "Exporte os dados depois de desabilitar o módulo antes de removê-los.",
     "module_confirmation_required": "A chave digitada não confere.",
     "actionFailed": "Não foi possível concluir a ação",
-    "generic": "Não foi possível salvar. Tente novamente."
+    "generic": "Não foi possível salvar. Tente novamente.",
+    "actionFailedFor": "Não foi possível concluir a ação em {{name}}"
   },
   "applyUpdate": "Aplicar atualização",
   "plugins": {
@@ -255,5 +245,100 @@
   "placeholders": {
     "none": "Nenhum",
     "value": "Digite o valor"
+  },
+  "nature": {
+    "screens": "Tem telas",
+    "support": "Apoio"
+  },
+  "sections": {
+    "screens": {
+      "title": "Com telas próprias",
+      "description": "Aparecem no menu ou trazem registros que a equipe usa no dia a dia."
+    },
+    "support": {
+      "title": "Apoio",
+      "description": "Não têm tela de uso diário: funcionam quando outro módulo os usa, como automações, importações e webhooks."
+    }
+  },
+  "filters": {
+    "search": "Buscar módulo",
+    "searchPlaceholder": "Buscar módulo",
+    "state": "Situação",
+    "all": "Todos",
+    "enabled": "Habilitados",
+    "disabled": "Desabilitados",
+    "noResults": "Nenhum módulo encontrado",
+    "noResultsDescription": "Tente outra busca ou mude o filtro de situação."
+  },
+  "adds": {
+    "title": "O que adiciona",
+    "menu": "no menu: {{items}}",
+    "settings": "em Configurações: {{items}}",
+    "nothing": "nada no menu nem em Configurações; serve a outros módulos."
+  },
+  "relations": {
+    "requires": "Precisa de",
+    "prefers": "Funciona melhor com",
+    "usedBy": "Usado por",
+    "standalone": "Não depende de outros módulos nem é usado por eles.",
+    "state": {
+      "enabled": "habilitado",
+      "disabled": "desabilitado"
+    }
+  },
+  "enableChain": {
+    "title": "Habilitar {{name}}?",
+    "description": "{{name}} precisa de módulos que estão desabilitados. Serão habilitados antes, nesta ordem: {{names}}.",
+    "confirm": "Habilitar todos"
+  },
+  "catalog": {
+    "config_packages": {
+      "name": "Pacotes de configuração",
+      "description": "Exporta e instala a configuração do sistema (campos, funis, regras e outros ajustes) como pacotes versionados, para repetir uma configuração em outra organização."
+    },
+    "documents": {
+      "name": "Documentos",
+      "description": "Geração e layout de documentos compartilhados por outros módulos, a partir de fontes autorizadas pelo dono de cada registro."
+    },
+    "formulas": {
+      "name": "Fórmulas",
+      "description": "Campos calculados por fórmula, com validação, pré-visualização do resultado e recálculo quando os campos usados mudam."
+    },
+    "marketplace": {
+      "name": "Marketplace",
+      "description": "Catálogo para encontrar e instalar plugins e pacotes de configuração."
+    },
+    "notifications": {
+      "name": "Notificações",
+      "description": "Avisos dentro do sistema e por push, com preferências de entrega por pessoa."
+    },
+    "objects": {
+      "name": "Objetos personalizados",
+      "description": "Cria tipos de registro próprios da organização, com campos e relacionamentos, sem programar."
+    },
+    "publication": {
+      "name": "Publicação",
+      "description": "Revisões imutáveis de registros publicáveis, publicação imediata ou agendada com políticas de aprovação, retirada e retenção."
+    },
+    "record_layouts": {
+      "name": "Layouts de registro",
+      "description": "Define como cada tipo de registro é organizado na tela: abas, seções e a ordem dos campos."
+    },
+    "saved_views": {
+      "name": "Visualizações salvas",
+      "description": "Filtros, colunas e ordenações salvos para cada lista, pessoais ou compartilhados."
+    },
+    "search": {
+      "name": "Busca",
+      "description": "Busca global em registros, com índice mantido em segundo plano."
+    },
+    "reminders": {
+      "name": "Lembretes",
+      "description": "Lembretes antes do vencimento de uma tarefa, o aviso da manhã com as tarefas do dia e lembretes avulsos ligados a um registro."
+    },
+    "validation_rules": {
+      "name": "Regras de validação",
+      "description": "Regras que impedem salvar um registro quando uma condição definida pela organização não é atendida."
+    }
   }
 }

@@ -22,11 +22,17 @@ export function moduleErrorMessage(error: unknown): string | null {
   return key ? i18n.t(key, { ns: 'modules' }) : null
 }
 
-export function notifyModuleError(error: unknown) {
+export function notifyModuleError(error: unknown, moduleName?: string) {
   const message = moduleErrorMessage(error)
   if (!message) {
     notifyError(error)
     return
   }
-  toast({ title: i18n.t('errors.actionFailed', { ns: 'modules' }), description: message, variant: 'destructive' })
+  toast({
+    title: moduleName
+      ? i18n.t('errors.actionFailedFor', { ns: 'modules', name: moduleName })
+      : i18n.t('errors.actionFailed', { ns: 'modules' }),
+    description: message,
+    variant: 'destructive',
+  })
 }

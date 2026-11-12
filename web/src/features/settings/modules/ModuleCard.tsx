@@ -1,5 +1,5 @@
 import { AlertTriangle, ArrowUpCircle, Download, MoreHorizontal, Puzzle, Settings2, Trash2 } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
@@ -13,8 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useModulesApi, type ModuleInfo } from '@/kernel/modules/api'
+import { useModuleSurface } from '@/kernel/modules/surface'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { disableChain, enableChain, moduleAnchor } from './chain'
 import { notifyModuleError } from './errors'
+import { ModuleRelations } from './ModuleRelations'
 import { exportModuleData } from './export'
 import { ModuleSettingsDialog } from './ModuleSettingsDialog'
 import { serverViolations, type SettingViolation } from './form'
@@ -34,37 +37,46 @@ function compatibilityProblem(module: ModuleInfo): CompatibilityProblem | null {
 
 interface ModuleCardProps {
   module: ModuleInfo
+  modules: ModuleInfo[]
   nameOf: (key: string) => string
   onChanged: () => Promise<unknown>
+  showSurface?: boolean
 }
 
-export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
+export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = true }: ModuleCardProps) {
   const { t } = useTranslation('modules')
   const modulesApi = useModulesApi()
   const text = useModuleText(module)
   const formatting = useRecordFormatting()
-  const dependentsHintId = useId()
+  const surface = useModuleSurface(module.key)
   const [configuring, setConfiguring] = useState<SettingViolation[] | null>(null)
   const [confirmDisable, setConfirmDisable] = useState(false)
+  const [confirmEnable, setConfirmEnable] = useState(false)
   const [purging, setPurging] = useState(false)
   const [busy, setBusy] = useState(false)
   const name = text.name
   const problem = compatibilityProblem(module)
-  const dependents = [...module.enabled_dependents.map(nameOf), ...module.extension_dependents]
-  const blockedByDependents = module.enabled && dependents.length > 0
-  const dependentNames = dependents.join(', ')
+  const toEnable = enableChain(modules, module.key).filter((item) => item.key !== module.key)
+  const toDisable = disableChain(modules, module.key).filter((item) => item.key !== module.key)
+  const exists = (key: string) => modules.some((item) => item.key === key && !item.required)
+  const pendingNames = (list: ModuleInfo[]) => list.map((item) => nameOf(item.key)).join(', ')
   const date = (value: string) => formatDateTime(value, formatting)
 
   const enable = async () => {
     setBusy(true)
     try {
-      await modulesApi.enable(module.key)
-      notifySuccess(t('toast.enabled', { name }))
-    } catch (error) {
-      if (isApiError(error) && error.code === 'module_settings_required') {
-        setConfiguring(serverViolations(error))
+      for (const item of [...toEnable, module]) {
+        try {
+          await modulesApi.enable(item.key)
+        } catch (error) {
+          if (item.key === module.key && isApiError(error) && error.code === 'module_settings_required') {
+            setConfiguring(serverViolations(error))
+          }
+          notifyModuleError(error, item.key === module.key ? undefined : nameOf(item.key))
+          return
+        }
       }
-      notifyModuleError(error)
+      notifySuccess(t('toast.enabled', { name }))
     } finally {
       setBusy(false)
       await onChanged()
@@ -73,10 +85,15 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
 
   const disable = async () => {
     try {
-      await modulesApi.disable(module.key)
+      for (const item of [...toDisable, module]) {
+        try {
+          await modulesApi.disable(item.key)
+        } catch (error) {
+          notifyModuleError(error, item.key === module.key ? undefined : nameOf(item.key))
+          return
+        }
+      }
       notifySuccess(t('toast.disabled', { name }))
-    } catch (error) {
-      notifyModuleError(error)
     } finally {
       await onChanged()
     }
@@ -97,7 +114,7 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
 
   return (
     <li className="contents">
-      <Card className="gap-4 py-4">
+      <Card id={moduleAnchor(module.key)} tabIndex={-1} className="scroll-mt-24 gap-4 py-4 outline-none">
         <CardHeader className="px-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -106,9 +123,11 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
               </span>
               <div className="grid min-w-0 gap-0.5">
                 <CardTitle className="break-words">{name}</CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  {t('version', { version: module.version })} · <code>{module.key}</code>
-                </p>
+                {showSurface && (
+                  <p className="text-xs text-muted-foreground">
+                    {surface.hasScreens ? t('nature.screens') : t('nature.support')}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -148,44 +167,26 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
               </Button>
             </p>
           )}
-          <div className="grid gap-1">
-            <h4 className="text-xs font-medium text-muted-foreground">{t('dependencies.title')}</h4>
-            {module.dependencies.length === 0 ? (
-              <p className="text-xs text-muted-foreground">{t('dependencies.none')}</p>
-            ) : (
-              <ul className="flex flex-wrap gap-1.5">
-                {module.dependencies.map((dependency) => {
-                  const state = !dependency.installed ? 'missing' : dependency.enabled ? 'enabled' : 'disabled'
-                  return (
-                    <li key={dependency.key}>
-                      <Badge variant={state === 'enabled' ? 'outline' : state === 'missing' ? 'destructive' : 'warning'}>
-                        {nameOf(dependency.key)}
-                        <span className="font-normal">
-                          ({t('dependencies.requirement', { requirement: dependency.requirement })},{' '}
-                          {t(`dependencies.state.${state}`)})
-                        </span>
-                      </Badge>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-          </div>
-          {dependents.length > 0 && (
-            <div className="grid gap-1">
-              <h4 className="text-xs font-medium text-muted-foreground">{t('dependents.title')}</h4>
-              <ul className="flex flex-wrap gap-1.5">
-                {dependents.map((name) => (
-                  <li key={name}>
-                    <Badge variant="outline">{name}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {showSurface && (
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium">{t('adds.title')}: </span>
+            {surface.menu.length === 0 && surface.settings.length === 0
+              ? t('adds.nothing')
+              : [
+                  surface.menu.length > 0 ? t('adds.menu', { items: surface.menu.join(', ') }) : null,
+                  surface.settings.length > 0 ? t('adds.settings', { items: surface.settings.join(', ') }) : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+          </p>
           )}
+          <ModuleRelations module={module} nameOf={nameOf} exists={exists} />
           <details className="text-xs">
             <summary className="cursor-pointer font-medium text-muted-foreground">{t('details.summary')}</summary>
             <div className="mt-2 grid gap-3">
+              <p className="text-muted-foreground">
+                {t('version', { version: module.version })} · <code>{module.key}</code>
+              </p>
               <div className="grid gap-1">
                 <h4 className="font-medium">{t('details.permissions')}</h4>
                 {module.permissions.length === 0 ? (
@@ -194,7 +195,7 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
                   <ul className="grid gap-1">
                     {module.permissions.map((permission) => (
                       <li key={permission.permission} className="break-words">
-                        <span>{permission.label}</span> <code className="text-muted-foreground">{permission.permission}</code>
+                        <span>{text.permissionLabel(permission.permission, permission.label)}</span> <code className="text-muted-foreground">{permission.permission}</code>
                         {permission.record_scoped && (
                           <span className="text-muted-foreground"> · {t('details.recordScoped')}</span>
                         )}
@@ -212,7 +213,9 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
                     {module.events.map((event) => (
                       <li key={event.event_type} className="break-words">
                         <code>{event.event_type}</code>
-                        {event.description && <span className="text-muted-foreground"> · {event.description}</span>}
+                        {event.description && (
+                          <span className="text-muted-foreground"> · {text.eventDescription(event.event_type, event.description)}</span>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -227,26 +230,20 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
             {module.data_purged_at && <p>{t('dataPurgedAt', { date: date(module.data_purged_at) })}</p>}
           </div>
           {module.held_by && <p className="text-xs text-warning">{t('plugins.heldByPlugin', { plugin: module.held_by })}</p>}
-          {blockedByDependents && (
-            <p id={dependentsHintId} className="text-xs text-muted-foreground">
-              {t('dependents.hint', { names: dependentNames })}
-            </p>
-          )}
         </CardContent>
         <CardFooter className="mt-auto flex-wrap gap-2 px-4">
           {module.enabled ? (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy || blockedByDependents}
-              aria-describedby={blockedByDependents ? dependentsHintId : undefined}
-              onClick={() => setConfirmDisable(true)}
-            >
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => setConfirmDisable(true)}>
               {t('actions.disable')}
             </Button>
           ) : (
-            <Button size="sm" disabled={busy || problem !== null || Boolean(module.held_by)} aria-busy={busy} onClick={() => void enable()}>
-              {t('actions.enable')}
+            <Button
+              size="sm"
+              disabled={busy || problem !== null || Boolean(module.held_by)}
+              aria-busy={busy}
+              onClick={() => (toEnable.length > 0 ? setConfirmEnable(true) : void enable())}
+            >
+              {toEnable.length > 0 ? t('actions.enableWith', { names: pendingNames(toEnable) }) : t('actions.enable')}
             </Button>
           )}
           <Button size="sm" variant="outline" onClick={() => setConfiguring([])}>
@@ -286,11 +283,23 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
         <PurgeDataDialog module={module} name={name} onClose={() => setPurging(false)} onChanged={onChanged} />
       )}
       <ConfirmDialog
+        open={confirmEnable}
+        onOpenChange={setConfirmEnable}
+        title={t('enableChain.title', { name })}
+        description={t('enableChain.description', { name, names: pendingNames(toEnable) })}
+        confirmLabel={t('enableChain.confirm')}
+        onConfirm={enable}
+      />
+      <ConfirmDialog
         open={confirmDisable}
         onOpenChange={setConfirmDisable}
         title={t('disable.title', { name })}
-        description={t('disable.description')}
-        confirmLabel={t('disable.confirm')}
+        description={
+          toDisable.length > 0
+            ? t('disable.withDependents', { name, names: pendingNames(toDisable) })
+            : t('disable.description')
+        }
+        confirmLabel={toDisable.length > 0 ? t('disable.confirmAll') : t('disable.confirm')}
         onConfirm={disable}
       />
     </li>
