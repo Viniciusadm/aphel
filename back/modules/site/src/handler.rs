@@ -69,7 +69,7 @@ impl SiteRequestHandler for SiteHandler {
 struct SiteContext {
     site: serde_json::Value,
     customer: Option<SiteCustomer>,
-    suffix: Option<String>,
+    translation: Option<String>,
     tags: Vec<String>,
 }
 
@@ -91,7 +91,7 @@ fn value_text(value: Option<&serde_json::Value>) -> Option<String> {
 pub(crate) async fn record_menu(
     state: &AppState,
     runtime: &SiteRuntime,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<(Vec<RecordMenuLine>, Vec<String>), AppError> {
     let mut lines = Vec::new();
     let mut tags = Vec::new();
@@ -119,7 +119,7 @@ pub(crate) async fn record_menu(
             &records.conditions,
             records.sort.as_deref(),
             MAX_MENU_RECORDS,
-            suffix,
+            translation,
         )
         .await?;
         for record in found {
@@ -805,8 +805,8 @@ impl Language {
         }
     }
 
-    fn suffix(&self) -> Option<String> {
-        self.code.as_deref().map(crate::settings::field_suffix)
+    fn translation(&self) -> Option<String> {
+        self.code.clone()
     }
 }
 
@@ -914,7 +914,8 @@ async fn site_context(
     let mount_url = config.site_base_url().trim_end_matches('/').to_owned();
     let origin = origin_of(&mount_url).to_owned();
     let base_url = format!("{origin}{prefix}");
-    let (record_lines, tags) = record_menu(state, runtime, language.suffix().as_deref()).await?;
+    let (record_lines, tags) =
+        record_menu(state, runtime, language.translation().as_deref()).await?;
     let alternates: Vec<serde_json::Value> = if language.available.is_empty() {
         Vec::new()
     } else {
@@ -956,7 +957,7 @@ async fn site_context(
         .as_ref()
         .and_then(|code| settings.translations.get(code));
     let mut context = SiteContext {
-        suffix: language.suffix(),
+        translation: language.translation(),
         site: json!({
             "appearance": crate::appearance::resolved(state, None, None).await?,
             "name": organization.name.as_str(),
@@ -1090,7 +1091,7 @@ async fn render_route(
                         exposure,
                         &draft,
                         &BTreeMap::from([(match_field.clone(), json!(value))]),
-                        context.suffix.as_deref(),
+                        context.translation.as_deref(),
                     )
                     .await?
                 }
@@ -1105,7 +1106,7 @@ async fn render_route(
                         match_field,
                         &value,
                         restriction,
-                        context.suffix.as_deref(),
+                        context.translation.as_deref(),
                     )
                     .await?
                 }
@@ -1153,7 +1154,7 @@ async fn render_route(
                         exposure,
                         &draft,
                         conditions,
-                        context.suffix.as_deref(),
+                        context.translation.as_deref(),
                     )
                     .await?
                 }
@@ -1162,7 +1163,8 @@ async fn render_route(
             let found = match drafted {
                 Some(record) => Some(record),
                 None => {
-                    data::single(state, exposure, conditions, context.suffix.as_deref()).await?
+                    data::single(state, exposure, conditions, context.translation.as_deref())
+                        .await?
                 }
             };
             tags.push(cache::entity_tag(entity));
@@ -1215,7 +1217,7 @@ async fn render_route(
                 (sort.as_deref(), current, per_page),
                 restriction,
                 term_filter,
-                context.suffix.as_deref(),
+                context.translation.as_deref(),
             )
             .await?;
             if preview
@@ -1336,7 +1338,7 @@ async fn render_route(
             runtime,
             site: &values["site"],
             appearance: preview.and_then(|preview| preview.appearance.as_ref()),
-            suffix: context.suffix.as_deref(),
+            translation: context.translation.as_deref(),
         },
     )
     .await;

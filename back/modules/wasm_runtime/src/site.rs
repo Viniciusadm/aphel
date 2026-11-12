@@ -172,7 +172,6 @@ fn bundle_of(
                 conditions: public.conditions.clone(),
                 filter: public.filter.clone(),
                 images: public.images,
-                translated: public.translated.clone(),
             }
         })
         .collect();

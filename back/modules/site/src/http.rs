@@ -196,8 +196,6 @@ pub(crate) struct SiteLanguageResponse {
     pub code: String,
     #[schema(example = "/en")]
     pub prefix: String,
-    #[schema(example = "en")]
-    pub field_suffix: String,
     pub default: bool,
 }
 
@@ -748,19 +746,8 @@ static PREVIEW_RENDER_LIMIT: std::sync::LazyLock<
     )
 });
 
-fn preview_value_target(
-    exposure: &aphel_contract_site::SiteExposure,
-    languages: &[String],
-    target: &str,
-) -> bool {
-    let plain =
-        exposure.exposes(target) && !aphel_contract_site::ALWAYS_PUBLIC_FIELDS.contains(&target);
-    let translated = exposure.translated.iter().any(|field| {
-        languages.iter().any(|language| {
-            target == format!("{field}_{}", crate::settings::field_suffix(language))
-        })
-    });
-    plain || translated
+fn preview_value_target(exposure: &aphel_contract_site::SiteExposure, target: &str) -> bool {
+    exposure.exposes(target) && !aphel_contract_site::ALWAYS_PUBLIC_FIELDS.contains(&target)
 }
 
 #[utoipa::path(
@@ -768,7 +755,7 @@ fn preview_value_target(
     path = "/site/preview/render",
     tag = TAG,
     operation_id = "site_preview_render",
-    description = "Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity, or `<translated field>_<language suffix>` for an extra site language; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user.",
+    description = "Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity and replace the value shown in the language of `path`; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user.",
     security(("session_cookie" = [])),
     request_body = RenderSitePreview,
     responses(
@@ -791,8 +778,6 @@ async fn render_preview(
     let path = crate::preview::local_path(&input.path).ok_or_else(|| {
         AppError::Validation("path must be a site path such as /about-us".to_owned())
     })?;
-    let config = state.organization_config.snapshot();
-    let settings = site_settings(&config);
     let runtime = runtime::active(&state).await?;
     let mut record = preview_record(
         &state,
@@ -817,7 +802,7 @@ async fn render_preview(
             AppError::Validation(format!("{} has no public pages", record.record_type))
         })?;
     for (target, value) in &input.record.values {
-        if !preview_value_target(exposure, &settings.languages, target) {
+        if !preview_value_target(exposure, target) {
             return Err(AppError::Validation(format!(
                 "{target} is not a public field that a preview can replace"
             ))
@@ -1007,7 +992,7 @@ async fn list_collections(
     path = "/site/languages",
     tag = TAG,
     operation_id = "site_languages_list",
-    description = "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user.",
+    description = "Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix. The code is the key of the translation maps (`<field>_translations`) that public pages read for that language. Any signed-in user.",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Languages", body = Data<Vec<SiteLanguageResponse>>),
@@ -1027,7 +1012,6 @@ async fn list_languages(
     let settings = site_settings(&state.organization_config.snapshot());
     let languages = std::iter::once(SiteLanguageResponse {
         prefix: String::new(),
-        field_suffix: crate::settings::field_suffix(&default_language),
         code: default_language.clone(),
         default: true,
     })
@@ -1038,7 +1022,6 @@ async fn list_languages(
             .filter(|code| !code.eq_ignore_ascii_case(&default_language))
             .map(|code| SiteLanguageResponse {
                 prefix: format!("/{}", crate::settings::language_slug(code)),
-                field_suffix: crate::settings::field_suffix(code),
                 code: code.clone(),
                 default: false,
             }),

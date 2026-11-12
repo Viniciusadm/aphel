@@ -55,7 +55,7 @@ pub(crate) struct ResolveContext<'a> {
     pub runtime: &'a SiteRuntime,
     pub site: &'a serde_json::Value,
     pub appearance: Option<&'a crate::appearance::AppearancePreview>,
-    pub suffix: Option<&'a str>,
+    pub translation: Option<&'a str>,
 }
 
 fn embed_sources(state: &AppState) -> Vec<Arc<dyn SiteEmbedSource>> {
@@ -217,7 +217,7 @@ async fn list(
         conditions,
         Some(&sort),
         limit.clamp(1, MAX_LIST_LIMIT),
-        context.suffix,
+        context.translation,
     )
     .await?;
     crate::prefixes::annotate(context.state, context.runtime, &record_type, &mut records).await?;

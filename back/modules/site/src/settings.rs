@@ -17,10 +17,6 @@ pub(crate) fn language_slug(language: &str) -> String {
     language.to_ascii_lowercase()
 }
 
-pub(crate) fn field_suffix(language: &str) -> String {
-    language.to_ascii_lowercase().replace('-', "_")
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub(crate) struct SiteSettings {

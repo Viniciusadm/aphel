@@ -58,6 +58,7 @@ pub struct SystemField {
     pub contributed_by: Option<&'static str>,
     pub owner_managed: bool,
     pub writers: Vec<String>,
+    pub translation_of: Option<String>,
 }
 
 impl SystemField {
@@ -90,6 +91,7 @@ impl SystemField {
             contributed_by: None,
             owner_managed: false,
             writers: Vec::new(),
+            translation_of: None,
         })
     }
 

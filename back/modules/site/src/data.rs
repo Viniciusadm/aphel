@@ -2,6 +2,7 @@ use aphel_contract_site::SiteExposure;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::{RecordCtx, query_ports};
 use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::fields::translations_field;
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine, parse_sort,
@@ -69,25 +70,19 @@ fn filled(value: &Value) -> bool {
     }
 }
 
-fn swap_drafts(record: &mut Map<String, Value>, draft: &Draft<'_>, suffix: Option<&str>) {
-    for (target, source) in draft.fields {
-        let pairs = std::iter::once((target.clone(), source.clone())).chain(
-            suffix.map(|suffix| (format!("{target}_{suffix}"), format!("{source}_{suffix}"))),
-        );
-        for (target, source) in pairs {
-            let value = record.get(&source).cloned().unwrap_or(Value::Null);
-            record.insert(target, value);
-        }
-    }
-    for (target, value) in draft.values {
-        record.insert(target.clone(), value.clone());
-    }
+fn translated(record: &Map<String, Value>, field: &str, language: &str) -> Option<Value> {
+    record
+        .get(&translations_field(field))
+        .and_then(Value::as_str)
+        .and_then(|text| serde_json::from_str::<Map<String, Value>>(text).ok())
+        .and_then(|map| map.get(language).cloned())
+        .filter(filled)
 }
 
 fn project(
     exposure: &SiteExposure,
     record: Value,
-    suffix: Option<&str>,
+    translation: Option<&str>,
     drafts: Option<&Draft<'_>>,
 ) -> Value {
     let Value::Object(mut record) = record else {
@@ -99,17 +94,21 @@ fn project(
         }
     }
     if let Some(drafts) = drafts {
-        swap_drafts(&mut record, drafts, suffix);
+        for (target, source) in drafts.fields {
+            let value = record.get(source).cloned().unwrap_or(Value::Null);
+            record.insert(target.clone(), value);
+        }
     }
-    if let Some(suffix) = suffix {
-        for field in &exposure.translated {
-            if let Some(translation) = record
-                .get(&format!("{field}_{suffix}"))
-                .filter(|value| filled(value))
-                .cloned()
-            {
-                record.insert(field.clone(), translation);
+    if let Some(language) = translation {
+        for field in &exposure.fields {
+            if let Some(value) = translated(&record, field, language) {
+                record.insert(field.clone(), value);
             }
+        }
+    }
+    if let Some(drafts) = drafts {
+        for (target, value) in drafts.values {
+            record.insert(target.clone(), value.clone());
         }
     }
     Value::Object(
@@ -124,7 +123,7 @@ async fn query(
     state: &AppState,
     exposure: &SiteExposure,
     query: RecordQuery,
-    suffix: Option<&str>,
+    translation: Option<&str>,
     drafts: Option<&Draft<'_>>,
 ) -> Result<RecordPage, AppError> {
     let scope = site_scope();
@@ -141,7 +140,7 @@ async fn query(
     Ok(RecordPage {
         records: loaded
             .into_iter()
-            .map(|record| project(exposure, record, suffix, drafts))
+            .map(|record| project(exposure, record, translation, drafts))
             .collect(),
         total: listing.total,
     })
@@ -165,7 +164,7 @@ pub(crate) async fn record(
     field: &str,
     value: &str,
     restriction: Restriction<'_>,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<Option<Value>, AppError> {
     let found = query(
         state,
@@ -190,7 +189,7 @@ pub(crate) async fn record(
                 limit: 1,
             },
         },
-        suffix,
+        translation,
         None,
     )
     .await?;
@@ -204,7 +203,7 @@ pub(crate) async fn list(
     page: u64,
     per_page: u64,
     restriction: Restriction<'_>,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<RecordPage, AppError> {
     list_in(
         state,
@@ -212,7 +211,7 @@ pub(crate) async fn list(
         (sort, page, per_page),
         restriction,
         None,
-        suffix,
+        translation,
     )
     .await
 }
@@ -231,7 +230,7 @@ pub(crate) async fn list_in(
     (sort, page, per_page): (Option<&str>, u64, u64),
     restriction: Restriction<'_>,
     extra: Option<Filter>,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<RecordPage, AppError> {
     query(
         state,
@@ -246,7 +245,7 @@ pub(crate) async fn list_in(
                 limit: per_page,
             },
         },
-        suffix,
+        translation,
         None,
     )
     .await
@@ -256,7 +255,7 @@ async fn first(
     state: &AppState,
     exposure: &SiteExposure,
     filter: Option<Filter>,
-    suffix: Option<&str>,
+    translation: Option<&str>,
     drafts: Option<&Draft<'_>>,
 ) -> Result<Option<Value>, AppError> {
     let found = query(
@@ -272,7 +271,7 @@ async fn first(
                 limit: 1,
             },
         },
-        suffix,
+        translation,
         drafts,
     )
     .await?;
@@ -283,14 +282,14 @@ pub(crate) async fn single(
     state: &AppState,
     exposure: &SiteExposure,
     conditions: &BTreeMap<String, Value>,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<Option<Value>, AppError> {
     let page_conditions = combined(equalities(conditions));
     first(
         state,
         exposure,
         publication_filter(exposure, page_conditions),
-        suffix,
+        translation,
         None,
     )
     .await
@@ -301,7 +300,7 @@ pub(crate) async fn draft(
     exposure: &SiteExposure,
     draft: &Draft<'_>,
     conditions: &BTreeMap<String, Value>,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<Option<Value>, AppError> {
     let mut filters = equalities(conditions);
     filters.push(Filter::condition(
@@ -309,7 +308,7 @@ pub(crate) async fn draft(
         FilterOperator::Eq,
         Value::String(draft.record_id.to_owned()),
     ));
-    first(state, exposure, combined(filters), suffix, Some(draft)).await
+    first(state, exposure, combined(filters), translation, Some(draft)).await
 }
 
 pub(crate) async fn matching(
@@ -318,7 +317,7 @@ pub(crate) async fn matching(
     conditions: &BTreeMap<String, Value>,
     sort: Option<&str>,
     limit: u64,
-    suffix: Option<&str>,
+    translation: Option<&str>,
 ) -> Result<Vec<Value>, AppError> {
     let page_conditions = combined(equalities(conditions));
     Ok(query(
@@ -331,7 +330,7 @@ pub(crate) async fn matching(
             archived: ArchivedFilter::Exclude,
             window: ListWindow { offset: 0, limit },
         },
-        suffix,
+        translation,
         None,
     )
     .await?

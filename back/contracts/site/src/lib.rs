@@ -270,6 +270,7 @@ pub struct SiteCustomer {
 }
 
 pub const CUSTOMER_RECORD_TYPE: &str = "site.customer";
+pub const TRANSLATIONS_SUFFIX: &str = "_translations";
 pub const RESERVED_PAGE_PREFIXES: &[&str] = &["/conta", "/account"];
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -328,13 +329,12 @@ pub struct SiteExposure {
     pub filter: Option<Value>,
     #[serde(default)]
     pub images: bool,
-    #[serde(default)]
-    pub translated: Vec<String>,
 }
 
 impl SiteExposure {
     pub fn exposes(&self, field: &str) -> bool {
-        ALWAYS_PUBLIC_FIELDS.contains(&field) || self.fields.iter().any(|exposed| exposed == field)
+        let base = field.strip_suffix(TRANSLATIONS_SUFFIX).unwrap_or(field);
+        ALWAYS_PUBLIC_FIELDS.contains(&field) || self.fields.iter().any(|exposed| exposed == base)
     }
 }
 
@@ -604,14 +604,6 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 "site.public: {} is declared more than once",
                 exposure.entity
             ));
-        }
-        for field in &exposure.translated {
-            if !exposure.exposes(field) {
-                problems.push(format!(
-                    "site.public {}: the translated field {field} must also be listed in fields",
-                    exposure.entity
-                ));
-            }
         }
         for field in exposure.conditions.keys() {
             if !exposure.exposes(field) {

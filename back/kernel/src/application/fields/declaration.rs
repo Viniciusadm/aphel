@@ -81,6 +81,10 @@ pub struct FieldDef {
     pub writers: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub published_by: Option<String>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub translatable: bool,
+    #[serde(skip)]
+    pub translation_of: Option<String>,
     #[serde(default)]
     pub options: Vec<OptionDef>,
 }
@@ -89,6 +93,43 @@ pub const DRAFT_PREFIX: &str = "draft_";
 pub const PUBLISHED_AT_FIELD: &str = "published_at";
 pub const REVISED_AT_FIELD: &str = "revised_at";
 pub const PUBLICATION_STATES: [&str; 3] = ["draft", "published", "withdrawn"];
+
+pub const TRANSLATIONS_SUFFIX: &str = "_translations";
+pub const MAX_TRANSLATIONS_LENGTH: u32 = 1_000_000;
+
+pub fn translations_field(key: &str) -> String {
+    format!("{key}{TRANSLATIONS_SUFFIX}")
+}
+
+fn expand_translatable(fields: &[FieldDef]) -> Result<Vec<FieldDef>, crate::errors::AppError> {
+    let mut expanded = Vec::with_capacity(fields.len());
+    for field in fields {
+        expanded.push(field.clone());
+        if !field.translatable {
+            continue;
+        }
+        if !["text", "long_text", "document"].contains(&field.field_type.as_str()) {
+            return Err(crate::errors::AppError::Configuration(format!(
+                "translatable field {} must be text, long_text or document",
+                field.key
+            )));
+        }
+        let mut translations = field.clone();
+        translations.key = translations_field(&field.key);
+        translations.field_type = "document".to_owned();
+        translations.translatable = false;
+        translations.translation_of = Some(field.key.clone());
+        translations.required = false;
+        translations.searchable = false;
+        translations.unique = false;
+        translations.default = None;
+        translations.pattern = None;
+        translations.mask = None;
+        translations.max_length = Some(MAX_TRANSLATIONS_LENGTH);
+        expanded.push(translations);
+    }
+    Ok(expanded)
+}
 
 pub fn publication_state_field(writer: &str) -> String {
     format!("{writer}_state")
@@ -104,6 +145,8 @@ fn valid_writer(writer: &str) -> bool {
 fn expand_published(
     fields: &[FieldDef],
 ) -> Result<(Vec<FieldDef>, Option<String>), crate::errors::AppError> {
+    let fields = expand_translatable(fields)?;
+    let fields = fields.as_slice();
     let mut expanded = Vec::with_capacity(fields.len());
     let mut writer: Option<String> = None;
     for field in fields {
@@ -132,6 +175,10 @@ fn expand_published(
         let mut draft = field.clone();
         draft.key = format!("{DRAFT_PREFIX}{}", field.key);
         draft.published_by = None;
+        draft.translation_of = field
+            .translation_of
+            .as_ref()
+            .map(|base| format!("{DRAFT_PREFIX}{base}"));
         let mut published = field.clone();
         published.published_by = None;
         published.required = false;
@@ -373,6 +420,7 @@ impl EntityDeclaration {
                     )));
                 }
                 system.writers = field.writers.clone();
+                system.translation_of = field.translation_of.clone();
                 system.config = field.config().map_err(|_| {
                     crate::errors::AppError::Configuration(format!(
                         "invalid configuration for {}",

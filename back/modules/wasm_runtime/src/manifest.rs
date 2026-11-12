@@ -220,8 +220,6 @@ pub struct SitePublicSpec {
     pub filter: Option<Value>,
     #[serde(default)]
     pub images: bool,
-    #[serde(default)]
-    pub translated: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

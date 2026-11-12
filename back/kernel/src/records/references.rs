@@ -71,7 +71,73 @@ pub async fn validate(
             return Err(invalid(&reference.field));
         }
     }
+    validate_translations(source, values)?;
     validate_files(tx, source, record, values).await
+}
+
+fn translation_language(key: &str) -> bool {
+    let mut parts = key.split('-');
+    let language = parts.next().unwrap_or_default();
+    let region = parts.next();
+    (2..=3).contains(&language.len())
+        && language.chars().all(|char| char.is_ascii_lowercase())
+        && region.is_none_or(|region| {
+            region.len() == 2 && region.chars().all(|char| char.is_ascii_uppercase())
+        })
+        && parts.next().is_none()
+}
+
+fn validate_translations(source: &EntityDefinition, values: &Value) -> Result<(), AppError> {
+    for field in source
+        .system_fields
+        .iter()
+        .filter(|field| field.translation_of.is_some() && !field.owner_managed)
+    {
+        let Some(text) = values
+            .get(field.key.as_str())
+            .and_then(Value::as_str)
+            .filter(|text| !text.trim().is_empty())
+        else {
+            continue;
+        };
+        let base = field
+            .translation_of
+            .as_deref()
+            .and_then(|key| source.system_field_by_key(key));
+        let limit = base
+            .map(|base| base.config.max_text_length(base.field_type) as usize)
+            .unwrap_or(usize::MAX);
+        let document = base.is_some_and(|base| {
+            base.field_type.base_type() == crate::domain::fields::FieldType::Document
+        });
+        let problem = match serde_json::from_str::<Value>(text) {
+            Ok(Value::Object(map)) => map.iter().find_map(|(language, value)| {
+                if !translation_language(language) {
+                    return Some(format!(
+                        "{language} is not a language code such as en or pt-BR"
+                    ));
+                }
+                let Some(value) = value.as_str() else {
+                    return (!value.is_null()).then(|| format!("{language} must be text"));
+                };
+                if value.chars().count() > limit {
+                    return Some(format!("{language} must have at most {limit} characters"));
+                }
+                (document
+                    && !value.trim().is_empty()
+                    && serde_json::from_str::<Value>(value).is_err())
+                .then(|| format!("{language} must be valid JSON"))
+            }),
+            _ => Some("must be an object of language codes and texts".to_owned()),
+        };
+        if let Some(problem) = problem {
+            return Err(AppError::invalid_fields(
+                "invalid translations",
+                vec![FieldViolation::new(field.key.as_str(), problem)],
+            ));
+        }
+    }
+    Ok(())
 }
 
 async fn validate_files(

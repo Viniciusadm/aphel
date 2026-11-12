@@ -7474,7 +7474,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix and the suffix of the field variants that `translated` public fields read (`title_en`). Any signed-in user. */
+        /** @description Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix. The code is the key of the translation maps (`<field>_translations`) that public pages read for that language. Any signed-in user. */
         get: operations["site_languages_list"];
         put?: never;
         post?: never;
@@ -7545,7 +7545,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity, or `<translated field>_<language suffix>` for an extra site language; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user. */
+        /** @description Renders, without saving anything, the site page at `path` (relative to the site address, with the language prefix when needed) as it would look with the record's public fields replaced by `values`. Keys are public fields of the record's entity and replace the value shown in the language of `path`; values are strings up to 64 KB, at most 10. Used by editors for instant previews. Requires permission to update the record or `settings.manage`; limited to 300 renders per minute per user. */
         post: operations["site_preview_render"];
         delete?: never;
         options?: never;
@@ -15688,8 +15688,6 @@ export interface components {
                 /** @example en */
                 code: string;
                 default: boolean;
-                /** @example en */
-                field_suffix: string;
                 /** @example /en */
                 prefix: string;
             }[];
@@ -22795,8 +22793,6 @@ export interface components {
             /** @example en */
             code: string;
             default: boolean;
-            /** @example en */
-            field_suffix: string;
             /** @example /en */
             prefix: string;
         };

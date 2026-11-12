@@ -29,7 +29,6 @@ where = { status = "published" }
 | `where` | table | Equality conditions applied to every read on the site, including direct links and images. A field used here must also be in `fields`. |
 | `filter` | table | A record filter (the same tree as the record API's `filter`) added to `where`, for conditions equality cannot express, such as a related record: `{ related = { relationship = "parent", filter = { field = "state", operator = "eq", value = "active" } } }`. See [relations](/_aphel/docs/plugins/entities-and-fields/#record-fields-and-references). An invalid filter makes nothing public. |
 | `images` | boolean | When `true`, image attachments of a public record (JPEG, PNG, WebP, GIF) become public too and reach templates as `images`. Default `false`. |
-| `translated` | array of strings | Public fields that have versions per language. See [Languages](#languages). |
 
 A record that fails the conditions does not exist for the site: its page answers 404. The consent dialog lists the public entities and fields.
 
@@ -378,12 +377,12 @@ An editor can show unsaved changes without reloading the preview. `POST /api/v1/
 
 ```json
 {
-  "record": { "record_type": "blog.post", "record_id": "0192…", "values": { "body": "<p>Unsaved text</p>", "title_en": "Hello" } },
+  "record": { "record_type": "blog.post", "record_id": "0192…", "values": { "body": "<p>Unsaved text</p>", "title": "Hello" } },
   "path": "/en/blog/my-post"
 }
 ```
 
-The keys of `values` are public fields or `<translated field>_<code>` of an active language; at most 10 values, each a string or `null` up to 64 KB. Permissions match `POST /site/preview`, and each user may render 300 times per minute.
+The keys of `values` are public fields; they replace what the page shows in the language of `path`. At most 10 values, each a string or `null` up to 64 KB. Permissions match `POST /site/preview`, and each user may render 300 times per minute.
 
 Draft previews load `/_aphel/site/preview.js`. Once loaded it posts `{ "type": "aphel:preview-ready" }` to the parent window. The parent (same origin only) answers with `{ "type": "aphel:preview-html", "html", "anchor" }`. The script swaps the body and the head styles in place, keeps the scroll position (or scrolls to `#anchor`), runs the new scripts again and mounts new islands. When the ready message does not arrive, for example because the site has its own host, the editor should fall back to reloading the frame after saving.
 
@@ -394,11 +393,11 @@ The site speaks the organization language. In Site → *Languages* an administra
 For each request in an extra language:
 
 - `site.language` (and `site.locale`, used in `<html lang>`) is the language code; `site.prefix`, `site.home`, `url_for`, pagination, the menu and the account pages carry the language code, so links stay in the language.
-- Fields listed in `translated` take the value of `<field>_<code>` when the record has it filled (`title_en`, `body_pt_br`; the code is lowercase with `-` replaced by `_`). Otherwise the original value is used. Declare the variant fields in the entity; they do not need to be listed in `fields`.
+- A public field declared with `translatable = true` takes the text stored for the language code in its `<field>_translations` map (`{"en": "Hello", "es": "Hola"}`) when it is filled. Otherwise the original value is used. The map is public together with its field and needs no entry in `fields`.
 - Menu and *My account* labels come from `labels`.
-- Theme texts and account pages are in Portuguese for `pt*` languages and in English for the others.
+- Theme texts are in the language of the page (Portuguese, English, Spanish, French, German or Italian); account pages are in Portuguese for `pt*` languages and in English for the others.
 
-Editors learn the active languages, their address prefixes and field suffixes from `GET /api/v1/site/languages` (any signed-in user). A draft preview (see [Drafts](#drafts)) also swaps `<field>_<code>` from `<source>_<code>`, so `path = "/en/about"` previews the English draft. `aphel/head.html` writes `<link rel="alternate" hreflang>` for every language plus `x-default`, and `site.alternates` lists `{ code, url, path, current }` for a language switcher (the built-in theme shows one in the header). The sitemap lists every page in every language. Values used in `match` (a slug) are shared by all languages.
+Editors learn the active languages, with the code used as the key of translation maps and the address prefix, from `GET /api/v1/site/languages` (any signed-in user). A draft preview (see [Drafts](#drafts)) maps `<field>_translations` from `<source>_translations` like any other field, so `path = "/en/about"` with `{"title_translations": "draft_title_translations"}` previews the English draft. `aphel/head.html` writes `<link rel="alternate" hreflang>` for every language plus `x-default`, and `site.alternates` lists `{ code, url, path, current }` for a language switcher (the built-in theme shows one in the header). The sitemap lists every page in every language. Values used in `match` (a slug) are shared by all languages.
 
 ## Search engines
 

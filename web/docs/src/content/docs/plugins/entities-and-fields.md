@@ -102,7 +102,7 @@ To write a record, send only the values you want to set. To avoid overwriting a 
 | `image` | file id | Like `file`, and the file must have an image type (422 `must be an image`). Public pages get `record.<key>_image` with the resolved picture. |
 | `document` | string with JSON | `max_length` (1 to 1 000 000). Invalid JSON answers 422. Use it for content blocks. Managed entities only. |
 
-Any field of a managed entity can take `published_by` to join a published projection; see [Publication](/_aphel/docs/plugins/publication/).
+Any field of a managed entity can take `published_by` to join a published projection; see [Publication](/_aphel/docs/plugins/publication/). A `text`, `long_text` or `document` field can take `translatable = true`: the host adds `<key>_translations`, a JSON object such as `{"en": "About us", "es": "Sobre nosotros"}`, validated against the field's limits (422 `invalid translations`). Languages come from the site settings, not from the manifest.
 
 A type registered by a module through the field type registry can also be used by its key. Options that a type does not support are rejected: for example `min` on a `text` field gives `is not supported by text fields`.
 
