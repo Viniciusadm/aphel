@@ -1,5 +1,6 @@
 export { DocumentEditorPage } from './DocumentEditor'
 export { FlowBody } from './flow/FlowBody'
+export { htmlToBlocks, type HtmlImport } from './flow/htmlToBlocks'
 export {
   DocumentKindContext,
   OPEN_STATUSES,

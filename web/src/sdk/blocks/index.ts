@@ -60,3 +60,4 @@ export {
   type VideoBlock,
 } from './blocks'
 export { blockSourceKeys, blockSourcesApi, useCollections as useBlockCollections, useEmbeds as useBlockEmbeds, type BlockRecord, type EmbedOption, type EmbedSource, type SiteCollection } from './api'
+export { docToMarkdown, markdownToHtml } from './richtext'
