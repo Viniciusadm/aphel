@@ -82,6 +82,7 @@ export { KanbanBoard } from '@/features/custom-records/KanbanBoard'
 export * from './ui'
 export * from './workflow'
 export * from './blocks'
+export * from './editorial'
 export * from './media'
 
 export { APP_FRAME_CONTRACT, DEFAULT_APP_FRAME, type AppFrameProps } from '@/kernel/modules/app-frame'

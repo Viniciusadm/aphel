@@ -16,7 +16,10 @@ const ICONS = {
 const siteModule = defineModule({
   key: 'site',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
-  namespaces: { 'site-blocks': { 'pt-BR': () => import('./i18n/blocks.pt-BR.json'), en: () => import('./i18n/blocks.en.json') } },
+  namespaces: {
+    'site-blocks': { 'pt-BR': () => import('./i18n/blocks.pt-BR.json'), en: () => import('./i18n/blocks.en.json') },
+    editorial: { 'pt-BR': () => import('./i18n/editorial.pt-BR.json'), en: () => import('./i18n/editorial.en.json') },
+  },
   register(app) {
     app.routes(siteRoutes)
     app.nav({

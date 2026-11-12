@@ -1,0 +1,186 @@
+{
+  "diff": {
+    "compare": "Compare",
+    "title": "Differences from this version to the current draft:",
+    "same": "The current draft is the same as this version.",
+    "loading": "Loading…",
+    "text": "“{{before}}” → “{{after}}”",
+    "blocks": "{{added}} new block(s), {{removed}} removed, {{changed}} changed",
+    "languages": "translations changed in {{languages}}",
+    "list": "{{added}} added, {{removed}} removed",
+    "fields": {
+      "title": "Title",
+      "blocks": "Blocks",
+      "body": "Text",
+      "summary": "Summary",
+      "seo_description": "Search description",
+      "cover": "Cover",
+      "cover_alt": "Cover description",
+      "cover_caption": "Cover caption",
+      "cover_x": "Horizontal focal point",
+      "cover_y": "Vertical focal point",
+      "byline": "Byline",
+      "terms": "Categories and tags",
+      "authors": "Authors"
+    }
+  },
+  "editor": {
+    "drag": "Drag to change the order",
+    "duplicate_page": "Duplicate page",
+    "duplicated": "Copy created. You are editing the copy.",
+    "back": "Pages",
+    "titleLabel": "Page title",
+    "blocks": "Page blocks",
+    "blocksHelp": "Click a block to edit it. Blocks show on the site in this order.",
+    "moveUp": "Move block up",
+    "moveDown": "Move block down",
+    "duplicate": "Duplicate block",
+    "remove": "Remove block",
+    "removed": "Block removed.",
+    "undoRemove": "Undo",
+    "empty": "This page has no blocks yet.",
+    "tooMany": "A page has at most {{count}} blocks.",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Could not save",
+    "retry": "Try again",
+    "settings": "Settings",
+    "openPreview": "Open in a new tab",
+    "publish": "Publish",
+    "publishChanges": "Publish changes",
+    "unpublish": "Unpublish",
+    "makeHome": "Use as the home page",
+    "addToMenu": "Add to the site menu",
+    "removeFromMenu": "Remove from the site menu",
+    "menuAdded": "The page was added at the end of the menu. Change the order in Site → Navigation.",
+    "menuRemoved": "The page was removed from the menu.",
+    "isHome": "This is the home page of the site",
+    "delete": "Delete page",
+    "more": "More actions",
+    "published": "Page published. It is on the site now.",
+    "unpublished": "The page is no longer on the site.",
+    "homeChanged": "This is now the home page of the site.",
+    "liveAt": "This page is live at",
+    "notLive": "This page is not on the site yet. Click Publish when it is ready.",
+    "pendingChanges": "You have changes that are not on the site yet.",
+    "noPublishPermission": "Ask someone with permission to publish."
+  },
+  "state": {
+    "draft": "Draft",
+    "published": "Published",
+    "changed": "Unpublished changes",
+    "withdrawn": "Withdrawn"
+  },
+  "slug": {
+    "invalid": "Use only lowercase letters without accents, digits and hyphens. E.g. about-us",
+    "reserved": "This address is used by the system. Choose another one."
+  },
+  "preview": {
+    "title": "Preview",
+    "desktop": "Computer",
+    "mobile": "Phone",
+    "loading": "Loading the preview…",
+    "otherAddress": "The site uses another address, so the preview opens in a new tab.",
+    "open": "Open preview",
+    "failed": "The preview could not be shown.",
+    "frameTitle": "Page preview"
+  },
+  "remove": {
+    "title": "Delete this page?",
+    "description": "The page goes to the trash and leaves the site. You can restore it from the trash.",
+    "confirm": "Delete",
+    "done": "Page moved to the trash."
+  },
+  "problems": {
+    "embed": "The external form link was not recognized.",
+    "link": "This block has an invalid link.",
+    "video": "The video link was not recognized.",
+    "email": "Check the e-mail of this block.",
+    "phone": "Check the phone of this block.",
+    "block": "This block has text that is too long or too many items."
+  },
+  "history": {
+    "open": "History",
+    "title": "Page history",
+    "description": "Every version sent for publication is kept. Restoring copies the version into the draft; it reaches the site only when you publish again.",
+    "empty": "This page has no published versions yet.",
+    "number": "Version {{number}}",
+    "live": "Live",
+    "savedBy": "Saved on {{date}} by {{name}}",
+    "restore": "Restore into the draft",
+    "restored": "Version copied into the draft."
+  },
+  "schedule": {
+    "open": "Schedule publication…",
+    "description": "The draft as it is now goes live at the chosen time. Later changes stay in the draft.",
+    "when": "When",
+    "whenHelp": "In this computer's time.",
+    "past": "Choose a moment in the future.",
+    "submit": "Schedule",
+    "done": "Publication scheduled.",
+    "cancel": "Cancel schedule",
+    "canceled": "Schedule canceled.",
+    "notice": "Publication scheduled for {{date}}",
+    "badge": "Scheduled: {{date}}"
+  },
+  "review": {
+    "sent": "Sent for approval. The page goes live once it is approved.",
+    "queued": "Publishing.",
+    "notice": "Awaiting approval",
+    "open": "See approvals",
+    "badge": "Awaiting approval",
+    "cancel": "Cancel publication request",
+    "blocked": "The last publication did not happen: {{reason}}",
+    "reasons": {
+      "approval_rejected": "the approval was rejected.",
+      "approval_cancelled": "the approval request was cancelled. Publish again.",
+      "approval_no_approver": "nobody can approve it. Check the approval policy.",
+      "publication_requester_unauthorized": "the person who asked can no longer publish.",
+      "other": "try publishing again."
+    }
+  },
+  "languages": {
+    "label": "Language",
+    "empty": "This page has no {{language}} version yet. Meanwhile the site shows the main language content.",
+    "copy": "Copy blocks from {{language}}"
+  },
+  "keybindings": {
+    "scope": "Page editor",
+    "scopeHelp": "Shortcuts while building a site page",
+    "save": "Save now",
+    "undo": "Undo",
+    "redo": "Redo",
+    "moveUp": "Move the selected block up",
+    "moveDown": "Move the selected block down"
+  },
+  "errors": {
+    "block_embed_invalid": "The external form link was not recognized. Use Google Forms, Typeform, Tally, Jotform or Calendly.",
+    "block_email_invalid": "Check the e-mail of the contact block.",
+    "block_phone_invalid": "Check the phone of the contact block.",
+    "block_video_invalid": "The video link was not recognized. Use a YouTube or Vimeo video.",
+    "blocks_too_many_items": "A block went over its item limit.",
+    "page_template_unknown": "Unknown page template.",
+    "page_slug_unavailable": "No address could be chosen for the copy.",
+    "slug_invalid": "The address uses only lowercase letters without accents, digits and hyphens. E.g. about-us",
+    "slug_reserved": "This address is used by the system. Choose another one.",
+    "plugin_field_unique_conflict": "There is already a page with this address.",
+    "entity_unique_conflict": "There is already a page with this address.",
+    "page_title_required": "Give the page a title.",
+    "page_title_too_long": "The title is too long.",
+    "block_link_invalid": "There is an invalid link. Use a site address starting with / or a full link starting with https://",
+    "block_invalid": "One of the blocks has a problem. Reload the page and try again.",
+    "block_text_too_long": "One of the texts is too long.",
+    "blocks_too_many_blocks": "The page has too many blocks. Split the content into more pages.",
+    "blocks_too_many_buttons": "A buttons block has at most 3 buttons.",
+    "blocks_too_large": "The page is too large. Split the content into more pages.",
+    "publication_payload_too_large": "The page is too large to publish. Split the content into more pages.",
+    "page_not_published": "Publish the page before using it as the home page.",
+    "page_not_found": "This page no longer exists."
+  },
+  "list": {
+    "home": "Home page"
+  },
+  "settings": {
+    "cancel": "Cancel"
+  }
+}

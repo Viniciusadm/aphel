@@ -4,6 +4,7 @@
 @import './sdk/theme.css';
 @import './sdk/tokens.css';
 @import './sdk/blocks/blocks.css';
+@import './sdk/editorial/editorial.css';
 
 @layer base {
   * {

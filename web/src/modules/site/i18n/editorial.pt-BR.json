@@ -1,0 +1,186 @@
+{
+  "diff": {
+    "compare": "Comparar",
+    "title": "Diferenças desta versão para o rascunho atual:",
+    "same": "O rascunho atual é igual a esta versão.",
+    "loading": "Carregando…",
+    "text": "“{{before}}” → “{{after}}”",
+    "blocks": "{{added}} bloco(s) novo(s), {{removed}} removido(s), {{changed}} alterado(s)",
+    "languages": "traduções alteradas em {{languages}}",
+    "list": "{{added}} adicionado(s), {{removed}} removido(s)",
+    "fields": {
+      "title": "Título",
+      "blocks": "Blocos",
+      "body": "Texto",
+      "summary": "Resumo",
+      "seo_description": "Descrição para buscadores",
+      "cover": "Capa",
+      "cover_alt": "Descrição da capa",
+      "cover_caption": "Legenda da capa",
+      "cover_x": "Ponto focal horizontal",
+      "cover_y": "Ponto focal vertical",
+      "byline": "Assinatura",
+      "terms": "Categorias e tags",
+      "authors": "Autores"
+    }
+  },
+  "editor": {
+    "drag": "Arraste para mudar a ordem",
+    "duplicate_page": "Duplicar página",
+    "duplicated": "Cópia criada. Você está editando a cópia.",
+    "back": "Páginas",
+    "titleLabel": "Título da página",
+    "blocks": "Blocos da página",
+    "blocksHelp": "Clique num bloco para editar. Os blocos aparecem no site nesta ordem.",
+    "moveUp": "Subir bloco",
+    "moveDown": "Descer bloco",
+    "duplicate": "Duplicar bloco",
+    "remove": "Remover bloco",
+    "removed": "Bloco removido.",
+    "undoRemove": "Desfazer",
+    "empty": "Esta página ainda não tem blocos.",
+    "tooMany": "Uma página tem no máximo {{count}} blocos.",
+    "saving": "Salvando…",
+    "saved": "Salvo",
+    "saveFailed": "Não foi possível salvar",
+    "retry": "Tentar de novo",
+    "settings": "Configurações",
+    "openPreview": "Ver em nova aba",
+    "publish": "Publicar",
+    "publishChanges": "Publicar alterações",
+    "unpublish": "Tirar do ar",
+    "makeHome": "Usar como página inicial",
+    "addToMenu": "Colocar no menu do site",
+    "removeFromMenu": "Tirar do menu do site",
+    "menuAdded": "A página entrou no fim do menu. Ajuste a ordem em Site → Navegação.",
+    "menuRemoved": "A página saiu do menu.",
+    "isHome": "Esta é a página inicial do site",
+    "delete": "Excluir página",
+    "more": "Mais ações",
+    "published": "Página publicada. Ela já está no site.",
+    "unpublished": "A página saiu do ar.",
+    "homeChanged": "Agora esta é a página inicial do site.",
+    "liveAt": "Esta página está no ar em",
+    "notLive": "Esta página ainda não está no site. Clique em Publicar quando estiver pronta.",
+    "pendingChanges": "Você tem alterações que ainda não estão no site.",
+    "noPublishPermission": "Peça a alguém com permissão para publicar."
+  },
+  "state": {
+    "draft": "Rascunho",
+    "published": "Publicada",
+    "changed": "Alterações não publicadas",
+    "withdrawn": "Fora do ar"
+  },
+  "slug": {
+    "invalid": "Use só letras minúsculas sem acento, números e hífen. Ex.: quem-somos",
+    "reserved": "Este endereço é usado pelo sistema. Escolha outro."
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "desktop": "Computador",
+    "mobile": "Celular",
+    "loading": "Carregando a pré-visualização…",
+    "otherAddress": "O site usa outro endereço, então a pré-visualização abre em nova aba.",
+    "open": "Abrir pré-visualização",
+    "failed": "Não foi possível mostrar a pré-visualização.",
+    "frameTitle": "Pré-visualização da página"
+  },
+  "remove": {
+    "title": "Excluir esta página?",
+    "description": "A página vai para a lixeira e sai do site. Dá para restaurar pela lixeira.",
+    "confirm": "Excluir",
+    "done": "Página enviada para a lixeira."
+  },
+  "problems": {
+    "embed": "O link do formulário externo não foi reconhecido.",
+    "link": "Há um link inválido neste bloco.",
+    "video": "O link do vídeo não foi reconhecido.",
+    "email": "Confira o e-mail deste bloco.",
+    "phone": "Confira o telefone deste bloco.",
+    "block": "Este bloco tem um texto longo demais ou itens demais."
+  },
+  "history": {
+    "open": "Histórico",
+    "title": "Histórico da página",
+    "description": "Cada versão enviada para publicação fica guardada. Restaurar copia a versão para o rascunho; ela só vai para o site quando você publicar de novo.",
+    "empty": "Esta página ainda não teve versões publicadas.",
+    "number": "Versão {{number}}",
+    "live": "No ar",
+    "savedBy": "Guardada em {{date}} por {{name}}",
+    "restore": "Restaurar no rascunho",
+    "restored": "Versão copiada para o rascunho."
+  },
+  "schedule": {
+    "open": "Agendar publicação…",
+    "description": "O rascunho como está agora vai ao ar no momento escolhido. O que você mudar depois fica no rascunho.",
+    "when": "Quando",
+    "whenHelp": "No horário deste computador.",
+    "past": "Escolha um momento no futuro.",
+    "submit": "Agendar",
+    "done": "Publicação agendada.",
+    "cancel": "Cancelar agendamento",
+    "canceled": "Agendamento cancelado.",
+    "notice": "Publicação agendada para {{date}}",
+    "badge": "Agendada: {{date}}"
+  },
+  "review": {
+    "sent": "Enviada para aprovação. A página vai ao ar quando for aprovada.",
+    "queued": "Publicação em andamento.",
+    "notice": "Aguardando aprovação",
+    "open": "Ver aprovações",
+    "badge": "Aguardando aprovação",
+    "cancel": "Cancelar pedido de publicação",
+    "blocked": "A última publicação não aconteceu: {{reason}}",
+    "reasons": {
+      "approval_rejected": "a aprovação foi recusada.",
+      "approval_cancelled": "o pedido de aprovação foi cancelado. Publique de novo.",
+      "approval_no_approver": "não há quem possa aprovar. Confira a política de aprovação.",
+      "publication_requester_unauthorized": "quem pediu não pode mais publicar.",
+      "other": "tente publicar de novo."
+    }
+  },
+  "languages": {
+    "label": "Idioma",
+    "empty": "Esta página ainda não tem versão em {{language}}. Enquanto isso, o site mostra o conteúdo do idioma principal.",
+    "copy": "Copiar blocos do {{language}}"
+  },
+  "keybindings": {
+    "scope": "Editor de páginas",
+    "scopeHelp": "Atalhos ao montar uma página do site",
+    "save": "Salvar agora",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "moveUp": "Subir o bloco selecionado",
+    "moveDown": "Descer o bloco selecionado"
+  },
+  "errors": {
+    "block_embed_invalid": "O link do formulário externo não foi reconhecido. Use Google Forms, Typeform, Tally, Jotform ou Calendly.",
+    "block_email_invalid": "Confira o e-mail do bloco de contato.",
+    "block_phone_invalid": "Confira o telefone do bloco de contato.",
+    "block_video_invalid": "O link do vídeo não foi reconhecido. Use um vídeo do YouTube ou do Vimeo.",
+    "blocks_too_many_items": "Um bloco passou do limite de itens.",
+    "page_template_unknown": "Modelo de página desconhecido.",
+    "page_slug_unavailable": "Não foi possível escolher um endereço para a cópia.",
+    "slug_invalid": "O endereço usa só letras minúsculas sem acento, números e hífen. Ex.: quem-somos",
+    "slug_reserved": "Este endereço é usado pelo sistema. Escolha outro.",
+    "plugin_field_unique_conflict": "Já existe uma página com este endereço.",
+    "entity_unique_conflict": "Já existe uma página com este endereço.",
+    "page_title_required": "Dê um título à página.",
+    "page_title_too_long": "O título está longo demais.",
+    "block_link_invalid": "Há um link inválido. Use um endereço do site começando com / ou um link completo começando com https://",
+    "block_invalid": "Um dos blocos está com problema. Recarregue a página e tente de novo.",
+    "block_text_too_long": "Um dos textos está longo demais.",
+    "blocks_too_many_blocks": "A página tem blocos demais. Divida o conteúdo em mais páginas.",
+    "blocks_too_many_buttons": "Um bloco de botões tem no máximo 3 botões.",
+    "blocks_too_large": "A página ficou grande demais. Divida o conteúdo em mais páginas.",
+    "publication_payload_too_large": "A página ficou grande demais para publicar. Divida o conteúdo em mais páginas.",
+    "page_not_published": "Publique a página antes de usá-la como página inicial.",
+    "page_not_found": "Esta página não existe mais."
+  },
+  "list": {
+    "home": "Página inicial"
+  },
+  "settings": {
+    "cancel": "Cancelar"
+  }
+}
