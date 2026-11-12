@@ -135,4 +135,7 @@ pub trait TermResolver: Send + Sync {
     async fn find(&self, vocabulary: &str, slug: &str) -> Result<Option<PublicTerm>, AppError>;
     async fn descendants(&self, id: &str) -> Result<Vec<String>, AppError>;
     async fn terms(&self, vocabulary: &str) -> Result<Vec<PublicTerm>, AppError>;
+    async fn vocabulary_name(&self, _vocabulary: &str) -> Result<Option<String>, AppError> {
+        Ok(None)
+    }
 }

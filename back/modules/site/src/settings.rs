@@ -36,7 +36,8 @@ pub(crate) struct SiteSettings {
     pub translations: BTreeMap<String, SiteTexts>,
 }
 
-pub(crate) const HEADER_ALIGNMENTS: &[&str] = &["left", "center"];
+pub(crate) const HEADER_ALIGNMENTS: &[&str] = &["theme", "left", "center"];
+pub(crate) const FOOTER_LAYOUTS: &[&str] = &["theme", "columns", "center"];
 pub(crate) const SOCIAL_NETWORKS: &[(&str, &str, &[&str])] = &[
     ("instagram", "Instagram", &["instagram.com"]),
     ("facebook", "Facebook", &["facebook.com", "fb.com"]),
@@ -85,6 +86,7 @@ pub(crate) struct SiteFooter {
     pub social: Vec<SocialLink>,
     pub links: Vec<SiteLink>,
     pub credit: bool,
+    pub layout: String,
 }
 
 impl Default for SiteFooter {
@@ -95,6 +97,7 @@ impl Default for SiteFooter {
             social: Vec::new(),
             links: Vec::new(),
             credit: true,
+            layout: FOOTER_LAYOUTS[0].to_owned(),
         }
     }
 }
@@ -433,6 +436,12 @@ pub(crate) fn frame_violations(settings: &SiteSettings) -> Vec<FieldViolation> {
         fail(
             "site.header.align",
             format!("must be one of {}", HEADER_ALIGNMENTS.join(", ")),
+        );
+    }
+    if !FOOTER_LAYOUTS.contains(&settings.footer.layout.as_str()) {
+        fail(
+            "site.footer.layout",
+            format!("must be one of {}", FOOTER_LAYOUTS.join(", ")),
         );
     }
     if let Some(cta) = &settings.header.cta {

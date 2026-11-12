@@ -162,7 +162,12 @@ export function NavigationCards({ configuration }: { configuration: Organization
         item.id === within ? { ...item, children: ids.map((id) => item.children.find((child) => child.id === id)).filter((child): child is SiteNavigationItem => child !== undefined) } : item,
       )
     })
-  const blank = (): SiteNavigationItem => ({ id: newId(), label: '', target: list[0]?.target ?? null, url: list.length ? null : '', children: [] })
+  const blank = (): SiteNavigationItem => {
+    const used = new Set([home, ...items.flatMap((item) => [item.target, ...item.children.map((child) => child.target)])])
+    const depth = (target: SiteTarget) => target.path.split('/').filter(Boolean).length
+    const suggested = list.find((target) => !used.has(target.target) && depth(target) <= 1)
+    return { id: newId(), label: '', target: suggested?.target ?? null, url: suggested ? null : '', children: [] }
+  }
 
   const save = async () => {
     setSaving(true)
@@ -209,7 +214,7 @@ export function NavigationCards({ configuration }: { configuration: Organization
             <SortableList
               items={items}
               getId={(item) => item.id}
-              getLabel={(item) => item.label || list.find((target) => target.target === item.target)?.label || item.id}
+              getLabel={(item) => item.label || list.find((target) => target.target === item.target)?.label || t('navigation.untitled')}
               disabled={saving}
               label={t('navigation.listLabel')}
               onReorder={(ids) => reorder(ids)}
@@ -232,7 +237,7 @@ export function NavigationCards({ configuration }: { configuration: Organization
                       <SortableList
                         items={item.children}
                         getId={(child) => child.id}
-                        getLabel={(child) => child.label || list.find((target) => target.target === child.target)?.label || child.id}
+                        getLabel={(child) => child.label || list.find((target) => target.target === child.target)?.label || t('navigation.untitled')}
                         disabled={saving}
                         label={t('navigation.childrenLabel', { label: item.label })}
                         onReorder={(ids) => reorder(ids, item.id)}

@@ -100,6 +100,12 @@ pub(crate) async fn results(
         )
         .await?;
         crate::prefixes::annotate(state, runtime, &exposure.entity, &mut listed.records).await?;
+        let kind = definition
+            .and_then(|definition| definition.custom.as_ref())
+            .map(|labels| labels.singular.clone());
+        for record in &mut listed.records {
+            crate::images::attach_images(state, exposure, record).await?;
+        }
         for record in &listed.records {
             let Some(path) = crate::targets::record_path(runtime, &exposure.entity, record) else {
                 continue;
@@ -112,6 +118,8 @@ pub(crate) async fn results(
                 "summary": first_text(record, &SUMMARY_FIELDS),
                 "url": format!("{language_prefix}{path}"),
                 "published_at": record.get("published_at"),
+                "kind": kind,
+                "image": first_image(record, &exposure.fields),
             }));
         }
         if found.len() >= MAX_RESULTS {
@@ -120,4 +128,12 @@ pub(crate) async fn results(
     }
     found.truncate(MAX_RESULTS);
     Ok(found)
+}
+
+fn first_image(record: &Value, fields: &[String]) -> Option<Value> {
+    fields
+        .iter()
+        .filter_map(|field| record.get(format!("{field}_image")))
+        .find(|image| image.is_object())
+        .cloned()
 }

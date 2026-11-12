@@ -41,6 +41,8 @@ pub(crate) enum Deferred {
         exclude: Option<String>,
         #[serde(default)]
         heading: Option<String>,
+        #[serde(default)]
+        blocks: Option<serde_json::Value>,
     },
 }
 
@@ -61,7 +63,6 @@ pub(crate) struct ResolveContext<'a> {
     pub state: &'a AppState,
     pub runtime: &'a SiteRuntime,
     pub site: &'a serde_json::Value,
-    pub appearance: Option<&'a crate::appearance::AppearancePreview>,
     pub translation: Option<&'a str>,
 }
 
@@ -135,13 +136,14 @@ async fn resolve_one(
             conditions,
             exclude,
             heading,
+            blocks,
         } => {
             list(
                 owner,
                 entity,
                 (sort.as_deref(), *limit),
                 conditions,
-                (exclude.as_deref(), heading.as_deref()),
+                (exclude.as_deref(), heading.as_deref(), blocks.as_ref()),
                 context,
             )
             .await
@@ -220,7 +222,7 @@ async fn list(
     entity: &str,
     (sort, limit): (Option<&str>, u64),
     conditions: &std::collections::BTreeMap<String, serde_json::Value>,
-    (exclude, heading): (Option<&str>, Option<&str>),
+    (exclude, heading, item_blocks): (Option<&str>, Option<&str>, Option<&serde_json::Value>),
     context: &ResolveContext<'_>,
 ) -> Result<Resolution, AppError> {
     let record_type = format!("{owner}.{entity}");
@@ -232,11 +234,11 @@ async fn list(
     let Some(exposure) = context.runtime.exposure(owner, &record_type) else {
         return Ok(empty);
     };
-    let Ok(template) = context
-        .runtime
-        .environment
-        .get_template(&card_template(owner, entity))
-    else {
+    let template_name = match item_blocks {
+        Some(_) => "aphel/query_item.html".to_owned(),
+        None => card_template(owner, entity),
+    };
+    let Ok(template) = context.runtime.environment.get_template(&template_name) else {
         return Ok(empty);
     };
     let sort = sort_of(sort, |field| exposure.exposes(field));
@@ -262,47 +264,22 @@ async fn list(
     crate::prefixes::annotate(context.state, context.runtime, &record_type, &mut records).await?;
     let mut tags = vec![cache::entity_tag(&record_type)];
     crate::terms::annotate(context.state, exposure, &mut records, &mut tags).await?;
+    crate::targets::annotate_urls(
+        context.runtime,
+        &record_type,
+        &mut records,
+        context.site["prefix"].as_str().unwrap_or_default(),
+    );
     let mut cards = String::new();
-    let mut presentations = std::collections::BTreeMap::new();
     for record in &mut records {
         images::attach_images(context.state, exposure, record).await?;
-        let target = context.runtime.prefixed.iter().find_map(|route| {
-            let prefix = route.page.prefix.as_ref()?;
-            let matches = match &route.page.source {
-                aphel_contract_site::PageSource::List { entity, .. } => entity == &record_type,
-                _ => false,
-            };
-            matches
-                .then(|| {
-                    record
-                        .get(&prefix.scope)
-                        .and_then(serde_json::Value::as_str)
-                        .map(|id| format!("{}:{id}", prefix.entity))
-                })
-                .flatten()
-        });
-        let mut site = context.site.clone();
-        if let Some(target) = target {
-            if let std::collections::btree_map::Entry::Vacant(entry) =
-                presentations.entry(target.clone())
-            {
-                let values = crate::appearance::presentation_values(
-                    context.state,
-                    &target,
-                    context.appearance,
-                )
-                .await?;
-                entry.insert(values);
-            }
-            if let Some(values) = site["appearance"].as_object_mut() {
-                values.extend(presentations[&target].clone());
-            }
-        }
+        let site = context.site.clone();
         let values = json!({
             "site": site,
             "record": record,
             "page": { "owner": owner, "key": "card" },
             "customer": null,
+            "__item_blocks": item_blocks,
         });
         match template.render(Value::from_serialize(&values)) {
             Ok(card) => cards.push_str(&format!("<li class=\"site-list-item\">{card}</li>")),

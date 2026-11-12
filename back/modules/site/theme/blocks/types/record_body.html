@@ -1,0 +1,1 @@
+{% set source = record[block.field or 'body'] if record else none %}{% if source %}<div class="ct-body blk-record-body">{% with blocks = source | from_json, images = record.images, nested = false %}<div class="blk-page">{% include "aphel/blocks_items.html" %}</div>{% endwith %}</div>{% endif %}

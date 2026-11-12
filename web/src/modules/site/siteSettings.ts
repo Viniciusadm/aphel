@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react'
 import { type OrganizationConfiguration, type SiteLink, type SiteSettings, useSaveConfiguration } from '@/sdk'
 
 export interface SiteHeaderSettings {
-  align: 'left' | 'center'
+  align: 'theme' | 'left' | 'center'
   cta: { label: string; url: string } | null
 }
 
@@ -17,6 +17,7 @@ export interface SiteFooterSettings {
   social: SiteSocialLink[]
   links: SiteLink[]
   credit: boolean
+  layout?: 'theme' | 'columns' | 'center'
 }
 
 export interface SiteTexts {
@@ -52,6 +53,9 @@ export function currentSettings(configuration: Pick<OrganizationConfiguration, '
 }
 
 export const AppearanceFrameDraft = createContext<((values: Partial<SiteModuleSettings>) => Promise<void>) | null>(null)
+
+export type FrameCollector = () => Partial<SiteModuleSettings> | null
+export const AppearanceFrameCollect = createContext<((id: string, collector: FrameCollector | null) => void) | null>(null)
 
 export function useSaveSite<T extends Pick<OrganizationConfiguration, 'site'>>(configuration: T) {
   const save = useSaveConfiguration()

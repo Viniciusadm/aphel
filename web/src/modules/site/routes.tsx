@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router'
+import { Navigate, type RouteObject } from 'react-router'
 
 export const SITE_SCREENS = [
   { key: 'navigation', path: '/site/navigation', component: 'SiteNavigationPage' },
@@ -13,6 +13,7 @@ export const SITE_SCREENS = [
 export const SITE_OVERVIEW_PATH = '/site/overview'
 
 export const siteRoutes: RouteObject[] = [
+  { path: 'site', element: <Navigate to={SITE_OVERVIEW_PATH} replace /> },
   { path: SITE_OVERVIEW_PATH.slice(1), lazy: async () => ({ Component: (await import('./SiteOverviewPage')).SiteOverviewPage }) },
   ...SITE_SCREENS.map((screen) => ({
     path: screen.path.slice(1),

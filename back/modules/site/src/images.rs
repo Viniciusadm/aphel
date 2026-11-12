@@ -64,6 +64,28 @@ async fn public_images(
         .collect())
 }
 
+pub(crate) async fn record_images(
+    state: &AppState,
+    record_type: &str,
+    record_id: &str,
+) -> Result<Vec<Value>, AppError> {
+    if Uuid::parse_str(record_id).is_err() {
+        return Ok(Vec::new());
+    }
+    Ok(public_images(state, record_type, record_id)
+        .await?
+        .iter()
+        .map(|file| {
+            json!({
+                "id": file.id,
+                "name": file.original_name,
+                "type": file.mime_type,
+                "url": image_url(record_type, record_id, &file.id),
+            })
+        })
+        .collect())
+}
+
 pub(crate) async fn attach_images(
     state: &AppState,
     exposure: &SiteExposure,
@@ -202,6 +224,12 @@ pub(crate) async fn serve(
     ) else {
         return Ok(not_found());
     };
+    if *record_type == aphel_contract_site::DESIGN_ENTITY {
+        if !crate::design::image_is_published(state, record_id).await? {
+            return Ok(not_found());
+        }
+        return file_response(state, record_type, record_id, file_uuid, variant, headers).await;
+    }
     let Some(exposure) = runtime.image_exposure(record_type) else {
         return Ok(not_found());
     };

@@ -185,19 +185,39 @@ Plugins that store structured content as blocks (hero, text, image, text with im
 
 | Part | Where | What it gives |
 | --- | --- | --- |
-| Validation | Rust crate `aphel-blocks` in `sdk/rust/aphel-blocks` (feature `plugin` for `PluginError` conversions) | `blocks::normalize` (known types and fields, text limits, safe links, at most 300 blocks and 400 000 characters), `blocks::image_ids`/`replace_images`, `slug::check`/`slug::suggest`. Errors use the codes `block_*`, `blocks_*` and `slug_*`; `BlockError::at(field)` points them at your field |
+| Validation | Rust crate `aphel-blocks` in `sdk/rust/aphel-blocks` (feature `plugin` for `PluginError` conversions) | `blocks::normalize` (known types and fields, text limits, safe links, at most 600 blocks in total, 6 levels of nesting and 400 000 characters), `style::normalize`/`style::declarations` for block styles, `blocks::image_ids`/`replace_images`, `slug::check`/`slug::suggest`. Errors use the codes `block_*`, `blocks_*` and `slug_*`; `BlockError::at(field)` points them at your field |
 | Editor | `@aphel/web-sdk` | `BlockForm`, `AddBlock`, `BlockImageField`, `BLOCK_ICONS`, the `Block` types, `newBlock`/`parseBlocks`/`serializeBlocks`, `blockProblems`/`blockSummary` and `useBlocksValidation`, which loads the same Rust validation compiled to WebAssembly. Images are attachments of the record you pass as `record: { recordType, recordId }`. Labels come from the `site-blocks` namespace |
-| Rendering | Built-in templates of the `site` module | `aphel/blocks.html` renders a list of blocks and `aphel/blocks_style.html` their styles |
+| Rendering | Built-in templates of the `site` module | `aphel/blocks.html` renders a list of blocks; the site layout always links their styles before the theme styles, so theme choices (colors, button shape) win |
 
 A page template only wraps the catalog with its own data:
 
 ```html
 {% extends "layout.html" %}
-{% block head %}{% include "aphel/blocks_style.html" %}{% endblock %}
 {% block content %}{% with blocks = record.blocks | from_json, images = record.images %}{% include "aphel/blocks.html" %}{% endwith %}{% endblock %}
 ```
 
 `images` is the list of public images of the record (`images = true` on the exposure). Every block is wrapped in an element whose id is the block id, so links such as `#contact` jump to it; unknown block types render nothing.
+
+Every block may carry a `style` object and container blocks carry `children`:
+
+```json
+{ "id": "intro", "type": "grid", "layout": "2-1", "style": { "background": "surface", "padding": { "top": "5", "bottom": "5" }, "width": "wide" },
+  "children": [{ "id": "a", "type": "text", "text": "…", "style": { "font_size": "lg" } }, { "id": "b", "type": "image", "image": "…" }] }
+```
+
+| Style property | Values |
+| --- | --- |
+| `text`, `background`, `link`, `border.color` | A palette slug of the site styles (`accent`, `surface`, …) or a `#rrggbb` code |
+| `gradient`, `font_family`, `font_size` | A gradient, family or size slug of the site styles |
+| `padding.top/right/bottom/left`, `margin.top/bottom`, `gap` | Spacing step `0`–`8` |
+| `border.width` / `border.style` / `border.radius`, `radius`, `shadow` | `0 1 2 4 8` / `solid dashed dotted` / `none sm md lg full`, `none sm md lg full`, `none sm md lg` |
+| `font_weight`, `line_height`, `letter_spacing`, `text_transform`, `text_align` | `300`–`900`, `tight snug normal relaxed loose`, `tighter tight normal wide wider`, `none uppercase lowercase capitalize`, `left center right` |
+| `width` | `none`, `wide` (site width) or `full` (screen width), only at the top level |
+| `hide_on` | Any of `desktop`, `tablet`, `mobile` |
+| `variation` | A variation slug declared for the block type in the site styles |
+| `classes` | Up to 5 extra CSS class names |
+
+The wrapper receives `data-type="<type>"`, an inline `style` built only from these tokens and classes such as `is-wide`, `hide-mobile` and `is-style-<variation>`. Container types are `group` (`inner_width`), `row` (`justify`, `vertical`, `wrap`), `stack` (`align_items`), `grid` (`layout` such as `2-1`, `vertical`, `stack_on`), `cover` (`image`, `focal_x`, `focal_y`, `overlay`, `min_height`, `position`, `dark_text`) and `details` (`summary`, `open`). Their templates include `aphel/blocks_items.html` with `blocks = block.children` and `nested = true`. The layout links `/_aphel/site/blocks.css` before the theme stylesheet; `aphel/blocks_style.html` is kept empty for older templates.
 
 ## Dynamic pages
 
@@ -307,7 +327,7 @@ When the `people` module is enabled, Site → *Customers* can link customers to 
 The site owns its structure; plugins do not declare menu items. In Site → *Navigation* the organization builds the menu and chooses the home page:
 
 - A menu item points to a **target** (a page of a plugin without parameters, or a public record that has an address, such as a page, a collection or an entry) or to an address (a site path or an `https://` address). Items can be grouped one level deep. A label left empty uses the title of the target in the language of the request; labels per language come from Site → *Header and footer*.
-- Targets are stable references: `record:<record type>:<id>` or `page:<owner>:<page key>`. When the address of the record changes, the menu follows it; when the record stops being public, its item disappears. `GET /api/v1/site/targets` lists them with their current path.
+- Targets are stable references: `record:<record type>:<id>`, `page:<owner>:<page key>` or `term:<vocabulary>:<slug>` (the page of a category or tag, for plugins that declare a term page). When the address of the record changes, the menu follows it; when the record or term stops being public, its item disappears. `GET /api/v1/site/targets` lists them with their current path.
 - The home page (`home` in the `site` setting) is a target too. `/` shows the page of that target, with `/` as its canonical address and pagination; without a choice, a plugin page declared at `/` answers, and without one the theme shows a welcome screen with the site name, tagline and menu.
 
 Site → *Overview* (`GET /api/v1/site/status`, `settings.manage`) sums it up for the organization: the public address, whether the home page resolves, the number of menu items, whether the site has a name and a logo, published and draft counts for every public entity with `publication_state`, and the five latest published records with their address. Packs can set the home page with the `site.home` provision kind (see [Packs](/_aphel/docs/plugins/packs/)).
@@ -318,39 +338,36 @@ The theme also receives `site.tagline` and `site.logo_url` (the organization log
 
 ### Header and footer
 
-The *Site → Header and footer* screen fills two more objects, so every theme can draw them its own way:
+The *Site → Header and footer* screen fills two more objects with data. The header and footer **parts** draw them with the blocks `site_cta`, `site_footer_text`, `site_contact`, `social_links` and `navigation` (menu `footer`); classic themes read them directly:
 
 | Variable | Contents |
 | --- | --- |
-| `site.header` | `{ align, cta }`: `align` is `left` or `center`; `cta` is `{ label, url }` for a highlighted button, or nothing. |
+| `site.header` | `{ align, cta }`: `align` is `theme` (keep the header part as the theme drew it), `left` (name beside the menu) or `center` (everything centered), and the layout puts it on `<header class="site" data-align>` when it is not `theme`; `cta` is `{ label, url }` for a highlighted button, or nothing. |
 | `site.footer.text` | List of lines of the footer text (plain text; join them with `<br>`). |
 | `site.footer.contact` | `{ phone, whatsapp, email, address }` or nothing. `phone`, `whatsapp` and `email` are `{ label, url }` (`tel:`, `https://wa.me/…`, `mailto:`); `address` is `{ lines, url }` with a map link. |
 | `site.footer.social` | List of `{ network, label, url }`; `network` is `instagram`, `facebook`, `whatsapp`, `youtube`, `tiktok`, `linkedin` or `x`. |
 | `site.footer.links` | List of `{ label, url, active }`. |
 | `site.footer.credit` | `true` when the organization wants the “© year name” line. |
+| `site.footer.layout` | `theme` (the footer part as the theme drew it), `columns` (name and text, contact and networks side by side) or `center` (everything centered); the layout puts it on `<footer class="site" data-layout>` when it is not `theme`. |
 | `site.footer.empty` | `true` when there is no text, contact, network or link. |
 
 `{% from "aphel/icons.html" import social_icon %}` gives `social_icon(network)`, an inline SVG icon in `currentColor` for each network. In an extra language, the tagline, the footer text, the button text and the labels of the organization's menu and footer links come from the translations saved on that screen; an empty translation falls back to the default text.
 
 ## Themes
 
-A plugin becomes a theme with `[site.theme]` and a layout in its package:
-
-```toml
-[site.theme]
-name = "Editorial"
-description = "Serif type and a centered menu."
-```
+A plugin becomes a theme with `[site.theme]`. A theme is mostly data:
 
 | File | Role |
 | --- | --- |
-| `site/theme/layout.html` | Required. Replaces `layout.html`: every page that extends it gets this frame. Keep a `{% block content %}`; `title` and `head` blocks are recommended. |
-| `site/theme/not_found.html`, `site/theme/error.html` | Optional. Replace the 404 and error pages. They receive `site` and an empty `page`. |
-| `site/theme/assets/*` | CSS, images and fonts, served at `/_aphel/site/themes/<plugin key>/<file>`. Link them with `{{ theme_asset('style.css') }}`. |
+| `site/theme/styles.json` | Base styles document |
+| `site/theme/variations/<key>.json` | Style variations (`name` plus a partial styles document), shown as theme cards |
+| `site/theme/templates/<owner>.<page>[@<variant>].json` | Block templates that replace the plugins' defaults |
+| `site/theme/parts/<key>.json`, `site/theme/patterns/<key>.json` | Parts (`header`, `footer`, others) and patterns |
+| `site/theme/layout.html` | Optional HTML shell for advanced themes. Keep a `{% block content %}` and include `{% include "aphel/head.html" %}` |
+| `site/theme/not_found.html`, `site/theme/error.html` | Optional 404 and error pages |
+| `site/theme/assets/*` | CSS, images and fonts served at `/_aphel/site/themes/<plugin key>/<file>` with `{{ theme_asset('style.css') }}` |
 
-Include `{% include "aphel/head.html" %}` in the `<head>` of the layout: it writes the canonical, description, Open Graph and Twitter tags, the import map and the island loader, and, when the organization chooses a thin scrollbar in the site color (Site → *Appearance*, `site.scrollbar = "themed"`), the scrollbar styles. Partials of the theme are included by their package path (`{% include "site/theme/_header.html" %}`). The organization picks the theme in Site → *Appearance*; only one is active, and the built-in theme is used when none is chosen or the chosen plugin is disabled. A theme plugin needs no entities or pages.
-
-Site → *Appearance* → *Preview* opens the site with another theme only in that browser, for 30 minutes, without changing it for visitors. Preview pages are never cached and show a banner with a link that ends the preview.
+A theme needs `styles.json`, a template, a part or `layout.html`; no backend or pages. The organization picks the theme in Site → Appearance; only one is active. Its own templates, parts and styles always take precedence, so switching themes keeps them. Site → Appearance → *Preview* opens the site with another theme only in that browser for 30 minutes. The repository ships `theme_editorial`, `theme_revista`, `theme_minimal` and `theme_estudio`; Site → Site editor → *Export as theme* produces one from the current design (uploaded fonts fall back to their generic family).
 
 ## Drafts
 
@@ -451,16 +468,57 @@ With `images = true`, a template can show the images attached to a record:
 
 Images are served under `/_aphel/site/files/` on any host of the installation. Every request checks that the record is still public (it exists, is not archived and meets `where`) and that the file is an image attached to it; otherwise it answers 404. Resized versions are generated on first use and kept in the file storage. Responses carry an `ETag` and `Cache-Control: public, max-age=86400`, so a browser may keep showing an image for up to a day after the record stops being public.
 
-## Appearance and collection presentations
+## Appearance and styles
 
-The Site appearance screen edits `site.appearance` (target `site`) and `site.presentation` (target `<collection entity>:<record id>`). The site owns both resources. Permissions are `site.appearance.edit` and `site.presentation.edit`; editing entries grants neither. Administrators receive both by default.
+The Site → Appearance screen edits `site.appearance` (target `site`), owned by the site and edited with `site.appearance.edit` (administrators by default). Appearance requires the optional `publication` module: drafts, Apply, Discard and Restore defaults go through the record pipeline and the shared publication operations, and applying can require approval.
 
-Appearance requires the optional `publication` module. Without it, the site renders theme defaults and the editor is unavailable. Drafts are separate from the protected public projection. Save draft, Apply appearance, Discard changes and Restore defaults use the record pipeline and shared publication operations. Applying can require approval. Restoring defaults changes the draft until it is applied and never restores an article. Optimistic versions protect concurrent edits.
+Its values are the identity (`name`, `tagline`, `logo`, `dark_logo`, `icon`), `sticky_header`, the frame data (`header`, `footer`, `translations`), the active `theme`, the chosen `variation` and the organization's `styles` override. `GET /api/v1/site/appearance` returns the properties, the presets (one per variation), `variations`, `theme_variations`, `theme_styles`, `base_styles` and `font_stacks`. `POST /api/v1/site/appearance/preview` renders a page with unsaved values.
 
-Precedence is host defaults, active theme defaults, published site appearance, published collection presentation and permitted block options. Omit a property to restore inheritance. Collection overrides cannot change global identity. `GET /api/v1/site/appearance` returns properties, presets, available targets and theme metadata. `POST /api/v1/site/appearance/preview` renders public data with authorized appearance overrides; `empty: true` previews an empty collection. The response is authenticated, includes noindex metadata and is displayed in a sandboxed frame. Desktop and mobile previews use the public renderer. Editorial drafts use their separate authorized preview flow.
+Colors, fonts, sizes, spacing and the look of elements and block types live in one **styles document**. Its keys are:
 
-The built-in theme includes light, dark and device color modes, local system fonts, shared spacing and radius tokens, responsive navigation, lists/grids, a featured-first variant, card variants, cover placement and reading width. Editorial, Magazine and Minimal presets set the same properties. Text-block headings receive stable block-based anchors for the optional table of contents. Sharing uses ordinary links and the host's clipboard script. Cover focal points and captions belong to the entry snapshot; card ratio and fit belong to appearance.
+| Key | Contents |
+| --- | --- |
+| `mode` | `system`, `light` or `dark` |
+| `palette` | `{ slug, name, light, dark }`; `base`, `surface`, `contrast`, `muted`, `border`, `accent`, `link` and `on-accent` are always present |
+| `gradients` | `{ slug, name, angle, stops }` with 2–4 palette slugs or `#rrggbb` codes |
+| `families` | `{ slug, name, stack }`; `stack` is a system stack (`sans`, `serif`, `mono`, `humanist`, `geometric`, `transitional`, `old_style`) or `font:<key>` for an uploaded font |
+| `sizes` | `{ slug, name, min, max }` in rem, fluid between both |
+| `spacing` | `scale` (nine lengths for steps 0–8), `content` (reading width), `wide` (site width) |
+| `shape` | `radius` (`none`, `soft`, `round`) and card `shadow` (`none`, `soft`, `strong`) |
+| `elements` | `body`, `heading`, `h1`–`h6`, `link`, `button`, `caption`, `quote`, `code`, with `hover` for links and buttons; values use the block style properties |
+| `blocks` | `{ <block type>: { style, variations: [{ slug, name, style }] } }` |
+| `css` | Additional CSS, at most 64 000 characters, without `@import`, `</`, `expression()` or `url()` outside the site |
 
-Themes may declare `[site.theme.appearance.defaults]` with values from the appearance catalog and `properties = [...]` in `[site.theme.appearance]` to declare supported controls. An empty list supports the whole catalog. The editor identifies saved options not declared by a theme. Themes can replace `site/theme/appearance.html` and `site/theme/presentation_style.html`, or map namespaced public presentation templates to their own templates under `[site.theme.appearance.presentations]`. These overrides receive the public projection and do not change exposure filters or authorization. Fonts and scripts remain declared theme assets under the existing CSP rules. Theme selection is saved and published with global appearance.
+Layers merge in this order: host defaults, the theme's `site/theme/styles.json`, the theme `[site.theme.appearance.defaults]`, the chosen variation (built-in `default`, `editorial`, `magazine`, `minimal`, `modern`, `night`, or one of the theme's `site/theme/variations/*.json`) and the organization's `styles`; lists merge by `slug`. The site compiles the result into CSS variables (`--site-color-<slug>`, `--site-font-<slug>`, `--site-size-<slug>`, `--site-space-<n>`, `--site-content`, `--site-wide`, `--site-radius-<sm|md|lg>`, `--site-shadow-<sm|md|lg|card>`), `@font-face` rules for uploaded fonts, element and block rules and the additional CSS, served at `/_aphel/site/styles/<hash>.css` and linked by `aphel/head.html`. Templates read the merged document as `site.appearance.styles`; `GET /api/v1/site/styles` returns it to any signed-in user for editors.
 
-The `site.appearance` provisioner seeds a global or collection resource with `{ target, values }`, validates it and publishes through `publication`. Existing resources are preserved. Pending publication produces an explicit failure instead of reporting readiness. The Blog pack seeds only its collection presentation, preserving the site's identity. Retries recognize the seed marker and resume incomplete publication; edited drafts are preserved.
+**Fonts.** A font is a `site.design` record of kind `font` (`{ family, fallback, faces: [{ file, weight, style }] }`) whose `woff2`/`woff` files are attachments of the record. Published fonts are served at `/_aphel/site/fonts/<record id>/<file id>` and become `font:<key>` options for families. Site → Appearance → Fonts uploads them.
+
+The `site.appearance` provisioner seeds the site appearance with `{ target, preset?, values }`, validates it and publishes through `publication`. `preset` names a built-in variation. Existing resources are preserved; pending publication produces an explicit failure; retries recognize the seed marker. The Blog pack installs the Editorial theme plugin and seeds `{ theme = "theme_editorial" }`; the Institutional pack does the same with Estúdio.
+
+## Templates, parts, patterns and menus
+
+Every site page can be drawn by a **block template** instead of a MiniJinja file. For the page `<page key>` of plugin `<owner>`, the renderer uses the first that exists:
+
+1. the organization's published design `template:<owner>:<page>@<variant>`, where the variant is the record's `template` field or, on category and tag pages, the term slug;
+2. the active theme's `site/theme/templates/<owner>.<page>@<variant>.json`;
+3. the plugin's `site/templates/<page>@<variant>.json`;
+4. the same three without the variant, then, for list pages, `archive` and `index`;
+5. the page's MiniJinja `template` (optional when a block template exists).
+
+A design file is `{ "name"?, "header"?, "footer"?, "css"?, "blocks": [...] }`. `header` and `footer` name the parts to use (`none` hides them); `css` is additional CSS for pages using that template. The builtin layout draws the `header` and `footer` **parts** around the content: the organization's published part, else the theme's `site/theme/parts/<key>.json`, else a plugin part, else the host default. **Patterns** (`site/patterns/<name>.json` in plugins, keyed `<owner>-<name>`, or `site/theme/patterns/<key>.json`) are reused with the `pattern` block, which always shows the current version. **Menus** are lists of `{ label, url, children }` drawn by the `navigation` block; `main` is the Site → Navigation menu and `footer` the footer links.
+
+The organization's versions are `site.design` records (`target` = `<kind>:<key>`, `kind` = `template`, `part`, `pattern`, `menu` or `font`, `draft_content` / published `content`), edited with `site.design.edit` and published through `publication`. Publishing one clears the site cache.
+
+**Blocks available in templates**, besides the content and layout blocks:
+
+| Group | Blocks |
+| --- | --- |
+| Site | `site_logo`, `site_title`, `site_tagline`, `navigation`, `search`, `languages`, `account`, `site_cta`, `breadcrumbs`, `social_links`, `site_contact`, `site_footer_text`, `copyright`, `template_part`, `pattern` |
+| Current item | `record_title`, `record_field` (`field`, `format`: text, date, datetime, markdown, number, reading_time), `record_image` (image `field`, `ratio`), `record_terms` (`vocabulary`, `display`), `record_body` (blocks `field`), `record_link`, `archive_title`, `archive_description` |
+| Lists | `query` and `query_pagination` |
+
+`query` is a container whose children are the card drawn for each item, with `record` set to the item. With `source = "inherit"` it lists the page's records (`limit` is the page size); with `source = "custom"` it lists `owner`/`entity` records by `sort` or `order_by`, filtered by `scope_field` (the current record when `scope` is empty) or `match_field` (same values as the current record), optionally excluding the current record. Layouts are `grid`, `list`, `featured`, `masonry` and `carousel`. Every listed record carries `url`, `record_type` and term `url`s.
+
+**Plugin blocks.** A plugin adds blocks with `site/blocks/<name>.json` (`label`, `description`, `icon`, `context`, `fields`: `{ key, kind: text | long_text | select | flag | number, label, default, options }`) and `site/blocks/<name>.html`, which receives `block`, `record`, `site`, `page` and the page data. The block type is `<owner>:<name>`; `GET /api/v1/site/blocks` lists them for editors. A plugin can also ship `site/style.css`, served at `/_aphel/site/plugins/<owner>.css` and linked on every page.
+
+**Site → Site editor** lists templates by plugin page (and their variants), parts, patterns and menus. It previews the real renderer with the draft (`POST /api/v1/site/designs/preview`), selects blocks by clicking the preview or the structure tree, edits them with the block inspector, keeps undo/redo history, autosaves the draft, publishes, and restores the plugin or theme default by deleting the organization's version. Keys: `Delete` removes, `Alt+↑/↓` moves, `Ctrl+D` duplicates, `Esc` selects the parent, `Ctrl+Z`/`Ctrl+Shift+Z` undo and redo. `GET /api/v1/site/designs/catalog` lists the editable templates with their packaged defaults; `GET /api/v1/site/designs/export` downloads the published design as a theme plugin.

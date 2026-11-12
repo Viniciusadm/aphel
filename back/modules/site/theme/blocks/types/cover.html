@@ -1,0 +1,4 @@
+{% from "aphel/blocks_macros.html" import picture %}<div class="blk-cover blk-children" data-height="{{ block.min_height }}" data-position="{{ block.position }}" data-overlay="{{ block.overlay }}"{% if block.dark_text %} data-dark-text{% endif %}>
+{% if block.image %}{{ picture(images, block.image, 1920, '', 'blk-cover-image', not nested and position == 0, block.focal_x, block.focal_y) }}{% elif block.image_field and record and record[block.image_field] %}{% set field = block.image_field %}{{ picture(record.images, record[field], 1920, '', 'blk-cover-image', true, record[field ~ '_x'] if record[field ~ '_x'] is not none else 50, record[field ~ '_y'] if record[field ~ '_y'] is not none else 50) }}{% endif %}<span class="blk-cover-overlay" aria-hidden="true"></span>
+<div class="blk-cover-content">{% with blocks = block.children, nested = true %}{% include "aphel/blocks_items.html" %}{% endwith %}</div>
+</div>

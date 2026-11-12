@@ -19,6 +19,7 @@ pub(crate) struct Preview {
     pub theme: Option<String>,
     pub appearance: Option<crate::appearance::AppearancePreview>,
     pub record: Option<PreviewRecord>,
+    pub design: Option<crate::design::DesignPreview>,
 }
 
 #[derive(Debug, Clone)]
@@ -136,6 +137,7 @@ async fn find(
                 theme,
                 record,
                 appearance: None,
+                design: None,
             },
             path,
         )

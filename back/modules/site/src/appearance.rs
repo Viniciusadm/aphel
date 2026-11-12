@@ -5,8 +5,7 @@ use aphel_sdk::platform::application::fields::{
 
 pub(crate) const STATE_FIELD: &str = "publication_state";
 use aphel_contract_site::{
-    APPEARANCE_EDIT, APPEARANCE_ENTITY, AppearanceValues, PRESENTATION_EDIT, PRESENTATION_ENTITY,
-    appearance_properties,
+    APPEARANCE_EDIT, APPEARANCE_ENTITY, AppearanceValues, appearance_properties,
 };
 use aphel_sdk::AppError;
 use aphel_sdk::module::{AppBuilder, HookCtx};
@@ -25,10 +24,7 @@ use serde_json::Value;
 use std::sync::Arc;
 
 pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
-    for (entity, permission) in [
-        (APPEARANCE_ENTITY, APPEARANCE_EDIT),
-        (PRESENTATION_ENTITY, PRESENTATION_EDIT),
-    ] {
+    for (entity, permission) in [(APPEARANCE_ENTITY, APPEARANCE_EDIT)] {
         let permission = Permission::from_static(permission);
         app.permission(PermissionDefinition::administrative(permission.clone()))
             .grant_to(["admin"]);
@@ -55,7 +51,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
                     "draft_values",
                 )?
                 .with_config(FieldConfig {
-                    max_length: Some(16000),
+                    max_length: Some(65_535),
                     ..Default::default()
                 }),
             );
@@ -63,7 +59,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
             definition = definition
                 .system_field(SystemField::new(key, key, FieldType::DateTime, key)?.read_only());
         }
-        for key in ["logo", "dark_logo", "icon", "opening_image"] {
+        for key in ["logo", "dark_logo", "icon"] {
             definition = definition.system_field(SystemField::new(
                 &format!("{DRAFT_PREFIX}{key}"),
                 key,
@@ -77,7 +73,6 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
             ("logo", FieldType::Image),
             ("dark_logo", FieldType::Image),
             ("icon", FieldType::Image),
-            ("opening_image", FieldType::Image),
             (state_field.as_str(), FieldType::Select),
             (PUBLISHED_AT_FIELD, FieldType::DateTime),
             (REVISED_AT_FIELD, FieldType::DateTime),
@@ -104,12 +99,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute(Arc::new(PublishableDeclaration {
             entity: entity.into(),
             format: 1,
-            permission: if entity == APPEARANCE_ENTITY {
-                APPEARANCE_EDIT
-            } else {
-                PRESENTATION_EDIT
-            }
-            .into(),
+            permission: APPEARANCE_EDIT.into(),
         }));
     }
     app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(Arc::new(AppearanceProvisioner));
@@ -117,7 +107,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
     Ok(())
 }
 
-pub(crate) fn validate(values: &Value, collection: bool) -> Result<AppearanceValues, AppError> {
+pub(crate) fn validate(values: &Value) -> Result<AppearanceValues, AppError> {
     let values: AppearanceValues = serde_json::from_value(values.clone()).map_err(|_| {
         AppError::validation_code("site_appearance_invalid", "appearance must be an object")
     })?;
@@ -125,7 +115,7 @@ pub(crate) fn validate(values: &Value, collection: bool) -> Result<AppearanceVal
     for (key, value) in &values.0 {
         let property = properties
             .iter()
-            .find(|property| property.key == *key && (!collection || property.collection))
+            .find(|property| property.key == *key)
             .ok_or_else(|| {
                 AppError::validation_code(
                     "site_appearance_invalid",
@@ -148,6 +138,17 @@ pub(crate) fn validate(values: &Value, collection: bool) -> Result<AppearanceVal
                 .as_str()
                 .is_some_and(|text| property.options.iter().any(|option| option == text)),
             "boolean" => value.is_boolean(),
+            "variation" => value
+                .as_str()
+                .is_some_and(|key| key.is_empty() || aphel_blocks::style::is_slug(key)),
+            "styles" => aphel_contract_site::styles::validate_styles(value)
+                .map_err(|reason| {
+                    AppError::validation_code(
+                        "site_styles_invalid",
+                        format!("invalid site styles: {reason}"),
+                    )
+                })?
+                .is_object(),
             "frame" => {
                 let mut settings = crate::settings::SiteSettings::default();
                 let parsed = if key == "header" {
@@ -179,9 +180,9 @@ pub(crate) fn validate(values: &Value, collection: bool) -> Result<AppearanceVal
     Ok(values)
 }
 
-async fn guard(ctx: &mut HookCtx<'_>, args: &ChangedRecord) -> Result<(), AppError> {
+async fn guard(_ctx: &mut HookCtx<'_>, args: &ChangedRecord) -> Result<(), AppError> {
     let entity = args.record_type.as_str();
-    if ![APPEARANCE_ENTITY, PRESENTATION_ENTITY].contains(&entity) {
+    if entity != APPEARANCE_ENTITY {
         return Ok(());
     }
     let app = aphel_sdk::platform::modules::app();
@@ -210,45 +211,6 @@ async fn guard(ctx: &mut HookCtx<'_>, args: &ChangedRecord) -> Result<(), AppErr
             "global appearance target must be site",
         ));
     }
-    if entity == PRESENTATION_ENTITY {
-        let Some((record_type, id)) = target.split_once(':') else {
-            return Err(AppError::validation_code(
-                "site_appearance_invalid",
-                "a presentation needs an entity and record id",
-            ));
-        };
-        let id = uuid::Uuid::parse_str(id).map_err(|_| {
-            AppError::validation_code("site_appearance_invalid", "invalid presentation target")
-        })?;
-        let state = aphel_sdk::runtime()?;
-        let settings =
-            crate::settings::site_settings(&state.as_ref().organization_config.snapshot());
-        let runtime = crate::runtime::current(app, settings.theme.as_deref()).await?;
-        let permitted = runtime.prefixed.iter().any(|route| {
-            route
-                .page
-                .prefix
-                .as_ref()
-                .is_some_and(|prefix| prefix.entity == record_type)
-        });
-        if !permitted {
-            return Err(AppError::validation_code(
-                "site_appearance_invalid",
-                "this entity has no collection presentation",
-            ));
-        }
-        let handler = args.registry.handler(record_type)?;
-        if handler
-            .load(
-                &aphel_sdk::records::RecordCtx::new(ctx.scope, state.as_ref()),
-                id,
-            )
-            .await?
-            .is_none()
-        {
-            return Err(AppError::NotFound("presentation target not found".into()));
-        }
-    }
     for key in ["draft_values", "values"] {
         if let Some(text) = args.values.get(key).and_then(Value::as_str) {
             let value = serde_json::from_str(text).map_err(|_| {
@@ -257,7 +219,7 @@ async fn guard(ctx: &mut HookCtx<'_>, args: &ChangedRecord) -> Result<(), AppErr
                     "appearance must contain valid JSON",
                 )
             })?;
-            validate(&value, entity == PRESENTATION_ENTITY)?;
+            validate(&value)?;
             if let Some(theme) = value["theme"].as_str().filter(|theme| !theme.is_empty()) {
                 let runtime = crate::runtime::current(app, None).await?;
                 if !runtime
@@ -314,7 +276,6 @@ pub(crate) async fn record(
 
 pub(crate) async fn resolved(
     state: &AppState,
-    target: Option<&str>,
     preview: Option<&AppearancePreview>,
 ) -> Result<Value, AppError> {
     let mut values: serde_json::Map<String, Value> = appearance_properties()
@@ -338,18 +299,16 @@ pub(crate) async fn resolved(
     } else {
         crate::runtime::active(state).await?
     };
-    values.extend(
-        validate(
-            &serde_json::to_value(&runtime.appearance.defaults)
-                .map_err(|error| AppError::Internal(error.to_string()))?,
-            false,
-        )?
-        .0,
-    );
+    let mut theme_values = validate(
+        &serde_json::to_value(&runtime.appearance.defaults)
+            .map_err(|error| AppError::Internal(error.to_string()))?,
+    )?
+    .0;
+    let theme_styles = theme_values.remove("styles").unwrap_or(Value::Null);
+    let mut site_styles = Value::Null;
+    values.extend(theme_values);
     if state.app.is_enabled("publication") {
-        for (entity, key) in std::iter::once((APPEARANCE_ENTITY, "site"))
-            .chain(target.map(|target| (PRESENTATION_ENTITY, target)))
-        {
+        for (entity, key) in [(APPEARANCE_ENTITY, "site")] {
             if !preview.is_some_and(|preview| preview.entity == entity && preview.target == key)
                 && let Some(record) = record(state, entity, key, &AccessScope::system()).await?
                 && record[STATE_FIELD] == "published"
@@ -357,9 +316,13 @@ pub(crate) async fn resolved(
                 let text = record["values"].as_str().unwrap_or("{}");
                 let appearance: Value = serde_json::from_str(text)
                     .map_err(|error| AppError::Internal(error.to_string()))?;
-                values.extend(validate(&appearance, entity == PRESENTATION_ENTITY)?.0);
+                let mut layer = validate(&appearance)?.0;
+                if let Some(styles) = layer.remove("styles") {
+                    site_styles = styles;
+                }
+                values.extend(layer);
                 {
-                    for key in ["logo", "dark_logo", "icon", "opening_image"] {
+                    for key in ["logo", "dark_logo", "icon"] {
                         if let Some(file) = record[key].as_str().filter(|file| !file.is_empty()) {
                             values.insert(
                                 key.into(),
@@ -376,10 +339,45 @@ pub(crate) async fn resolved(
             if let Some(preview) =
                 preview.filter(|preview| preview.entity == entity && preview.target == key)
             {
-                values.extend(preview.values.0.clone());
+                let mut layer = preview.values.0.clone();
+                if let Some(styles) = layer.remove("styles") {
+                    site_styles = styles;
+                }
+                values.extend(layer);
             }
         }
     }
+    let variation = values
+        .get("variation")
+        .and_then(Value::as_str)
+        .and_then(|key| {
+            runtime
+                .theme_variations
+                .get(key)
+                .map(|(_, styles)| styles.clone())
+                .or_else(|| aphel_contract_site::styles::variation(key))
+        })
+        .unwrap_or(Value::Null);
+    let validated = |layer: &Value| {
+        aphel_contract_site::styles::validate_styles(layer).unwrap_or_else(|reason| {
+            tracing::warn!(%reason, "ignoring invalid site styles");
+            Value::Null
+        })
+    };
+    let theme_base = runtime.theme_styles.clone().unwrap_or(Value::Null);
+    let styles = aphel_contract_site::styles::resolve_styles(&[
+        &theme_base,
+        &validated(&theme_styles),
+        &variation,
+        &validated(&site_styles),
+    ]);
+    let mut styles = styles;
+    if state.app.is_enabled("publication") {
+        styles["uploaded_fonts"] = crate::design::uploaded_fonts(state).await?;
+    }
+    let url = crate::stylesheets::register(aphel_contract_site::styles::compile_css(&styles));
+    values.insert("styles_url".into(), Value::String(url));
+    values.insert("styles".into(), styles);
     Ok(Value::Object(values))
 }
 
@@ -394,7 +392,6 @@ pub(crate) struct AppearancePreview {
 pub(crate) fn require(scope: &AccessScope, entity: &str) -> Result<(), AppError> {
     let permission = match entity {
         APPEARANCE_ENTITY => APPEARANCE_EDIT,
-        PRESENTATION_ENTITY => PRESENTATION_EDIT,
         _ => {
             return Err(AppError::validation_code(
                 "site_appearance_invalid",
@@ -477,7 +474,7 @@ impl aphel_sdk::provisioning::Provisioner for AppearanceProvisioner {
         request: &aphel_sdk::provisioning::ProvisionRequest,
     ) -> Result<aphel_sdk::provisioning::ProvisionOutcome, AppError> {
         use aphel_sdk::provisioning::{ProvisionAction, ProvisionOutcome};
-        let entity = request.target.as_deref().unwrap_or(PRESENTATION_ENTITY);
+        let entity = request.target.as_deref().unwrap_or(APPEARANCE_ENTITY);
         require(ctx.scope, entity)?;
         let target = request.data["target"].as_str().ok_or_else(|| {
             AppError::validation_code(
@@ -485,7 +482,29 @@ impl aphel_sdk::provisioning::Provisioner for AppearanceProvisioner {
                 "appearance provisioning needs a target",
             )
         })?;
-        let values = validate(&request.data["values"], entity == PRESENTATION_ENTITY)?;
+        let mut requested = match request.data["preset"].as_str() {
+            Some(key) => aphel_contract_site::appearance_presets()
+                .into_iter()
+                .find(|preset| preset.key == key)
+                .map(|preset| {
+                    preset
+                        .values
+                        .0
+                        .into_iter()
+                        .collect::<serde_json::Map<_, _>>()
+                })
+                .ok_or_else(|| {
+                    AppError::validation_code(
+                        "site_appearance_invalid",
+                        format!("unknown appearance preset {key}"),
+                    )
+                })?,
+            None => Default::default(),
+        };
+        if let Some(values) = request.data["values"].as_object() {
+            requested.extend(values.clone());
+        }
+        let values = validate(&serde_json::to_value(requested).unwrap_or_default())?;
         let state = aphel_sdk::runtime()?;
         let seed_key = format!("{}:{}", request.pack, request.key);
         let serialized = serde_json::to_string(&values)
@@ -536,7 +555,7 @@ impl aphel_sdk::provisioning::Provisioner for AppearanceProvisioner {
 pub(crate) fn probe(failures: &mut Vec<String>) {
     let app = aphel_sdk::platform::modules::app();
     let registry = app.record_types();
-    for entity in [APPEARANCE_ENTITY, PRESENTATION_ENTITY] {
+    for entity in [APPEARANCE_ENTITY] {
         let Ok(definition) = registry.require(entity) else {
             failures.push(format!("appearance: missing {entity}"));
             continue;
@@ -552,7 +571,6 @@ pub(crate) fn probe(failures: &mut Vec<String>) {
             "logo",
             "dark_logo",
             "icon",
-            "opening_image",
             STATE_FIELD,
             PUBLISHED_AT_FIELD,
             REVISED_AT_FIELD,
@@ -577,49 +595,17 @@ pub(crate) fn probe(failures: &mut Vec<String>) {
     }
     for value in [
         serde_json::json!({"unknown": "x"}),
-        serde_json::json!({"background": "red;display:none"}),
-        serde_json::json!({"columns": "99"}),
+        serde_json::json!({"styles": {"palette": [{"slug": "base", "light": "red;display:none"}]}}),
+        serde_json::json!({"styles": {"elements": {"body": {"text": "red;}"}}}}),
+        serde_json::json!({"columns": "2"}),
     ] {
-        if validate(&value, false).is_ok() {
+        if validate(&value).is_ok() {
             failures.push("appearance: unsafe or unsupported property accepted".into());
         }
     }
-    if validate(&serde_json::json!({"background": "#ffffff"}), true).is_ok() {
-        failures.push("appearance: collection accepted a global identity override".into());
-    }
     for preset in aphel_contract_site::appearance_presets() {
-        if validate(
-            &serde_json::to_value(preset.values).unwrap_or_default(),
-            true,
-        )
-        .is_err()
-        {
+        if validate(&serde_json::to_value(preset.values).unwrap_or_default()).is_err() {
             failures.push(format!("appearance: invalid preset {}", preset.key));
         }
     }
-}
-
-pub(crate) async fn presentation_values(
-    state: &AppState,
-    target: &str,
-    preview: Option<&AppearancePreview>,
-) -> Result<std::collections::BTreeMap<String, Value>, AppError> {
-    if let Some(preview) =
-        preview.filter(|preview| preview.entity == PRESENTATION_ENTITY && preview.target == target)
-    {
-        return Ok(preview.values.0.clone());
-    }
-    if !state.app.is_enabled("publication") {
-        return Ok(Default::default());
-    }
-    let Some(record) = record(state, PRESENTATION_ENTITY, target, &AccessScope::system()).await?
-    else {
-        return Ok(Default::default());
-    };
-    if record[STATE_FIELD] != "published" {
-        return Ok(Default::default());
-    }
-    let values = serde_json::from_str(record["values"].as_str().unwrap_or("{}"))
-        .map_err(|error| AppError::Internal(error.to_string()))?;
-    Ok(validate(&values, true)?.0)
 }

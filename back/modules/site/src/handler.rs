@@ -101,6 +101,20 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if request.uri().path() == "/interactions.js" {
         return dynamic::interactions();
     }
+    if request.uri().path() == crate::stylesheets::FRAME_PATH {
+        return crate::stylesheets::frame();
+    }
+    if request.uri().path() == crate::stylesheets::BLOCKS_PATH {
+        return crate::stylesheets::blocks();
+    }
+    if let Some(name) = request
+        .uri()
+        .path()
+        .strip_prefix(crate::stylesheets::STYLES_PREFIX)
+        .map(str::to_owned)
+    {
+        return crate::stylesheets::generated(state, &name).await;
+    }
     if request.uri().path() == ISLANDS_LOADER_PATH {
         return dynamic::islands_loader();
     }
@@ -140,6 +154,25 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if path == LOGO_PATH {
         return assets::logo(state).await;
     }
+    if let Some((record, file)) = path
+        .strip_prefix("/fonts/")
+        .and_then(|rest| rest.split_once('/'))
+    {
+        return match crate::design::font_file(state, record, file).await {
+            Ok(Some(response)) => response,
+            Ok(None) => StatusCode::NOT_FOUND.into_response(),
+            Err(error) => {
+                tracing::warn!(%error, "could not serve a site font");
+                StatusCode::NOT_FOUND.into_response()
+            }
+        };
+    }
+    if let Some(owner) = path
+        .strip_prefix(crate::stylesheets::PLUGINS_PREFIX)
+        .and_then(|name| name.strip_suffix(".css"))
+    {
+        return crate::stylesheets::plugin(runtime.styles.get(owner));
+    }
     if let Some(rest) = path.strip_prefix(&format!("/{THEMES_SEGMENT}/")) {
         return assets::theme_file(state, rest).await;
     }
@@ -149,6 +182,85 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
             tracing::warn!(%error, path = %request.uri().path(), "could not serve a site file");
             StatusCode::NOT_FOUND.into_response()
         }
+    }
+}
+
+fn inherited_limit(blocks: &serde_json::Value) -> Option<u64> {
+    blocks.as_array()?.iter().find_map(|block| {
+        if block["type"] == "query" && block["source"] != "custom" {
+            return block["limit"].as_str().and_then(|limit| limit.parse().ok());
+        }
+        inherited_limit(&block["children"])
+    })
+}
+
+async fn chosen_template(
+    state: &AppState,
+    runtime: &crate::runtime::SiteRuntime,
+    route: &crate::runtime::Route,
+    record: Option<&serde_json::Value>,
+    preview: Option<&crate::design::DesignPreview>,
+) -> Result<Option<serde_json::Value>, AppError> {
+    let base = format!("{}:{}", route.owner, route.page.key);
+    let variant = record
+        .and_then(|record| {
+            record.get("template").or_else(|| {
+                record
+                    .get("slug")
+                    .filter(|_| record.get("vocabulary").is_some())
+            })
+        })
+        .and_then(serde_json::Value::as_str)
+        .filter(|variant| !variant.is_empty() && variant.len() <= 64);
+    let listing = matches!(route.page.source, PageSource::List { .. });
+    let keys: Vec<String> = variant
+        .map(|variant| format!("{base}@{variant}"))
+        .into_iter()
+        .chain(std::iter::once(base))
+        .chain(
+            listing
+                .then(|| ["archive", "index"].map(|fallback| format!("{}:{fallback}", route.owner)))
+                .into_iter()
+                .flatten(),
+        )
+        .collect();
+    for key in keys {
+        if let Some(found) = crate::design::template(state, &key, preview).await? {
+            return Ok(Some(found));
+        }
+        let target = format!("template:{key}");
+        if let Some(found) = runtime
+            .theme_designs
+            .get(&target)
+            .or_else(|| runtime.designs.get(&target))
+        {
+            return Ok(Some(found.clone()));
+        }
+    }
+    Ok(None)
+}
+
+fn annotate_current(
+    runtime: &crate::runtime::SiteRuntime,
+    route: &crate::runtime::Route,
+    prefix: Option<&crate::prefixes::PrefixMatch>,
+    entity: &str,
+    record: &mut serde_json::Value,
+    site_prefix: &str,
+    path: &str,
+) {
+    if let (Some(prefix), Some(page_prefix), Some(fields)) =
+        (prefix, &route.page.prefix, record.as_object_mut())
+        && let Some(segment) = prefix.record.get(&page_prefix.field)
+    {
+        fields.insert(
+            crate::prefixes::SITE_PREFIX_FIELD.to_owned(),
+            segment.clone(),
+        );
+    }
+    crate::targets::annotate_urls(runtime, entity, std::slice::from_mut(record), site_prefix);
+    if record.get("url").is_none() {
+        record["url"] = serde_json::Value::String(format!("{site_prefix}{path}"));
     }
 }
 
@@ -618,6 +730,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Anterior",
             "next": "Próxima",
             "menu": "Menu principal",
+            "menu_button": "Menu",
             "sign_in": "Entrar",
             "languages": "Idiomas",
             "footer_links": "Links do rodapé",
@@ -636,10 +749,17 @@ fn texts(locale: &str) -> serde_json::Value {
             "search_label": "Buscar no site",
             "search_empty": "Nenhum resultado para esta busca.",
             "search_short": "Digite ao menos duas letras para buscar.",
+            "search_result": "resultado para",
+            "search_results": "resultados para",
+            "search_hint": "Encontre posts, páginas e tudo o que está publicado no site.",
             "reading_time": "min de leitura",
             "related": "Leia também",
             "categories": "Categorias",
             "feed": "Feed RSS",
+            "home": "Início",
+            "breadcrumbs": "Navegação estrutural",
+            "read_more": "Continuar lendo",
+            "query_empty": "Nenhum item encontrado.",
         }),
         "es" => json!({
             "not_found_title": "Página no encontrada",
@@ -650,6 +770,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Anterior",
             "next": "Siguiente",
             "menu": "Menú principal",
+            "menu_button": "Menú",
             "sign_in": "Iniciar sesión",
             "languages": "Idiomas",
             "footer_links": "Enlaces del pie de página",
@@ -668,10 +789,17 @@ fn texts(locale: &str) -> serde_json::Value {
             "search_label": "Buscar en el sitio",
             "search_empty": "No hay resultados para esta búsqueda.",
             "search_short": "Escribe al menos dos letras para buscar.",
+            "search_result": "resultado para",
+            "search_results": "resultados para",
+            "search_hint": "Encuentra artículos, páginas y todo lo publicado en el sitio.",
             "reading_time": "min de lectura",
             "related": "Lee también",
             "categories": "Categorías",
             "feed": "Feed RSS",
+            "home": "Inicio",
+            "breadcrumbs": "Ruta de navegación",
+            "read_more": "Seguir leyendo",
+            "query_empty": "No se encontraron elementos.",
         }),
         "fr" => json!({
             "not_found_title": "Page introuvable",
@@ -682,6 +810,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Précédent",
             "next": "Suivant",
             "menu": "Menu principal",
+            "menu_button": "Menu",
             "sign_in": "Se connecter",
             "languages": "Langues",
             "footer_links": "Liens du pied de page",
@@ -700,10 +829,17 @@ fn texts(locale: &str) -> serde_json::Value {
             "search_label": "Rechercher sur le site",
             "search_empty": "Aucun résultat pour cette recherche.",
             "search_short": "Saisissez au moins deux lettres pour rechercher.",
+            "search_result": "résultat pour",
+            "search_results": "résultats pour",
+            "search_hint": "Trouvez articles, pages et tout ce qui est publié sur le site.",
             "reading_time": "min de lecture",
             "related": "À lire aussi",
             "categories": "Catégories",
             "feed": "Flux RSS",
+            "home": "Accueil",
+            "breadcrumbs": "Fil d’Ariane",
+            "read_more": "Lire la suite",
+            "query_empty": "Aucun élément trouvé.",
         }),
         "de" => json!({
             "not_found_title": "Seite nicht gefunden",
@@ -714,6 +850,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Zurück",
             "next": "Weiter",
             "menu": "Hauptmenü",
+            "menu_button": "Menü",
             "sign_in": "Anmelden",
             "languages": "Sprachen",
             "footer_links": "Links in der Fußzeile",
@@ -732,10 +869,17 @@ fn texts(locale: &str) -> serde_json::Value {
             "search_label": "Website durchsuchen",
             "search_empty": "Keine Ergebnisse für diese Suche.",
             "search_short": "Geben Sie mindestens zwei Buchstaben ein.",
+            "search_result": "Ergebnis für",
+            "search_results": "Ergebnisse für",
+            "search_hint": "Finden Sie Beiträge, Seiten und alles, was auf der Website veröffentlicht ist.",
             "reading_time": "Min. Lesezeit",
             "related": "Weitere Beiträge",
             "categories": "Kategorien",
             "feed": "RSS-Feed",
+            "home": "Startseite",
+            "breadcrumbs": "Brotkrümelnavigation",
+            "read_more": "Weiterlesen",
+            "query_empty": "Keine Einträge gefunden.",
         }),
         "it" => json!({
             "not_found_title": "Pagina non trovata",
@@ -746,6 +890,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Precedente",
             "next": "Successiva",
             "menu": "Menu principale",
+            "menu_button": "Menu",
             "sign_in": "Accedi",
             "languages": "Lingue",
             "footer_links": "Link del piè di pagina",
@@ -764,10 +909,17 @@ fn texts(locale: &str) -> serde_json::Value {
             "search_label": "Cerca nel sito",
             "search_empty": "Nessun risultato per questa ricerca.",
             "search_short": "Digita almeno due lettere per cercare.",
+            "search_result": "risultato per",
+            "search_results": "risultati per",
+            "search_hint": "Trova articoli, pagine e tutto ciò che è pubblicato sul sito.",
             "reading_time": "min di lettura",
             "related": "Leggi anche",
             "categories": "Categorie",
             "feed": "Feed RSS",
+            "home": "Home",
+            "breadcrumbs": "Percorso",
+            "read_more": "Continua a leggere",
+            "query_empty": "Nessun elemento trovato.",
         }),
         _ => json!({
             "not_found_title": "Page not found",
@@ -778,6 +930,7 @@ fn texts(locale: &str) -> serde_json::Value {
             "previous": "Previous",
             "next": "Next",
             "menu": "Main menu",
+            "menu_button": "Menu",
             "sign_in": "Sign in",
             "languages": "Languages",
             "footer_links": "Footer links",
@@ -796,10 +949,17 @@ fn texts(locale: &str) -> serde_json::Value {
             "search_label": "Search this site",
             "search_empty": "No results for this search.",
             "search_short": "Type at least two letters to search.",
+            "search_result": "result for",
+            "search_results": "results for",
+            "search_hint": "Find posts, pages and everything published on the site.",
             "reading_time": "min read",
             "related": "Read next",
             "categories": "Categories",
             "feed": "RSS feed",
+            "home": "Home",
+            "breadcrumbs": "Breadcrumb",
+            "read_more": "Keep reading",
+            "query_empty": "Nothing found.",
         }),
     }
 }
@@ -1016,7 +1176,7 @@ async fn site_context(
     let mut context = SiteContext {
         translation: language.translation(),
         site: json!({
-            "appearance": crate::appearance::resolved(state, None, None).await?,
+            "appearance": crate::appearance::resolved(state, None).await?,
             "name": organization.name.as_str(),
             "locale": locale,
             "language": locale,
@@ -1047,6 +1207,7 @@ async fn site_context(
     };
     let appearance = context.site["appearance"].clone();
     crate::appearance::apply_frame(&mut context.site, &appearance, state)?;
+    crate::design::decorate(state, runtime, &mut context.site, prefix, current).await?;
     Ok(context)
 }
 
@@ -1080,16 +1241,17 @@ async fn render_route(
         .map(|(name, value)| (name, decode_segment(&value)))
         .collect();
     let mut values = serde_json::Map::new();
-    let target = prefix.map(|prefix| format!("{}:{}", prefix.entity, prefix.id));
     let appearance = crate::appearance::resolved(
         state,
-        target.as_deref(),
         preview.and_then(|preview| preview.appearance.as_ref()),
     )
     .await?;
     let mut site = context.site.clone();
     crate::appearance::apply_frame(&mut site, &appearance, state)?;
     site["appearance"] = appearance;
+    if let Some(design) = preview.and_then(|preview| preview.design.as_ref()) {
+        crate::design::apply_preview(&mut site, design);
+    }
     values.insert("site".to_owned(), site);
     values.insert("customer".to_owned(), json!(customer));
     let restriction = route
@@ -1243,6 +1405,15 @@ async fn render_route(
                 }
                 values.insert("adjacent".to_owned(), serde_json::Value::Object(adjacent));
             }
+            annotate_current(
+                runtime,
+                route,
+                prefix,
+                entity,
+                &mut record,
+                context.site["prefix"].as_str().unwrap_or_default(),
+                path,
+            );
             values.insert("record".to_owned(), record);
         }
         PageSource::Single { entity, conditions } => {
@@ -1281,6 +1452,15 @@ async fn render_route(
                 &mut tags,
             )
             .await?;
+            annotate_current(
+                runtime,
+                route,
+                prefix,
+                entity,
+                &mut record,
+                context.site["prefix"].as_str().unwrap_or_default(),
+                path,
+            );
             values.insert("record".to_owned(), record);
         }
         PageSource::List {
@@ -1291,10 +1471,17 @@ async fn render_route(
             let exposure = runtime
                 .exposure(&route.owner, entity)
                 .ok_or_else(|| AppError::Internal(format!("{entity} is not public")))?;
-            let per_page = values["site"]["appearance"]["per_page"]
-                .as_str()
-                .and_then(|value| value.parse::<u64>().ok())
-                .filter(|_| prefix.is_some())
+            let listed_design = chosen_template(
+                state,
+                runtime,
+                route,
+                None,
+                preview.and_then(|preview| preview.design.as_ref()),
+            )
+            .await?;
+            let per_page = listed_design
+                .as_ref()
+                .and_then(|design| inherited_limit(&design["blocks"]))
                 .unwrap_or(*per_page)
                 .clamp(1, MAX_PER_PAGE);
             let current = requested_page(query);
@@ -1339,6 +1526,12 @@ async fn render_route(
             }
             crate::prefixes::annotate(state, runtime, entity, &mut listed.records).await?;
             crate::terms::annotate(state, exposure, &mut listed.records, &mut tags).await?;
+            crate::targets::annotate_urls(
+                runtime,
+                entity,
+                &mut listed.records,
+                context.site["prefix"].as_str().unwrap_or_default(),
+            );
             let base = format!(
                 "{}{}",
                 context.site["prefix"].as_str().unwrap_or_default(),
@@ -1442,9 +1635,25 @@ async fn render_route(
         ));
     }
     values.insert("page".to_owned(), page);
+    let design = chosen_template(
+        state,
+        runtime,
+        route,
+        values.get("record").or_else(|| values.get("term")),
+        preview.and_then(|preview| preview.design.as_ref()),
+    )
+    .await?;
+    tags.push(cache::entity_tag(aphel_contract_site::DESIGN_ENTITY));
+    let template = match design {
+        Some(design) => {
+            values.insert("__design".to_owned(), design);
+            aphel_contract_site::TEMPLATE_PAGE.to_owned()
+        }
+        None => template_name(&route.owner, &route.page.template),
+    };
     let html = runtime
         .environment
-        .get_template(&template_name(&route.owner, &route.page.template))
+        .get_template(&template)
         .and_then(|template| template.render(Value::from_serialize(&values)))
         .map_err(render_error)?;
     let filled = deferred::resolve(
@@ -1453,7 +1662,6 @@ async fn render_route(
             state,
             runtime,
             site: &values["site"],
-            appearance: preview.and_then(|preview| preview.appearance.as_ref()),
             translation: context.translation.as_deref(),
         },
     )

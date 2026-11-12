@@ -338,7 +338,7 @@ export function FlowBody({ record, recordType, title, blocks, disabled, translat
         {t('flow.words', { count: words })} · {t('flow.readingTime', { count: minutes })}
       </p>
       <Dialog open={pendingBlock !== null} onOpenChange={(open) => !open && setPending(null)}>
-        <DialogContent size="lg">
+        <DialogContent size="2xl">
           <DialogHeader>
             <DialogTitle>{pendingBlock ? blockLabels(`types.${pendingBlock.type}`) : ''}</DialogTitle>
             <DialogDescription>{t('flow.blockDescription')}</DialogDescription>

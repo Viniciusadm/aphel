@@ -3,7 +3,8 @@ use std::collections::BTreeMap;
 use crate::error::BlockError;
 use serde_json::{Map, Value};
 
-pub const MAX_BLOCKS: usize = 300;
+pub const MAX_BLOCKS: usize = 600;
+pub const MAX_DEPTH: usize = 6;
 pub const MAX_JSON_CHARS: usize = 400_000;
 const MAX_BUTTONS: usize = 3;
 const MAX_ID_CHARS: usize = 40;
@@ -28,6 +29,7 @@ enum Kind {
     Embed,
     Key,
     Identifier,
+    Percent,
 }
 
 const ALIGNMENTS: &[&str] = &["center", "left"];
@@ -131,6 +133,149 @@ const CONTACT: &[(&str, Kind)] = &[
     ("hours", Kind::Text(1_000)),
     ("show_map", Kind::Flag),
 ];
+const INNER_WIDTHS: &[&str] = &["full", "content", "wide"];
+const JUSTIFY: &[&str] = &["start", "center", "end", "between"];
+const VERTICAL: &[&str] = &["center", "top", "bottom", "stretch"];
+const GRID_VERTICAL: &[&str] = &["stretch", "center", "top", "bottom"];
+const STACK_ALIGN: &[&str] = &["stretch", "start", "center", "end"];
+const GRID_LAYOUTS: &[&str] = &[
+    "1-1", "1-1-1", "1-1-1-1", "2-1", "1-2", "1-2-1", "3-2", "2-3",
+];
+const GRID_STACK: &[&str] = &["mobile", "tablet", "never"];
+const COVER_HEIGHTS: &[&str] = &["medium", "small", "large", "screen"];
+const COVER_OVERLAYS: &[&str] = &["40", "0", "20", "60", "80"];
+const COVER_POSITIONS: &[&str] = &[
+    "center",
+    "bottom-left",
+    "bottom-center",
+    "top-left",
+    "center-left",
+];
+const GROUP: &[(&str, Kind)] = &[("inner_width", Kind::Choice(INNER_WIDTHS))];
+const ROW: &[(&str, Kind)] = &[
+    ("justify", Kind::Choice(JUSTIFY)),
+    ("vertical", Kind::Choice(VERTICAL)),
+    ("wrap", Kind::Flag),
+];
+const STACK: &[(&str, Kind)] = &[("align_items", Kind::Choice(STACK_ALIGN))];
+const GRID: &[(&str, Kind)] = &[
+    ("layout", Kind::Choice(GRID_LAYOUTS)),
+    ("vertical", Kind::Choice(GRID_VERTICAL)),
+    ("stack_on", Kind::Choice(GRID_STACK)),
+];
+const COVER: &[(&str, Kind)] = &[
+    ("image", Kind::Image),
+    ("image_field", Kind::Identifier),
+    ("focal_x", Kind::Percent),
+    ("focal_y", Kind::Percent),
+    ("overlay", Kind::Choice(COVER_OVERLAYS)),
+    ("min_height", Kind::Choice(COVER_HEIGHTS)),
+    ("position", Kind::Choice(COVER_POSITIONS)),
+    ("dark_text", Kind::Flag),
+];
+const DETAILS: &[(&str, Kind)] = &[("summary", Kind::Text(300)), ("open", Kind::Flag)];
+const NONE: &[(&str, Kind)] = &[];
+const LOGO_SHOW: &[&str] = &["logo_and_title", "logo", "title"];
+const SITE_LOGO: &[(&str, Kind)] = &[("show", Kind::Choice(LOGO_SHOW)), ("tagline", Kind::Flag)];
+const NAV_LAYOUTS: &[&str] = &["horizontal", "vertical"];
+const NAV_MOBILE: &[&str] = &["panel", "list"];
+const NAVIGATION: &[(&str, Kind)] = &[
+    ("menu", Kind::Key),
+    ("layout", Kind::Choice(NAV_LAYOUTS)),
+    ("mobile", Kind::Choice(NAV_MOBILE)),
+];
+const SEARCH_DISPLAY: &[&str] = &["icon", "field"];
+const SEARCH: &[(&str, Kind)] = &[("display", Kind::Choice(SEARCH_DISPLAY))];
+const TEMPLATE_PART: &[(&str, Kind)] = &[("part", Kind::Key)];
+const PATTERN: &[(&str, Kind)] = &[("pattern", Kind::Key)];
+const TITLE_LEVELS: &[&str] = &["h1", "h2", "h3", "p"];
+const RECORD_TITLE: &[(&str, Kind)] =
+    &[("level", Kind::Choice(TITLE_LEVELS)), ("link", Kind::Flag)];
+const FIELD_FORMATS: &[&str] = &[
+    "text",
+    "date",
+    "datetime",
+    "markdown",
+    "number",
+    "reading_time",
+];
+const RECORD_FIELD: &[(&str, Kind)] = &[
+    ("field", Kind::Identifier),
+    ("format", Kind::Choice(FIELD_FORMATS)),
+    ("label", Kind::Text(80)),
+];
+const IMAGE_RATIOS: &[&str] = &["original", "landscape", "square", "portrait", "wide"];
+const RECORD_IMAGE: &[(&str, Kind)] = &[
+    ("field", Kind::Identifier),
+    ("ratio", Kind::Choice(IMAGE_RATIOS)),
+    ("link", Kind::Flag),
+    ("caption", Kind::Flag),
+];
+const VOCABULARIES: &[&str] = &["all", "categories", "tags"];
+const TERM_DISPLAY: &[&str] = &["chips", "plain", "kicker"];
+const RECORD_TERMS: &[(&str, Kind)] = &[
+    ("vocabulary", Kind::Choice(VOCABULARIES)),
+    ("display", Kind::Choice(TERM_DISPLAY)),
+];
+const RECORD_BODY: &[(&str, Kind)] = &[("field", Kind::Identifier)];
+const RECORD_LINK: &[(&str, Kind)] = &[("label", Kind::Text(60))];
+const ARCHIVE_LEVELS: &[&str] = &["h1", "h2"];
+const ARCHIVE_TITLE: &[(&str, Kind)] = &[("level", Kind::Choice(ARCHIVE_LEVELS))];
+const QUERY_SOURCES: &[&str] = &["inherit", "custom"];
+const QUERY_LIMITS: &[&str] = &["6", "3", "4", "9", "12", "24"];
+const QUERY_LAYOUTS: &[&str] = &["grid", "list", "featured", "masonry", "carousel"];
+const QUERY_COLUMNS: &[&str] = &["2", "1", "3", "4"];
+const QUERY: &[(&str, Kind)] = &[
+    ("source", Kind::Choice(QUERY_SOURCES)),
+    ("owner", Kind::Identifier),
+    ("entity", Kind::Identifier),
+    ("sort", Kind::Choice(LIST_SORTS)),
+    ("order_by", Kind::Identifier),
+    ("limit", Kind::Choice(QUERY_LIMITS)),
+    ("layout", Kind::Choice(QUERY_LAYOUTS)),
+    ("columns", Kind::Choice(QUERY_COLUMNS)),
+    ("scope_field", Kind::Identifier),
+    ("scope", Kind::Text(36)),
+    ("match_field", Kind::Identifier),
+    ("exclude_current", Kind::Flag),
+    ("title", Kind::Text(160)),
+    ("empty_text", Kind::Text(200)),
+];
+const PAGINATION_DISPLAY: &[&str] = &["arrows", "numbers"];
+const QUERY_PAGINATION: &[(&str, Kind)] = &[("display", Kind::Choice(PAGINATION_DISPLAY))];
+pub const SITE_TYPES: &[&str] = &[
+    "site_logo",
+    "site_title",
+    "site_tagline",
+    "navigation",
+    "search",
+    "languages",
+    "account",
+    "site_cta",
+    "breadcrumbs",
+    "social_links",
+    "site_contact",
+    "site_footer_text",
+    "copyright",
+    "template_part",
+    "pattern",
+];
+pub const RECORD_TYPES: &[&str] = &[
+    "record_title",
+    "record_field",
+    "record_image",
+    "record_terms",
+    "record_body",
+    "record_link",
+    "archive_title",
+    "archive_description",
+    "query",
+    "query_pagination",
+];
+pub const CONTAINER_TYPES: &[&str] =
+    &["group", "row", "stack", "grid", "cover", "details", "query"];
+const MAX_PLUGIN_ATTRIBUTES: usize = 24;
+const MAX_PLUGIN_TEXT_CHARS: usize = 2_000;
 const LIST_SORTS: &[&str] = &["newest", "oldest"];
 const LIST_LIMITS: &[&str] = &["3", "6", "9", "12"];
 const MAX_KEY_CHARS: usize = 64;
@@ -190,6 +335,37 @@ fn fields_of(block_type: &str) -> Option<&'static [(&'static str, Kind)]> {
         "form" => Some(FORM),
         "booking" => Some(BOOKING),
         "collection" => Some(COLLECTION),
+        "group" => Some(GROUP),
+        "row" => Some(ROW),
+        "stack" => Some(STACK),
+        "grid" => Some(GRID),
+        "cover" => Some(COVER),
+        "details" => Some(DETAILS),
+        "site_logo" => Some(SITE_LOGO),
+        "site_title"
+        | "site_tagline"
+        | "languages"
+        | "account"
+        | "site_cta"
+        | "breadcrumbs"
+        | "social_links"
+        | "site_contact"
+        | "site_footer_text"
+        | "copyright"
+        | "archive_description" => Some(NONE),
+        "navigation" => Some(NAVIGATION),
+        "search" => Some(SEARCH),
+        "template_part" => Some(TEMPLATE_PART),
+        "pattern" => Some(PATTERN),
+        "record_title" => Some(RECORD_TITLE),
+        "record_field" => Some(RECORD_FIELD),
+        "record_image" => Some(RECORD_IMAGE),
+        "record_terms" => Some(RECORD_TERMS),
+        "record_body" => Some(RECORD_BODY),
+        "record_link" => Some(RECORD_LINK),
+        "archive_title" => Some(ARCHIVE_TITLE),
+        "query" => Some(QUERY),
+        "query_pagination" => Some(QUERY_PAGINATION),
         _ => None,
     }
 }
@@ -361,7 +537,7 @@ pub(crate) fn phone(value: Option<&Value>) -> Result<Value, BlockError> {
     }
 }
 
-fn phone_display(phone: &str) -> String {
+pub fn phone_display(phone: &str) -> String {
     let digits: String = phone.chars().filter(char::is_ascii_digit).collect();
     let national = match (phone.starts_with('+'), digits.strip_prefix("55")) {
         (true, Some(national)) => national,
@@ -605,6 +781,12 @@ fn clean_fields(
             Kind::Identifier => key_of(value, key, |character| {
                 character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
             })?,
+            Kind::Percent => Value::from(
+                value
+                    .and_then(Value::as_f64)
+                    .map(|number| number.clamp(0.0, 100.0).round() as u64)
+                    .unwrap_or(50),
+            ),
         };
         clean.insert((*key).to_owned(), cleaned);
     }
@@ -671,7 +853,61 @@ fn block_id(value: Option<&Value>, index: usize) -> String {
         .unwrap_or_else(|| format!("block-{index}"))
 }
 
+pub fn is_plugin_type(block_type: &str) -> bool {
+    block_type.split_once(':').is_some_and(|(owner, name)| {
+        [owner, name].iter().all(|part| {
+            !part.is_empty()
+                && part.len() <= MAX_KEY_CHARS
+                && part.chars().all(|character| {
+                    character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
+                })
+        })
+    })
+}
+
+fn plugin_attributes(block: &Map<String, Value>) -> Result<Map<String, Value>, BlockError> {
+    let mut clean = Map::new();
+    for (key, value) in block {
+        if matches!(key.as_str(), "id" | "type" | "style" | "children") {
+            continue;
+        }
+        let valid_key = !key.is_empty()
+            && key.len() <= MAX_KEY_CHARS
+            && key.chars().all(|character| {
+                character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
+            });
+        if !valid_key || clean.len() >= MAX_PLUGIN_ATTRIBUTES {
+            return Err(invalid(
+                "block_invalid",
+                format!("{key} is not a valid block setting"),
+            ));
+        }
+        let cleaned = match value {
+            Value::Null | Value::Bool(_) | Value::Number(_) => value.clone(),
+            Value::String(_) => text(Some(value), MAX_PLUGIN_TEXT_CHARS, key)?,
+            _ => {
+                return Err(invalid(
+                    "block_invalid",
+                    format!("{key} must be text, a number or yes/no"),
+                ));
+            }
+        };
+        clean.insert(key.clone(), cleaned);
+    }
+    Ok(clean)
+}
+
 pub fn block(value: &Value, index: usize) -> Result<Option<Value>, BlockError> {
+    let mut count = 0;
+    nested(value, index, 0, &mut count)
+}
+
+fn nested(
+    value: &Value,
+    index: usize,
+    depth: usize,
+    count: &mut usize,
+) -> Result<Option<Value>, BlockError> {
     let Value::Object(block) = value else {
         return Err(invalid(
             "block_invalid",
@@ -684,15 +920,63 @@ pub fn block(value: &Value, index: usize) -> Result<Option<Value>, BlockError> {
             "each block needs a type".to_owned(),
         ));
     };
+    if is_plugin_type(block_type) {
+        *count += 1;
+        let mut clean = plugin_attributes(block)?;
+        clean.insert(
+            "id".to_owned(),
+            Value::String(block_id(block.get("id"), index)),
+        );
+        clean.insert("type".to_owned(), Value::String(block_type.to_owned()));
+        clean.insert(
+            "style".to_owned(),
+            crate::style::normalize(block.get("style"), crate::style::Scope::Block)?,
+        );
+        return Ok(Some(Value::Object(clean)));
+    }
     let Some(fields) = fields_of(block_type) else {
         return Ok(None);
     };
+    *count += 1;
+    if *count > MAX_BLOCKS {
+        return Err(invalid(
+            "blocks_too_many_blocks",
+            format!("at most {MAX_BLOCKS} blocks are allowed"),
+        ));
+    }
     let mut clean = clean_fields(block, fields)?;
     clean.insert(
         "id".to_owned(),
         Value::String(block_id(block.get("id"), index)),
     );
     clean.insert("type".to_owned(), Value::String(block_type.to_owned()));
+    clean.insert(
+        "style".to_owned(),
+        crate::style::normalize(block.get("style"), crate::style::Scope::Block)?,
+    );
+    if CONTAINER_TYPES.contains(&block_type) {
+        if depth + 1 >= MAX_DEPTH {
+            return Err(invalid(
+                "blocks_too_deep",
+                format!("blocks can be nested at most {MAX_DEPTH} levels deep"),
+            ));
+        }
+        let children = match block.get("children") {
+            None | Some(Value::Null) => Vec::new(),
+            Some(Value::Array(list)) => list.clone(),
+            Some(_) => {
+                return Err(invalid(
+                    "block_invalid",
+                    "children must be a list".to_owned(),
+                ));
+            }
+        };
+        let mut cleaned = Vec::with_capacity(children.len());
+        for (position, child) in children.iter().enumerate() {
+            cleaned.extend(nested(child, position, depth + 1, count)?);
+        }
+        clean.insert("children".to_owned(), Value::Array(cleaned));
+    }
     Ok(Some(Value::Object(clean)))
 }
 
@@ -714,15 +998,10 @@ pub fn normalize(source: &str) -> Result<String, BlockError> {
             "the blocks must be a list".to_owned(),
         ));
     };
-    if list.len() > MAX_BLOCKS {
-        return Err(invalid(
-            "blocks_too_many_blocks",
-            format!("at most {MAX_BLOCKS} blocks are allowed"),
-        ));
-    }
+    let mut count = 0;
     let mut cleaned = Vec::with_capacity(list.len());
     for (index, item) in list.iter().enumerate() {
-        cleaned.extend(block(item, index)?);
+        cleaned.extend(nested(item, index, 0, &mut count)?);
     }
     let encoded = Value::Array(cleaned).to_string();
     if encoded.chars().count() > MAX_JSON_CHARS {

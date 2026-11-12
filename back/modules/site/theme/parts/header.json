@@ -1,0 +1,10 @@
+{"blocks":[{"id":"header-row","type":"row","justify":"between","vertical":"center","wrap":true,"style":{"gap":"4"},"children":[
+  {"id":"header-brand","type":"site_logo","show":"logo_and_title","tagline":true},
+  {"id":"header-end","type":"row","justify":"end","vertical":"center","wrap":true,"style":{"gap":"3"},"children":[
+    {"id":"header-menu","type":"navigation","menu":"main","layout":"horizontal","mobile":"panel"},
+    {"id":"header-languages","type":"languages"},
+    {"id":"header-search","type":"search","display":"icon"},
+    {"id":"header-cta","type":"site_cta"},
+    {"id":"header-account","type":"account"}
+  ]}
+]}]}

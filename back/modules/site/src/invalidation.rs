@@ -46,7 +46,7 @@ pub(crate) async fn invalidate_in_tx(
     let record_type = record.record_type.as_str();
     let tags = if [
         aphel_contract_site::APPEARANCE_ENTITY,
-        aphel_contract_site::PRESENTATION_ENTITY,
+        aphel_contract_site::DESIGN_ENTITY,
     ]
     .contains(&record_type)
     {

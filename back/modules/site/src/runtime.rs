@@ -75,6 +75,12 @@ pub(crate) struct SiteRuntime {
     pub appearance: aphel_contract_site::ThemeAppearance,
     pub uses_customers: bool,
     pub account_links: Vec<MenuCandidate>,
+    pub designs: BTreeMap<String, serde_json::Value>,
+    pub theme_designs: BTreeMap<String, serde_json::Value>,
+    pub blocks: Vec<serde_json::Value>,
+    pub styles: BTreeMap<String, String>,
+    pub theme_styles: Option<serde_json::Value>,
+    pub theme_variations: BTreeMap<String, (String, serde_json::Value)>,
 }
 
 impl SiteRuntime {
@@ -195,13 +201,127 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     let mut names = BTreeMap::new();
     let mut exposures = BTreeMap::new();
     let mut paths: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+    let mut designs: BTreeMap<String, serde_json::Value> = BTreeMap::new();
+    let mut theme_designs: BTreeMap<String, serde_json::Value> = BTreeMap::new();
+    let mut blocks: Vec<serde_json::Value> = Vec::new();
+    let mut styles: BTreeMap<String, String> = BTreeMap::new();
+    let mut theme_styles: Option<serde_json::Value> = None;
+    let mut theme_variations: BTreeMap<String, (String, serde_json::Value)> = BTreeMap::new();
     for bundle in bundles {
         let problems = check_bundle(&bundle);
         if !problems.is_empty() {
             tracing::warn!(owner = %bundle.owner, ?problems, "skipping an invalid site bundle");
             continue;
         }
-        for template in &bundle.templates {
+        for template in bundle
+            .templates
+            .iter()
+            .filter(|template| template.name.ends_with(".json"))
+        {
+            let Some((folder, file)) = template
+                .name
+                .strip_prefix("site/")
+                .and_then(|path| path.strip_suffix(".json"))
+                .and_then(|path| path.rsplit_once('/'))
+            else {
+                continue;
+            };
+            let themed = folder == "theme" || folder.starts_with("theme/");
+            if themed && theme.as_deref() != Some(bundle.owner.as_str()) {
+                continue;
+            }
+            if folder == "blocks" {
+                match plugin_block(&bundle.owner, file, &template.source, &bundle.templates) {
+                    Some(definition) => {
+                        let alias = format!(
+                            "{}/{}:{file}.html",
+                            aphel_contract_site::BLOCK_TYPES_DIR,
+                            bundle.owner
+                        );
+                        let wrapper = format!(
+                            "{{% include {} %}}",
+                            serde_json::to_string(&template_name(
+                                &bundle.owner,
+                                &format!("site/blocks/{file}.html")
+                            ))
+                            .unwrap_or_default()
+                        );
+                        if let Err(error) = environment.add_template_owned(alias, wrapper) {
+                            tracing::warn!(owner = %bundle.owner, block = %file, %error, "skipping a plugin block");
+                        } else {
+                            blocks.push(definition);
+                        }
+                    }
+                    None => {
+                        tracing::warn!(owner = %bundle.owner, block = %file, "skipping an invalid plugin block");
+                    }
+                }
+                continue;
+            }
+            if themed && (folder == "theme" && file == "styles" || folder == "theme/variations") {
+                match aphel_contract_site::styles::validate_styles(
+                    &serde_json::from_str::<serde_json::Value>(&template.source)
+                        .unwrap_or_default()
+                        .as_object()
+                        .map(|object| {
+                            let mut object = object.clone();
+                            object.remove("name");
+                            serde_json::Value::Object(object)
+                        })
+                        .unwrap_or_default(),
+                ) {
+                    Ok(styles) if folder == "theme" => theme_styles = Some(styles),
+                    Ok(styles) => {
+                        let name = serde_json::from_str::<serde_json::Value>(&template.source)
+                            .ok()
+                            .and_then(|value| value["name"].as_str().map(str::to_owned))
+                            .unwrap_or_else(|| file.to_owned());
+                        theme_variations.insert(file.to_owned(), (name, styles));
+                    }
+                    Err(reason) => {
+                        tracing::warn!(owner = %bundle.owner, template = %template.name, %reason, "skipping invalid theme styles");
+                    }
+                }
+                continue;
+            }
+            let kind = match folder.trim_start_matches("theme/") {
+                "templates" => "template",
+                "parts" => "part",
+                "patterns" => "pattern",
+                _ => continue,
+            };
+            let Ok(normalized) = crate::design::validate_content(kind, &template.source) else {
+                tracing::warn!(owner = %bundle.owner, template = %template.name, "skipping an invalid site design");
+                continue;
+            };
+            let mut value: serde_json::Value =
+                serde_json::from_str(&normalized).unwrap_or_default();
+            value["images"] = serde_json::json!([]);
+            let key = match (kind, themed) {
+                ("template", false) => format!("template:{}:{file}", bundle.owner),
+                ("template", true) => format!("template:{}", file.replacen('.', ":", 1)),
+                ("pattern", false) => format!("pattern:{}-{file}", bundle.owner),
+                _ => format!("{kind}:{file}"),
+            };
+            let layer = if themed {
+                &mut theme_designs
+            } else {
+                &mut designs
+            };
+            layer.insert(key, value);
+        }
+        if let Some(style) = bundle
+            .templates
+            .iter()
+            .find(|template| template.name == "site/style.css")
+        {
+            styles.insert(bundle.owner.clone(), style.source.clone());
+        }
+        for template in bundle
+            .templates
+            .iter()
+            .filter(|template| template.name.ends_with(".html"))
+        {
             if let Err(error) = environment.add_template_owned(
                 template_name(&bundle.owner, &template.name),
                 template.source.clone(),
@@ -236,10 +356,6 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
                 (THEME_NOT_FOUND, NOT_FOUND_TEMPLATE),
                 (THEME_ERROR, ERROR_TEMPLATE),
                 ("site/theme/appearance.html", "aphel/appearance.html"),
-                (
-                    "site/theme/presentation_style.html",
-                    "aphel/presentation_style.html",
-                ),
             ] {
                 let Some(template) = bundle
                     .templates
@@ -307,25 +423,17 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     }
     routes.sort_by_key(|route| std::cmp::Reverse(route.pattern.specificity()));
     environment.add_global("__site_pages", Value::from_serialize(&paths));
+    environment.add_global(
+        "__site_plugin_styles",
+        Value::from_serialize(
+            styles
+                .iter()
+                .map(|(owner, css)| crate::stylesheets::plugin_url(owner, css))
+                .collect::<Vec<_>>(),
+        ),
+    );
     environment.add_global("__site_islands", Value::from_serialize(&islands));
     prefixed.sort_by_key(|route| std::cmp::Reverse(route.pattern.specificity()));
-    if let Some(owner) = &theme {
-        for (target, source) in &appearance.presentations {
-            let source = template_name(owner, source);
-            if environment.get_template(target).is_ok()
-                && environment.get_template(&source).is_ok()
-                && target != &source
-            {
-                let wrapper = format!(
-                    "{{% include {} %}}",
-                    serde_json::to_string(&source).unwrap_or_default()
-                );
-                if let Err(error) = environment.add_template_owned(target.clone(), wrapper) {
-                    tracing::warn!(%error, "could not install theme presentation");
-                }
-            }
-        }
-    }
     SiteRuntime {
         revision,
         routes,
@@ -339,7 +447,60 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
         csp,
         uses_customers,
         account_links,
+        designs,
+        theme_designs,
+        blocks,
+        styles,
+        theme_styles,
+        theme_variations,
     }
+}
+
+const FIELD_KINDS: &[&str] = &["text", "long_text", "select", "flag", "number"];
+
+fn plugin_block(
+    owner: &str,
+    name: &str,
+    source: &str,
+    templates: &[aphel_contract_site::SiteTemplate],
+) -> Option<serde_json::Value> {
+    let valid_name = !name.is_empty()
+        && name.chars().all(|character| {
+            character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
+        });
+    let template = format!("site/blocks/{name}.html");
+    if !valid_name || !templates.iter().any(|candidate| candidate.name == template) {
+        return None;
+    }
+    let definition: serde_json::Value = serde_json::from_str(source).ok()?;
+    let fields: Vec<serde_json::Value> = definition["fields"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|field| {
+            field["key"].as_str().is_some_and(|key| {
+                !key.is_empty()
+                    && key.chars().all(|character| {
+                        character.is_ascii_lowercase()
+                            || character.is_ascii_digit()
+                            || character == '_'
+                    })
+            }) && field["kind"]
+                .as_str()
+                .is_some_and(|kind| FIELD_KINDS.contains(&kind))
+        })
+        .collect();
+    Some(serde_json::json!({
+        "type": format!("{owner}:{name}"),
+        "owner": owner,
+        "label": definition["label"],
+        "description": definition["description"],
+        "icon": definition["icon"],
+        "context": definition["context"],
+        "group": definition["group"],
+        "fields": fields,
+    }))
 }
 
 fn base_environment(theme: Option<String>) -> Environment<'static> {
@@ -355,6 +516,14 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
         "__site_import_map",
         Value::from_safe_string(import_map_tag()),
     );
+    environment.add_global(
+        "__site_frame_css",
+        Value::from(crate::stylesheets::frame_url()),
+    );
+    environment.add_global(
+        "__site_blocks_css",
+        Value::from(crate::stylesheets::blocks_url()),
+    );
     environment.set_path_join_callback(move |name, parent| {
         join_template_path(name, parent, theme.as_deref()).into()
     });
@@ -365,8 +534,8 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
             include_str!("../theme/appearance.html"),
         ),
         (
-            "aphel/presentation_style.html",
-            include_str!("../theme/presentation_style.html"),
+            aphel_contract_site::TEMPLATE_PAGE,
+            include_str!("../theme/template.html"),
         ),
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (WELCOME_TEMPLATE, include_str!("../theme/welcome.html")),
@@ -648,7 +817,12 @@ fn site_list(owner: String, entity: String, kwargs: Kwargs) -> Result<Value, Err
     let conditions: Option<Value> = kwargs.get("where")?;
     let exclude: Option<String> = kwargs.get("exclude")?;
     let heading: Option<String> = kwargs.get("heading")?;
+    let blocks: Option<Value> = kwargs.get("blocks")?;
     kwargs.assert_all_used()?;
+    let blocks = blocks
+        .filter(|blocks| !blocks.is_undefined() && !blocks.is_none())
+        .and_then(|blocks| serde_json::to_value(&blocks).ok())
+        .filter(|blocks| blocks.as_array().is_some_and(|list| !list.is_empty()));
     let conditions = match conditions {
         None => BTreeMap::new(),
         Some(value) => serde_json::to_value(&value)
@@ -671,6 +845,7 @@ fn site_list(owner: String, entity: String, kwargs: Kwargs) -> Result<Value, Err
         conditions,
         exclude,
         heading,
+        blocks,
     }))
 }
 
@@ -777,7 +952,6 @@ pub(crate) fn probe(failures: &mut Vec<String>) {
     for name in [
         LAYOUT_TEMPLATE,
         "appearance-image-probe",
-        "aphel/presentation_style.html",
         aphel_contract_site::BLOCKS_MACROS,
     ] {
         if let Err(error) = environment
@@ -809,7 +983,7 @@ pub(crate) async fn active(
             &scope,
         )
         .await?
-            && record["state"] == "published"
+            && record[crate::appearance::STATE_FIELD] == "published"
         {
             let values: serde_json::Value =
                 serde_json::from_str(record["values"].as_str().unwrap_or("{}"))

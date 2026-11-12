@@ -1,5 +1,5 @@
 import { ExternalLink, Plus, Trash2 } from 'lucide-react'
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
@@ -20,8 +20,11 @@ import {
 } from '@/sdk'
 import { useInvalidateSite, type SiteOverview } from './api'
 import {
+  AppearanceFrameCollect,
   currentSettings,
+  type FrameCollector,
   languageName,
+  type SiteModuleSettings,
   type SiteFooterSettings,
   type SiteHeaderSettings,
   type SiteSocialLink,
@@ -49,7 +52,7 @@ const SOCIAL_NETWORKS = [
   { key: 'x', label: 'X', domains: ['x.com', 'twitter.com'], example: 'https://x.com/suaempresa' },
 ] as const
 
-const DEFAULT_HEADER: SiteHeaderSettings = { align: 'left', cta: null }
+const DEFAULT_HEADER: SiteHeaderSettings = { align: 'theme', cta: null }
 const DEFAULT_FOOTER: SiteFooterSettings = {
   text: null,
   contact: { phone: null, whatsapp: null, email: null, address: null },
@@ -159,6 +162,20 @@ function mergeTranslations(
   return merged
 }
 
+function useFrameCollector(id: string, collect: FrameCollector): boolean {
+  const register = useContext(AppearanceFrameCollect)
+  const latest = useRef(collect)
+  useLayoutEffect(() => {
+    latest.current = collect
+  })
+  useEffect(() => {
+    if (!register) return
+    register(id, () => latest.current())
+    return () => register(id, null)
+  }, [id, register])
+  return register !== null
+}
+
 function SaveBar({ saving, dirty, label }: { saving: boolean; dirty: boolean; label: string }) {
   return (
     <div className="flex justify-end">
@@ -180,7 +197,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 interface HeaderDraft {
   tagline: string
-  align: 'left' | 'center'
+  align: SiteHeaderSettings['align']
   ctaEnabled: boolean
   ctaLabel: string
   ctaUrl: string
@@ -232,6 +249,21 @@ export function HeaderCard({ configuration, overview }: CardProps) {
     }))
   }
 
+  const payload = (): Partial<SiteModuleSettings> => ({
+    tagline: blank(draft.tagline),
+    header: {
+      align: draft.align,
+      cta: draft.ctaEnabled ? { label: draft.ctaLabel.trim(), url: draft.ctaUrl.trim() } : null,
+    },
+    translations: mergeTranslations(settings.translations ?? {}, extra, draft.translations, { texts: ['tagline', 'cta_label'], linkIds: menuLinks.map((link) => link.id) }),
+  })
+  const collected = useFrameCollector('header', () => {
+    if (!dirty) return {}
+    const found = headerErrors(draft, t)
+    setErrors(found)
+    return Object.keys(found).length > 0 ? null : payload()
+  })
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     const found = headerErrors(draft, t)
@@ -239,14 +271,7 @@ export function HeaderCard({ configuration, overview }: CardProps) {
     if (Object.keys(found).length > 0) return
     setSaving(true)
     try {
-      const result = await saveSite({
-        tagline: blank(draft.tagline),
-        header: {
-          align: draft.align,
-          cta: draft.ctaEnabled ? { label: draft.ctaLabel.trim(), url: draft.ctaUrl.trim() } : null,
-        },
-        translations: mergeTranslations(settings.translations ?? {}, extra, draft.translations, { texts: ['tagline', 'cta_label'], linkIds: menuLinks.map((link) => link.id) }),
-      })
+      const result = await saveSite(payload())
       const next = headerDraft(result)
       setSaved(next)
       setDraft(next)
@@ -293,8 +318,9 @@ export function HeaderCard({ configuration, overview }: CardProps) {
                     className="max-w-64"
                     aria-describedby={describedBy}
                     value={draft.align}
-                    onChange={(event) => update({ align: event.target.value === 'center' ? 'center' : 'left' })}
+                    onChange={(event) => update({ align: event.target.value === 'center' || event.target.value === 'left' ? event.target.value : 'theme' })}
                   >
+                    <option value="theme">{t('header.alignTheme')}</option>
                     <option value="left">{t('header.alignLeft')}</option>
                     <option value="center">{t('header.alignCenter')}</option>
                   </NativeSelect>
@@ -364,7 +390,7 @@ export function HeaderCard({ configuration, overview }: CardProps) {
               </Section>
             )}
           </fieldset>
-          <SaveBar saving={saving} dirty={dirty} label={t('header.save')} />
+          {!collected && <SaveBar saving={saving} dirty={dirty} label={t('header.save')} />}
         </form>
       </CardContent>
     </Card>
@@ -380,6 +406,7 @@ interface FooterDraft {
   social: SiteSocialLink[]
   links: SiteLink[]
   credit: boolean
+  layout: NonNullable<SiteFooterSettings['layout']>
   translations: Record<string, SiteTexts>
 }
 
@@ -396,6 +423,7 @@ function footerDraft(configuration: Pick<OrganizationConfiguration, 'site'>): Fo
     social: footer.social,
     links: footer.links,
     credit: footer.credit,
+    layout: footer.layout ?? 'theme',
     translations: settings.translations ?? {},
   }
 }
@@ -453,6 +481,29 @@ export function FooterCard({ configuration, overview }: CardProps) {
     update({ links: draft.links.map((link, position) => (position === index ? { ...link, ...changes } : link)) })
   const unusedNetwork = SOCIAL_NETWORKS.find((network) => !draft.social.some((link) => link.network === network.key)) ?? SOCIAL_NETWORKS[0]
 
+  const payload = (): Partial<SiteModuleSettings> => ({
+    footer: {
+      text: blank(draft.text),
+      contact: {
+        phone: toDisplay(draft.phone),
+        whatsapp: toDisplay(draft.whatsapp),
+        email: blank(draft.email),
+        address: blank(draft.address),
+      },
+      social: draft.social.map((link) => ({ network: link.network, url: link.url.trim() })),
+      links: draft.links.map((link) => ({ id: link.id, label: link.label.trim(), url: link.url.trim() })),
+      credit: draft.credit,
+      layout: draft.layout,
+    },
+    translations: mergeTranslations(settings.translations ?? {}, extra, draft.translations, { texts: ['footer_text'], linkIds: [...saved.links, ...draft.links].map((link) => link.id) }),
+  })
+  const collected = useFrameCollector('footer', () => {
+    if (!dirty) return {}
+    const found = footerErrors(draft, t)
+    setErrors(found)
+    return Object.keys(found).length > 0 ? null : payload()
+  })
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     const found = footerErrors(draft, t)
@@ -460,26 +511,7 @@ export function FooterCard({ configuration, overview }: CardProps) {
     if (Object.keys(found).length > 0) return
     setSaving(true)
     try {
-      const result = await saveSite({
-        footer: {
-          text: blank(draft.text),
-          contact: {
-            phone: toDisplay(draft.phone),
-            whatsapp: toDisplay(draft.whatsapp),
-            email: blank(draft.email),
-            address: blank(draft.address),
-          },
-          social: draft.social.map((link) => ({ network: link.network, url: link.url.trim() })),
-          links: draft.links.map((link) => ({ id: link.id, label: link.label.trim(), url: link.url.trim() })),
-          credit: draft.credit,
-        },
-        translations: mergeTranslations(
-          settings.translations ?? {},
-          extra,
-          draft.translations,
-          { texts: ['footer_text'], linkIds: [...saved.links, ...draft.links].map((link) => link.id) },
-        ),
-      })
+      const result = await saveSite(payload())
       const next = footerDraft(result)
       setSaved(next)
       setDraft(next)
@@ -507,6 +539,23 @@ export function FooterCard({ configuration, overview }: CardProps) {
           <UnsavedChangesGuard when={dirty} />
           <LanguagePicker id="site-footer-language" extra={extra} editing={editing} defaultLanguage={defaultLanguage} onChange={setEditing} />
           <fieldset className="grid gap-4" disabled={saving}>
+            {!translation && (
+              <FormRow id="site-footer-layout" label={t('footer.layout')} hint={t('footer.layoutHint')}>
+                {(describedBy) => (
+                  <NativeSelect
+                    id="site-footer-layout"
+                    className="max-w-64"
+                    aria-describedby={describedBy}
+                    value={draft.layout}
+                    onChange={(event) => update({ layout: event.target.value === 'columns' || event.target.value === 'center' ? event.target.value : 'theme' })}
+                  >
+                    <option value="theme">{t('footer.layoutTheme')}</option>
+                    <option value="columns">{t('footer.layoutColumns')}</option>
+                    <option value="center">{t('footer.layoutCenter')}</option>
+                  </NativeSelect>
+                )}
+              </FormRow>
+            )}
             <FormRow
               id="site-footer-text"
               label={t('footer.text')}
@@ -749,7 +798,7 @@ export function FooterCard({ configuration, overview }: CardProps) {
                 {t('footer.viewSite')}
               </a>
             </Button>
-            <SaveBar saving={saving} dirty={dirty} label={t('footer.save')} />
+            {!collected && <SaveBar saving={saving} dirty={dirty} label={t('footer.save')} />}
           </div>
         </form>
       </CardContent>

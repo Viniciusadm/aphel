@@ -14,6 +14,7 @@ use crate::runtime::SiteRuntime;
 
 const RECORD_KIND: &str = "record";
 const PAGE_KIND: &str = "page";
+const TERM_KIND: &str = "term";
 const LABEL_FIELDS: [&str; 3] = ["title", "name", "label"];
 const MAX_LISTED_RECORDS: u64 = 200;
 
@@ -21,6 +22,7 @@ const MAX_LISTED_RECORDS: u64 = 200;
 pub(crate) enum Target {
     Record { entity: String, id: String },
     Page { owner: String, key: String },
+    Term { vocabulary: String, slug: String },
 }
 
 fn identifier(text: &str) -> bool {
@@ -46,6 +48,10 @@ impl Target {
                 owner: first.to_owned(),
                 key: second.to_owned(),
             }),
+            TERM_KIND => Some(Self::Term {
+                vocabulary: first.to_owned(),
+                slug: second.to_owned(),
+            }),
             _ => None,
         }
     }
@@ -54,6 +60,7 @@ impl Target {
         match self {
             Self::Record { entity, id } => format!("{RECORD_KIND}:{entity}:{id}"),
             Self::Page { owner, key } => format!("{PAGE_KIND}:{owner}:{key}"),
+            Self::Term { vocabulary, slug } => format!("{TERM_KIND}:{vocabulary}:{slug}"),
         }
     }
 
@@ -61,6 +68,7 @@ impl Target {
         match self {
             Self::Record { entity, .. } => Some(cache::entity_tag(entity)),
             Self::Page { .. } => None,
+            Self::Term { .. } => crate::terms::cache_tags().into_iter().next(),
         }
     }
 }
@@ -147,6 +155,17 @@ pub(crate) async fn resolve(
     match target {
         Target::Page { owner, key } => {
             Ok(page_path(runtime, owner, key).map(|path| Resolved { path, label: None }))
+        }
+        Target::Term { vocabulary, slug } => {
+            let Some(term) = crate::terms::find_public(state, vocabulary, slug).await? else {
+                return Ok(None);
+            };
+            Ok(crate::terms::route_path(state, runtime, vocabulary, slug)
+                .await?
+                .map(|path| Resolved {
+                    path,
+                    label: Some(term.name),
+                }))
         }
         Target::Record { entity, id } => {
             let Some(exposure) = runtime.entity_exposure(entity) else {
@@ -269,5 +288,83 @@ pub(crate) async fn list(
             });
         }
     }
+    for (vocabulary, group, terms) in crate::terms::linkable(state, runtime).await? {
+        for term in terms {
+            let Some(path) =
+                crate::terms::route_path(state, runtime, &vocabulary, &term.slug).await?
+            else {
+                continue;
+            };
+            listed.push(ListedTarget {
+                target: Target::Term {
+                    vocabulary: vocabulary.clone(),
+                    slug: term.slug,
+                }
+                .key(),
+                label: term.name,
+                group: group.clone(),
+                path,
+            });
+        }
+    }
     Ok(listed)
+}
+
+fn term_path(runtime: &SiteRuntime, entity: &str, term: &Value, record: &Value) -> Option<String> {
+    let vocabulary = term.get("vocabulary").and_then(Value::as_str)?;
+    let slug = term.get("slug").and_then(Value::as_str)?;
+    let params = BTreeMap::from([(aphel_contract_site::TERM_PARAM.to_owned(), slug.to_owned())]);
+    let shows = |route: &&crate::runtime::Route| {
+        route
+            .page
+            .term
+            .as_ref()
+            .is_some_and(|page_term| page_term.vocabulary == vocabulary)
+            && route.page.source.entity() == Some(entity)
+    };
+    if let Some(route) = runtime.routes.iter().find(shows) {
+        return route.pattern.build(&params);
+    }
+    let route = runtime.prefixed.iter().find(shows)?;
+    let segment = record.get(SITE_PREFIX_FIELD).and_then(Value::as_str)?;
+    let detail = route.pattern.build(&params)?;
+    Some(format!("/{segment}{}", detail.trim_end_matches('/')))
+}
+
+pub(crate) fn annotate_urls(
+    runtime: &SiteRuntime,
+    entity: &str,
+    records: &mut [Value],
+    site_prefix: &str,
+) {
+    for record in records.iter_mut() {
+        let url = record_path(runtime, entity, record).map(|path| format!("{site_prefix}{path}"));
+        let terms: Option<Vec<Value>> = record
+            .get(crate::terms::SITE_TERMS_FIELD)
+            .and_then(Value::as_array)
+            .map(|terms| {
+                terms
+                    .iter()
+                    .map(|term| {
+                        let mut term = term.clone();
+                        if let Some(path) = term_path(runtime, entity, &term, record) {
+                            term["url"] = Value::String(format!("{site_prefix}{path}"));
+                        }
+                        term
+                    })
+                    .collect()
+            });
+        if let Some(fields) = record.as_object_mut() {
+            fields.insert("record_type".to_owned(), Value::String(entity.to_owned()));
+            if let Some(url) = url {
+                fields.insert("url".to_owned(), Value::String(url));
+            }
+            if let Some(terms) = terms {
+                fields.insert(
+                    crate::terms::SITE_TERMS_FIELD.to_owned(),
+                    Value::Array(terms),
+                );
+            }
+        }
+    }
 }

@@ -691,7 +691,11 @@ pub(crate) async fn install_package(
     )?;
     crate::conflicts::require_acknowledged(&prepared.conflicts, params.acknowledge_conflicts)?;
     crate::modules::ensure_unblocked(&prepared.module_conflicts)?;
-    let plugin = apply_install(state, scope, ip, &prepared, &presets, None).await?;
+    let pack_key = prepared
+        .previous
+        .as_ref()
+        .and_then(|plugin| plugin.pack_key.clone());
+    let plugin = apply_install(state, scope, ip, &prepared, &presets, pack_key.as_deref()).await?;
     Ok(InstallOutcome::Installed(respond(state, plugin).await?))
 }
 

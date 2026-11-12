@@ -35,6 +35,8 @@ pub const ALLOWED_MIME_TYPES: &[&str] = &[
     "application/zip",
     "audio/mpeg",
     "video/mp4",
+    "font/woff2",
+    "font/woff",
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]

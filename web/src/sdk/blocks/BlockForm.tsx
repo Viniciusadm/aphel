@@ -8,7 +8,10 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { Plus, Trash2 } from 'lucide-react'
 import { Suspense, lazy, useState } from 'react'
 
-import { MAX_BUTTONS, isSafeLink, type Block, type ButtonsBlock, type BlockButton } from './blocks'
+import { MAX_BUTTONS, isContainer, isPluginBlock, isSafeLink, type Block, type ButtonsBlock, type BlockButton } from './blocks'
+import { ContainerForm } from './ContainerForms'
+import { StyleSection } from './StyleSection'
+import { PluginFields, SiteFields } from './SiteForms'
 import { ImageField } from './ImageField'
 import { needsSourceMode } from './richtext'
 import { BookingBlockForm, CollectionBlockForm, FormBlockForm } from './ConnectedForms'
@@ -20,6 +23,7 @@ interface BlockFormProps {
   record: BlockRecord
   onChange: (block: Block) => void
   disabled?: boolean
+  depth?: number
 }
 
 type Translate = ReturnType<typeof useModuleTranslation>
@@ -139,7 +143,16 @@ function ButtonsFields({ block, onChange, disabled, t }: { block: ButtonsBlock; 
   )
 }
 
-export function BlockForm({ block, record, onChange, disabled }: BlockFormProps) {
+export function BlockForm({ block, record, onChange, disabled, depth = 0 }: BlockFormProps) {
+  return (
+    <div className="blocks-form-shell">
+      {isContainer(block) ? <ContainerForm block={block} record={record} disabled={disabled} depth={depth} onChange={onChange} /> : isPluginBlock(block) ? <PluginFields block={block} disabled={disabled} onChange={onChange} /> : <ContentFields block={block} record={record} disabled={disabled} onChange={onChange} />}
+      <StyleSection block={block} disabled={disabled} onChange={onChange} />
+    </div>
+  )
+}
+
+function ContentFields({ block, record, onChange, disabled }: BlockFormProps) {
   const t = useModuleTranslation('site-blocks')
   const alignments = [
     { value: 'center' as const, label: t('fields.alignCenter') },
@@ -289,5 +302,7 @@ export function BlockForm({ block, record, onChange, disabled }: BlockFormProps)
       return <CollectionBlockForm block={block} disabled={disabled} onChange={onChange} />
     case 'embed':
       return <EmbedForm block={block} record={record} disabled={disabled} onChange={onChange} />
+    default:
+      return <SiteFields block={block} disabled={disabled} onChange={onChange} />
   }
 }

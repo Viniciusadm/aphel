@@ -7,6 +7,8 @@ pub(crate) mod cache;
 pub(crate) mod customers;
 pub(crate) mod data;
 pub(crate) mod deferred;
+pub(crate) mod design;
+mod design_http;
 pub(crate) mod dynamic;
 pub(crate) mod feed;
 pub(crate) mod frame;
@@ -27,6 +29,7 @@ pub(crate) mod session;
 pub(crate) mod settings;
 pub(crate) mod sitemap;
 pub(crate) mod status;
+pub(crate) mod stylesheets;
 pub(crate) mod targets;
 mod terms;
 
@@ -169,6 +172,7 @@ impl Module for SiteModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contract(aphel_contract_site::DESCRIPTOR);
         appearance::register(app)?;
+        design::register(app)?;
         app.entity(customer_entity()?.handler(Arc::new(
             aphel_kernel::records::GenericRecordHandler::new(customers::record_type()),
         )));

@@ -1,0 +1,1 @@
+{% set title = term.name if term else (prefix.name if prefix else page.title) %}{% if title %}<{{ block.level or 'h1' }} class="blk-archive-title">{% if term and term.vocabulary == 'tags' %}#{% endif %}{{ title }}</{{ block.level or 'h1' }}>{% endif %}

@@ -1,0 +1,1 @@
+{% set title = record.title or record.name %}{% if title %}{% set level = block.level or 'h2' %}<{{ level }} class="blk-record-title">{% if block.link and record.url %}<a href="{{ record.url }}">{{ title }}</a>{% else %}{{ title }}{% endif %}</{{ level }}>{% endif %}

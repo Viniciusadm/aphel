@@ -105,12 +105,8 @@ async fn load_appearance_file(state: &AppState, key: &str) -> Result<Option<Resp
     let [entity, id, key] = parts.as_slice() else {
         return Ok(None);
     };
-    if !["logo", "dark_logo", "icon", "opening_image"].contains(key)
-        || ![
-            aphel_contract_site::APPEARANCE_ENTITY,
-            aphel_contract_site::PRESENTATION_ENTITY,
-        ]
-        .contains(entity)
+    if !["logo", "dark_logo", "icon"].contains(key)
+        || *entity != aphel_contract_site::APPEARANCE_ENTITY
         || !state.app.is_enabled("publication")
     {
         return Ok(None);

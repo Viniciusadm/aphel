@@ -1,0 +1,1 @@
+{% set text = term.description if term else (prefix.description if prefix else '') %}{% if text %}<p class="blk-archive-description">{{ text }}</p>{% endif %}

@@ -1,0 +1,1 @@
+{% from "aphel/icons.html" import social_icon %}{% if site.footer.social %}<ul class="footer-social blk-social" aria-label="{{ site.texts.social }}">{% for link in site.footer.social %}<li><a href="{{ link.url }}" target="_blank" rel="noopener" aria-label="{{ link.label }}" title="{{ link.label }}">{{ social_icon(link.network) }}</a></li>{% endfor %}</ul>{% endif %}

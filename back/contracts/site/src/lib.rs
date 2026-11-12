@@ -1,4 +1,5 @@
 mod appearance;
+pub mod styles;
 pub use appearance::*;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -27,6 +28,12 @@ pub const THEME_ASSETS_DIR: &str = "site/theme/assets";
 pub const HEAD_PARTIAL: &str = "aphel/head.html";
 pub const ICONS_PARTIAL: &str = "aphel/icons.html";
 pub const BLOCKS_TEMPLATE: &str = "aphel/blocks.html";
+pub const DESIGN_ENTITY: &str = "site.design";
+pub const DESIGN_EDIT: &str = "site.design.edit";
+pub const DESIGN_KINDS: &[&str] = &["template", "part", "pattern", "menu", "font"];
+pub const TEMPLATE_PAGE: &str = "aphel/template.html";
+pub const PART_TEMPLATE: &str = "aphel/part.html";
+pub const BLOCKS_ITEMS: &str = "aphel/blocks_items.html";
 pub const BLOCKS_STYLE: &str = "aphel/blocks_style.html";
 pub const BLOCKS_MACROS: &str = "aphel/blocks_macros.html";
 pub const BLOCKS_ICONS: &str = "aphel/blocks_icons.html";
@@ -36,6 +43,7 @@ pub const BUILTIN_TEMPLATES: &[&str] = &[
     HEAD_PARTIAL,
     ICONS_PARTIAL,
     BLOCKS_TEMPLATE,
+    BLOCKS_ITEMS,
     BLOCKS_STYLE,
     BLOCKS_MACROS,
     BLOCKS_ICONS,
@@ -43,7 +51,6 @@ pub const BUILTIN_TEMPLATES: &[&str] = &[
     "aphel/error.html",
     "aphel/account.html",
     "aphel/appearance.html",
-    "aphel/presentation_style.html",
 ];
 const REFERENCE_TAGS: &[&str] = &["include", "extends", "import", "from"];
 pub const ISLANDS_DIR: &str = "site/islands";
@@ -762,7 +769,19 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         if let Some(other) = shapes.insert(shape_key, page.key.as_str()) {
             problems.push(format!("{label}: the path overlaps page {other}"));
         }
-        if !templates.contains(page.template.as_str()) {
+        let block_template =
+            |name: &str| templates.contains(format!("site/templates/{name}.json").as_str());
+        let has_blocks = block_template(&page.key)
+            || (matches!(page.source, PageSource::List { .. })
+                && (block_template("archive") || block_template("index")));
+        if page.template.is_empty() {
+            if !has_blocks {
+                problems.push(format!(
+                    "{label}: add site/templates/{}.json or a template file",
+                    page.key
+                ));
+            }
+        } else if !templates.contains(page.template.as_str()) {
             problems.push(format!(
                 "{label}: the template {} is not in the package",
                 page.template
@@ -888,8 +907,15 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 "site.theme: the name must have between 1 and {MAX_LABEL_LENGTH} characters"
             ));
         }
-        if !templates.contains(THEME_LAYOUT) {
-            problems.push(format!("site.theme: the package needs {THEME_LAYOUT}"));
+        let has_design = templates.iter().any(|name| {
+            *name == "site/theme/styles.json"
+                || name.starts_with("site/theme/templates/")
+                || name.starts_with("site/theme/parts/")
+        });
+        if !templates.contains(THEME_LAYOUT) && !has_design {
+            problems.push(format!(
+                "site.theme: the package needs {THEME_LAYOUT} or site/theme/styles.json"
+            ));
         }
     }
     problems.extend(check_templates(bundle));
@@ -949,6 +975,7 @@ fn missing_references(bundle: &SiteBundle) -> Vec<String> {
     bundle
         .templates
         .iter()
+        .filter(|template| template.name.ends_with(".html"))
         .flat_map(|template| {
             let parent = template_name(&bundle.owner, &template.name);
             template_references(&template.source)
@@ -965,7 +992,11 @@ fn check_templates(bundle: &SiteBundle) -> Vec<String> {
     environment
         .set_path_join_callback(|name, parent| join_template_path(name, parent, None).into());
     let mut problems = Vec::new();
-    for template in &bundle.templates {
+    for template in bundle
+        .templates
+        .iter()
+        .filter(|template| template.name.ends_with(".html"))
+    {
         if let Err(error) = environment.add_template_owned(
             template_name(&bundle.owner, &template.name),
             template.source.clone(),

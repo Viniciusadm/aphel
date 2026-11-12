@@ -219,6 +219,7 @@ pub struct SitePublicSpec {
 pub struct SitePageSpec {
     pub key: String,
     pub path: String,
+    #[serde(default)]
     pub template: String,
     #[serde(default)]
     pub entity: Option<String>,

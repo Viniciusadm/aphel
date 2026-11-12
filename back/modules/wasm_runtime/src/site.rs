@@ -66,7 +66,23 @@ fn menu_item_of(spec: &SiteMenuSpec) -> SiteMenuItem {
 fn templates_of<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> Vec<SiteTemplate> {
     files
         .filter(|(path, _)| {
-            path.starts_with(&format!("{SITE_DIR}/")) && path.ends_with(TEMPLATE_EXTENSION)
+            path.starts_with(&format!("{SITE_DIR}/"))
+                && (path.ends_with(TEMPLATE_EXTENSION)
+                    || *path == format!("{SITE_DIR}/style.css")
+                    || (path.ends_with(".json")
+                        && [
+                            "templates/",
+                            "blocks/",
+                            "parts/",
+                            "patterns/",
+                            "theme/templates/",
+                            "theme/variations/",
+                            "theme/styles.json",
+                            "theme/parts/",
+                            "theme/patterns/",
+                        ]
+                        .iter()
+                        .any(|folder| path.starts_with(&format!("{SITE_DIR}/{folder}")))))
         })
         .filter_map(|(path, content)| {
             std::str::from_utf8(content)

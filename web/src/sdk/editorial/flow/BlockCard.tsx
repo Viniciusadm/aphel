@@ -1,10 +1,11 @@
+import { createElement } from 'react'
 import { Node, NodeViewWrapper, ReactNodeViewRenderer, mergeAttributes, type NodeViewProps } from '@tiptap/react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { fileDownloadUrl } from '@/features/files'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 
-import { BLOCK_ICONS } from '../../blocks/blockIcons'
+import { blockIcon } from '../../blocks/blockIcons'
 import { blockSummary, type Block } from '../../blocks/blocks'
 
 export interface BlockCardOptions {
@@ -27,14 +28,13 @@ function BlockCardView({ node, getPos, deleteNode, extension }: NodeViewProps) {
   const options = extension.options as BlockCardOptions
   const block = parse(node.attrs.block)
   if (!block) return <NodeViewWrapper className="flow-card" />
-  const Icon = BLOCK_ICONS[block.type]
   const picture = block.type === 'image' && block.image ? fileDownloadUrl(block.image) : null
   const editable = options.editable()
   return (
     <NodeViewWrapper className="flow-card" data-drag-handle>
       {picture && <img className="flow-card-image" src={picture} alt={block.type === 'image' ? block.alt : ''} />}
       <div className="flow-card-row">
-        <Icon aria-hidden size={18} />
+        {createElement(blockIcon(block.type), { 'aria-hidden': true, size: 18 })}
         <span className="flow-card-name">{t(`types.${block.type}`)}</span>
         <span className="flow-card-summary">{blockSummary(block)}</span>
         {editable && (

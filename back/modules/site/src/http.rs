@@ -34,6 +34,7 @@ const MAX_REDIRECTS: i64 = 500;
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .merge(crate::appearance_http::router())
+        .merge(crate::design_http::router())
         .routes(routes!(overview))
         .routes(routes!(site_status))
         .routes(routes!(domain_check))
@@ -352,7 +353,7 @@ async fn domain_check(
     path = "/site/targets",
     tag = TAG,
     operation_id = "site_targets",
-    description = "Pages and public records that navigation items, the home page and links can point to. `target` is the stable reference to save (`record:<record type>:<id>` or `page:<owner>:<page key>`); `path` is the current address under the site, which follows the record when its address changes. Lists at most 200 records per record type. Any signed-in user.",
+    description = "Pages, public records and public terms (categories, tags) that navigation items, the home page and links can point to. `target` is the stable reference to save (`record:<record type>:<id>`, `page:<owner>:<page key>` or `term:<vocabulary>:<slug>`); `path` is the current address under the site, which follows the record when its address changes. Lists at most 200 records per record type. Any signed-in user.",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Linkable targets", body = Data<Vec<crate::targets::ListedTarget>>),
@@ -902,6 +903,7 @@ async fn render_preview(
         theme: None,
         record: Some(record),
         appearance: None,
+        design: None,
     };
     let html = crate::handler::render_draft(&state, &runtime, &previewing, path)
         .await?

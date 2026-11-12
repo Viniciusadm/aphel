@@ -1,0 +1,7 @@
+<section class="blk-query" data-layout="{{ block.layout }}" data-columns="{{ block.columns }}">{% if block.title %}<h2 class="blk-query-title">{{ block.title }}</h2>{% endif %}
+{%- if block.source == 'custom' -%}
+{% set conditions = {} %}{% if block.scope_field and (block.scope or record) %}{% set conditions = {block.scope_field: [block.scope or record.id]} %}{% endif %}{% if block.match_field and record and record[block.match_field] %}{% set conditions = {block.match_field: record[block.match_field]} %}{% endif %}
+{%- if block.owner and block.entity %}{{ site_list(block.owner, block.entity, sort=block.order_by or block.sort or 'newest', limit=block.limit | int, where=conditions, exclude=(record.id if block.exclude_current and record else none), blocks=block.children) }}{% endif %}
+{%- else -%}
+{% if records %}<ul class="site-list blk-query-list">{% for record in records %}<li class="site-list-item">{% with blocks = block.children, images = record.images, nested = true %}{% include "aphel/blocks_items.html" %}{% endwith %}</li>{% endfor %}</ul>{% elif block.empty_text or site.texts.query_empty %}<p class="blk-query-empty ct-empty">{{ block.empty_text or site.texts.query_empty }}</p>{% endif %}
+{%- endif %}</section>

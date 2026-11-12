@@ -1,0 +1,1 @@
+{% if site.alternates %}<nav class="languages" aria-label="{{ site.texts.languages }}">{% for alternate in site.alternates %}<a href="{{ alternate.path }}" hreflang="{{ alternate.code }}" lang="{{ alternate.code }}"{% if alternate.current %} aria-current="true"{% endif %}>{{ alternate.code | upper }}</a>{% endfor %}</nav>{% endif %}

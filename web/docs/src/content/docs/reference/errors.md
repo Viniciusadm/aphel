@@ -974,5 +974,9 @@ Answered when a module needs a capability that another module provides and that 
 ### Site appearance
 
 - `site_appearance_invalid`: unsupported scope, property, value, image or collection target. Use the appearance catalog and an available target.
+- `site_design_invalid`: a template, part, pattern, menu or font has an invalid block, link, CSS or file. Fix the item named in the message in Site → Site editor.
+- `block_style_invalid`: a block style uses an unknown property or a value outside the site tokens.
+- `blocks_too_deep`: blocks are nested more than 6 levels.
+- `site_styles_invalid`: the styles document has an unknown key, a color that is not `#rrggbb`, a size that is not in rem, an unknown font or block style value. Fix the value named in the message.
 - `site_appearance_unavailable`: Publication is disabled. Enable it before editing or publishing appearance.
 - `site_appearance_pending`: appearance provisioned by a pack has not completed publication. Resolve its publication request, then retry the import.

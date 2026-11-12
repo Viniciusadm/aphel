@@ -90,9 +90,9 @@ pub(crate) fn footer(
     .unwrap_or_default();
     let contact = &footer.contact;
     let phone = filled(contact.phone.as_deref())
-        .map(|phone| json!({ "label": phone, "url": format!("tel:+{}", phone_digits(phone)) }));
+        .map(|phone| json!({ "label": aphel_blocks::blocks::phone_display(phone), "url": format!("tel:+{}", phone_digits(phone)) }));
     let whatsapp = filled(contact.whatsapp.as_deref()).map(
-        |phone| json!({ "label": phone, "url": format!("https://wa.me/{}", phone_digits(phone)) }),
+        |phone| json!({ "label": aphel_blocks::blocks::phone_display(phone), "url": format!("https://wa.me/{}", phone_digits(phone)) }),
     );
     let email = filled(contact.email.as_deref())
         .map(|email| json!({ "label": email, "url": format!("mailto:{email}") }));
@@ -135,6 +135,7 @@ pub(crate) fn footer(
         "social": social,
         "links": links,
         "credit": footer.credit,
+        "layout": footer.layout,
         "empty": empty,
     })
 }

@@ -238,6 +238,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aphel-blocks"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
 name = "aphel-blueprint"
 version = "0.1.1"
 dependencies = [
@@ -504,6 +511,7 @@ dependencies = [
 name = "aphel-contract-site"
 version = "0.1.1"
 dependencies = [
+ "aphel-blocks",
  "aphel-contract",
  "aphel-kernel",
  "async-trait",
@@ -1851,6 +1859,7 @@ name = "aphel-mod-site"
 version = "0.1.1"
 dependencies = [
  "ammonia",
+ "aphel-blocks",
  "aphel-contract-publication",
  "aphel-contract-site",
  "aphel-contract-tagging",
@@ -1874,6 +1883,7 @@ dependencies = [
  "utoipa",
  "utoipa-axum",
  "uuid",
+ "zip",
 ]
 
 [[package]]

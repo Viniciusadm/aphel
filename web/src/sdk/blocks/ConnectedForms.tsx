@@ -77,9 +77,6 @@ export function CollectionBlockForm({ block, disabled, onChange }: FormProps<Col
   const chosenCollection = list.find((item) => item.record_type === current)
   return (
     <div className="blocks-form">
-      <Field label={t('fields.sectionTitle')}>
-        {(control) => <Input {...control} value={block.title} maxLength={160} disabled={disabled} onChange={(event) => onChange({ ...block, title: event.target.value })} />}
-      </Field>
       <Field label={t('connected.collection')} description={list.length ? t('connected.collectionHelp') : t('connected.collectionEmpty')} error={missing ? t('connected.missing') : undefined}>
         {(control) => (
           <SelectField
@@ -109,6 +106,9 @@ export function CollectionBlockForm({ block, disabled, onChange }: FormProps<Col
           )}
         </Field>
       )}
+      <Field label={t('fields.sectionTitle')}>
+        {(control) => <Input {...control} value={block.title} maxLength={160} disabled={disabled} onChange={(event) => onChange({ ...block, title: event.target.value })} />}
+      </Field>
       <Field label={t('connected.order')}>
         {(control) => (
           <SelectField

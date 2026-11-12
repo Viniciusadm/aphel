@@ -1,0 +1,14 @@
+{"blocks":[
+  {"id":"footer-columns","type":"grid","layout":"1-1-1","vertical":"top","stack_on":"tablet","style":{"gap":"6"},"children":[
+    {"id":"footer-about","type":"stack","style":{"gap":"3"},"children":[
+      {"id":"footer-title","type":"site_title"},
+      {"id":"footer-text","type":"site_footer_text"}
+    ]},
+    {"id":"footer-contact","type":"site_contact"},
+    {"id":"footer-links","type":"stack","style":{"gap":"4"},"children":[
+      {"id":"footer-menu","type":"navigation","menu":"footer","layout":"vertical","mobile":"list"},
+      {"id":"footer-social","type":"social_links"}
+    ]}
+  ]},
+  {"id":"footer-credit","type":"copyright"}
+]}

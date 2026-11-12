@@ -91,7 +91,7 @@ pub(crate) async fn status(
             }),
         None => None,
     };
-    let appearance = crate::appearance::resolved(state, None, None).await?;
+    let appearance = crate::appearance::resolved(state, None).await?;
     let filled = |key: &str| {
         appearance
             .get(key)

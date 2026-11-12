@@ -1,0 +1,3 @@
+{% extends "layout.html" %}
+{% block head %}{% if __design.css %}<style>{{ __design.css | safe }}</style>{% endif %}{% endblock %}
+{% block content %}<div class="blk-page blk-template">{% with blocks = __design.blocks, images = __design.images, nested = false %}{% include "aphel/blocks_items.html" %}{% endwith %}</div>{% endblock %}

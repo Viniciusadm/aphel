@@ -3,14 +3,26 @@
 {% block head %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
 <section class="site-search">
+<header class="site-search-head">
 <h1>{{ site.texts.search }}</h1>
 <form method="get" action="{{ page.action }}" role="search" class="site-search-form">
 <label class="visually-hidden" for="site-search-query">{{ site.texts.search_label }}</label>
-<input id="site-search-query" type="search" name="q" value="{{ page.query }}" placeholder="{{ site.texts.search_label }}" minlength="2" maxlength="100" required>
+<input id="site-search-query" type="search" name="q" value="{{ page.query }}" placeholder="{{ site.texts.search_label }}" minlength="2" maxlength="100" required{% if not page.query %} autofocus{% endif %}>
 <button type="submit">{{ site.texts.search }}</button>
 </form>
-{% if page.short %}<p class="muted">{{ site.texts.search_short }}</p>
-{% elif page.query and not page.results %}<p class="muted">{{ site.texts.search_empty }}</p>
-{% else %}<ul class="site-search-results">{% for result in page.results %}<li><a href="{{ result.url }}">{{ result.title }}</a>{% if result.summary %}<p class="muted">{{ result.summary }}</p>{% endif %}</li>{% endfor %}</ul>{% endif %}
+{% if page.short %}<p class="site-search-note">{{ site.texts.search_short }}</p>
+{% elif page.query and not page.results %}<p class="site-search-note">{{ site.texts.search_empty }}</p>
+{% elif page.query %}<p class="site-search-note" role="status">{{ page.results | length }} {% if page.results | length == 1 %}{{ site.texts.search_result }}{% else %}{{ site.texts.search_results }}{% endif %} “{{ page.query }}”</p>
+{% else %}<p class="site-search-note">{{ site.texts.search_hint }}</p>{% endif %}
+</header>
+{% if page.results %}<ol class="site-search-results">{% for result in page.results %}<li class="site-search-result{% if result.image %} has-image{% endif %}">
+{% if result.image %}<a class="site-search-thumb" href="{{ result.url }}" tabindex="-1" aria-hidden="true"><img src="{{ result.image | image_url(320) }}" alt="" width="320" height="180" loading="lazy" decoding="async"></a>{% endif %}
+<div class="site-search-body">
+{% if result.kind %}<span class="site-search-kind">{{ result.kind }}</span>{% endif %}
+<h2><a href="{{ result.url }}">{{ result.title }}</a></h2>
+{% if result.summary %}<p>{{ result.summary }}</p>{% endif %}
+{% if result.published_at %}<time datetime="{{ result.published_at }}">{{ result.published_at | date('%d/%m/%Y') }}</time>{% endif %}
+</div>
+</li>{% endfor %}</ol>{% endif %}
 </section>
 {% endblock %}

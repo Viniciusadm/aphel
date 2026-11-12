@@ -1,0 +1,3 @@
+{%- for block in blocks or [] %}
+<div class="blk-slot{{ block | block_classes }}" id="{{ block.id }}" data-type="{{ block.type }}"{{ block | block_style }}>{% with position = loop.index0 %}{% include "aphel/blocks/" ~ block.type ~ ".html" ignore missing %}{% endwith %}</div>
+{%- endfor %}

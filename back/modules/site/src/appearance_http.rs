@@ -1,6 +1,4 @@
-use aphel_contract_site::{
-    APPEARANCE_ENTITY, PRESENTATION_ENTITY, appearance_presets, appearance_properties,
-};
+use aphel_contract_site::{APPEARANCE_ENTITY, appearance_presets, appearance_properties};
 use aphel_sdk::AppError;
 use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
 use aphel_sdk::platform::api::error::ApiError;
@@ -18,7 +16,33 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(catalog))
+        .routes(routes!(styles))
+        .routes(routes!(blocks))
         .routes(routes!(render))
+}
+
+#[utoipa::path(get, path = "/site/blocks", tag = "site", operation_id = "site_blocks",
+    security(("session_cookie" = [])), responses((status = 200, body = Data<Value>)))]
+async fn blocks(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<Value>>, ApiError> {
+    let runtime = crate::runtime::active(&state).await?;
+    Ok(Json(Data {
+        data: json!({ "blocks": runtime.blocks }),
+    }))
+}
+
+#[utoipa::path(get, path = "/site/styles", tag = "site", operation_id = "site_styles",
+    security(("session_cookie" = [])), responses((status = 200, body = Data<Value>)))]
+async fn styles(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<Value>>, ApiError> {
+    let appearance = crate::appearance::resolved(&state, None).await?;
+    Ok(Json(Data {
+        data: json!({ "styles": appearance["styles"] }),
+    }))
 }
 
 #[utoipa::path(get, path = "/site/appearance", tag = "site", operation_id = "site_appearance_catalog",
@@ -27,37 +51,10 @@ async fn catalog(
     State(state): State<AppState>,
     tenant: AuthContext,
 ) -> Result<Json<Data<Value>>, ApiError> {
-    let global = crate::appearance::require(&tenant.scope, APPEARANCE_ENTITY).is_ok();
-    let collection = crate::appearance::require(&tenant.scope, PRESENTATION_ENTITY).is_ok();
-    if !global && !collection {
-        crate::appearance::require(&tenant.scope, APPEARANCE_ENTITY)?;
-    }
+    crate::appearance::require(&tenant.scope, APPEARANCE_ENTITY)?;
     let runtime = crate::runtime::active(&state).await?;
-    let mut targets = Vec::new();
-    if global {
-        targets.push(
-            json!({ "entity": APPEARANCE_ENTITY, "target": "site", "label": null, "path": "/" }),
-        );
-    }
-    if collection {
-        for route in &runtime.prefixed {
-            if let Some(prefix) = &route.page.prefix {
-                for record in
-                    crate::prefixes::candidates(&state, &runtime, &route.owner, prefix).await?
-                {
-                    let Some(id) = record["id"].as_str() else {
-                        continue;
-                    };
-                    let target = format!("{}:{id}", prefix.entity);
-                    if targets.iter().any(|item| item["target"] == target) {
-                        continue;
-                    }
-                    let path = record[&prefix.field].as_str().unwrap_or_default();
-                    targets.push(json!({ "entity": PRESENTATION_ENTITY, "target": target, "label": record.get("name").or_else(|| record.get("title")), "path": format!("/{path}") }));
-                }
-            }
-        }
-    }
+    let targets =
+        vec![json!({ "entity": APPEARANCE_ENTITY, "target": "site", "label": null, "path": "/" })];
     use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
     let organization = aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(state.db()?).find().await?;
     let locale = organization
@@ -81,7 +78,7 @@ async fn catalog(
         theme_catalogs.insert(key.to_owned(), json!({ "properties": selected.appearance.properties, "defaults": selected.appearance.defaults }));
     }
     Ok(Json(Data::new(
-        json!({ "available": state.app.is_enabled("publication"), "properties": properties.into_iter().filter(|property| property.key != "show_terms" || state.app.is_enabled("tagging")).collect::<Vec<_>>(), "presets": appearance_presets(), "targets": targets, "theme_catalogs": theme_catalogs, "theme_properties": runtime.appearance.properties, "theme_defaults": runtime.appearance.defaults, "themes": runtime.themes, "frame": { "configuration": { "site": settings }, "overview": { "base_url": state.organization_config.snapshot().site_base_url(), "default_language": locale } } }),
+        json!({ "available": state.app.is_enabled("publication"), "properties": properties.into_iter().filter(|property| property.key != "show_terms" || state.app.is_enabled("tagging")).collect::<Vec<_>>(), "presets": appearance_presets().into_iter().map(|preset| json!(preset)).chain(runtime.theme_variations.keys().map(|key| json!({ "key": key, "values": { "variation": key } }))).collect::<Vec<_>>(), "variations": aphel_contract_site::styles::style_variations().into_iter().map(|(key, styles)| (key.to_owned(), styles)).chain(runtime.theme_variations.iter().map(|(key, (_, styles))| (key.clone(), styles.clone()))).collect::<serde_json::Map<_, _>>(), "theme_variations": runtime.theme_variations.iter().map(|(key, (name, _))| json!({ "key": key, "name": name })).collect::<Vec<_>>(), "theme_styles": runtime.theme_styles, "base_styles": aphel_contract_site::styles::default_styles(), "font_stacks": aphel_contract_site::styles::FONT_STACKS.iter().map(|(key, stack)| json!({ "key": key, "stack": stack })).collect::<Vec<_>>(), "targets": targets, "theme_catalogs": theme_catalogs, "theme_properties": runtime.appearance.properties, "theme_defaults": runtime.appearance.defaults, "themes": runtime.themes, "frame": { "configuration": { "site": settings }, "overview": { "base_url": state.organization_config.snapshot().site_base_url(), "default_language": locale } } }),
     )))
 }
 
@@ -114,11 +111,10 @@ async fn render(
         )
         .into());
     }
-    let mut values =
-        crate::appearance::validate(&input.values, input.entity == PRESENTATION_ENTITY)?;
+    let mut values = crate::appearance::validate(&input.values)?;
     for (key, file) in &input.files {
-        if !["logo", "dark_logo", "icon", "opening_image"].contains(&key.as_str())
-            || input.entity != APPEARANCE_ENTITY && key != "opening_image" && file.is_some()
+        if !["logo", "dark_logo", "icon"].contains(&key.as_str())
+            || input.entity != APPEARANCE_ENTITY
         {
             return Err(AppError::validation_code(
                 "site_appearance_invalid",
@@ -173,6 +169,7 @@ async fn render(
             target: input.target,
             values,
         }),
+        design: None,
     };
     let html = crate::handler::render_draft(&state, &runtime, &preview, path)
         .await?

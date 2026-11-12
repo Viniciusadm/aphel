@@ -93,6 +93,14 @@ impl TermResolver for PublicTerms {
         Ok(found.into_iter().map(|id| id.to_string()).collect())
     }
 
+    async fn vocabulary_name(&self, vocabulary: &str) -> Result<Option<String>, AppError> {
+        Ok(public_vocabularies(&store()?)
+            .await?
+            .into_values()
+            .find(|found| found.key == vocabulary)
+            .map(|found| found.name))
+    }
+
     async fn terms(&self, vocabulary: &str) -> Result<Vec<PublicTerm>, AppError> {
         let store = store()?;
         let vocabularies = public_vocabularies(&store).await?;

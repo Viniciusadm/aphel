@@ -1,5 +1,5 @@
 import { useEditorialTranslation } from './translation'
-import { AddBlock, BLOCK_ICONS, type Block, BlockForm, BlockImageUsageContext, type BlockType, MAX_BLOCKS, blockProblems, blockSummary, collectImageIds, duplicateBlock, imageIdsOfJson, newBlock, parseBlocks, serializeBlocks, useBlocksValidation } from '../blocks'
+import { AddBlock, blockIcon, type Block, BlockForm, BlockImageUsageContext, type BlockType, MAX_BLOCKS, blockProblems, blockSummary, collectImageIds, duplicateBlock, imageIdsOfJson, newBlock, parseBlocks, serializeBlocks, useBlocksValidation } from '../blocks'
 import { formatDateTime, useRecordFormatting } from '../records'
 import { Button, ConfirmDialog, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, ErrorState, Input, PageLoader, SelectField, StatusBadge, toast } from '../ui'
 import { useSession } from '@/app/session/session-context'
@@ -711,7 +711,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
           )}
           <ol className="editorial-block-list">
             {current.blocks.map((block, index) => {
-              const Icon = BLOCK_ICONS[block.type]
+              const Icon = blockIcon(block.type)
               const open = selected === block.id
               const problems = blockProblems(block)
               const problem = problems.length > 0

@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/api'
 import { notifyError, notifySuccess, UnsavedChangesGuard, UnsavedChangesScope, UnsavedChangesDialog } from '@/components/feedback'
@@ -12,14 +12,17 @@ import { ToggleField } from '@/components/ui/toggle-field'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BlockImageField } from '@/sdk'
-import { AppearanceFrameDraft, type SiteModuleSettings } from './siteSettings'
+import { AppearanceFrameCollect, AppearanceFrameDraft, type FrameCollector, type SiteModuleSettings } from './siteSettings'
 import { HeaderCard, FooterCard } from './SiteFrameCards'
+import { ThemePresets } from './ThemePresets'
+import { StylesEditor, type FontStack } from './StylesEditor'
+import { mergeStyles } from './stylesDocument'
 
 type Values = Record<string, unknown>
-interface Property { key: string; group: string; kind: string; default: string | boolean | null; options: string[]; collection: boolean }
+interface Property { key: string; group: string; kind: string; default: string | boolean | null; options: string[] }
 interface Target { entity: string; target: string; label: string | null; path: string }
-interface Catalog { frame: { configuration: { site: SiteModuleSettings }; overview: { base_url: string; default_language: string } };  theme_properties: string[]; theme_defaults: Values; themes: { key: string; name: string }[]; theme_catalogs: Record<string, { properties: string[]; defaults: Values }>; available: boolean; properties: Property[]; presets: { key: string; values: Values }[]; targets: Target[] }
-interface AppearanceRecord { id: string; draft_values?: string | null; values?: string | null; updated_at: string; draft_logo?: string | null; draft_dark_logo?: string | null; draft_icon?: string | null; draft_opening_image?: string | null; opening_image?: string | null; logo?: string | null; dark_logo?: string | null; icon?: string | null }
+interface Catalog { frame: { configuration: { site: SiteModuleSettings }; overview: { base_url: string; default_language: string } };  theme_properties: string[]; theme_defaults: Values; themes: { key: string; name: string }[]; theme_catalogs: Record<string, { properties: string[]; defaults: Values }>; available: boolean; properties: Property[]; presets: { key: string; values: Values }[]; variations: Record<string, Values>; theme_variations: { key: string; name: string }[]; theme_styles: Values | null; base_styles: Values; font_stacks: FontStack[]; targets: Target[] }
+interface AppearanceRecord { id: string; draft_values?: string | null; values?: string | null; updated_at: string; draft_logo?: string | null; draft_dark_logo?: string | null; draft_icon?: string | null; logo?: string | null; dark_logo?: string | null; icon?: string | null }
 const recordUrl = (entity: string) => `/v1/entities/${entity}/records`
 const parsed = (text?: string | null): Values => text ? JSON.parse(text) as Values : {}
 
@@ -58,7 +61,7 @@ function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: 
   const configuration = { data: catalog.frame.configuration }
   const overview = { data: catalog.frame.overview }
   const [values, setValues] = useState<Values>(() => parsed(record?.draft_values))
-  const [files, setFiles] = useState<Values>(() => ({ logo: record?.draft_logo ?? null, dark_logo: record?.draft_dark_logo ?? null, icon: record?.draft_icon ?? null, opening_image: record?.draft_opening_image ?? null }))
+  const [files, setFiles] = useState<Values>(() => ({ logo: record?.draft_logo ?? null, dark_logo: record?.draft_dark_logo ?? null, icon: record?.draft_icon ?? null }))
   const [busy, setBusy] = useState(false)
   const [reloadRequested, setReloadRequested] = useState(false)
   const [html, setHtml] = useState('')
@@ -69,8 +72,6 @@ function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: 
   const labels = t('appearanceEditor.properties', { returnObjects: true }) as Record<string, string>
   const options = t('appearanceEditor.options', { returnObjects: true }) as Record<string, string>
   const groups = t('appearanceEditor.groups', { returnObjects: true }) as Record<string, string>
-  const presets = t('appearanceEditor.presets', { returnObjects: true }) as Record<string, string>
-  const local = target.entity === 'site.presentation'
   const theme = Object.hasOwn(values, 'theme') ? catalog.theme_catalogs[String(values.theme)] : undefined
   const themeProperties = theme?.properties ?? catalog.theme_properties
   const themeDefaults = theme?.defaults ?? catalog.theme_defaults
@@ -78,16 +79,44 @@ function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: 
   const frameKeys = new Set([...catalog.properties.filter((property) => property.group === 'frame').map((property) => property.key), 'tagline'])
   const ownKey = (key: string) => frameKeys.has(key) !== style
   const merge = (base: Values, replacement: Values): Values => ({ ...Object.fromEntries(Object.entries(base).filter(([key]) => !ownKey(key))), ...Object.fromEntries(Object.entries(replacement).filter(([key]) => ownKey(key))) })
-  const properties = catalog.properties.filter((property) => (!local || property.collection) && (property.group === 'frame') !== style && (property.key === 'theme' || themeProperties.length === 0 || themeProperties.includes(property.key)))
+  const properties = catalog.properties.filter((property) => property.kind !== 'styles' && property.key !== 'variation' && (property.group === 'frame') !== style && (property.key === 'theme' || themeProperties.length === 0 || themeProperties.includes(property.key)))
   const unsupported = Object.keys(values).some((key) => key !== 'theme' && themeProperties.length > 0 && !themeProperties.includes(key))
   const dirty = JSON.stringify(values) !== JSON.stringify(parsed(saved?.draft_values)) || Object.entries(files).some(([key, value]) => value !== (saved?.[`draft_${key}` as keyof AppearanceRecord] ?? null))
   const change = (key: string, value: string | boolean | null) => setValues((current) => ({ ...current, [key]: value }))
   const inherit = (key: string) => setValues((current) => { const next = { ...current }; delete next[key]; return next })
-  const color = (key: string) => String(values[key] ?? themeDefaults[key] ?? catalog.properties.find((property) => property.key === key)?.default ?? '#ffffff')
-  const luminance = (hex: string) => { const rgb = [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16) / 255).map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4); return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2] }
-  const contrast = (foreground: string, background: string) => { const a = luminance(color(foreground)); const b = luminance(color(background)); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) }
-  const lowContrast = style && !local && ['text', 'muted', 'link'].some((key) => contrast(key, 'background') < 4.5)
+  const variationOf = (key: unknown) => catalog.variations[String(key ?? 'default')] ?? {}
+  const variationKey = values.variation ?? themeDefaults.variation ?? 'default'
+  const themeStyles = mergeStyles(catalog.theme_styles ?? {}, (themeDefaults.styles as Values | undefined) ?? {}) as Values
+  const styleBase = mergeStyles(mergeStyles(catalog.base_styles, themeStyles), variationOf(variationKey)) as Values
+  const presetStyles = (key: string) => mergeStyles(mergeStyles(catalog.base_styles, themeStyles), variationOf(key)) as Values
 
+  const collectors = useRef(new Map<string, FrameCollector>())
+  const registerCollector = useCallback((id: string, collector: FrameCollector | null) => {
+    if (collector) collectors.current.set(id, collector)
+    else collectors.current.delete(id)
+  }, [])
+  function withFrames(): Values | null {
+    let next: Values = values
+    for (const collect of collectors.current.values()) {
+      const part = collect()
+      if (part === null) return null
+      next = { ...next, ...part }
+    }
+    return next
+  }
+  async function saveAll(publish: boolean) {
+    const next = withFrames()
+    if (!next) {
+      notifyError(t('appearanceEditor.frameInvalid'))
+      return
+    }
+    if (next !== values) setValues(next)
+    if (publish) await apply(next)
+    else {
+      await save(next)
+      notifySuccess(t('appearanceEditor.saved'))
+    }
+  }
   async function save(nextValues = values, nextFiles = files) {
     const payload = { target: target.target, draft_values: JSON.stringify(nextValues), ...Object.fromEntries(Object.entries(nextFiles).map(([key, value]) => [`draft_${key}`, value])) }
     const result = saved ? await api.patch<AppearanceRecord>(`${recordUrl(target.entity)}/${saved.id}`, { ...payload, _expected_updated_at: saved.updated_at }) : await api.post<AppearanceRecord>(recordUrl(target.entity), payload)
@@ -98,8 +127,8 @@ function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: 
     setBusy(true)
     try { await action() } catch (error) { notifyError(error) } finally { setBusy(false) }
   }
-  async function apply() {
-    const current = await save()
+  async function apply(nextValues = values) {
+    const current = await save(nextValues)
     const revision = await api.post<{ id: string }>('/v1/publication/revisions', { record_type: target.entity, record_id: current.id, expected_version: current.updated_at })
     const request = await api.post<{ status: string; reason_code: string | null }>('/v1/publication/requests', { revision_id: revision.id, idempotency_key: crypto.randomUUID() })
     if (['blocked', 'failed', 'cancelled', 'superseded'].includes(request.status)) {
@@ -121,18 +150,16 @@ function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: 
     <UnsavedChangesGuard when={dirty} />
     <UnsavedChangesDialog open={reloadRequested} onStay={() => setReloadRequested(false)} onLeave={() => { setReloadRequested(false); void run(onReload) }} />
     {record && record.updated_at > (saved?.updated_at ?? '') && <div role="status"><p>{t('appearanceEditor.remoteChange')}</p><Button variant="outline" disabled={busy} onClick={() => setReloadRequested(true)}>{t('appearanceEditor.reload')}</Button></div>}
-    <p className="text-sm text-muted-foreground">{!style ? t('appearanceEditor.frameHelp') : local ? t('appearanceEditor.collectionHelp') : t('appearanceEditor.globalHelp')}</p>
+    <p className="text-sm text-muted-foreground">{!style ? t('appearanceEditor.frameHelp') : t('appearanceEditor.globalHelp')}</p>
     {style && unsupported && <p role="status">{t('appearanceEditor.unsupported')}</p>}
-    {lowContrast && <p role="status" className="text-sm text-destructive">{t('appearanceEditor.contrast')}</p>}
-    {style && <div className="flex flex-wrap gap-2">
-      {catalog.presets.map((preset) => <Button key={preset.key} variant="outline" disabled={busy} onClick={() => setValues((current) => ({ ...current, ...preset.values }))}>{presets[preset.key]}</Button>)}
-    </div>}
+    {style && <ThemePresets labels={Object.fromEntries(catalog.theme_variations.map((variation) => [variation.key, variation.name]))} presets={catalog.presets.map((preset) => ({ ...preset, values: preset.values, styles: presetStyles(preset.key) }))} fontStacks={catalog.font_stacks} active={String(variationKey)} values={values} disabled={busy} onApply={(preset) => setValues((current) => { const next = { ...current, ...preset.values }; delete next.styles; return next })} />}
+    {style && <StylesEditor base={styleBase} overrides={(values.styles as Values | undefined) ?? {}} fontStacks={catalog.font_stacks} disabled={busy} onChange={(styles) => setValues((current) => { const next = { ...current }; if (styles) next.styles = styles; else delete next.styles; return next })} />}
     {[...new Set(properties.map((property) => property.group))].map((group) => <Card key={group}>
       <CardHeader><CardTitle>{groups[group]}</CardTitle></CardHeader>
       <CardContent className="grid gap-5 md:grid-cols-2">
         {properties.filter((property) => property.group === group && property.kind !== 'frame' && property.key !== 'tagline').map((property) => {
           if (property.kind === 'file') return saved ? <BlockImageField key={property.key} label={labels[property.key]} record={{ recordType: target.entity, recordId: saved.id }} value={files[property.key] as string | null} onChange={(value) => setFiles((current) => ({ ...current, [property.key]: value }))} disabled={busy} /> : <p key={property.key} className="text-sm text-muted-foreground">{t('appearanceEditor.saveForImages')}</p>
-          return <Field key={property.key} label={labels[property.key]} labelAction={Object.hasOwn(values, property.key) ? <Button size="sm" variant="ghost" disabled={busy} onClick={() => inherit(property.key)}>{t('appearanceEditor.inherit')}</Button> : null}>
+          return <Field key={property.key} label={labels[property.key]} description={property.key === 'name' ? t('appearanceEditor.nameHelp') : undefined} labelAction={Object.hasOwn(values, property.key) ? <Button size="sm" variant="ghost" disabled={busy} onClick={() => inherit(property.key)}>{t('appearanceEditor.inherit')}</Button> : null}>
             {(control) => property.kind === 'boolean' ? <NativeSelect {...control} className="w-full" disabled={busy} value={Object.hasOwn(values, property.key) ? String(values[property.key]) : ''} onValueChange={(next) => next ? change(property.key, next === 'true') : inherit(property.key)}>
               <option value="">{t('appearanceEditor.inherited')}</option><option value="true">{t('appearanceEditor.yes')}</option><option value="false">{t('appearanceEditor.no')}</option>
             </NativeSelect> : property.kind === 'select' ? <NativeSelect {...control} className="w-full" disabled={busy} value={property.key === 'theme' && values.theme === '' ? '__default__' : String(values[property.key] ?? '')} onValueChange={(next) => next ? change(property.key, next === '__default__' ? '' : next) : inherit(property.key)}>
@@ -142,15 +169,15 @@ function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: 
         })}
       </CardContent>
     </Card>)}
-    {!style && configuration.data && overview.data && <AppearanceFrameDraft.Provider value={async (frame) => { const next = { ...values, ...frame }; await save(next); setValues(next) }}>
+    {!style && configuration.data && overview.data && <AppearanceFrameCollect.Provider value={registerCollector}><AppearanceFrameDraft.Provider value={async (frame) => { const next = { ...values, ...frame }; await save(next); setValues(next) }}>
       <HeaderCard key={JSON.stringify([values.header, values.tagline, values.translations])} configuration={{ ...configuration.data, site: { ...configuration.data.site, ...values } as SiteModuleSettings }} overview={overview.data} />
       <FooterCard key={JSON.stringify([values.footer, values.translations])} configuration={{ ...configuration.data, site: { ...configuration.data.site, ...values } as SiteModuleSettings }} overview={overview.data} />
-    </AppearanceFrameDraft.Provider>}
+    </AppearanceFrameDraft.Provider></AppearanceFrameCollect.Provider>}
     <div className="flex flex-wrap gap-2">
-      <Button disabled={busy} onClick={() => void run(async () => { await save(); notifySuccess(t('appearanceEditor.saved')) })}>{t('appearanceEditor.save')}</Button>
-      <Button disabled={busy} onClick={() => void run(apply)}>{t('appearanceEditor.apply')}</Button>
-      <Button variant="outline" disabled={busy} onClick={() => void run(async () => { const next = merge(values, parsed(saved?.values)); const nextFiles = style ? { logo: saved?.logo ?? null, dark_logo: saved?.dark_logo ?? null, icon: saved?.icon ?? null, opening_image: saved?.opening_image ?? null } : files; await save(next, nextFiles); setValues(next); setFiles(nextFiles) })}>{t('appearanceEditor.discard')}</Button>
-      <Button variant="outline" disabled={busy} onClick={() => { setValues(merge(values, {})); if (style) setFiles({ logo: null, dark_logo: null, icon: null, opening_image: null }) }}>{t('appearanceEditor.defaults')}</Button>
+      <Button variant="outline" disabled={busy} onClick={() => void run(() => saveAll(false))}>{t('appearanceEditor.save')}</Button>
+      <Button disabled={busy} onClick={() => void run(() => saveAll(true))}>{t('appearanceEditor.apply')}</Button>
+      <Button variant="outline" disabled={busy} onClick={() => void run(async () => { const next = merge(values, parsed(saved?.values)); const nextFiles = style ? { logo: saved?.logo ?? null, dark_logo: saved?.dark_logo ?? null, icon: saved?.icon ?? null } : files; await save(next, nextFiles); setValues(next); setFiles(nextFiles) })}>{t('appearanceEditor.discard')}</Button>
+      <Button variant="outline" disabled={busy} onClick={() => { setValues(merge(values, {})); if (style) setFiles({ logo: null, dark_logo: null, icon: null }) }}>{t('appearanceEditor.defaults')}</Button>
     </div>
     <Card><CardHeader><CardTitle>{t('appearanceEditor.preview')}</CardTitle></CardHeader><CardContent className="grid gap-4">
       <Field label={t('appearanceEditor.path')} description={t('appearanceEditor.pathHelp')}>{(control) => <Input {...control} value={path} onChange={(event) => setPath(event.target.value)} />}</Field>

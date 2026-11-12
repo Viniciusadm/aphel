@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use aphel_contract_site::{PageTerm, SiteExposure};
+use aphel_contract_site::{PageTerm, SiteExposure, TERM_PARAM};
 use aphel_contract_tagging::{CLASSIFIABLE, ClassifiableDefinition, PublicTerm, TermResolver};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
@@ -153,6 +153,85 @@ pub(crate) async fn vocabularies(
             page_term.vocabulary.clone(),
             resolver.terms(&page_term.vocabulary).await?,
         );
+    }
+    Ok(found)
+}
+
+pub(crate) async fn route_path(
+    state: &AppState,
+    runtime: &crate::runtime::SiteRuntime,
+    vocabulary: &str,
+    slug: &str,
+) -> Result<Option<String>, AppError> {
+    let params = BTreeMap::from([(TERM_PARAM.to_owned(), slug.to_owned())]);
+    let shows = |route: &&crate::runtime::Route| {
+        route
+            .page
+            .term
+            .as_ref()
+            .is_some_and(|page_term| page_term.vocabulary == vocabulary)
+    };
+    if let Some(route) = runtime.routes.iter().find(shows) {
+        return Ok(route.pattern.build(&params));
+    }
+    let Some(route) = runtime.prefixed.iter().find(shows) else {
+        return Ok(None);
+    };
+    let Some(prefix) = &route.page.prefix else {
+        return Ok(None);
+    };
+    let candidates = crate::prefixes::candidates(state, runtime, &route.owner, prefix).await?;
+    let Some(segment) = candidates
+        .iter()
+        .find_map(|candidate| candidate.get(&prefix.field).and_then(Value::as_str))
+    else {
+        return Ok(None);
+    };
+    Ok(route
+        .pattern
+        .build(&params)
+        .map(|detail| format!("/{segment}{}", detail.trim_end_matches('/'))))
+}
+
+pub(crate) async fn find_public(
+    state: &AppState,
+    vocabulary: &str,
+    slug: &str,
+) -> Result<Option<PublicTerm>, AppError> {
+    match resolver(state) {
+        Some(resolver) => resolver.find(vocabulary, slug).await,
+        None => Ok(None),
+    }
+}
+
+pub(crate) async fn linkable(
+    state: &AppState,
+    runtime: &crate::runtime::SiteRuntime,
+) -> Result<Vec<(String, String, Vec<PublicTerm>)>, AppError> {
+    let Some(resolver) = resolver(state) else {
+        return Ok(Vec::new());
+    };
+    let mut found: Vec<(String, String, Vec<PublicTerm>)> = Vec::new();
+    for route in runtime.routes.iter().chain(&runtime.prefixed) {
+        let Some(page_term) = &route.page.term else {
+            continue;
+        };
+        if found
+            .iter()
+            .any(|(vocabulary, ..)| vocabulary == &page_term.vocabulary)
+        {
+            continue;
+        }
+        let name = resolver
+            .vocabulary_name(&page_term.vocabulary)
+            .await?
+            .unwrap_or_else(|| page_term.vocabulary.clone());
+        let group = format!("{} · {name}", runtime.owner_name(&route.owner));
+        found.push((
+            page_term.vocabulary.clone(),
+            group,
+            resolver.terms(&page_term.vocabulary).await?,
+        ));
     }
     Ok(found)
 }

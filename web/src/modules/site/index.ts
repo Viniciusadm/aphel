@@ -1,4 +1,4 @@
-import { Gauge, Globe, Languages, ListTree, Palette, PanelsTopLeft, Settings2, Shuffle, UserRound } from 'lucide-react'
+import { Gauge, Globe, Languages, LayoutTemplate, ListTree, Palette, PanelsTopLeft, Settings2, Shuffle, UserRound } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { SITE_OVERVIEW_PATH, SITE_SCREENS, siteRoutes } from './routes'
@@ -22,6 +22,16 @@ const siteModule = defineModule({
   },
   register(app) {
     app.routes(siteRoutes)
+    app.routes([{ path: 'site/editor', lazy: async () => ({ Component: (await import('./SiteEditorPage')).SiteEditorPage }) }], { layout: 'bare' })
+    app.nav({
+      to: '/site/editor',
+      label: 'nav.editor',
+      icon: LayoutTemplate,
+      permission: ['site.design.edit'],
+      section: 'operations',
+      group: { key: 'site', label: 'nav.site', icon: Globe },
+      order: 39,
+    })
     app.keybindingScope({ id: 'editorial.editor', label: 'editorKeys.scope', description: 'editorKeys.scopeHelp', kind: 'overlay' })
     const editor = { scope: 'editorial.editor' }
     app.keybinding({ ...editor, id: 'editorial.save', label: 'editorKeys.save', keys: ['mod+s'], allowInEditable: true })
@@ -43,7 +53,7 @@ const siteModule = defineModule({
         to: screen.path,
         label: `nav.${screen.key}`,
         icon: ICONS[screen.key],
-        permission: screen.key === 'appearance' || screen.key === 'frame' ? ['site.appearance.edit', 'site.presentation.edit'] : SETTINGS_MANAGE,
+        permission: screen.key === 'appearance' || screen.key === 'frame' ? ['site.appearance.edit'] : SETTINGS_MANAGE,
         section: 'operations',
         group: { key: 'site', label: 'nav.site', icon: Globe },
         order: 41 + index,

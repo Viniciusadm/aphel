@@ -1,0 +1,1 @@
+<details class="blk-details"{% if block.open %} open{% endif %}><summary>{{ block.summary }}</summary><div class="blk-details-body blk-children">{% with blocks = block.children, nested = true %}{% include "aphel/blocks_items.html" %}{% endwith %}</div></details>

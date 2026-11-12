@@ -1,0 +1,1 @@
+{% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}

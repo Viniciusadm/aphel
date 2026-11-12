@@ -1,130 +1,19 @@
-{% from "aphel/icons.html" import social_icon %}{% macro menu_items(items) %}{% for item in items %}{% if item.children %}<details class="menu-group"><summary{% if item.active %} class="active"{% endif %}>{{ item.label }}</summary><span class="submenu">{% if item.url %}<a href="{{ item.url }}"{% if item.active and not item.children | selectattr("active") | list %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endif %}{% for child in item.children %}<a href="{{ child.url }}"{% if child.active %} aria-current="page"{% endif %}>{{ child.label }}</a>{% endfor %}</span></details>{% else %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endif %}{% endfor %}{% endmacro %}<!doctype html>
+<!doctype html>
 <html lang="{{ site.locale }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{% if page.title %}{{ page.title }} · {% endif %}{{ site.appearance.name or site.name }}{% endblock %}</title>
-<style>
-:root{--bg:#fbfbfd;--fg:#1d1d24;--muted:#5d5d6b;--line:#e4e4ea;--accent:{{ site.color }};--link:var(--accent);color-scheme:light dark}
-@media (prefers-color-scheme:dark){:root{--bg:#111116;--fg:#ececf1;--muted:#a3a3b2;--line:#2a2a33;--link:color-mix(in srgb,var(--accent) 55%,#fff)}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-a{color:var(--link)}
-.wrap{max-width:46rem;margin:0 auto;padding:0 1rem}
-header.site{border-bottom:1px solid var(--line)}
-header.site .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1.5rem;min-height:3.5rem;padding-top:.5rem;padding-bottom:.5rem}
-header.site a.brand{display:flex;align-items:center;gap:.6rem;color:var(--fg);font-weight:600;text-decoration:none}
-header.site a.brand img{height:2rem;width:auto}
-header.site .tagline{display:block;color:var(--muted);font-size:.8125rem;font-weight:400}
-nav.menu{display:flex;flex-wrap:wrap;gap:.25rem 1rem}
-nav.menu a{color:var(--muted);text-decoration:none;padding:.25rem 0}
-nav.menu a:hover,nav.menu a[aria-current=page]{color:var(--fg)}
-nav.menu a[aria-current=page]{box-shadow:inset 0 -2px 0 var(--link)}
-.menu-group{position:relative}.menu-group>summary{list-style:none;cursor:pointer;color:var(--muted);padding:.25rem 0}.menu-group>summary::-webkit-details-marker{display:none}.menu-group>summary::after{content:" ▾";font-size:.8em}.menu-group>summary.active,.menu-group>summary:hover{color:var(--fg)}.menu-group .submenu{display:flex;flex-direction:column;gap:.25rem;position:absolute;z-index:10;min-width:12rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--line);border-radius:.5rem;box-shadow:0 8px 24px rgba(0,0,0,.08)}.site-mobile-menu .menu-group .submenu{position:static;border:0;box-shadow:none;padding:.25rem 0 .25rem 1rem}
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.site-search-form{display:flex;gap:.5rem;margin:1rem 0 2rem}.site-search-form input{flex:1;min-height:2.5rem;padding:.4rem .75rem;border:1px solid var(--line);border-radius:.5rem;background:transparent;color:inherit;font:inherit}.site-search-form button{min-height:2.5rem;padding:.4rem 1rem;border:0;border-radius:.5rem;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}.site-search-results{list-style:none;padding:0;display:grid;gap:1.25rem}.site-search-results a{font-size:1.125rem;font-weight:600}.site-search-results p{margin:.25rem 0 0}
-.welcome{padding:4rem 0;text-align:center}.welcome-links{list-style:none;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.5rem}
-main{padding:2rem 0 3rem}
-footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.875rem;padding:1.5rem 0}
-header.site[data-align=center] .wrap{flex-direction:column;justify-content:center;text-align:center}
-header.site[data-align=center] a.brand{flex-direction:column;gap:.35rem}
-header.site[data-align=center] .header-end{justify-content:center}
-a.cta{display:inline-flex;align-items:center;min-height:2.5rem;padding:.4rem 1rem;border-radius:.5rem;background:var(--accent);color:#fff;font-size:.9375rem;font-weight:600;text-decoration:none}
-a.cta:hover{filter:brightness(1.08)}
-footer.site .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1.5rem 2rem;margin-bottom:1.25rem}
-footer.site p{margin:0}
-footer.site .footer-grid+p{padding-top:1rem;border-top:1px solid var(--line)}
-footer.site ul{list-style:none;margin:0;padding:0}
-footer.site .footer-about{display:grid;gap:.75rem}
-footer.site .footer-contact,footer.site .footer-links{display:grid;gap:.4rem;align-content:start}
-footer.site a{color:var(--muted);text-decoration:none;overflow-wrap:anywhere}
-footer.site a:hover,footer.site a[aria-current=page]{color:var(--fg);text-decoration:underline}
-footer.site .footer-social{display:flex;flex-wrap:wrap;gap:.5rem;align-content:start}
-footer.site .footer-social a{display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border:1px solid var(--line);border-radius:999px}
-footer.site .footer-social a:hover{color:var(--fg);border-color:var(--muted)}
-h1,h2,h3{line-height:1.25}
-img{max-width:100%;height:auto}
-.muted{color:var(--muted)}
-nav.pagination{display:flex;justify-content:space-between;margin-top:2rem}
-.search-entry{display:inline-flex;align-items:center;color:var(--muted)}.search-entry:hover{color:var(--fg)}
-.header-end{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem}
-a.account-entry{font-size:.875rem}
-nav.languages{display:flex;gap:.5rem;font-size:.8125rem}
-nav.languages a{color:var(--muted);text-decoration:none}
-nav.languages a[aria-current]{color:var(--fg);font-weight:600}
-.account{--panel:color-mix(in srgb,var(--bg) 92%,#fff);--danger:#b42318;max-width:27rem;margin:1rem auto 0;padding:2rem 1.75rem;background:var(--panel);border:1px solid var(--line);border-radius:1rem;box-shadow:0 1px 2px rgb(0 0 0/.04),0 12px 32px -12px color-mix(in srgb,var(--accent) 22%,transparent);position:relative;overflow:hidden}
-.account::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--accent)}
-.account h1{margin:0 0 .35rem;font-size:1.6rem;letter-spacing:-.015em}
-.account h1+.muted{margin-top:0}
-.account h2{margin:1.75rem 0 .25rem;font-size:1.05rem}
-.account .stack{display:grid;gap:1rem;margin:1.5rem 0 1rem}
-.account label{display:grid;gap:.35rem;font-size:.9rem;font-weight:500}
-.account label.inline{display:flex;align-items:flex-start;gap:.6rem;font-weight:400}
-.account label.inline input{margin-top:.3rem;accent-color:var(--danger)}
-.account small{color:var(--muted);font-weight:400;font-size:.8125rem}
-.account input[type=email],.account input[type=password],.account input[type=text]{font:inherit;font-weight:400;padding:.6rem .8rem;border:1px solid color-mix(in srgb,var(--fg) 22%,transparent);border-radius:.6rem;background:var(--bg);color:inherit;min-height:2.75rem;transition:border-color .15s,box-shadow .15s}
-.account input[type=email]:hover,.account input[type=password]:hover,.account input[type=text]:hover{border-color:color-mix(in srgb,var(--fg) 40%,transparent)}
-.account input:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
-.account button{font:inherit;font-weight:600;padding:.6rem 1rem;border-radius:.6rem;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;min-height:2.75rem;width:100%;transition:filter .15s,background-color .15s}
-.account button:hover{filter:brightness(1.08)}
-.account button:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.account button.secondary{background:transparent;color:var(--fg);border-color:color-mix(in srgb,var(--fg) 22%,transparent);font-weight:500}
-.account button.secondary:hover{filter:none;background:color-mix(in srgb,var(--fg) 5%,transparent)}
-.account button.danger{background:var(--danger);border-color:var(--danger)}
-.account .notice,.account .error{margin:0 0 1.25rem;padding:.75rem .9rem;border-radius:.6rem;font-size:.9rem;border:1px solid}
-.account .notice{border-color:color-mix(in srgb,var(--accent) 35%,transparent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
-.account .error{border-color:color-mix(in srgb,var(--danger) 40%,transparent);background:color-mix(in srgb,var(--danger) 8%,transparent);color:var(--danger)}
-.account .password-field{position:relative;display:block}
-.account .password-field input{width:100%;padding-right:2.75rem}
-.account button.password-toggle{position:absolute;top:0;right:0;bottom:0;width:2.75rem;min-height:0;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;border-radius:0 .6rem .6rem 0;color:var(--muted);font-weight:400}
-.account button.password-toggle:hover{filter:none;color:var(--fg)}
-.account .forgot{display:block;margin:-.25rem 0 0;text-align:right;font-size:.875rem}
-.account .divider{display:flex;align-items:center;gap:.75rem;margin:1.75rem 0 1rem;color:var(--muted);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}
-.account .divider::before,.account .divider::after{content:"";flex:1;height:1px;background:color-mix(in srgb,var(--fg) 16%,transparent)}
-.account .divider+p{margin:0;color:var(--muted);font-size:.9rem}
-.account .switch{margin:1.5rem -1.75rem -2rem;padding:1rem 1.75rem;border-top:1px solid var(--line);background:color-mix(in srgb,var(--fg) 3%,transparent);text-align:center;font-size:.9rem;color:var(--muted)}
-.account .switch a{font-weight:600}
-.account form+form{margin-top:.75rem}
-.account-links{display:grid;gap:.5rem;margin:1rem 0}
-.account-links a{display:block;padding:.65rem .9rem;border:1px solid var(--line);border-radius:.6rem;text-decoration:none;color:var(--fg)}
-.account-links a:hover{border-color:var(--accent)}
-details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}
-details.danger summary{cursor:pointer;color:var(--danger);font-weight:500}
-@media (prefers-color-scheme:dark){.account{--danger:#f97066;box-shadow:0 1px 2px rgb(0 0 0/.3),0 12px 32px -12px rgb(0 0 0/.6)}}
-@media (max-width:30rem){.account{padding:1.5rem 1.25rem;border-radius:.85rem}.account .switch{margin:1.5rem -1.25rem -1.5rem;padding:1rem 1.25rem}}
-</style>
+<link rel="stylesheet" href="{{ __site_frame_css }}">
+<link rel="stylesheet" href="{{ __site_blocks_css }}">
 {% include "aphel/appearance.html" %}
-{% include "aphel/presentation_style.html" %}
 {% include "aphel/head.html" %}
 {% block head %}{% endblock %}
 </head>
 <body>
-<header class="site" data-align="{{ site.header.align or 'left' }}"><div class="wrap">
-<a class="brand" href="{{ site.home }}">{% if site.appearance.logo or site.logo_url %}<img class="{% if site.appearance.dark_logo %}light-logo{% endif %}" src="{{ site.appearance.logo or site.logo_url }}" alt="">{% endif %}{% if site.appearance.dark_logo %}<img class="dark-logo" src="{{ site.appearance.dark_logo }}" alt="">{% endif %}<span>{{ site.appearance.name or site.name }}{% if site.tagline %}<span class="tagline">{{ site.tagline }}</span>{% endif %}</span></a>
-<div class="header-end">
-{% if site.menu %}<nav class="menu desktop-menu" aria-label="{{ site.texts.menu }}">{{ menu_items(site.menu) }}</nav><details class="site-mobile-menu"><summary>{{ site.texts.menu }}</summary><nav class="menu" aria-label="{{ site.texts.menu }}">{{ menu_items(site.menu) }}</nav></details>{% endif %}
-{% if site.alternates %}<nav class="languages" aria-label="{{ site.texts.languages }}">{% for alternate in site.alternates %}<a href="{{ alternate.path }}" hreflang="{{ alternate.code }}" lang="{{ alternate.code }}"{% if alternate.current %} aria-current="true"{% endif %}>{{ alternate.code | upper }}</a>{% endfor %}</nav>{% endif %}
-<a class="search-entry" href="{{ site.search }}" aria-label="{{ site.texts.search }}" title="{{ site.texts.search }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></a>
-{% if site.header.cta %}<a class="cta" href="{{ site.header.cta.url }}">{{ site.header.cta.label }}</a>{% endif %}
-{% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}
-</div>
-</div></header>
+{% set header_key = __design.header if __design and __design.header else 'header' %}{% set footer_key = __design.footer if __design and __design.footer else 'footer' %}
+{% if header_key != 'none' and site.parts and site.parts[header_key] %}{% set header_part = site.parts[header_key] %}<header class="site"{% if site.header.align in ['left', 'center'] %} data-align="{{ site.header.align }}"{% endif %}><div class="wrap">{% with blocks = header_part.blocks, images = header_part.images, nested = true %}{% include "aphel/blocks_items.html" %}{% endwith %}</div></header>{% endif %}
 <main><div class="wrap">{% block content %}{% endblock %}</div></main>
-{% set footer = site.footer %}{% if not footer.empty or footer.credit %}<footer class="site"><div class="wrap">
-{% if site.appearance.footer_brand %}<p><strong>{{ site.appearance.name or site.name }}</strong></p>{% endif %}
-{% if not footer.empty %}<div class="footer-grid">
-{% if footer.text or footer.contact %}<div class="footer-about">
-{% if footer.text %}<p>{% for line in footer.text %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>{% endif %}
-{% if footer.contact %}{% set contact = footer.contact %}<ul class="footer-contact" aria-label="{{ site.texts.contact }}">
-{% if contact.phone %}<li><a href="{{ contact.phone.url }}">{{ contact.phone.label }}</a></li>{% endif %}
-{% if contact.whatsapp %}<li><a href="{{ contact.whatsapp.url }}" target="_blank" rel="noopener">WhatsApp {{ contact.whatsapp.label }}</a></li>{% endif %}
-{% if contact.email %}<li><a href="{{ contact.email.url }}">{{ contact.email.label }}</a></li>{% endif %}
-{% if contact.address %}<li><a href="{{ contact.address.url }}" target="_blank" rel="noopener">{% for line in contact.address.lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</a></li>{% endif %}
-</ul>{% endif %}
-</div>{% endif %}
-{% if footer.links %}<nav aria-label="{{ site.texts.footer_links }}"><ul class="footer-links">{% for link in footer.links %}<li><a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.label }}</a></li>{% endfor %}</ul></nav>{% endif %}
-{% if footer.social %}<ul class="footer-social" aria-label="{{ site.texts.social }}">{% for link in footer.social %}<li><a href="{{ link.url }}" target="_blank" rel="noopener" aria-label="{{ link.label }}" title="{{ link.label }}">{{ social_icon(link.network) }}</a></li>{% endfor %}</ul>{% endif %}
-</div>{% endif %}
-{% if footer.credit %}<p>© {{ site.year }} {{ site.appearance.name or site.name }}</p>{% endif %}
-</div></footer>{% endif %}
+{% if footer_key != 'none' and site.parts and site.parts[footer_key] %}{% set footer_part = site.parts[footer_key] %}<footer class="site"{% if site.footer.layout in ['columns', 'center'] %} data-layout="{{ site.footer.layout }}"{% endif %}><div class="wrap">{% with blocks = footer_part.blocks, images = footer_part.images, nested = true %}{% include "aphel/blocks_items.html" %}{% endwith %}</div></footer>{% endif %}
 </body>
 </html>

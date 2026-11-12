@@ -11,7 +11,12 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
+function styled(block: Block): boolean {
+  return Object.keys(block.style ?? {}).length > 0
+}
+
 export function blockToHtml(block: Block): string {
+  if (styled(block)) return cardHtml(block)
   switch (block.type) {
     case 'text':
       return markdownToHtml(block.text)

@@ -1,5 +1,1 @@
-<div class="blk-page">
-{%- for block in blocks or [] %}
-<div class="blk-slot" id="{{ block.id }}">{% with position = loop.index0 %}{% include "aphel/blocks/" ~ block.type ~ ".html" ignore missing %}{% endwith %}</div>
-{%- endfor %}
-</div>
+<div class="blk-page">{% with nested = false %}{% include "aphel/blocks_items.html" %}{% endwith %}</div>

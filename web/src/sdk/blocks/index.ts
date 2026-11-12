@@ -1,7 +1,9 @@
 export { CropPreview as BlockCropPreview } from './CropPreview'
 export { AddBlock } from './AddBlock'
+export { duplicateInPlace, findBlock, insertBlock, locateBlock, moveBlock, removeBlock, replaceBlock, type BlockLocation } from './blockTree'
+export { BlockScopeContext, useBlockScope, type BlockScope } from './scope'
 export { BlockForm } from './BlockForm'
-export { BLOCK_ICONS, ITEM_ICONS as BLOCK_ITEM_ICONS } from './blockIcons'
+export { BLOCK_ICONS, ITEM_ICONS as BLOCK_ITEM_ICONS, blockIcon } from './blockIcons'
 export { ImageField as BlockImageField } from './ImageField'
 export { ImageUsageContext as BlockImageUsageContext, collectImageIds, imageIdsOfJson, useImagesInUse as useBlockImagesInUse } from './imageUsage'
 export {
@@ -26,8 +28,12 @@ export {
   ITEM_LIMITS as BLOCK_ITEM_LIMITS,
   MAX_BLOCKS,
   MAX_BUTTONS as MAX_BLOCK_BUTTONS,
+  CONTAINER_TYPES as BLOCK_CONTAINER_TYPES,
   blockProblems,
   blockSummary,
+  countBlocks,
+  flattenBlocks,
+  isContainer as isContainerBlock,
   duplicateBlock,
   newBlock,
   parseBlocks,
@@ -36,7 +42,15 @@ export {
   type Block,
   type BlockButton,
   type BlockProblem,
+  type BlockStyle,
   type BlockType,
+  type ContainerBlock,
+  type CoverBlock,
+  type DetailsBlock,
+  type GridBlock,
+  type GroupBlock,
+  type RowBlock,
+  type StackBlock,
   type BookingBlock,
   type ButtonsBlock,
   type CollectionBlock,
