@@ -122,7 +122,7 @@ type = "references"
 [[contribute]]
 point = "tagging.classifiable"
 name = "entry"
-data = { entity = "content.entry", field = "draft_terms", published = "terms", vocabularies = ["categories", "tags"], manage_permission = "content.terms.manage" }
+data = { entity = "blog.post", field = "draft_terms", published = "terms", vocabularies = ["categories", "tags"], manage_permission = "blog.terms.manage" }
 ```
 
 | Key | Notes |

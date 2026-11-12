@@ -92907,7 +92907,7 @@
                 },
                 "record_type": {
                   "type": "string",
-                  "example": "content.entry"
+                  "example": "blog.post"
                 },
                 "type_label": {
                   "type": "string",
@@ -104521,7 +104521,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "content.entry"
+            "example": "blog.post"
           },
           "type_label": {
             "type": "string",
@@ -122405,7 +122405,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "content.entry"
+            "example": "blog.post"
           }
         }
       },
@@ -122599,7 +122599,7 @@
           },
           "record_type": {
             "type": "string",
-            "example": "content.entry"
+            "example": "blog.post"
           },
           "title": {
             "type": "string"

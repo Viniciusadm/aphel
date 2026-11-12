@@ -37,7 +37,7 @@ pub(crate) struct SiteStatusLink {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SiteContentCount {
-    #[schema(example = "content.entry")]
+    #[schema(example = "blog.post")]
     pub record_type: String,
     pub label: String,
     pub published: u64,
@@ -46,7 +46,7 @@ pub(crate) struct SiteContentCount {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SiteRecentRecord {
-    #[schema(example = "content.entry")]
+    #[schema(example = "blog.post")]
     pub record_type: String,
     pub record_id: String,
     pub title: String,

@@ -22,7 +22,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct MediaUsageResponse {
-    #[schema(example = "content.entry")]
+    #[schema(example = "blog.post")]
     pub record_type: String,
     pub record_id: String,
     #[schema(example = "Entradas")]

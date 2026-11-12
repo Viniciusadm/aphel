@@ -15432,7 +15432,7 @@ export interface components {
             data: {
                 label?: string | null;
                 record_id: string;
-                /** @example content.entry */
+                /** @example blog.post */
                 record_type: string;
                 /** @example Entradas */
                 type_label: string;
@@ -18468,7 +18468,7 @@ export interface components {
         MediaUsageResponse: {
             label?: string | null;
             record_id: string;
-            /** @example content.entry */
+            /** @example blog.post */
             record_type: string;
             /** @example Entradas */
             type_label: string;
@@ -23032,7 +23032,7 @@ export interface components {
             label: string;
             /** Format: int64 */
             published: number;
-            /** @example content.entry */
+            /** @example blog.post */
             record_type: string;
         };
         SiteEmbedOptionResponse: {
@@ -23088,7 +23088,7 @@ export interface components {
         SiteRecentRecord: {
             published_at?: string | null;
             record_id: string;
-            /** @example content.entry */
+            /** @example blog.post */
             record_type: string;
             title: string;
             /** @example https://www.example.com/s/blog/hello */

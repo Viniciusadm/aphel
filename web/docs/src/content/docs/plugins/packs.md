@@ -90,9 +90,9 @@ A pack can create what its plugins need to be useful right away, such as a first
 
 ```toml
 [[provision]]
-key = "blog.collection"
+key = "blog.blog_seed"
 kind = "record"
-target = "content.collection"
+target = "blog.blog"
 mode = "seed"
 unique = "path"
 path_conflict = "suffix"
@@ -101,15 +101,15 @@ data = { name = "Blog", path = "blog", description = "News and articles." }
 [[provision]]
 key = "blog.menu"
 kind = "site.link"
-depends_on = ["blog.collection"]
-data = { id = "blog", label = "Blog", target = { provision = "blog.collection", field = "id", prefix = "record:content.collection:" } }
+depends_on = ["blog.blog_seed"]
+data = { id = "blog", label = "Blog", target = { provision = "blog.blog_seed", field = "id", prefix = "record:blog.blog:" } }
 ```
 
 | Key | Type | Required | Meaning |
 | --- | --- | --- | --- |
 | `key` | string | yes | Unique key of the resource inside the pack. Aphel remembers what it created under this key. |
 | `kind` | string | yes | What to create. `record` (module `wasm_runtime`) creates a record of `target`; `site.link` (module `site`) adds an item at the end of the site menu, with `id`, `label` and either `target` (a target such as `record:<record type>:<id>`, see [Site pages](/_aphel/docs/plugins/site-pages/#navigation-and-home-page)) or `url`; `site.home` (module `site`) points the site home page at `target` only when the organization has not chosen one, and never changes it afterwards; `tagging.vocabulary` (module `tagging`) creates a vocabulary from `key`, `name`, `hierarchical` and `public`. |
-| `target` | string | for `record` | Entity key, such as `content.collection`. |
+| `target` | string | for `record` | Entity key, such as `blog.blog`. |
 | `mode` | `seed` or `managed` | no | `seed` (default) creates the resource once and never touches it again. `managed` updates it when a newer pack changes `data`, unless an administrator changed or removed it. |
 | `data` | table | yes | Field values. A value `{ provision = "<key>", field = "<field>", prefix = "..." }` takes a field of a resource created earlier in the pack, with an optional prefix. A value `{ installer = "id" }` or `{ installer = "name" }` takes the id or the name of the person who imports the pack; without a signed-in person (a system import) the resource fails with `plugin_pack_provision_reference`. |
 | `depends_on` | array of strings | no | Resources that must be created first. Referenced resources must be listed here. |
