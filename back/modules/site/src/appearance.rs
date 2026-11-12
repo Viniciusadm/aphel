@@ -3,7 +3,7 @@ use aphel_sdk::platform::application::fields::{
     DRAFT_PREFIX, PUBLISHED_AT_FIELD, REVISED_AT_FIELD, publication_state_field,
 };
 
-const STATE_FIELD: &str = "publication_state";
+pub(crate) const STATE_FIELD: &str = "publication_state";
 use aphel_contract_site::{
     APPEARANCE_EDIT, APPEARANCE_ENTITY, AppearanceValues, PRESENTATION_EDIT, PRESENTATION_ENTITY,
     appearance_properties,

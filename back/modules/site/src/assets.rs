@@ -127,7 +127,7 @@ async fn load_appearance_file(state: &AppState, key: &str) -> Result<Option<Resp
     else {
         return Ok(None);
     };
-    if record["state"] != "published" {
+    if record[crate::appearance::STATE_FIELD] != "published" {
         return Ok(None);
     }
     let Some(file) = record[*key].as_str() else {
