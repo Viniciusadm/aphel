@@ -1,4 +1,4 @@
-import { ShieldCheck } from 'lucide-react'
+import { Plus, ShieldCheck } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { momentKey } from '@/sdk'
@@ -12,6 +12,7 @@ import { formatDateTime, NativeSelect, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {useApprovalInbox} from '@/sdk'
 import { ApprovalStatusBadge } from './components/StatusBadge'
+import { NewRequestDialog } from './components/NewRequestDialog'
 import {APPROVAL_BOXES, APPROVAL_STATUSES, APPROVALS_MANAGE_PERMISSION, APPROVALS_PER_PAGE, approvalPath} from '@/sdk'
 import { useRecordTypeLabel } from './lib/labels'
 import { recordPath } from './lib/record-link'
@@ -61,6 +62,7 @@ export function ApprovalsPage() {
 function ApprovalRequests({ canManage }: { canManage: boolean }) {
   const { t } = useTranslation('approvals')
   const statusId = useId()
+  const [requesting, setRequesting] = useState(false)
   const boxes = APPROVAL_BOXES.filter((box) => box !== 'all' || canManage)
   const [box, setBox] = useState<ApprovalBox>('pending_for_me')
   const [status, setStatus] = useState<ApprovalStatus | ''>('pending')
@@ -117,26 +119,33 @@ function ApprovalRequests({ canManage }: { canManage: boolean }) {
         <NativeSelect aria-label={t('inbox.title')} value={box} onChange={(event) => { setBox(event.target.value as ApprovalBox); setPage(1) }}>
           {boxes.map((item) => <option key={item} value={item}>{t(`inbox.boxes.${item}`)}</option>)}
         </NativeSelect>
-        <Field id={statusId} label={t('inbox.status')} inline>
-          <NativeSelect
-            id={statusId}
-            className="w-44"
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as ApprovalStatus | '')
-              setPage(1)
-            }}
-          >
-            <option value="">{t('inbox.allStatuses')}</option>
-            {APPROVAL_STATUSES.map((item) => (
-              <option key={item} value={item}>
-                {t(`status.${item}`)}
-              </option>
-            ))}
-          </NativeSelect>
-        </Field>
+        <div className="flex flex-wrap items-center gap-3">
+          <Field id={statusId} label={t('inbox.status')} inline>
+            <NativeSelect
+              id={statusId}
+              className="w-44"
+              value={status}
+              onChange={(event) => {
+                setStatus(event.target.value as ApprovalStatus | '')
+                setPage(1)
+              }}
+            >
+              <option value="">{t('inbox.allStatuses')}</option>
+              {APPROVAL_STATUSES.map((item) => (
+                <option key={item} value={item}>
+                  {t(`status.${item}`)}
+                </option>
+              ))}
+            </NativeSelect>
+          </Field>
+          <Button onClick={() => setRequesting(true)}>
+            <Plus aria-hidden="true" />
+            {t('newRequest.action')}
+          </Button>
+        </div>
       </div>
       {body}
+      <NewRequestDialog open={requesting} onOpenChange={setRequesting} />
     </div>
   )
 }

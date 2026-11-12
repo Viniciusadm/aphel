@@ -270,5 +270,19 @@
   "tabs": {
     "requests": "Pedidos",
     "policies": "Políticas"
+  },
+  "newRequest": {
+    "action": "Solicitar aprovação",
+    "title": "Solicitar aprovação",
+    "description": "Escolha o registro que precisa de aprovação. O pedido segue as políticas sob demanda ativas para o tipo dele.",
+    "recordType": "Tipo de registro",
+    "record": "Registro",
+    "searchPlaceholder": "Buscar registro",
+    "results": "Registros encontrados",
+    "searching": "Buscando…",
+    "empty": "Nenhum registro encontrado.",
+    "change": "Trocar",
+    "continue": "Continuar",
+    "noPolicies": "Não há tipos de registro disponíveis com política sob demanda ativa. Crie uma política na aba Políticas ou ative o módulo do tipo de registro desejado."
   }
 }

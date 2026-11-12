@@ -270,5 +270,19 @@
   "tabs": {
     "requests": "Requests",
     "policies": "Policies"
+  },
+  "newRequest": {
+    "action": "Request approval",
+    "title": "Request approval",
+    "description": "Choose the record that needs approval. The request follows the active on-demand policies for its type.",
+    "recordType": "Record type",
+    "record": "Record",
+    "searchPlaceholder": "Search records",
+    "results": "Records found",
+    "searching": "Searching…",
+    "empty": "No records found.",
+    "change": "Change",
+    "continue": "Continue",
+    "noPolicies": "No available record type has an active on-demand policy. Create a policy in the Policies tab or enable the module of the record type you need."
   }
 }
