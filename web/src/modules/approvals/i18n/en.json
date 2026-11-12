@@ -165,7 +165,8 @@
       "pending_for_me": "No requests are waiting for your decision.",
       "requested_by_me": "You have no approval requests with this filter.",
       "all": "No approval requests with this filter."
-    }
+    },
+    "boxLabel": "Which requests to show"
   },
   "columns": {
     "record": "Record",

@@ -20,6 +20,7 @@ import type {ApprovalBox, ApprovalRequest, ApprovalStatus} from '@/sdk'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ApprovalPoliciesPanel } from './settings/ApprovalPoliciesPage'
 import { Field } from '@/components/ui/field'
@@ -116,9 +117,16 @@ function ApprovalRequests({ canManage }: { canManage: boolean }) {
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <NativeSelect aria-label={t('inbox.title')} value={box} onChange={(event) => { setBox(event.target.value as ApprovalBox); setPage(1) }}>
-          {boxes.map((item) => <option key={item} value={item}>{t(`inbox.boxes.${item}`)}</option>)}
-        </NativeSelect>
+        <SegmentedControl
+          aria-label={t('inbox.boxLabel')}
+          size="sm"
+          value={box}
+          onValueChange={(next) => {
+            setBox(next)
+            setPage(1)
+          }}
+          options={boxes.map((item) => ({ value: item, label: t(`inbox.boxes.${item}`) }))}
+        />
         <div className="flex flex-wrap items-center gap-3">
           <Field id={statusId} label={t('inbox.status')} inline>
             <NativeSelect

@@ -165,7 +165,8 @@
       "pending_for_me": "Nenhum pedido aguarda a sua decisão.",
       "requested_by_me": "Você não tem pedidos de aprovação com este filtro.",
       "all": "Nenhum pedido de aprovação com este filtro."
-    }
+    },
+    "boxLabel": "Quais pedidos mostrar"
   },
   "columns": {
     "record": "Registro",
