@@ -24,7 +24,7 @@ export const tabsTriggerVariants = cva(
       },
       variant: {
         pill: '',
-        line: 'relative -mb-px h-auto rounded-none border-b-[3px] border-transparent px-1 pb-3 pt-2 text-base font-medium text-foreground/70 hover:border-border data-[state=active]:border-primary-solid data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none aria-[current=page]:border-primary-solid aria-[current=page]:bg-transparent aria-[current=page]:font-semibold aria-[current=page]:text-foreground aria-[current=page]:shadow-none data-[state=on]:border-primary-solid data-[state=on]:bg-transparent data-[state=on]:text-foreground data-[state=on]:shadow-none',
+        line: 'relative -mb-px h-auto rounded-none outline-none focus-visible:text-foreground focus-visible:ring-0 border-b-[3px] border-transparent px-1 pb-3 pt-2 text-base font-medium text-foreground/70 hover:border-border data-[state=active]:border-primary-solid data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none aria-[current=page]:border-primary-solid aria-[current=page]:bg-transparent aria-[current=page]:font-semibold aria-[current=page]:text-foreground aria-[current=page]:shadow-none data-[state=on]:border-primary-solid data-[state=on]:bg-transparent data-[state=on]:text-foreground data-[state=on]:shadow-none',
       },
     },
     defaultVariants: { size: 'md', variant: 'line' },
