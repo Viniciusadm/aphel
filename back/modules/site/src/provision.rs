@@ -64,6 +64,7 @@ pub(crate) async fn save_settings(
             app_base_path: None,
             site_base_path: None,
             site_host: None,
+            site_redirect_hosts: None,
             max_upload_mb: None,
             storage: None,
             storage_secret: SecretChange::Keep,

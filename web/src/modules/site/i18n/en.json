@@ -19,7 +19,13 @@
     "locked": "Only system administrators can change the address.",
     "indexing": "Let search engines find the site",
     "indexingHint": "When off, the site stays open to anyone with the link but asks search engines (Google, Bing) not to list it and does not publish the sitemap. Useful while the site is being built.",
-    "save": "Save address"
+    "save": "Save address",
+    "redirectHosts": "Other domains that lead to the site (optional)",
+    "redirectHostsHint": "Separate with commas. Whoever opens one of them, such as yourcompany.com without www, is sent to {{host}} on the same path (permanent redirect).",
+    "redirectHostsPlaceholder": "yourcompany.com",
+    "dnsTitle": "To make the domain work",
+    "dnsPoint": "In your domain registrar's panel, point {{hosts}} at this server (an A record with the server IP, or a CNAME to its address).",
+    "dnsTls": "The padlock (HTTPS) certificate is issued by the proxy or load balancer in front of Aphel. Include all these domains in it."
   },
   "appearance": {
     "title": "Scrollbar",
@@ -72,7 +78,8 @@
     "address": "Use up to {{max}} characters.",
     "social": "Paste the link to the {{network}} profile, starting with https://.",
     "footerText": "Use up to {{max}} characters.",
-    "footerServer": "Check this field."
+    "footerServer": "Check this field.",
+    "redirectHostsMax": "Use at most 10 domains."
   },
   "saved": "Site settings saved",
   "customers": {

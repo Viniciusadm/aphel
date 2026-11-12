@@ -74,6 +74,7 @@ export interface OrganizationConfiguration {
   app_base_url: string
   site_base_path: string
   site_host: string | null
+  site_redirect_hosts: string[]
   site_base_url: string
   site_available: boolean
   site?: SiteSettings
@@ -96,6 +97,7 @@ export interface UpdateOrganizationConfiguration {
   app_base_path?: string
   site_base_path?: string
   site_host?: string | null
+  site_redirect_hosts?: string[]
   site?: SiteSettings
   max_upload_mb?: number
   storage?: StorageSettings

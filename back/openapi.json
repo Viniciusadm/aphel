@@ -86090,6 +86090,7 @@
               "app_base_path",
               "app_base_url",
               "site_base_path",
+              "site_redirect_hosts",
               "site_base_url",
               "site_available",
               "secure_cookies",
@@ -86157,6 +86158,15 @@
                   "null"
                 ],
                 "example": "www.example.com"
+              },
+              "site_redirect_hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "example.com"
+                ]
               },
               "storage": {
                 "$ref": "#/components/schemas/StorageSettingsDto"
@@ -106638,6 +106648,7 @@
           "app_base_path",
           "app_base_url",
           "site_base_path",
+          "site_redirect_hosts",
           "site_base_url",
           "site_available",
           "secure_cookies",
@@ -106705,6 +106716,15 @@
               "null"
             ],
             "example": "www.example.com"
+          },
+          "site_redirect_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "example.com"
+            ]
           },
           "storage": {
             "$ref": "#/components/schemas/StorageSettingsDto"
@@ -125145,6 +125165,18 @@
               "null"
             ],
             "example": "www.example.com"
+          },
+          "site_redirect_hosts": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "example.com"
+            ]
           },
           "storage": {
             "oneOf": [

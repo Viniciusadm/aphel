@@ -13682,6 +13682,12 @@ export interface components {
                 site_base_url: string;
                 /** @example www.example.com */
                 site_host?: string | null;
+                /**
+                 * @example [
+                 *       "example.com"
+                 *     ]
+                 */
+                site_redirect_hosts: string[];
                 storage: components["schemas"]["StorageSettingsDto"];
                 storage_secret_configured: boolean;
             } & {
@@ -19054,6 +19060,12 @@ export interface components {
             site_base_url: string;
             /** @example www.example.com */
             site_host?: string | null;
+            /**
+             * @example [
+             *       "example.com"
+             *     ]
+             */
+            site_redirect_hosts: string[];
             storage: components["schemas"]["StorageSettingsDto"];
             storage_secret_configured: boolean;
         } & {
@@ -23716,6 +23728,12 @@ export interface components {
             site_base_path?: string | null;
             /** @example www.example.com */
             site_host?: string | null;
+            /**
+             * @example [
+             *       "example.com"
+             *     ]
+             */
+            site_redirect_hosts?: string[] | null;
             storage?: null | components["schemas"]["StorageSettingsDto"];
             storage_secret_access_key?: string | null;
         } & {

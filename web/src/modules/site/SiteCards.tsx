@@ -63,6 +63,15 @@ export function SiteSummary({ overview }: { overview: SiteOverview }) {
   )
 }
 
+const HOST_PATTERN = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d{1,5})?$/
+
+function hostList(value: string): string[] {
+  return value
+    .split(/[\s,]+/)
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean)
+}
+
 const addressSchema = (appSegment: string) =>
   z
     .object({
@@ -77,6 +86,10 @@ const addressSchema = (appSegment: string) =>
         .toLowerCase()
         .regex(/^([a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?)?$/, 'errors.path')
         .refine((value) => !RESERVED_SEGMENTS.includes(value), 'errors.pathReserved'),
+      redirectHosts: z
+        .string()
+        .refine((value) => hostList(value).every((host) => HOST_PATTERN.test(host)), 'errors.host')
+        .refine((value) => hostList(value).length <= 10, 'errors.redirectHostsMax'),
       indexing: z.boolean(),
     })
     .refine((values) => values.host.trim() !== '' || values.segment.trim().toLowerCase() !== appSegment, {
@@ -95,6 +108,7 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
   const appSegment = segmentOf(configuration.app_base_path)
   const defaults: AddressValues = {
     host: configuration.site_host ?? '',
+    redirectHosts: (configuration.site_redirect_hosts ?? []).join(', '),
     segment: segmentOf(configuration.site_base_path),
     indexing: currentSettings(configuration).indexing,
   }
@@ -107,6 +121,7 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
     formState: { errors, isSubmitting, isDirty },
   } = useForm<AddressValues>({ resolver: zodResolver(addressSchema(appSegment)), defaultValues: defaults })
   const host = useWatch({ control, name: 'host' })
+  const redirectHosts = useWatch({ control, name: 'redirectHosts' })
   const publicBase = configuration.effective_public_base_url.replace(/\/+$/, '')
   const prefix = host.trim()
     ? `${publicBase.startsWith('https://') ? 'https' : 'http'}://${host.trim().toLowerCase()}/`
@@ -117,10 +132,17 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
     try {
       const saved = await saveSite(
         { indexing: values.indexing },
-        canMove ? { site_base_path: basePathOf(values.segment), site_host: values.host.trim().toLowerCase() || null } : {},
+        canMove
+          ? {
+              site_base_path: basePathOf(values.segment),
+              site_host: values.host.trim().toLowerCase() || null,
+              site_redirect_hosts: values.host.trim() ? hostList(values.redirectHosts) : [],
+            }
+          : {},
       )
       reset({
         host: saved.site_host ?? '',
+        redirectHosts: (saved.site_redirect_hosts ?? []).join(', '),
         segment: segmentOf(saved.site_base_path),
         indexing: saved.site?.indexing ?? true,
       })
@@ -130,6 +152,7 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
       const fieldErrors = serverFieldErrors(error, {
         'mounts.site.base_path': 'segment',
         'mounts.site.host': 'host',
+        'mounts.site.redirect_hosts': 'redirectHosts',
       })
       for (const [field, message] of fieldErrors) setError(field as keyof AddressValues, { message })
       if (fieldErrors.length === 0) notifyError(error)
@@ -166,6 +189,36 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
                 />
               )}
             </FormRow>
+            {host.trim() && (
+              <FormRow
+                id="site-redirect-hosts"
+                label={t('address.redirectHosts')}
+                error={errorText(errors.redirectHosts?.message)}
+                hint={canMove ? t('address.redirectHostsHint', { host: host.trim().toLowerCase() }) : t('address.locked')}
+              >
+                {(describedBy) => (
+                  <Input
+                    id="site-redirect-hosts"
+                    placeholder={t('address.redirectHostsPlaceholder')}
+                    autoComplete="off"
+                    spellCheck={false}
+                    readOnly={!canMove}
+                    aria-invalid={errors.redirectHosts ? true : undefined}
+                    aria-describedby={describedBy}
+                    {...register('redirectHosts')}
+                  />
+                )}
+              </FormRow>
+            )}
+            {host.trim() && !errors.host && (
+              <div className="grid gap-1 rounded-md border bg-muted/40 p-3 text-sm">
+                <span className="font-medium">{t('address.dnsTitle')}</span>
+                <span className="text-muted-foreground">
+                  {t('address.dnsPoint', { hosts: [host.trim().toLowerCase(), ...hostList(redirectHosts)].join(', ') })}
+                </span>
+                <span className="text-muted-foreground">{t('address.dnsTls')}</span>
+              </div>
+            )}
             <FormRow
               id="site-path"
               label={t('address.path')}

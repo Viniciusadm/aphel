@@ -113,6 +113,7 @@ pub async fn reset_app_mount(
                 app_base_path: Some(ROOT_PATH.to_owned()),
                 site_base_path: site_on_root.then(|| DEFAULT_SITE_BASE_PATH.to_owned()),
                 site_host: None,
+                site_redirect_hosts: None,
                 max_upload_mb: None,
                 storage: None,
                 storage_secret: SecretChange::Keep,

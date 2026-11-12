@@ -19,7 +19,13 @@
     "locked": "Só quem administra o sistema pode mudar o endereço.",
     "indexing": "Deixar buscadores encontrarem o site",
     "indexingHint": "Desligado, o site continua aberto para quem tem o link, mas pede aos buscadores (Google, Bing) que não o mostrem e não publica o mapa do site. Útil enquanto o site está sendo montado.",
-    "save": "Salvar endereço"
+    "save": "Salvar endereço",
+    "redirectHosts": "Outros domínios que levam ao site (opcional)",
+    "redirectHostsHint": "Separe por vírgula. Quem abrir um deles, como suaempresa.com.br sem www, é levado para {{host}} no mesmo caminho (redirecionamento permanente).",
+    "redirectHostsPlaceholder": "suaempresa.com.br",
+    "dnsTitle": "Para o domínio funcionar",
+    "dnsPoint": "No painel de quem registrou o domínio, aponte {{hosts}} para este servidor (registro A com o IP do servidor, ou CNAME para o endereço dele).",
+    "dnsTls": "O cadeado (HTTPS) é emitido no proxy ou balanceador que fica à frente do Aphel. Inclua todos esses domínios no certificado."
   },
   "appearance": {
     "title": "Barra de rolagem",
@@ -72,7 +78,8 @@
     "address": "Use até {{max}} caracteres.",
     "social": "Cole o link do perfil no {{network}}, começando com https://.",
     "footerText": "Use até {{max}} caracteres.",
-    "footerServer": "Confira este campo."
+    "footerServer": "Confira este campo.",
+    "redirectHostsMax": "Use até 10 domínios."
   },
   "saved": "Configurações do site salvas",
   "customers": {

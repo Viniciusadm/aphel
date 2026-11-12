@@ -30,6 +30,7 @@ pub const RESERVED_PREFIX: &str = "/_aphel";
 pub const RECOVERY_APP_PATH: &str = "/_aphel/app";
 pub const DEFAULT_SITE_BASE_PATH: &str = "/s";
 const SITE_HOST_MAX_LEN: usize = 253;
+const SITE_REDIRECT_HOSTS_MAX: usize = 10;
 const RESERVED_MOUNT_SEGMENTS: [&str; 3] = ["api", "_aphel", ".well-known"];
 const MOUNT_SEGMENT_MAX_LEN: usize = 40;
 const UPLOAD_LIMIT_MB_CEILING: u64 = 4096;
@@ -83,6 +84,7 @@ impl AppMount {
 pub struct SiteMount {
     pub base_path: String,
     pub host: Option<String>,
+    pub redirect_hosts: Vec<String>,
 }
 
 impl Default for SiteMount {
@@ -90,6 +92,7 @@ impl Default for SiteMount {
         Self {
             base_path: DEFAULT_SITE_BASE_PATH.to_owned(),
             host: None,
+            redirect_hosts: Vec::new(),
         }
     }
 }
@@ -365,6 +368,31 @@ pub fn validate_config(config: &OrganizationConfig) -> Vec<FieldViolation> {
             "mounts.site.host",
             "must be a host name such as www.example.com, optionally with a port",
         ));
+    }
+    if !site.redirect_hosts.is_empty() && site.host.is_none() {
+        violations.push(FieldViolation::new(
+            "mounts.site.redirect_hosts",
+            "need the site to have its own host",
+        ));
+    }
+    if site.redirect_hosts.len() > SITE_REDIRECT_HOSTS_MAX {
+        violations.push(FieldViolation::new(
+            "mounts.site.redirect_hosts",
+            format!("can list at most {SITE_REDIRECT_HOSTS_MAX} hosts"),
+        ));
+    }
+    for host in &site.redirect_hosts {
+        if normalize_site_host(host).as_deref() != Some(host.as_str())
+            || site.host.as_deref() == Some(host.as_str())
+            || config.public_base_url().contains(&format!("//{host}"))
+        {
+            violations.push(FieldViolation::new(
+                "mounts.site.redirect_hosts",
+                format!(
+                    "{host} must be a host name such as example.com, other than the site and app hosts"
+                ),
+            ));
+        }
     }
     if site.host.is_none() && site.prefix() == config.mounts.app.prefix() {
         violations.push(FieldViolation::new(
@@ -702,6 +730,7 @@ pub struct UpdateOrganizationConfig {
     pub app_base_path: Option<String>,
     pub site_base_path: Option<String>,
     pub site_host: Option<Option<String>>,
+    pub site_redirect_hosts: Option<Vec<String>>,
     pub max_upload_mb: Option<u64>,
     pub storage: Option<StorageSettings>,
     pub storage_secret: SecretChange,
@@ -814,6 +843,19 @@ where
             next.mounts.site.host = host
                 .map(|host| normalize_site_host(&host).unwrap_or_else(|| host.trim().to_owned()))
                 .filter(|host| !host.is_empty());
+        }
+        if let Some(hosts) = command.site_redirect_hosts {
+            let mut normalized: Vec<String> = Vec::new();
+            for host in hosts {
+                let host = normalize_site_host(&host).unwrap_or_else(|| host.trim().to_owned());
+                if !host.is_empty() && !normalized.contains(&host) {
+                    normalized.push(host);
+                }
+            }
+            next.mounts.site.redirect_hosts = normalized;
+        }
+        if next.mounts.site.host.is_none() {
+            next.mounts.site.redirect_hosts.clear();
         }
         if next.mounts != current.mounts {
             scope.require(&Permission::SYSTEM_MANAGE)?;

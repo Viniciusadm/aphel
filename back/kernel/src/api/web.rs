@@ -58,6 +58,34 @@ fn host_matches(request_host: Option<&str>, configured: &str) -> bool {
     })
 }
 
+fn canonical_site_location(
+    config: &crate::application::organization_profile::OrganizationConfig,
+    request_host: Option<&str>,
+    uri: &Uri,
+) -> Option<String> {
+    let site = &config.mounts.site;
+    site.host.as_ref()?;
+    if !site
+        .redirect_hosts
+        .iter()
+        .any(|host| host_matches(request_host, host))
+    {
+        return None;
+    }
+    let base = config.site_base_url();
+    let origin = match base.find("://") {
+        Some(start) => base[start + 3..]
+            .find('/')
+            .map_or(base.as_str(), |end| &base[..start + 3 + end]),
+        None => base.as_str(),
+    };
+    Some(format!(
+        "{origin}{}",
+        uri.path_and_query()
+            .map_or("/", axum::http::uri::PathAndQuery::as_str)
+    ))
+}
+
 fn mounted_under<'a>(path: &'a str, prefix: &str) -> Option<&'a str> {
     let rest = path.strip_prefix(prefix)?;
     (rest.is_empty() || rest.starts_with('/')).then_some(rest)
@@ -113,6 +141,19 @@ pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Res
         .get(header::HOST)
         .and_then(|value| value.to_str().ok())
         .map(str::to_owned);
+    if handler.is_some()
+        && let Some(location) =
+            canonical_site_location(&config, request_host.as_deref(), request.uri())
+    {
+        return match HeaderValue::from_str(&location) {
+            Ok(location) => (
+                StatusCode::MOVED_PERMANENTLY,
+                [(header::LOCATION, location)],
+            )
+                .into_response(),
+            Err(_) => StatusCode::BAD_REQUEST.into_response(),
+        };
+    }
     let site = handler.as_ref().map(|_| SiteClaim {
         prefix: config.mounts.site.prefix(),
         host: config.mounts.site.host.as_deref(),
