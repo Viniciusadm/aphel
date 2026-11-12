@@ -1,6 +1,8 @@
 import { api } from '@/api'
 import { createContext, useContext, type ComponentType } from 'react'
 
+import type { Block } from '../blocks/blocks'
+
 export interface DocumentRecord {
   id: string
   draft_title: string
@@ -192,6 +194,21 @@ export interface SettingsProps {
   onSaved: (record: DocumentRecord) => void
 }
 
+export interface DocumentBodyProps {
+  record: DocumentRecord
+  recordType: string
+  title: string
+  blocks: Block[]
+  disabled: boolean
+  translating: boolean
+  onTitleChange: (title: string) => void
+  onBlocksChange: (blocks: Block[]) => void
+  focus: boolean
+  onFocusChange: (focus: boolean) => void
+  preview: boolean
+  onPreviewChange: (preview: boolean) => void
+}
+
 export interface DocumentKind {
   recordType: string
   blocks: string
@@ -209,6 +226,8 @@ export interface DocumentKind {
   path: (record: DocumentRecord) => string | null
   previewFields: Record<string, string>
   Settings: ComponentType<SettingsProps>
+  Body?: ComponentType<DocumentBodyProps>
+  untitled?: string
   texts?: { namespace: string; scope: string }
 }
 

@@ -106,6 +106,8 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [focus, setFocus] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const formatting = useRecordFormatting()
   const [dragging, setDragging] = useState<string | null>(null)
@@ -140,7 +142,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
   const latest = useRef({ current, version })
   latest.current = { current, version }
 
-  const titleMissing = !translating && current.title.trim() === ''
+  const titleMissing = !kind.Body && !translating && current.title.trim() === ''
   const invalid = titleMissing || current.blocks.some((block) => blockProblems(block).length > 0)
   const pathOf = useCallback((target: DocumentRecord) => `${prefix}${kind.path(target) ?? '/'}`, [kind, prefix])
 
@@ -219,7 +221,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
     setStatus('saving')
     try {
       const base = recordRef.current
-      const updated = await kind.update(record.id, { ...writeText(base, 'draft_title', language, snapshot.title.trim()), ...writeText(base, blocksField, language, serializeBlocks(snapshot.blocks)), _expected_updated_at: base.updated_at ?? undefined })
+      const updated = await kind.update(record.id, { ...writeText(base, 'draft_title', language, snapshot.title.trim() || kind.untitled || ''), ...writeText(base, blocksField, language, serializeBlocks(snapshot.blocks)), _expected_updated_at: base.updated_at ?? undefined })
       remember(updated)
       setSavedVersion(target)
       setStatus(latest.current.version === target ? 'saved' : 'saving')
@@ -468,7 +470,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
 
   return (
     <BlockImageUsageContext.Provider value={imagesInUse}>
-    <div className="editorial-editor">
+    <div className="editorial-editor" data-focus={focus || undefined}>
       <header className="editorial-topbar">
         <Button asChild variant="ghost" size="sm">
           <Link to={kind.listPath(record)}>
@@ -490,6 +492,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
               }
             />
           )}
+          {!kind.Body && (
           <Input
             placeholder={translating ? record.draft_title : undefined}
             aria-label={t('editor.titleLabel')}
@@ -499,6 +502,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
             disabled={!canEdit}
             onChange={(event) => edit('title', { ...current, title: event.target.value })}
           />
+          )}
           <StatusBadge tone={STATE_TONES[state]}>{t(`state.${state}`)}</StatusBadge>
           {isHome && (
             <StatusBadge tone="primary" icon={<Home aria-hidden />}>
@@ -515,12 +519,12 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
           </span>
         </div>
         <div className="editorial-topbar-actions">
-          <Button type="button" variant="ghost" size="icon" aria-label={t('keybindings.undo')} title={t('keybindings.undo')} disabled={!past.length || !canEdit} onClick={undo}>
+          {!kind.Body && <Button type="button" variant="ghost" size="icon" aria-label={t('keybindings.undo')} title={t('keybindings.undo')} disabled={!past.length || !canEdit} onClick={undo}>
             <Undo2 aria-hidden />
-          </Button>
-          <Button type="button" variant="ghost" size="icon" aria-label={t('keybindings.redo')} title={t('keybindings.redo')} disabled={!future.length || !canEdit} onClick={redo}>
+          </Button>}
+          {!kind.Body && <Button type="button" variant="ghost" size="icon" aria-label={t('keybindings.redo')} title={t('keybindings.redo')} disabled={!future.length || !canEdit} onClick={redo}>
             <Redo2 aria-hidden />
-          </Button>
+          </Button>}
           <Button type="button" variant="ghost" onClick={() => setHistoryOpen(true)}>
             <History aria-hidden />
             {t('history.open')}
@@ -649,7 +653,23 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
         )}
         {!openRequest && stopped && <strong> · {t('review.blocked', { reason: reasonText(stopped.reason_code) })}</strong>}
       </div>
-      <div className="editorial-workspace">
+      <div className="editorial-workspace" data-flow={kind.Body ? '' : undefined}>
+        {kind.Body ? (
+          <kind.Body
+            record={record}
+            recordType={kind.recordType}
+            title={current.title === kind.untitled ? '' : current.title}
+            blocks={current.blocks}
+            disabled={!canEdit}
+            translating={translating}
+            onTitleChange={(title) => edit('title', { ...current, title })}
+            onBlocksChange={(blocks) => edit('body', { ...current, blocks })}
+            focus={focus}
+            onFocusChange={setFocus}
+            preview={showPreview}
+            onPreviewChange={setShowPreview}
+          />
+        ) : (
         <section className="editorial-blocks" aria-labelledby="editorial-blocks-title">
           <div className="editorial-blocks-header">
             <h2 id="editorial-blocks-title">{t('editor.blocks')}</h2>
@@ -764,7 +784,8 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
           </ol>
           {canEdit && <AddBlock onAdd={(type) => insert(type, current.blocks.length)} />}
         </section>
-        <Preview link={preview?.link ?? null} failed={previewFailed} nonce={nonce} anchor={selected} live={live} onLiveChange={setLiveReady} />
+        )}
+        {(!kind.Body || showPreview) && <Preview link={preview?.link ?? null} failed={previewFailed} nonce={nonce} anchor={selected} live={live} onLiveChange={setLiveReady} />}
       </div>
       <kind.Settings
         language={language}

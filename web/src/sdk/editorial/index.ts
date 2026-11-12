@@ -1,4 +1,5 @@
 export { DocumentEditorPage } from './DocumentEditor'
+export { FlowBody } from './flow/FlowBody'
 export {
   DocumentKindContext,
   OPEN_STATUSES,
@@ -14,6 +15,7 @@ export {
   textField,
   useDocumentKind,
   writeText,
+  type DocumentBodyProps,
   type DocumentKind,
   type DocumentRecord,
   type DocumentState,

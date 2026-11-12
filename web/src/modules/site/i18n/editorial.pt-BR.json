@@ -182,5 +182,33 @@
   },
   "settings": {
     "cancel": "Cancelar"
+  },
+  "flow": {
+    "placeholder": "Escreva aqui. Digite / para inserir título, lista, imagem e mais.",
+    "bodyLabel": "Texto do post",
+    "titlePlaceholder": "Título do post",
+    "insert": "Inserir",
+    "heading2": "Título",
+    "heading3": "Subtítulo",
+    "bulletList": "Lista",
+    "orderedList": "Lista numerada",
+    "quote": "Citação",
+    "code": "Código",
+    "divider": "Divisor",
+    "focus": "Modo foco",
+    "exitFocus": "Sair do foco",
+    "showPreview": "Mostrar prévia",
+    "hidePreview": "Esconder prévia",
+    "words_one": "{{count}} palavra",
+    "words_other": "{{count}} palavras",
+    "readingTime_one": "{{count}} min de leitura",
+    "readingTime_other": "{{count}} min de leitura",
+    "editBlock": "Editar",
+    "removeBlock": "Remover bloco",
+    "blockDescription": "Preencha o bloco e confirme. Ele fica no ponto do texto onde você estava.",
+    "blockIncomplete": "Complete o bloco antes de confirmar.",
+    "insertBlock": "Inserir",
+    "applyBlock": "Aplicar",
+    "cancel": "Cancelar"
   }
 }

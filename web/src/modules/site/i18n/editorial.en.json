@@ -182,5 +182,33 @@
   },
   "settings": {
     "cancel": "Cancel"
+  },
+  "flow": {
+    "placeholder": "Write here. Type / to insert a heading, list, image and more.",
+    "bodyLabel": "Post text",
+    "titlePlaceholder": "Post title",
+    "insert": "Insert",
+    "heading2": "Heading",
+    "heading3": "Subheading",
+    "bulletList": "List",
+    "orderedList": "Numbered list",
+    "quote": "Quote",
+    "code": "Code",
+    "divider": "Divider",
+    "focus": "Focus mode",
+    "exitFocus": "Exit focus",
+    "showPreview": "Show preview",
+    "hidePreview": "Hide preview",
+    "words_one": "{{count}} word",
+    "words_other": "{{count}} words",
+    "readingTime_one": "{{count}} min read",
+    "readingTime_other": "{{count}} min read",
+    "editBlock": "Edit",
+    "removeBlock": "Remove block",
+    "blockDescription": "Fill in the block and confirm. It stays at the spot of the text where you were.",
+    "blockIncomplete": "Complete the block before confirming.",
+    "insertBlock": "Insert",
+    "applyBlock": "Apply",
+    "cancel": "Cancel"
   }
 }
