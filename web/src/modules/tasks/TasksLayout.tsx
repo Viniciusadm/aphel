@@ -25,7 +25,7 @@ export function TasksLayout() {
 
   return (
     <Page>
-<PageHeader title={t('page.title')} actions={<>
+<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
         {hasPermission('tasks.create') && (
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => setDialog('log')}>
