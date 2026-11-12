@@ -22,7 +22,8 @@
     "tasks": "Tarefas",
     "notes": "Notas",
     "files": "Arquivos",
-    "related": "Relacionados"
+    "related": "Relacionados",
+    "more": "Mais"
   },
   "placeholders": {
     "timeline": "A linha do tempo deste registro aparecerá aqui.",

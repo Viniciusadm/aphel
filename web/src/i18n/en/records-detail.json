@@ -22,7 +22,8 @@
     "tasks": "Tasks",
     "notes": "Notes",
     "files": "Files",
-    "related": "Related"
+    "related": "Related",
+    "more": "More"
   },
   "placeholders": {
     "timeline": "This record's timeline will appear here.",

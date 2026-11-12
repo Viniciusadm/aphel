@@ -11,13 +11,14 @@ import { RecordPageLayout, type RecordPageLayoutProps } from './RecordPageLayout
 import { useRecordDetailData } from './use-record-detail-data'
 
 export interface RecordDetailPageProps
-  extends Omit<RecordPageLayoutProps, 'recordType' | 'record' | 'schema' | 'actions'> {
+  extends Omit<RecordPageLayoutProps, 'recordType' | 'record' | 'schema' | 'actions' | 'primaryAction'> {
   recordType: string
   recordId: string
   actions?: ReactNode | ((record: RecordItem) => ReactNode)
+  primaryAction?: ReactNode | ((record: RecordItem) => ReactNode)
 }
 
-export function RecordDetailPage({ recordType, recordId, actions, back, ...layout }: RecordDetailPageProps) {
+export function RecordDetailPage({ recordType, recordId, actions, primaryAction, back, ...layout }: RecordDetailPageProps) {
   const { t } = useTranslation('records-detail')
   const data = useRecordDetailData(recordType, recordId)
 
@@ -57,6 +58,7 @@ export function RecordDetailPage({ recordType, recordId, actions, back, ...layou
       schema={data.schema}
       back={back}
       actions={typeof actions === 'function' ? actions(data.record) : actions}
+      primaryAction={typeof primaryAction === 'function' ? primaryAction(data.record) : primaryAction}
     />
   )
 }

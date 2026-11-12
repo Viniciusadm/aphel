@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { PageLoader } from '@/components/ui/page-loader'
@@ -34,10 +34,13 @@ function RecordEditor({ resource, recordId }: { resource: RecordResource; record
   const state = location.state as { returnTo?: string; listReturnTo?: string } | null
   const target = typeof state?.returnTo === 'string' && state.returnTo.startsWith('/') && !state.returnTo.startsWith('//') ? state.returnTo : resource.detailPath?.(recordId) ?? '/'
   const leave = () => void navigate(target, { state: { returnTo: state?.listReturnTo } })
+  if (resource.editDialog && resource.detailPath) {
+    return <Navigate replace to={{ pathname: resource.detailPath(recordId), search: '?edit=1' }} state={{ returnTo: state?.listReturnTo }} />
+  }
   if (record.isPending) return <PageLoader />
   if (record.isError || !record.data) return <ErrorState onRetry={() => void record.refetch()} />
-  return <Page width="form">
-    <PageHeader title={t('dialog.editTitle')} description={recordTitle(resource, record.data)} back={{ to: target }} />
+  return <Page>
+    <PageHeader title={recordTitle(resource, record.data)} description={t('dialog.editDescription')} back={{ to: target }} />
     <div className="rounded-xl border bg-card p-4 [--dialog-padding:1rem] [&_[data-slot=dialog-footer]]:bottom-[calc(4.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:[--dialog-padding:1.5rem] md:[&_[data-slot=dialog-footer]]:bottom-0">
       <RecordFormDialogBody recordType={resource.recordType} record={record.data} onDirtyChange={setDirty} onCancel={leave} onDone={() => { finished.current = true; leave() }} />
     </div>

@@ -37,6 +37,7 @@ export function RecordPageLayout({ defaultTab, className, ...options }: RecordPa
       >
         <Presentation model={model} defaultTab={defaultTab} className={className} />
       </ErrorBoundary>
+      {model.editDialog}
     </DisplayRecordProvider>
   )
 }

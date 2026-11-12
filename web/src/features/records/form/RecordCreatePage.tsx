@@ -36,7 +36,7 @@ function CreateRecord({ recordType }: { recordType: string }) {
   const leave = () => void navigate(target)
   if (!resource && objects.isPending) return <PageLoader />
   if (!resource) return <EmptyState title={t('dialog.unavailable')} />
-  const editor = <Page width="form">
+  const editor = <Page>
     <PageHeader title={t('dialog.title')} back={{ to: target }} />
     <div className="rounded-xl border bg-card p-4 [--dialog-padding:1rem] [&_[data-slot=dialog-footer]]:bottom-[calc(4.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:[--dialog-padding:1.5rem] md:[&_[data-slot=dialog-footer]]:bottom-0">
       <RecordFormDialogBody full recordType={recordType} defaultValues={state?.defaultValues} presetValues={state?.presetValues} onDirtyChange={setDirty} onCancel={leave} onDone={() => { finished.current = true; leave() }} />

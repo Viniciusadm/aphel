@@ -18,7 +18,7 @@
     "created": "Record created",
     "loadError": "Could not load the fields.",
     "unavailable": "This record type is not available.",
-    "editTitle": "Edit record",
+    "editTitle": "Edit",
     "editDescription": "Change the fields and save.",
     "updated": "Record updated",
     "fullForm": "Continue in full form"

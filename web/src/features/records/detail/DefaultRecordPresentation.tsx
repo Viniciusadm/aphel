@@ -30,7 +30,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
   const {
     recordType, record, title, subtitle, owner, fields, viewLayout,
     visibleFields: visibleSummaryFields, summaryFieldKeys, readOnly, readOnlyFieldKeys,
-    back: contextualBack, edit, saveField, tabs: resolvedTabs, slotProps, actions,
+    back: contextualBack, edit, saveField, tabs: resolvedTabs, slotProps, actions, primaryAction: customPrimary,
   } = model
   const priorityKeys = summaryFieldKeys
   const summaryFields = visibleSummaryFields
@@ -44,10 +44,13 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
     })
     .slice(0, 8)
   const summaryPanel = <RecordFieldsPanel fields={summaryFields} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField} />
-  const detailPanel = <div className="grid min-w-0 gap-4"><RecordFieldsPanel fields={fields} layout={viewLayout} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField}><Slot name="record.fields.panel" props={slotProps} /></RecordFieldsPanel><Slot name="record.detail.sidebar" props={slotProps} /></div>
+  const hasSummary = resolvedTabs.some((section) => section.summary)
+  const detailPanel = <div className="grid min-w-0 gap-4"><RecordFieldsPanel columns={hasSummary ? 1 : 2} fields={fields} layout={viewLayout} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField}><Slot name="record.fields.panel" props={slotProps} /></RecordFieldsPanel><Slot name="record.detail.sidebar" props={slotProps} /></div>
   const destinations: RecordTab[] = [...resolvedTabs, { key: 'details', label: t('fields.title'), content: detailPanel }]
   const overview = destinations.some((section) => section.summary) ? <RecordOverview sections={destinations} navigation={false} /> : detailPanel
-  const workspaceSections = [{ key: 'overview', label: t('overview.title'), content: overview }, ...destinations]
+  const workspaceSections = hasSummary
+    ? [{ key: 'overview', label: t('overview.title'), content: overview }, ...destinations]
+    : [{ key: 'overview', label: t('fields.title'), content: detailPanel }, ...resolvedTabs]
 
   const isMobile = useMediaQuery(MOBILE_QUERY)
   const subtitleNode =
@@ -74,6 +77,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
         onEdit={readOnly ? undefined : edit}
         actions={
           <>
+            {customPrimary}
             <ShareRecordButton recordType={recordType} recordId={record.id} />
             {actions}
             <Slot name="record.detail.actions" props={slotProps} />
@@ -119,7 +123,8 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
           title={title}
           titleAccessory={<Slot name="record.detail.title" props={slotProps} />}
           back={contextualBack}
-          primaryAction={!readOnly ? <Button size="sm" onClick={edit}><Pencil aria-hidden />{t('header.edit')}</Button> : undefined}
+          primaryAction={customPrimary ?? (!readOnly ? <Button size="sm" onClick={edit}><Pencil aria-hidden />{t('header.edit')}</Button> : undefined)}
+          secondaryAction={customPrimary && !readOnly ? <Button size="sm" variant="outline" onClick={edit}><Pencil aria-hidden />{t('header.edit')}</Button> : undefined}
           actions={
             <>
               <ShareRecordButton recordType={recordType} recordId={record.id} />
@@ -141,7 +146,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
         <Slot name="record.detail.header" props={slotProps} />
         </>
       }
-      sidebar={summaryPanel}
+      sidebar={hasSummary ? summaryPanel : undefined}
     >
       <RecordTabs tabs={workspaceSections} defaultTab={defaultTab ?? 'overview'} />
     </RecordPageShell>

@@ -17,6 +17,8 @@ export interface RecordTabsProps {
 
 const PRIMARY_TAB_KEYS = ['overview', 'tasks', 'timeline']
 
+const MAX_VISIBLE_TABS = 5
+
 function isPrimaryTab(tab: { key: string; group?: string }): boolean {
   return PRIMARY_TAB_KEYS.includes(tab.key) || tab.group === 'primary'
 }
@@ -30,20 +32,23 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
   )
   const [params] = useSearchParams()
   if (tabs.length === 0) return null
+  const showAll = tabs.length <= MAX_VISIBLE_TABS
+  const visible = showAll ? tabs : tabs.filter(isPrimaryTab)
+  const overflow = showAll ? [] : tabs.filter((tab) => !isPrimaryTab(tab))
 
   return (
     <div className={cn('grid min-w-0 gap-5', className)}>
       <nav aria-label={t('tabs.label')} className={cn(tabsListVariants({ variant: 'line' }), 'flex-wrap items-center')}>
-        {tabs.filter(isPrimaryTab).map((tab) => {
+        {visible.map((tab) => {
           const next = new URLSearchParams(params)
           next.set(param ?? 'tab', tab.key)
           return <Link key={tab.key} to={{ search: `?${next}` }} aria-current={active === tab.key ? 'page' : undefined} className={tabsTriggerVariants({ variant: 'line' })}>{tab.label}</Link>
         })}
-        {tabs.some((tab) => !isPrimaryTab(tab)) && <DropdownMenu>
+        {overflow.length > 0 && <DropdownMenu>
           <DropdownMenuTrigger asChild><Button variant="ghost" size="sm" className="mb-2 self-center">
-            {tabs.find((tab) => tab.key === active && !isPrimaryTab(tab))?.label ?? t('mobile.sections')}<ChevronDown aria-hidden />
+            {overflow.find((tab) => tab.key === active)?.label ?? t('tabs.more')}<ChevronDown aria-hidden />
           </Button></DropdownMenuTrigger>
-          <DropdownMenuContent align="start">{tabs.filter((tab) => !isPrimaryTab(tab)).map((tab) => <DropdownMenuItem key={tab.key} onSelect={() => setActive(tab.key)}>{tab.label}</DropdownMenuItem>)}</DropdownMenuContent>
+          <DropdownMenuContent align="start">{overflow.map((tab) => <DropdownMenuItem key={tab.key} onSelect={() => setActive(tab.key)}>{tab.label}</DropdownMenuItem>)}</DropdownMenuContent>
         </DropdownMenu>}
       </nav>
       <section key={active} className="min-w-0" aria-label={tabs.find((tab) => tab.key === active)?.label}>

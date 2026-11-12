@@ -16,8 +16,11 @@ export interface RecordFieldsPanelProps {
   layout?: FormLayout | null
   title?: string
   className?: string
+  columns?: 1 | 2
   children?: ReactNode
 }
+
+const WIDE_TYPES = new Set(['long_text', 'rich_text', 'multi_select'])
 
 interface PanelGroup {
   id: string
@@ -35,6 +38,7 @@ export function RecordFieldsPanel({
   layout,
   title,
   className,
+  columns = 1,
   children,
 }: RecordFieldsPanelProps) {
   const { t } = useTranslation('records-detail')
@@ -69,9 +73,9 @@ export function RecordFieldsPanel({
             <div key={group.id} className="grid min-w-0 gap-3" data-section={group.id}>
               {group.title && <h3 className="border-t pt-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">{group.title}</h3>}
               {group.subtitle && <h4 className="text-sm font-medium">{group.subtitle}</h4>}
-              <dl className="grid gap-3">
+              <dl className={cn('grid gap-3', columns === 2 && 'md:grid-cols-2 md:gap-x-8')}>
                 {group.fields.map((field) => (
-                  <div key={field.key} data-field={field.key} className="grid min-w-0 gap-1">
+                  <div key={field.key} data-field={field.key} className={cn('grid min-w-0 gap-1', columns === 2 && WIDE_TYPES.has(field.field_type) && 'md:col-span-2')}>
                     <dt className="text-xs font-medium text-muted-foreground">{field.label}</dt>
                     <dd className="min-w-0 text-sm">
                       <InlineFieldEditor

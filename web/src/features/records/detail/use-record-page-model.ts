@@ -1,5 +1,5 @@
-import { createElement, useMemo, useState, type ReactNode } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { createElement, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useRecordCommands } from '@/features/command-palette/useRecordCommands'
 import { useModuleRecordTabs } from '@/kernel/modules/contributions'
 import type { RecordTabRenderProps } from '@/kernel/modules/define'
@@ -27,6 +27,7 @@ export interface RecordPageModelOptions {
   readOnlyFieldKeys?: string[]
   ownerField?: string
   actions?: ReactNode
+  primaryAction?: ReactNode
   back?: RecordBackLink
   tabs?: RecordTabsConfig
   timeline?: TimelineSource
@@ -54,6 +55,7 @@ export function useRecordPageModel({
   readOnlyFieldKeys = DEFAULT_READ_ONLY_FIELD_KEYS,
   ownerField = 'owner_id',
   actions,
+  primaryAction,
   back,
   tabs,
   timeline,
@@ -65,8 +67,23 @@ export function useRecordPageModel({
     return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : undefined
   })
   const contextualBack = back && returnTo ? { ...back, to: returnTo } : back
-  const edit = () => void navigate(`/records/${encodeURIComponent(recordType)}/${encodeURIComponent(record.id)}/edit`, { state: { returnTo: `${location.pathname}${location.search}`, listReturnTo: returnTo } })
   const resource = requireRecordResource(recordType)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [editing, setEditing] = useState(false)
+  const EditDialog = resource.editDialog
+  useEffect(() => {
+    if (!EditDialog || searchParams.get('edit') !== '1') return
+    setEditing(true)
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current)
+      next.delete('edit')
+      return next
+    }, { replace: true })
+  }, [EditDialog, searchParams, setSearchParams])
+  const edit = EditDialog
+    ? () => setEditing(true)
+    : () => void navigate(`/records/${encodeURIComponent(recordType)}/${encodeURIComponent(record.id)}/edit`, { state: { returnTo: `${location.pathname}${location.search}`, listReturnTo: returnTo } })
+  const editDialog = EditDialog ? createElement(EditDialog, { record, open: editing, onOpenChange: setEditing }) : null
   const { saveField, isSaving } = useSaveRecordField(recordType, record.id)
   const defaults = useDefaultRecordTabs({ recordType, recordId: record.id, readOnly, timeline })
   const moduleTabs = useModuleRecordTabs(recordType, record.id, readOnly)
@@ -119,12 +136,14 @@ export function useRecordPageModel({
     readOnlyFieldKeys,
     back: contextualBack,
     edit,
+    editDialog,
     saveField,
     isSaving,
     tabs: resolvedTabs,
     slotProps,
     sectionContext,
     actions,
+    primaryAction,
   }
 }
 

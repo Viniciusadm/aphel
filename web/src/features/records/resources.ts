@@ -19,7 +19,14 @@ export interface RecordResource {
   listItem?: ComponentType<{ record: RecordItem }>
   listGroups?: (records: RecordItem[], context: { timezone: string; sort: SortSpec[] }) => RecordListGroup[]
   listSorts?: () => RecordListSort[]
+  editDialog?: ComponentType<RecordEditDialogProps>
   defaultLayout?: 'list'
+}
+
+export interface RecordEditDialogProps {
+  record: RecordItem
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export interface RecordListSort {
