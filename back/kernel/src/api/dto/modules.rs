@@ -4,7 +4,9 @@ use serde_json::{Map, Value};
 use utoipa::ToSchema;
 
 use crate::api::dto::common::timestamp as instant;
-use crate::application::module_admin::{DependencyStatus, ModuleDataExport, ModuleView};
+use crate::application::module_admin::{
+    DependencyStatus, ModuleDataExport, ModuleLink, ModuleView,
+};
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ModuleCompatibilityResponse {
@@ -106,6 +108,23 @@ pub struct ModuleDependencyResponse {
     pub enabled: bool,
 }
 
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ModuleLinkResponse {
+    pub key: String,
+    pub enabled: bool,
+    pub optional: bool,
+}
+
+impl From<ModuleLink> for ModuleLinkResponse {
+    fn from(link: ModuleLink) -> Self {
+        Self {
+            key: link.key,
+            enabled: link.enabled,
+            optional: link.optional,
+        }
+    }
+}
+
 impl From<DependencyStatus> for ModuleDependencyResponse {
     fn from(status: DependencyStatus) -> Self {
         Self {
@@ -154,6 +173,8 @@ pub struct ModuleResponse {
     pub settings: Map<String, Value>,
     pub configured_secrets: Vec<String>,
     pub dependencies: Vec<ModuleDependencyResponse>,
+    pub optional_dependencies: Vec<ModuleLinkResponse>,
+    pub dependents: Vec<ModuleLinkResponse>,
     pub enabled_dependents: Vec<String>,
     pub extension_dependents: Vec<String>,
     pub held_by: Option<String>,
@@ -207,6 +228,12 @@ impl From<ModuleView> for ModuleResponse {
             settings: view.settings.clone(),
             configured_secrets: view.configured_secrets.clone(),
             dependencies: view.dependencies.into_iter().map(Into::into).collect(),
+            optional_dependencies: view
+                .optional_dependencies
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+            dependents: view.dependents.into_iter().map(Into::into).collect(),
             enabled_dependents: view.enabled_dependents,
             extension_dependents: view.extension_dependents,
             held_by: view.held_by,

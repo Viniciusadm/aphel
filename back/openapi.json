@@ -85857,6 +85857,8 @@
               "settings",
               "configured_secrets",
               "dependencies",
+              "optional_dependencies",
+              "dependents",
               "enabled_dependents",
               "extension_dependents"
             ],
@@ -85886,6 +85888,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/ModuleDependencyResponse"
+                }
+              },
+              "dependents": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModuleLinkResponse"
                 }
               },
               "description": {
@@ -85945,6 +85953,12 @@
               },
               "name": {
                 "type": "string"
+              },
+              "optional_dependencies": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModuleLinkResponse"
+                }
               },
               "permissions": {
                 "type": "array",
@@ -93253,6 +93267,8 @@
                 "settings",
                 "configured_secrets",
                 "dependencies",
+                "optional_dependencies",
+                "dependents",
                 "enabled_dependents",
                 "extension_dependents"
               ],
@@ -93282,6 +93298,12 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/ModuleDependencyResponse"
+                  }
+                },
+                "dependents": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleLinkResponse"
                   }
                 },
                 "description": {
@@ -93341,6 +93363,12 @@
                 },
                 "name": {
                   "type": "string"
+                },
+                "optional_dependencies": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleLinkResponse"
+                  }
                 },
                 "permissions": {
                   "type": "array",
@@ -105845,6 +105873,25 @@
           }
         }
       },
+      "ModuleLinkResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "enabled",
+          "optional"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "optional": {
+            "type": "boolean"
+          }
+        }
+      },
       "ModuleMigrationsResponse": {
         "type": "object",
         "required": [
@@ -105939,6 +105986,8 @@
           "settings",
           "configured_secrets",
           "dependencies",
+          "optional_dependencies",
+          "dependents",
           "enabled_dependents",
           "extension_dependents"
         ],
@@ -105968,6 +106017,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ModuleDependencyResponse"
+            }
+          },
+          "dependents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleLinkResponse"
             }
           },
           "description": {
@@ -106027,6 +106082,12 @@
           },
           "name": {
             "type": "string"
+          },
+          "optional_dependencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleLinkResponse"
+            }
           },
           "permissions": {
             "type": "array",

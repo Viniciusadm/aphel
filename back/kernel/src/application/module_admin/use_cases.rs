@@ -2,7 +2,7 @@ use serde_json::{Map, Value, json};
 
 use crate::application::access::Authorizer;
 use crate::application::module_admin::{
-    DependencyStatus, ModuleDataExport, ModuleDescriptor, ModuleLifecycle, ModulePorts,
+    DependencyStatus, ModuleDataExport, ModuleDescriptor, ModuleLifecycle, ModuleLink, ModulePorts,
     ModuleState, ModuleStateRepository, ModuleView, missing_required, parse_settings,
     with_defaults,
 };
@@ -462,6 +462,36 @@ where
                         .iter()
                         .any(|candidate| candidate.key() == dependency.key),
                     enabled: enabled(dependency.key),
+                })
+                .collect(),
+            optional_dependencies: descriptor
+                .optional
+                .iter()
+                .filter(|optional| {
+                    descriptors
+                        .iter()
+                        .any(|candidate| candidate.key() == **optional)
+                })
+                .map(|optional| ModuleLink {
+                    key: (*optional).to_owned(),
+                    enabled: enabled(optional),
+                    optional: true,
+                })
+                .collect(),
+            dependents: descriptors
+                .iter()
+                .filter_map(|candidate| {
+                    let hard = candidate
+                        .manifest
+                        .dependencies
+                        .iter()
+                        .any(|dependency| dependency.key == key);
+                    let soft = candidate.optional.contains(&key);
+                    (hard || soft).then(|| ModuleLink {
+                        key: candidate.key().to_owned(),
+                        enabled: enabled(candidate.key()),
+                        optional: !hard,
+                    })
                 })
                 .collect(),
             enabled_dependents: descriptors

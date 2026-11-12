@@ -43,6 +43,7 @@ pub struct ModuleDescriptor {
     pub manifest: ManifestBase,
     pub compatibility: Compatibility,
     pub required: bool,
+    pub optional: Vec<&'static str>,
 }
 
 impl ModuleDescriptor {
@@ -103,6 +104,13 @@ pub struct DependencyStatus {
     pub enabled: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ModuleLink {
+    pub key: String,
+    pub enabled: bool,
+    pub optional: bool,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ModuleView {
     pub descriptor: ModuleDescriptor,
@@ -110,6 +118,8 @@ pub struct ModuleView {
     pub settings: Map<String, Value>,
     pub configured_secrets: Vec<String>,
     pub dependencies: Vec<DependencyStatus>,
+    pub optional_dependencies: Vec<ModuleLink>,
+    pub dependents: Vec<ModuleLink>,
     pub enabled_dependents: Vec<String>,
     pub extension_dependents: Vec<String>,
     pub held_by: Option<String>,

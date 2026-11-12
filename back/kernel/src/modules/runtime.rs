@@ -125,6 +125,7 @@ impl ModuleLifecycle for ModuleRuntime {
                 manifest: entry.manifest.base.clone(),
                 compatibility: entry.compatibility.clone(),
                 required: entry.manifest.required,
+                optional: entry.manifest.optional.clone(),
             })
             .collect()
     }
