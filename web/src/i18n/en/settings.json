@@ -525,6 +525,10 @@
         "none": "None",
         "password": "New password",
         "clearPassword": "Remove the stored password"
+      },
+      "sections": {
+        "server": "Server",
+        "account": "Sender and access"
       }
     },
     "storage": {

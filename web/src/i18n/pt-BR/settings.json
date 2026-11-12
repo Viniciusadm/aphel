@@ -525,6 +525,10 @@
         "none": "Nenhuma",
         "password": "Nova senha",
         "clearPassword": "Remover a senha armazenada"
+      },
+      "sections": {
+        "server": "Servidor",
+        "account": "Remetente e acesso"
       }
     },
     "storage": {
