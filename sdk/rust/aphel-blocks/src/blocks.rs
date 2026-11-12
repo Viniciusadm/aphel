@@ -73,6 +73,14 @@ const BUTTONS: &[(&str, Kind)] = &[
     ("align", Kind::Choice(ALIGNMENTS)),
 ];
 const SPACER: &[(&str, Kind)] = &[("size", Kind::Choice(SIZES)), ("divider", Kind::Flag)];
+const TONES: &[&str] = &["info", "success", "warning"];
+const QUOTE: &[(&str, Kind)] = &[("text", Kind::Text(2_000)), ("source", Kind::Text(200))];
+const CODE: &[(&str, Kind)] = &[("code", Kind::Text(20_000)), ("language", Kind::Text(40))];
+const CALLOUT: &[(&str, Kind)] = &[
+    ("tone", Kind::Choice(TONES)),
+    ("title", Kind::Text(160)),
+    ("text", Kind::Text(4_000)),
+];
 const GALLERY_ITEM: &[(&str, Kind)] = &[
     ("image", Kind::Image),
     ("alt", Kind::Text(300)),
@@ -169,6 +177,9 @@ fn fields_of(block_type: &str) -> Option<&'static [(&'static str, Kind)]> {
         "text_image" => Some(TEXT_IMAGE),
         "buttons" => Some(BUTTONS),
         "spacer" => Some(SPACER),
+        "quote" => Some(QUOTE),
+        "code" => Some(CODE),
+        "callout" => Some(CALLOUT),
         "gallery" => Some(GALLERY),
         "columns" => Some(COLUMNS),
         "faq" => Some(FAQ),

@@ -31,7 +31,13 @@
     "buttons": "Botões",
     "buttonsHelp": "Até 3 botões com links",
     "spacer": "Espaço",
-    "spacerHelp": "Respiro ou linha entre blocos"
+    "spacerHelp": "Respiro ou linha entre blocos",
+    "quote": "Citação",
+    "quoteHelp": "Uma frase em destaque com a fonte",
+    "code": "Código",
+    "codeHelp": "Trecho de código com espaçamento preservado",
+    "callout": "Destaque",
+    "calloutHelp": "Aviso, dica ou observação em caixa"
   },
   "fields": {
     "embedUrl": "Link do formulário ou da agenda",
@@ -52,7 +58,7 @@
     "faqHelp": "Os buscadores podem mostrar estas perguntas direto nos resultados.",
     "question": "Pergunta",
     "answer": "Resposta",
-    "quote": "Depoimento",
+    "quote": "Citação",
     "personName": "Nome",
     "personRole": "Quem é",
     "personRoleHelp": "Ex.: Cliente desde 2020, Curitiba",
@@ -104,7 +110,11 @@
     "stylePrimary": "Principal",
     "styleSecondary": "Secundário",
     "addButton": "Adicionar botão",
-    "removeButton": "Remover botão"
+    "removeButton": "Remover botão",
+    "source": "Fonte (opcional)",
+    "language": "Linguagem (opcional)",
+    "code": "Código",
+    "tone": "Tipo"
   },
   "images": {
     "delete": "Apagar {{name}}",
@@ -189,5 +199,10 @@
   "crop": {
     "horizontal": "Ponto focal horizontal",
     "vertical": "Ponto focal vertical"
+  },
+  "options": {
+    "info": "Informação",
+    "success": "Dica",
+    "warning": "Atenção"
   }
 }

@@ -31,7 +31,13 @@
     "buttons": "Buttons",
     "buttonsHelp": "Up to 3 buttons with links",
     "spacer": "Space",
-    "spacerHelp": "Room or a line between blocks"
+    "spacerHelp": "Room or a line between blocks",
+    "quote": "Quote",
+    "quoteHelp": "A highlighted sentence with its source",
+    "code": "Code",
+    "codeHelp": "A code snippet with its spacing kept",
+    "callout": "Callout",
+    "calloutHelp": "A notice, tip or note in a box"
   },
   "fields": {
     "embedUrl": "Form or scheduling link",
@@ -52,7 +58,7 @@
     "faqHelp": "Search engines may show these questions right in the results.",
     "question": "Question",
     "answer": "Answer",
-    "quote": "Testimonial",
+    "quote": "Quote",
     "personName": "Name",
     "personRole": "Who they are",
     "personRoleHelp": "E.g. Customer since 2020, Lisbon",
@@ -104,7 +110,11 @@
     "stylePrimary": "Main",
     "styleSecondary": "Secondary",
     "addButton": "Add button",
-    "removeButton": "Remove button"
+    "removeButton": "Remove button",
+    "source": "Source (optional)",
+    "language": "Language (optional)",
+    "code": "Code",
+    "tone": "Kind"
   },
   "images": {
     "delete": "Delete {{name}}",
@@ -189,5 +199,10 @@
   "crop": {
     "horizontal": "Horizontal focal point",
     "vertical": "Vertical focal point"
+  },
+  "options": {
+    "info": "Information",
+    "success": "Tip",
+    "warning": "Warning"
   }
 }

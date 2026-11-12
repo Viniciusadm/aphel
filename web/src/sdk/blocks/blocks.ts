@@ -2,7 +2,7 @@ import { checkBlock, embedOf, isSafeLink, isValidEmail, isValidPhone, videoOf } 
 
 export { embedOf, isSafeLink, isValidEmail, isValidPhone, videoOf, type EmbedProvider } from './validation'
 
-export type BlockType = 'hero' | 'text' | 'image' | 'text_image' | 'buttons' | 'spacer' | 'gallery' | 'columns' | 'faq' | 'testimonials' | 'contact' | 'video' | 'form' | 'booking' | 'collection' | 'embed'
+export type BlockType = 'hero' | 'text' | 'image' | 'text_image' | 'buttons' | 'spacer' | 'quote' | 'code' | 'callout' | 'gallery' | 'columns' | 'faq' | 'testimonials' | 'contact' | 'video' | 'form' | 'booking' | 'collection' | 'embed'
 export type Alignment = 'center' | 'left'
 
 export interface HeroBlock {
@@ -60,6 +60,28 @@ export interface SpacerBlock {
   type: 'spacer'
   size: 'medium' | 'small' | 'large'
   divider: boolean
+}
+
+export interface QuoteBlock {
+  id: string
+  type: 'quote'
+  text: string
+  source: string
+}
+
+export interface CodeBlock {
+  id: string
+  type: 'code'
+  code: string
+  language: string
+}
+
+export interface CalloutBlock {
+  id: string
+  type: 'callout'
+  tone: 'info' | 'success' | 'warning'
+  title: string
+  text: string
 }
 
 export interface GalleryItem {
@@ -190,6 +212,9 @@ export type Block =
   | TextImageBlock
   | ButtonsBlock
   | SpacerBlock
+  | QuoteBlock
+  | CodeBlock
+  | CalloutBlock
   | GalleryBlock
   | ColumnsBlock
   | FaqBlock
@@ -201,7 +226,7 @@ export type Block =
   | CollectionBlock
   | EmbedBlock
 
-export const BLOCK_TYPES: BlockType[] = ['hero', 'text', 'image', 'text_image', 'gallery', 'columns', 'buttons', 'faq', 'testimonials', 'contact', 'form', 'booking', 'collection', 'embed', 'video', 'spacer']
+export const BLOCK_TYPES: BlockType[] = ['hero', 'text', 'image', 'text_image', 'gallery', 'columns', 'buttons', 'quote', 'callout', 'code', 'faq', 'testimonials', 'contact', 'form', 'booking', 'collection', 'embed', 'video', 'spacer']
 export const ITEM_LIMITS = { gallery: 24, columns: 4, faq: 30, testimonials: 12 } as const
 export const MAX_BLOCKS = 300
 export const MAX_BUTTONS = 3
@@ -226,6 +251,12 @@ export function newBlock(type: BlockType): Block {
       return { id, type, buttons: [{ label: '', link: '', style: 'primary' }], align: 'center' }
     case 'spacer':
       return { id, type, size: 'medium', divider: false }
+    case 'quote':
+      return { id, type, text: '', source: '' }
+    case 'code':
+      return { id, type, code: '', language: '' }
+    case 'callout':
+      return { id, type, tone: 'info', title: '', text: '' }
     case 'gallery':
       return { id, type, title: '', items: [], layout: 'grid', columns: '3' }
     case 'columns':
@@ -309,6 +340,12 @@ export function blockSummary(block: Block): string {
       return block.buttons.map((button) => button.label).filter(Boolean).join(' · ')
     case 'spacer':
       return ''
+    case 'quote':
+      return plain(block.text)
+    case 'code':
+      return block.language || block.code.split('\n')[0] || ''
+    case 'callout':
+      return block.title || plain(block.text)
     case 'gallery':
       return block.title || (block.items.length ? String(block.items.length) : '')
     case 'columns':

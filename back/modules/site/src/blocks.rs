@@ -34,6 +34,12 @@ const BLOCK_TYPES: &[(&str, &str)] = &[
     ("hero", include_str!("../theme/blocks/types/hero.html")),
     ("image", include_str!("../theme/blocks/types/image.html")),
     ("spacer", include_str!("../theme/blocks/types/spacer.html")),
+    ("quote", include_str!("../theme/blocks/types/quote.html")),
+    ("code", include_str!("../theme/blocks/types/code.html")),
+    (
+        "callout",
+        include_str!("../theme/blocks/types/callout.html"),
+    ),
     (
         "testimonials",
         include_str!("../theme/blocks/types/testimonials.html"),

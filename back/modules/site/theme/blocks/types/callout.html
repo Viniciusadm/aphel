@@ -1,0 +1,1 @@
+{% if block.title or block.text %}<aside class="blk-block blk-callout blk-callout-{{ block.tone or 'info' }}">{% if block.title %}<strong>{{ block.title }}</strong>{% endif %}{% if block.text %}{{ block.text | markdown }}{% endif %}</aside>{% endif %}

@@ -195,6 +195,40 @@ export function BlockForm({ block, record, onChange, disabled }: BlockFormProps)
           <Choice label={t('fields.align')} value={block.align} options={alignments} disabled={disabled} onChange={(align) => onChange({ ...block, align })} />
         </div>
       )
+    case 'quote':
+      return (
+        <div className="blocks-form">
+          <MarkdownField label={t('fields.quote')} value={block.text} maxLength={2000} disabled={disabled} t={t} onChange={(text) => onChange({ ...block, text })} />
+          <TextField label={t('fields.source')} value={block.source} maxLength={200} disabled={disabled} onChange={(source) => onChange({ ...block, source })} />
+        </div>
+      )
+    case 'code':
+      return (
+        <div className="blocks-form">
+          <TextField label={t('fields.language')} value={block.language} maxLength={40} disabled={disabled} onChange={(language) => onChange({ ...block, language })} />
+          <Field label={t('fields.code')}>
+            {(control) => <Textarea {...control} className="blocks-code-input" rows={10} spellCheck={false} value={block.code} maxLength={20000} disabled={disabled} onChange={(event) => onChange({ ...block, code: event.target.value })} />}
+          </Field>
+        </div>
+      )
+    case 'callout':
+      return (
+        <div className="blocks-form">
+          <Choice
+            label={t('fields.tone')}
+            value={block.tone}
+            disabled={disabled}
+            options={[
+              { value: 'info', label: t('options.info') },
+              { value: 'success', label: t('options.success') },
+              { value: 'warning', label: t('options.warning') },
+            ]}
+            onChange={(tone) => onChange({ ...block, tone })}
+          />
+          <TextField label={t('fields.title')} value={block.title} maxLength={160} disabled={disabled} onChange={(title) => onChange({ ...block, title })} />
+          <MarkdownField label={t('fields.text')} value={block.text} maxLength={4000} disabled={disabled} t={t} onChange={(text) => onChange({ ...block, text })} />
+        </div>
+      )
     case 'spacer':
       return (
         <div className="blocks-form">

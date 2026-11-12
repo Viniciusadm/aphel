@@ -1,5 +1,8 @@
 import {
   Check,
+  Code,
+  Info,
+  Quote,
   Clock,
   Columns2,
   Columns3,
@@ -38,6 +41,9 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   text_image: Columns2,
   buttons: MousePointerClick,
   spacer: SeparatorHorizontal,
+  quote: Quote,
+  code: Code,
+  callout: Info,
   gallery: Images,
   columns: Columns3,
   faq: MessageCircleQuestion,

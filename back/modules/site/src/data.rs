@@ -31,7 +31,14 @@ pub(crate) struct Draft<'a> {
 fn equalities(conditions: &BTreeMap<String, Value>) -> Vec<Filter> {
     conditions
         .iter()
-        .map(|(field, value)| Filter::condition(field.clone(), FilterOperator::Eq, value.clone()))
+        .map(|(field, value)| {
+            let operator = if value.is_array() {
+                FilterOperator::In
+            } else {
+                FilterOperator::Eq
+            };
+            Filter::condition(field.clone(), operator, value.clone())
+        })
         .collect()
 }
 
