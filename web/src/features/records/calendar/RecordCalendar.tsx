@@ -1,3 +1,4 @@
+import { NativeSelect } from '@/components/ui/native-select'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -50,6 +51,8 @@ export interface RecordCalendarProps {
   recordType: string
   resource: RecordResource
   field: FieldDefinition
+  fieldOptions?: { key: string; label: string }[]
+  onFieldChange?: (key: string) => void
   filter: FilterNode | null
   search: string
   archived?: ArchivedMode
@@ -114,6 +117,8 @@ export function RecordCalendar({
   recordType,
   resource,
   field,
+  fieldOptions = [],
+  onFieldChange,
   filter,
   search,
   archived,
@@ -262,7 +267,22 @@ export function RecordCalendar({
             ? formatMonthTitle(monthKey, formatting.locale)
             : `${formatShortDay(from, formatting.locale)} – ${formatShortDay(addDays(to, -1), formatting.locale)}`}
         </h2>
-        <span className="text-xs text-muted-foreground">{t('records.byField', { field: field.label })}</span>
+        {fieldOptions.length > 1 && onFieldChange ? (
+          <NativeSelect
+            aria-label={t('layout.field')}
+            className="w-auto max-w-48"
+            value={field.key}
+            onChange={(event) => onFieldChange(event.target.value)}
+          >
+            {fieldOptions.map((option) => (
+              <option key={option.key} value={option.key}>
+                {option.label}
+              </option>
+            ))}
+          </NativeSelect>
+        ) : (
+          <span className="text-xs text-muted-foreground">{t('records.byField', { field: field.label })}</span>
+        )}
         <SegmentedControl
           aria-label={t('views.label')}
           size="sm"

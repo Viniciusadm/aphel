@@ -245,6 +245,8 @@ function RecordListContent({
         recordType={recordType}
         resource={resource}
         field={calendarField}
+        fieldOptions={dateFields.map((field) => ({ key: field.key, label: field.label }))}
+        onFieldChange={setCalendarField}
         filter={config.filter}
         search={urlState.search}
         archived={archivedMode === 'exclude' ? archived : archivedMode}
@@ -364,14 +366,10 @@ function RecordListContent({
             <LayoutToggle
               layout={showCalendar ? 'calendar' : 'table'}
               onChange={setLayout}
-              fields={dateFields.map((field) => ({ key: field.key, label: field.label }))}
-              fieldKey={calendarField?.key ?? ''}
-              onFieldChange={setCalendarField}
             />
           )}
-          {(!showCalendar || (archived === undefined && archivedFilter)) && (
-            <Popover>
-              <PopoverTrigger asChild><Button variant="outline" size="sm"><SlidersHorizontal aria-hidden />{t('display.title')}</Button></PopoverTrigger>
+          <Popover>
+              <PopoverTrigger asChild><Button variant="outline" size="sm" disabled={showCalendar && !(archived === undefined && archivedFilter)}><SlidersHorizontal aria-hidden />{t('display.title')}</Button></PopoverTrigger>
               <PopoverContent align="end" className="grid gap-4">
               {archived === undefined && archivedFilter && (
                 <NativeSelect
@@ -397,8 +395,7 @@ function RecordListContent({
               <PageSizeSelect value={urlState.perPage} onChange={(perPage) => update({ perPage, page: 1 })} />
               </>}
               </PopoverContent>
-            </Popover>
-          )}
+          </Popover>
           <RecordListActions recordType={recordType} />
           {toolbarActions}
         </div>
@@ -447,12 +444,9 @@ function RecordListContent({
 interface LayoutToggleProps {
   layout: ListLayout
   onChange: (layout: ListLayout) => void
-  fields: { key: string; label: string }[]
-  fieldKey: string
-  onFieldChange: (key: string) => void
 }
 
-function LayoutToggle({ layout, onChange, fields, fieldKey, onFieldChange }: LayoutToggleProps) {
+function LayoutToggle({ layout, onChange }: LayoutToggleProps) {
   const { t } = useTranslation('records-calendar')
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -466,20 +460,6 @@ function LayoutToggle({ layout, onChange, fields, fieldKey, onFieldChange }: Lay
           { value: 'calendar', label: t('layout.calendar'), icon: <CalendarDays aria-hidden /> },
         ]}
       />
-      {layout === 'calendar' && fields.length > 1 && (
-        <NativeSelect
-          aria-label={t('layout.field')}
-          className="w-auto max-w-48"
-          value={fieldKey}
-          onChange={(event) => onFieldChange(event.target.value)}
-        >
-          {fields.map((field) => (
-            <option key={field.key} value={field.key}>
-              {field.label}
-            </option>
-          ))}
-        </NativeSelect>
-      )}
     </div>
   )
 }
