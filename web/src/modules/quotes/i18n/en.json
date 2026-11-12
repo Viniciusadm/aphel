@@ -1,4 +1,5 @@
 {
+  "name": "Quotes",
   "title": "Quotes",
   "description": "Quotes sent to customers, with versions, approval and acceptance through the public link.",
   "number": "No. {{number}}",

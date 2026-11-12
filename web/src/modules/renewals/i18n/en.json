@@ -1,4 +1,6 @@
 {
+  "name": "Renewals",
+  "description": "Automatic renewal of won deals whose contract is ending, configured per pipeline",
   "renewal": {
     "title": "Automatic renewal",
     "description": "Creates a renewal deal for each won deal of this pipeline before the contract ends, with the recurring items.",

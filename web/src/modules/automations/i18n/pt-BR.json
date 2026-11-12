@@ -1,4 +1,6 @@
 {
+  "name": "Automações",
+  "description": "Automações sem código: gatilhos, condições e ações sobre registros, com versões, testes sem efeito, gatilhos por tempo, esperas e histórico de execuções.",
   "page": {
     "title": "Automações",
     "description": "Fluxos que reagem a eventos e ao tempo e executam ações nos registros sem código.",

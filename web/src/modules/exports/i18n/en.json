@@ -1,4 +1,5 @@
 {
+  "name": "Exports",
   "recordTypes": {
     "contact": "people",
     "company": "organizations",

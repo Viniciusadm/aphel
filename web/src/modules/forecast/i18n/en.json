@@ -1,4 +1,6 @@
 {
+  "name": "Forecast",
+  "description": "Revenue forecast per month from open deals, with the organization method, categories and horizon",
   "page": {
     "title": "Revenue forecast",
     "description": "Monthly estimate based on the amount, probability and expected close date of the open deals.",

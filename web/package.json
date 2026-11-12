@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && npm run docs:build",
-    "lint": "oxlint",
+    "lint": "oxlint && node scripts/check-module-texts.mjs",
     "typecheck": "tsc -b --noEmit",
     "api:types": "node scripts/generate-api-types.mjs",
     "i18n:types": "node scripts/i18n-types/index.mjs",

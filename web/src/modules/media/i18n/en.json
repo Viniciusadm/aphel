@@ -1,4 +1,6 @@
 {
+  "name": "Media library",
+  "description": "Library of images and files with alternative text, caption, credit and focal point, reused by any record without uploading again",
   "nav": {
     "media": "Media",
     "site": "Site"

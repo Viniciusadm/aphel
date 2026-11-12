@@ -1,4 +1,6 @@
 {
+  "name": "Privacidade",
+  "description": "Privacidade (LGPD): titulares de dados pessoais, solicitações dos titulares e políticas de retenção.",
   "page": {
     "title": "Privacidade e LGPD",
     "description": "Localize os dados de um titular, atenda solicitações (exportar, anonimizar, excluir) e defina por quanto tempo os dados ficam guardados. A conformidade com a LGPD depende também dos processos da sua empresa.",

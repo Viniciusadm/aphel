@@ -1,4 +1,6 @@
 {
+  "name": "Leads",
+  "description": "Lifecycle stages of people and organizations, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons",
   "inbox": {
     "title": "Lead inbox",
     "description": "Contacts in the Lead stage. Qualify, disqualify with a reason or convert them into a deal.",

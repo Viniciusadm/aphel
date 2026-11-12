@@ -1,4 +1,6 @@
 {
+  "name": "Booking",
+  "description": "Booking links: availability, meeting types, team links and the public booking page",
   "page": {
     "title": "Booking",
     "description": "Public links for your clients to book meetings in the free times of your calendar."

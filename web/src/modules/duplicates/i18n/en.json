@@ -1,4 +1,6 @@
 {
+  "name": "Duplicates",
+  "description": "Duplicate detection rules, the duplicate queue and record merging",
   "recordTypes": {
     "contact": "Contacts",
     "company": "Companies",

@@ -1,4 +1,6 @@
 {
+  "name": "Linha do tempo",
+  "description": "Linha do tempo dos registros, alimentada pelos módulos donos de cada tipo.",
   "timeline": {
     "relatedRecord": "Registro relacionado",
     "recordChanged": "Registro alterado",

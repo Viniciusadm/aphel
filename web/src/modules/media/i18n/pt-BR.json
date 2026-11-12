@@ -1,4 +1,6 @@
 {
+  "name": "Biblioteca de mídia",
+  "description": "Biblioteca de imagens e arquivos com texto alternativo, legenda, crédito e ponto focal, reaproveitados por qualquer registro sem novo envio.",
   "nav": {
     "media": "Mídia",
     "site": "Site"

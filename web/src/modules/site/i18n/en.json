@@ -1,4 +1,6 @@
 {
+  "name": "Public site",
+  "description": "Public pages that plugins declare (blog posts, catalogs, landing pages), rendered on the server from their published records",
   "page": {
     "title": "Site",
     "description": "The public site shows the pages that plugins publish (blog, shop, catalog).",

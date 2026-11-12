@@ -1,4 +1,5 @@
 {
+  "name": "Cotações",
   "title": "Cotações",
   "description": "Cotações enviadas aos clientes, com versões, aprovação e aceite pelo link público.",
   "number": "Nº {{number}}",

@@ -1,4 +1,5 @@
 {
+  "name": "Assignment",
   "title": "Assignment",
   "description": "Rules that pick the owner of new records by round robin, weight, least load or the value of a field. Use them in automations (\"Assign by rule\" action), incoming webhooks and imports.",
   "create": "New rule",

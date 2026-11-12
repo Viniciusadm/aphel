@@ -1,4 +1,6 @@
 {
+  "name": "Calendário",
+  "description": "Eventos de calendário fornecidos pelos módulos que têm registros com data.",
   "page": {
     "title": "Calendário",
     "description": "Tarefas com prazo e reuniões por mês, semana ou dia."

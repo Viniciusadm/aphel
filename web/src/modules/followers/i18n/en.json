@@ -1,4 +1,6 @@
 {
+  "name": "Followers",
+  "description": "Following registered records and owner-provided events",
   "button": {
     "follow": "Follow",
     "unfollow": "Unfollow",

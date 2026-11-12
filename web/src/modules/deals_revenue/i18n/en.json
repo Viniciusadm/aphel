@@ -1,4 +1,6 @@
 {
+  "name": "Deal revenue",
+  "description": "Recurring revenue projections for deals",
   "panel": {
     "tab": "Revenue",
     "mrr": "MRR",

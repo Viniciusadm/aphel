@@ -1,4 +1,6 @@
 {
+  "name": "Favorites",
+  "description": "Personal favorites: pinned records and saved views shown in the sidebar",
   "sidebar": {
     "title": "Favorites",
     "label": "Favorites",

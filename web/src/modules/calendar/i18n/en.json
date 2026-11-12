@@ -1,4 +1,6 @@
 {
+  "name": "Calendar",
+  "description": "Calendar entries contributed by enabled record owners.",
   "page": {
     "title": "Calendar",
     "description": "Tasks with due dates and meetings by month, week or day."

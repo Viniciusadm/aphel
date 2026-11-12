@@ -38,7 +38,11 @@
     },
     "import_scope": {
       "label": "Eventos importados da agenda",
-      "help": "Por padrão só entram eventos com algum participante que já é contato do CRM"
+      "help": "Por padrão só entram eventos com algum participante que já é contato do CRM",
+      "options": {
+        "with_contacts": "Só eventos com algum contato do CRM",
+        "all": "Todos os eventos com horário"
+      }
     }
   }
 }

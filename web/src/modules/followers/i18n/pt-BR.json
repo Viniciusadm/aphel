@@ -1,4 +1,6 @@
 {
+  "name": "Seguidores",
+  "description": "Seguir registros cadastrados e receber os eventos que os módulos oferecem.",
   "button": {
     "follow": "Seguir",
     "unfollow": "Deixar de seguir",

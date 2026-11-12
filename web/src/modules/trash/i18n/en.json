@@ -1,4 +1,5 @@
 {
+  "name": "Trash",
   "title": "Trash",
   "description": "Deleted records (people, organizations, deals, products, tasks, quotes and custom objects) stay here until they are purged. Restore one to bring it back with its links.",
   "search": "Search the trash",

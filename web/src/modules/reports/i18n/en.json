@@ -1,4 +1,5 @@
 {
+  "name": "Reports",
   "title": "Reports",
   "description": "Explore saved reports and reports contributed by installed modules.",
   "tabs": {

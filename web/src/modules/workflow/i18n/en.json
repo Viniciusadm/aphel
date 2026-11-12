@@ -1,4 +1,6 @@
 {
+  "name": "Workflow",
+  "description": "Workflow stages (probability, rotting, required fields, guidance and checklist) and lost reasons",
   "settings": {
     "title": "Pipelines and lost reasons",
     "description": "Create a pipeline for each process, choose which teams see each one, and organize stages and lost reasons."

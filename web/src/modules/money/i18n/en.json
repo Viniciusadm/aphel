@@ -1,4 +1,5 @@
 {
+  "name": "Money",
   "title": "Currencies and exchange rates",
   "description": "Enable currencies and exchange rates for monetary records and aggregates.",
   "enabled": {

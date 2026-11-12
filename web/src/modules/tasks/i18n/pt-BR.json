@@ -1,4 +1,6 @@
 {
+  "name": "Tarefas",
+  "description": "Tarefas, tarefas registradas, tipos de atividade, calendário e caixa de atividades.",
   "page": {
     "title": "Tarefas",
     "description": "Tarefas e atividades registradas com contatos, empresas e oportunidades.",

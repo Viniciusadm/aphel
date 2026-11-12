@@ -1,4 +1,6 @@
 {
+  "name": "Goals",
+  "description": "Sales goals per user, team or organization (won amount, won deals, completed tasks, new people) and their progress",
   "page": {
     "title": "Goals",
     "description": "Track goals per user, team or organization based on the recorded results.",

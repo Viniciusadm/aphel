@@ -1,4 +1,6 @@
 {
+  "name": "Sequences",
+  "description": "Sales sequences (cadences): steps, enrollments, automatic exits, sending limits and per-step metrics",
   "page": {
     "title": "Sequences",
     "description": "Cadences of e-mails, calls and tasks that follow each contact until they reply.",

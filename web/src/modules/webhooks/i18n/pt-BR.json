@@ -1,4 +1,5 @@
 {
+  "name": "Webhooks",
   "title": "Webhooks de saída",
   "description": "Envie os eventos do Aphel para outros sistemas. Cada entrega é um POST JSON assinado com o segredo do endpoint.",
   "new": "Novo endpoint",

@@ -1,4 +1,6 @@
 {
+  "name": "Aprovações",
+  "description": "Políticas de aprovação (tipo de registro, momento, condição e etapas em sequência), pedidos de aprovação com decisões e a trava de aprovação nas mudanças de registros.",
   "nav": {
     "pending_one": "{{count}} aprovação pendente",
     "pending_other": "{{count}} aprovações pendentes",

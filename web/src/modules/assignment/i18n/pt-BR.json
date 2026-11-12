@@ -1,4 +1,5 @@
 {
+  "name": "Atribuição de responsáveis",
   "title": "Atribuição de responsáveis",
   "description": "Regras que escolhem o responsável de novos registros por rodízio, peso, menor carga ou pelo valor de um campo. Use-as em automações (ação \"Distribuir pela regra\"), webhooks de entrada e importações.",
   "create": "Nova regra",

@@ -1,4 +1,6 @@
 {
+  "name": "Previsão de receita",
+  "description": "Previsão mensal de receita a partir dos negócios abertos, com o método da organização, categorias e horizonte.",
   "page": {
     "title": "Previsão de receita",
     "description": "Estimativa por mês com base no valor, na probabilidade e na data prevista das oportunidades abertas.",

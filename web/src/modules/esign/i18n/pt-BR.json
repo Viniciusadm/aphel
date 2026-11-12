@@ -6,7 +6,11 @@
   "settings": {
     "environment": {
       "label": "Ambiente",
-      "help": "Sandbox para testes; produção para assinaturas reais"
+      "help": "Sandbox para testes; produção para assinaturas reais",
+      "options": {
+        "sandbox": "Sandbox (testes)",
+        "production": "Produção"
+      }
     },
     "access_token": {
       "label": "Token de acesso da Clicksign",

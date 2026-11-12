@@ -1,4 +1,6 @@
 {
+  "name": "Metas",
+  "description": "Metas de vendas por usuário, equipe ou organização (valor ganho, negócios ganhos, tarefas concluídas, novas pessoas) e seu andamento.",
   "page": {
     "title": "Metas",
     "description": "Acompanhe as metas por usuário, equipe ou organização com base nos resultados registrados.",

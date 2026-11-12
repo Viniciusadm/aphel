@@ -1,4 +1,5 @@
 {
+  "name": "Pontuação de leads",
   "title": "Pontuação de leads",
   "description": "Modelos que somam pontos pelo perfil e pelo comportamento dos registros e classificam em frio, morno e quente.",
   "help": "O modelo principal de cada tipo aparece no campo Pontuação das listas e do detalhe. As notas são recalculadas a cada evento, ao salvar o modelo e uma vez por dia para aplicar o decaimento.",

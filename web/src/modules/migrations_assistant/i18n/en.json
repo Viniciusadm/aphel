@@ -1,4 +1,6 @@
 {
+  "name": "Migration assistant",
+  "description": "Assisted migration from other CRMs: recognized columns, conversion of their CSV exports and pre-filled imports",
   "page": {
     "title": "Migrate from another CRM",
     "description": "Bring organizations, people, deals (with their won or lost status), tasks and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",

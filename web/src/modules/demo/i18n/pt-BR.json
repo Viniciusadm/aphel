@@ -1,4 +1,6 @@
 {
+  "name": "Demonstração",
+  "description": "Dados fictícios de demonstração (criar, remover e restaurar) e o estado do modo de demonstração pública.",
   "banner": {
     "label": "Ambiente de demonstração",
     "message": "Os dados são fictícios e voltam ao estado inicial todo dia às {{time}} (UTC). E-mails não são enviados.",

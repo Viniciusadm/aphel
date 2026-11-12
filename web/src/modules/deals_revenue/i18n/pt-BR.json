@@ -1,4 +1,6 @@
 {
+  "name": "Receita dos negócios",
+  "description": "Projeções de receita recorrente dos negócios.",
   "panel": {
     "tab": "Receita",
     "mrr": "MRR",

@@ -1,4 +1,6 @@
 {
+  "name": "Segmentos",
+  "description": "Filtros dinâmicos nomeados de registros, que podem ser usados como condição \"em filtro salvo\".",
   "recordTypes": {
     "contact": "Contatos",
     "company": "Empresas",

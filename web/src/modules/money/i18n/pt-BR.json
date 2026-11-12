@@ -1,4 +1,5 @@
 {
+  "name": "Moedas",
   "title": "Moedas e câmbio",
   "description": "Habilite moedas e taxas de câmbio para registros e agregações monetárias.",
   "enabled": {

@@ -1,4 +1,6 @@
 {
+  "name": "Approvals",
+  "description": "Approval policies (record type, moment, condition, sequential steps), approval requests with decisions and the approval gate of record changes",
   "nav": {
     "pending_one": "{{count}} pending approval",
     "pending_other": "{{count}} pending approvals",

@@ -1,4 +1,6 @@
 {
+  "name": "Organizações",
+  "description": "Empresas, a hierarquia entre elas (grupos de empresas) e os totais do grupo.",
   "list": {
     "title": "Empresas",
     "description": "Organizações atendidas pela sua equipe.",

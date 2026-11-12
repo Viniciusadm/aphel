@@ -1,4 +1,6 @@
 {
+  "name": "Deals",
+  "description": "Deals, stage changes, the Kanban board and the team of each deal",
   "list": {
     "title": "Deals",
     "description": "Track pipeline negotiations, move stages and record wins and losses.",

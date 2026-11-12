@@ -5,7 +5,12 @@
   "settings": {
     "source": {
       "label": "Fonte de dados",
-      "help": "BrasilAPI é a principal; a ReceitaWS aceita só 3 consultas por minuto"
+      "help": "BrasilAPI é a principal; a ReceitaWS aceita só 3 consultas por minuto",
+      "options": {
+        "brasilapi_then_receitaws": "BrasilAPI, com ReceitaWS como reserva",
+        "brasilapi": "Somente BrasilAPI",
+        "receitaws": "Somente ReceitaWS (limite de 3 consultas por minuto)"
+      }
     },
     "cnpj_field": {
       "label": "Campo do CNPJ",
@@ -146,5 +151,11 @@
     "company_not_found": "Empresa não encontrada",
     "rate_limited": "Muitas consultas seguidas; aguarde um minuto",
     "permission_denied": "Você não tem permissão para esta ação"
+  },
+  "permissions": {
+    "enrichment.use": "Consultar CNPJ e aplicar dados públicos às empresas"
+  },
+  "events": {
+    "company.enriched": "Campos de uma empresa foram preenchidos com dados públicos do CNPJ"
   }
 }

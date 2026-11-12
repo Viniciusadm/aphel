@@ -1,4 +1,6 @@
 {
+  "name": "Favoritos",
+  "description": "Favoritos pessoais: registros fixados e visualizações salvas que aparecem no menu lateral.",
   "sidebar": {
     "title": "Favoritos",
     "label": "Favoritos",

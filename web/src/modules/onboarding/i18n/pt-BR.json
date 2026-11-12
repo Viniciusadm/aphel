@@ -1,4 +1,6 @@
 {
+  "name": "Assistente de configuração",
+  "description": "Assistente da primeira configuração: perguntas, recomendação de modelo e andamento.",
   "reasons": {
     "business_freelancer": "Trabalho independente",
     "business_agency": "Agência",

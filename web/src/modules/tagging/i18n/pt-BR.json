@@ -1,4 +1,6 @@
 {
+  "name": "Etiquetas",
+  "description": "Etiquetas da organização e marcação dos registros que permitem etiquetas.",
   "chips": {
     "remove": "Remover etiqueta {{name}}",
     "more_one": "+{{count}}",

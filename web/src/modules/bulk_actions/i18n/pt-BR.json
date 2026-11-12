@@ -1,4 +1,6 @@
 {
+  "name": "Ações em massa",
+  "description": "Ações sobre registros selecionados ou sobre todos os registros de um filtro, com progresso e relatório.",
   "actions": {
     "assign_owner": "Atribuir responsável",
     "tags": "Etiquetas",

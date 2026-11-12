@@ -1,4 +1,6 @@
 {
+  "name": "Setup assistant",
+  "description": "First-run setup assistant: questions, template recommendation and state",
   "reasons": {
     "business_freelancer": "Independent work",
     "business_agency": "Agency",

@@ -1,4 +1,6 @@
 {
+  "name": "Site público",
+  "description": "Páginas públicas declaradas por plugins (posts de blog, catálogos, páginas de captura), geradas no servidor a partir dos registros publicados.",
   "page": {
     "title": "Site",
     "description": "O site público mostra as páginas que os plugins publicam (blog, loja, catálogo).",

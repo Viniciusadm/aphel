@@ -1,4 +1,6 @@
 {
+  "name": "Leads",
+  "description": "Estágios de vida de pessoas e organizações, transições automáticas, a caixa de leads (qualificar, desqualificar, converter) e motivos de desqualificação.",
   "inbox": {
     "title": "Caixa de leads",
     "description": "Contatos no estágio Lead. Qualifique, desqualifique com um motivo ou converta em oportunidade.",

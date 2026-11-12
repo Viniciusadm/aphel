@@ -276,5 +276,9 @@
   },
   "keybindings": {
     "composeRun": "Generate text with the assistant"
+  },
+  "permissions": {
+    "ai.use": "Use the AI assistant",
+    "ai.view_usage": "View AI usage and the call log"
   }
 }

@@ -1,4 +1,6 @@
 {
+  "name": "Organizations",
+  "description": "Companies, their hierarchy (company groups) and group totals",
   "list": {
     "title": "Companies",
     "description": "Organizations your team works with.",

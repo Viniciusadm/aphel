@@ -1,4 +1,6 @@
 {
+  "name": "Notas",
+  "description": "Notas ligadas a registros, com menções e notas privadas.",
   "tab": {
     "title": "Notas",
     "count_one": "{{count}} nota",

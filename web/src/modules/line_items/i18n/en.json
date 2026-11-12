@@ -1,4 +1,6 @@
 {
+  "name": "Line items",
+  "description": "Quantity, pricing, discounts and totals attached to records.",
   "items": {
     "tab": "Items",
     "title": "Record items",

@@ -5,7 +5,12 @@
   "settings": {
     "source": {
       "label": "Data source",
-      "help": "BrasilAPI is the main one; ReceitaWS allows only 3 lookups per minute"
+      "help": "BrasilAPI is the main one; ReceitaWS allows only 3 lookups per minute",
+      "options": {
+        "brasilapi_then_receitaws": "BrasilAPI, with ReceitaWS as a fallback",
+        "brasilapi": "BrasilAPI only",
+        "receitaws": "ReceitaWS only (limit of 3 lookups per minute)"
+      }
     },
     "cnpj_field": {
       "label": "CNPJ field",
@@ -146,5 +151,11 @@
     "company_not_found": "Company not found",
     "rate_limited": "Too many lookups in a row; wait a minute",
     "permission_denied": "You are not allowed to do this"
+  },
+  "permissions": {
+    "enrichment.use": "Look up CNPJ and apply public data to companies"
+  },
+  "events": {
+    "company.enriched": "Fields of a company were filled with public CNPJ data"
   }
 }

@@ -1,4 +1,6 @@
 {
+  "name": "E-mail",
+  "description": "Caixas de e-mail pessoais, sincronização, conversas ligadas a registros, envio, modelos e rastreamento.",
   "actions": {
     "cancel": "Cancelar",
     "edit": "Editar",

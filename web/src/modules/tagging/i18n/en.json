@@ -1,4 +1,6 @@
 {
+  "name": "Tags",
+  "description": "Tags of the organization and tagging of opted-in records",
   "chips": {
     "remove": "Remove tag {{name}}",
     "more_one": "+{{count}}",

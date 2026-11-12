@@ -1,4 +1,6 @@
 {
+  "name": "Privacy",
+  "description": "Privacy (LGPD): personal data subjects, data subject requests and retention policies",
   "page": {
     "title": "Privacy and LGPD",
     "description": "Find a data subject's data, handle requests (export, anonymize, delete) and define how long data is kept. LGPD compliance also depends on your company's processes.",

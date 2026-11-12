@@ -1,4 +1,6 @@
 {
+  "name": "Imports",
+  "description": "CSV and XLSX imports with mapping, dry run, execution and retry of failed rows over the record type handlers",
   "actions": {
     "import": "Import"
   },

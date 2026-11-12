@@ -1,4 +1,6 @@
 {
+  "name": "Funis",
+  "description": "Etapas dos funis (probabilidade, tempo parado, campos obrigatórios, orientação e checklist) e motivos de perda.",
   "settings": {
     "title": "Funis e motivos de perda",
     "description": "Crie um funil para cada processo, defina quais equipes enxergam cada um, organize as etapas e os motivos de perda."

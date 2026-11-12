@@ -1,4 +1,6 @@
 {
+  "name": "People",
+  "description": "Contacts and their links to organizations",
   "list": {
     "title": "Contacts",
     "description": "People your team works with.",

@@ -1,4 +1,6 @@
 {
+  "name": "Agendamento",
+  "description": "Links de agendamento: disponibilidade, tipos de reunião, links por equipe e a página pública de agendamento.",
   "page": {
     "title": "Agendamentos",
     "description": "Links públicos para seus clientes marcarem reuniões nos horários livres da sua agenda."

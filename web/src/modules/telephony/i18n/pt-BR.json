@@ -1,4 +1,6 @@
 {
+  "name": "Ligações",
+  "description": "Registro de ligações como tarefas, resultados de ligação, sessões de chamada, provedores de telefonia e o relatório de ligações.",
   "page": {
     "title": "Ligações",
     "description": "Sessões de ligações a partir de visões salvas, registro de resultados e relatório da equipe.",

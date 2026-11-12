@@ -1,4 +1,6 @@
 {
+  "name": "Produtos",
+  "description": "Catálogo de produtos e serviços.",
   "list": {
     "title": "Produtos e serviços",
     "description": "Catálogo da organização para montar os itens das oportunidades.",

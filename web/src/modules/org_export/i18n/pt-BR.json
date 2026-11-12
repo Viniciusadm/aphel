@@ -1,4 +1,6 @@
 {
+  "name": "Backup da organização",
+  "description": "Exportação completa da organização (zip com registros, relacionamentos, arquivos, configuração e manifesto) e sua restauração.",
   "page": {
     "title": "Exportação completa",
     "description": "Gere um pacote com todos os dados da organização para backup, auditoria ou para levar a outra instalação do Aphel."

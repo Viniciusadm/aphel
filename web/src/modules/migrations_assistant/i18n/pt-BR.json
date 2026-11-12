@@ -1,4 +1,6 @@
 {
+  "name": "Assistente de migração",
+  "description": "Migração assistida de outros CRMs: colunas reconhecidas, conversão dos arquivos CSV exportados e importações já preenchidas.",
   "page": {
     "title": "Migrar de outro CRM",
     "description": "Traga empresas, pessoas, negócios (com a situação ganho ou perdido), atividades e anotações exportados de outro CRM. O assistente reconhece as colunas da exportação, converte datas, valores e telefones e prepara as importações já mapeadas.",

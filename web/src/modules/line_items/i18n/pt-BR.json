@@ -1,4 +1,6 @@
 {
+  "name": "Itens e totais",
+  "description": "Quantidade, preço, desconto e totais ligados a registros.",
   "items": {
     "tab": "Itens",
     "title": "Itens do registro",

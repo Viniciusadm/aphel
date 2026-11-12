@@ -1,4 +1,5 @@
 {
+  "name": "Scoring",
   "title": "Lead scoring",
   "description": "Models that add points for the profile and the behavior of records and rank them as cold, warm or hot.",
   "help": "The primary model of each type shows in the Score field of lists and details. Scores are recalculated on every event, when the model is saved and once a day to apply decay.",

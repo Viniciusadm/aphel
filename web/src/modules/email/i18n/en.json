@@ -1,4 +1,6 @@
 {
+  "name": "Email",
+  "description": "Personal mailboxes, synchronization, conversations linked to records, sending, templates and tracking",
   "actions": {
     "cancel": "Cancel",
     "edit": "Edit",

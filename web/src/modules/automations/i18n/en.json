@@ -1,4 +1,6 @@
 {
+  "name": "Automations",
+  "description": "No-code automations: triggers, conditions and actions over records, versions, dry runs, time triggers, waits and run history",
   "page": {
     "title": "Automations",
     "description": "Workflows that react to events and time and run actions on records without code.",

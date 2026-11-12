@@ -138,5 +138,15 @@
     "proposal_template_not_found": "The template no longer exists.",
     "deal_not_found": "Deal not found.",
     "permission_denied": "You are not allowed to generate proposals for this deal."
+  },
+  "permissions": {
+    "proposals.manage": "Manage proposal templates",
+    "proposals.generate": "Generate and view proposals"
+  },
+  "events": {
+    "proposal.generated": "A PDF proposal was generated and attached to the deal",
+    "proposal_template.created": "A proposal template was created",
+    "proposal_template.updated": "A proposal template was changed",
+    "proposal_template.deleted": "A proposal template was deleted"
   }
 }

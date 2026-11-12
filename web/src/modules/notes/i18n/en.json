@@ -1,4 +1,6 @@
 {
+  "name": "Notes",
+  "description": "Notes attached to records, with mentions and private notes",
   "tab": {
     "title": "Notes",
     "count_one": "{{count}} note",

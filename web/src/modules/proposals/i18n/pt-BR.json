@@ -138,5 +138,15 @@
     "proposal_template_not_found": "O modelo não existe mais.",
     "deal_not_found": "Oportunidade não encontrada.",
     "permission_denied": "Você não tem permissão para gerar propostas nesta oportunidade."
+  },
+  "permissions": {
+    "proposals.manage": "Gerenciar modelos de proposta",
+    "proposals.generate": "Gerar e ver propostas"
+  },
+  "events": {
+    "proposal.generated": "Uma proposta em PDF foi gerada e anexada ao negócio",
+    "proposal_template.created": "Um modelo de proposta foi criado",
+    "proposal_template.updated": "Um modelo de proposta foi alterado",
+    "proposal_template.deleted": "Um modelo de proposta foi excluído"
   }
 }

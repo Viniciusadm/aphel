@@ -1,4 +1,6 @@
 {
+  "name": "Calls",
+  "description": "Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report",
   "page": {
     "title": "Calls",
     "description": "Call sessions from saved views, call outcomes and the team report.",

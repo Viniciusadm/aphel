@@ -1,4 +1,6 @@
 {
+  "name": "Pessoas",
+  "description": "Contatos e seus vínculos com organizações.",
   "list": {
     "title": "Contatos",
     "description": "Pessoas com quem sua equipe se relaciona.",

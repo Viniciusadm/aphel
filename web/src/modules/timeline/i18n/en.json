@@ -1,4 +1,6 @@
 {
+  "name": "Timeline",
+  "description": "Owner-contributed record timeline",
   "timeline": {
     "relatedRecord": "Related record",
     "recordChanged": "Record changed",

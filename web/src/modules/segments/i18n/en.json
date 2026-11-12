@@ -1,4 +1,6 @@
 {
+  "name": "Segments",
+  "description": "Named dynamic filters of records, usable as the in_saved_filter filter condition",
   "recordTypes": {
     "contact": "Contacts",
     "company": "Companies",

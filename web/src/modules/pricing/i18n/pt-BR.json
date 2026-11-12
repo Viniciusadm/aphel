@@ -1,4 +1,6 @@
 {
+  "name": "Listas de preço",
+  "description": "Listas de preço por moeda, segmento ou empresa, com períodos de validade e faixas de quantidade, pacotes de produtos e o desconto máximo por papel.",
   "priceLists": "Tabelas de preço",
   "tabs": {
     "lists": "Tabelas",

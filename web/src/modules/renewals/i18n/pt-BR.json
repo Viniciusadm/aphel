@@ -1,4 +1,6 @@
 {
+  "name": "Renovações",
+  "description": "Renovação automática de negócios ganhos cujo contrato está terminando, configurada por funil.",
   "renewal": {
     "title": "Renovação automática",
     "description": "Cria uma oportunidade de renovação para cada oportunidade ganha deste funil antes do fim do contrato, com os itens recorrentes.",

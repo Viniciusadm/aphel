@@ -1,4 +1,6 @@
 {
+  "name": "Duplicados",
+  "description": "Regras de detecção de duplicados, a fila de duplicados e a mesclagem de registros.",
   "recordTypes": {
     "contact": "Contatos",
     "company": "Empresas",

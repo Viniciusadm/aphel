@@ -1,4 +1,6 @@
 {
+  "name": "Importações",
+  "description": "Importação de CSV e XLSX com mapeamento de colunas, simulação, execução e nova tentativa das linhas com erro.",
   "actions": {
     "import": "Importar"
   },

@@ -1,4 +1,6 @@
 {
+  "name": "Tasks",
+  "description": "Tasks, logged tasks, activity types, calendar and activity inbox",
   "page": {
     "title": "Tasks",
     "description": "Tasks and logged tasks with people, organizations and deals.",

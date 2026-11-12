@@ -1,4 +1,6 @@
 {
+  "name": "Negócios",
+  "description": "Negócios, mudanças de etapa, o quadro Kanban e a equipe de cada negócio.",
   "list": {
     "title": "Oportunidades",
     "description": "Acompanhe as negociações do funil, mova etapas e registre ganhos e perdas.",

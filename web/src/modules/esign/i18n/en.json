@@ -6,7 +6,11 @@
   "settings": {
     "environment": {
       "label": "Environment",
-      "help": "Sandbox for testing; production for real signatures"
+      "help": "Sandbox for testing; production for real signatures",
+      "options": {
+        "sandbox": "Sandbox (testing)",
+        "production": "Production"
+      }
     },
     "access_token": {
       "label": "Clicksign access token",

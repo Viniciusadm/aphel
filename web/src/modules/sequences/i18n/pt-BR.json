@@ -1,4 +1,6 @@
 {
+  "name": "Sequências",
+  "description": "Sequências de vendas (cadências): etapas, inscrições, saídas automáticas, limites de envio e métricas por etapa.",
   "page": {
     "title": "Sequências",
     "description": "Cadências de e-mails, ligações e tarefas que acompanham cada contato até ele responder.",

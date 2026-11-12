@@ -1,4 +1,6 @@
 {
+  "name": "Organization backup",
+  "description": "Full export of the organization (zip with records, relationships, files, configuration and manifest) and its restoration",
   "page": {
     "title": "Full export",
     "description": "Build a package with all the data of the organization for backup, auditing or to move it to another Aphel installation."
