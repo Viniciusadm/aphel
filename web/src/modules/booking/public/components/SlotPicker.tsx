@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { CalendarX2, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -42,6 +42,7 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
   const [weekOffset, setWeekOffset] = useState(0)
   const [chosenDay, setChosenDay] = useState<string | null>(null)
   const { days, range } = useWeek(timeZone, weekOffset)
+  const activeRef = useRef<HTMLButtonElement>(null)
   const slots = useQuery({
     queryKey: bookingKeys.slotRange(owner, range),
     queryFn: () => fetchSlots(range),
@@ -62,6 +63,10 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
   const daySlots = activeDay ? (slotsByDay.get(activeDay) ?? []) : []
   const weekEmpty = !slots.isPlaceholderData && slots.isSuccess && firstAvailable === null
 
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ inline: 'center', block: 'nearest' })
+  }, [activeDay, weekOffset])
+
   const moveWeek = (delta: number) => {
     setChosenDay(null)
     setWeekOffset((current) => Math.min(MAX_WEEKS_AHEAD, Math.max(0, current + delta)))
@@ -69,8 +74,8 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
+      <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between gap-1 sm:justify-start">
           <Button
             variant="outline"
             size="icon"
@@ -80,7 +85,7 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
           >
             <ChevronLeft />
           </Button>
-          <span className="min-w-36 text-center text-sm font-medium">
+          <span className="min-w-36 flex-1 text-center text-sm font-medium sm:flex-none">
             {formatRangeLabel(days[0], days[days.length - 1])}
           </span>
           <Button
@@ -95,7 +100,11 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
         </div>
         <TimeZonePicker value={timeZone} onChange={onTimeZoneChange} />
       </div>
-      <div className="grid grid-cols-7 gap-1" role="group" aria-label={t('slots.days')}>
+      <div
+        className="-mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-7 sm:overflow-visible sm:px-0"
+        role="group"
+        aria-label={t('slots.days')}
+      >
         {days.map((day) => {
           const label = formatDayLabel(day)
           const count = slotsByDay.get(day)?.length ?? 0
@@ -103,12 +112,13 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
           return (
             <button
               key={day}
+              ref={active ? activeRef : undefined}
               type="button"
               disabled={count === 0}
               aria-pressed={active}
               onClick={() => setChosenDay(day)}
               className={cn(
-                'flex flex-col items-center gap-0.5 rounded-md border px-1 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40',
+                'flex min-w-[4.25rem] shrink-0 snap-start flex-col items-center gap-0.5 rounded-lg border px-1 py-2.5 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-0',
                 active ? 'border-primary-solid bg-primary-solid text-primary-foreground' : 'bg-background hover:bg-accent',
               )}
             >
@@ -151,7 +161,7 @@ export function SlotPicker({ owner, fetchSlots, timeZone, onTimeZoneChange, sele
                   <li key={slot.starts_at}>
                     <Button
                       variant={isSelected ? 'default' : 'outline'}
-                      className="w-full"
+                      className="h-11 w-full text-sm"
                       aria-pressed={isSelected}
                       onClick={() => onSelect(slot)}
                     >

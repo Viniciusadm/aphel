@@ -14,7 +14,7 @@ import { bookingApi, useCancelPublicBooking, usePublicBooking, useReschedule } f
 import { BookingLayout } from './components/BookingLayout'
 import { InvalidLink } from './components/InvalidLink'
 import { SlotPicker } from './components/SlotPicker'
-import { formatWhen } from './lib/time'
+import { formatWhen, timeZoneLabel } from './lib/time'
 import type { PublicBookingResponse, PublicSlot } from './types'
 import { Alert } from '@/components/ui/alert'
 import { Field } from '@/components/ui/field'
@@ -78,7 +78,9 @@ function BookingSummary({ booking, timeZone }: BookingSummaryProps) {
           </li>
         )}
       </ul>
-      <p className="text-xs text-muted-foreground">{t('timezone.current', { timezone: timeZone })}</p>
+      <p className="text-xs text-muted-foreground" title={timeZone}>
+        {t('timezone.current', { timezone: timeZoneLabel(timeZone) })}
+      </p>
       {canceled && booking.cancel_reason && (
         <p className="text-sm text-muted-foreground">{t('manage.cancelReason', { reason: booking.cancel_reason })}</p>
       )}
@@ -178,7 +180,7 @@ function ManageBooking({ token, booking }: { token: string; booking: PublicBooki
   const canceled = booking.status === 'canceled'
 
   return (
-    <div className="grid gap-6 p-6">
+    <div className="grid gap-6 p-5 sm:p-6 md:p-8">
       {state.booked && !canceled && !rescheduling && (
         <div className="flex items-start gap-3 rounded-lg border border-success-solid/30 bg-success-solid/10 p-4">
           <CalendarCheck2 className="size-5 shrink-0" aria-hidden />
@@ -213,7 +215,9 @@ function ManageBooking({ token, booking }: { token: string; booking: PublicBooki
         booking.can_change &&
         !canceled && (
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setRescheduling(true)}>{t('manage.reschedule')}</Button>
+            <Button className="flex-1 sm:flex-none" onClick={() => setRescheduling(true)}>
+              {t('manage.reschedule')}
+            </Button>
             <CancelBookingButton token={token} />
           </div>
         )

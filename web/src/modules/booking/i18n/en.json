@@ -215,7 +215,7 @@
       "back": "Back"
     },
     "timezone": {
-      "current": "Times in {{timezone}}",
+      "current": "Time zone: {{timezone}}",
       "change": "Change",
       "label": "Time zone",
       "apply": "Apply"
@@ -243,7 +243,8 @@
         "required": "This answer is required.",
         "answerLength": "Use at most 2000 characters.",
         "invalid": "Invalid value."
-      }
+      },
+      "change": "Change"
     },
     "errors": {
       "slotUnavailable": "This time was just taken. Please pick another time.",

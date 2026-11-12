@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { TimeZoneInput } from '@/modules/booking/lib/TimeZoneInput'
 import { isValidTimeZone } from '@/modules/booking/lib/format'
+import { timeZoneLabel } from '../lib/time'
 
 interface TimeZonePickerProps {
   value: string
@@ -19,9 +20,9 @@ export function TimeZonePicker({ value, onChange }: TimeZonePickerProps) {
 
   if (!editing) {
     return (
-      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
         <Globe className="size-4" aria-hidden />
-        <span>{t('timezone.current', { timezone: value })}</span>
+        <span title={value}>{t('timezone.current', { timezone: timeZoneLabel(value) })}</span>
         <Button
           variant="link"
           size="sm"

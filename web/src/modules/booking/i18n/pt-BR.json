@@ -215,7 +215,7 @@
       "back": "Voltar"
     },
     "timezone": {
-      "current": "Horários em {{timezone}}",
+      "current": "Fuso horário: {{timezone}}",
       "change": "Alterar",
       "label": "Fuso horário",
       "apply": "Aplicar"
@@ -243,7 +243,8 @@
         "required": "Resposta obrigatória.",
         "answerLength": "Use no máximo 2000 caracteres.",
         "invalid": "Valor inválido."
-      }
+      },
+      "change": "Alterar"
     },
     "errors": {
       "slotUnavailable": "Este horário acabou de ser ocupado. Escolha outro horário.",

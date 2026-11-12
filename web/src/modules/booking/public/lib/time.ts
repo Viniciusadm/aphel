@@ -114,6 +114,17 @@ export function formatTime(iso: string, timeZone: string): string {
   )
 }
 
+export function timeZoneLabel(timeZone: string): string {
+  try {
+    const part = new Intl.DateTimeFormat(activeLocale(), { timeZone, timeZoneName: 'longGeneric' })
+      .formatToParts(new Date())
+      .find((item) => item.type === 'timeZoneName')
+    return part?.value ?? timeZone
+  } catch {
+    return timeZone
+  }
+}
+
 export function formatWhen(startsAt: string, endsAt: string, timeZone: string): string {
   const date = new Intl.DateTimeFormat(activeLocale(), {
     weekday: 'long',

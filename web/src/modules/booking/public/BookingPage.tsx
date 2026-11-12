@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CalendarClock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
@@ -16,7 +16,7 @@ import { BookingLayout } from './components/BookingLayout'
 import { InvalidLink } from './components/InvalidLink'
 import { MeetingDetails } from './components/MeetingDetails'
 import { SlotPicker } from './components/SlotPicker'
-import { formatWhen } from './lib/time'
+import { formatWhen, timeZoneLabel } from './lib/time'
 import type { PublicMeetingTypeResponse, PublicSlot } from './types'
 import { Alert } from '@/components/ui/alert'
 
@@ -84,8 +84,8 @@ function BookingFlow({ slug, meetingType }: { slug: string; meetingType: PublicM
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
-      <aside className="border-b p-6 md:border-r md:border-b-0">
+    <div className="grid md:grid-cols-[minmax(0,19rem)_minmax(0,1fr)]">
+      <aside className="border-b p-5 sm:p-6 md:border-r md:border-b-0 md:p-8">
         <MeetingDetails
           organizationName={meetingType.organization_name}
           meetingName={meetingType.name}
@@ -95,7 +95,7 @@ function BookingFlow({ slug, meetingType }: { slug: string; meetingType: PublicM
           description={meetingType.description}
         />
       </aside>
-      <section className="grid content-start gap-4 p-6 md:pl-0">
+      <section className="grid content-start gap-5 p-5 sm:p-6 md:p-8">
         {errorKey && (
           <Alert>
             {t(errorKey)}
@@ -117,18 +117,27 @@ function BookingFlow({ slug, meetingType }: { slug: string; meetingType: PublicM
           />
         </div>
         <div className={step === 'details' && slot ? 'grid gap-4' : 'hidden'}>
-          <div className="grid gap-2">
-            <Button variant="ghost" size="sm" className="w-fit px-2" onClick={() => setStep('slot')}>
-              <ArrowLeft />
-              {t('form.changeTime')}
-            </Button>
+          <div className="grid gap-3">
             <h2 className="text-lg font-semibold">{t('form.title')}</h2>
             {slot && (
-              <p className="text-sm text-muted-foreground first-letter:uppercase">
-                {formatWhen(slot.starts_at, slot.ends_at, timeZone)}
-              </p>
+              <div className="flex items-start justify-between gap-3 rounded-lg border bg-muted/40 p-3">
+                <div className="flex min-w-0 items-start gap-3">
+                  <CalendarClock className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden />
+                  <div className="grid gap-0.5 text-sm">
+                    <span className="font-medium first-letter:uppercase">
+                      {formatWhen(slot.starts_at, slot.ends_at, timeZone)}
+                    </span>
+                    <span className="text-xs text-muted-foreground" title={timeZone}>
+                      {t('timezone.current', { timezone: timeZoneLabel(timeZone) })}
+                    </span>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" className="shrink-0" onClick={() => setStep('slot')}>
+                  <ArrowLeft />
+                  {t('form.change')}
+                </Button>
+              </div>
             )}
-            <p className="text-xs text-muted-foreground">{t('timezone.current', { timezone: timeZone })}</p>
           </div>
           <BookingForm questions={meetingType.questions} submitting={book.isPending} onSubmit={submit} />
         </div>
