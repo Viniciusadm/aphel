@@ -18,6 +18,7 @@ import { serverFieldErrors } from '../general/violations'
 import { FormRow } from '../organization/components/FormRow'
 import { NativeSelect } from '../organization/components/NativeSelect'
 import { PageHeader } from '@/components/ui/page-header'
+import { SettingsCard, WIDE_FIELD } from '../components/SettingsCard'
 import { Page } from '@/components/ui/page'
 import { ToggleField } from '@/components/ui/toggle-field'
 
@@ -83,10 +84,16 @@ function toSettings(values: FormValues): StorageSettings {
 export function StorageSettingsPage() {
   const { t } = useTranslation('settings')
   return (
-    <Page>
-      <PageHeader title={t('configuration.storage.title')} description={t('configuration.storage.description')} />
-      <ConfigurationGate>{(configuration) => <StorageForm configuration={configuration} />}</ConfigurationGate>
-    </Page>
+    <ConfigurationGate
+      fallback={(content) => (
+        <Page width="form">
+          <PageHeader title={t('configuration.storage.title')} description={t('configuration.storage.description')} />
+          {content}
+        </Page>
+      )}
+    >
+      {(configuration) => <StorageForm configuration={configuration} />}
+    </ConfigurationGate>
   )
 }
 
@@ -162,9 +169,38 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
   const busy = isSubmitting || testing
 
   return (
-    <form className="grid max-w-2xl gap-6" onSubmit={onSubmit} noValidate>
+    <Page width="form">
+      <PageHeader
+        title={t('configuration.storage.title')}
+        description={t('configuration.storage.description')}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" disabled={busy} onClick={() => void runTest()}>
+              {testing ? t('configuration.storage.testing') : t('configuration.storage.test')}
+            </Button>
+            <Button type="submit" form="storage-form" disabled={busy || !isDirty}>
+              {isSubmitting ? t('configuration.saving') : t('configuration.save')}
+            </Button>
+          </div>
+        }
+      />
+      {result && (
+        <p
+          role="status"
+          className={
+            result.ok
+              ? 'rounded-md border border-success/40 bg-success/10 p-3 text-sm'
+              : 'rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive'
+          }
+        >
+          {result.ok
+            ? t('configuration.storage.testOk')
+            : t('configuration.storage.testFailed', { message: result.message ?? '' })}
+        </p>
+      )}
+    <form id="storage-form" className="grid gap-6" onSubmit={onSubmit} noValidate>
       <UnsavedChangesGuard when={isDirty} />
-      <fieldset className="grid gap-4" disabled={busy}>
+      <SettingsCard title={t('configuration.storage.sections.location')} disabled={busy}>
         <FormRow id="storage-driver" label={t('configuration.storage.driver')}>
           {(describedBy) => (
             <NativeSelect id="storage-driver" aria-describedby={describedBy} {...register('driver')}>
@@ -174,11 +210,12 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
           )}
         </FormRow>
         {driverChanged && (
-          <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
+          <p className={`rounded-md border border-warning/40 bg-warning/10 p-3 text-sm ${WIDE_FIELD}`}>
             {t('configuration.storage.driverChangeWarning')}
           </p>
         )}
         {driver === 'local' ? (
+          <div className={WIDE_FIELD}>
           <FormRow
             id="storage-path"
             label={t('configuration.storage.path')}
@@ -195,6 +232,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
               />
             )}
           </FormRow>
+          </div>
         ) : (
           <>
             <FormRow id="storage-bucket" label={t('configuration.storage.bucket')} error={errorText(errors.bucket?.message)}>
@@ -207,6 +245,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
                 <Input placeholder={t('configuration.storage.regionPlaceholder')} id="storage-region" aria-describedby={describedBy} {...register('region')} />
               )}
             </FormRow>
+            <div className={WIDE_FIELD}>
             <FormRow
               id="storage-endpoint"
               label={t('configuration.storage.endpoint')}
@@ -223,6 +262,12 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
                 />
               )}
             </FormRow>
+            </div>
+          </>
+        )}
+      </SettingsCard>
+      {driver === 's3' && (
+        <SettingsCard title={t('configuration.storage.sections.credentials')} disabled={busy}>
             <FormRow id="storage-access-key" label={t('configuration.storage.accessKeyId')}>
               {(describedBy) => (
                 <Input placeholder={t('configuration.storage.accessKeyIdPlaceholder')}
@@ -253,48 +298,20 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
               )}
             </FormRow>
             {configuration.storage_secret_configured && (
-              <CheckboxRow
-                control={control}
-                name="clearSecret"
-                label={t('configuration.storage.clearSecret')}
-              />
+              <div className={WIDE_FIELD}>
+                <CheckboxRow control={control} name="clearSecret" label={t('configuration.storage.clearSecret')} />
+              </div>
             )}
-            <CheckboxRow
-              control={control}
-              name="forcePathStyle"
-              label={t('configuration.storage.forcePathStyle')}
-            />
-            <CheckboxRow
-              control={control}
-              name="allowHttp"
-              label={t('configuration.storage.allowHttp')}
-            />
-          </>
-        )}
-      </fieldset>
-      {result && (
-        <p
-          role="status"
-          className={
-            result.ok
-              ? 'rounded-md border border-success/40 bg-success/10 p-3 text-sm'
-              : 'rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive'
-          }
-        >
-          {result.ok
-            ? t('configuration.storage.testOk')
-            : t('configuration.storage.testFailed', { message: result.message ?? '' })}
-        </p>
+            <div className={WIDE_FIELD}>
+              <CheckboxRow control={control} name="forcePathStyle" label={t('configuration.storage.forcePathStyle')} />
+            </div>
+            <div className={WIDE_FIELD}>
+              <CheckboxRow control={control} name="allowHttp" label={t('configuration.storage.allowHttp')} />
+            </div>
+        </SettingsCard>
       )}
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button type="button" variant="outline" disabled={busy} onClick={() => void runTest()}>
-          {testing ? t('configuration.storage.testing') : t('configuration.storage.test')}
-        </Button>
-        <Button type="submit" disabled={busy || !isDirty}>
-          {isSubmitting ? t('configuration.saving') : t('configuration.save')}
-        </Button>
-      </div>
     </form>
+    </Page>
   )
 }
 

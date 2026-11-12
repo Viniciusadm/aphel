@@ -498,7 +498,11 @@
       "appPathPlaceholder": "empty = root",
       "moveAppTitle": "Change the app address?",
       "moveAppDescription": "The app will open at {{url}} for everyone. Old bookmarks and links stop working, and the app installed on phones must be installed again. If the new address does not open, use {{recovery}}.",
-      "moveAppConfirm": "Change address"
+      "moveAppConfirm": "Change address",
+      "sections": {
+        "address": "Address and access",
+        "uploads": "File uploads"
+      }
     },
     "mail": {
       "title": "Outgoing email",
@@ -553,7 +557,11 @@
       "bucketPlaceholder": "E.g.: my-bucket",
       "regionPlaceholder": "E.g.: us-east-1",
       "accessKeyIdPlaceholder": "E.g.: AKIAIOSFODNN7EXAMPLE",
-      "secretKeyPlaceholder": "Paste the secret key"
+      "secretKeyPlaceholder": "Paste the secret key",
+      "sections": {
+        "location": "Where to store",
+        "credentials": "Service access"
+      }
     },
     "webhooks": {
       "title": "Delivery",

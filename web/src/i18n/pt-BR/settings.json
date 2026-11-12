@@ -498,7 +498,11 @@
       "appPathPlaceholder": "vazio = raiz",
       "moveAppTitle": "Mudar o endereço do sistema?",
       "moveAppDescription": "O sistema passa a abrir em {{url}} para todos. Favoritos e links antigos param de funcionar e o app instalado no celular precisa ser instalado de novo. Se o novo endereço não abrir, use {{recovery}}.",
-      "moveAppConfirm": "Mudar endereço"
+      "moveAppConfirm": "Mudar endereço",
+      "sections": {
+        "address": "Endereço e acesso",
+        "uploads": "Envio de arquivos"
+      }
     },
     "mail": {
       "title": "E-mail de envio",
@@ -553,7 +557,11 @@
       "bucketPlaceholder": "Ex.: meu-bucket",
       "regionPlaceholder": "Ex.: sa-east-1",
       "accessKeyIdPlaceholder": "Ex.: AKIAIOSFODNN7EXAMPLE",
-      "secretKeyPlaceholder": "Cole a chave secreta"
+      "secretKeyPlaceholder": "Cole a chave secreta",
+      "sections": {
+        "location": "Onde guardar",
+        "credentials": "Acesso ao serviço"
+      }
     },
     "webhooks": {
       "title": "Entrega",

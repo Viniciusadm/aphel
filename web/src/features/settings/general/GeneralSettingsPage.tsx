@@ -14,6 +14,7 @@ import { positiveInteger, useSaveConfiguration, type OrganizationConfiguration }
 import { ConfigurationGate } from './ConfigurationGate'
 import { serverFieldErrors } from './violations'
 import { PageHeader } from '@/components/ui/page-header'
+import { SettingsCard, WIDE_FIELD } from '../components/SettingsCard'
 import { Page } from '@/components/ui/page'
 
 const SYSTEM_MANAGE = 'system.manage'
@@ -56,11 +57,17 @@ function toFormValues(configuration: OrganizationConfiguration): FormValues {
 export function GeneralSettingsPage() {
   const { t } = useTranslation('settings')
   return (
-    <Page aria-labelledby="general-settings-title">
-<PageHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
-      <MailNotConfiguredNotice />
-      <ConfigurationGate>{(configuration) => <GeneralForm configuration={configuration} />}</ConfigurationGate>
-    </Page>
+    <ConfigurationGate
+      fallback={(content) => (
+        <Page width="form">
+          <PageHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
+          <MailNotConfiguredNotice />
+          {content}
+        </Page>
+      )}
+    >
+      {(configuration) => <GeneralForm configuration={configuration} />}
+    </ConfigurationGate>
   )
 }
 
@@ -124,9 +131,21 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
     message ? (message.startsWith('configuration.') ? t(message as 'configuration.saved') : message) : undefined
 
   return (
-    <form className="grid max-w-2xl gap-6" onSubmit={onSubmit} noValidate>
+    <Page width="form">
+      <PageHeader
+        title={t('configuration.general.title')}
+        description={t('configuration.general.description')}
+        actions={
+          <Button type="submit" form="general-form" disabled={isSubmitting || !isDirty}>
+            {isSubmitting ? t('configuration.saving') : t('configuration.save')}
+          </Button>
+        }
+      />
+      <MailNotConfiguredNotice />
+      <form id="general-form" className="grid gap-6" onSubmit={onSubmit} noValidate>
       <UnsavedChangesGuard when={isDirty && pendingMove === null} />
-      <fieldset className="grid gap-4" disabled={isSubmitting}>
+      <SettingsCard title={t('configuration.general.sections.address')} disabled={isSubmitting}>
+        <div className={WIDE_FIELD}>
         <FormRow
           id="general-public-base-url"
           label={t('configuration.general.publicBaseUrl')}
@@ -145,11 +164,13 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
             />
           )}
         </FormRow>
+        </div>
         {insecure && (
-          <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
+          <p className={`rounded-md border border-warning/40 bg-warning/10 p-3 text-sm ${WIDE_FIELD}`}>
             {t('configuration.general.insecureWarning')}
           </p>
         )}
+        <div className={WIDE_FIELD}>
         <FormRow
           id="general-app-path"
           label={t('configuration.general.appPath')}
@@ -175,6 +196,9 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
             </div>
           )}
         </FormRow>
+        </div>
+      </SettingsCard>
+      <SettingsCard title={t('configuration.general.sections.uploads')} disabled={isSubmitting}>
         <FormRow
           id="general-max-upload"
           label={t('configuration.general.maxUploadMb')}
@@ -192,12 +216,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
             />
           )}
         </FormRow>
-      </fieldset>
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting || !isDirty}>
-          {isSubmitting ? t('configuration.saving') : t('configuration.save')}
-        </Button>
-      </div>
+      </SettingsCard>
       <ConfirmDialog
         open={pendingMove !== null}
         onOpenChange={(open) => !open && setPendingMove(null)}
@@ -210,6 +229,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
           setPendingMove(null)
         }}
       />
-    </form>
+      </form>
+    </Page>
   )
 }

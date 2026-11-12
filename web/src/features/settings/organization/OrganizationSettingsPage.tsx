@@ -31,6 +31,7 @@ import { NativeSelect } from './components/NativeSelect'
 import { brandPalette, contrastRatio, formatRatio, isHexColor } from './lib/contrast'
 import { LOCALES, currencyLabel, currencyOptions, timezoneOptions } from './lib/preferences'
 import { PageHeader } from '@/components/ui/page-header'
+import { SettingsCard, WIDE_FIELD } from '../components/SettingsCard'
 import { Page } from '@/components/ui/page'
 
 const DEFAULT_PICKER_COLOR = '#4f46e5'
@@ -78,16 +79,16 @@ export function OrganizationSettingsPage() {
   const { t } = useTranslation('organization-settings')
   const query = useOrganizationSettings()
 
+  if (query.isSuccess) return <OrganizationForm organization={query.data} />
+
   return (
-    <Page aria-labelledby="organization-settings-title">
-<PageHeader title={t('title')} description={t('description')} />
+    <Page width="form">
+      <PageHeader title={t('title')} description={t('description')} />
       <MailNotConfiguredNotice />
       {query.isPending ? (
         <PageLoader />
-      ) : query.isError ? (
-        <ErrorState title={t('loadError')} onRetry={() => void query.refetch()} />
       ) : (
-        <OrganizationForm organization={query.data} />
+        <ErrorState title={t('loadError')} onRetry={() => void query.refetch()} />
       )}
     </Page>
   )
@@ -202,11 +203,24 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
   const busy = isSubmitting || uploading
 
   return (
-    <form className="grid max-w-2xl gap-8" onSubmit={onSubmit} noValidate>
+    <Page width="form">
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          canEdit && (
+            <Button type="submit" form="organization-form" disabled={busy || (!isDirty && !logoChanged)}>
+              {isSubmitting ? t('saving') : t('save')}
+            </Button>
+          )
+        }
+      />
+      <MailNotConfiguredNotice />
+      <form id="organization-form" className="grid gap-6" onSubmit={onSubmit} noValidate>
       <UnsavedChangesGuard when={canEdit && (isDirty || logoChanged)} />
       {!canEdit && <p className="rounded-md border bg-muted/50 p-3 text-sm text-muted-foreground">{t('readOnly')}</p>}
-      <fieldset className="grid gap-4" disabled={!canEdit || busy}>
-        <legend className="mb-2 text-base font-semibold">{t('sections.identity')}</legend>
+      <SettingsCard title={t('sections.identity')} disabled={!canEdit || busy}>
+        <div className={WIDE_FIELD}>
         <FormRow id="organization-name" label={t('fields.name')} error={errorText(errors.name?.message)}>
           {(describedBy) => (
             <Input placeholder={t('placeholders.name')}
@@ -218,8 +232,9 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
             />
           )}
         </FormRow>
+        </div>
 
-        <div className="grid gap-2">
+        <div className={`grid gap-2 ${WIDE_FIELD}`}>
           <span className="text-sm font-medium" id="organization-logo-label">
             {t('fields.logo')}
           </span>
@@ -261,6 +276,7 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
           )}
         </div>
 
+        <div className={WIDE_FIELD}>
         <FormRow
           id="organization-primary-color"
           label={t('fields.primaryColor')}
@@ -296,8 +312,9 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
             </div>
           )}
         </FormRow>
+        </div>
         {previewColor && palette && (
-          <div className="grid gap-2" aria-live="polite">
+          <div className={`grid gap-2 ${WIDE_FIELD}`} aria-live="polite">
             <span className="text-sm font-medium">{t('color.preview')}</span>
             <div className="flex flex-wrap items-center gap-3">
               <span
@@ -313,10 +330,9 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
             </div>
           </div>
         )}
-      </fieldset>
+      </SettingsCard>
 
-      <fieldset className="grid gap-4" disabled={!canEdit || busy}>
-        <legend className="mb-2 text-base font-semibold">{t('sections.regional')}</legend>
+      <SettingsCard title={t('sections.regional')} disabled={!canEdit || busy}>
         <FormRow id="organization-locale" label={t('fields.locale')} error={errorText(errors.locale?.message)}>
           {(describedBy) => (
             <NativeSelect id="organization-locale" aria-describedby={describedBy} {...register('locale')}>
@@ -360,15 +376,8 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
             </NativeSelect>
           )}
         </FormRow>
-      </fieldset>
-
-      {canEdit && (
-        <div className="flex justify-end">
-          <Button type="submit" disabled={busy || (!isDirty && !logoChanged)}>
-            {isSubmitting ? t('saving') : t('save')}
-          </Button>
-        </div>
-      )}
-    </form>
+      </SettingsCard>
+      </form>
+    </Page>
   )
 }

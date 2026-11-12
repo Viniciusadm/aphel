@@ -6,12 +6,15 @@ import { useOrganizationConfiguration, type OrganizationConfiguration } from './
 
 interface ConfigurationGateProps {
   children: (configuration: OrganizationConfiguration) => ReactNode
+  fallback?: (content: ReactNode) => ReactNode
 }
 
-export function ConfigurationGate({ children }: ConfigurationGateProps) {
+export function ConfigurationGate({ children, fallback = (content) => content }: ConfigurationGateProps) {
   const { t } = useTranslation('settings')
   const query = useOrganizationConfiguration()
-  if (query.isPending) return <PageLoader />
-  if (query.isError) return <ErrorState title={t('configuration.loadError')} onRetry={() => void query.refetch()} />
+  if (query.isPending) return <>{fallback(<PageLoader />)}</>
+  if (query.isError) {
+    return <>{fallback(<ErrorState title={t('configuration.loadError')} onRetry={() => void query.refetch()} />)}</>
+  }
   return <>{children(query.data)}</>
 }
