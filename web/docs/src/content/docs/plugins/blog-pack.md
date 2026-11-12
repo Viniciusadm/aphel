@@ -9,20 +9,20 @@ A pack lists plugins and seeds a few records; it contains no code of its own. Th
 
 | Plugin | What it is |
 | --- | --- |
-| **Blog** `1.5.0` | The product for people who write: ideas, posts, series, authors, categories, tags, feeds, import and export. |
+| **Blog** `1.5.1` | The product for people who write: ideas, posts, series, authors, categories, tags, feeds, import and export. |
 | **Pages** `1.0.0` | Site pages built from blocks: Home, About, Services, Contact. |
 | **Comments** `0.3.0` | Visitor comments with moderation and staff replies, for any record that has a public page. |
 
 | Pack | Installs | Creates |
 | --- | --- | --- |
-| **Blog** `2.5.0` | Blog, Pages, Comments | A blog, an author for the person who imports, an About page in draft, menu items, the home page pointing at the blog, categories and tags |
+| **Blog** `2.5.1` | Blog, Pages, Comments | A blog, an author for the person who imports, an About page in draft, menu items, the home page pointing at the blog, categories and tags |
 | **Institutional site** `1.1.0` | Pages | Home, About, Services and Contact in draft with example text, their menu items and the home page |
 
 Both need Aphel `>=0.1.1` built with `objects`, `site` and `publication`; the Blog pack also needs `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Disabled required modules are shown in consent and enabled by the same import.
 
 ## Import and publish
 
-1. Sign in as an administrator and open the plugin import screen. Select `blog-2.5.0.aphelpack` (or `institutional-1.1.0.aphelpack`) and verify it with the adjacent SHA-256 file.
+1. Sign in as an administrator and open the plugin import screen. Select `blog-2.5.1.aphelpack` (or `institutional-1.1.0.aphelpack`) and verify it with the adjacent SHA-256 file.
 2. Review the consent dialog and import. The API equivalent is `POST /api/v1/wasm-runtime/packs` with the multipart field `package`, first with `dry_run=true`, then with `acknowledge_web_version=<pack version>`.
 3. Open Site → *Overview*: it lists what is left (name and logo, home page, menu, first published content, search engines).
 4. The **Blog** group of the menu has *Write*, *Posts*, *Series*, *Comments*, *Authors*, *Categories and tags* and *Blog settings*.
@@ -65,7 +65,7 @@ Pages and Blog describe a *document kind* and let the host edit it: see [Documen
 From the workspace containing `app/` and `plugins/`:
 
 ```bash
-CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/blog/packs/blog -o plugins/packs/blog/releases/blog-2.5.0.aphelpack
+CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/blog/packs/blog -o plugins/packs/blog/releases/blog-2.5.1.aphelpack
 CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/pages/packs/institutional -o plugins/packs/institutional/releases/institutional-1.1.0.aphelpack
 ```
 
