@@ -36,7 +36,7 @@
   },
   "dependents": {
     "title": "Usado por",
-    "hint": "Desabilite antes os módulos que dependem deste: {{names}}."
+    "hint": "Desabilite antes o que depende deste módulo: {{names}}."
   },
   "details": {
     "summary": "Permissões e eventos",

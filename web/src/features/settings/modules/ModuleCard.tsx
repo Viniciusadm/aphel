@@ -50,8 +50,9 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
   const [busy, setBusy] = useState(false)
   const name = text.name
   const problem = compatibilityProblem(module)
-  const blockedByDependents = module.enabled && module.enabled_dependents.length > 0
-  const dependentNames = module.enabled_dependents.map(nameOf).join(', ')
+  const dependents = [...module.enabled_dependents.map(nameOf), ...module.extension_dependents]
+  const blockedByDependents = module.enabled && dependents.length > 0
+  const dependentNames = dependents.join(', ')
   const date = (value: string) => formatDateTime(value, formatting)
 
   const enable = async () => {
@@ -170,13 +171,13 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
               </ul>
             )}
           </div>
-          {module.enabled_dependents.length > 0 && (
+          {dependents.length > 0 && (
             <div className="grid gap-1">
               <h4 className="text-xs font-medium text-muted-foreground">{t('dependents.title')}</h4>
               <ul className="flex flex-wrap gap-1.5">
-                {module.enabled_dependents.map((key) => (
-                  <li key={key}>
-                    <Badge variant="outline">{nameOf(key)}</Badge>
+                {dependents.map((name) => (
+                  <li key={name}>
+                    <Badge variant="outline">{name}</Badge>
                   </li>
                 ))}
               </ul>

@@ -140,6 +140,12 @@ impl ModuleLifecycle for ModuleRuntime {
         crate::modules::toggle_guard::held_modules(&self.pool).await
     }
 
+    async fn extension_dependents(
+        &self,
+    ) -> Result<std::collections::HashMap<String, Vec<String>>, AppError> {
+        crate::modules::toggle_guard::dependents(&self.pool).await
+    }
+
     async fn on_enable(&self, scope: &AccessScope, key: &str) -> Result<(), AppError> {
         let entry = self.entry(key)?;
         self.refresh().await;

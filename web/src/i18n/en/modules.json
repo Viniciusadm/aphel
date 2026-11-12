@@ -36,7 +36,7 @@
   },
   "dependents": {
     "title": "Used by",
-    "hint": "Disable the modules that depend on this one first: {{names}}."
+    "hint": "First disable what depends on this module: {{names}}."
   },
   "details": {
     "summary": "Permissions and events",

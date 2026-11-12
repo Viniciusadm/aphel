@@ -2642,7 +2642,8 @@
               "settings",
               "configured_secrets",
               "dependencies",
-              "enabled_dependents"
+              "enabled_dependents",
+              "extension_dependents"
             ],
             "properties": {
               "compatibility": {
@@ -2700,6 +2701,12 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/ModuleEventResponse"
+                }
+              },
+              "extension_dependents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
               },
               "held_by": {
@@ -2976,7 +2983,8 @@
                 "settings",
                 "configured_secrets",
                 "dependencies",
-                "enabled_dependents"
+                "enabled_dependents",
+                "extension_dependents"
               ],
               "properties": {
                 "compatibility": {
@@ -3034,6 +3042,12 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/ModuleEventResponse"
+                  }
+                },
+                "extension_dependents": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
                   }
                 },
                 "held_by": {
@@ -3464,7 +3478,8 @@
           "settings",
           "configured_secrets",
           "dependencies",
-          "enabled_dependents"
+          "enabled_dependents",
+          "extension_dependents"
         ],
         "properties": {
           "compatibility": {
@@ -3522,6 +3537,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ModuleEventResponse"
+            }
+          },
+          "extension_dependents": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           },
           "held_by": {

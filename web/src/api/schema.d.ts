@@ -8602,7 +8602,7 @@ export interface paths {
         /** @description Lists the plugin packs installed in this Aphel with the plugins that still belong to each (permission `system.manage`). */
         get: operations["plugin_packs_list"];
         put?: never;
-        /** @description Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins. After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`. */
+        /** @description Installs or upgrades a plugin pack: an `.aphelpack` zip with `pack.toml` and the `.aphelplugin` packages it lists, sent as the multipart field `package` (permission `system.manage`). The plugins are installed in dependency order (a plugin that calls an operation or listens to an event of another plugin of the pack comes after it). Every plugin is validated before anything is installed; call first with `dry_run=true` to get each plugin's consent, action (`install`, `upgrade`, `unchanged`), error and the pack settings that will apply. Plugins whose package did not change are skipped. Pack settings fill only the settings that have no value yet. `acknowledge_web_version=<pack version>` admits the integrated frontend code of every plugin of the pack. If a plugin fails while installing, the following ones are skipped and the response is 207; sending the pack again continues from there. `requires_aphel` and `requires_modules` are checked first (`plugin_pack_aphel_incompatible`, `plugin_pack_module_unavailable`); required modules that are disabled are enabled before the plugins (the module that administers objects counts as required when a plugin declares entities). After the plugins, the `[[provision]]` resources are created in dependency order and reported in `provisions` (`created`, `updated`, `kept`, `user_changed`, `removed`, `failed`, `skipped`); a failed resource makes the response 207 and is retried on the next install. Publishes `plugin.pack_installed`. */
         post: operations["plugin_packs_install"];
         delete?: never;
         options?: never;
@@ -13416,6 +13416,7 @@ export interface components {
                 enabled_at?: string | null;
                 enabled_dependents: string[];
                 events: components["schemas"]["ModuleEventResponse"][];
+                extension_dependents: string[];
                 held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
@@ -15267,6 +15268,7 @@ export interface components {
                 enabled_at?: string | null;
                 enabled_dependents: string[];
                 events: components["schemas"]["ModuleEventResponse"][];
+                extension_dependents: string[];
                 held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
@@ -18569,6 +18571,7 @@ export interface components {
             enabled_at?: string | null;
             enabled_dependents: string[];
             events: components["schemas"]["ModuleEventResponse"][];
+            extension_dependents: string[];
             held_by?: string | null;
             installed_version?: string | null;
             /** @example proposals */

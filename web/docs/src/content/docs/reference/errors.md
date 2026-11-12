@@ -144,6 +144,7 @@ The tables below list every code that the platform and the built-in modules defi
 | `module_not_found` | 404 | Module not found. |
 | `module_required` | 409 | This module is required by this build and cannot be disabled. |
 | `module_required_by` | 409 | Other enabled modules depend on this one; disable them first. |
+| `module_required_by_extension` | 409 | An enabled plugin requires a contract, operation or permission of this module; disable or uninstall the plugin first. |
 | `module_settings_required` | 422 | Configure the required settings before enabling the module. |
 | `mutation_already_applied` | 409 | The durable mutation was already committed. |
 | `mutation_multiple_transactions` | 409 | A durable mutation must use one committing transaction. |

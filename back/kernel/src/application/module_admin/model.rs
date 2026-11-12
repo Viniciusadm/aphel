@@ -111,6 +111,7 @@ pub struct ModuleView {
     pub configured_secrets: Vec<String>,
     pub dependencies: Vec<DependencyStatus>,
     pub enabled_dependents: Vec<String>,
+    pub extension_dependents: Vec<String>,
     pub held_by: Option<String>,
 }
 

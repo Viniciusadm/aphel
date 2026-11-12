@@ -41,6 +41,63 @@ impl ModuleToggleGuard for PluginModuleGuard {
         }
         Ok(held)
     }
+
+    async fn dependents(&self, pool: &MySqlPool) -> Result<HashMap<String, Vec<String>>, AppError> {
+        let snapshot = crate::registry::current(pool).await?;
+        let app = aphel_sdk::platform::modules::app();
+        let enabled_modules: Vec<_> = app
+            .modules()
+            .iter()
+            .filter(|loaded| app.is_enabled(loaded.key()))
+            .collect();
+        let mut dependents: HashMap<String, Vec<String>> = HashMap::new();
+        for module in &enabled_modules {
+            let key = module.key();
+            let others: Vec<String> = enabled_modules
+                .iter()
+                .filter(|other| other.key() != key)
+                .flat_map(|other| other.manifest.provides.contracts.clone())
+                .chain(
+                    snapshot
+                        .plugins
+                        .iter()
+                        .flat_map(|plugin| plugin.manifest.provides.contracts.clone()),
+                )
+                .collect();
+            let prefix = format!("{key}.");
+            for plugin in &snapshot.plugins {
+                let manifest = &plugin.manifest;
+                let contract = manifest.uses.required.iter().any(|requirement| {
+                    module.manifest.provides.contracts.contains(requirement)
+                        && !others.contains(requirement)
+                });
+                let operation = manifest.operations.iter().any(|operation| {
+                    operation.starts_with(&prefix)
+                        && !snapshot.plugins.iter().any(|provider| {
+                            provider
+                                .manifest
+                                .provides
+                                .operations
+                                .iter()
+                                .any(|provided| provided.key == *operation)
+                        })
+                });
+                let permission = manifest.requires.iter().any(|required| {
+                    Permission::parse(required.clone())
+                        .ok()
+                        .and_then(|permission| app.catalog().permission_owner(&permission))
+                        .is_some_and(|owner| owner == key)
+                });
+                if contract || operation || permission {
+                    dependents
+                        .entry(key.to_owned())
+                        .or_default()
+                        .push(manifest.name.clone());
+                }
+            }
+        }
+        Ok(dependents)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]

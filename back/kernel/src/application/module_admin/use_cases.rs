@@ -20,6 +20,7 @@ pub const MODULE_NOT_FOUND: &str = "module_not_found";
 pub const MODULE_INCOMPATIBLE: &str = "module_incompatible";
 pub const MODULE_DEPENDENCY_DISABLED: &str = "module_dependency_disabled";
 pub const MODULE_REQUIRED_BY: &str = "module_required_by";
+pub const MODULE_REQUIRED_BY_EXTENSION: &str = "module_required_by_extension";
 pub const MODULE_SETTINGS_REQUIRED: &str = "module_settings_required";
 pub const MODULE_ENABLED: &str = "module_enabled";
 pub const MODULE_EXPORT_REQUIRED: &str = "module_export_required";
@@ -57,6 +58,15 @@ where
         let descriptors = self.ports.runtime().descriptors();
         let states = self.ports.modules().list().await?;
         let held = self.ports.runtime().held_modules().await?;
+        let mut extension_dependents = self
+            .ports
+            .runtime()
+            .extension_dependents()
+            .await
+            .unwrap_or_else(|error| {
+                tracing::warn!("could not list the extensions that use modules: {error}");
+                Default::default()
+            });
         let secrets = if manage {
             self.configured_secrets(scope, &descriptors).await?
         } else {
@@ -67,6 +77,9 @@ where
             .map(|descriptor| {
                 let mut view = self.view(descriptor, &descriptors, &states, &secrets, manage);
                 view.held_by = held.get(descriptor.key()).cloned();
+                view.extension_dependents = extension_dependents
+                    .remove(descriptor.key())
+                    .unwrap_or_default();
                 view
             })
             .collect())
@@ -173,6 +186,22 @@ where
                 format!(
                     "disable the dependent modules first: {}",
                     view.enabled_dependents.join(", ")
+                ),
+            ));
+        }
+        let extension_dependents = self
+            .ports
+            .runtime()
+            .extension_dependents()
+            .await?
+            .remove(key)
+            .unwrap_or_default();
+        if !extension_dependents.is_empty() {
+            return Err(AppError::conflict_code(
+                MODULE_REQUIRED_BY_EXTENSION,
+                format!(
+                    "disable or uninstall the extensions that use this module first: {}",
+                    extension_dependents.join(", ")
                 ),
             ));
         }
@@ -447,6 +476,7 @@ where
                 })
                 .map(|candidate| candidate.key().to_owned())
                 .collect(),
+            extension_dependents: Vec::new(),
             held_by: None,
             state,
         }
