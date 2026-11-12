@@ -679,4 +679,105 @@
     justify-content: flex-end;
     gap: 0.5rem;
   }
+
+  .publish-checklist,
+  .publish-snippet {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .publish-checklist h3,
+  .publish-snippet h3 {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+
+  .publish-checklist ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .publish-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--destructive);
+  }
+
+  .publish-checklist li[data-ok] {
+    color: var(--success);
+  }
+
+  .publish-checklist li > span {
+    color: var(--foreground);
+  }
+
+  .publish-google {
+    display: grid;
+    gap: 0.125rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md, 0.5rem);
+    background: var(--muted);
+  }
+
+  .publish-google-url {
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+    overflow-wrap: anywhere;
+  }
+
+  .publish-google-title {
+    font-size: 1.125rem;
+    color: var(--primary);
+  }
+
+  .publish-google-description {
+    font-size: 0.875rem;
+  }
+
+  .publish-social {
+    max-height: 10rem;
+    border-radius: var(--radius-md, 0.5rem);
+    object-fit: cover;
+  }
+
+  .publish-actions,
+  .publish-share {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .publish-share {
+    justify-content: flex-start;
+  }
+
+  .publish-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+
+  .publish-done {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .publish-blocking {
+    margin: 0;
+    color: var(--destructive);
+  }
+
+  .publish-advice {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
 }

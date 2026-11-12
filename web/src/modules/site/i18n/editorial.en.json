@@ -210,5 +210,32 @@
     "insertBlock": "Insert",
     "applyBlock": "Apply",
     "cancel": "Cancel"
+  },
+  "publish": {
+    "title": "Publish",
+    "titleChanges": "Publish changes",
+    "description": "Check that everything is right before putting it live.",
+    "checklist": "Before you publish",
+    "snippet": "How it looks on Google",
+    "noTitle": "Untitled",
+    "noDescription": "No description. Write a summary in the details.",
+    "openSettings": "Open the details",
+    "blocking": "Fix the items marked in red to publish.",
+    "advice_one": "{{count}} suggestion still open. You can publish as it is.",
+    "advice_other": "{{count}} suggestions still open. You can publish as it is.",
+    "confirm": "Publish now",
+    "confirmChanges": "Publish changes",
+    "doneTitle": "It's live!",
+    "doneDescription": "The post can be read now. Share the link.",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "share": "Share",
+    "close": "Close",
+    "shareOn": {
+      "whatsapp": "WhatsApp",
+      "x": "X",
+      "linkedin": "LinkedIn",
+      "email": "Email"
+    }
   }
 }

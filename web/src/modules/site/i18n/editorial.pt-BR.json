@@ -210,5 +210,32 @@
     "insertBlock": "Inserir",
     "applyBlock": "Aplicar",
     "cancel": "Cancelar"
+  },
+  "publish": {
+    "title": "Publicar",
+    "titleChanges": "Publicar alterações",
+    "description": "Confira se está tudo certo antes de colocar no ar.",
+    "checklist": "Antes de publicar",
+    "snippet": "Como aparece no Google",
+    "noTitle": "Sem título",
+    "noDescription": "Sem descrição. Escreva um resumo nos detalhes.",
+    "openSettings": "Abrir os detalhes",
+    "blocking": "Resolva os itens marcados em vermelho para publicar.",
+    "advice_one": "{{count}} sugestão ainda aberta. Dá para publicar assim.",
+    "advice_other": "{{count}} sugestões ainda abertas. Dá para publicar assim.",
+    "confirm": "Publicar agora",
+    "confirmChanges": "Publicar alterações",
+    "doneTitle": "No ar!",
+    "doneDescription": "O post já pode ser lido. Compartilhe o link.",
+    "copy": "Copiar link",
+    "copied": "Link copiado.",
+    "share": "Compartilhar",
+    "close": "Fechar",
+    "shareOn": {
+      "whatsapp": "WhatsApp",
+      "x": "X",
+      "linkedin": "LinkedIn",
+      "email": "E-mail"
+    }
   }
 }

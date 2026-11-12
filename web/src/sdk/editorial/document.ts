@@ -209,6 +209,24 @@ export interface DocumentBodyProps {
   onPreviewChange: (preview: boolean) => void
 }
 
+export interface ChecklistInput {
+  record: DocumentRecord
+  title: string
+  blocks: Block[]
+}
+
+export interface ChecklistItem {
+  key: string
+  ok: boolean
+  required?: boolean
+  values?: Record<string, unknown>
+}
+
+export interface PublishSnippet {
+  description: string
+  image?: string | null
+}
+
 export interface DocumentKind {
   recordType: string
   blocks: string
@@ -228,6 +246,8 @@ export interface DocumentKind {
   Settings: ComponentType<SettingsProps>
   Body?: ComponentType<DocumentBodyProps>
   untitled?: string
+  checklist?: (input: ChecklistInput) => ChecklistItem[]
+  snippet?: (input: ChecklistInput) => PublishSnippet
   texts?: { namespace: string; scope: string }
 }
 

@@ -14,6 +14,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 
 import { OPEN_STATUSES, documentKeys, documentState, previewApi, publicationApi, readText, siteApi, siteKeys, siteTarget, textField, useDocumentKind, writeText, type DocumentRecord, type PreviewLink, type PublicationRequest, type SiteLanguage } from './document'
 import { Preview, type LiveFrame } from './Preview'
+import { PublishPanel } from './PublishPanel'
 import { VersionsDialog } from './VersionsDialog'
 import { WhenDialog } from './WhenDialog'
 import { STATE_TONES } from './states'
@@ -107,6 +108,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
   const [deleting, setDeleting] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [focus, setFocus] = useState(false)
+  const [publishOpen, setPublishOpen] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const formatting = useRecordFormatting()
@@ -379,7 +381,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
     return t(`review.reasons.${code && known.includes(code) ? code : 'other'}`)
   }
 
-  async function publish(at?: string) {
+  async function publish(at?: string): Promise<PublicationRequest> {
     if (!(await flush())) throw new Error(t('editor.saveFailed'))
     const latest = await kind.get(record.id)
     const request = await publicationApiOf.publish(latest, at)
@@ -389,6 +391,20 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
     await client.invalidateQueries({ queryKey: keys.revisions(record.id) })
     announce(request)
     void refreshPreview(updated, true)
+    return request
+  }
+
+  async function publishFromPanel(): Promise<boolean> {
+    setBusy(true)
+    try {
+      const request = await publish()
+      return request.status === 'completed'
+    } catch (failure) {
+      toast({ title: errorMessage(failure), variant: 'destructive' })
+      return false
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function publishNow() {
@@ -542,7 +558,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
             </Button>
           )}
           {canPublish && state !== 'published' && (
-            <Button type="button" disabled={busy || invalid} onClick={() => void publishNow()}>
+            <Button type="button" disabled={busy || invalid} onClick={() => (kind.checklist ? setPublishOpen(true) : void publishNow())}>
               <Send aria-hidden />
               {state === 'changed' ? t('editor.publishChanges') : t('editor.publish')}
             </Button>
@@ -809,6 +825,27 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
           void refreshPreview(updated, true)
         }}
       />
+      {kind.checklist && (
+        <PublishPanel
+          open={publishOpen}
+          title={current.title === kind.untitled ? '' : current.title}
+          items={kind.checklist({ record, title: current.title, blocks: current.blocks })}
+          snippet={kind.snippet?.({ record, title: current.title, blocks: current.blocks }) ?? { description: '' }}
+          address={preview?.link.page_url.replace(/^https?:\/\//, '') ?? pathOf(record)}
+          pageUrl={preview?.link.page_url ?? null}
+          published={record.publication_state === 'published'}
+          changed={state === 'changed'}
+          busy={busy}
+          canSchedule={canPublish}
+          onOpenChange={setPublishOpen}
+          onPublish={publishFromPanel}
+          onSchedule={() => setScheduleOpen(true)}
+          onSettings={() => {
+            setPublishOpen(false)
+            setSettingsOpen(true)
+          }}
+        />
+      )}
       <WhenDialog
         open={scheduleOpen}
         title={t('schedule.open')}
