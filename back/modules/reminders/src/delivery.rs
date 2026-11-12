@@ -143,7 +143,7 @@ impl ReminderDeliveryHandler {
         };
         Ok(match record {
             Some(record) => intent.with_record(Some(record)),
-            None => intent.with_link(Some("/inbox".to_owned())),
+            None => intent.with_link(Some("/tasks".to_owned())),
         })
     }
 }

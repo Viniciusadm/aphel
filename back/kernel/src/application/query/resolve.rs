@@ -1018,6 +1018,24 @@ fn uuid_text(text: &str) -> Result<PlanValue, String> {
         .map_err(|_| "must be a valid id".to_owned())
 }
 
+fn system_option_order(field: &ResolvedField) -> Vec<String> {
+    if field.is_system() && field.definition.field_type.base_type() == FieldType::Select {
+        let mut options: Vec<_> = field
+            .definition
+            .options
+            .iter()
+            .filter(|option| option.is_active)
+            .collect();
+        options.sort_by_key(|option| option.position);
+        options
+            .into_iter()
+            .map(|option| option.value.clone())
+            .collect()
+    } else {
+        Vec::new()
+    }
+}
+
 fn resolve_sort(
     fields: &FieldSet,
     sort: &[SortSpec],
@@ -1038,6 +1056,7 @@ fn resolve_sort(
                 target: target_of(field),
                 field_type: field.definition.field_type,
                 descending: spec.direction == SortDirection::Desc,
+                option_order: system_option_order(field),
             }),
             Some(_) => violations.push(FieldViolation::new(path, "cannot be used to sort")),
             None if spec.field == "id" => resolved.push(PlanSort {
@@ -1046,6 +1065,7 @@ fn resolve_sort(
                 },
                 field_type: FieldType::Text,
                 descending: spec.direction == SortDirection::Desc,
+                option_order: Vec::new(),
             }),
             None if fields.is_hidden(&spec.field) => {
                 violations.push(FieldViolation::new(path, NOT_ACCESSIBLE_MESSAGE))

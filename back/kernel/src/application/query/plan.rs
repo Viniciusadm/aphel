@@ -117,6 +117,7 @@ pub struct PlanSort {
     pub target: FieldTarget,
     pub field_type: FieldType,
     pub descending: bool,
+    pub option_order: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

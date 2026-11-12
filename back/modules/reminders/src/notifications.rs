@@ -19,6 +19,6 @@ impl NotificationTexts for ReminderNotificationTexts {
     }
 
     fn default_path(&self, view: &NotificationView) -> Option<&'static str> {
-        (view.kind == REMINDER_NOTIFICATION).then_some("/inbox")
+        (view.kind == REMINDER_NOTIFICATION).then_some("/tasks")
     }
 }

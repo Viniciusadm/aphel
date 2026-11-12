@@ -814,9 +814,20 @@ impl<'a> Compiler<'a> {
                 FieldTarget::Custom { column, .. } => format!("s{index}.{}", column.column_name()),
             };
             let direction = if sort.descending { "DESC" } else { "ASC" };
-            builder.push(format!(
-                "({expression} IS NULL) ASC, {expression} {direction}, "
-            ));
+            let ordered =
+                matches!(sort.target, FieldTarget::System { .. }) && !sort.option_order.is_empty();
+            if ordered {
+                builder.push(format!("({expression} IS NULL) ASC, FIELD({expression}"));
+                for value in &sort.option_order {
+                    builder.push(", ");
+                    builder.push_bind(value.clone());
+                }
+                builder.push(format!(") {direction}, "));
+            } else {
+                builder.push(format!(
+                    "({expression} IS NULL) ASC, {expression} {direction}, "
+                ));
+            }
         }
         builder.push("r.id DESC");
     }
