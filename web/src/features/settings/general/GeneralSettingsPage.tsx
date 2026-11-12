@@ -59,7 +59,7 @@ export function GeneralSettingsPage() {
   return (
     <ConfigurationGate
       fallback={(content) => (
-        <Page width="form">
+        <Page>
           <PageHeader title={t('configuration.general.title')} description={t('configuration.general.description')} />
           <MailNotConfiguredNotice />
           {content}
@@ -131,7 +131,7 @@ function GeneralForm({ configuration }: { configuration: OrganizationConfigurati
     message ? (message.startsWith('configuration.') ? t(message as 'configuration.saved') : message) : undefined
 
   return (
-    <Page width="form">
+    <Page>
       <PageHeader
         title={t('configuration.general.title')}
         description={t('configuration.general.description')}

@@ -133,7 +133,7 @@ function OutgoingEmailForm({ configuration }: { configuration: OrganizationConfi
   const { t } = useTranslation('settings')
   const state = useMailSettings(configuration)
   return (
-    <Page width="form">
+    <Page>
       <PageHeader
         title={t('configuration.mail.title')}
         description={t('configuration.mail.description')}
@@ -156,7 +156,7 @@ export function OutgoingEmailPage() {
   return (
     <ConfigurationGate
       fallback={(content) => (
-        <Page width="form">
+        <Page>
           <PageHeader title={t('configuration.mail.title')} description={t('configuration.mail.description')} />
           <MailNotConfiguredNotice showLink={false} />
           {content}

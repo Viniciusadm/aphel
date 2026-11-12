@@ -86,7 +86,7 @@ export function StorageSettingsPage() {
   return (
     <ConfigurationGate
       fallback={(content) => (
-        <Page width="form">
+        <Page>
           <PageHeader title={t('configuration.storage.title')} description={t('configuration.storage.description')} />
           {content}
         </Page>
@@ -169,7 +169,7 @@ function StorageForm({ configuration }: { configuration: OrganizationConfigurati
   const busy = isSubmitting || testing
 
   return (
-    <Page width="form">
+    <Page>
       <PageHeader
         title={t('configuration.storage.title')}
         description={t('configuration.storage.description')}

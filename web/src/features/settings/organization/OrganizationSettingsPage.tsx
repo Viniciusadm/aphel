@@ -82,7 +82,7 @@ export function OrganizationSettingsPage() {
   if (query.isSuccess) return <OrganizationForm organization={query.data} />
 
   return (
-    <Page width="form">
+    <Page>
       <PageHeader title={t('title')} description={t('description')} />
       <MailNotConfiguredNotice />
       {query.isPending ? (
@@ -203,7 +203,7 @@ function OrganizationForm({ organization }: { organization: OrganizationSettings
   const busy = isSubmitting || uploading
 
   return (
-    <Page width="form">
+    <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
