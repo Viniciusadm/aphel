@@ -10,6 +10,7 @@ export const activitiesRoutes: RouteObject[] = [
       { path: 'all', element: <Navigate to="/tasks?preset=all" replace /> },
     ],
   },
+  { path: 'inbox', lazy: async () => ({ Component: (await import('./InboxRedirect')).InboxRedirect }) },
   {
     path: 'today',
     lazy: async () => ({ Component: (await import('./mobile/TodayPage')).TodayPage }),

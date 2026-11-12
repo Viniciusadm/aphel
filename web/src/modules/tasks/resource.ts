@@ -16,7 +16,19 @@ export const activityResource = registerRecordResource({
   titleField: 'title',
   detailPath: (id) => `${TASKS_PATH}/${encodeURIComponent(id)}`,
   listItem: ActivityListItem,
-  listGroups: (records, { timezone }) => {
+  listSorts: () => [
+    { key: 'due', label: i18n.t('sort.due', { ns: 'tasks' }), sort: [{ field: 'due_at', direction: 'asc' }] },
+    {
+      key: 'priority',
+      label: i18n.t('sort.priority', { ns: 'tasks' }),
+      sort: [
+        { field: 'priority', direction: 'desc' },
+        { field: 'due_at', direction: 'asc' },
+      ],
+    },
+  ],
+  listGroups: (records, { timezone, sort }) => {
+    if (sort[0] && sort[0].field !== 'due_at') return [{ key: 'all', title: '', items: records }]
     const items = records as (RecordItem & { due_at?: string | null; status?: string })[]
     const closed = (status: string) => items.filter((item) => item.status === status)
     return [

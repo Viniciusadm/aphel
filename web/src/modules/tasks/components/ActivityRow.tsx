@@ -1,4 +1,5 @@
 import { Bell, CalendarClock, Clock, Repeat, UserRound } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +17,7 @@ export interface ActivityRowProps {
   pending?: boolean
   showRecord?: boolean
   now?: Date
+  actions?: ReactNode
 }
 
 function LinkedRecord({ recordType, recordId, title }: { recordType: string; recordId: string; title?: string | null }) {
@@ -30,7 +32,7 @@ function LinkedRecord({ recordType, recordId, title }: { recordType: string; rec
   )
 }
 
-export function ActivityRow({ activity, onToggle, pending = false, showRecord = false, now }: ActivityRowProps) {
+export function ActivityRow({ activity, onToggle, pending = false, showRecord = false, now, actions }: ActivityRowProps) {
   const { t } = useTranslation('tasks')
   const formatting = useRecordFormatting()
   const done = activity.status === 'done'
@@ -117,6 +119,7 @@ export function ActivityRow({ activity, onToggle, pending = false, showRecord = 
           <ActivityMapLink location={activity.location} />
         </div>
       </div>
+      {actions && <div className="flex shrink-0 items-center gap-1">{actions}</div>}
     </li>
   )
 }

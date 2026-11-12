@@ -4,11 +4,10 @@ import type { TaskPendingData } from './dashboard/types'
 import { createElement } from 'react'
 import { TasksSummary } from './dashboard/Summary'
 import { CalendarCreateDialog } from "./CalendarCreateDialog"
-import { CalendarCheck, CheckSquare, Inbox, MapPin } from 'lucide-react'
+import { CalendarCheck, CheckSquare, MapPin } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { CreateTaskDialog } from './create-action'
-import { inboxRoutes } from './inbox/routes'
 import { ActivityQuickForm } from './mobile/ActivityQuickForm'
 import { CheckInQuickForm } from './mobile/CheckInQuickForm'
 import { withActivitiesTab } from './record-tabs'
@@ -27,11 +26,10 @@ const activitiesModule = defineModule({
     app.slot('dashboard.source', { key: 'tasks.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'tasks.summary' ? createElement(TasksSummary, { data: data as Record<string, unknown> }) : null })
     app.slot('dashboard.source', { key: 'tasks.pending', render: ({ collection, source, data }) => collection === 'pending' && source === 'tasks.pending' ? createElement(TaskPendingSections, { data: data as TaskPendingData }) : null })
     app.slot('calendar.create', { key: 'tasks', permission: 'tasks.create', render: CalendarCreateDialog })
-    app.routes([...activitiesRoutes, ...inboxRoutes])
+    app.routes(activitiesRoutes)
     app.nav({ section: 'work', to: '/tasks', label: 'nav.tasks', icon: CheckSquare, permission: TASKS_READ, order: 80 })
     app.keybinding({ id: 'tasks.go', label: 'nav.tasks', to: '/tasks', keys: ['g t'], permission: TASKS_READ })
-    app.nav({ section: 'work', to: '/inbox', label: 'nav.inbox', icon: Inbox, permission: TASKS_READ, order: 90 })
-    app.keybinding({ id: 'tasks.go_inbox', label: 'nav.inbox', to: '/inbox', keys: ['g i'], permission: TASKS_READ })
+    app.keybinding({ id: 'tasks.go_inbox', label: 'nav.tasks', to: '/tasks', keys: ['g i'], permission: TASKS_READ })
     app.createAction({
       id: 'task',
       label: 'createAction.label',

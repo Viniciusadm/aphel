@@ -9,18 +9,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type {InboxItem} from '@/sdk'
+import type { Activity } from '@/sdk'
 import { NativeSelect, useOrganizationUsers } from '@/sdk'
 import { Field } from '@/components/ui/field'
 
+export type ReassignTarget = Pick<Activity, 'id' | 'title' | 'owner_id' | 'updated_at'>
+
 export interface ReassignDialogProps {
-  item: InboxItem | null
+  item: ReassignTarget | null
   onOpenChange: (open: boolean) => void
-  onConfirm: (item: InboxItem, ownerId: string) => void
+  onConfirm: (item: ReassignTarget, ownerId: string) => void
 }
 
 export function ReassignDialog({ item, onOpenChange, onConfirm }: ReassignDialogProps) {
-  const { t } = useTranslation('tasks', { keyPrefix: 'inbox' })
+  const { t } = useTranslation('tasks', { keyPrefix: 'list' })
   return (
     <Dialog open={item !== null} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -39,11 +41,11 @@ function ReassignForm({
   onCancel,
   onConfirm,
 }: {
-  item: InboxItem
+  item: ReassignTarget
   onCancel: () => void
-  onConfirm: (item: InboxItem, ownerId: string) => void
+  onConfirm: (item: ReassignTarget, ownerId: string) => void
 }) {
-  const { t } = useTranslation('tasks', { keyPrefix: 'inbox' })
+  const { t } = useTranslation('tasks', { keyPrefix: 'list' })
   const users = useOrganizationUsers()
   const [ownerId, setOwnerId] = useState(item.owner_id ?? '')
   const options = users.data ?? []

@@ -6,16 +6,28 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
 import { RecordListView, type FilterNode, type RecordListPreset, type SortSpec } from '@/sdk'
 import { activityResource } from './resource'
-import { activitiesApi, useInvalidateActivities } from '@/sdk'
+import { activitiesApi, sessionTeams, useInvalidateActivities } from '@/sdk'
 import { ACTIVITY_RECORD_TYPE } from '@/sdk'
 
 const OPEN: FilterNode = { field: 'status', operator: 'eq', value: 'open' }
 const MINE: FilterNode = { field: 'owner_id', operator: 'eq', value: 'me' }
 const BY_DUE: SortSpec[] = [{ field: 'due_at', direction: 'asc' }]
 
+function teamPreset(teamIds: string[], label: string): RecordListPreset[] {
+  if (teamIds.length === 0) return []
+  return [
+    {
+      key: 'team',
+      label,
+      filter: { op: 'and', conditions: [OPEN, { field: 'owner_team', operator: 'in', value: teamIds }] },
+      sort: BY_DUE,
+    },
+  ]
+}
+
 export function ActivitiesPage() {
   const { t } = useTranslation('tasks')
-  const { hasPermission } = useSession()
+  const { hasPermission, me } = useSession()
   const navigate = useNavigate()
   const invalidate = useInvalidateActivities()
 
@@ -40,6 +52,10 @@ export function ActivitiesPage() {
       emptyTitle: t('mine.emptyTitle'),
       emptyDescription: t('mine.emptyDescription'),
     },
+    ...teamPreset(
+      sessionTeams(me).map((team) => team.id),
+      t('presets.team'),
+    ),
     { key: 'open', label: t('presets.open'), filter: OPEN, sort: BY_DUE },
     {
       key: 'done',

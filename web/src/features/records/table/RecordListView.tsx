@@ -161,6 +161,7 @@ function RecordListContent({
   const dateFields = useMemo(() => calendarFields(schema), [schema])
   const viewCalendar = viewCalendarConfig(activeView)
   const hasListLayout = Boolean(resource.listItem)
+  const listSorts = resource.listSorts?.() ?? []
   const allowedLayout = (candidate: ListLayout | undefined): candidate is ListLayout =>
     candidate === 'table' || (candidate === 'calendar' && dateFields.length > 0) || (candidate === 'list' && hasListLayout)
   const calendarBase: ListLayout = dateFields.length > 0 ? viewCalendar.layout : 'table'
@@ -439,22 +440,22 @@ function RecordListContent({
                   <option value="only">{t('archived.only')}</option>
                 </NativeSelect>
               )}
-              {showList && resource.listSorts && resource.listSorts.length > 0 && (
+              {showList && listSorts.length > 0 && (
                 <NativeSelect
                   aria-label={t('sort.label')}
                   className="w-auto"
-                  value={resource.listSorts.find((option) => sortToParam(option.sort) === sortToParam(sort))?.key ?? ''}
+                  value={listSorts.find((option) => sortToParam(option.sort) === sortToParam(sort))?.key ?? ''}
                   onChange={(event) => {
-                    const option = resource.listSorts?.find((item) => item.key === event.target.value)
+                    const option = listSorts.find((item) => item.key === event.target.value)
                     if (option) update({ sort: option.sort, page: 1 })
                   }}
                 >
-                  {!resource.listSorts.some((option) => sortToParam(option.sort) === sortToParam(sort)) && (
+                  {!listSorts.some((option) => sortToParam(option.sort) === sortToParam(sort)) && (
                     <option value="" disabled>
                       {t('sort.label')}
                     </option>
                   )}
-                  {resource.listSorts.map((option) => (
+                  {listSorts.map((option) => (
                     <option key={option.key} value={option.key}>
                       {option.label}
                     </option>

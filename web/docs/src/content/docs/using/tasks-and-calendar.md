@@ -1,17 +1,17 @@
 ---
 title: Tasks and calendar
-description: Plan follow-ups with tasks, log calls and meetings, write notes, and see everything on the inbox, calendar and timeline.
+description: Plan follow-ups with tasks, log calls and meetings, write notes, and see everything on the task list, calendar and timeline.
 sidebar:
   order: 7
 ---
 
-Tasks are how Aphel tracks what has to happen next, and what already happened, with a person, an organization or a deal. This page covers tasks, activity types, the Inbox and Calendar screens, notes, reminders, the record timeline, calendar sync with Google or Microsoft, and the Calls area.
+Tasks are how Aphel tracks what has to happen next, and what already happened, with a person, an organization or a deal. This page covers tasks, activity types, the task list and Calendar screens, notes, reminders, the record timeline, calendar sync with Google or Microsoft, and the Calls area.
 
 ## Which modules provide what
 
 | Area | Module | Notes |
 | --- | --- | --- |
-| Tasks, activity types, Inbox | `tasks` | Recommended in every blueprint, because all blueprints extend the CRM blueprint. |
+| Tasks, activity types, task list | `tasks` | Recommended in every blueprint, because all blueprints extend the CRM blueprint. |
 | Calendar | `calendar` | Recommended in every blueprint. It shows entries contributed by other modules; today those are tasks. |
 | Notes | `notes` | Required by the CRM blueprint. |
 | Timeline | `timeline` | Recommended in every blueprint. |
@@ -25,7 +25,7 @@ Modules that are recommended but not yet active can be turned on by an administr
 
 | Permission | What it allows |
 | --- | --- |
-| `tasks.read` | See tasks, the Tasks and Inbox screens, the Tasks tab on records, and activity types. |
+| `tasks.read` | See tasks, the Tasks and Calendar screens, the Tasks tab on records, and activity types. |
 | `tasks.create` | Create tasks, log activities, create from the Calendar, check in, log calls. |
 | `tasks.update` | Edit, complete, reopen, postpone, reassign and reschedule tasks. |
 | `tasks.delete` | Delete a task. |
@@ -126,22 +126,30 @@ Administrators manage them in **Settings**, organization section, **Fields and r
 - Deactivate a type instead of deleting it. Inactive types cannot be chosen for new tasks. At least one type must stay active.
 - An organization can have at most 100 types.
 
-## Inbox
+## The task list
 
-**Inbox** (under **My work**) shows open tasks in four groups, most urgent first: Overdue, Today, Upcoming and No due date. It needs `tasks.read`.
+**Tasks** (under **My work**) is the single place to work through tasks. It needs `tasks.read`.
 
-Filters at the top:
+Ready-made filters at the top choose what to look at:
 
-| Filter | Options |
+| Filter | Shows |
 | --- | --- |
-| Activities of | Mine, Team, All |
-| Team | With Team selected, pick a team or "My teams" |
-| Sort by | Due date, Priority, Deal value |
+| My open | Your open tasks (default). |
+| Team | Open tasks owned by members of your teams. Shown only if you belong to a team. |
+| All open | Every open task you are allowed to see. |
+| Completed | Tasks that are done. |
+| All | Every task, including completed and canceled ones. |
 
-Each row has quick actions: **Complete**, **Postpone 1 day**, **Postpone 1 week**, and **Reassign**. Every quick action shows an **Undo** option for a moment.
+You can add search and the usual filters on top of them. Choose how to see the results with **List**, **Table** or **Calendar**:
+
+- **List** groups open tasks as Overdue, Today, Upcoming and No due date, most urgent first. Completed and canceled tasks get their own groups. Open **Display** and **Sort by** to sort by **Due date** (default) or **Priority**; with Priority the list is not grouped.
+- **Table** has columns, sorting, density and selecting several tasks to complete them together.
+- **Calendar** shows tasks that have a due date on a month or week grid.
+
+Each open task in the list has quick actions: **Complete**, **Postpone 1 day**, **Postpone 1 week** and **Reassign**. Every quick action shows an **Undo** option for a moment.
 
 :::note
-Inbox shows up to 500 open tasks. If there are more, a message says "Showing N of M" and you should filter or complete tasks to see the rest. "All" only includes tasks you are allowed to see. Deal value is hidden if your role cannot see deal amounts.
+The old **Inbox** address (`/inbox`) now opens this list, so saved links keep working. Deal value is no longer shown in the list.
 :::
 
 :::caution
@@ -216,5 +224,5 @@ The `telephony` module adds a **Calls** area, for teams that make many outbound 
 
 - Deleting a task is permanent. Prefer completing it, or mark it Canceled through the API, if you want to keep history.
 - If a record is permanently purged, tasks linked to it stay but lose the link.
-- Fields hidden from your role by field permissions are not shown on tasks, and the Calendar and Inbox hide what you cannot see.
+- Fields hidden from your role by field permissions are not shown on tasks, and the task list and Calendar hide what you cannot see.
 - A version conflict message ("Someone else changed this activity") means the task changed while you were editing. Reload and try again.

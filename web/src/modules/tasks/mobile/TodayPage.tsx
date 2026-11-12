@@ -185,7 +185,7 @@ export function TodayPage() {
         )}
       </Section>
       {tasks.query.data?.truncated && (
-        <Link to="/inbox" className="text-center text-sm text-primary underline-offset-4 hover:underline">
+        <Link to="/tasks" className="text-center text-sm text-primary underline-offset-4 hover:underline">
           {t('today.seeInbox')}
         </Link>
       )}

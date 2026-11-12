@@ -250,94 +250,8 @@
     "saved": "Schedule updated",
     "ended": "Recurrence ended"
   },
-  "inbox": {
-    "page": {
-      "title": "Inbox",
-      "description": "Your open tasks by priority: overdue, today, upcoming and without a due date."
-    },
-    "filters": {
-      "owner": "Activities of",
-      "team": "Team",
-      "myTeams": "My teams",
-      "sort": "Sort by"
-    },
-    "owner": {
-      "me": "Mine",
-      "team": "Team",
-      "all": "All"
-    },
-    "sort": {
-      "due": "Due date",
-      "priority": "Priority",
-      "value": "Deal value"
-    },
-    "groups": {
-      "overdue": "Overdue",
-      "today": "Today",
-      "upcoming": "Upcoming",
-      "no_due": "No due date"
-    },
-    "priority": {
-      "low": "Low",
-      "normal": "Normal",
-      "high": "High",
-      "urgent": "Urgent"
-    },
-    "item": {
-      "due": "Due: {{date}}",
-      "overdue": "Overdue since {{date}}",
-      "relatedRecord": "Linked record"
-    },
-    "actions": {
-      "complete": "Complete",
-      "completeLabel": "Complete “{{title}}”",
-      "postponeDay": "Postpone 1 day",
-      "postponeWeek": "Postpone 1 week",
-      "reassign": "Reassign",
-      "menu": "Actions for “{{title}}”"
-    },
-    "reassign": {
-      "title": "Reassign activity",
-      "description": "Choose the new owner of “{{title}}”.",
-      "owner": "Owner",
-      "choose": "Choose a person",
-      "cancel": "Cancel",
-      "confirm": "Reassign"
-    },
-    "toast": {
-      "completed": "“{{title}}” completed",
-      "postponedDay": "“{{title}}” postponed by 1 day",
-      "postponedWeek": "“{{title}}” postponed by 1 week",
-      "reassigned": "“{{title}}” reassigned",
-      "undone": "Change undone"
-    },
-    "undo": {
-      "action": "Undo",
-      "dismiss": "Dismiss"
-    },
-    "errors": {
-      "generic": "Could not update the activity. Try again.",
-      "conflict": "The activity was changed by someone else. The list was refreshed."
-    },
-    "empty": {
-      "me": {
-        "title": "Nothing pending",
-        "description": "You have no open tasks. A good time to plan your next step."
-      },
-      "team": {
-        "title": "No team tasks",
-        "description": "Nobody in the team has open tasks."
-      },
-      "all": {
-        "title": "No open tasks",
-        "description": "There are no open tasks you can see."
-      }
-    },
-    "truncated": "Showing {{shown}} of {{total}} open tasks. Complete or filter to see the rest."
-  },
   "nav": {
     "tasks": "Tasks",
-    "inbox": "Inbox",
     "calendar": "Calendar"
   },
   "createAction": {
@@ -409,7 +323,7 @@
     "complete": "Complete {{title}}",
     "reopen": "Reopen {{title}}",
     "fromCache": "Offline: showing the last version saved on this device.",
-    "seeInbox": "See all in the activity inbox"
+    "seeInbox": "See all tasks"
   },
   "placeholders": {
     "duration": "E.g.: 30",
@@ -460,6 +374,44 @@
     "mine": "My open",
     "open": "All open",
     "done": "Completed",
-    "all": "All"
+    "all": "All",
+    "team": "Team"
+  },
+  "list": {
+    "actions": {
+      "complete": "Complete",
+      "completeLabel": "Complete “{{title}}”",
+      "postponeDay": "Postpone 1 day",
+      "postponeWeek": "Postpone 1 week",
+      "reassign": "Reassign",
+      "menu": "Actions for “{{title}}”"
+    },
+    "reassign": {
+      "title": "Reassign activity",
+      "description": "Choose the new owner of “{{title}}”.",
+      "owner": "Owner",
+      "choose": "Choose a person",
+      "cancel": "Cancel",
+      "confirm": "Reassign"
+    },
+    "toast": {
+      "completed": "“{{title}}” completed",
+      "postponedDay": "“{{title}}” postponed by 1 day",
+      "postponedWeek": "“{{title}}” postponed by 1 week",
+      "reassigned": "“{{title}}” reassigned",
+      "undone": "Change undone"
+    },
+    "undo": {
+      "action": "Undo",
+      "dismiss": "Dismiss"
+    },
+    "errors": {
+      "generic": "Could not update the activity. Try again.",
+      "conflict": "The activity was changed by someone else. The list was refreshed."
+    }
+  },
+  "sort": {
+    "due": "Due date",
+    "priority": "Priority"
   }
 }

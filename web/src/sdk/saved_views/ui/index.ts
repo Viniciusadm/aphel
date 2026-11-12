@@ -13,4 +13,4 @@ export {
 } from './urlState'
 export { ViewFormDialog, type ViewFormDialogProps, type ViewFormValues } from './ViewFormDialog'
 export { ViewSwitcher, type ViewSwitcherProps } from './ViewSwitcher'
-export { useViewMutations, useViewTeams, viewConfigRequest } from './viewsApi'
+export { sessionTeams, useViewMutations, useViewTeams, viewConfigRequest } from './viewsApi'

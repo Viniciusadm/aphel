@@ -250,94 +250,8 @@
     "saved": "Agendamento atualizado",
     "ended": "Recorrência encerrada"
   },
-  "inbox": {
-    "page": {
-      "title": "Caixa de entrada",
-      "description": "Suas atividades em aberto em ordem de prioridade: atrasadas, de hoje, próximas e sem prazo."
-    },
-    "filters": {
-      "owner": "Atividades de",
-      "team": "Equipe",
-      "myTeams": "Minhas equipes",
-      "sort": "Ordenar por"
-    },
-    "owner": {
-      "me": "Minhas",
-      "team": "Equipe",
-      "all": "Todas"
-    },
-    "sort": {
-      "due": "Prazo",
-      "priority": "Prioridade",
-      "value": "Valor da oportunidade"
-    },
-    "groups": {
-      "overdue": "Atrasadas",
-      "today": "Hoje",
-      "upcoming": "Próximas",
-      "no_due": "Sem prazo"
-    },
-    "priority": {
-      "low": "Baixa",
-      "normal": "Normal",
-      "high": "Alta",
-      "urgent": "Urgente"
-    },
-    "item": {
-      "due": "Prazo: {{date}}",
-      "overdue": "Atrasada desde {{date}}",
-      "relatedRecord": "Registro vinculado"
-    },
-    "actions": {
-      "complete": "Concluir",
-      "completeLabel": "Concluir “{{title}}”",
-      "postponeDay": "Adiar 1 dia",
-      "postponeWeek": "Adiar 1 semana",
-      "reassign": "Reatribuir",
-      "menu": "Ações de “{{title}}”"
-    },
-    "reassign": {
-      "title": "Reatribuir atividade",
-      "description": "Escolha o novo responsável por “{{title}}”.",
-      "owner": "Responsável",
-      "choose": "Escolha uma pessoa",
-      "cancel": "Cancelar",
-      "confirm": "Reatribuir"
-    },
-    "toast": {
-      "completed": "“{{title}}” concluída",
-      "postponedDay": "“{{title}}” adiada em 1 dia",
-      "postponedWeek": "“{{title}}” adiada em 1 semana",
-      "reassigned": "“{{title}}” reatribuída",
-      "undone": "Alteração desfeita"
-    },
-    "undo": {
-      "action": "Desfazer",
-      "dismiss": "Fechar aviso"
-    },
-    "errors": {
-      "generic": "Não foi possível atualizar a atividade. Tente novamente.",
-      "conflict": "A atividade foi alterada por outra pessoa. A lista foi atualizada."
-    },
-    "empty": {
-      "me": {
-        "title": "Nada pendente",
-        "description": "Você não tem atividades em aberto. Aproveite para planejar o próximo passo."
-      },
-      "team": {
-        "title": "Nenhuma atividade da equipe",
-        "description": "Ninguém da equipe tem atividades em aberto."
-      },
-      "all": {
-        "title": "Nenhuma atividade em aberto",
-        "description": "Não há atividades em aberto que você possa ver."
-      }
-    },
-    "truncated": "Mostrando {{shown}} de {{total}} atividades em aberto. Conclua ou filtre para ver o restante."
-  },
   "nav": {
     "tasks": "Tarefas",
-    "inbox": "Caixa de entrada",
     "calendar": "Calendário"
   },
   "createAction": {
@@ -409,7 +323,7 @@
     "complete": "Concluir {{title}}",
     "reopen": "Reabrir {{title}}",
     "fromCache": "Sem conexão: mostrando a última versão salva neste aparelho.",
-    "seeInbox": "Ver todas na caixa de atividades"
+    "seeInbox": "Ver todas as tarefas"
   },
   "placeholders": {
     "duration": "Ex.: 30",
@@ -460,6 +374,44 @@
     "mine": "Minhas abertas",
     "open": "Todas abertas",
     "done": "Concluídas",
-    "all": "Todas"
+    "all": "Todas",
+    "team": "Da equipe"
+  },
+  "list": {
+    "actions": {
+      "complete": "Concluir",
+      "completeLabel": "Concluir “{{title}}”",
+      "postponeDay": "Adiar 1 dia",
+      "postponeWeek": "Adiar 1 semana",
+      "reassign": "Reatribuir",
+      "menu": "Ações de “{{title}}”"
+    },
+    "reassign": {
+      "title": "Reatribuir atividade",
+      "description": "Escolha o novo responsável por “{{title}}”.",
+      "owner": "Responsável",
+      "choose": "Escolha uma pessoa",
+      "cancel": "Cancelar",
+      "confirm": "Reatribuir"
+    },
+    "toast": {
+      "completed": "“{{title}}” concluída",
+      "postponedDay": "“{{title}}” adiada em 1 dia",
+      "postponedWeek": "“{{title}}” adiada em 1 semana",
+      "reassigned": "“{{title}}” reatribuída",
+      "undone": "Alteração desfeita"
+    },
+    "undo": {
+      "action": "Desfazer",
+      "dismiss": "Fechar aviso"
+    },
+    "errors": {
+      "generic": "Não foi possível atualizar a atividade. Tente novamente.",
+      "conflict": "A atividade foi alterada por outra pessoa. A lista foi atualizada."
+    }
+  },
+  "sort": {
+    "due": "Prazo",
+    "priority": "Prioridade"
   }
 }
