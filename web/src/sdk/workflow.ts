@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api, type components } from '@/api'
+import { useIsModuleActive } from '@/kernel/modules/registry'
 
 type Schemas = components['schemas']
 
@@ -18,9 +19,11 @@ export const pipelinesKeys = {
 }
 
 export function usePipelines() {
+  const active = useIsModuleActive('workflow')
   return useQuery({
-    queryKey: pipelinesKeys.list(),
-    queryFn: async () => (await api.get<PipelinesPage>('/v1/workflow', { query: { per_page: 100 } })).data,
+    queryKey: [...pipelinesKeys.list(), active],
+    queryFn: async (): Promise<Pipeline[]> =>
+      active ? (await api.get<PipelinesPage>('/v1/workflow', { query: { per_page: 100 } })).data : [],
     staleTime: 60_000,
   })
 }
