@@ -62,7 +62,9 @@
     "unique": "Único",
     "searchable": "Pesquisável",
     "personal": "Dado pessoal",
-    "sensitive": "Dado sensível"
+    "sensitive": "Dado sensível",
+    "noRecordTypes": "Nenhum tipo de registro disponível",
+    "noRecordTypesDescription": "Esta organização ainda não tem tipos de registro. Ative um módulo ou instale um plugin que traga registros, ou crie um objeto personalizado, e os campos poderão ser configurados aqui."
   },
   "actions": {
     "edit": "Editar",

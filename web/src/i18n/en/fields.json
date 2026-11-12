@@ -62,7 +62,9 @@
     "unique": "Unique",
     "searchable": "Searchable",
     "personal": "Personal data",
-    "sensitive": "Sensitive data"
+    "sensitive": "Sensitive data",
+    "noRecordTypes": "No record types available",
+    "noRecordTypesDescription": "This organization has no record types yet. Enable a module, install a plugin that brings records, or create a custom object, and its fields can be set up here."
   },
   "actions": {
     "edit": "Edit",
