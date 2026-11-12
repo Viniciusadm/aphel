@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { modulesApi, type ModuleInfo } from '@/kernel/modules/api'
+import { useModulesApi, type ModuleInfo } from '@/kernel/modules/api'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { notifyModuleError } from './errors'
 import { exportModuleData } from './export'
@@ -40,6 +40,7 @@ interface ModuleCardProps {
 
 export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
   const { t } = useTranslation('modules')
+  const modulesApi = useModulesApi()
   const text = useModuleText(module)
   const formatting = useRecordFormatting()
   const dependentsHintId = useId()
@@ -83,7 +84,7 @@ export function ModuleCard({ module, nameOf, onChanged }: ModuleCardProps) {
   const exportData = async () => {
     setBusy(true)
     try {
-      await exportModuleData(module.key)
+      await exportModuleData(module.key, modulesApi)
       notifySuccess(t('toast.exported', { name }))
     } catch (error) {
       notifyModuleError(error)

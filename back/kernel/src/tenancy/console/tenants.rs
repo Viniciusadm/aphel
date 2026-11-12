@@ -20,8 +20,8 @@ use crate::errors::AppError;
 use crate::infrastructure::system::ports::MySqlSystemAdminPorts;
 use crate::tenancy::console::dto::{
     AuditEntryResponse, CatalogModuleResponse, CatalogResponse, CreateTenantRequest,
-    DeleteTenantRequest, HostRequest, QueueTotalsResponse, TenantHealthResponse, TenantResponse,
-    WorkerResponse,
+    DeleteTenantRequest, HostRequest, QueueTotalsResponse, TenantFeaturesRequest,
+    TenantHealthResponse, TenantResponse, WorkerResponse,
 };
 use crate::tenancy::console::operators::validate_password;
 use crate::tenancy::console::session::actor;
@@ -29,7 +29,7 @@ use crate::tenancy::console::{OperatorSession, Shared};
 use crate::tenancy::{
     TenantRegistration, TenantRuntime, add_host, begin_deletion, delete_tenant, export_available,
     list_tenants, provision_tenant, register_tenant, remove_host, resume_tenant, scope,
-    set_primary_host, suspend_tenant, tenant_summary,
+    set_plugin_management, set_primary_host, suspend_tenant, tenant_summary,
 };
 
 const TAG: &str = "console";
@@ -39,6 +39,7 @@ pub(super) fn router() -> OpenApiRouter<Shared> {
         .routes(routes!(list, create))
         .routes(routes!(show, delete))
         .routes(routes!(suspend))
+        .routes(routes!(update_features))
         .routes(routes!(resume))
         .routes(routes!(add_tenant_host))
         .routes(routes!(remove_tenant_host))
@@ -206,6 +207,37 @@ async fn resume(
     Path(slug): Path<String>,
 ) -> Result<Json<Data<TenantResponse>>, ApiError> {
     resume_tenant(&state.control, &actor(&session, &client), &slug).await?;
+    state.refresh_directory().await;
+    summary(&state, &slug).await
+}
+
+#[utoipa::path(
+    put,
+    path = "/tenants/{slug}/features",
+    tag = TAG,
+    operation_id = "console_update_tenant_features",
+    params(("slug" = String, Path, description = "Tenant slug")),
+    request_body = TenantFeaturesRequest,
+    responses(
+        (status = 200, description = "Features saved. With `plugin_management` off, the organization cannot open the plugins screen or install, enable, disable, configure or remove plugins (`plugin_management_disabled`); enabled plugins keep running", body = Data<TenantResponse>),
+        (status = 401, description = "No console session", body = ErrorEnvelope),
+        (status = 404, description = "Unknown tenant (`tenant_not_found`)", body = ErrorEnvelope),
+    )
+)]
+async fn update_features(
+    State(state): State<Shared>,
+    session: OperatorSession,
+    client: ClientInfo,
+    Path(slug): Path<String>,
+    JsonBody(request): JsonBody<TenantFeaturesRequest>,
+) -> Result<Json<Data<TenantResponse>>, ApiError> {
+    set_plugin_management(
+        &state.control,
+        &actor(&session, &client),
+        &slug,
+        request.plugin_management,
+    )
+    .await?;
     state.refresh_directory().await;
     summary(&state, &slug).await
 }

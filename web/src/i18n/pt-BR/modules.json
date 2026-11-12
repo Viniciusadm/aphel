@@ -1,4 +1,6 @@
 {
+  "managementDisabledTitle": "O gerenciamento de módulos está desativado",
+  "managementDisabledDescription": "O operador da plataforma desativou o gerenciamento de módulos e plugins desta empresa. Para ativar ou desativar módulos, fale com o operador da plataforma.",
   "title": "Módulos",
   "description": "Recursos opcionais compilados no Aphel. Habilite só o que a organização usa: ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
   "listLabel": "Módulos disponíveis",
@@ -119,6 +121,8 @@
   },
   "applyUpdate": "Aplicar atualização",
   "plugins": {
+    "managementDisabledTitle": "O gerenciamento de plugins está desativado",
+    "managementDisabledDescription": "O operador da plataforma desativou o gerenciamento de plugins desta empresa. Os plugins já ativos continuam funcionando. Para instalar ou alterar plugins, fale com o operador da plataforma.",
     "viewDetails": "Ver detalhes",
     "detailsTitle": "Detalhes de {{name}}",
     "declarationsPreview": "O que este plugin adiciona",

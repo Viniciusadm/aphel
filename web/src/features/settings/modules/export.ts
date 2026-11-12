@@ -1,4 +1,4 @@
-import { modulesApi, type ModuleInfo, type ModuleDataExport } from '@/kernel/modules/api'
+import { modulesApi as defaultModulesApi, type ModulesApi, type ModuleInfo, type ModuleDataExport } from '@/kernel/modules/api'
 import { downloadJson } from '@/modules/config_packages/ui/lib/download'
 
 function fileDate(value: string): string {
@@ -9,8 +9,8 @@ function fileDate(value: string): string {
   return `${date.getFullYear()}-${month}-${day}`
 }
 
-export async function exportModuleData(key: string): Promise<ModuleDataExport> {
-  const result = await modulesApi.exportData(key)
+export async function exportModuleData(key: string, api: ModulesApi = defaultModulesApi): Promise<ModuleDataExport> {
+  const result = await api.exportData(key)
   downloadJson(`${key}-export-${fileDate(result.exported_at)}.json`, result)
   return result
 }

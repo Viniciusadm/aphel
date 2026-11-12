@@ -42,6 +42,8 @@ export function UiLabelsBridge({ children }: { children: ReactNode }) {
       paginationPage: (page, pages) => common('pagination.page', { page, pages }),
       paginationPerPage: common('pagination.perPage'),
       back: common('actions.back'),
+      showPassword: common('actions.showPassword'),
+      hidePassword: common('actions.hidePassword'),
     }),
     [common, detail],
   )

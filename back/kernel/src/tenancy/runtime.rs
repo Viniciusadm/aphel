@@ -29,11 +29,13 @@ pub struct TenantRuntime {
     locals: RwLock<HashMap<u64, Local>>,
     tasks: Mutex<Vec<AbortHandle>>,
     stopped: AtomicBool,
+    plugin_management: AtomicBool,
 }
 
 impl TenantRuntime {
     pub(super) fn bare(tenant: Arc<Tenant>) -> Arc<Self> {
         Arc::new(Self {
+            plugin_management: AtomicBool::new(tenant.plugin_management),
             tenant,
             state: OnceLock::new(),
             router: OnceLock::new(),
@@ -102,6 +104,15 @@ impl TenantRuntime {
 
     pub fn tenant(&self) -> &Tenant {
         &self.tenant
+    }
+
+    pub fn plugin_management_enabled(&self) -> bool {
+        self.plugin_management.load(Ordering::Relaxed)
+    }
+
+    pub(super) fn apply_features(&self, tenant: &Tenant) {
+        self.plugin_management
+            .store(tenant.plugin_management, Ordering::Relaxed);
     }
 
     pub fn state(&self) -> Option<&AppState> {
@@ -228,6 +239,8 @@ impl TenantRuntimes {
                 .is_some_and(|current| tenant.is_served_by(&current));
             if !keep {
                 stop_slot(slot);
+            } else if let (Some(current), Some(runtime)) = (directory.tenant(*id), slot.get()) {
+                runtime.apply_features(&current);
             }
             keep
         });

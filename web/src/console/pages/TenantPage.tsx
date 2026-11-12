@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { PageLoader } from '@/components/ui/page-loader'
 import { ToggleField } from '@/components/ui/toggle-field'
 import { consoleApi, consoleKeys, type Tenant } from '../api'
+import { TenantFeaturesCard } from '../components/TenantFeaturesCard'
 import { TenantHealthCard } from '../components/TenantHealthCard'
 import { Notice } from '../components/Notice'
 import { TenantHostsCard } from '../components/TenantHostsCard'
@@ -144,6 +145,7 @@ export function TenantPage() {
             </CardContent>
           </Card>
         </div>
+        <TenantFeaturesCard tenant={data} />
         <TenantHealthCard slug={data.slug} active={active} />
       </div>
       <ConfirmDialog

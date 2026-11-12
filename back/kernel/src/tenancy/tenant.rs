@@ -40,6 +40,7 @@ pub struct Tenant {
     pub name: String,
     pub database_name: String,
     pub status: TenantStatus,
+    pub plugin_management: bool,
 }
 
 impl Tenant {

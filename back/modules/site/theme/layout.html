@@ -47,19 +47,46 @@ a.account-entry{font-size:.875rem}
 nav.languages{display:flex;gap:.5rem;font-size:.8125rem}
 nav.languages a{color:var(--muted);text-decoration:none}
 nav.languages a[aria-current]{color:var(--fg);font-weight:600}
-.account{max-width:26rem}
-.account .stack{display:grid;gap:.85rem;margin:1rem 0}
-.account label{display:grid;gap:.3rem;font-size:.9rem}
-.account label.inline{display:flex;align-items:center;gap:.5rem}
-.account small{color:var(--muted)}
-.account input[type=email],.account input[type=password],.account input[type=text]{font:inherit;padding:.6rem .7rem;border:1px solid var(--line);border-radius:.4rem;background:transparent;color:inherit;min-height:2.75rem}
-.account button{font:inherit;padding:.6rem 1rem;border-radius:.4rem;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;min-height:2.75rem}
-.account button.secondary{background:transparent;color:var(--fg);border-color:var(--line)}
-.account button.danger{background:#b42318;border-color:#b42318}
-.account .notice{padding:.75rem;border:1px solid var(--line);border-radius:.4rem}
-.account .error{padding:.75rem;border:1px solid #b42318;border-radius:.4rem;color:#b42318}
+.account{--panel:color-mix(in srgb,var(--bg) 92%,#fff);--danger:#b42318;max-width:27rem;margin:1rem auto 0;padding:2rem 1.75rem;background:var(--panel);border:1px solid var(--line);border-radius:1rem;box-shadow:0 1px 2px rgb(0 0 0/.04),0 12px 32px -12px color-mix(in srgb,var(--accent) 22%,transparent);position:relative;overflow:hidden}
+.account::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--accent)}
+.account h1{margin:0 0 .35rem;font-size:1.6rem;letter-spacing:-.015em}
+.account h1+.muted{margin-top:0}
+.account h2{margin:1.75rem 0 .25rem;font-size:1.05rem}
+.account .stack{display:grid;gap:1rem;margin:1.5rem 0 1rem}
+.account label{display:grid;gap:.35rem;font-size:.9rem;font-weight:500}
+.account label.inline{display:flex;align-items:flex-start;gap:.6rem;font-weight:400}
+.account label.inline input{margin-top:.3rem;accent-color:var(--danger)}
+.account small{color:var(--muted);font-weight:400;font-size:.8125rem}
+.account input[type=email],.account input[type=password],.account input[type=text]{font:inherit;font-weight:400;padding:.6rem .8rem;border:1px solid color-mix(in srgb,var(--fg) 22%,transparent);border-radius:.6rem;background:var(--bg);color:inherit;min-height:2.75rem;transition:border-color .15s,box-shadow .15s}
+.account input[type=email]:hover,.account input[type=password]:hover,.account input[type=text]:hover{border-color:color-mix(in srgb,var(--fg) 40%,transparent)}
+.account input:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
+.account button{font:inherit;font-weight:600;padding:.6rem 1rem;border-radius:.6rem;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;min-height:2.75rem;width:100%;transition:filter .15s,background-color .15s}
+.account button:hover{filter:brightness(1.08)}
+.account button:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.account button.secondary{background:transparent;color:var(--fg);border-color:color-mix(in srgb,var(--fg) 22%,transparent);font-weight:500}
+.account button.secondary:hover{filter:none;background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.account button.danger{background:var(--danger);border-color:var(--danger)}
+.account .notice,.account .error{margin:0 0 1.25rem;padding:.75rem .9rem;border-radius:.6rem;font-size:.9rem;border:1px solid}
+.account .notice{border-color:color-mix(in srgb,var(--accent) 35%,transparent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.account .error{border-color:color-mix(in srgb,var(--danger) 40%,transparent);background:color-mix(in srgb,var(--danger) 8%,transparent);color:var(--danger)}
+.account .password-field{position:relative;display:block}
+.account .password-field input{width:100%;padding-right:2.75rem}
+.account button.password-toggle{position:absolute;top:0;right:0;bottom:0;width:2.75rem;min-height:0;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;border-radius:0 .6rem .6rem 0;color:var(--muted);font-weight:400}
+.account button.password-toggle:hover{filter:none;color:var(--fg)}
+.account .forgot{display:block;margin:-.25rem 0 0;text-align:right;font-size:.875rem}
+.account .divider{display:flex;align-items:center;gap:.75rem;margin:1.75rem 0 1rem;color:var(--muted);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}
+.account .divider::before,.account .divider::after{content:"";flex:1;height:1px;background:color-mix(in srgb,var(--fg) 16%,transparent)}
+.account .divider+p{margin:0;color:var(--muted);font-size:.9rem}
+.account .switch{margin:1.5rem -1.75rem -2rem;padding:1rem 1.75rem;border-top:1px solid var(--line);background:color-mix(in srgb,var(--fg) 3%,transparent);text-align:center;font-size:.9rem;color:var(--muted)}
+.account .switch a{font-weight:600}
+.account form+form{margin-top:.75rem}
 .account-links{display:grid;gap:.5rem;margin:1rem 0}
+.account-links a{display:block;padding:.65rem .9rem;border:1px solid var(--line);border-radius:.6rem;text-decoration:none;color:var(--fg)}
+.account-links a:hover{border-color:var(--accent)}
 details.danger{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}
+details.danger summary{cursor:pointer;color:var(--danger);font-weight:500}
+@media (prefers-color-scheme:dark){.account{--danger:#f97066;box-shadow:0 1px 2px rgb(0 0 0/.3),0 12px 32px -12px rgb(0 0 0/.6)}}
+@media (max-width:30rem){.account{padding:1.5rem 1.25rem;border-radius:.85rem}.account .switch{margin:1.5rem -1.25rem -1.5rem;padding:1rem 1.25rem}}
 </style>
 {% include "aphel/appearance.html" %}
 {% include "aphel/presentation_style.html" %}

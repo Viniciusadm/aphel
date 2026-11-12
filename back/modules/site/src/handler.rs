@@ -176,6 +176,9 @@ async fn serve_reserved(state: &AppState, request: Request) -> Response {
     if request.uri().path() == ISLANDS_LOADER_PATH {
         return dynamic::islands_loader();
     }
+    if request.uri().path() == dynamic::ACCOUNT_SCRIPT_PATH {
+        return dynamic::account_script();
+    }
     if request.uri().path() == dynamic::PREVIEW_SCRIPT_PATH {
         return dynamic::preview_script();
     }

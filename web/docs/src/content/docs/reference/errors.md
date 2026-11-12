@@ -860,6 +860,8 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `plugin_operation_permission_invalid` | 422 | The operation requires an invalid permission. |
 | `plugin_operation_timeout` | 503 | The operation did not finish within the plugin call time. |
 | `plugin_operation_unknown` | 404 | The operation does not exist or its module is disabled. |
+| `plugin_management_disabled` | 403 | The platform operator turned plugin and module management off for this organization. |
+| `plugin_installer_missing` | 409 | A plugin installed from the operator console needs an active administrator to run on behalf of, and the organization has none. |
 | `plugin_owner_inactive` | 503 | The plugin acts with the permissions of the member who installed it, who is no longer active. |
 | `plugin_pack_aphel_incompatible` | 422 | The pack needs a newer version of Aphel (`requires_aphel`). |
 | `plugin_pack_dependency_cycle` | 422 | Two plugins of the pack depend on each other. |

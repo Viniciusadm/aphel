@@ -1,5 +1,6 @@
 mod dto;
 mod operators;
+mod plugins;
 mod session;
 mod tenants;
 
@@ -61,8 +62,12 @@ impl ConsoleState {
 struct ConsoleDocument;
 
 fn api() -> OpenApiRouter<Shared> {
-    OpenApiRouter::with_openapi(ConsoleDocument::openapi())
-        .nest(API_PREFIX, session::router().merge(tenants::router()))
+    OpenApiRouter::with_openapi(ConsoleDocument::openapi()).nest(
+        API_PREFIX,
+        session::router()
+            .merge(tenants::router())
+            .merge(plugins::router()),
+    )
 }
 
 pub fn openapi() -> utoipa::openapi::OpenApi {

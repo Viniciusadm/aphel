@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { modulesApi, type ModuleInfo } from '@/kernel/modules/api'
+import { useModulesApi, type ModuleInfo } from '@/kernel/modules/api'
 import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
 import { moduleErrorMessage, notifyModuleError } from './errors'
 import { exportCoversDisable, exportModuleData } from './export'
@@ -29,6 +29,7 @@ interface PurgeDataDialogProps {
 
 export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataDialogProps) {
   const { t } = useTranslation('modules')
+  const modulesApi = useModulesApi()
   const formatting = useRecordFormatting()
   const inputId = useId()
   const errorId = useId()
@@ -46,7 +47,7 @@ export function PurgeDataDialog({ module, name, onClose, onChanged }: PurgeDataD
     setExporting(true)
     setError(null)
     try {
-      const result = await exportModuleData(module.key)
+      const result = await exportModuleData(module.key, modulesApi)
       setExportedAt(result.exported_at)
       notifySuccess(t('toast.exported', { name }))
       await onChanged()

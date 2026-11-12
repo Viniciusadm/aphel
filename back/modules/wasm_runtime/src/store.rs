@@ -94,6 +94,22 @@ pub async fn bump(tx: &mut MySqlTx) -> Result<(), AppError> {
     Ok(())
 }
 
+pub async fn default_installer(pool: &MySqlPool) -> Result<UserId, AppError> {
+    let id: Option<String> = sqlx::query_scalar(
+        "SELECT u.id FROM users u JOIN roles r ON r.id = u.role_id \
+         WHERE u.status = 'active' AND r.`key` = 'admin' ORDER BY u.joined_at, u.id LIMIT 1",
+    )
+    .fetch_optional(pool)
+    .await?;
+    let id = id.ok_or_else(|| {
+        AppError::conflict_code(
+            "plugin_installer_missing",
+            "the organization has no active administrator to run the plugin on behalf of",
+        )
+    })?;
+    Ok(UserId::new(id)?)
+}
+
 pub async fn save(
     tx: &mut MySqlTx,
     package: &PluginPackage,

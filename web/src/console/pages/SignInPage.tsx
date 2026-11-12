@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/features/auth/components/SubmitButton'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { consoleApi, consoleKeys } from '../api'
 import { FormError } from '../components/FormError'
 import { PublicCard } from '../components/PublicCard'
@@ -50,11 +51,11 @@ export function SignInPage() {
           {(control) => <Input {...control} type="email" autoComplete="username" autoFocus {...register('email')} />}
         </Field>
         <Field label={t('signIn.password')} error={errors.password?.message && t(errors.password.message as 'validation.required')}>
-          {(control) => <Input {...control} type="password" autoComplete="current-password" {...register('password')} />}
+          {(control) => <PasswordInput {...control} autoComplete="current-password" {...register('password')} />}
         </Field>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t('signIn.submitting') : t('signIn.submit')}
-        </Button>
+        <SubmitButton pending={isSubmitting} pendingLabel={t('signIn.submitting')}>
+          {t('signIn.submit')}
+        </SubmitButton>
       </form>
     </PublicCard>
   )

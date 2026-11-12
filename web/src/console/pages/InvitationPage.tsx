@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/features/auth/components/SubmitButton'
 import { Field } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { PageLoader } from '@/components/ui/page-loader'
 import { consoleApi, consoleKeys } from '../api'
 import { FormError } from '../components/FormError'
@@ -64,14 +65,14 @@ export function InvitationPage() {
       <form className="grid gap-4" onSubmit={onSubmit} noValidate>
         <FormError message={failure} />
         <Field label={t('invitation.password')} error={errors.password?.message && t(errors.password.message as 'validation.passwordLength')}>
-          {(control) => <Input {...control} type="password" autoComplete="new-password" autoFocus {...register('password')} />}
+          {(control) => <PasswordInput {...control} autoComplete="new-password" autoFocus {...register('password')} />}
         </Field>
         <Field label={t('invitation.confirm')} error={errors.confirm?.message && t(errors.confirm.message as 'validation.passwordsDiffer')}>
-          {(control) => <Input {...control} type="password" autoComplete="new-password" {...register('confirm')} />}
+          {(control) => <PasswordInput {...control} autoComplete="new-password" {...register('confirm')} />}
         </Field>
-        <Button type="submit" disabled={isSubmitting}>
+        <SubmitButton pending={isSubmitting} pendingLabel={t('invitation.submit')}>
           {t('invitation.submit')}
-        </Button>
+        </SubmitButton>
       </form>
     </PublicCard>
   )

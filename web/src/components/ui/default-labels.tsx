@@ -29,6 +29,8 @@ const portugueseLabels: UiLabels = {
   paginationPage: (page, pages) => `Página ${page} de ${pages}`,
   paginationPerPage: 'Itens por página',
   back: 'Voltar',
+  showPassword: 'Mostrar senha',
+  hidePassword: 'Ocultar senha',
 }
 
 const englishLabels: UiLabels = {
@@ -60,6 +62,8 @@ const englishLabels: UiLabels = {
   paginationPage: (page, pages) => `Page ${page} of ${pages}`,
   paginationPerPage: 'Items per page',
   back: 'Back',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
 }
 
 export function defaultUiLabels(): UiLabels {

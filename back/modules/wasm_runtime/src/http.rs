@@ -588,19 +588,23 @@ async fn catalog_readiness(
     tenant: AuthContext,
 ) -> Result<Json<Data<registry::CatalogReadiness>>, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    Ok(Json(Data::new(readiness_of(&state).await?)))
+}
+
+async fn readiness_of(state: &AppState) -> Result<registry::CatalogReadiness, AppError> {
     match tokio::time::timeout(Duration::from_millis(100), registry::current(&state.db()?)).await {
         Ok(result) => {
             result?;
         }
         Err(_) => {
-            return Ok(Json(Data::new(registry::CatalogReadiness {
+            return Ok(registry::CatalogReadiness {
                 state: "loading".to_owned(),
                 version: None,
                 backend_errors: vec![],
-            })));
+            });
         }
     }
-    Ok(Json(Data::new(registry::readiness())))
+    Ok(registry::readiness())
 }
 
 #[utoipa::path(
@@ -650,12 +654,36 @@ async fn install_plugin(
 ) -> Result<Response, ApiError> {
     let scope = &tenant.scope;
     scope.require(&Permission::SYSTEM_MANAGE)?;
+    ensure_management_allowed()?;
     let (bytes, presets) = package_bytes(multipart).await?;
-    let package = read_package(&bytes)?;
-    let prepared = prepare_install(&state, scope, package, &[], &[], &[]).await?;
-    let presets = grants::selected_presets(&prepared.package.manifest, &presets)?;
+    Ok(
+        match install_package(&state, scope, client.0.ip, &bytes, &presets, &params).await? {
+            InstallOutcome::Consent(consent) => Json(Data::new(consent)).into_response(),
+            InstallOutcome::Installed(plugin) => {
+                (StatusCode::CREATED, Json(Data::new(plugin))).into_response()
+            }
+        },
+    )
+}
+
+pub(crate) enum InstallOutcome {
+    Consent(PluginConsentResponse),
+    Installed(PluginResponse),
+}
+
+pub(crate) async fn install_package(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    bytes: &[u8],
+    presets: &[String],
+    params: &InstallParams,
+) -> Result<InstallOutcome, AppError> {
+    let package = read_package(bytes)?;
+    let prepared = prepare_install(state, scope, package, &[], &[], &[]).await?;
+    let presets = grants::selected_presets(&prepared.package.manifest, presets)?;
     if params.dry_run {
-        return Ok(Json(Data::new(consent_of(&state, &prepared).await?)).into_response());
+        return Ok(InstallOutcome::Consent(consent_of(state, &prepared).await?));
     }
     require_web_admission(
         &prepared.package.manifest,
@@ -663,12 +691,8 @@ async fn install_plugin(
     )?;
     crate::conflicts::require_acknowledged(&prepared.conflicts, params.acknowledge_conflicts)?;
     crate::modules::ensure_unblocked(&prepared.module_conflicts)?;
-    let plugin = apply_install(&state, scope, client.0.ip, &prepared, &presets, None).await?;
-    Ok((
-        StatusCode::CREATED,
-        Json(Data::new(respond(&state, plugin).await?)),
-    )
-        .into_response())
+    let plugin = apply_install(state, scope, ip, &prepared, &presets, None).await?;
+    Ok(InstallOutcome::Installed(respond(state, plugin).await?))
 }
 
 pub(crate) struct PreparedInstall {
@@ -787,7 +811,8 @@ pub(crate) async fn apply_install(
         let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
             pool.begin().await.map_err(AppError::from)?,
         );
-        store::save(&mut tx, package, Some(scope.user_id()), pack_key).await?;
+        let installer = installer_of(&pool, scope).await?;
+        store::save(&mut tx, package, Some(&installer), pack_key).await?;
         sync_permissions(&mut tx, &package.manifest, enabled).await?;
         let report = grants::reconcile(&mut tx, &package.manifest, presets).await?;
         let mut changes = vec![FieldChange::new(
@@ -1013,14 +1038,28 @@ async fn install_pack(
 ) -> Result<Response, ApiError> {
     let scope = &tenant.scope;
     scope.require(&Permission::SYSTEM_MANAGE)?;
+    ensure_management_allowed()?;
     let (bytes, presets) = package_bytes(multipart).await?;
-    let pack = crate::pack::read_pack(&bytes)?;
+    let (status, body) =
+        install_pack_bytes(&state, scope, client.0.ip, &bytes, presets, &params).await?;
+    Ok((status, Json(Data::new(body))).into_response())
+}
+
+pub(crate) async fn install_pack_bytes(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    bytes: &[u8],
+    presets: Vec<String>,
+    params: &InstallParams,
+) -> Result<(StatusCode, Value), AppError> {
+    let pack = crate::pack::read_pack(bytes)?;
     let declares_entities = pack
         .members
         .iter()
         .any(|member| !member.package.manifest.entities.is_empty());
     let requirements =
-        crate::provision::requirements(&state, scope, &pack.manifest, declares_entities).await?;
+        crate::provision::requirements(state, scope, &pack.manifest, declares_entities).await?;
     let catalog = crate::bridge::host_catalog();
     crate::pack::ensure_dependencies(&pack, &catalog.operations)?;
     let provided = pack.provided_operations();
@@ -1038,7 +1077,7 @@ async fn install_pack(
     let mut prepared = Vec::with_capacity(pack.members.len());
     for member in &pack.members {
         let outcome = prepare_install(
-            &state,
+            state,
             scope,
             member.package.clone(),
             &provided,
@@ -1074,7 +1113,7 @@ async fn install_pack(
             let (action, consent, error, settings) = match outcome {
                 Ok((ready, _)) => (
                     pack_action(ready),
-                    Some(consent_of(&state, ready).await?),
+                    Some(consent_of(state, ready).await?),
                     None,
                     pending_settings(member, ready.previous.as_ref()),
                 ),
@@ -1109,14 +1148,14 @@ async fn install_pack(
             plugins,
             modules_to_enable: requirements.modules_to_enable.clone(),
             provisions: crate::provision::plan(
-                &state,
+                state,
                 scope,
                 &pack.manifest,
                 &requirements.modules_to_enable,
             )
             .await?,
         };
-        return Ok(Json(Data::new(consent)).into_response());
+        return Ok((StatusCode::OK, to_value(&consent)?));
     }
     let failures: Vec<Value> = pack
         .members
@@ -1137,11 +1176,10 @@ async fn install_pack(
             crate::pack::PACK_PLUGINS_INVALID,
             "some plugins of the pack are invalid; nothing was installed",
             json!({ "plugins": failures }),
-        )
-        .into());
+        ));
     }
     let provisions = crate::provision::plan(
-        &state,
+        state,
         scope,
         &pack.manifest,
         &requirements.modules_to_enable,
@@ -1153,8 +1191,7 @@ async fn install_pack(
             crate::pack::PACK_INVALID,
             "the pack needs unavailable provisioners; nothing was installed",
             json!({ "provisions": provisions }),
-        )
-        .into());
+        ));
     }
     let ready: Vec<(PreparedInstall, Vec<String>)> = prepared
         .into_iter()
@@ -1170,18 +1207,18 @@ async fn install_pack(
             return Err(AppError::conflict_code(
                 "plugin_web_unacknowledged",
                 "the pack has integrated frontend code; send acknowledge_web_version=<pack version> after reviewing its session-level access",
-            )
-            .into());
+            ));
         }
         crate::conflicts::require_acknowledged(&plan.conflicts, params.acknowledge_conflicts)?;
         crate::modules::ensure_unblocked(&plan.module_conflicts)?;
     }
-    crate::provision::enable_modules(&state, scope, &requirements.modules_to_enable).await?;
+    crate::provision::enable_modules(state, scope, &requirements.modules_to_enable).await?;
     let pool = state.db()?;
     let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         pool.begin().await.map_err(AppError::from)?,
     );
-    store::save_pack(&mut tx, &pack.manifest, Some(scope.user_id())).await?;
+    let installer = installer_of(&pool, scope).await?;
+    store::save_pack(&mut tx, &pack.manifest, Some(&installer)).await?;
     tx.commit().await.map_err(AppError::from)?;
     let mut results = Vec::with_capacity(ready.len());
     let mut failed = false;
@@ -1203,16 +1240,16 @@ async fn install_pack(
                 store::set_pack(&pool, &manifest.key, &pack.manifest.key).await?;
             } else {
                 apply_install(
-                    &state,
+                    state,
                     scope,
-                    client.0.ip.clone(),
+                    ip.clone(),
                     plan,
                     own,
                     Some(&pack.manifest.key),
                 )
                 .await?;
             }
-            apply_pack_settings(&state, scope, client.0.ip.clone(), member).await?;
+            apply_pack_settings(state, scope, ip.clone(), member).await?;
             Ok(match action {
                 ACTION_INSTALL => "installed",
                 ACTION_UPGRADE => "upgraded",
@@ -1245,7 +1282,7 @@ async fn install_pack(
     );
     record_in(
         &mut tx,
-        &state,
+        state,
         scope,
         "plugin.pack_installed",
         &pack.manifest.key,
@@ -1266,7 +1303,7 @@ async fn install_pack(
                 ),
             ),
         ],
-        client.0.ip,
+        ip,
     )
     .await?;
     tx.commit().await.map_err(AppError::from)?;
@@ -1275,7 +1312,7 @@ async fn install_pack(
         Vec::new()
     } else {
         let (provisions, provision_failed) =
-            crate::provision::run(&state, scope, &pack.manifest).await?;
+            crate::provision::run(state, scope, &pack.manifest).await?;
         failed = provision_failed;
         provisions
     };
@@ -1286,7 +1323,7 @@ async fn install_pack(
     };
     Ok((
         status,
-        Json(Data::new(PluginPackResponse {
+        to_value(&PluginPackResponse {
             key: pack.manifest.key.clone(),
             name: pack.manifest.name.clone(),
             version: pack.manifest.version.clone(),
@@ -1295,9 +1332,8 @@ async fn install_pack(
             plugins: results,
             modules_enabled: requirements.modules_to_enable,
             provisions,
-        })),
-    )
-        .into_response())
+        })?,
+    ))
 }
 
 async fn apply_pack_settings(
@@ -1341,19 +1377,19 @@ async fn apply_pack_settings(
 #[derive(Debug, Deserialize, IntoParams)]
 pub(crate) struct InstallParams {
     #[serde(default)]
-    dry_run: bool,
+    pub dry_run: bool,
     #[serde(default)]
-    acknowledge_conflicts: bool,
+    pub acknowledge_conflicts: bool,
     #[serde(default)]
-    acknowledge_web_version: Option<String>,
+    pub acknowledge_web_version: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
 pub(crate) struct ToggleParams {
     #[serde(default)]
-    acknowledge_conflicts: bool,
+    pub acknowledge_conflicts: bool,
     #[serde(default)]
-    acknowledge_web_version: Option<String>,
+    pub acknowledge_web_version: Option<String>,
 }
 
 async fn package_bytes(
@@ -1419,24 +1455,34 @@ async fn reapply_plugin_grants(
     Path(key): Path<String>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
-    let plugin = installed(&state, &key).await?;
+    ensure_management_allowed()?;
+    Ok(Json(Data::new(
+        reapply_grants(&state, &tenant.scope, client.0.ip, &key).await?,
+    )))
+}
+
+pub(crate) async fn reapply_grants(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    key: &str,
+) -> Result<PluginResponse, AppError> {
+    let plugin = installed(state, key).await?;
     let mut tx = MySqlTx::from(state.db()?.begin().await.map_err(AppError::from)?);
     let report = grants::reconcile(&mut tx, &plugin.manifest, &[]).await?;
     record_in(
         &mut tx,
-        &state,
-        &tenant.scope,
+        state,
+        scope,
         "plugin.grants_reapplied",
-        &key,
+        key,
         grant_changes(&report),
-        client.0.ip,
+        ip,
     )
     .await?;
     tx.commit().await.map_err(AppError::from)?;
     registry::invalidate().await;
-    Ok(Json(Data::new(
-        respond(&state, installed(&state, &key).await?).await?,
-    )))
+    respond(state, installed(state, key).await?).await
 }
 
 #[derive(Debug, Deserialize, IntoParams)]
@@ -1562,7 +1608,7 @@ async fn plugin_change_stream(
 #[derive(Debug, Deserialize, IntoParams)]
 pub(crate) struct UninstallParams {
     #[serde(default)]
-    purge: bool,
+    pub purge: bool,
 }
 
 #[utoipa::path(
@@ -1587,20 +1633,32 @@ async fn uninstall_plugin(
     Query(params): Query<UninstallParams>,
 ) -> Result<StatusCode, ApiError> {
     tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
-    let plugin = installed(&state, &key).await?;
-    crate::dependents::ensure_none_broken(&state, &key, None).await?;
-    crate::modules::release(&state, &tenant.scope, &key).await;
-    if params.purge {
-        schema::purge(&state, &plugin.manifest).await?;
+    ensure_management_allowed()?;
+    uninstall(&state, &tenant.scope, client.0.ip, &key, params.purge).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub(crate) async fn uninstall(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    key: &str,
+    purge: bool,
+) -> Result<(), AppError> {
+    let plugin = installed(state, key).await?;
+    crate::dependents::ensure_none_broken(state, key, None).await?;
+    crate::modules::release(state, scope, key).await;
+    if purge {
+        schema::purge(state, &plugin.manifest).await?;
     } else {
-        schema::set_active(&state, &plugin.manifest, false).await?;
+        schema::set_active(state, &plugin.manifest, false).await?;
     }
     let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
-    store::delete(&mut tx, &key).await?;
-    clear_ui_plugin(&mut tx, &key).await?;
-    remove_runtime_permissions(&mut tx, &permissions_owner(&key)).await?;
+    store::delete(&mut tx, key).await?;
+    clear_ui_plugin(&mut tx, key).await?;
+    remove_runtime_permissions(&mut tx, &permissions_owner(key)).await?;
     // Remove all credentials, including declarations removed by a plugin update.
     for owner in [
         crate::host::SECRET_OWNER_TYPE,
@@ -1610,27 +1668,37 @@ async fn uninstall_plugin(
     ] {
         state
             .secrets
-            .remove_owner(&mut tx, &tenant.scope, owner, &key)
+            .remove_owner(&mut tx, scope, owner, key)
             .await?;
     }
     tx.commit().await.map_err(AppError::from)?;
     record(
-        &state,
-        &tenant.scope,
+        state,
+        scope,
         "plugin.uninstalled",
-        &key,
+        key,
         vec![FieldChange::new(
             "version",
             json!(plugin.version),
             Value::Null,
         )],
-        client.0.ip,
+        ip,
     )
     .await?;
-    if let Err(error) = prune_compiled(&state).await {
+    if let Err(error) = prune_compiled(state).await {
         tracing::warn!(error = %error, "could not prune precompiled plugin backends");
     }
-    Ok(StatusCode::NO_CONTENT)
+    Ok(())
+}
+
+fn ensure_management_allowed() -> Result<(), AppError> {
+    if aphel_sdk::platform::tenancy::plugin_management_enabled() {
+        return Ok(());
+    }
+    Err(AppError::forbidden_code(
+        "plugin_management_disabled",
+        "plugin management is turned off for this organization; ask the platform operator to turn it on",
+    ))
 }
 
 fn require_web_admission(
@@ -1646,15 +1714,14 @@ fn require_web_admission(
     Ok(())
 }
 
-async fn toggle(
+pub(crate) async fn toggle(
     state: &AppState,
-    tenant: &AuthContext,
-    client: ClientInfo,
+    scope: &AccessScope,
+    ip: Option<String>,
     key: &str,
     enabled: bool,
     params: ToggleParams,
 ) -> Result<PluginResponse, AppError> {
-    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
     let plugin = installed(state, key).await?;
     if plugin.enabled != enabled {
         if !enabled {
@@ -1665,9 +1732,9 @@ async fn toggle(
             schema::validate_dependencies(state, &plugin.manifest).await?;
             let conflicts = crate::conflicts::detect_for(&state.db()?, &plugin.manifest).await?;
             crate::conflicts::require_acknowledged(&conflicts, params.acknowledge_conflicts)?;
-            let plans = crate::modules::plan(state, &tenant.scope, &plugin.manifest).await?;
+            let plans = crate::modules::plan(state, scope, &plugin.manifest).await?;
             crate::modules::ensure_unblocked(&plans)?;
-            crate::modules::hold(state, &tenant.scope, &plugin.manifest).await?;
+            crate::modules::hold(state, scope, &plugin.manifest).await?;
         }
         let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
             state.db()?.begin().await.map_err(AppError::from)?,
@@ -1677,11 +1744,11 @@ async fn toggle(
         tx.commit().await?;
         schema::set_active(state, &plugin.manifest, enabled).await?;
         if !enabled {
-            crate::modules::release(state, &tenant.scope, key).await;
+            crate::modules::release(state, scope, key).await;
         }
         record(
             state,
-            &tenant.scope,
+            scope,
             if enabled {
                 "plugin.enabled"
             } else {
@@ -1689,7 +1756,7 @@ async fn toggle(
             },
             key,
             vec![FieldChange::new("enabled", json!(!enabled), json!(enabled))],
-            client.0.ip,
+            ip,
         )
         .await?;
     }
@@ -1718,8 +1785,10 @@ async fn enable_plugin(
     Path(key): Path<String>,
     Query(params): Query<ToggleParams>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
+    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    ensure_management_allowed()?;
     Ok(Json(Data::new(
-        toggle(&state, &tenant, client, &key, true, params).await?,
+        toggle(&state, &tenant.scope, client.0.ip, &key, true, params).await?,
     )))
 }
 
@@ -1743,11 +1812,13 @@ async fn disable_plugin(
     client: ClientInfo,
     Path(key): Path<String>,
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
+    tenant.scope.require(&Permission::SYSTEM_MANAGE)?;
+    ensure_management_allowed()?;
     Ok(Json(Data::new(
         toggle(
             &state,
-            &tenant,
-            client,
+            &tenant.scope,
+            client.0.ip,
             &key,
             false,
             ToggleParams::default(),
@@ -1877,6 +1948,20 @@ async fn update_plugin_settings(
 ) -> Result<Json<Data<PluginResponse>>, ApiError> {
     let plugin = installed(&state, &key).await?;
     require_settings_access(&tenant, &plugin)?;
+    ensure_management_allowed()?;
+    Ok(Json(Data::new(
+        save_settings(&state, &tenant.scope, client.0.ip, &key, plugin, values).await?,
+    )))
+}
+
+pub(crate) async fn save_settings(
+    state: &AppState,
+    scope: &AccessScope,
+    ip: Option<String>,
+    key: &str,
+    plugin: InstalledPlugin,
+    values: Map<String, Value>,
+) -> Result<PluginResponse, AppError> {
     let mut settings = validate_settings(&plugin.manifest, &values)?;
     settings.retain(|_, value| !value.is_null());
     let mut secrets = Vec::new();
@@ -1913,8 +1998,7 @@ async fn update_plugin_settings(
             INVALID_SETTINGS,
             "invalid plugin settings",
             violations,
-        )
-        .into());
+        ));
     }
     let mut changes = vec![FieldChange::new(
         "settings",
@@ -1924,7 +2008,7 @@ async fn update_plugin_settings(
     let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
-    store::set_settings(&mut tx, &key, &settings).await?;
+    store::set_settings(&mut tx, key, &settings).await?;
     for (name, secret) in &secrets {
         let setting = plugin
             .manifest
@@ -1932,20 +2016,15 @@ async fn update_plugin_settings(
             .iter()
             .find(|setting| &setting.key == name)
             .expect("validated setting");
-        let secret_key = setting_secret_key(&key, setting);
+        let secret_key = setting_secret_key(key, setting);
         match secret {
             Some(secret) => {
                 state
                     .secrets
-                    .store(&mut tx, &tenant.scope, &secret_key, secret)
+                    .store(&mut tx, scope, &secret_key, secret)
                     .await?
             }
-            None => {
-                state
-                    .secrets
-                    .remove(&mut tx, &tenant.scope, &secret_key)
-                    .await?
-            }
+            None => state.secrets.remove(&mut tx, scope, &secret_key).await?,
         }
         changes.push(FieldChange::new(
             format!("secrets.{name}"),
@@ -1954,18 +2033,8 @@ async fn update_plugin_settings(
         ));
     }
     tx.commit().await.map_err(AppError::from)?;
-    record(
-        &state,
-        &tenant.scope,
-        "plugin.settings_updated",
-        &key,
-        changes,
-        client.0.ip,
-    )
-    .await?;
-    Ok(Json(Data::new(
-        respond(&state, installed(&state, &key).await?).await?,
-    )))
+    record(state, scope, "plugin.settings_updated", key, changes, ip).await?;
+    respond(state, installed(state, key).await?).await
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -2431,4 +2500,155 @@ fn form_pairs(query: &str) -> Vec<(String, String)> {
     form_urlencoded::parse(query.as_bytes())
         .map(|(name, value)| (name.into_owned(), value.into_owned()))
         .collect()
+}
+
+pub(crate) struct PluginAdmin;
+
+async fn installer_of(
+    pool: &sqlx::MySqlPool,
+    scope: &AccessScope,
+) -> Result<aphel_kernel::domain::UserId, AppError> {
+    if scope.is_system() {
+        store::default_installer(pool).await
+    } else {
+        Ok(scope.user_id().clone())
+    }
+}
+
+fn to_value<T: Serialize>(value: &T) -> Result<Value, AppError> {
+    serde_json::to_value(value).map_err(|error| AppError::Internal(error.to_string()))
+}
+
+#[async_trait::async_trait]
+impl aphel_sdk::platform::modules::runtime_catalog::PluginAdministration for PluginAdmin {
+    async fn list(&self, state: &AppState) -> Result<Value, AppError> {
+        let mut plugins = Vec::new();
+        for plugin in store::list(&state.db()?).await? {
+            plugins.push(respond(state, plugin).await?);
+        }
+        to_value(&plugins)
+    }
+
+    async fn install(
+        &self,
+        state: &AppState,
+        scope: &AccessScope,
+        ip: Option<String>,
+        request: aphel_sdk::platform::modules::runtime_catalog::PluginInstallRequest,
+    ) -> Result<aphel_sdk::platform::modules::runtime_catalog::PluginInstallResult, AppError> {
+        let params = InstallParams {
+            dry_run: request.dry_run,
+            acknowledge_conflicts: request.acknowledge_conflicts,
+            acknowledge_web_version: request.acknowledge_web_version,
+        };
+        let outcome = install_package(
+            state,
+            scope,
+            ip,
+            &request.package,
+            &request.role_presets,
+            &params,
+        )
+        .await?;
+        Ok(match outcome {
+            InstallOutcome::Consent(consent) => {
+                aphel_sdk::platform::modules::runtime_catalog::PluginInstallResult {
+                    installed: false,
+                    body: to_value(&consent)?,
+                }
+            }
+            InstallOutcome::Installed(plugin) => {
+                aphel_sdk::platform::modules::runtime_catalog::PluginInstallResult {
+                    installed: true,
+                    body: to_value(&plugin)?,
+                }
+            }
+        })
+    }
+
+    async fn set_enabled(
+        &self,
+        state: &AppState,
+        scope: &AccessScope,
+        ip: Option<String>,
+        key: &str,
+        request: aphel_sdk::platform::modules::runtime_catalog::PluginToggleRequest,
+    ) -> Result<Value, AppError> {
+        let params = ToggleParams {
+            acknowledge_conflicts: request.acknowledge_conflicts,
+            acknowledge_web_version: request.acknowledge_web_version,
+        };
+        to_value(&toggle(state, scope, ip, key, request.enabled, params).await?)
+    }
+
+    async fn uninstall(
+        &self,
+        state: &AppState,
+        scope: &AccessScope,
+        ip: Option<String>,
+        key: &str,
+        purge: bool,
+    ) -> Result<(), AppError> {
+        uninstall(state, scope, ip, key, purge).await
+    }
+
+    async fn install_pack(
+        &self,
+        state: &AppState,
+        scope: &AccessScope,
+        ip: Option<String>,
+        request: aphel_sdk::platform::modules::runtime_catalog::PluginInstallRequest,
+    ) -> Result<aphel_sdk::platform::modules::runtime_catalog::PluginPackResult, AppError> {
+        let params = InstallParams {
+            dry_run: request.dry_run,
+            acknowledge_conflicts: request.acknowledge_conflicts,
+            acknowledge_web_version: request.acknowledge_web_version,
+        };
+        let (status, body) = install_pack_bytes(
+            state,
+            scope,
+            ip,
+            &request.package,
+            request.role_presets,
+            &params,
+        )
+        .await?;
+        Ok(
+            aphel_sdk::platform::modules::runtime_catalog::PluginPackResult {
+                status: status.as_u16(),
+                body,
+            },
+        )
+    }
+
+    async fn reapply_grants(
+        &self,
+        state: &AppState,
+        scope: &AccessScope,
+        ip: Option<String>,
+        key: &str,
+    ) -> Result<Value, AppError> {
+        to_value(&reapply_grants(state, scope, ip, key).await?)
+    }
+
+    async fn readiness(&self, state: &AppState) -> Result<Value, AppError> {
+        to_value(&readiness_of(state).await?)
+    }
+
+    async fn settings(&self, state: &AppState, key: &str) -> Result<Value, AppError> {
+        let plugin = installed(state, key).await?;
+        to_value(&setting_responses(state, &plugin).await?)
+    }
+
+    async fn update_settings(
+        &self,
+        state: &AppState,
+        scope: &AccessScope,
+        ip: Option<String>,
+        key: &str,
+        values: Map<String, Value>,
+    ) -> Result<Value, AppError> {
+        let plugin = installed(state, key).await?;
+        to_value(&save_settings(state, scope, ip, key, plugin, values).await?)
+    }
 }

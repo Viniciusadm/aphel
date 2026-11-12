@@ -129,7 +129,7 @@ Code in `back/kernel/src/tenancy`; guide `web/docs/src/content/docs/admin/multi-
   - The arch check counts `unscoped_spawns` and `mutable_statics`.
 - **Worker:** `tenancy::run_workers` keeps one worker per active tenant (scheduler, lock recovery, heartbeat, outbox and jobs in the tenant database) over a process-wide `WORKER_CONCURRENCY` semaphore shared in turn.
 - **Provisioning and CLI:** `tenancy/provisioning.rs` registers, provisions (database, migrations, `install_organization`), suspends, resumes, manages hosts and deletes (export with the `org` command, files by prefix, database) tenants, writing `operator_audit`. `aphel migrate` and boot migrations cover the control database and every tenant. CLI: `aphel tenants list|create|suspend|resume|delete|migrate`, `aphel console create-operator`, `aphel tenancy-check` (two throwaway tenants, fails on any leak). Commands acting on one company take `--tenant <slug>` and refuse to run without it in multi mode.
-- **Console:** `tenancy/console` serves `/api/console/v1` (own OpenAPI) and the SPA on the `console` surface (`web/src/console`), with operator sessions in `aphel_console_session`, invitations by one-time link, tenant management, health and audit.
+- **Console:** `tenancy/console` serves `/api/console/v1` (own OpenAPI) and the SPA on the `console` surface (`web/src/console`), with operator sessions in `aphel_console_session`, invitations by one-time link, tenant management, health, audit, the per-company plugin management switch (`tenants.plugin_management_enabled`) and operator management of a company's plugins and modules (`console/plugins.rs`, through the `PluginAdministration` core point contributed by `wasm_runtime`).
 
 ## Runtime plugins
 

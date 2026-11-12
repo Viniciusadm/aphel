@@ -138,6 +138,9 @@ impl Module for WasmRuntimeModule {
         app.contribute::<dyn aphel_sdk::platform::modules::runtime_catalog::RuntimeCatalogSource>(
             Arc::new(registry::PublicEvents),
         );
+        app.contribute::<dyn aphel_sdk::platform::modules::runtime_catalog::PluginAdministration>(
+            Arc::new(http::PluginAdmin),
+        );
         app.contribute::<dyn aphel_sdk::platform::application::public_events::RuntimePublicEventSource>(
             Arc::new(registry::PublicEvents),
         );

@@ -745,6 +745,67 @@
         }
       }
     },
+    "/api/console/v1/tenants/{slug}/features": {
+      "put": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_update_tenant_features",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantFeaturesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Features saved. With `plugin_management` off, the organization cannot open the plugins screen or install, enable, disable, configure or remove plugins (`plugin_management_disabled`); enabled plugins keep running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tenant (`tenant_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/console/v1/tenants/{slug}/health": {
       "get": {
         "tags": [
@@ -986,6 +1047,1166 @@
           },
           "404": {
             "description": "Unknown host (`tenant_host_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/modules": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_list_tenant_modules",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Modules compiled into this build and their state in the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_ModuleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tenant (`tenant_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/modules/{key}/data-export": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_export_tenant_module_data",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The exported data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_ModuleDataExportResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module (`module_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/modules/{key}/data-purge": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_purge_tenant_module_data",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurgeModuleDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Data removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_ModuleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module (`module_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The module is enabled or was not exported after being disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing confirmation (`module_confirmation_required`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/modules/{key}/disable": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_disable_tenant_module",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Module disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_ModuleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module (`module_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An enabled module depends on it (`module_required_by`) or the build requires it (`module_required`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/modules/{key}/enable": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_enable_tenant_module",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Module enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_ModuleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module (`module_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Incompatible module or a dependency is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Required settings are missing (`module_settings_required`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/modules/{key}/settings": {
+      "put": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_update_tenant_module_settings",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModuleSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_ModuleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module (`module_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_list_tenant_plugins",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Runtime plugins installed in the organization, in the shape of the organization API (`PluginResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tenant (`tenant_not_found`) or no plugin module in this build (`module_not_installed`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The organization is not available (`tenant_unavailable`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "description": "Installs or upgrades a plugin in the organization from an `.aphelplugin` sent as the multipart field `package`, with the same checks and acknowledgements as the organization API. With `dry_run=true` nothing is installed and the response describes what the package asks for. Works even when the organization's plugin management is switched off.",
+        "operationId": "console_install_tenant_plugin",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_conflicts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_web_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Field `package` with the .aphelplugin file",
+          "content": {
+            "multipart/form-data": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dry run: what the package declares and asks for (`PluginConsentResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Plugin installed or upgraded (`PluginResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicts or web code not acknowledged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid package",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/packs": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "description": "Installs or upgrades a plugin pack (`.aphelpack`, multipart field `package`) in the organization. With `dry_run=true` nothing is installed and the response describes the pack. Status 207 means some plugins failed.",
+        "operationId": "console_install_tenant_plugin_pack",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_conflicts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_web_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Field `package` with the .aphelpack file",
+          "content": {
+            "multipart/form-data": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dry run: what the pack declares and asks for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Pack installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Some plugins of the pack failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicts or web code not acknowledged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid pack",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/readiness": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_tenant_plugins_readiness",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plugin catalog readiness (`loading`, `ready` or `degraded`) and backend errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/{key}": {
+      "delete": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_uninstall_tenant_plugin",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "purge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Plugin removed; with `purge=true` its records and fields are deleted too"
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/{key}/disable": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_disable_tenant_plugin",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plugin disabled (`PluginResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/{key}/enable": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_enable_tenant_plugin",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "acknowledge_conflicts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "acknowledge_web_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plugin enabled (`PluginResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Web code or overlaps not acknowledged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/{key}/grants": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_reapply_tenant_plugin_grants",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Grants reapplied to the roles that exist now (`PluginResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/tenants/{slug}/plugins/{key}/settings": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_tenant_plugin_settings",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Settings with their current values (`PluginSettingResponse[]`); secrets only report `configured`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "console"
+        ],
+        "operationId": "console_update_tenant_plugin_settings",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Tenant slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Plugin key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Map of setting key to value",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Settings saved (`PluginResponse`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PluginPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No console session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not installed (`plugin_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid settings (`plugin_settings_invalid`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1366,6 +2587,172 @@
           }
         }
       },
+      "Data_ModuleDataExportResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "key",
+              "version",
+              "exported_at",
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "type": "object"
+              },
+              "exported_at": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Data_ModuleResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "key",
+              "name",
+              "description",
+              "version",
+              "min_aphel_version",
+              "compatibility",
+              "required",
+              "enabled",
+              "update_available",
+              "permissions",
+              "events",
+              "settings_schema",
+              "settings",
+              "configured_secrets",
+              "dependencies",
+              "enabled_dependents"
+            ],
+            "properties": {
+              "compatibility": {
+                "$ref": "#/components/schemas/ModuleCompatibilityResponse"
+              },
+              "configured_secrets": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "data_exported_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "data_purged_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "dependencies": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModuleDependencyResponse"
+                }
+              },
+              "description": {
+                "type": "string"
+              },
+              "disabled_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "enabled_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "enabled_dependents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModuleEventResponse"
+                }
+              },
+              "held_by": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "installed_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "key": {
+                "type": "string",
+                "example": "proposals"
+              },
+              "min_aphel_version": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "permissions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModulePermissionResponse"
+                }
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "settings": {
+                "type": "object"
+              },
+              "settings_schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ModuleSettingFieldResponse"
+                }
+              },
+              "update_available": {
+                "type": "boolean"
+              },
+              "version": {
+                "type": "string",
+                "example": "0.1.0"
+              }
+            }
+          }
+        }
+      },
       "Data_OperatorResponse": {
         "type": "object",
         "required": [
@@ -1407,6 +2794,17 @@
                 "example": "active"
               }
             }
+          }
+        }
+      },
+      "Data_PluginPayload": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
           }
         }
       },
@@ -1487,7 +2885,8 @@
               "status",
               "database_name",
               "created_at",
-              "hosts"
+              "hosts",
+              "plugin_management"
             ],
             "properties": {
               "created_at": {
@@ -1537,12 +2936,153 @@
               "name": {
                 "type": "string"
               },
+              "plugin_management": {
+                "type": "boolean"
+              },
               "slug": {
                 "type": "string"
               },
               "status": {
                 "type": "string",
                 "example": "active"
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_ModuleResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "name",
+                "description",
+                "version",
+                "min_aphel_version",
+                "compatibility",
+                "required",
+                "enabled",
+                "update_available",
+                "permissions",
+                "events",
+                "settings_schema",
+                "settings",
+                "configured_secrets",
+                "dependencies",
+                "enabled_dependents"
+              ],
+              "properties": {
+                "compatibility": {
+                  "$ref": "#/components/schemas/ModuleCompatibilityResponse"
+                },
+                "configured_secrets": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "data_exported_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "data_purged_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "dependencies": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleDependencyResponse"
+                  }
+                },
+                "description": {
+                  "type": "string"
+                },
+                "disabled_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "enabled_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "enabled_dependents": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleEventResponse"
+                  }
+                },
+                "held_by": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "installed_version": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "key": {
+                  "type": "string",
+                  "example": "proposals"
+                },
+                "min_aphel_version": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "permissions": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModulePermissionResponse"
+                  }
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "settings": {
+                  "type": "object"
+                },
+                "settings_schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleSettingFieldResponse"
+                  }
+                },
+                "update_available": {
+                  "type": "boolean"
+                },
+                "version": {
+                  "type": "string",
+                  "example": "0.1.0"
+                }
               }
             }
           }
@@ -1612,7 +3152,8 @@
                 "status",
                 "database_name",
                 "created_at",
-                "hosts"
+                "hosts",
+                "plugin_management"
               ],
               "properties": {
                 "created_at": {
@@ -1661,6 +3202,9 @@
                 },
                 "name": {
                   "type": "string"
+                },
+                "plugin_management": {
+                  "type": "boolean"
                 },
                 "slug": {
                   "type": "string"
@@ -1804,6 +3348,316 @@
           }
         }
       },
+      "ModuleCompatibilityResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "example": "compatible"
+          }
+        }
+      },
+      "ModuleDataExportResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "version",
+          "exported_at",
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "exported_at": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "ModuleDependencyResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "requirement",
+          "installed",
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "installed": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "requirement": {
+            "type": "string"
+          }
+        }
+      },
+      "ModuleEventResponse": {
+        "type": "object",
+        "required": [
+          "event_type",
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          }
+        }
+      },
+      "ModulePermissionResponse": {
+        "type": "object",
+        "required": [
+          "permission",
+          "label",
+          "record_scoped"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "permission": {
+            "type": "string"
+          },
+          "record_scoped": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ModuleResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "description",
+          "version",
+          "min_aphel_version",
+          "compatibility",
+          "required",
+          "enabled",
+          "update_available",
+          "permissions",
+          "events",
+          "settings_schema",
+          "settings",
+          "configured_secrets",
+          "dependencies",
+          "enabled_dependents"
+        ],
+        "properties": {
+          "compatibility": {
+            "$ref": "#/components/schemas/ModuleCompatibilityResponse"
+          },
+          "configured_secrets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "data_exported_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "data_purged_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleDependencyResponse"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "disabled_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "enabled_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enabled_dependents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleEventResponse"
+            }
+          },
+          "held_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "installed_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string",
+            "example": "proposals"
+          },
+          "min_aphel_version": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModulePermissionResponse"
+            }
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "settings": {
+            "type": "object"
+          },
+          "settings_schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleSettingFieldResponse"
+            }
+          },
+          "update_available": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "string",
+            "example": "0.1.0"
+          }
+        }
+      },
+      "ModuleSettingFieldResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "type",
+          "required",
+          "options",
+          "field_types"
+        ],
+        "properties": {
+          "default": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "field_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "help": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "max": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "min": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleSettingOptionResponse"
+            }
+          },
+          "record_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "example": "text"
+          }
+        }
+      },
+      "ModuleSettingOptionResponse": {
+        "type": "object",
+        "required": [
+          "value",
+          "label"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
       "OperatorResponse": {
         "type": "object",
         "required": [
@@ -1927,6 +3781,22 @@
           }
         }
       },
+      "PluginPayload": {
+        "type": "object"
+      },
+      "PurgeModuleDataRequest": {
+        "type": "object",
+        "required": [
+          "confirm"
+        ],
+        "properties": {
+          "confirm": {
+            "type": "string",
+            "example": "proposals"
+          }
+        },
+        "additionalProperties": false
+      },
       "QueueTotalsResponse": {
         "type": "object",
         "required": [
@@ -1970,6 +3840,17 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "TenantFeaturesRequest": {
+        "type": "object",
+        "required": [
+          "plugin_management"
+        ],
+        "properties": {
+          "plugin_management": {
+            "type": "boolean"
           }
         }
       },
@@ -2051,7 +3932,8 @@
           "status",
           "database_name",
           "created_at",
-          "hosts"
+          "hosts",
+          "plugin_management"
         ],
         "properties": {
           "created_at": {
@@ -2101,6 +3983,9 @@
           "name": {
             "type": "string"
           },
+          "plugin_management": {
+            "type": "boolean"
+          },
           "slug": {
             "type": "string"
           },
@@ -2109,6 +3994,18 @@
             "example": "active"
           }
         }
+      },
+      "UpdateModuleSettingsRequest": {
+        "type": "object",
+        "required": [
+          "settings"
+        ],
+        "properties": {
+          "settings": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
       },
       "WorkerResponse": {
         "type": "object",

@@ -45500,6 +45500,28 @@
         "x-aphel-module": "kernel"
       }
     },
+    "/api/v1/public/platform": {
+      "get": {
+        "tags": [
+          "modules"
+        ],
+        "description": "Public. Capabilities the platform operator allows this organization, so the web app can leave out the screens that are switched off. `plugin_management` is false when the operator console disabled the plugins screen; always true outside multi-tenancy.",
+        "operationId": "platform_public",
+        "responses": {
+          "200": {
+            "description": "Allowed capabilities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_PublicPlatformResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/public/quotes/{token}": {
       "get": {
         "tags": [
@@ -87163,6 +87185,25 @@
           }
         }
       },
+      "Data_PublicPlatformResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "plugin_management"
+            ],
+            "properties": {
+              "plugin_management": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
       "Data_PublicQuoteResponse": {
         "type": "object",
         "required": [
@@ -116182,6 +116223,17 @@
           "key": {
             "type": "string",
             "example": "demo"
+          }
+        }
+      },
+      "PublicPlatformResponse": {
+        "type": "object",
+        "required": [
+          "plugin_management"
+        ],
+        "properties": {
+          "plugin_management": {
+            "type": "boolean"
           }
         }
       },

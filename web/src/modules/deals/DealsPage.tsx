@@ -1,11 +1,12 @@
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useQueryClient } from '@tanstack/react-query'
-import { KanbanSquare, Plus, Table2 } from 'lucide-react'
+import { KanbanSquare, Plus, Settings2, Table2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FilterChips, FilterMenu, type FilterNode, type Pipeline, RecordFormDialog, type RecordItem, RecordListActions, RecordListView, type RecordViewConfig, type SavedView, SearchBox, activePipelines, defaultPipeline, useFieldSchema, usePipelines } from '@/sdk'
@@ -227,6 +228,29 @@ function BoardMode({ canMove, presentation }: { canMove: boolean; presentation: 
   )
 }
 
+function NoPipelinesState() {
+  const { t } = useTranslation('deals')
+  const { hasPermission } = useSession()
+  const canConfigure = hasPermission('settings.manage')
+  return (
+    <EmptyState
+      icon={KanbanSquare}
+      title={t('list.noPipelines')}
+      description={t(canConfigure ? 'list.noPipelinesManage' : 'list.noPipelinesAsk')}
+      action={
+        canConfigure ? (
+          <Button asChild size="sm">
+            <Link to="/settings/workflow">
+              <Settings2 aria-hidden="true" />
+              {t('list.configurePipelines')}
+            </Link>
+          </Button>
+        ) : undefined
+      }
+    />
+  )
+}
+
 export function DealsPage() {
   const { t } = useTranslation('deals')
   const navigate = useNavigate()
@@ -257,7 +281,9 @@ export function DealsPage() {
       return params
     })
 
-  const newButton = canCreate ? (
+  const noPipelines = workflow.isSuccess && workflow.data.length === 0
+
+  const newButton = canCreate && !noPipelines ? (
     <Button size="sm" onClick={() => setCreating(true)}>
       <Plus aria-hidden="true" />
       {t('list.new')}
@@ -285,7 +311,9 @@ export function DealsPage() {
         </div>
       
       </>} />
-      {mode === 'board' ? (
+      {noPipelines ? (
+        <NoPipelinesState />
+      ) : mode === 'board' ? (
         <BoardMode canMove={canMove} presentation={presentation} />
       ) : (
         <RecordListView

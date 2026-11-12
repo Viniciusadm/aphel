@@ -125,6 +125,11 @@ pub struct PublicModuleResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+pub struct PublicPlatformResponse {
+    pub plugin_management: bool,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
 pub struct ModuleResponse {
     #[schema(example = "proposals")]
     pub key: String,

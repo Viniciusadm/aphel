@@ -11,6 +11,10 @@ export function tenantPath(slug: string): string {
   return `/tenants/${slug}`
 }
 
+export function tenantPluginsPath(slug: string): string {
+  return `${tenantPath(slug)}/plugins`
+}
+
 export function isPublicPath(path: string): boolean {
   return path === SIGN_IN_PATH || path.startsWith(`${INVITATION_PATH}/`)
 }

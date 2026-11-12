@@ -26,6 +26,8 @@ export interface UiLabels {
   paginationPage: (page: number, pages: number) => string
   paginationPerPage: string
   back: string
+  showPassword?: string
+  hidePassword?: string
 }
 
 export const UiLabelsContext = createContext<UiLabels | null>(null)

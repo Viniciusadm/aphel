@@ -1,6 +1,7 @@
 import { Plug } from 'lucide-react'
 import { SYSTEM_MANAGE } from '@/kernel/permissions'
 import { defineModule } from '@/kernel/modules/define'
+import { pluginManagementAllowed } from '@/kernel/modules/wasm_runtime'
 
 export default defineModule({
   key: 'wasm_runtime',
@@ -14,5 +15,8 @@ export default defineModule({
       permission: SYSTEM_MANAGE,
       lazy: async () => ({ Component: (await import('@/features/settings/modules/PluginsPanel')).PluginsPanel }),
     })
+    app.filter('settings.sections', (groups) =>
+      pluginManagementAllowed() ? groups : groups.map((group) => ({ ...group, items: group.items.filter((item) => item.module !== 'wasm_runtime') })),
+    )
   },
 })

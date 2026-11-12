@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
-{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<script type="module" src="/_aphel/site/account.js"></script>{% endblock %}
 {% block content %}
-<section class="account">
+<section class="account" data-show-password="{{ texts.show_password }}" data-hide-password="{{ texts.hide_password }}">
 {% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 
@@ -12,17 +13,18 @@
   <input type="hidden" name="next" value="{{ next }}">
   <label>{{ texts.email }}<input type="email" name="email" autocomplete="email" required value="{{ values.email }}"></label>
   <label>{{ texts.password }}<input type="password" name="password" autocomplete="current-password" required></label>
+  <a class="forgot" href="{{ urls.password }}">{{ texts.forgot_link }}</a>
   <button type="submit">{{ texts.login_submit }}</button>
 </form>
-<p><a href="{{ urls.password }}">{{ texts.forgot_link }}</a></p>
-<h2>{{ texts.link_title }}</h2>
+<p class="divider">{{ texts.or }}</p>
+<p>{{ texts.link_title }}</p>
 <form method="post" action="{{ urls.login }}" class="stack">
   <input type="hidden" name="mode" value="link">
   <input type="hidden" name="next" value="{{ next }}">
   <label>{{ texts.email }}<input type="email" name="email" autocomplete="email" required></label>
   <button type="submit" class="secondary">{{ texts.link_submit }}</button>
 </form>
-<p>{{ texts.no_account }} <a href="{{ urls.signup }}{% if next %}?next={{ next | urlencode }}{% endif %}">{{ texts.signup_link }}</a></p>
+<p class="switch">{{ texts.no_account }} <a href="{{ urls.signup }}{% if next %}?next={{ next | urlencode }}{% endif %}">{{ texts.signup_link }}</a></p>
 
 {% elif view == "signup" %}
 <h1>{{ texts.signup_title }}</h1>
@@ -33,7 +35,7 @@
   <label>{{ texts.password }}<input type="password" name="password" autocomplete="new-password" required minlength="8"><small>{{ texts.password_hint }}</small></label>
   <button type="submit">{{ texts.signup_submit }}</button>
 </form>
-<p>{{ texts.has_account }} <a href="{{ urls.login }}{% if next %}?next={{ next | urlencode }}{% endif %}">{{ texts.login_link }}</a></p>
+<p class="switch">{{ texts.has_account }} <a href="{{ urls.login }}{% if next %}?next={{ next | urlencode }}{% endif %}">{{ texts.login_link }}</a></p>
 
 {% elif view == "forgot" %}
 <h1>{{ texts.forgot_title }}</h1>

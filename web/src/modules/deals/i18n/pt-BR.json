@@ -5,7 +5,11 @@
     "new": "Nova oportunidade",
     "mode": "Modo de exibição",
     "board": "Kanban",
-    "table": "Tabela"
+    "table": "Tabela",
+    "noPipelines": "Nenhum funil disponível",
+    "noPipelinesManage": "As oportunidades andam pelas etapas de um funil. Crie o primeiro funil para começar a registrar oportunidades.",
+    "noPipelinesAsk": "As oportunidades andam pelas etapas de um funil. Peça a um administrador para criar um funil ou liberar um para a sua equipe.",
+    "configurePipelines": "Configurar funis"
   },
   "dialog": {
     "title": "Nova oportunidade",

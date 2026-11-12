@@ -14,7 +14,7 @@ pub mod application {
 }
 
 pub mod tenancy {
-    pub use aphel_kernel::tenancy::{TenantLocal, spawn};
+    pub use aphel_kernel::tenancy::{TenantLocal, plugin_management_enabled, spawn};
 }
 
 pub mod database {

@@ -31,6 +31,7 @@ import {
   type PluginPackConsent,
   type PluginPackResult,
 } from './plugins/types'
+import { pluginManagementAllowed } from '@/kernel/modules/wasm_runtime'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -57,9 +58,16 @@ function reloadApp() {
 }
 
 export function PluginsPanel() {
+  const { t } = useTranslation('modules')
   return (
     <RequirePermission permission={SYSTEM_MANAGE}>
-      <PluginsPanelContent />
+      {pluginManagementAllowed() ? (
+        <PluginsPanelContent />
+      ) : (
+        <Page aria-label={t('plugins.title')}>
+          <EmptyState icon={Plug} title={t('plugins.managementDisabledTitle')} description={t('plugins.managementDisabledDescription')} />
+        </Page>
+      )}
     </RequirePermission>
   )
 }

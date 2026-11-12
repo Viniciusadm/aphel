@@ -1,3 +1,4 @@
+import { pluginManagementAllowed } from '@/kernel/modules/wasm_runtime'
 import { DefaultRecordPresentation } from '@/features/records/detail/DefaultRecordPresentation'
 import { RECORD_PRESENTATION_CONTRACT } from '@/kernel/modules/record-presentation'
 import { DefaultAppFrame } from '@/app/layout/DefaultAppFrame'
@@ -243,6 +244,11 @@ const kernelModule = defineModule({
   required: true,
   namespaces: KERNEL_TRANSLATIONS,
   register(app) {
+    app.filter('settings.sections', (groups) =>
+      pluginManagementAllowed()
+        ? groups
+        : groups.map((group) => ({ ...group, items: group.items.filter((item) => !item.to.endsWith('/modules')) })),
+    )
     app.provideComponent(APP_FRAME_CONTRACT, DefaultAppFrame)
     app.provideComponent(RECORD_PRESENTATION_CONTRACT, DefaultRecordPresentation)
     app.publicRoutes([...setupRoutes, { element: <InstallerGate />, children: authRoutes }])

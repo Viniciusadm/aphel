@@ -93,6 +93,7 @@ pub struct TenantResponse {
     #[schema(format = DateTime)]
     pub created_at: String,
     pub hosts: Vec<TenantHostResponse>,
+    pub plugin_management: bool,
 }
 
 impl From<TenantSummary> for TenantResponse {
@@ -108,6 +109,7 @@ impl From<TenantSummary> for TenantResponse {
             migrated_at: summary.migrated_at.map(timestamp),
             last_error: summary.last_error,
             created_at: timestamp(summary.created_at),
+            plugin_management: summary.tenant.plugin_management,
             hosts: summary
                 .hosts
                 .into_iter()
@@ -118,6 +120,11 @@ impl From<TenantSummary> for TenantResponse {
                 .collect(),
         }
     }
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct TenantFeaturesRequest {
+    pub plugin_management: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -210,3 +217,8 @@ pub struct AuditEntryResponse {
     #[schema(format = DateTime)]
     pub occurred_at: String,
 }
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(transparent)]
+#[schema(value_type = Object)]
+pub struct PluginPayload(pub serde_json::Value);

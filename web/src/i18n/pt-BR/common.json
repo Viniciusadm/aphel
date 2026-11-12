@@ -7,7 +7,9 @@
     "confirm": "Confirmar",
     "back": "Voltar",
     "selectView": "Selecionar visualização",
-    "display": "Exibição"
+    "display": "Exibição",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
   },
   "states": {
     "loading": "Carregando…",

@@ -21,6 +21,12 @@ pub fn current() -> Option<Arc<TenantRuntime>> {
     TENANT.try_with(Arc::clone).ok()
 }
 
+pub fn plugin_management_enabled() -> bool {
+    TENANT
+        .try_with(|tenant| tenant.plugin_management_enabled())
+        .unwrap_or(true)
+}
+
 pub fn current_state() -> Option<AppState> {
     TENANT
         .try_with(|tenant| tenant.state().cloned())

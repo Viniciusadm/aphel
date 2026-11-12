@@ -7,7 +7,9 @@
     "confirm": "Confirm",
     "back": "Back",
     "selectView": "Select view",
-    "display": "Display"
+    "display": "Display",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "states": {
     "loading": "Loading…",

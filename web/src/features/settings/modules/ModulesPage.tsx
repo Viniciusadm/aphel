@@ -10,12 +10,22 @@ import { ModuleCard } from './ModuleCard'
 import { Slot } from '@/kernel/modules/Slot'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { pluginManagementAllowed } from '@/kernel/modules/wasm_runtime'
 
 export function ModulesPage() {
   return (
     <RequirePermission permission={SETTINGS_MANAGE}>
-      <ModulesList />
+      {pluginManagementAllowed() ? <ModulesList /> : <ModulesDisabled />}
     </RequirePermission>
+  )
+}
+
+function ModulesDisabled() {
+  const { t } = useTranslation('modules')
+  return (
+    <Page>
+      <EmptyState icon={Puzzle} title={t('managementDisabledTitle')} description={t('managementDisabledDescription')} />
+    </Page>
   )
 }
 

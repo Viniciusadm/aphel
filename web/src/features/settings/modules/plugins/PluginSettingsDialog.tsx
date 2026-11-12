@@ -59,6 +59,7 @@ interface PluginSettingsDialogProps {
   plugin: InstalledPlugin
   onClose: () => void
   onSaved: () => Promise<unknown>
+  save?: (payload: Record<string, unknown>) => Promise<unknown>
 }
 
 type Draft = Record<string, string | boolean>
@@ -93,7 +94,7 @@ function toPayload(settings: PluginSetting[], draft: Draft, cleared: string[]): 
   return payload
 }
 
-export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSettingsDialogProps) {
+export function PluginSettingsDialog({ plugin, onClose, onSaved, save }: PluginSettingsDialogProps) {
   const { t } = useTranslation('modules')
   const { t: tForm } = useTranslation('records-form')
   const formId = useId()
@@ -120,7 +121,9 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved }: PluginSetting
     if (Object.keys(issues).length > 0) return
     setSaving(true)
     try {
-      await api.put(`${PLUGINS_PATH}/${plugin.key}/settings`, toPayload(plugin.settings, draft, cleared))
+      const payload = toPayload(plugin.settings, draft, cleared)
+      if (save) await save(payload)
+      else await api.put(`${PLUGINS_PATH}/${plugin.key}/settings`, payload)
       await onSaved()
       notifySuccess(t('plugins.settingsSaved'))
       onClose()

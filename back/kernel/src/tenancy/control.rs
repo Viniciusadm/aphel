@@ -84,24 +84,28 @@ impl ControlPlane {
     }
 
     pub async fn find_tenant(&self, slug: &str) -> Result<Option<Tenant>, AppError> {
-        let row: Option<(String, String, String, String, String)> = sqlx::query_as(
-            "SELECT id, slug, name, database_name, status FROM tenants WHERE slug = ?",
+        let row: Option<(String, String, String, String, String, bool)> = sqlx::query_as(
+            "SELECT id, slug, name, database_name, status, plugin_management_enabled \
+             FROM tenants WHERE slug = ?",
         )
         .bind(slug)
         .fetch_optional(&self.pool)
         .await?;
-        row.map(|(id, slug, name, database_name, status)| {
-            Ok(Tenant {
-                id: uuid::Uuid::parse_str(&id)
-                    .map_err(|_| AppError::Persistence(format!("invalid tenant id {id:?}")))?,
-                slug,
-                name,
-                database_name,
-                status: TenantStatus::parse(&status).ok_or_else(|| {
-                    AppError::Persistence(format!("invalid tenant status {status:?}"))
-                })?,
-            })
-        })
+        row.map(
+            |(id, slug, name, database_name, status, plugin_management)| {
+                Ok(Tenant {
+                    id: uuid::Uuid::parse_str(&id)
+                        .map_err(|_| AppError::Persistence(format!("invalid tenant id {id:?}")))?,
+                    slug,
+                    name,
+                    database_name,
+                    status: TenantStatus::parse(&status).ok_or_else(|| {
+                        AppError::Persistence(format!("invalid tenant status {status:?}"))
+                    })?,
+                    plugin_management,
+                })
+            },
+        )
         .transpose()
     }
 

@@ -7,10 +7,11 @@ interface SubmitButtonProps extends Omit<ButtonProps, 'type'> {
   pendingLabel: string
 }
 
-export function SubmitButton({ pending, pendingLabel, children, className, disabled, ...props }: SubmitButtonProps) {
+export function SubmitButton({ pending, pendingLabel, children, className, disabled, size = 'lg', ...props }: SubmitButtonProps) {
   return (
     <Button
       type="submit"
+      size={size}
       className={cn('w-full', className)}
       disabled={pending || disabled}
       aria-busy={pending || undefined}

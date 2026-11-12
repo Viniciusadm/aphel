@@ -1,4 +1,6 @@
 {
+  "managementDisabledTitle": "Module management is turned off",
+  "managementDisabledDescription": "The platform operator turned module and plugin management off for this organization. Contact the platform operator to enable or disable modules.",
   "title": "Modules",
   "description": "Optional features built into Aphel. Enable only what your organization uses: disabling stops the module's screens and routines, but its data is kept.",
   "listLabel": "Available modules",
@@ -119,6 +121,8 @@
   },
   "applyUpdate": "Apply update",
   "plugins": {
+    "managementDisabledTitle": "Plugin management is turned off",
+    "managementDisabledDescription": "The platform operator turned plugin management off for this organization. Plugins that are already enabled keep working. To install or change plugins, contact the platform operator.",
     "viewDetails": "View details",
     "detailsTitle": "{{name}} details",
     "declarationsPreview": "What this plugin adds",

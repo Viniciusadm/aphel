@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { isApiError } from '@/api'
 import { storeSession } from '@/app/session/session-query'
+import { KeyRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { discoverSso, isTwoFactorRequired, login, type SsoOption } from '../api'
 import { AuthCard } from '../components/AuthCard'
@@ -129,13 +130,14 @@ export function LoginPage() {
         <SubmitButton pending={isSubmitting} pendingLabel={t('login.submitting')}>
           {t('login.submit')}
         </SubmitButton>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="my-1 flex items-center gap-3 text-xs tracking-wide text-muted-foreground uppercase">
           <span className="h-px flex-1 bg-border" />
           {t('login.or')}
           <span className="h-px flex-1 bg-border" />
         </div>
         {ssoOptions === null ? (
-          <Button type="button" variant="outline" disabled={ssoPending} onClick={() => void lookupSso()}>
+          <Button type="button" variant="outline" size="lg" disabled={ssoPending} onClick={() => void lookupSso()}>
+            <KeyRound aria-hidden />
             {t('login.sso')}
           </Button>
         ) : ssoOptions.length === 0 ? (

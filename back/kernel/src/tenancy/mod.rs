@@ -24,12 +24,12 @@ pub use local::TenantLocal;
 pub use provisioning::{
     MigrationSummary, TenantHost, TenantRegistration, TenantSummary, add_host, begin_deletion,
     create_tenant, delete_tenant, export_available, list_tenants, migrate_all, migrate_tenant,
-    provision_tenant, register_tenant, remove_host, resume_tenant, set_primary_host,
-    suspend_tenant, tenant_summary, validate_slug,
+    provision_tenant, register_tenant, remove_host, resume_tenant, set_plugin_management,
+    set_primary_host, suspend_tenant, tenant_summary, validate_slug,
 };
 pub use router::{router, spawn_directory_refresh};
 pub use runtime::{TenantRuntime, TenantRuntimes};
-pub use scope::{bind, current, current_state, scope, spawn};
+pub use scope::{bind, current, current_state, plugin_management_enabled, scope, spawn};
 pub use tenant::{Tenant, TenantStatus, normalize_host};
 pub use worker::run_workers;
 

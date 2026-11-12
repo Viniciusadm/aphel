@@ -159,6 +159,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/v1/tenants/{slug}/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["console_update_tenant_features"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/v1/tenants/{slug}/health": {
         parameters: {
             query?: never;
@@ -217,6 +233,232 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["console_set_primary_tenant_host"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["console_list_tenant_modules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/modules/{key}/data-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_export_tenant_module_data"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/modules/{key}/data-purge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_purge_tenant_module_data"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/modules/{key}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_disable_tenant_module"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/modules/{key}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_enable_tenant_module"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/modules/{key}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["console_update_tenant_module_settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["console_list_tenant_plugins"];
+        put?: never;
+        /** @description Installs or upgrades a plugin in the organization from an `.aphelplugin` sent as the multipart field `package`, with the same checks and acknowledgements as the organization API. With `dry_run=true` nothing is installed and the response describes what the package asks for. Works even when the organization's plugin management is switched off. */
+        post: operations["console_install_tenant_plugin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/packs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Installs or upgrades a plugin pack (`.aphelpack`, multipart field `package`) in the organization. With `dry_run=true` nothing is installed and the response describes the pack. Status 207 means some plugins failed. */
+        post: operations["console_install_tenant_plugin_pack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["console_tenant_plugins_readiness"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["console_uninstall_tenant_plugin"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/{key}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_disable_tenant_plugin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/{key}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_enable_tenant_plugin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/{key}/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["console_reapply_tenant_plugin_grants"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/v1/tenants/{slug}/plugins/{key}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["console_tenant_plugin_settings"];
+        put: operations["console_update_tenant_plugin_settings"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -324,6 +566,42 @@ export interface components {
                 operator: components["schemas"]["OperatorResponse"];
             };
         };
+        Data_ModuleDataExportResponse: {
+            data: {
+                data: Record<string, never>;
+                exported_at: string;
+                key: string;
+                version: string;
+            };
+        };
+        Data_ModuleResponse: {
+            data: {
+                compatibility: components["schemas"]["ModuleCompatibilityResponse"];
+                configured_secrets: string[];
+                data_exported_at?: string | null;
+                data_purged_at?: string | null;
+                dependencies: components["schemas"]["ModuleDependencyResponse"][];
+                description: string;
+                disabled_at?: string | null;
+                enabled: boolean;
+                enabled_at?: string | null;
+                enabled_dependents: string[];
+                events: components["schemas"]["ModuleEventResponse"][];
+                held_by?: string | null;
+                installed_version?: string | null;
+                /** @example proposals */
+                key: string;
+                min_aphel_version: string;
+                name: string;
+                permissions: components["schemas"]["ModulePermissionResponse"][];
+                required: boolean;
+                settings: Record<string, never>;
+                settings_schema: components["schemas"]["ModuleSettingFieldResponse"][];
+                update_available: boolean;
+                /** @example 0.1.0 */
+                version: string;
+            };
+        };
         Data_OperatorResponse: {
             data: {
                 /** Format: date-time */
@@ -336,6 +614,9 @@ export interface components {
                 /** @example active */
                 status: string;
             };
+        };
+        Data_PluginPayload: {
+            data: Record<string, never>;
         };
         Data_TenantHealthResponse: {
             data: {
@@ -367,10 +648,39 @@ export interface components {
                 /** Format: date-time */
                 migrated_at?: string | null;
                 name: string;
+                plugin_management: boolean;
                 slug: string;
                 /** @example active */
                 status: string;
             };
+        };
+        Data_Vec_ModuleResponse: {
+            data: {
+                compatibility: components["schemas"]["ModuleCompatibilityResponse"];
+                configured_secrets: string[];
+                data_exported_at?: string | null;
+                data_purged_at?: string | null;
+                dependencies: components["schemas"]["ModuleDependencyResponse"][];
+                description: string;
+                disabled_at?: string | null;
+                enabled: boolean;
+                enabled_at?: string | null;
+                enabled_dependents: string[];
+                events: components["schemas"]["ModuleEventResponse"][];
+                held_by?: string | null;
+                installed_version?: string | null;
+                /** @example proposals */
+                key: string;
+                min_aphel_version: string;
+                name: string;
+                permissions: components["schemas"]["ModulePermissionResponse"][];
+                required: boolean;
+                settings: Record<string, never>;
+                settings_schema: components["schemas"]["ModuleSettingFieldResponse"][];
+                update_available: boolean;
+                /** @example 0.1.0 */
+                version: string;
+            }[];
         };
         Data_Vec_OperatorResponse: {
             data: {
@@ -400,6 +710,7 @@ export interface components {
                 /** Format: date-time */
                 migrated_at?: string | null;
                 name: string;
+                plugin_management: boolean;
                 slug: string;
                 /** @example active */
                 status: string;
@@ -438,6 +749,78 @@ export interface components {
         InviteOperatorRequest: {
             display_name: string;
             email: string;
+        };
+        ModuleCompatibilityResponse: {
+            detail?: string | null;
+            /** @example compatible */
+            status: string;
+        };
+        ModuleDataExportResponse: {
+            data: Record<string, never>;
+            exported_at: string;
+            key: string;
+            version: string;
+        };
+        ModuleDependencyResponse: {
+            enabled: boolean;
+            installed: boolean;
+            key: string;
+            requirement: string;
+        };
+        ModuleEventResponse: {
+            description: string;
+            event_type: string;
+        };
+        ModulePermissionResponse: {
+            label: string;
+            permission: string;
+            record_scoped: boolean;
+        };
+        ModuleResponse: {
+            compatibility: components["schemas"]["ModuleCompatibilityResponse"];
+            configured_secrets: string[];
+            data_exported_at?: string | null;
+            data_purged_at?: string | null;
+            dependencies: components["schemas"]["ModuleDependencyResponse"][];
+            description: string;
+            disabled_at?: string | null;
+            enabled: boolean;
+            enabled_at?: string | null;
+            enabled_dependents: string[];
+            events: components["schemas"]["ModuleEventResponse"][];
+            held_by?: string | null;
+            installed_version?: string | null;
+            /** @example proposals */
+            key: string;
+            min_aphel_version: string;
+            name: string;
+            permissions: components["schemas"]["ModulePermissionResponse"][];
+            required: boolean;
+            settings: Record<string, never>;
+            settings_schema: components["schemas"]["ModuleSettingFieldResponse"][];
+            update_available: boolean;
+            /** @example 0.1.0 */
+            version: string;
+        };
+        ModuleSettingFieldResponse: {
+            default?: Record<string, never> | null;
+            field_types: string[];
+            help?: string | null;
+            key: string;
+            label: string;
+            /** Format: int64 */
+            max?: number | null;
+            /** Format: int64 */
+            min?: number | null;
+            options: components["schemas"]["ModuleSettingOptionResponse"][];
+            record_type?: string | null;
+            required: boolean;
+            /** @example text */
+            type: string;
+        };
+        ModuleSettingOptionResponse: {
+            label: string;
+            value: string;
         };
         OperatorResponse: {
             /** Format: date-time */
@@ -478,6 +861,11 @@ export interface components {
             }[];
             meta: components["schemas"]["PageMeta"];
         };
+        PluginPayload: Record<string, never>;
+        PurgeModuleDataRequest: {
+            /** @example proposals */
+            confirm: string;
+        };
         QueueTotalsResponse: {
             /** Format: int64 */
             failed: number;
@@ -491,6 +879,9 @@ export interface components {
         SignInRequest: {
             email: string;
             password: string;
+        };
+        TenantFeaturesRequest: {
+            plugin_management: boolean;
         };
         TenantHealthResponse: {
             available: boolean;
@@ -523,9 +914,13 @@ export interface components {
             /** Format: date-time */
             migrated_at?: string | null;
             name: string;
+            plugin_management: boolean;
             slug: string;
             /** @example active */
             status: string;
+        };
+        UpdateModuleSettingsRequest: {
+            settings: Record<string, never>;
         };
         WorkerResponse: {
             hostname?: string | null;
@@ -1165,6 +1560,51 @@ export interface operations {
             };
         };
     };
+    console_update_tenant_features: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TenantFeaturesRequest"];
+            };
+        };
+        responses: {
+            /** @description Features saved. With `plugin_management` off, the organization cannot open the plugins screen or install, enable, disable, configure or remove plugins (`plugin_management_disabled`); enabled plugins keep running */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_TenantResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown tenant (`tenant_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     console_tenant_health: {
         parameters: {
             query?: never;
@@ -1346,6 +1786,835 @@ export interface operations {
             };
             /** @description Unknown host (`tenant_host_not_found`) */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_list_tenant_modules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Modules compiled into this build and their state in the organization */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_ModuleResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown tenant (`tenant_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_export_tenant_module_data: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exported data */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ModuleDataExportResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module (`module_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_purge_tenant_module_data: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PurgeModuleDataRequest"];
+            };
+        };
+        responses: {
+            /** @description Data removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ModuleResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module (`module_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The module is enabled or was not exported after being disabled */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing confirmation (`module_confirmation_required`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_disable_tenant_module: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Module disabled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ModuleResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module (`module_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description An enabled module depends on it (`module_required_by`) or the build requires it (`module_required`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_enable_tenant_module: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Module enabled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ModuleResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module (`module_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Incompatible module or a dependency is disabled */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Required settings are missing (`module_settings_required`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_update_tenant_module_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateModuleSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_ModuleResponse"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module (`module_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid settings */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_list_tenant_plugins: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Runtime plugins installed in the organization, in the shape of the organization API (`PluginResponse`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown tenant (`tenant_not_found`) or no plugin module in this build (`module_not_installed`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The organization is not available (`tenant_unavailable`) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_install_tenant_plugin: {
+        parameters: {
+            query?: {
+                dry_run?: boolean;
+                acknowledge_conflicts?: boolean;
+                acknowledge_web_version?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** @description Field `package` with the .aphelplugin file */
+        requestBody?: {
+            content: {
+                "multipart/form-data": unknown;
+            };
+        };
+        responses: {
+            /** @description Dry run: what the package declares and asks for (`PluginConsentResponse`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description Plugin installed or upgraded (`PluginResponse`) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflicts or web code not acknowledged */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid package */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_install_tenant_plugin_pack: {
+        parameters: {
+            query?: {
+                dry_run?: boolean;
+                acknowledge_conflicts?: boolean;
+                acknowledge_web_version?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        /** @description Field `package` with the .aphelpack file */
+        requestBody?: {
+            content: {
+                "multipart/form-data": unknown;
+            };
+        };
+        responses: {
+            /** @description Dry run: what the pack declares and asks for */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description Pack installed */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description Some plugins of the pack failed */
+            207: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflicts or web code not acknowledged */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid pack */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_tenant_plugins_readiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin catalog readiness (`loading`, `ready` or `degraded`) and backend errors */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_uninstall_tenant_plugin: {
+        parameters: {
+            query?: {
+                purge?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin removed; with `purge=true` its records and fields are deleted too */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_disable_tenant_plugin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin disabled (`PluginResponse`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_enable_tenant_plugin: {
+        parameters: {
+            query?: {
+                acknowledge_conflicts?: boolean;
+                acknowledge_web_version?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plugin enabled (`PluginResponse`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Web code or overlaps not acknowledged */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_reapply_tenant_plugin_grants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Grants reapplied to the roles that exist now (`PluginResponse`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_tenant_plugin_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Settings with their current values (`PluginSettingResponse[]`); secrets only report `configured` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    console_update_tenant_plugin_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tenant slug */
+                slug: string;
+                /** @description Plugin key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        /** @description Map of setting key to value */
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Settings saved (`PluginResponse`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PluginPayload"];
+                };
+            };
+            /** @description No console session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Plugin not installed (`plugin_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid settings (`plugin_settings_invalid`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

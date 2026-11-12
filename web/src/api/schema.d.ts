@@ -6197,6 +6197,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/platform": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Public. Capabilities the platform operator allows this organization, so the web app can leave out the screens that are switched off. `plugin_management` is false when the operator console disabled the plugins screen; always true outside multi-tenancy. */
+        get: operations["platform_public"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/quotes/{token}": {
         parameters: {
             query?: never;
@@ -13937,6 +13954,11 @@ export interface components {
                 timezone: string;
             };
         };
+        Data_PublicPlatformResponse: {
+            data: {
+                plugin_management: boolean;
+            };
+        };
         Data_PublicQuoteResponse: {
             data: {
                 accepted_at?: string | null;
@@ -21379,6 +21401,9 @@ export interface components {
             enabled: boolean;
             /** @example demo */
             key: string;
+        };
+        PublicPlatformResponse: {
+            plugin_management: boolean;
         };
         PublicQuoteItemResponse: {
             components: components["schemas"]["QuoteItemComponentResponse"][];
@@ -56058,6 +56083,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Data_Vec_PublicModuleResponse"];
+                };
+            };
+        };
+    };
+    platform_public: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Allowed capabilities */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_PublicPlatformResponse"];
                 };
             };
         };

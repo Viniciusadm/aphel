@@ -5,7 +5,11 @@
     "new": "New deal",
     "mode": "Display mode",
     "board": "Kanban",
-    "table": "Table"
+    "table": "Table",
+    "noPipelines": "No pipeline available",
+    "noPipelinesManage": "Deals move through the stages of a pipeline. Create the first pipeline to start recording deals.",
+    "noPipelinesAsk": "Deals move through the stages of a pipeline. Ask an administrator to create a pipeline or share one with your team.",
+    "configurePipelines": "Set up pipelines"
   },
   "dialog": {
     "title": "New deal",

@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSession } from '@/app/session/session-context'
+import { SessionContext } from '@/app/session/session-context'
 import { intlLocale } from '@/lib/locale'
 
 export interface RecordFormatting {
@@ -15,9 +15,9 @@ export const DEFAULT_FORMATTING: Omit<RecordFormatting, 'locale'> = {
 }
 
 export function useRecordFormatting(): RecordFormatting {
-  const { me } = useSession()
+  const session = useContext(SessionContext)
   const { i18n } = useTranslation()
-  const organization = me.organization
+  const organization = session?.me.organization
   const language = i18n.resolvedLanguage || i18n.language
   return useMemo(
     () => ({

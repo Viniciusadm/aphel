@@ -5,8 +5,8 @@ use utoipa_axum::routes;
 
 use crate::api::dto::common::{Data, ErrorEnvelope};
 use crate::api::dto::modules::{
-    ModuleDataExportResponse, ModuleResponse, PublicModuleResponse, PurgeModuleDataRequest,
-    UpdateModuleSettingsRequest,
+    ModuleDataExportResponse, ModuleResponse, PublicModuleResponse, PublicPlatformResponse,
+    PurgeModuleDataRequest, UpdateModuleSettingsRequest,
 };
 use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, JsonBody};
@@ -14,6 +14,16 @@ use crate::api::state::AppState;
 use crate::modules::runtime::module_use_cases;
 
 pub const TAG: &str = "modules";
+
+fn ensure_management_allowed() -> Result<(), crate::errors::AppError> {
+    if crate::tenancy::plugin_management_enabled() {
+        return Ok(());
+    }
+    Err(crate::errors::AppError::forbidden_code(
+        "plugin_management_disabled",
+        "module and plugin management is turned off for this organization; ask the platform operator to turn it on",
+    ))
+}
 
 pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -27,7 +37,9 @@ pub fn router() -> OpenApiRouter<AppState> {
 }
 
 pub fn public_router() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(list_public_modules))
+    OpenApiRouter::new()
+        .routes(routes!(list_public_modules))
+        .routes(routes!(public_platform))
 }
 
 #[utoipa::path(
@@ -54,6 +66,22 @@ async fn list_public_modules(
             })
             .collect(),
     ))
+}
+
+#[utoipa::path(
+    get,
+    path = "/public/platform",
+    tag = TAG,
+    operation_id = "platform_public",
+    description = "Public. Capabilities the platform operator allows this organization, so the web app can leave out the screens that are switched off. `plugin_management` is false when the operator console disabled the plugins screen; always true outside multi-tenancy.",
+    responses(
+        (status = 200, description = "Allowed capabilities", body = Data<PublicPlatformResponse>),
+    )
+)]
+async fn public_platform() -> Json<Data<PublicPlatformResponse>> {
+    Json(Data::new(PublicPlatformResponse {
+        plugin_management: crate::tenancy::plugin_management_enabled(),
+    }))
 }
 
 #[utoipa::path(
@@ -120,6 +148,7 @@ async fn enable_module(
     tenant: AuthContext,
     Path(key): Path<String>,
 ) -> Result<Json<Data<ModuleResponse>>, ApiError> {
+    ensure_management_allowed()?;
     let view = module_use_cases(&state)?
         .enable(&tenant.scope, &key)
         .await?;
@@ -147,6 +176,7 @@ async fn disable_module(
     tenant: AuthContext,
     Path(key): Path<String>,
 ) -> Result<Json<Data<ModuleResponse>>, ApiError> {
+    ensure_management_allowed()?;
     let view = module_use_cases(&state)?
         .disable(&tenant.scope, &key)
         .await?;
@@ -176,6 +206,7 @@ async fn update_module_settings(
     Path(key): Path<String>,
     JsonBody(request): JsonBody<UpdateModuleSettingsRequest>,
 ) -> Result<Json<Data<ModuleResponse>>, ApiError> {
+    ensure_management_allowed()?;
     let view = module_use_cases(&state)?
         .update_settings(&tenant.scope, &key, request.settings)
         .await?;
@@ -202,6 +233,7 @@ async fn export_module_data(
     tenant: AuthContext,
     Path(key): Path<String>,
 ) -> Result<Json<Data<ModuleDataExportResponse>>, ApiError> {
+    ensure_management_allowed()?;
     let export = module_use_cases(&state)?
         .export_data(&tenant.scope, &key)
         .await?;
@@ -232,6 +264,7 @@ async fn purge_module_data(
     Path(key): Path<String>,
     JsonBody(request): JsonBody<PurgeModuleDataRequest>,
 ) -> Result<Json<Data<ModuleResponse>>, ApiError> {
+    ensure_management_allowed()?;
     let view = module_use_cases(&state)?
         .purge_data(&tenant.scope, &key, &request.confirm)
         .await?;

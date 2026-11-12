@@ -282,6 +282,7 @@ pub async fn register_tenant(
         name,
         database_name,
         status: TenantStatus::Provisioning,
+        plugin_management: true,
     };
     insert_registration(control, &tenant, &hosts).await?;
     record_operator_action(
@@ -472,6 +473,32 @@ async fn change_status(
     .await;
     Ok(Tenant {
         status: to,
+        ..tenant
+    })
+}
+
+pub async fn set_plugin_management(
+    control: &ControlPlane,
+    actor: &OperatorActor,
+    slug: &str,
+    enabled: bool,
+) -> Result<Tenant, AppError> {
+    let tenant = control.require_tenant(slug).await?;
+    sqlx::query("UPDATE tenants SET plugin_management_enabled = ? WHERE id = ?")
+        .bind(enabled)
+        .bind(tenant.id.to_string())
+        .execute(control.pool())
+        .await?;
+    record_operator_action(
+        control.pool(),
+        actor,
+        "tenant.features_updated",
+        Some(tenant.id),
+        json!({ "slug": tenant.slug, "plugin_management": enabled }),
+    )
+    .await;
+    Ok(Tenant {
+        plugin_management: enabled,
         ..tenant
     })
 }

@@ -12,6 +12,7 @@ use serde_json::Value;
 pub(crate) const API_SEGMENT: &str = "api";
 pub(crate) const ISLANDS_LOADER_PATH: &str = "/islands.js";
 pub(crate) const PREVIEW_SCRIPT_PATH: &str = "/preview.js";
+pub(crate) const ACCOUNT_SCRIPT_PATH: &str = "/account.js";
 const ISLAND_EXTENSION: &str = ".js";
 const MAX_BODY_BYTES: usize = 1024 * 1024;
 const MAX_DATA_BYTES: usize = 2 * 1024 * 1024;
@@ -39,6 +40,13 @@ fn javascript(body: Vec<u8>, cache_control: &'static str) -> Response {
 pub(crate) fn islands_loader() -> Response {
     javascript(
         include_str!("../theme/islands.js").as_bytes().to_vec(),
+        LOADER_CACHE_CONTROL,
+    )
+}
+
+pub(crate) fn account_script() -> Response {
+    javascript(
+        include_str!("../theme/account.js").as_bytes().to_vec(),
         LOADER_CACHE_CONTROL,
     )
 }

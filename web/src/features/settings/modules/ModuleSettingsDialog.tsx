@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { modulesApi, type ModuleInfo, type ModuleSettingField } from '@/kernel/modules/api'
+import { useModulesApi, type ModuleInfo, type ModuleSettingField } from '@/kernel/modules/api'
 import { moduleDefinition } from '@/kernel/modules/registry'
 import { useFieldSchema } from '@/features/records/api'
 
@@ -48,6 +48,7 @@ interface ModuleSettingsDialogProps {
 
 export function ModuleSettingsDialog({ module, initialViolations, onClose, onSaved }: ModuleSettingsDialogProps) {
   const { t } = useTranslation('modules')
+  const modulesApi = useModulesApi()
   const text = useModuleText(module)
   const formId = useId()
   const [clearedSecrets, setClearedSecrets] = useState<string[]>([])

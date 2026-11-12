@@ -18,7 +18,7 @@ pub struct TenantDirectory {
     snapshot: RwLock<Arc<Snapshot>>,
 }
 
-type HostRow = (String, String, String, String, String, Option<String>);
+type HostRow = (String, String, String, String, String, bool, Option<String>);
 
 impl TenantDirectory {
     pub async fn load(pool: MySqlPool) -> Result<Arc<Self>, AppError> {
@@ -32,14 +32,16 @@ impl TenantDirectory {
 
     pub async fn refresh(&self) -> Result<(), AppError> {
         let rows: Vec<HostRow> = sqlx::query_as(
-            "SELECT t.id, t.slug, t.name, t.database_name, t.status, h.host \
+            "SELECT t.id, t.slug, t.name, t.database_name, t.status, t.plugin_management_enabled, h.host \
              FROM tenants t LEFT JOIN tenant_hosts h ON h.tenant_id = t.id",
         )
         .fetch_all(&self.pool)
         .await?;
         let mut snapshot = Snapshot::default();
-        for (id, slug, name, database_name, status, host) in rows {
-            let Some(tenant) = parse_tenant(&id, slug, name, database_name, &status) else {
+        for (id, slug, name, database_name, status, plugin_management, host) in rows {
+            let Some(tenant) =
+                parse_tenant(&id, slug, name, database_name, &status, plugin_management)
+            else {
                 tracing::warn!(tenant = id, status, "skipping a tenant with an invalid row");
                 continue;
             };
@@ -86,6 +88,7 @@ fn parse_tenant(
     name: String,
     database_name: String,
     status: &str,
+    plugin_management: bool,
 ) -> Option<Tenant> {
     Some(Tenant {
         id: Uuid::parse_str(id).ok()?,
@@ -93,5 +96,6 @@ fn parse_tenant(
         name,
         database_name,
         status: TenantStatus::parse(status)?,
+        plugin_management,
     })
 }

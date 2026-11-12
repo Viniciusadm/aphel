@@ -17,6 +17,7 @@ interface WebPluginEntry {
 }
 
 const PLUGINS_URL = '/api/v1/public/wasm-runtime'
+const PLATFORM_URL = '/api/v1/public/platform'
 
 let loaded: WebModule[] = []
 let loadedUi: string | null = null
@@ -24,6 +25,18 @@ let failedNames: string[] = []
 let menus: ReadonlyMap<string, PluginMenu> = new Map()
 let roleHomes: ReadonlyMap<string, string> = new Map()
 let names: ReadonlyMap<string, string> = new Map()
+let managementAllowed = true
+
+async function loadPlatformCapabilities(): Promise<void> {
+  try {
+    const response = await fetch(PLATFORM_URL, { headers: { Accept: 'application/json' } })
+    if (!response.ok) return
+    const body = (await response.json()) as { data: { plugin_management: boolean } }
+    managementAllowed = body.data.plugin_management
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 function injectStyle(href: string) {
   const link = document.createElement('link')
@@ -43,6 +56,7 @@ async function importPlugin(plugin: WebPluginEntry): Promise<WebModule | null> {
 }
 
 export async function loadWebPlugins(): Promise<void> {
+  await loadPlatformCapabilities()
   try {
     const chosen = readUiChoice()
     const url = chosen ? `${PLUGINS_URL}?ui=${encodeURIComponent(chosen)}` : PLUGINS_URL
@@ -96,6 +110,10 @@ export function writeUiChoice(value: string | null) {
 
 export function loadedUiPlugin(): string | null {
   return loadedUi
+}
+
+export function pluginManagementAllowed(): boolean {
+  return managementAllowed
 }
 
 export function webPlugins(): WebModule[] {

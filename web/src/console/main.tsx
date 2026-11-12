@@ -7,7 +7,7 @@ import { ConsoleApp } from './ConsoleApp'
 import { consoleRouter } from './router'
 import { SESSION_REQUIRED_CODE, SIGN_IN_PATH, isPublicPath } from './paths'
 
-const NAMESPACES = ['common', 'records-detail', 'console']
+const NAMESPACES = ['common', 'records-detail', 'records-form', 'modules', 'console']
 
 function preferredLanguage(): string {
   return navigator.language.toLowerCase().startsWith('en') ? 'en' : DEFAULT_LANGUAGE
