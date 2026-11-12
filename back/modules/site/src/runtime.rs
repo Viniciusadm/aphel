@@ -12,6 +12,7 @@ use aphel_sdk::platform::tenancy::TenantLocal;
 use minijinja::value::Kwargs;
 use minijinja::{Environment, Error, ErrorKind, State, Value};
 
+const BLOCK_FRAME_ORIGINS: &str = "https://www.google.com https://www.youtube-nocookie.com https://player.vimeo.com https://docs.google.com https://form.typeform.com https://tally.so https://form.jotform.com https://calendly.com";
 pub(crate) const NOT_FOUND_TEMPLATE: &str = "aphel/not_found.html";
 pub(crate) const WELCOME_TEMPLATE: &str = "aphel/welcome.html";
 pub(crate) const ERROR_TEMPLATE: &str = "aphel/error.html";
@@ -130,7 +131,7 @@ impl SiteRuntime {
         let style = sources(&["'self'", "'unsafe-inline'"], |csp| &csp.style);
         let font = sources(&["'self'"], |csp| &csp.font);
         let connect = sources(&["'self'"], |csp| &csp.connect);
-        let frame = sources(&["'self'"], |csp| &csp.frame);
+        let frame = sources(&["'self'", BLOCK_FRAME_ORIGINS], |csp| &csp.frame);
         format!(
             "default-src 'self'; script-src {script}; style-src {style}; img-src 'self' data: https:; font-src {font}; connect-src {connect}; frame-src {frame}; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
         )

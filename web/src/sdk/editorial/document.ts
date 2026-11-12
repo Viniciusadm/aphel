@@ -200,6 +200,7 @@ export interface DocumentKind {
   createPermission: string
   updatePermission: string
   deletePermission: string
+  publishPermission: string
   structure: boolean
   get: (id: string) => Promise<DocumentRecord>
   update: (id: string, changes: Record<string, unknown>) => Promise<DocumentRecord>

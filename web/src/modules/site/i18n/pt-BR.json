@@ -434,5 +434,14 @@
       "empty": "Nada publicado ainda",
       "emptyDescription": "O que você publicar aparece aqui, com o link para o site."
     }
+  },
+  "editorKeys": {
+    "scope": "Editor de documentos",
+    "scopeHelp": "Atalhos ao montar páginas e posts do site",
+    "save": "Salvar agora",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "moveUp": "Mover o bloco selecionado para cima",
+    "moveDown": "Mover o bloco selecionado para baixo"
   }
 }

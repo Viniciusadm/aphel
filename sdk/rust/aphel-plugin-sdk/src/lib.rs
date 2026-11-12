@@ -288,6 +288,29 @@ impl Response {
     }
 }
 
+pub fn map_translations(
+    key: &str,
+    text: &str,
+    change: impl Fn(&str) -> Result<String>,
+) -> Result<String> {
+    let map: Map<String, Value> = serde_json::from_str(text).map_err(|_| {
+        PluginError::field(
+            "translations_invalid",
+            key,
+            "translations must be a JSON object",
+        )
+    })?;
+    let mut changed = Map::new();
+    for (language, value) in map {
+        let next = match value.as_str() {
+            Some(text) if !text.trim().is_empty() => json!(change(text)?),
+            _ => continue,
+        };
+        changed.insert(language, next);
+    }
+    Ok(Value::Object(changed).to_string())
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListQuery {
     #[serde(skip_serializing_if = "Option::is_none")]

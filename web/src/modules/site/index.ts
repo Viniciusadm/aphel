@@ -22,6 +22,13 @@ const siteModule = defineModule({
   },
   register(app) {
     app.routes(siteRoutes)
+    app.keybindingScope({ id: 'editorial.editor', label: 'editorKeys.scope', description: 'editorKeys.scopeHelp', kind: 'overlay' })
+    const editor = { scope: 'editorial.editor' }
+    app.keybinding({ ...editor, id: 'editorial.save', label: 'editorKeys.save', keys: ['mod+s'], allowInEditable: true })
+    app.keybinding({ ...editor, id: 'editorial.undo', label: 'editorKeys.undo', keys: ['mod+z'] })
+    app.keybinding({ ...editor, id: 'editorial.redo', label: 'editorKeys.redo', keys: ['mod+shift+z', 'mod+y'] })
+    app.keybinding({ ...editor, id: 'editorial.move_up', label: 'editorKeys.moveUp', keys: ['alt+arrowup'], allowInEditable: true })
+    app.keybinding({ ...editor, id: 'editorial.move_down', label: 'editorKeys.moveDown', keys: ['alt+arrowdown'], allowInEditable: true })
     app.nav({
       to: SITE_OVERVIEW_PATH,
       label: 'nav.overview',

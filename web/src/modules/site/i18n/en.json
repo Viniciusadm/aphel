@@ -434,5 +434,14 @@
       "empty": "Nothing published yet",
       "emptyDescription": "What you publish shows up here, with its link on the site."
     }
+  },
+  "editorKeys": {
+    "scope": "Document editor",
+    "scopeHelp": "Shortcuts while building site pages and posts",
+    "save": "Save now",
+    "undo": "Undo",
+    "redo": "Redo",
+    "moveUp": "Move the selected block up",
+    "moveDown": "Move the selected block down"
   }
 }

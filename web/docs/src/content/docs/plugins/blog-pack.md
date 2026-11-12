@@ -1,13 +1,13 @@
 ---
 title: Install and operate the Blog and institutional site packs
-description: Import Blog 1.7.0 or Institutional site 1.0.1 on Aphel 0.1.1, finish the site from the overview and configure classification, review and appearance.
+description: Import Blog 1.7.0 or Institutional site 1.1.0 on Aphel 0.1.1, finish the site from the overview and configure classification, review and appearance.
 ---
 
 ## Release requirements
 
 Blog `1.7.0` contains Content `0.6.0` and requires Aphel `>=0.1.1`, built with `objects`, `site`, `publication` and `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Compiled but disabled required modules are shown in consent and enabled by the same import. A pack cannot add Rust modules to a running binary.
 
-`editorial_ui` is not required, and the retired Pages plugin must not be installed: Content owns site pages. Approval is optional and is not enabled by this pack. The host version is coordinated with the shared block editor, appearance renderer and native publication service; Content refuses older hosts even if they have an earlier publication module.
+`editorial_ui` is not required. The pack installs Content and Pages together: Pages owns the About page. Approval is optional and is not enabled by this pack. The host version is coordinated with the shared block editor, appearance renderer and native publication service; Content refuses older hosts even if they have an earlier publication module.
 
 ## Import and publish
 
@@ -39,7 +39,7 @@ Site → Appearance manages global identity and collection variants. Save a draf
 
 ## Institutional site
 
-Institutional site `1.0.1` contains the same Content plugin and needs only `objects`, `site` and `publication`. It creates four pages in draft with example text, Home (`/inicio`), About (`/sobre`), Services (`/servicos`) and Contact (`/contato`), menu items for the last three, and points the home page at Home when none was chosen. Until the pages are published the site keeps its welcome screen and the items stay hidden. Replace the example text in Site → *Pages* (live preview, history) and publish each page; Site → *Overview* tracks what is left. Importing it next to Blog keeps the Blog home page and existing menu items, and occupied addresses take a suffix (`/sobre-2`).
+Institutional site `1.1.0` contains the Pages plugin (not Content) and needs only `objects`, `site` and `publication`. It creates four pages in draft with example text, Home (`/inicio`), About (`/sobre`), Services (`/servicos`) and Contact (`/contato`), menu items for the last three, and points the home page at Home when none was chosen. Until the pages are published the site keeps its welcome screen and the items stay hidden. Replace the example text in Site → *Pages* (live preview, history) and publish each page; Site → *Overview* tracks what is left. Importing it next to Blog keeps the Blog home page and existing menu items, and occupied addresses take a suffix (`/sobre-2`).
 
 ## Reimport and recovery
 
@@ -53,7 +53,7 @@ From the workspace containing `app/` and `plugins/`:
 
 ```bash
 CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/content/packs/blog -o plugins/packs/blog/releases/blog-1.7.0.aphelpack
-CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/content/packs/institutional -o plugins/packs/institutional/releases/institutional-1.0.1.aphelpack
+CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/pages/packs/institutional -o plugins/packs/institutional/releases/institutional-1.1.0.aphelpack
 ```
 
 The adjacent SHA-256 file verifies the delivered archive. The archive contains `pack.toml` and the Content plugin package, including its manifest, rebuilt WASM, shared-SDK web bundle and site templates. Native modules and shared web exports come from the matching host.

@@ -89,7 +89,7 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
   const navigate = useNavigate()
   const { hasPermission } = useSession()
   const canEdit = hasPermission(kind.updatePermission)
-  const canPublish = hasPermission('content.publish')
+  const canPublish = hasPermission(kind.publishPermission)
   const canDelete = hasPermission(kind.deletePermission)
   const [record, setRecord] = useState(initial)
   const translating = language !== null && !language.default
@@ -443,15 +443,15 @@ function Editor({ initial, language, languages, onLanguageChange }: EditorProps)
     }
   }
 
-  useKeybindingScope('content.pages.editor')
+  useKeybindingScope('editorial.editor')
   useKeybindingHandlers({
-    'content.pages.save': () => void flush(),
-    'content.pages.undo': undo,
-    'content.pages.redo': redo,
-    'content.pages.move_up': () => {
+    'editorial.save': () => void flush(),
+    'editorial.undo': undo,
+    'editorial.redo': redo,
+    'editorial.move_up': () => {
       if (selected) move(selected, -1)
     },
-    'content.pages.move_down': () => {
+    'editorial.move_down': () => {
       if (selected) move(selected, 1)
     },
   })
