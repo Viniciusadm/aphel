@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
-export const tabsListVariants = cva('inline-flex w-fit max-w-full items-center gap-1 max-md:h-auto max-md:flex-wrap rounded-md bg-muted text-muted-foreground', {
+const listVariants = cva('inline-flex w-fit max-w-full items-center gap-1 max-md:h-auto max-md:flex-wrap rounded-md bg-muted text-muted-foreground', {
   variants: {
     size: {
       sm: 'h-(--control-height-sm) p-1',
@@ -14,7 +15,7 @@ export const tabsListVariants = cva('inline-flex w-fit max-w-full items-center g
   defaultVariants: { size: 'md', variant: 'line' },
 })
 
-export const tabsTriggerVariants = cva(
+const triggerVariants = cva(
   'inline-flex h-full max-md:min-h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm font-medium outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm aria-[current=page]:bg-background aria-[current=page]:text-foreground aria-[current=page]:shadow-sm data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
@@ -31,5 +32,9 @@ export const tabsTriggerVariants = cva(
   },
 )
 
-export type TabsSize = NonNullable<VariantProps<typeof tabsListVariants>['size']>
-export type TabsVariant = NonNullable<VariantProps<typeof tabsListVariants>['variant']>
+export const tabsListVariants = (options?: VariantProps<typeof listVariants>) => cn(listVariants(options))
+
+export const tabsTriggerVariants = (options?: VariantProps<typeof triggerVariants>) => cn(triggerVariants(options))
+
+export type TabsSize = NonNullable<VariantProps<typeof listVariants>['size']>
+export type TabsVariant = NonNullable<VariantProps<typeof listVariants>['variant']>
