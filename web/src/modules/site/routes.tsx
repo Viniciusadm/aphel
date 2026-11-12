@@ -10,7 +10,12 @@ export const SITE_SCREENS = [
   { key: 'general', path: '/site/general', component: 'SiteGeneralPage' },
 ] as const
 
-export const siteRoutes: RouteObject[] = SITE_SCREENS.map((screen) => ({
-  path: screen.path.slice(1),
-  lazy: async () => ({ Component: (await import('./SiteScreens'))[screen.component] }),
-}))
+export const SITE_OVERVIEW_PATH = '/site/overview'
+
+export const siteRoutes: RouteObject[] = [
+  { path: SITE_OVERVIEW_PATH.slice(1), lazy: async () => ({ Component: (await import('./SiteOverviewPage')).SiteOverviewPage }) },
+  ...SITE_SCREENS.map((screen) => ({
+    path: screen.path.slice(1),
+    lazy: async () => ({ Component: (await import('./SiteScreens'))[screen.component] }),
+  })),
+]

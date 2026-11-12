@@ -309,6 +309,8 @@ The site owns its structure; plugins do not declare menu items. In Site → *Nav
 - Targets are stable references: `record:<record type>:<id>` or `page:<owner>:<page key>`. When the address of the record changes, the menu follows it; when the record stops being public, its item disappears. `GET /api/v1/site/targets` lists them with their current path.
 - The home page (`home` in the `site` setting) is a target too. `/` shows the page of that target, with `/` as its canonical address and pagination; without a choice, a plugin page declared at `/` answers, and without one the theme shows a welcome screen with the site name, tagline and menu.
 
+Site → *Overview* (`GET /api/v1/site/status`, `settings.manage`) sums it up for the organization: the public address, whether the home page resolves, the number of menu items, whether the site has a name and a logo, published and draft counts for every public entity with `publication_state`, and the five latest published records with their address. Packs can set the home page with the `site.home` provision kind (see [Packs](/_aphel/docs/plugins/packs/)).
+
 Editors can read the structure with `GET /api/v1/site/structure` and change it with `PUT /api/v1/site/home` and `PUT /api/v1/site/menu` (`settings.manage`). Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active, children }` where `children` has the same shape and `url` is null for groups; `active` is true when the visitor is on that page, below it, or on one of the children.
 
 The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).

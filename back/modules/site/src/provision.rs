@@ -11,6 +11,7 @@ use aphel_sdk::platform::infrastructure::organization_profile::MySqlOrganization
 use aphel_sdk::provisioning::{ProvisionAction, ProvisionOutcome, ProvisionRequest, Provisioner};
 
 pub(crate) const LINK_KIND: &str = "site.link";
+pub(crate) const HOME_KIND: &str = "site.home";
 const SETTINGS_KEY: &str = "site";
 
 pub(crate) struct LinkProvisioner;
@@ -130,6 +131,66 @@ impl Provisioner for LinkProvisioner {
             action: ProvisionAction::Created,
             id: wanted.id.clone(),
             applied: applied(&wanted),
+        })
+    }
+}
+
+pub(crate) struct HomeProvisioner;
+
+fn home_of(request: &ProvisionRequest) -> Result<String, AppError> {
+    request
+        .data
+        .get("target")
+        .and_then(Value::as_str)
+        .filter(|target| crate::targets::Target::parse(target).is_some())
+        .map(str::to_owned)
+        .ok_or_else(|| {
+            AppError::validation_code(
+                "plugin_pack_invalid",
+                format!("{}: a site home needs a target", request.key),
+            )
+        })
+}
+
+#[async_trait]
+impl Provisioner for HomeProvisioner {
+    fn kind(&self) -> &'static str {
+        HOME_KIND
+    }
+
+    async fn apply(
+        &self,
+        ctx: &Ctx<'_>,
+        request: &ProvisionRequest,
+    ) -> Result<ProvisionOutcome, AppError> {
+        let wanted = home_of(request)?;
+        let state = aphel_sdk::runtime()?;
+        let mut settings = site_settings(&state.as_ref().organization_config.snapshot());
+        let current = settings.home.clone();
+        if let Some(existing) = &request.existing {
+            let action = match current.as_deref() == existing.applied["target"].as_str() {
+                true => ProvisionAction::Kept,
+                false => ProvisionAction::UserChanged,
+            };
+            return Ok(ProvisionOutcome {
+                action,
+                id: existing.id.clone(),
+                applied: existing.applied.clone(),
+            });
+        }
+        if let Some(current) = current {
+            return Ok(ProvisionOutcome {
+                action: ProvisionAction::Kept,
+                id: request.key.clone(),
+                applied: json!({ "target": current }),
+            });
+        }
+        settings.home = Some(wanted.clone());
+        save_settings(ctx.scope, settings).await?;
+        Ok(ProvisionOutcome {
+            action: ProvisionAction::Created,
+            id: request.key.clone(),
+            applied: json!({ "target": wanted }),
         })
     }
 }

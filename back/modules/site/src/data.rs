@@ -343,3 +343,29 @@ pub(crate) async fn matching(
     .await?
     .records)
 }
+
+pub(crate) async fn count(
+    state: &AppState,
+    exposure: &SiteExposure,
+    filter: Filter,
+) -> Result<u64, AppError> {
+    let scope = site_scope();
+    let ports = query_ports(state).await?;
+    let listing = RecordQueryEngine::new(&ports)
+        .query(
+            &scope,
+            &exposure.entity,
+            RecordQuery {
+                filter: Some(filter),
+                sort: Vec::new(),
+                search: None,
+                archived: ArchivedFilter::Exclude,
+                window: ListWindow {
+                    offset: 0,
+                    limit: 1,
+                },
+            },
+        )
+        .await?;
+    Ok(listing.total)
+}

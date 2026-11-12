@@ -26,6 +26,7 @@ pub(crate) mod search;
 pub(crate) mod session;
 pub(crate) mod settings;
 pub(crate) mod sitemap;
+pub(crate) mod status;
 pub(crate) mod targets;
 mod terms;
 
@@ -176,6 +177,9 @@ impl Module for SiteModule {
         app.contribute::<dyn SiteRequestHandler>(Arc::new(handler::SiteHandler));
         app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(Arc::new(
             provision::LinkProvisioner,
+        ));
+        app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(Arc::new(
+            provision::HomeProvisioner,
         ));
         app.on(
             aphel_kernel::records::RecordSaved,

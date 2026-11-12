@@ -7655,6 +7655,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description How the public site is doing, for the site overview screen: address, indexing, the resolved home page, menu size, whether the site has a name and a logo (from the published appearance or the organization), published and draft counts of every public entity with a publication state, and the five most recently published records with their public address. Requires `settings.manage`. */
+        get: operations["site_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/site/structure": {
         parameters: {
             query?: never;
@@ -14650,6 +14667,20 @@ export interface components {
                 page_url: string;
                 /** @example https://www.example.com/_aphel/site/preview/3f2a... */
                 url: string;
+            };
+        };
+        Data_SiteStatusResponse: {
+            data: {
+                /** @example https://www.example.com/s */
+                base_url: string;
+                content: components["schemas"]["SiteContentCount"][];
+                has_logo: boolean;
+                home?: null | components["schemas"]["SiteStatusLink"];
+                indexing: boolean;
+                languages: number;
+                menu_items: number;
+                named: boolean;
+                recent: components["schemas"]["SiteRecentRecord"][];
             };
         };
         Data_SiteStructureResponse: {
@@ -22942,6 +22973,15 @@ export interface components {
             id: string;
             label: string;
         };
+        SiteContentCount: {
+            /** Format: int64 */
+            drafts: number;
+            label: string;
+            /** Format: int64 */
+            published: number;
+            /** @example content.entry */
+            record_type: string;
+        };
         SiteEmbedOptionResponse: {
             /** @example 01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a */
             key: string;
@@ -22992,6 +23032,15 @@ export interface components {
             /** @example https://www.example.com/_aphel/site/preview/3f2a... */
             url: string;
         };
+        SiteRecentRecord: {
+            published_at?: string | null;
+            record_id: string;
+            /** @example content.entry */
+            record_type: string;
+            title: string;
+            /** @example https://www.example.com/s/blog/hello */
+            url: string;
+        };
         SiteRedirectResponse: {
             created_at: string;
             /** @example slug */
@@ -23006,6 +23055,23 @@ export interface components {
             old_value: string;
             /** @example blog.post */
             record_type: string;
+        };
+        SiteStatusLink: {
+            label: string;
+            /** @example https://www.example.com/s/blog */
+            url: string;
+        };
+        SiteStatusResponse: {
+            /** @example https://www.example.com/s */
+            base_url: string;
+            content: components["schemas"]["SiteContentCount"][];
+            has_logo: boolean;
+            home?: null | components["schemas"]["SiteStatusLink"];
+            indexing: boolean;
+            languages: number;
+            menu_items: number;
+            named: boolean;
+            recent: components["schemas"]["SiteRecentRecord"][];
         };
         SiteStructureResponse: {
             /** @example record:pages.page:0192f0c4-0000-7000-8000-000000000000 */
@@ -63943,6 +64009,53 @@ export interface operations {
             };
             /** @description Unknown redirect (`site_redirect_not_found`) */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Site status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SiteStatusResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

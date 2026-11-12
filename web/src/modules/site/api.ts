@@ -19,6 +19,18 @@ export interface SiteOverview {
   people_available: boolean
 }
 
+export interface SiteStatus {
+  base_url: string
+  indexing: boolean
+  home: { label: string; url: string } | null
+  menu_items: number
+  named: boolean
+  has_logo: boolean
+  languages: number
+  content: { record_type: string; label: string; published: number; drafts: number }[]
+  recent: { record_type: string; record_id: string; title: string; url: string; published_at: string | null }[]
+}
+
 export interface SiteTarget {
   target: string
   label: string
@@ -90,6 +102,10 @@ export interface SiteStructure {
 
 export function saveNavigation(navigation: SiteNavigationItem[], home: string | null) {
   return api.put<SiteStructure>(`${SITE_PATH}/navigation`, { navigation, home })
+}
+
+export function useSiteStatus() {
+  return useQuery({ queryKey: [...siteKeys.all, 'status'], queryFn: () => api.get<SiteStatus>(`${SITE_PATH}/status`) })
 }
 
 export function useSiteTargets() {

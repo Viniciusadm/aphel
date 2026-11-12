@@ -56705,6 +56705,66 @@
         "x-aphel-module": "site"
       }
     },
+    "/api/v1/site/status": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "How the public site is doing, for the site overview screen: address, indexing, the resolved home page, menu size, whether the site has a name and a logo (from the published appearance or the organization), published and draft counts of every public entity with a publication state, and the five most recently published records with their public address. Requires `settings.manage`.",
+        "operationId": "site_status",
+        "responses": {
+          "200": {
+            "description": "Site status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SiteStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
     "/api/v1/site/structure": {
       "get": {
         "tags": [
@@ -89954,6 +90014,72 @@
           }
         }
       },
+      "Data_SiteStatusResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "base_url",
+              "indexing",
+              "menu_items",
+              "named",
+              "has_logo",
+              "languages",
+              "content",
+              "recent"
+            ],
+            "properties": {
+              "base_url": {
+                "type": "string",
+                "example": "https://www.example.com/s"
+              },
+              "content": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SiteContentCount"
+                }
+              },
+              "has_logo": {
+                "type": "boolean"
+              },
+              "home": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SiteStatusLink"
+                  }
+                ]
+              },
+              "indexing": {
+                "type": "boolean"
+              },
+              "languages": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "menu_items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "named": {
+                "type": "boolean"
+              },
+              "recent": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SiteRecentRecord"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_SiteStructureResponse": {
         "type": "object",
         "required": [
@@ -122112,6 +122238,34 @@
           }
         }
       },
+      "SiteContentCount": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "label",
+          "published",
+          "drafts"
+        ],
+        "properties": {
+          "drafts": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "label": {
+            "type": "string"
+          },
+          "published": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "record_type": {
+            "type": "string",
+            "example": "content.entry"
+          }
+        }
+      },
       "SiteEmbedOptionResponse": {
         "type": "object",
         "required": [
@@ -122282,6 +122436,37 @@
           }
         }
       },
+      "SiteRecentRecord": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "record_id",
+          "title",
+          "url"
+        ],
+        "properties": {
+          "published_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string",
+            "example": "content.entry"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://www.example.com/s/blog/hello"
+          }
+        }
+      },
       "SiteRedirectResponse": {
         "type": "object",
         "required": [
@@ -122328,6 +122513,80 @@
           "record_type": {
             "type": "string",
             "example": "blog.post"
+          }
+        }
+      },
+      "SiteStatusLink": {
+        "type": "object",
+        "required": [
+          "label",
+          "url"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://www.example.com/s/blog"
+          }
+        }
+      },
+      "SiteStatusResponse": {
+        "type": "object",
+        "required": [
+          "base_url",
+          "indexing",
+          "menu_items",
+          "named",
+          "has_logo",
+          "languages",
+          "content",
+          "recent"
+        ],
+        "properties": {
+          "base_url": {
+            "type": "string",
+            "example": "https://www.example.com/s"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteContentCount"
+            }
+          },
+          "has_logo": {
+            "type": "boolean"
+          },
+          "home": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SiteStatusLink"
+              }
+            ]
+          },
+          "indexing": {
+            "type": "boolean"
+          },
+          "languages": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "menu_items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "named": {
+            "type": "boolean"
+          },
+          "recent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteRecentRecord"
+            }
           }
         }
       },

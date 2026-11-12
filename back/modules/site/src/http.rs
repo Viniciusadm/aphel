@@ -35,6 +35,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .merge(crate::appearance_http::router())
         .routes(routes!(overview))
+        .routes(routes!(site_status))
         .routes(routes!(list_redirects))
         .routes(routes!(delete_redirect))
         .routes(routes!(list_path_redirects, create_path_redirect))
@@ -267,6 +268,30 @@ async fn overview(
             .collect(),
         people_available: state.app.is_enabled(aphel_sdk::people::KEY),
     })))
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/status",
+    tag = TAG,
+    operation_id = "site_status",
+    description = "How the public site is doing, for the site overview screen: address, indexing, the resolved home page, menu size, whether the site has a name and a logo (from the published appearance or the organization), published and draft counts of every public entity with a publication state, and the five most recently published records with their public address. Requires `settings.manage`.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Site status", body = Data<crate::status::SiteStatusResponse>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+    )
+)]
+async fn site_status(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<crate::status::SiteStatusResponse>>, ApiError> {
+    require_manage(&tenant.scope)?;
+    let runtime = runtime::active(&state).await?;
+    Ok(Json(Data::new(
+        crate::status::status(&state, &runtime).await?,
+    )))
 }
 
 #[utoipa::path(

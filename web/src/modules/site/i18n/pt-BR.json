@@ -177,7 +177,8 @@
     "customers": "Clientes",
     "redirects": "Redirecionamentos",
     "general": "Endereço e cache",
-    "navigation": "Navegação"
+    "navigation": "Navegação",
+    "overview": "Visão geral"
   },
   "screens": {
     "frame": {
@@ -368,5 +369,60 @@
     "add": "Adicionar item",
     "save": "Salvar navegação",
     "saved": "Navegação salva."
+  },
+  "overview": {
+    "title": "Visão geral",
+    "description": "Como está o site e o que falta fazer.",
+    "address": "Endereço público: {{url}}",
+    "home": "Página inicial: {{label}}",
+    "steps": {
+      "title": "Primeiros passos",
+      "progress": "{{done}} de {{total}} concluídos",
+      "done": "Concluído",
+      "pending": "Pendente",
+      "identity": {
+        "title": "Nome e logo",
+        "todo": "Dê um nome ao site e envie o logo em Aparência.",
+        "done": "O site tem nome e logo.",
+        "action": "Abrir Aparência"
+      },
+      "home": {
+        "title": "Página inicial",
+        "todo": "Escolha uma página publicada ou uma coleção para a página inicial.",
+        "done": "A página inicial mostra um conteúdo publicado.",
+        "action": "Escolher"
+      },
+      "menu": {
+        "title": "Menu",
+        "todo": "Adicione ao menu as páginas que os visitantes procuram.",
+        "done": "O menu tem itens.",
+        "action": "Editar menu"
+      },
+      "content": {
+        "title": "Primeiro conteúdo publicado",
+        "todo": "Revise uma página ou escreva uma publicação e publique.",
+        "done": "Há conteúdo publicado."
+      },
+      "indexing": {
+        "title": "Buscadores",
+        "todo": "O site está escondido dos buscadores. Libere quando estiver pronto.",
+        "done": "Buscadores podem encontrar o site.",
+        "action": "Abrir Endereço"
+      }
+    },
+    "content": {
+      "title": "Conteúdo",
+      "description": "O que está no ar e o que ainda é rascunho.",
+      "empty": "Nenhum conteúdo publicável instalado.",
+      "published_one": "{{count}} publicado",
+      "published_other": "{{count}} publicados",
+      "drafts_one": "{{count}} rascunho",
+      "drafts_other": "{{count}} rascunhos"
+    },
+    "recent": {
+      "title": "Publicados recentemente",
+      "empty": "Nada publicado ainda",
+      "emptyDescription": "O que você publicar aparece aqui, com o link para o site."
+    }
   }
 }

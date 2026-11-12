@@ -177,7 +177,8 @@
     "customers": "Customers",
     "redirects": "Redirects",
     "general": "Address and cache",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "overview": "Overview"
   },
   "screens": {
     "frame": {
@@ -368,5 +369,60 @@
     "add": "Add item",
     "save": "Save navigation",
     "saved": "Navigation saved."
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "How the site is doing and what is left to do.",
+    "address": "Public address: {{url}}",
+    "home": "Home page: {{label}}",
+    "steps": {
+      "title": "Getting started",
+      "progress": "{{done}} of {{total}} done",
+      "done": "Done",
+      "pending": "Pending",
+      "identity": {
+        "title": "Name and logo",
+        "todo": "Name the site and upload the logo in Appearance.",
+        "done": "The site has a name and a logo.",
+        "action": "Open Appearance"
+      },
+      "home": {
+        "title": "Home page",
+        "todo": "Choose a published page or a collection for the home page.",
+        "done": "The home page shows published content.",
+        "action": "Choose"
+      },
+      "menu": {
+        "title": "Menu",
+        "todo": "Add the pages visitors look for to the menu.",
+        "done": "The menu has items.",
+        "action": "Edit menu"
+      },
+      "content": {
+        "title": "First published content",
+        "todo": "Review a page or write a post and publish it.",
+        "done": "There is published content."
+      },
+      "indexing": {
+        "title": "Search engines",
+        "todo": "The site is hidden from search engines. Allow them when it is ready.",
+        "done": "Search engines can find the site.",
+        "action": "Open Address"
+      }
+    },
+    "content": {
+      "title": "Content",
+      "description": "What is live and what is still a draft.",
+      "empty": "No publishable content installed.",
+      "published_one": "{{count}} published",
+      "published_other": "{{count}} published",
+      "drafts_one": "{{count}} draft",
+      "drafts_other": "{{count}} drafts"
+    },
+    "recent": {
+      "title": "Recently published",
+      "empty": "Nothing published yet",
+      "emptyDescription": "What you publish shows up here, with its link on the site."
+    }
   }
 }
