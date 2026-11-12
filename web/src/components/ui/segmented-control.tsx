@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string>({
     <NativeSelect className="w-full md:hidden" aria-label={props['aria-label'] ?? sectionLabel} value={value} onValueChange={(next) => onValueChange(next as T)}>
       {options.map((option) => <option key={option.value} value={option.value} disabled={option.disabled}>{option.ariaLabel ?? (optionText(option.label) || option.value)}</option>)}
     </NativeSelect>
-    <div data-slot="segmented-control" role="group" className={cn(tabsListVariants({ size }), className, 'hidden md:inline-flex')} {...props}>
+    <div data-slot="segmented-control" role="group" className={cn(tabsListVariants({ size, variant: 'pill' }), className, 'hidden md:inline-flex')} {...props}>
       {options.map((option) => (
         <button
           key={option.value}
@@ -45,7 +45,7 @@ export function SegmentedControl<T extends string>({
           aria-label={option.ariaLabel}
           disabled={option.disabled}
           onClick={() => onValueChange(option.value)}
-          className={tabsTriggerVariants({ size })}
+          className={tabsTriggerVariants({ size, variant: 'pill' })}
         >
           {option.icon}
           {option.label}
