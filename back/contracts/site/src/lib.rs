@@ -281,6 +281,12 @@ pub struct SitePageSeo {
     pub schema: Option<String>,
     #[serde(default)]
     pub structured_data: Option<String>,
+    #[serde(default)]
+    pub author: Option<String>,
+    #[serde(default)]
+    pub published: Option<String>,
+    #[serde(default)]
+    pub modified: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -633,10 +639,17 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 "{label}: seo.schema is a schema.org type such as Product or Article"
             ));
         }
-        if let Some(structured_data) = &page.seo.structured_data
-            && let Err(error) = minijinja::Environment::new().template_from_str(structured_data)
-        {
-            problems.push(format!("{label}: seo.structured_data: {error}"));
+        for (name, expression) in [
+            ("structured_data", &page.seo.structured_data),
+            ("author", &page.seo.author),
+            ("published", &page.seo.published),
+            ("modified", &page.seo.modified),
+        ] {
+            if let Some(expression) = expression
+                && let Err(error) = minijinja::Environment::new().template_from_str(expression)
+            {
+                problems.push(format!("{label}: seo.{name}: {error}"));
+            }
         }
         let pattern = match PathPattern::parse(&page.path) {
             Ok(pattern) => pattern,

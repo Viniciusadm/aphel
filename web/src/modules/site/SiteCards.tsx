@@ -223,7 +223,6 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
 }
 
 const appearanceSchema = z.object({
-  theme: z.string(),
   home: z.string(),
   scrollbar: z.enum(['default', 'themed']),
 })
@@ -242,12 +241,12 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
     formState: { isSubmitting, isDirty },
   } = useForm<AppearanceValues>({
     resolver: zodResolver(appearanceSchema),
-    defaultValues: { theme: settings.theme ?? '', home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default' },
+    defaultValues: { home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default' },
   })
   const onSubmit = handleSubmit(async (values) => {
     try {
       const saved = await saveSite({ home: values.home || null, scrollbar: values.scrollbar })
-      reset({ theme: saved.site?.theme ?? '', home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default' })
+      reset({ home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default' })
       void invalidate()
       notifySuccess(t('saved'))
     } catch (error) {

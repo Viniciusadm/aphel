@@ -284,6 +284,12 @@ pub struct SiteSeoSpec {
     pub schema: Option<String>,
     #[serde(default)]
     pub structured_data: Option<String>,
+    #[serde(default)]
+    pub author: Option<String>,
+    #[serde(default)]
+    pub published: Option<String>,
+    #[serde(default)]
+    pub modified: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

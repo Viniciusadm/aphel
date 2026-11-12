@@ -198,7 +198,7 @@
     },
     "appearance": {
       "title": "Appearance",
-      "description": "Theme, home page and scrollbar of the site."
+      "description": "Identity, colors, typography and how collections look."
     },
     "languages": {
       "title": "Languages",
@@ -223,6 +223,7 @@
     "unavailable": "Enable the Publication module to customize the site. Theme defaults remain available.",
     "globalHelp": "These changes apply to the entire site, including pages and collections that inherit them. Save a draft, preview it, then apply it.",
     "collectionHelp": "These changes affect only this collection. Unset values inherit the published site appearance.",
+    "frameHelp": "The header and footer appear on every page of the site. Save a draft, preview it, then apply it.",
     "contrast": "Some text or links have low contrast against the background. Adjust the colors or restore inheritance.",
     "saveForImages": "Save the draft to select images from the shared file manager.",
     "inherit": "Restore inheritance",

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BlockImageField } from '@/sdk'
@@ -21,7 +23,9 @@ interface AppearanceRecord { id: string; draft_values?: string | null; values?: 
 const recordUrl = (entity: string) => `/v1/entities/${entity}/records`
 const parsed = (text?: string | null): Values => text ? JSON.parse(text) as Values : {}
 
-export function AppearanceEditor() {
+export type AppearanceEditorMode = 'style' | 'frame'
+
+export function AppearanceEditor({ mode }: { mode: AppearanceEditorMode }) {
   const { t } = useTranslation('site')
   const catalog = useQuery({ queryKey: ['site', 'appearance-catalog'], queryFn: () => api.get<Catalog>('/v1/site/appearance') })
   const [selection, setSelection] = useState('site')
@@ -29,25 +33,26 @@ export function AppearanceEditor() {
   if (catalog.isPending) return <Skeleton className="h-48" />
   if (!catalog.data) return <ErrorState onRetry={() => void catalog.refetch()} />
   if (!catalog.data.available) return <p>{t('appearanceEditor.unavailable')}</p>
-  const target = catalog.data.targets.find((item) => item.target === selection) ?? catalog.data.targets[0]
+  const targets = mode === 'frame' ? catalog.data.targets.filter((item) => item.entity === 'site.appearance') : catalog.data.targets
+  const target = targets.find((item) => item.target === selection) ?? targets[0]
   if (!target) return null
   return <UnsavedChangesScope><div className="grid gap-6">
-    <Field label={t('appearanceEditor.scope')}>{(control) => <select {...control} className="h-10 rounded-md border bg-background px-3" value={target.target} onChange={(event) => { const next = event.target.value; setVisited((current) => current.includes(next) ? current : [...current, next]); setSelection(next) }}>
-      {catalog.data.targets.map((item) => <option key={item.target} value={item.target}>{item.label ?? t('appearanceEditor.global')}</option>)}
-    </select>}</Field>
-    {catalog.data.targets.filter((item) => visited.includes(item.target) || item.target === target.target).map((item) => <div key={item.target} hidden={item.target !== target.target}><TargetEditor catalog={catalog.data!} target={item} /></div>)}
+    {targets.length > 1 && <Field label={t('appearanceEditor.scope')}>{(control) => <NativeSelect {...control} className="w-full md:max-w-sm" value={target.target} onValueChange={(next) => { setVisited((current) => current.includes(next) ? current : [...current, next]); setSelection(next) }}>
+      {targets.map((item) => <option key={item.target} value={item.target}>{item.label ?? t('appearanceEditor.global')}</option>)}
+    </NativeSelect>}</Field>}
+    {targets.filter((item) => visited.includes(item.target) || item.target === target.target).map((item) => <div key={item.target} hidden={item.target !== target.target}><TargetEditor catalog={catalog.data!} target={item} mode={mode} /></div>)}
   </div></UnsavedChangesScope>
 }
 
-function TargetEditor({ catalog, target }: { catalog: Catalog; target: Target }) {
+function TargetEditor({ catalog, target, mode }: { catalog: Catalog; target: Target; mode: AppearanceEditorMode }) {
   const [generation, setGeneration] = useState(0)
   const record = useQuery({ queryKey: ['site', 'appearance', target.target], queryFn: async () => (await api.get<{ data: AppearanceRecord[] }>(recordUrl(target.entity), { query: { 'filter[target][eq]': target.target, per_page: '1' } })).data[0] ?? null })
   if (record.isPending) return <Skeleton className="h-48" />
   if (record.isError && record.data === undefined) return <ErrorState onRetry={() => void record.refetch()} />
-  return <AppearanceForm key={generation} catalog={catalog} target={target} record={record.data ?? null} onReload={async () => { const result = await record.refetch(); if (result.error) throw result.error; setGeneration((current) => current + 1) }} />
+  return <AppearanceForm key={generation} catalog={catalog} target={target} mode={mode} record={record.data ?? null} onReload={async () => { const result = await record.refetch(); if (result.error) throw result.error; setGeneration((current) => current + 1) }} />
 }
 
-function AppearanceForm({ catalog, target, record, onReload }: { catalog: Catalog; target: Target; record: AppearanceRecord | null; onReload: () => Promise<void> }) {
+function AppearanceForm({ catalog, target, mode, record, onReload }: { catalog: Catalog; target: Target; mode: AppearanceEditorMode; record: AppearanceRecord | null; onReload: () => Promise<void> }) {
   const { t } = useTranslation('site')
   const client = useQueryClient()
   const configuration = { data: catalog.frame.configuration }
@@ -69,7 +74,11 @@ function AppearanceForm({ catalog, target, record, onReload }: { catalog: Catalo
   const theme = Object.hasOwn(values, 'theme') ? catalog.theme_catalogs[String(values.theme)] : undefined
   const themeProperties = theme?.properties ?? catalog.theme_properties
   const themeDefaults = theme?.defaults ?? catalog.theme_defaults
-  const properties = catalog.properties.filter((property) => (!local || property.collection) && (property.key === 'theme' || themeProperties.length === 0 || themeProperties.includes(property.key)))
+  const style = mode === 'style'
+  const frameKeys = new Set([...catalog.properties.filter((property) => property.group === 'frame').map((property) => property.key), 'tagline'])
+  const ownKey = (key: string) => frameKeys.has(key) !== style
+  const merge = (base: Values, replacement: Values): Values => ({ ...Object.fromEntries(Object.entries(base).filter(([key]) => !ownKey(key))), ...Object.fromEntries(Object.entries(replacement).filter(([key]) => ownKey(key))) })
+  const properties = catalog.properties.filter((property) => (!local || property.collection) && (property.group === 'frame') !== style && (property.key === 'theme' || themeProperties.length === 0 || themeProperties.includes(property.key)))
   const unsupported = Object.keys(values).some((key) => key !== 'theme' && themeProperties.length > 0 && !themeProperties.includes(key))
   const dirty = JSON.stringify(values) !== JSON.stringify(parsed(saved?.draft_values)) || Object.entries(files).some(([key, value]) => value !== (saved?.[`draft_${key}` as keyof AppearanceRecord] ?? null))
   const change = (key: string, value: string | boolean | null) => setValues((current) => ({ ...current, [key]: value }))
@@ -77,7 +86,7 @@ function AppearanceForm({ catalog, target, record, onReload }: { catalog: Catalo
   const color = (key: string) => String(values[key] ?? themeDefaults[key] ?? catalog.properties.find((property) => property.key === key)?.default ?? '#ffffff')
   const luminance = (hex: string) => { const rgb = [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16) / 255).map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4); return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2] }
   const contrast = (foreground: string, background: string) => { const a = luminance(color(foreground)); const b = luminance(color(background)); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) }
-  const lowContrast = !local && ['text', 'muted', 'link'].some((key) => contrast(key, 'background') < 4.5)
+  const lowContrast = style && !local && ['text', 'muted', 'link'].some((key) => contrast(key, 'background') < 4.5)
 
   async function save(nextValues = values, nextFiles = files) {
     const payload = { target: target.target, draft_values: JSON.stringify(nextValues), ...Object.fromEntries(Object.entries(nextFiles).map(([key, value]) => [`draft_${key}`, value])) }
@@ -112,40 +121,40 @@ function AppearanceForm({ catalog, target, record, onReload }: { catalog: Catalo
     <UnsavedChangesGuard when={dirty} />
     <UnsavedChangesDialog open={reloadRequested} onStay={() => setReloadRequested(false)} onLeave={() => { setReloadRequested(false); void run(onReload) }} />
     {record && record.updated_at > (saved?.updated_at ?? '') && <div role="status"><p>{t('appearanceEditor.remoteChange')}</p><Button variant="outline" disabled={busy} onClick={() => setReloadRequested(true)}>{t('appearanceEditor.reload')}</Button></div>}
-    <p className="text-sm text-muted-foreground">{local ? t('appearanceEditor.collectionHelp') : t('appearanceEditor.globalHelp')}</p>
-    {unsupported && <p role="status">{t('appearanceEditor.unsupported')}</p>}
+    <p className="text-sm text-muted-foreground">{!style ? t('appearanceEditor.frameHelp') : local ? t('appearanceEditor.collectionHelp') : t('appearanceEditor.globalHelp')}</p>
+    {style && unsupported && <p role="status">{t('appearanceEditor.unsupported')}</p>}
     {lowContrast && <p role="status" className="text-sm text-destructive">{t('appearanceEditor.contrast')}</p>}
-    <div className="flex flex-wrap gap-2">
+    {style && <div className="flex flex-wrap gap-2">
       {catalog.presets.map((preset) => <Button key={preset.key} variant="outline" disabled={busy} onClick={() => setValues((current) => ({ ...current, ...preset.values }))}>{presets[preset.key]}</Button>)}
-    </div>
+    </div>}
     {[...new Set(properties.map((property) => property.group))].map((group) => <Card key={group}>
       <CardHeader><CardTitle>{groups[group]}</CardTitle></CardHeader>
       <CardContent className="grid gap-5 md:grid-cols-2">
         {properties.filter((property) => property.group === group && property.kind !== 'frame' && property.key !== 'tagline').map((property) => {
           if (property.kind === 'file') return saved ? <BlockImageField key={property.key} label={labels[property.key]} record={{ recordType: target.entity, recordId: saved.id }} value={files[property.key] as string | null} onChange={(value) => setFiles((current) => ({ ...current, [property.key]: value }))} disabled={busy} /> : <p key={property.key} className="text-sm text-muted-foreground">{t('appearanceEditor.saveForImages')}</p>
           return <Field key={property.key} label={labels[property.key]} labelAction={Object.hasOwn(values, property.key) ? <Button size="sm" variant="ghost" disabled={busy} onClick={() => inherit(property.key)}>{t('appearanceEditor.inherit')}</Button> : null}>
-            {(control) => property.kind === 'boolean' ? <select {...control} className="h-10 rounded-md border bg-background px-3" disabled={busy} value={Object.hasOwn(values, property.key) ? String(values[property.key]) : ''} onChange={(event) => event.target.value ? change(property.key, event.target.value === 'true') : inherit(property.key)}>
+            {(control) => property.kind === 'boolean' ? <NativeSelect {...control} className="w-full" disabled={busy} value={Object.hasOwn(values, property.key) ? String(values[property.key]) : ''} onValueChange={(next) => next ? change(property.key, next === 'true') : inherit(property.key)}>
               <option value="">{t('appearanceEditor.inherited')}</option><option value="true">{t('appearanceEditor.yes')}</option><option value="false">{t('appearanceEditor.no')}</option>
-            </select> : property.kind === 'select' ? <select {...control} className="h-10 rounded-md border bg-background px-3" disabled={busy} value={property.key === 'theme' && values.theme === '' ? '__default__' : String(values[property.key] ?? '')} onChange={(event) => event.target.value ? change(property.key, event.target.value === '__default__' ? '' : event.target.value) : inherit(property.key)}>
+            </NativeSelect> : property.kind === 'select' ? <NativeSelect {...control} className="w-full" disabled={busy} value={property.key === 'theme' && values.theme === '' ? '__default__' : String(values[property.key] ?? '')} onValueChange={(next) => next ? change(property.key, next === '__default__' ? '' : next) : inherit(property.key)}>
               <option value="">{t('appearanceEditor.inherited')}</option>{property.options.map((option) => <option key={option} value={option === '' ? '__default__' : option}>{option === '' ? t('appearance.defaultTheme') : catalog.themes.find((theme) => theme.key === option)?.name ?? options[option] ?? option}</option>)}
-            </select> : <Input {...control} type={property.kind === 'color' ? 'color' : 'text'} disabled={busy} maxLength={120} value={String(values[property.key] ?? themeDefaults[property.key] ?? property.default ?? '')} onChange={(event) => change(property.key, event.target.value)} />}
+            </NativeSelect> : <Input {...control} type={property.kind === 'color' ? 'color' : 'text'} disabled={busy} maxLength={120} value={String(values[property.key] ?? themeDefaults[property.key] ?? property.default ?? '')} onChange={(event) => change(property.key, event.target.value)} />}
           </Field>
         })}
       </CardContent>
     </Card>)}
-    {!local && configuration.data && overview.data && <AppearanceFrameDraft.Provider value={async (frame) => { const next = { ...values, ...frame }; await save(next); setValues(next) }}>
+    {!style && configuration.data && overview.data && <AppearanceFrameDraft.Provider value={async (frame) => { const next = { ...values, ...frame }; await save(next); setValues(next) }}>
       <HeaderCard key={JSON.stringify([values.header, values.tagline, values.translations])} configuration={{ ...configuration.data, site: { ...configuration.data.site, ...values } as SiteModuleSettings }} overview={overview.data} />
       <FooterCard key={JSON.stringify([values.footer, values.translations])} configuration={{ ...configuration.data, site: { ...configuration.data.site, ...values } as SiteModuleSettings }} overview={overview.data} />
     </AppearanceFrameDraft.Provider>}
     <div className="flex flex-wrap gap-2">
       <Button disabled={busy} onClick={() => void run(async () => { await save(); notifySuccess(t('appearanceEditor.saved')) })}>{t('appearanceEditor.save')}</Button>
       <Button disabled={busy} onClick={() => void run(apply)}>{t('appearanceEditor.apply')}</Button>
-      <Button variant="outline" disabled={busy} onClick={() => void run(async () => { const next = parsed(saved?.values); const nextFiles = { logo: saved?.logo ?? null, dark_logo: saved?.dark_logo ?? null, icon: saved?.icon ?? null, opening_image: saved?.opening_image ?? null }; await save(next, nextFiles); setValues(next); setFiles(nextFiles) })}>{t('appearanceEditor.discard')}</Button>
-      <Button variant="outline" disabled={busy} onClick={() => { setValues({}); setFiles({ logo: null, dark_logo: null, icon: null, opening_image: null }) }}>{t('appearanceEditor.defaults')}</Button>
+      <Button variant="outline" disabled={busy} onClick={() => void run(async () => { const next = merge(values, parsed(saved?.values)); const nextFiles = style ? { logo: saved?.logo ?? null, dark_logo: saved?.dark_logo ?? null, icon: saved?.icon ?? null, opening_image: saved?.opening_image ?? null } : files; await save(next, nextFiles); setValues(next); setFiles(nextFiles) })}>{t('appearanceEditor.discard')}</Button>
+      <Button variant="outline" disabled={busy} onClick={() => { setValues(merge(values, {})); if (style) setFiles({ logo: null, dark_logo: null, icon: null, opening_image: null }) }}>{t('appearanceEditor.defaults')}</Button>
     </div>
     <Card><CardHeader><CardTitle>{t('appearanceEditor.preview')}</CardTitle></CardHeader><CardContent className="grid gap-4">
       <Field label={t('appearanceEditor.path')} description={t('appearanceEditor.pathHelp')}>{(control) => <Input {...control} value={path} onChange={(event) => setPath(event.target.value)} />}</Field>
-      <Field label={t('appearanceEditor.emptyPreview')}>{(control) => <input {...control} type="checkbox" checked={empty} onChange={(event) => setEmpty(event.target.checked)} />}</Field>
+      {style && <ToggleField label={t('appearanceEditor.emptyPreview')} checked={empty} onCheckedChange={(checked) => setEmpty(checked === true)} />}
       <div className="flex gap-2"><Button variant="outline" disabled={busy} onClick={() => void run(preview)}>{t('appearanceEditor.preview')}</Button><Button variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? t('appearanceEditor.desktop') : t('appearanceEditor.mobile')}</Button></div>
       {html && <iframe title={t('appearanceEditor.preview')} sandbox="" srcDoc={html} className="mx-auto h-[42rem] max-w-full border" style={{ width: mobile ? 390 : '100%' }} />}
     </CardContent></Card>

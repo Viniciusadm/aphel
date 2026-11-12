@@ -76,7 +76,7 @@ export function SiteFramePage() {
     <SiteScreen screen="frame">
       {(configuration, overview) => (
         <>
-          <AppearanceEditor />
+          <AppearanceEditor mode="frame" />
           <MenuCard key={overview.menu_items.map((item) => item.id).join()} configuration={configuration} overview={overview} />
         </>
       )}
@@ -86,7 +86,7 @@ export function SiteFramePage() {
 
 export function SiteAppearancePage() {
   const { t } = useTranslation('site')
-  return <Page><PageHeader title={t('screens.appearance.title')} description={t('screens.appearance.description')} /><AppearanceEditor /></Page>
+  return <Page><PageHeader title={t('screens.appearance.title')} description={t('screens.appearance.description')} /><AppearanceEditor mode="style" /></Page>
 }
 
 export function SiteLanguagesPage() {

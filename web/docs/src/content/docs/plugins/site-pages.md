@@ -64,7 +64,7 @@ title = "{{ record.title }}"
 | `list` | table | A paginated list: `sort` (public fields, `-` for descending, comma separated) and `per_page` (1 to 50, default 10). The page reads `?page=N`. |
 | `title` | string | Optional. A template expression rendered with the page context, used in `<title>` and in the share previews. |
 | `data` | string | Optional. Path of a GET route of the plugin declared with `site = true`, using the page parameters (`/products/{slug}`). Its JSON answer reaches the template as `data`; a 404 answer makes the page 404. See [Dynamic pages](#dynamic-pages). |
-| `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap; `schema` and `structured_data` shape the JSON-LD. See [Search engines](#search-engines). |
+| `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap; `schema`, `author`, `published`, `modified` and `structured_data` shape the JSON-LD. See [Search engines](#search-engines). |
 
 A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs exactly one of `match`, `where` or `list`.
 
@@ -413,17 +413,22 @@ title = "{{ record.title }}"
 seo = { description = "{{ record.excerpt }}", image = "{% if record.images %}{{ record.images[0] | image_url(1280) }}{% endif %}" }
 ```
 
-The theme writes, for every page: `<title>`, `<link rel="canonical">` with the absolute address of the page (list pages after the first keep `?page=N`), `<meta name="description">`, Open Graph (`og:type` is `article` on `match` pages and `website` on the others, plus title, description, image, URL, site name and locale) and Twitter Card tags (`summary_large_image` when there is an image). The description is collapsed to one line and cut at 200 characters; an image path is turned into an absolute address. A theme of your own reads the same values from `page.seo` (`canonical`, `description`, `image`, `noindex`, `type`, `json_ld`).
+The theme writes, for every page: `<title>`, `<link rel="canonical">` with the absolute address of the page (list pages after the first keep `?page=N`), `<meta name="description">`, Open Graph (`og:type` is `article` on `match` pages and `website` on the others, plus title, description, image, URL, site name and locale) and Twitter Card tags (`summary_large_image` when there is an image). The description is collapsed to one line and cut at 200 characters; an image path is turned into an absolute address. A theme of your own reads the same values from `page.seo` (`canonical`, `description`, `image`, `noindex`, `type`, `json_ld`, `author`, `published`, `modified`). The site name and logo come from the published appearance when it sets them, otherwise from the organization; the visible header, `og:site_name` and the JSON-LD `publisher` always use the same values.
 
-Every page also carries [JSON-LD](https://schema.org) in a `<script type="application/ld+json">`: `name`, `url`, `inLanguage`, `description` and `image` when the page has them, typed `WebSite` on the home page, `Article` on `match` pages (with `headline`, `mainEntityOfPage` and the organization as `publisher`, with its logo), `CollectionPage` on `list` pages and `WebPage` on the others. A page changes it with two `seo` keys:
+Every page also carries [JSON-LD](https://schema.org) in a `<script type="application/ld+json">`: `name`, `url`, `inLanguage`, `description` and `image` when the page has them, typed `WebSite` on the home page, `Article` on `match` pages (with `headline`, `mainEntityOfPage` and the organization as `publisher`, with its logo), `CollectionPage` on `list` pages and `WebPage` on the others. A page changes it with these `seo` keys:
 
 | Key | Notes |
 | --- | --- |
 | `schema` | A schema.org type such as `Product`, `BlogPosting` or `Event` (letters and digits, starting with a capital letter). |
+| `author` | A template expression with the public author's name. Adds `<meta name="author">` and a `Person` as JSON-LD `author`. |
+| `published` | A template expression with the publication date (ISO 8601). Adds `article:published_time` and JSON-LD `datePublished`. |
+| `modified` | A template expression with the last revision date (ISO 8601). Adds `article:modified_time` and JSON-LD `dateModified`; without it, `dateModified` repeats `published`. |
 | `structured_data` | A template expression that renders a JSON object; its keys are added to the generated one and replace keys with the same name (`@context` is kept). Use the `tojson` filter for values. If it does not render a JSON object, the page keeps the generated data and the server logs a warning. |
 
+Empty results are left out.
+
 ```toml
-seo = { schema = "BlogPosting", structured_data = '{"datePublished": {{ record.published_at | tojson }}}' }
+seo = { schema = "BlogPosting", author = "{{ record.byline or '' }}", published = "{{ record.published_at or '' }}", modified = "{{ record.revised_at or '' }}", structured_data = '{"keywords": {{ record.keywords | tojson }}}' }
 ```
 
 - **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. It is cached and refreshed with the pages it lists.

@@ -610,8 +610,8 @@ fn see_other(location: &str) -> Response {
 }
 
 fn texts(locale: &str) -> serde_json::Value {
-    if locale.starts_with("pt") {
-        json!({
+    match locale.split('-').next().unwrap_or_default() {
+        "pt" => json!({
             "not_found_title": "Página não encontrada",
             "not_found_body": "O endereço não existe ou o conteúdo não está mais publicado.",
             "error_title": "Algo deu errado",
@@ -626,10 +626,102 @@ fn texts(locale: &str) -> serde_json::Value {
             "social": "Redes sociais",
             "contact": "Contato",
             "my_account": "Minha conta",
-            "share": "Compartilhar", "copy_url": "Copiar endereço", "copied": "Endereço copiado", "toc": "Nesta publicação", "empty_collection": "Ainda não há publicações aqui.", "updated": "Atualizada em",
-        })
-    } else {
-        json!({
+            "share": "Compartilhar",
+            "copy_url": "Copiar endereço",
+            "copied": "Endereço copiado",
+            "toc": "Nesta publicação",
+            "empty_collection": "Ainda não há publicações aqui.",
+            "updated": "Atualizada em",
+        }),
+        "es" => json!({
+            "not_found_title": "Página no encontrada",
+            "not_found_body": "La dirección no existe o el contenido ya no está publicado.",
+            "error_title": "Algo salió mal",
+            "error_body": "No se pudo mostrar esta página ahora. Inténtalo de nuevo en unos instantes.",
+            "back_home": "Volver al inicio",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "menu": "Menú principal",
+            "sign_in": "Iniciar sesión",
+            "languages": "Idiomas",
+            "footer_links": "Enlaces del pie de página",
+            "social": "Redes sociales",
+            "contact": "Contacto",
+            "my_account": "Mi cuenta",
+            "share": "Compartir",
+            "copy_url": "Copiar dirección",
+            "copied": "Dirección copiada",
+            "toc": "En esta publicación",
+            "empty_collection": "Todavía no hay publicaciones aquí.",
+            "updated": "Actualizado el",
+        }),
+        "fr" => json!({
+            "not_found_title": "Page introuvable",
+            "not_found_body": "L’adresse n’existe pas ou le contenu n’est plus publié.",
+            "error_title": "Une erreur s’est produite",
+            "error_body": "Impossible d’afficher cette page pour le moment. Réessayez dans quelques instants.",
+            "back_home": "Retour à l’accueil",
+            "previous": "Précédent",
+            "next": "Suivant",
+            "menu": "Menu principal",
+            "sign_in": "Se connecter",
+            "languages": "Langues",
+            "footer_links": "Liens du pied de page",
+            "social": "Réseaux sociaux",
+            "contact": "Contact",
+            "my_account": "Mon compte",
+            "share": "Partager",
+            "copy_url": "Copier l’adresse",
+            "copied": "Adresse copiée",
+            "toc": "Dans cette publication",
+            "empty_collection": "Il n’y a pas encore de publications ici.",
+            "updated": "Mis à jour le",
+        }),
+        "de" => json!({
+            "not_found_title": "Seite nicht gefunden",
+            "not_found_body": "Die Adresse existiert nicht oder der Inhalt ist nicht mehr veröffentlicht.",
+            "error_title": "Etwas ist schiefgelaufen",
+            "error_body": "Diese Seite kann gerade nicht angezeigt werden. Versuchen Sie es gleich noch einmal.",
+            "back_home": "Zurück zur Startseite",
+            "previous": "Zurück",
+            "next": "Weiter",
+            "menu": "Hauptmenü",
+            "sign_in": "Anmelden",
+            "languages": "Sprachen",
+            "footer_links": "Links in der Fußzeile",
+            "social": "Soziale Netzwerke",
+            "contact": "Kontakt",
+            "my_account": "Mein Konto",
+            "share": "Teilen",
+            "copy_url": "Adresse kopieren",
+            "copied": "Adresse kopiert",
+            "toc": "In diesem Beitrag",
+            "empty_collection": "Hier gibt es noch keine Beiträge.",
+            "updated": "Aktualisiert am",
+        }),
+        "it" => json!({
+            "not_found_title": "Pagina non trovata",
+            "not_found_body": "L’indirizzo non esiste o il contenuto non è più pubblicato.",
+            "error_title": "Qualcosa è andato storto",
+            "error_body": "Non è possibile mostrare questa pagina ora. Riprova tra qualche istante.",
+            "back_home": "Torna alla home",
+            "previous": "Precedente",
+            "next": "Successiva",
+            "menu": "Menu principale",
+            "sign_in": "Accedi",
+            "languages": "Lingue",
+            "footer_links": "Link del piè di pagina",
+            "social": "Social network",
+            "contact": "Contatti",
+            "my_account": "Il mio account",
+            "share": "Condividi",
+            "copy_url": "Copia indirizzo",
+            "copied": "Indirizzo copiato",
+            "toc": "In questo articolo",
+            "empty_collection": "Non ci sono ancora pubblicazioni qui.",
+            "updated": "Aggiornato il",
+        }),
+        _ => json!({
             "not_found_title": "Page not found",
             "not_found_body": "The address does not exist or the content is no longer published.",
             "error_title": "Something went wrong",
@@ -644,8 +736,13 @@ fn texts(locale: &str) -> serde_json::Value {
             "social": "Social networks",
             "contact": "Contact",
             "my_account": "My account",
-            "share": "Share", "copy_url": "Copy URL", "copied": "URL copied", "toc": "On this page", "empty_collection": "There are no publications here yet.", "updated": "Updated on",
-        })
+            "share": "Share",
+            "copy_url": "Copy URL",
+            "copied": "URL copied",
+            "toc": "On this page",
+            "empty_collection": "There are no publications here yet.",
+            "updated": "Updated on",
+        }),
     }
 }
 
@@ -1192,8 +1289,16 @@ async fn render_route(
         None
     });
     let image = image.map(|image| absolute_url(base_url, &image));
+    let filled = |expression: &Option<String>| -> Result<Option<String>, AppError> {
+        Ok(render(expression)?
+            .map(|value| value.trim().to_owned())
+            .filter(|value| !value.is_empty()))
+    };
+    let author = filled(&route.page.seo.author)?;
+    let published = filled(&route.page.seo.published)?;
+    let modified = filled(&route.page.seo.modified)?;
     let json_ld = structured_data(StructuredPage {
-        site: &context.site,
+        site: values.get("site").unwrap_or(&context.site),
         schema: route.page.seo.schema.as_deref(),
         source: &route.page.source,
         home: path == "/",
@@ -1201,6 +1306,9 @@ async fn render_route(
         description: description.as_deref(),
         image: image.as_deref(),
         canonical: &canonical,
+        author: author.as_deref(),
+        published: published.as_deref(),
+        modified: modified.as_deref(),
         extra: extra.as_deref(),
     });
     page["title"] = json!(title);
@@ -1211,6 +1319,9 @@ async fn render_route(
         "noindex": route.page.seo.noindex || !indexing,
         "type": if matches!(route.page.source, PageSource::Record { .. }) { "article" } else { "website" },
         "json_ld": json_ld,
+        "author": author,
+        "published": published,
+        "modified": modified,
     });
     values.insert("page".to_owned(), page);
     let html = runtime
@@ -1246,6 +1357,9 @@ struct StructuredPage<'a> {
     description: Option<&'a str>,
     image: Option<&'a str>,
     canonical: &'a str,
+    author: Option<&'a str>,
+    published: Option<&'a str>,
+    modified: Option<&'a str>,
     extra: Option<&'a str>,
 }
 
@@ -1277,6 +1391,15 @@ fn structured_data(page: StructuredPage<'_>) -> String {
     }
     if let Some(image) = page.image {
         data["image"] = json!(image);
+    }
+    if let Some(author) = page.author {
+        data["author"] = json!({ "@type": "Person", "name": author });
+    }
+    if let Some(published) = page.published {
+        data["datePublished"] = json!(published);
+    }
+    if let Some(modified) = page.modified.or(page.published) {
+        data["dateModified"] = json!(modified);
     }
     match schema {
         "WebSite" => data["publisher"] = publisher,

@@ -198,7 +198,7 @@
     },
     "appearance": {
       "title": "Aparência",
-      "description": "Tema, página inicial e barra de rolagem do site."
+      "description": "Identidade, cores, tipografia e como as coleções aparecem."
     },
     "languages": {
       "title": "Idiomas",
@@ -223,6 +223,7 @@
     "unavailable": "Ative o módulo Publicação para personalizar o site. Os padrões do tema continuam disponíveis.",
     "globalHelp": "As mudanças afetam o site inteiro, incluindo páginas e coleções que herdam os valores. Salve o rascunho, confira o preview e aplique.",
     "collectionHelp": "As mudanças afetam apenas esta coleção. Valores não definidos herdam a aparência publicada do site.",
+    "frameHelp": "Topo e rodapé valem para todas as páginas do site. Salve o rascunho, confira o preview e aplique.",
     "contrast": "Alguns textos ou links têm pouco contraste com o fundo. Ajuste as cores ou restaure a herança.",
     "saveForImages": "Salve o rascunho para escolher imagens no gerenciador de arquivos compartilhado.",
     "inherit": "Restaurar herança",

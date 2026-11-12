@@ -439,6 +439,21 @@ pub(crate) fn apply_frame(
     if let Some(tagline) = appearance.get("tagline") {
         settings.tagline = tagline.as_str().map(str::to_owned);
     }
+    if let Some(name) = appearance
+        .get("name")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|name| !name.is_empty())
+    {
+        site["name"] = serde_json::json!(name);
+    }
+    if let Some(logo) = appearance
+        .get("logo")
+        .and_then(Value::as_str)
+        .filter(|logo| !logo.is_empty())
+    {
+        site["logo_url"] = serde_json::json!(logo);
+    }
     let language = site["prefix"].as_str().unwrap_or_default().to_owned();
     let mount = site["mount"].as_str().unwrap_or_default().to_owned();
     let tools = aphel_sdk::module::public_app_paths(state);
