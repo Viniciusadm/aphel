@@ -1,6 +1,7 @@
 import { CheckSquare } from 'lucide-react'
 import i18n from '@/i18n'
 import { registerRecordResource, type RecordItem } from '@/sdk'
+import { ActivityEditDialog } from './components/ActivityEditDialog'
 import { ActivityListItem } from './components/ActivityListItem'
 import { groupByDue } from './lib/due'
 import { ACTIVITY_RECORD_TYPE, ACTIVITY_TYPE_RECORD_TYPE, TASKS_PATH } from '@/sdk'
@@ -16,6 +17,7 @@ export const activityResource = registerRecordResource({
   titleField: 'title',
   detailPath: (id) => `${TASKS_PATH}/${encodeURIComponent(id)}`,
   listItem: ActivityListItem,
+  editDialog: ActivityEditDialog,
   listSorts: () => [
     { key: 'due', label: i18n.t('sort.due', { ns: 'tasks' }), sort: [{ field: 'due_at', direction: 'asc' }] },
     {

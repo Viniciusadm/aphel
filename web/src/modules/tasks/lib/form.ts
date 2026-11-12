@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import type {ActivityType, CreateActivityRequest, RecordTarget, RecurrenceRuleRequest} from '@/sdk'
-import type { RecurrenceFormState } from './recurrence'
+import type {Activity, ActivityType, CreateActivityRequest, RecordTarget, RecurrenceRuleRequest, UpdateActivityRequest} from '@/sdk'
+import { EMPTY_RECURRENCE, type RecurrenceFormState } from './recurrence'
 
 export type ActivityFormMode = 'task' | 'log'
 
@@ -25,6 +25,35 @@ const DEFAULT_TYPE_KEY: Record<ActivityFormMode, string> = { task: 'task', log: 
 
 export function defaultActivityType(types: ActivityType[], mode: ActivityFormMode): string {
   return (types.find((type) => type.key === DEFAULT_TYPE_KEY[mode]) ?? types[0])?.id ?? ''
+}
+
+export function valuesFromActivity(activity: Activity): ActivityFormValues {
+  return {
+    title: activity.title,
+    activity_type_id: activity.activity_type_id,
+    priority: activity.priority,
+    owner_id: activity.owner_id ?? '',
+    due_at: activity.due_at ?? null,
+    completed_at: null,
+    description: activity.description ?? '',
+    duration_minutes: activity.duration_minutes != null ? String(activity.duration_minutes) : '',
+    reminder_minutes_before: activity.reminder_minutes_before ?? null,
+    recurrence: EMPTY_RECURRENCE,
+  }
+}
+
+export function buildUpdateRequest(values: ActivityFormValues): UpdateActivityRequest {
+  const duration = values.duration_minutes.trim()
+  return {
+    title: values.title.trim(),
+    activity_type_id: values.activity_type_id,
+    priority: values.priority,
+    owner_id: values.owner_id || undefined,
+    description: values.description.trim() || null,
+    due_at: values.due_at ?? null,
+    duration_minutes: duration ? Number(duration) : null,
+    reminder_minutes_before: values.due_at ? values.reminder_minutes_before : null,
+  }
 }
 
 export function buildCreateRequest(

@@ -3,7 +3,7 @@
     "share": "Share"
   },
   "dialog": {
-    "title": "Share record",
+    "title": "Share",
     "description": "Give people or teams access to this record beyond what their roles allow. Sharing never allows deleting nor sharing again.",
     "empty": "This record has not been shared yet.",
     "listLabel": "Shares",

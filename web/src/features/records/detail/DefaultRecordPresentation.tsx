@@ -1,10 +1,12 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Share2 } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Slot } from '@/kernel/modules/Slot'
 import { useMediaQuery } from '../calendar/useMediaQuery'
 import { FieldValueDisplay, UserValue } from '../display/FieldValueDisplay'
-import { ShareRecordButton } from '../sharing/ShareRecordButton'
+import { ShareRecordDialog } from '../sharing/ShareRecordDialog'
+import { RecordActionItem } from './RecordActionItem'
 import type { FieldDefinition } from '../types'
 import { RecordFieldsPanel } from './RecordFieldsPanel'
 import { RecordHeader } from './RecordHeader'
@@ -27,6 +29,8 @@ function hasValue(value: unknown) {
 
 export function DefaultRecordPresentation({ model, defaultTab, className }: DefaultRecordPresentationProps) {
   const { t } = useTranslation('records-detail')
+  const { t: ts } = useTranslation('sharing')
+  const [sharing, setSharing] = useState(false)
   const {
     recordType, record, title, subtitle, owner, fields, viewLayout,
     visibleFields: visibleSummaryFields, summaryFieldKeys, readOnly, readOnlyFieldKeys,
@@ -45,7 +49,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
     .slice(0, 8)
   const summaryPanel = <RecordFieldsPanel fields={summaryFields} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField} />
   const hasSummary = resolvedTabs.some((section) => section.summary)
-  const detailPanel = <div className="grid min-w-0 gap-4"><RecordFieldsPanel columns={hasSummary ? 1 : 2} fields={fields} layout={viewLayout} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField}><Slot name="record.fields.panel" props={slotProps} /></RecordFieldsPanel><Slot name="record.detail.sidebar" props={slotProps} /></div>
+  const detailPanel = <div className="grid min-w-0 gap-4"><RecordFieldsPanel title={hasSummary ? undefined : ''} columns={hasSummary ? 1 : 2} fields={fields} layout={viewLayout} record={record} readOnly={readOnly} readOnlyFieldKeys={readOnlyFieldKeys} onSaveField={saveField}><Slot name="record.fields.panel" props={slotProps} /></RecordFieldsPanel><Slot name="record.detail.sidebar" props={slotProps} /></div>
   const destinations: RecordTab[] = [...resolvedTabs, { key: 'details', label: t('fields.title'), content: detailPanel }]
   const overview = destinations.some((section) => section.summary) ? <RecordOverview sections={destinations} navigation={false} /> : detailPanel
   const workspaceSections = hasSummary
@@ -63,8 +67,11 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
     ) : undefined
   const ownerNode = typeof owner.value === 'string' && owner.value ? <UserValue userId={owner.value} /> : undefined
 
+  const shareDialog = sharing ? <ShareRecordDialog recordType={recordType} recordId={record.id} open onOpenChange={setSharing} /> : null
+
   if (isMobile) {
     return (
+      <>
       <RecordMobileView
         className={className}
         title={title}
@@ -78,7 +85,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
         actions={
           <>
             {customPrimary}
-            <ShareRecordButton recordType={recordType} recordId={record.id} />
+            <RecordActionItem icon={Share2} label={ts('button.share')} onSelect={() => setSharing(true)} />
             {actions}
             <Slot name="record.detail.actions" props={slotProps} />
           </>
@@ -111,10 +118,13 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
           </div>
         }
       />
+      {shareDialog}
+      </>
     )
   }
 
   return (
+    <>
     <RecordPageShell
       className={className}
       header={
@@ -127,7 +137,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
           secondaryAction={customPrimary && !readOnly ? <Button size="sm" variant="outline" onClick={edit}><Pencil aria-hidden />{t('header.edit')}</Button> : undefined}
           actions={
             <>
-              <ShareRecordButton recordType={recordType} recordId={record.id} />
+              <RecordActionItem icon={Share2} label={ts('button.share')} onSelect={() => setSharing(true)} />
               {actions}
               <Slot name="record.detail.actions" props={slotProps} />
             </>
@@ -150,5 +160,7 @@ export function DefaultRecordPresentation({ model, defaultTab, className }: Defa
     >
       <RecordTabs tabs={workspaceSections} defaultTab={defaultTab ?? 'overview'} />
     </RecordPageShell>
+    {shareDialog}
+    </>
   )
 }

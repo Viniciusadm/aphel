@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
 import { NativeSelect, useOrganizationUsers, useRecordFormatting } from '@/sdk'
-import {ACTIVITY_PRIORITIES, useActivityTypes, useCreateActivity, type Activity, type ActivityPriority, type RecordTarget} from '@/sdk'
+import {ACTIVITY_PRIORITIES, useActivityTypes, useCreateActivity, useUpdateActivity, type Activity, type ActivityPriority, type RecordTarget} from '@/sdk'
 import { activityErrorKey } from '../lib/errors'
 import {
   buildRecurrenceRule,
@@ -31,7 +31,9 @@ import { ReminderSelect } from './ReminderSelect'
 import {
   activityFormSchema,
   buildCreateRequest,
+  buildUpdateRequest,
   defaultActivityType,
+  valuesFromActivity,
   type ActivityFormMode,
   type ActivityFormValues,
 } from '../lib/form'
@@ -50,6 +52,7 @@ export interface ActivityFormDialogProps {
   target?: RecordTarget
   mode?: ActivityFormMode
   defaults?: ActivityFormDefaults
+  activity?: Activity
   onCreated?: (activity: Activity) => void
 }
 
@@ -87,6 +90,7 @@ export function ActivityFormDialog({
   target,
   mode = 'task',
   defaults,
+  activity,
   onCreated,
 }: ActivityFormDialogProps) {
   const { t } = useTranslation('tasks')
@@ -95,12 +99,14 @@ export function ActivityFormDialog({
   const types = useActivityTypes()
   const users = useOrganizationUsers()
   const create = useCreateActivity(target)
+  const update = useUpdateActivity()
+  const editing = activity !== undefined
   const formId = useId()
   const activeTypes = useMemo(() => types.data ?? [], [types.data])
 
   const defaultDueAt = defaults?.dueAt
   const defaultDuration = defaults?.durationMinutes
-  const showDuration = mode === 'log' || defaultDuration != null
+  const showDuration = editing || mode === 'log' || defaultDuration != null
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(activityFormSchema),
     defaultValues: initialValues('', me.user.id, defaults),
@@ -109,13 +115,17 @@ export function ActivityFormDialog({
 
   useEffect(() => {
     if (!open) return
+    if (activity) {
+      reset(valuesFromActivity(activity))
+      return
+    }
     reset(
       initialValues(defaultActivityType(activeTypes, mode), me.user.id, {
         dueAt: defaultDueAt,
         durationMinutes: defaultDuration,
       }),
     )
-  }, [open, mode, me.user.id, reset, activeTypes, defaultDueAt, defaultDuration])
+  }, [open, mode, me.user.id, reset, activeTypes, defaultDueAt, defaultDuration, activity])
 
   const dueAt = useWatch({ control, name: 'due_at' })
   const recurrence = useWatch({ control, name: 'recurrence' })
@@ -137,12 +147,19 @@ export function ActivityFormDialog({
   const submit = handleSubmit(async (values) => {
     if (recurrenceErrorKey) return
     try {
-      const activity = await create.mutateAsync(
+      if (activity) {
+        const saved = await update.mutateAsync({ activity, request: buildUpdateRequest(values) })
+        toast({ title: t('form.updatedToast'), variant: 'success' })
+        onOpenChange(false)
+        onCreated?.(saved)
+        return
+      }
+      const created = await create.mutateAsync(
         buildCreateRequest(values, mode, target, mode === 'task' ? buildRecurrenceRule(recurrence) : null),
       )
       toast({ title: t(mode === 'log' ? 'form.loggedToast' : 'form.createdToast'), variant: 'success' })
       onOpenChange(false)
-      onCreated?.(activity)
+      onCreated?.(created)
     } catch (error) {
       toast({ title: t(activityErrorKey(error)), variant: 'destructive' })
     }
@@ -164,8 +181,10 @@ export function ActivityFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t(mode === 'log' ? 'form.logTitle' : 'form.taskTitle')}</DialogTitle>
-          <DialogDescription>{t(mode === 'log' ? 'form.logDescription' : 'form.taskDescription')}</DialogDescription>
+          <DialogTitle>{t(editing ? 'form.editTitle' : mode === 'log' ? 'form.logTitle' : 'form.taskTitle')}</DialogTitle>
+          <DialogDescription>
+            {t(editing ? 'form.editDescription' : mode === 'log' ? 'form.logDescription' : 'form.taskDescription')}
+          </DialogDescription>
         </DialogHeader>
         <form id={formId} className="grid gap-4" onSubmit={(event) => void submit(event)} noValidate>
           <Field label={t('form.title')}>
@@ -237,7 +256,7 @@ export function ActivityFormDialog({
               />}
             </Field>
           )}
-          {mode === 'task' && (
+          {mode === 'task' && !editing && (
             <Controller
               control={control}
               name="recurrence"
@@ -283,11 +302,11 @@ export function ActivityFormDialog({
           </Field>
         </form>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={create.isPending}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={create.isPending || update.isPending}>
             {t('form.cancel')}
           </Button>
-          <Button type="submit" form={formId} disabled={create.isPending || types.isPending}>
-            {t(mode === 'log' ? 'form.submitLog' : 'form.submitTask')}
+          <Button type="submit" form={formId} disabled={create.isPending || update.isPending || types.isPending}>
+            {t(editing ? 'form.save' : mode === 'log' ? 'form.submitLog' : 'form.submitTask')}
           </Button>
         </DialogFooter>
       </DialogContent>

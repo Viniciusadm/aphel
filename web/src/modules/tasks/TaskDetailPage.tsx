@@ -1,4 +1,4 @@
-import { CalendarClock, NotebookPen, Paperclip, RotateCcw, SquareCheck, Trash2 } from 'lucide-react'
+import { CalendarClock, CalendarPlus, NotebookPen, Paperclip, RotateCcw, SquareCheck, Trash2, UserRoundPen } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
@@ -6,80 +6,109 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
-import { AttachmentsPanel, RecordDetailPage, type RecordItem } from '@/sdk'
+import { AttachmentsPanel, RecordActionItem, RecordActionsDivider, RecordDetailPage, type RecordItem } from '@/sdk'
 import { TASK_DETAIL_FIELDS } from './resource'
-import { useDeleteActivity, useToggleActivity } from '@/sdk'
+import { useDeleteActivity, type Activity } from '@/sdk'
 import { ActivityScheduleDialog, type ScheduledActivity } from './components/ActivityScheduleDialog'
-import { activityErrorKey } from './lib/errors'
+import { ReassignDialog } from './components/ReassignDialog'
+import { useActivityActions } from './lib/useActivityActions'
 import { ACTIVITY_RECORD_TYPE, TASKS_PATH } from '@/sdk'
 
-function TaskActions({ record }: { record: RecordItem }) {
+type TaskDialog = 'reassign' | 'schedule' | 'delete'
+
+interface TaskDialogState {
+  dialog: TaskDialog | null
+  onDialog: (dialog: TaskDialog | null) => void
+}
+
+function TaskHeaderAction({ record, dialog, onDialog }: { record: RecordItem } & TaskDialogState) {
   const { t } = useTranslation('tasks')
   const { hasPermission } = useSession()
   const navigate = useNavigate()
-  const toggle = useToggleActivity()
+  const activity = record as unknown as Activity
+  const actions = useActivityActions(activity)
   const remove = useDeleteActivity()
-  const [confirming, setConfirming] = useState(false)
-  const [booking, setBooking] = useState(false)
-  const done = record.status === 'done'
-  const title = typeof record.title === 'string' ? record.title : ''
-
-  const onToggle = () =>
-    toggle.mutate(
-      { id: record.id, done: !done },
-      {
-        onSuccess: () =>
-          toast({ title: t(done ? 'tab.reopenedToast' : 'tab.completedToast', { title }), variant: 'success' }),
-        onError: (error) => toast({ title: t(activityErrorKey(error)), variant: 'destructive' }),
-      },
-    )
+  const done = activity.status === 'done'
+  const title = activity.title
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {hasPermission('tasks.update') && record.status !== 'canceled' && (
-        <Button size="sm" variant={done ? 'outline' : 'default'} onClick={onToggle} disabled={toggle.isPending}>
+    <>
+      {hasPermission('tasks.update') && activity.status !== 'canceled' && (
+        <Button
+          size="sm"
+          variant={done ? 'outline' : 'default'}
+          disabled={actions.pending}
+          onClick={() => actions.setDone(!done)}
+        >
           {done ? <RotateCcw aria-hidden="true" /> : <SquareCheck aria-hidden="true" />}
           {t(done ? 'detail.reopen' : 'detail.complete')}
         </Button>
       )}
-      {hasPermission('tasks.update') && record.status === 'open' && (
-        <Button size="sm" variant="outline" onClick={() => setBooking(true)}>
-          <CalendarClock aria-hidden="true" />
-          {t('schedule.open')}
-        </Button>
-      )}
-      {hasPermission('tasks.delete') && (
-        <Button size="sm" variant="outline" onClick={() => setConfirming(true)}>
-          <Trash2 aria-hidden="true" />
-          {t('detail.delete')}
-        </Button>
-      )}
       <ActivityScheduleDialog
         activity={record as unknown as ScheduledActivity}
-        open={booking}
-        onOpenChange={setBooking}
+        open={dialog === 'schedule'}
+        onOpenChange={(open) => onDialog(open ? 'schedule' : null)}
+      />
+      <ReassignDialog
+        item={dialog === 'reassign' ? activity : null}
+        onOpenChange={(open) => !open && onDialog(null)}
+        onConfirm={(_, ownerId) => {
+          onDialog(null)
+          void actions.reassign(ownerId)
+        }}
       />
       <ConfirmDialog
-        open={confirming}
-        onOpenChange={setConfirming}
+        open={dialog === 'delete'}
+        onOpenChange={(open) => !open && onDialog(null)}
         title={t('detail.deleteTitle')}
         description={t('detail.deleteDescription', { title })}
         confirmLabel={t('detail.delete')}
         variant="destructive"
         pending={remove.isPending}
         onConfirm={async () => {
-          await remove.mutateAsync(record.id)
+          await remove.mutateAsync(activity.id)
           toast({ title: t('detail.deleted'), variant: 'success' })
           navigate(TASKS_PATH)
         }}
       />
-    </div>
+    </>
+  )
+}
+
+function TaskMenu({ record, onDialog }: { record: RecordItem } & Pick<TaskDialogState, 'onDialog'>) {
+  const { t } = useTranslation('tasks')
+  const { t: tl } = useTranslation('tasks', { keyPrefix: 'list' })
+  const { hasPermission } = useSession()
+  const activity = record as unknown as Activity
+  const actions = useActivityActions(activity)
+  const open = activity.status === 'open'
+  const canUpdate = hasPermission('tasks.update')
+  const canDelete = hasPermission('tasks.delete')
+
+  return (
+    <>
+      {canUpdate && open && (
+        <>
+          <RecordActionItem icon={CalendarPlus} label={tl('actions.postponeDay')} onSelect={() => actions.postpone(1)} />
+          <RecordActionItem icon={CalendarPlus} label={tl('actions.postponeWeek')} onSelect={() => actions.postpone(7)} />
+          <RecordActionItem icon={UserRoundPen} label={tl('actions.reassign')} onSelect={() => onDialog('reassign')} />
+          <RecordActionItem icon={CalendarClock} label={t('schedule.open')} onSelect={() => onDialog('schedule')} />
+        </>
+      )}
+      {canDelete && (
+        <>
+          {canUpdate && open && <RecordActionsDivider />}
+          <RecordActionItem icon={Trash2} label={t('detail.delete')} destructive onSelect={() => onDialog('delete')} />
+        </>
+      )}
+    </>
   )
 }
 
 export function TaskDetailPage() {
   const { t } = useTranslation('tasks')
   const { id = '' } = useParams()
+  const [dialog, setDialog] = useState<TaskDialog | null>(null)
   return (
     <RecordDetailPage
       recordType={ACTIVITY_RECORD_TYPE}
@@ -87,7 +116,8 @@ export function TaskDetailPage() {
       fieldKeys={TASK_DETAIL_FIELDS}
       readOnlyFieldKeys={['id', 'created_at', 'updated_at', 'created_by', 'completed_at', 'status']}
       back={{ to: TASKS_PATH, label: t('detail.back') }}
-      actions={(record) => <TaskActions record={record} />}
+      primaryAction={(record) => <TaskHeaderAction record={record} dialog={dialog} onDialog={setDialog} />}
+      actions={(record) => <TaskMenu record={record} onDialog={setDialog} />}
       tabs={[
         {
           key: 'notes',

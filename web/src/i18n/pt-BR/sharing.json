@@ -3,7 +3,7 @@
     "share": "Compartilhar"
   },
   "dialog": {
-    "title": "Compartilhar registro",
+    "title": "Compartilhar",
     "description": "Dê acesso a este registro para pessoas ou equipes além do que os papéis já permitem. Compartilhar nunca permite excluir nem compartilhar de novo.",
     "empty": "Este registro ainda não foi compartilhado.",
     "listLabel": "Compartilhamentos",

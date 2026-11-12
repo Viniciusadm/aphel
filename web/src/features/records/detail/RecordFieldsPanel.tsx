@@ -60,6 +60,12 @@ export function RecordFieldsPanel({
       })),
     )
   }, [layout, fields, record, context])
+  const hideEmptyReadOnly = (list: FieldDefinition[]) =>
+    list.filter((field) => {
+      if (!readOnlyFieldKeys.includes(field.key)) return true
+      const value = getFieldValue(record, field)
+      return !(value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0))
+    })
   const empty = groups.every((group) => group.fields.length === 0)
 
   return (
@@ -74,7 +80,7 @@ export function RecordFieldsPanel({
               {group.title && <h3 className="border-t pt-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">{group.title}</h3>}
               {group.subtitle && <h4 className="text-sm font-medium">{group.subtitle}</h4>}
               <dl className={cn('grid gap-3', columns === 2 && 'md:grid-cols-2 md:gap-x-8')}>
-                {group.fields.map((field) => (
+                {hideEmptyReadOnly(group.fields).map((field) => (
                   <div key={field.key} data-field={field.key} className={cn('grid min-w-0 gap-1', columns === 2 && WIDE_TYPES.has(field.field_type) && 'md:col-span-2')}>
                     <dt className="text-xs font-medium text-muted-foreground">{field.label}</dt>
                     <dd className="min-w-0 text-sm">

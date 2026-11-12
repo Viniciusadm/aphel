@@ -1,8 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
-import { createContext, useContext } from 'react'
+import { useContext } from 'react'
 import { cn } from '@/lib/utils'
-
-export const RecordActionsContext = createContext<{ close: () => void }>({ close: () => undefined })
+import { RecordActionsContext } from './actions-context'
 
 export interface RecordActionItemProps {
   icon?: LucideIcon

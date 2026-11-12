@@ -92,7 +92,11 @@
     "submitTask": "Create task",
     "submitLog": "Log",
     "createdToast": "Task created",
-    "loggedToast": "Activity logged"
+    "loggedToast": "Activity logged",
+    "editTitle": "Edit task",
+    "editDescription": "Change what you need and save.",
+    "save": "Save",
+    "updatedToast": "Task updated"
   },
   "detail": {
     "back": "Tasks",
@@ -232,7 +236,7 @@
     }
   },
   "schedule": {
-    "open": "Schedule",
+    "open": "Due date and repeat",
     "title": "Schedule",
     "description": "Due date, reminder and repetition of “{{title}}”.",
     "occurrence": "Occurrence {{index}}",

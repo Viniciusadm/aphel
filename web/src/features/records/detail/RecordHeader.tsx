@@ -2,7 +2,7 @@ import { MoreHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useState, type ReactNode } from 'react'
-import { RecordActionsContext } from './RecordActionItem'
+import { RecordActionsContext } from './actions-context'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/ui/page-header'
 

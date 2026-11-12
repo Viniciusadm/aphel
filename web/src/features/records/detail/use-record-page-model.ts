@@ -69,17 +69,16 @@ export function useRecordPageModel({
   const contextualBack = back && returnTo ? { ...back, to: returnTo } : back
   const resource = requireRecordResource(recordType)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [editing, setEditing] = useState(false)
   const EditDialog = resource.editDialog
+  const [editing, setEditing] = useState(() => Boolean(EditDialog) && searchParams.get('edit') === '1')
   useEffect(() => {
-    if (!EditDialog || searchParams.get('edit') !== '1') return
-    setEditing(true)
+    if (searchParams.get('edit') !== '1') return
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
       next.delete('edit')
       return next
     }, { replace: true })
-  }, [EditDialog, searchParams, setSearchParams])
+  }, [searchParams, setSearchParams])
   const edit = EditDialog
     ? () => setEditing(true)
     : () => void navigate(`/records/${encodeURIComponent(recordType)}/${encodeURIComponent(record.id)}/edit`, { state: { returnTo: `${location.pathname}${location.search}`, listReturnTo: returnTo } })

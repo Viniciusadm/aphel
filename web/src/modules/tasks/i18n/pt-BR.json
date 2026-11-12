@@ -92,7 +92,11 @@
     "submitTask": "Criar tarefa",
     "submitLog": "Registrar",
     "createdToast": "Tarefa criada",
-    "loggedToast": "Atividade registrada"
+    "loggedToast": "Atividade registrada",
+    "editTitle": "Editar tarefa",
+    "editDescription": "Altere o que precisar e salve.",
+    "save": "Salvar",
+    "updatedToast": "Tarefa atualizada"
   },
   "detail": {
     "back": "Tarefas",
@@ -232,7 +236,7 @@
     }
   },
   "schedule": {
-    "open": "Agendamento",
+    "open": "Prazo e repetição",
     "title": "Agendamento",
     "description": "Prazo, lembrete e repetição de “{{title}}”.",
     "occurrence": "Ocorrência {{index}}",
