@@ -22,7 +22,8 @@
     "label": "Modo de exibição",
     "table": "Tabela",
     "calendar": "Calendário",
-    "field": "Campo de data do calendário"
+    "field": "Campo de data do calendário",
+    "list": "Lista"
   },
   "records": {
     "byField": "Por {{field}}",

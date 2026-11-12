@@ -230,5 +230,8 @@
     "reset": "Clear filters and sorting",
     "cardFields": "Card fields"
   },
-  "collectionActions": "List actions"
+  "collectionActions": "List actions",
+  "presets": {
+    "label": "Ready filters"
+  }
 }

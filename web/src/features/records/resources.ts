@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import type { ComponentType } from 'react'
 import type { RecordItem } from './types'
 
 export interface RecordResource {
@@ -15,6 +16,15 @@ export interface RecordResource {
   summaryFields?: string[]
   subtitleField?: string
   detailPath?: (id: string) => string
+  listItem?: ComponentType<{ record: RecordItem }>
+  listGroups?: (records: RecordItem[], context: { timezone: string }) => RecordListGroup[]
+  defaultLayout?: 'list'
+}
+
+export interface RecordListGroup {
+  key: string
+  title: string
+  items: RecordItem[]
 }
 
 const resources = new Map<string, RecordResource>()

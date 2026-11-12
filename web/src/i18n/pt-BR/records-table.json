@@ -230,5 +230,8 @@
     "reset": "Limpar filtros e ordenação",
     "cardFields": "Campos dos cartões"
   },
-  "collectionActions": "Ações da lista"
+  "collectionActions": "Ações da lista",
+  "presets": {
+    "label": "Filtros prontos"
+  }
 }

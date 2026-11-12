@@ -2,7 +2,7 @@ import { RecordListActions } from './RecordListActions'
 import { MobileRecordToolbar, type MobileListOptions } from './MobileRecordToolbar'
 import { useMediaQuery } from '../calendar/useMediaQuery'
 import { SegmentedControl } from '@/components/ui/segmented-control'
-import { CalendarDays, SearchX, SlidersHorizontal, Table2 } from 'lucide-react'
+import { CalendarDays, List, SearchX, SlidersHorizontal, Table2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
@@ -40,6 +40,7 @@ import { DensityToggle } from './DensityToggle'
 import { PageSizeSelect } from '@/components/ui/page-size-select'
 import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Pagination } from '@/components/ui/pagination'
+import { RecordCardList } from './RecordCardList'
 import { RecordTable } from './RecordTable'
 import { SearchBox } from './SearchBox'
 import { useRecordList } from './useRecordList'
@@ -63,8 +64,21 @@ export interface BulkActionContext {
   clearSelection: () => void
 }
 
+export interface RecordListPreset {
+  key: string
+  label: string
+  filter: FilterNode | null
+  sort?: SortSpec[]
+  emptyTitle?: string
+  emptyDescription?: string
+}
+
+const PRESET_PARAM = 'preset'
+
 export interface RecordListViewProps {
   recordType: string
+  presets?: RecordListPreset[]
+  defaultPreset?: string
   emptyAction?: ReactNode
   toolbarActions?: ReactNode
   bulkActions?: (context: BulkActionContext) => ReactNode
@@ -103,6 +117,8 @@ interface RecordListContentProps extends RecordListViewProps {
 
 function RecordListContent({
   recordType,
+  presets,
+  defaultPreset,
   schema,
   emptyAction,
   toolbarActions,
@@ -143,19 +159,29 @@ function RecordListContent({
   const config = useMemo(() => resolveConfig(urlState, baseConfig), [urlState, baseConfig])
   const dateFields = useMemo(() => calendarFields(schema), [schema])
   const viewCalendar = viewCalendarConfig(activeView)
-  const baseLayout: ListLayout = dateFields.length > 0 ? viewCalendar.layout : 'table'
+  const hasListLayout = Boolean(resource.listItem)
+  const allowedLayout = (candidate: ListLayout | undefined): candidate is ListLayout =>
+    candidate === 'table' || (candidate === 'calendar' && dateFields.length > 0) || (candidate === 'list' && hasListLayout)
+  const calendarBase: ListLayout = dateFields.length > 0 ? viewCalendar.layout : 'table'
+  const baseLayout: ListLayout = activeView ? calendarBase : hasListLayout && resource.defaultLayout === 'list' ? 'list' : calendarBase
   const baseCalendarField = pickCalendarField(dateFields, viewCalendar.field)
-  const layout: ListLayout = dateFields.length > 0 ? (urlState.layout ?? baseLayout) : 'table'
+  const layout: ListLayout = allowedLayout(urlState.layout) ? urlState.layout : baseLayout
+  const showList = layout === 'list'
   const calendarField = pickCalendarField(dateFields, urlState.calendarField ?? viewCalendar.field)
   const showCalendar = layout === 'calendar' && calendarField !== null
   const layoutModified =
     layout !== baseLayout || (layout === 'calendar' && calendarField?.key !== baseCalendarField?.key)
   const isModified = !sameConfig(config, baseConfig) || layoutModified
+  const presetKey = searchParams.get(PRESET_PARAM) ?? defaultPreset ?? presets?.[0]?.key
+  const activePreset = presets?.find((preset) => preset.key === presetKey) ?? presets?.[0]
+  const presetFilter = activePreset?.filter ?? null
   const listFilter = useMemo<FilterNode | null>(() => {
-    if (!baseFilter) return config.filter
-    if (!config.filter) return baseFilter
-    return { op: 'and', conditions: [baseFilter, config.filter] }
-  }, [baseFilter, config.filter])
+    const parts = [presetFilter, baseFilter ?? null, config.filter].filter((part): part is FilterNode => part !== null)
+    if (parts.length === 0) return null
+    if (parts.length === 1) return parts[0]
+    return { op: 'and', conditions: parts }
+  }, [presetFilter, baseFilter, config.filter])
+  const sort = urlState.sort ?? (activeView ? config.sort : (activePreset?.sort ?? config.sort))
   const ready = !viewsQuery.isPending && !needsDefault
 
   const list = useRecordList(
@@ -164,14 +190,14 @@ function RecordListContent({
       page: urlState.page,
       perPage: urlState.perPage,
       filter: listFilter,
-      sort: config.sort,
+      sort,
       search: urlState.search,
       archived: archivedMode === 'exclude' ? archived : archivedMode,
     },
     { enabled: ready && !showCalendar },
   )
 
-  const selectionScope = JSON.stringify([requestedView, listFilter, urlState.search, archivedMode])
+  const selectionScope = JSON.stringify([requestedView, listFilter, urlState.search, archivedMode, activePreset?.key])
   const [selection, setSelection] = useState<{ scope: string; ids: string[]; allMatching: boolean }>({
     scope: selectionScope,
     ids: [],
@@ -213,6 +239,14 @@ function RecordListContent({
   const setDensity = (density: TableDensity) => update({ density })
   const setSearch = (search: string) => update({ search, page: 1 }, true)
   const setLayout = (next: ListLayout) => update({ layout: next, page: 1 })
+  const setPreset = (key: string) =>
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current)
+      if (key === (defaultPreset ?? presets?.[0]?.key)) next.delete(PRESET_PARAM)
+      else next.set(PRESET_PARAM, key)
+      next.delete('page')
+      return next
+    })
   const setCalendarField = (key: string) => update({ calendarField: key })
   const clearFilters = () => update({ filter: null, search: '', page: 1 })
   const selectView = (viewId: string) =>
@@ -278,18 +312,25 @@ function RecordListContent({
     )
   } else if (!isLoading && items.length === 0 && urlState.page <= 1) {
     body = (
-      <EmptyState title={t('states.emptyTitle')} description={t('states.emptyDescription')} action={emptyAction} />
+      <EmptyState
+        title={activePreset?.emptyTitle ?? t('states.emptyTitle')}
+        description={activePreset?.emptyDescription ?? t('states.emptyDescription')}
+        action={emptyAction}
+      />
     )
   } else {
     body = (
       <>
         {!isLoading && <PaginationSummary page={urlState.page} perPage={urlState.perPage} total={total} />}
+        {showList ? (
+          <RecordCardList resource={resource} records={items} isLoading={isLoading} />
+        ) : (
         <RecordTable
           schema={schema}
           resource={resource}
           records={items}
           columns={config.columns}
-          sort={config.sort}
+          sort={sort}
           onSortChange={setSort}
           mobileSorting={false}
           density={config.density}
@@ -301,6 +342,7 @@ function RecordListContent({
           rowClassName={rowClassName}
           titleAddon={combinedTitleAddon}
         />
+        )}
         {!isLoading && (
           <Pagination
             page={urlState.page}
@@ -313,6 +355,15 @@ function RecordListContent({
     )
   }
 
+  const presetSwitcher = presets && presets.length > 1 && activePreset && (
+    <SegmentedControl
+      aria-label={t('presets.label')}
+      size="sm"
+      value={activePreset.key}
+      onValueChange={setPreset}
+      options={presets.map((preset) => ({ value: preset.key, label: preset.label }))}
+    />
+  )
   const viewSwitcher = (
     <ViewSwitcher
           recordType={recordType}
@@ -348,7 +399,8 @@ function RecordListContent({
         schema={extensions.filterSchema}
         titleField={resource.titleField}
         resetColumns={baseConfig.columns}
-        view={<>{viewSwitcher}{toolbarActions}<RecordListActions recordType={recordType} /></>}
+        view={<>{presetSwitcher}{viewSwitcher}{toolbarActions}<RecordListActions recordType={recordType} /></>}
+        listLayout={hasListLayout}
         search={urlState.search}
         onSearch={setSearch}
         options={{ filter: config.filter, sort: config.sort, columns: config.columns, density: config.density, archived: archivedMode, layout, perPage: urlState.perPage, calendarField: calendarField?.key ?? '' }}
@@ -357,15 +409,18 @@ function RecordListContent({
         onApply={applyMobileOptions}
       /> : (
       <div className="flex min-w-0 flex-wrap items-center gap-2">
+        {presetSwitcher}
         {viewSwitcher}
         <SearchBox value={urlState.search} onChange={setSearch} className="w-full sm:w-64" />
         <FilterMenu schema={extensions.filterSchema} filter={config.filter} onApply={setFilter} />
         <Slot name="record.list.toolbar" props={{ recordType, filter: config.filter, applyFilter: setFilter }} />
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          {dateFields.length > 0 && (
+          {(dateFields.length > 0 || hasListLayout) && (
             <LayoutToggle
-              layout={showCalendar ? 'calendar' : 'table'}
+              layout={showCalendar ? 'calendar' : showList ? 'list' : 'table'}
               onChange={setLayout}
+              withList={hasListLayout}
+              withCalendar={dateFields.length > 0}
             />
           )}
           <Popover>
@@ -444,9 +499,11 @@ function RecordListContent({
 interface LayoutToggleProps {
   layout: ListLayout
   onChange: (layout: ListLayout) => void
+  withList: boolean
+  withCalendar: boolean
 }
 
-function LayoutToggle({ layout, onChange }: LayoutToggleProps) {
+function LayoutToggle({ layout, onChange, withList, withCalendar }: LayoutToggleProps) {
   const { t } = useTranslation('records-calendar')
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -456,8 +513,9 @@ function LayoutToggle({ layout, onChange }: LayoutToggleProps) {
         value={layout}
         onValueChange={onChange}
         options={[
-          { value: 'table', label: t('layout.table'), icon: <Table2 aria-hidden /> },
-          { value: 'calendar', label: t('layout.calendar'), icon: <CalendarDays aria-hidden /> },
+          ...(withList ? [{ value: 'list' as const, label: t('layout.list'), icon: <List aria-hidden /> }] : []),
+          { value: 'table' as const, label: t('layout.table'), icon: <Table2 aria-hidden /> },
+          ...(withCalendar ? [{ value: 'calendar' as const, label: t('layout.calendar'), icon: <CalendarDays aria-hidden /> }] : []),
         ]}
       />
     </div>

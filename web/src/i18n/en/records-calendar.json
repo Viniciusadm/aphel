@@ -22,7 +22,8 @@
     "label": "Display mode",
     "table": "Table",
     "calendar": "Calendar",
-    "field": "Calendar date field"
+    "field": "Calendar date field",
+    "list": "List"
   },
   "records": {
     "byField": "By {{field}}",

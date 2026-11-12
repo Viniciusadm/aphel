@@ -37,10 +37,11 @@ interface MobileRecordToolbarProps {
   options: MobileListOptions
   allowArchived: boolean
   dateFields: { key: string; label: string }[]
+  listLayout?: boolean
   onApply: (value: MobileListOptions) => void
 }
 
-export function MobileRecordToolbar({ recordType, schema: baseSchema, titleField, resetColumns, view, search, onSearch, options, allowArchived, dateFields, onApply }: MobileRecordToolbarProps) {
+export function MobileRecordToolbar({ recordType, schema: baseSchema, titleField, resetColumns, view, search, onSearch, options, allowArchived, dateFields, listLayout = false, onApply }: MobileRecordToolbarProps) {
   const { t } = useTranslation('records-table')
   const { t: calendar } = useTranslation('records-calendar')
   const { t: common } = useTranslation()
@@ -107,7 +108,7 @@ export function MobileRecordToolbar({ recordType, schema: baseSchema, titleField
           <details className="min-w-0 border-t pt-4">
             <summary className="min-h-11 cursor-pointer text-sm font-semibold">{t('display.title')}</summary>
             <div className="grid gap-4 pt-3">
-              {dateFields.length > 0 && <label className="grid gap-2 text-sm"><span>{calendar('layout.label')}</span><NativeSelect value={draft.layout} onValueChange={(layout) => setDraft((current) => ({ ...current, layout: layout as ListLayout }))}><option value="table">{calendar('layout.table')}</option><option value="calendar">{calendar('layout.calendar')}</option></NativeSelect></label>}
+              {(dateFields.length > 0 || listLayout) && <label className="grid gap-2 text-sm"><span>{calendar('layout.label')}</span><NativeSelect value={draft.layout} onValueChange={(layout) => setDraft((current) => ({ ...current, layout: layout as ListLayout }))}>{listLayout && <option value="list">{calendar('layout.list')}</option>}<option value="table">{calendar('layout.table')}</option>{dateFields.length > 0 && <option value="calendar">{calendar('layout.calendar')}</option>}</NativeSelect></label>}
               {draft.layout === 'calendar' && dateFields.length > 0 && <label className="grid gap-2 text-sm"><span>{calendar('layout.field')}</span><NativeSelect value={draft.calendarField} onValueChange={(calendarField) => setDraft((current) => ({ ...current, calendarField }))}>{dateFields.map((field) => <option key={field.key} value={field.key}>{field.label}</option>)}</NativeSelect></label>}
               {draft.layout !== 'calendar' && <PageSizeSelect value={draft.perPage} onChange={(perPage) => setDraft((current) => ({ ...current, perPage }))} />}
               {draft.layout !== 'calendar' && <ColumnsMenu label={t('mobileControls.cardFields')} schema={schema} columns={draft.columns} titleField={titleField} onChange={(columns) => setDraft((current) => ({ ...current, columns }))} onReset={() => setDraft((current) => ({ ...current, columns: resetColumns }))} />}

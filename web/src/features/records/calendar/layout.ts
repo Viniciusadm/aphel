@@ -1,7 +1,7 @@
 import { activeFields } from '../fields'
 import type { FieldDefinition, FieldSchema, SavedView } from '../types'
 
-export type ListLayout = 'table' | 'calendar'
+export type ListLayout = 'table' | 'calendar' | 'list'
 
 export const CALENDAR_VIEW_TYPE = 'calendar'
 export const CALENDAR_FIELD_SETTING = 'calendar_field'
@@ -46,5 +46,5 @@ export function viewCalendarConfig(view: SavedView | undefined): ViewCalendarCon
 }
 
 export function parseLayout(raw: string | null): ListLayout | undefined {
-  return raw === 'calendar' || raw === 'table' ? raw : undefined
+  return raw === 'calendar' || raw === 'table' || raw === 'list' ? raw : undefined
 }
