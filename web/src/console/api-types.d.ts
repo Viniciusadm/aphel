@@ -581,6 +581,7 @@ export interface components {
                 data_exported_at?: string | null;
                 data_purged_at?: string | null;
                 dependencies: components["schemas"]["ModuleDependencyResponse"][];
+                dependents: components["schemas"]["ModuleLinkResponse"][];
                 description: string;
                 disabled_at?: string | null;
                 enabled: boolean;
@@ -594,6 +595,7 @@ export interface components {
                 key: string;
                 min_aphel_version: string;
                 name: string;
+                optional_dependencies: components["schemas"]["ModuleLinkResponse"][];
                 permissions: components["schemas"]["ModulePermissionResponse"][];
                 required: boolean;
                 settings: Record<string, never>;
@@ -662,6 +664,7 @@ export interface components {
                 data_exported_at?: string | null;
                 data_purged_at?: string | null;
                 dependencies: components["schemas"]["ModuleDependencyResponse"][];
+                dependents: components["schemas"]["ModuleLinkResponse"][];
                 description: string;
                 disabled_at?: string | null;
                 enabled: boolean;
@@ -675,6 +678,7 @@ export interface components {
                 key: string;
                 min_aphel_version: string;
                 name: string;
+                optional_dependencies: components["schemas"]["ModuleLinkResponse"][];
                 permissions: components["schemas"]["ModulePermissionResponse"][];
                 required: boolean;
                 settings: Record<string, never>;
@@ -773,6 +777,11 @@ export interface components {
             description: string;
             event_type: string;
         };
+        ModuleLinkResponse: {
+            enabled: boolean;
+            key: string;
+            optional: boolean;
+        };
         ModulePermissionResponse: {
             label: string;
             permission: string;
@@ -784,6 +793,7 @@ export interface components {
             data_exported_at?: string | null;
             data_purged_at?: string | null;
             dependencies: components["schemas"]["ModuleDependencyResponse"][];
+            dependents: components["schemas"]["ModuleLinkResponse"][];
             description: string;
             disabled_at?: string | null;
             enabled: boolean;
@@ -797,6 +807,7 @@ export interface components {
             key: string;
             min_aphel_version: string;
             name: string;
+            optional_dependencies: components["schemas"]["ModuleLinkResponse"][];
             permissions: components["schemas"]["ModulePermissionResponse"][];
             required: boolean;
             settings: Record<string, never>;
