@@ -149,7 +149,7 @@
     "request": "Solicitar aprovação"
   },
   "inbox": {
-    "title": "Minhas aprovações",
+    "title": "Aprovações",
     "description": "Pedidos que aguardam sua decisão e os que você solicitou.",
     "boxes": {
       "pending_for_me": "Para mim",
@@ -185,7 +185,7 @@
     "lockedFields": "Campos bloqueados enquanto pendente: {{fields}}"
   },
   "settings": {
-    "title": "Aprovações",
+    "title": "Políticas de aprovação",
     "description": "Políticas que exigem aprovação antes de mudar de etapa, enviar cotações ou sob demanda. A ordem define a prioridade.",
     "new": "Nova política",
     "listLabel": "Políticas de aprovação",
@@ -266,5 +266,9 @@
     "name": "Ex.: Desconto acima de 10%",
     "key": "Ex.: desconto_acima_10",
     "description": "Descreva quando esta política se aplica"
+  },
+  "tabs": {
+    "requests": "Pedidos",
+    "policies": "Políticas"
   }
 }

@@ -35,7 +35,6 @@
     "products": "Products and items",
     "quotes": "Quotes",
     "currencies": "Currencies and exchange rates",
-    "approvals": "Approvals",
     "lifecycle": "Lifecycle",
     "validationRules": "Validation rules",
     "scoring": "Lead scoring",
@@ -368,9 +367,6 @@
     },
     "currencies": {
       "description": "Enabled currencies and exchange rates to the base currency."
-    },
-    "approvals": {
-      "description": "Approval policies for stages, quotes and on-demand requests."
     },
     "lifecycle": {
       "description": "Automatic lifecycle stage transitions and lead disqualification reasons."

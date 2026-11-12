@@ -9,29 +9,19 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { toast } from '@/components/ui/toast-store'
-import { RequirePermission, usePipelines } from '@/sdk'
+import { usePipelines } from '@/sdk'
 import {approvalsApi, useApprovalPolicies, usePolicyMutation} from '@/sdk'
-import {APPROVALS_MANAGE_PERMISSION} from '@/sdk'
 import {approvalErrorKey} from '@/sdk'
 import { useRecordTypeLabel } from '../lib/labels'
 import type {ApprovalPolicy} from '@/sdk'
 import { PolicyEditorDialog } from './PolicyEditorDialog'
 import { PageHeader } from '@/components/ui/page-header'
-import { Page } from '@/components/ui/page'
 
 interface EditorState {
   policy: ApprovalPolicy | null
 }
 
-export function ApprovalPoliciesPage() {
-  return (
-    <RequirePermission permission={APPROVALS_MANAGE_PERMISSION}>
-      <ApprovalPolicies />
-    </RequirePermission>
-  )
-}
-
-function ApprovalPolicies() {
+export function ApprovalPoliciesPanel() {
   const { t } = useTranslation('approvals')
   const policies = useApprovalPolicies()
   const [editor, setEditor] = useState<EditorState | null>(null)
@@ -98,8 +88,9 @@ function ApprovalPolicies() {
   }
 
   return (
-    <Page>
+    <div className="flex min-w-0 flex-col gap-6">
       <PageHeader
+        level="section"
         title={t('settings.title')}
         description={t('settings.description')}
         actions={ordered.length > 0 ? newButton : undefined}
@@ -131,7 +122,7 @@ function ApprovalPolicies() {
           setRemoving(null)
         }}
       />
-    </Page>
+    </div>
   )
 }
 

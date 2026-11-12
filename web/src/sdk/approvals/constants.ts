@@ -8,7 +8,7 @@ import type {
 } from "./types";
 
 export const APPROVALS_PATH = "/approvals";
-export const APPROVALS_SETTINGS_PATH = "/settings/approvals";
+export const APPROVALS_SETTINGS_PATH = "/approvals?tab=policies";
 export const APPROVALS_MANAGE_PERMISSION = "approvals.manage";
 export const APPROVALS_PER_PAGE = 25;
 export const POLICIES_PER_PAGE = 100;

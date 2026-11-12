@@ -19,10 +19,3 @@ export const approvalsRoutes: RouteObject[] = [
     ],
   },
 ]
-
-export const approvalsSettingsRoute: RouteObject = {
-  path: 'approvals',
-  lazy: async () => ({
-    Component: (await import('./settings/ApprovalPoliciesPage')).ApprovalPoliciesPage,
-  }),
-}

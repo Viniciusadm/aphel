@@ -149,7 +149,7 @@
     "request": "Request approval"
   },
   "inbox": {
-    "title": "My approvals",
+    "title": "Approvals",
     "description": "Requests awaiting your decision and the ones you requested.",
     "boxes": {
       "pending_for_me": "For me",
@@ -185,7 +185,7 @@
     "lockedFields": "Fields locked while pending: {{fields}}"
   },
   "settings": {
-    "title": "Approvals",
+    "title": "Approval policies",
     "description": "Policies that require approval before changing stage, sending quotes or on demand. The order sets the priority.",
     "new": "New policy",
     "listLabel": "Approval policies",
@@ -266,5 +266,9 @@
     "name": "E.g.: Discount above 10%",
     "key": "E.g.: discount_above_10",
     "description": "Describe when this policy applies"
+  },
+  "tabs": {
+    "requests": "Requests",
+    "policies": "Policies"
   }
 }

@@ -35,7 +35,6 @@
     "products": "Produtos e itens",
     "quotes": "Cotações",
     "currencies": "Moedas e câmbio",
-    "approvals": "Aprovações",
     "lifecycle": "Ciclo de vida",
     "validationRules": "Regras de validação",
     "scoring": "Pontuação de leads",
@@ -368,9 +367,6 @@
     },
     "currencies": {
       "description": "Moedas habilitadas e cotações para a moeda base."
-    },
-    "approvals": {
-      "description": "Políticas de aprovação para etapas, cotações e pedidos sob demanda."
     },
     "lifecycle": {
       "description": "Transições automáticas do estágio do ciclo de vida e motivos de desqualificação de leads."
