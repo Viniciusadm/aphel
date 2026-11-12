@@ -1,18 +1,19 @@
 import { activeLocale } from '@/lib/locale'
 import { publicUrl } from '@/sdk/app-base'
 
-export function formatDateTimeRange(startsAt: string, endsAt: string, timeZone?: string): string {
-  const start = new Date(startsAt)
-  const end = new Date(endsAt)
-  const date = new Intl.DateTimeFormat(activeLocale(), {
+export function formatBookingDate(startsAt: string, timeZone?: string): string {
+  return new Intl.DateTimeFormat(activeLocale(), {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
     year: 'numeric',
     timeZone,
-  }).format(start)
+  }).format(new Date(startsAt))
+}
+
+export function formatBookingTimes(startsAt: string, endsAt: string, timeZone?: string): string {
   const time = new Intl.DateTimeFormat(activeLocale(), { hour: '2-digit', minute: '2-digit', timeZone })
-  return `${date}, ${time.format(start)} – ${time.format(end)}`
+  return `${time.format(new Date(startsAt))} – ${time.format(new Date(endsAt))}`
 }
 
 export function publicBookingUrl(bookingPath: string): string {

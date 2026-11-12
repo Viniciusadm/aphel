@@ -173,7 +173,6 @@
     "upcomingOnly": "Upcoming only",
     "emptyTitle": "No bookings",
     "emptyDescription": "Bookings made through your links show up here.",
-    "host": "With {{name}}",
     "cancelReason": "Reason: {{reason}}",
     "cancel": "Cancel",
     "cancelTitle": "Cancel booking?",
@@ -182,7 +181,14 @@
     "reason": "Reason (optional)",
     "canceled": "Booking canceled",
     "notChangeable": "This booking can no longer be changed.",
-    "statusAll": "All"
+    "statusAll": "All",
+    "columns": {
+      "date": "Date",
+      "time": "Time",
+      "guest": "Guest",
+      "host": "Host",
+      "actions": "Actions"
+    }
   },
   "public": {
     "poweredBy": "Booking by Aphel",

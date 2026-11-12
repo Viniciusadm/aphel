@@ -173,7 +173,6 @@
     "upcomingOnly": "Somente próximos",
     "emptyTitle": "Nenhum agendamento",
     "emptyDescription": "Os agendamentos feitos pelos seus links aparecem aqui.",
-    "host": "Com {{name}}",
     "cancelReason": "Motivo: {{reason}}",
     "cancel": "Cancelar",
     "cancelTitle": "Cancelar agendamento?",
@@ -182,7 +181,14 @@
     "reason": "Motivo (opcional)",
     "canceled": "Agendamento cancelado",
     "notChangeable": "Este agendamento não pode mais ser alterado.",
-    "statusAll": "Todos"
+    "statusAll": "Todos",
+    "columns": {
+      "date": "Data",
+      "time": "Horário",
+      "guest": "Convidado",
+      "host": "Responsável",
+      "actions": "Ações"
+    }
   },
   "public": {
     "poweredBy": "Agendamento feito com Aphel",
