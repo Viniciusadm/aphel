@@ -201,7 +201,7 @@ export type Block =
 
 export const BLOCK_TYPES: BlockType[] = ['hero', 'text', 'image', 'text_image', 'gallery', 'columns', 'buttons', 'faq', 'testimonials', 'contact', 'form', 'booking', 'collection', 'embed', 'video', 'spacer']
 export const ITEM_LIMITS = { gallery: 24, columns: 4, faq: 30, testimonials: 12 } as const
-export const MAX_BLOCKS = 100
+export const MAX_BLOCKS = 300
 export const MAX_BUTTONS = 3
 export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 

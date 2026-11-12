@@ -18,5 +18,29 @@
   "Updated at": {
     "pt-BR": "Atualizado em",
     "en": "Updated at"
+  },
+  "Publication status": {
+    "pt-BR": "Situação da publicação",
+    "en": "Publication status"
+  },
+  "Draft": {
+    "pt-BR": "Rascunho",
+    "en": "Draft"
+  },
+  "Published": {
+    "pt-BR": "Publicado",
+    "en": "Published"
+  },
+  "Withdrawn": {
+    "pt-BR": "Fora do ar",
+    "en": "Withdrawn"
+  },
+  "Published at": {
+    "pt-BR": "Publicado em",
+    "en": "Published at"
+  },
+  "Revised at": {
+    "pt-BR": "Atualizado em",
+    "en": "Revised at"
   }
 }

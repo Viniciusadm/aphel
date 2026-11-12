@@ -6,7 +6,7 @@ use sqlx::{MySqlPool, Row};
 pub fn column_type(field_type: FieldType) -> &'static str {
     match field_type.base_type() {
         FieldType::Text => "VARCHAR(1024)",
-        FieldType::LongText => "TEXT",
+        FieldType::LongText | FieldType::Document => "MEDIUMTEXT",
         FieldType::Number | FieldType::Currency => "DECIMAL(24,6)",
         FieldType::Date => "DATE",
         FieldType::DateTime => "DATETIME(6)",
@@ -16,7 +16,7 @@ pub fn column_type(field_type: FieldType) -> &'static str {
         FieldType::Url => "VARCHAR(2048)",
         FieldType::Email => "VARCHAR(320)",
         FieldType::Phone => "VARCHAR(32)",
-        FieldType::User | FieldType::Record => "CHAR(36)",
+        FieldType::User | FieldType::Record | FieldType::File | FieldType::Image => "CHAR(36)",
         FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }

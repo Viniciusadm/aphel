@@ -156,7 +156,7 @@ fn bundle_of(
                 Some(entity) => {
                     for field in &public.fields {
                         let known = ALWAYS_PUBLIC_FIELDS.contains(&field.as_str())
-                            || entity.fields.iter().any(|declared| &declared.key == field);
+                            || entity.field_keys().contains(field);
                         if !known {
                             problems.push(format!(
                                 "site.public {}: {field} is not a field of the entity",

@@ -212,6 +212,10 @@ pub(crate) fn format_cell(
             other => ExportCell::Text(other.to_string()),
         },
         FieldType::References => ExportCell::Text(texts(value).join("; ")),
+        FieldType::File | FieldType::Image | FieldType::Document => match value {
+            Value::String(text) => ExportCell::Text(text.clone()),
+            other => ExportCell::Text(other.to_string()),
+        },
         FieldType::MultiSelect => ExportCell::Text(
             texts(value)
                 .into_iter()

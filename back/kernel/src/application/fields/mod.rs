@@ -37,7 +37,10 @@ mod storage;
 pub use storage::{EntityIndex, EntityStorage, managed_table};
 
 mod declaration;
-pub use declaration::{EntityDeclaration, FieldDef, OptionDef};
+pub use declaration::{
+    DRAFT_PREFIX, EntityDeclaration, FieldDef, OptionDef, PUBLICATION_STATES, PUBLISHED_AT_FIELD,
+    REVISED_AT_FIELD, publication_state_field,
+};
 
 mod references;
 pub use references::{DeletePolicy, ReferenceTarget, SoftReference};

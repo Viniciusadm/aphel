@@ -145,7 +145,7 @@ fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>,
         FieldType::Text | FieldType::Url | FieldType::Email | FieldType::Phone => row
             .try_get::<Option<String>, _>("value_text")?
             .map(FieldValue::Text),
-        FieldType::LongText => row
+        FieldType::LongText | FieldType::Document => row
             .try_get::<Option<String>, _>("value_long_text")?
             .map(FieldValue::LongText),
         FieldType::Number | FieldType::Currency => row
@@ -169,7 +169,7 @@ fn decode(field: &FieldDefinition, row: &MySqlRow) -> Result<Option<FieldValue>,
             .try_get::<Option<String>, _>("value_text")?
             .and_then(|id| UserId::new(id).ok())
             .map(FieldValue::User),
-        FieldType::Record => row
+        FieldType::Record | FieldType::File | FieldType::Image => row
             .try_get::<Option<String>, _>("value_text")?
             .and_then(|id| Uuid::parse_str(&id).ok())
             .map(FieldValue::Record),

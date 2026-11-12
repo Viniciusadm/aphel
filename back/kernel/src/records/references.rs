@@ -71,7 +71,56 @@ pub async fn validate(
             return Err(invalid(&reference.field));
         }
     }
+    validate_files(tx, source, record, values).await
+}
+
+async fn validate_files(
+    tx: &mut MySqlTx,
+    source: &EntityDefinition,
+    record: &RecordRef,
+    values: &Value,
+) -> Result<(), AppError> {
+    for field in source
+        .system_fields
+        .iter()
+        .filter(|field| field.field_type.is_file() && !field.owner_managed)
+    {
+        let Some(value) = values
+            .get(field.key.as_str())
+            .filter(|value| !value.is_null())
+        else {
+            continue;
+        };
+        let id = value
+            .as_str()
+            .and_then(|value| Uuid::parse_str(value.trim()).ok())
+            .ok_or_else(|| invalid_file(field.key.as_str(), "must be a valid file id"))?;
+        let mime: Option<String> = sqlx::query_scalar(
+            "SELECT f.mime_type FROM attachments a JOIN files f ON f.id = a.file_id \
+             WHERE a.file_id = ? AND a.record_type = ? AND a.record_id = ? AND f.deleted_at IS NULL",
+        )
+        .bind(id.to_string())
+        .bind(record.record_type.as_str())
+        .bind(record.record_id.to_string())
+        .fetch_optional(&mut **tx)
+        .await?;
+        let Some(mime) = mime else {
+            return Err(invalid_file(
+                field.key.as_str(),
+                "must be a file attached to this record",
+            ));
+        };
+        if field.field_type.base_type() == crate::domain::fields::FieldType::Image
+            && !mime.starts_with("image/")
+        {
+            return Err(invalid_file(field.key.as_str(), "must be an image"));
+        }
+    }
     Ok(())
+}
+
+fn invalid_file(field: &str, message: &str) -> AppError {
+    AppError::invalid_fields("invalid file", vec![FieldViolation::new(field, message)])
 }
 
 fn invalid(field: &str) -> AppError {

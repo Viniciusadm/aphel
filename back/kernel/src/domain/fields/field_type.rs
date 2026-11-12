@@ -15,6 +15,9 @@ pub enum FieldType {
     User,
     Record,
     References,
+    File,
+    Image,
+    Document,
     Custom {
         key: &'static str,
         base: &'static str,
@@ -48,7 +51,7 @@ impl ValueColumn {
 }
 
 impl FieldType {
-    pub const ALL: [Self; 15] = [
+    pub const ALL: [Self; 18] = [
         Self::Text,
         Self::LongText,
         Self::Number,
@@ -64,6 +67,9 @@ impl FieldType {
         Self::User,
         Self::Record,
         Self::References,
+        Self::File,
+        Self::Image,
+        Self::Document,
     ];
 
     pub fn as_str(&self) -> &'static str {
@@ -83,6 +89,9 @@ impl FieldType {
             Self::User => "user",
             Self::Record => "record",
             Self::References => "references",
+            Self::File => "file",
+            Self::Image => "image",
+            Self::Document => "document",
             Self::Custom { key, .. } => key,
         }
     }
@@ -109,10 +118,15 @@ impl FieldType {
 
     pub fn value_column(&self) -> ValueColumn {
         match self.base_type() {
-            Self::Text | Self::Url | Self::Email | Self::Phone | Self::User | Self::Record => {
-                ValueColumn::Text
-            }
-            Self::LongText => ValueColumn::LongText,
+            Self::Text
+            | Self::Url
+            | Self::Email
+            | Self::Phone
+            | Self::User
+            | Self::Record
+            | Self::File
+            | Self::Image => ValueColumn::Text,
+            Self::LongText | Self::Document => ValueColumn::LongText,
             Self::Number | Self::Currency => ValueColumn::Number,
             Self::Date => ValueColumn::Date,
             Self::DateTime => ValueColumn::DateTime,
@@ -144,8 +158,23 @@ impl FieldType {
     pub fn is_sortable(&self) -> bool {
         !matches!(
             self.base_type(),
-            Self::MultiSelect | Self::LongText | Self::User | Self::Record | Self::References
+            Self::MultiSelect
+                | Self::LongText
+                | Self::User
+                | Self::Record
+                | Self::References
+                | Self::File
+                | Self::Image
+                | Self::Document
         )
+    }
+
+    pub fn is_file(&self) -> bool {
+        matches!(self.base_type(), Self::File | Self::Image)
+    }
+
+    pub fn holds_files(&self) -> bool {
+        matches!(self.base_type(), Self::File | Self::Image | Self::Document)
     }
 
     pub fn can_change_to(&self, target: Self) -> bool {

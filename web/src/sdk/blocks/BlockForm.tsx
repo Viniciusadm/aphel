@@ -137,7 +137,7 @@ export function BlockForm({ block, record, onChange, disabled }: BlockFormProps)
     case 'text':
       return (
         <div className="blocks-form">
-          <MarkdownField label={t('fields.text')} value={block.text} maxLength={20000} disabled={disabled} t={t} onChange={(text) => onChange({ ...block, text })} />
+          <MarkdownField label={t('fields.text')} value={block.text} maxLength={50000} disabled={disabled} t={t} onChange={(text) => onChange({ ...block, text })} />
           <Choice
             label={t('fields.width')}
             value={block.width}

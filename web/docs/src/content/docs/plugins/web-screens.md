@@ -301,7 +301,7 @@ These ids exist only when the owning built-in module is part of the installation
 fieldType(type: string, renderers: { Input?: ComponentType<FieldInputProps>; Display?: ComponentType<FieldDisplayProps> }): void
 ```
 
-`type` is a field type name such as `text`, `long_text`, `number`, `currency`, `date`, `datetime`, `select`, `multi_select`, `checkbox`, `url`, `email`, `phone`, `user`, `record` or `formula`. Renderers you register override the built-in ones for that type, the last registration winning. Writing `'<type>:<field key>'` targets only the field with that key, and it wins over the type-wide renderer.
+`type` is a field type name such as `text`, `long_text`, `number`, `currency`, `date`, `datetime`, `select`, `multi_select`, `checkbox`, `url`, `email`, `phone`, `user`, `record`, `references`, `file`, `image`, `document` or `formula`. Renderers you register override the built-in ones for that type, the last registration winning. Writing `'<type>:<field key>'` targets only the field with that key, and it wins over the type-wide renderer.
 
 `FieldInputProps`: `{ field, value, onChange(value), initialValue?, id?, onBlur?, disabled?, invalid?, autoFocus?, className?, 'aria-describedby'?, 'aria-labelledby'?, 'aria-label'? }`. `FieldDisplayProps`: `{ field: FieldDefinition; value: unknown }`.
 

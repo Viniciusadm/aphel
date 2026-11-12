@@ -71,9 +71,13 @@ fn system_value(
         | FieldType::Select => row
             .try_get::<Option<String>, _>(alias)?
             .map(FieldValue::Text),
-        FieldType::MultiSelect | FieldType::User | FieldType::Record | FieldType::References => {
-            None
-        }
+        FieldType::MultiSelect
+        | FieldType::User
+        | FieldType::Record
+        | FieldType::References
+        | FieldType::File
+        | FieldType::Image
+        | FieldType::Document => None,
         FieldType::Custom { .. } => unreachable!("native field representation"),
     })
 }

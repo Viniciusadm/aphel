@@ -78,7 +78,11 @@ fn functions_for(field_type: FieldType) -> Vec<AggregateFunction> {
         AggregateFunction::NUMERIC.to_vec()
     } else if matches!(
         field_type.base_type(),
-        FieldType::MultiSelect | FieldType::References
+        FieldType::MultiSelect
+            | FieldType::References
+            | FieldType::File
+            | FieldType::Image
+            | FieldType::Document
     ) {
         Vec::new()
     } else {

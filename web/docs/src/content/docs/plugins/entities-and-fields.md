@@ -98,6 +98,11 @@ To write a record, send only the values you want to set. To avoid overwriting a 
 | `user` | user id | |
 | `record` | record id | `target` (required): the record type referenced |
 | `references` | array of ids | Stored as a JSON list. Filters with `in` match records whose list holds any of the ids. A single-field index on it is a multi-valued index. Not available to fields administrators create. |
+| `file` | file id | The file must be attached to the same record (422 `must be a file attached to this record`). Managed entities only. |
+| `image` | file id | Like `file`, and the file must have an image type (422 `must be an image`). Public pages get `record.<key>_image` with the resolved picture. |
+| `document` | string with JSON | `max_length` (1 to 1 000 000). Invalid JSON answers 422. Use it for content blocks. Managed entities only. |
+
+Any field of a managed entity can take `published_by` to join a published projection; see [Publication](/_aphel/docs/plugins/publication/).
 
 A type registered by a module through the field type registry can also be used by its key. Options that a type does not support are rejected: for example `min` on a `text` field gives `is not supported by text fields`.
 

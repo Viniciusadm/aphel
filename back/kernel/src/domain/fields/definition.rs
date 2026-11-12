@@ -9,6 +9,7 @@ use crate::domain::fields::{
 
 pub const MAX_TEXT_LENGTH: u32 = 1024;
 pub const MAX_LONG_TEXT_LENGTH: u32 = 65_535;
+pub const MAX_DOCUMENT_LENGTH: u32 = 1_000_000;
 pub const MAX_DECIMALS: u32 = 6;
 pub const DEFAULT_CURRENCY_DECIMALS: u32 = 2;
 pub const MAX_PATTERN_LENGTH: usize = 500;
@@ -82,11 +83,11 @@ impl ConfigProperty {
                 matches!(field_type, Number | Currency)
             }
             Self::Currency => field_type == Currency,
-            Self::MaxLength => matches!(field_type, Text | LongText),
+            Self::MaxLength => matches!(field_type, Text | LongText | Document),
             Self::Pattern | Self::Mask => field_type == Text,
             Self::DefaultCountry => field_type == Phone,
             Self::TargetRecordType => field_type == Record,
-            Self::DefaultValue => !matches!(field_type, User | Record),
+            Self::DefaultValue => !matches!(field_type, User | Record | File | Image | Document),
             Self::Expression | Self::ResultType => {
                 matches!(field_type, Number | Currency | Date | Text | Checkbox)
             }
@@ -146,11 +147,7 @@ impl FieldConfig {
     }
 
     pub fn max_text_length(&self, field_type: FieldType) -> u32 {
-        let limit = if field_type.base_type() == FieldType::LongText {
-            MAX_LONG_TEXT_LENGTH
-        } else {
-            MAX_TEXT_LENGTH
-        };
+        let limit = text_limit(field_type);
         self.max_length.unwrap_or(limit).min(limit)
     }
 
@@ -208,11 +205,7 @@ impl FieldConfig {
             ));
         }
         if let Some(max_length) = self.max_length {
-            let limit = if field_type.base_type() == FieldType::LongText {
-                MAX_LONG_TEXT_LENGTH
-            } else {
-                MAX_TEXT_LENGTH
-            };
+            let limit = text_limit(field_type);
             if max_length == 0 || max_length > limit {
                 violations.push(ConfigViolation::new(
                     ConfigProperty::MaxLength,
@@ -339,5 +332,13 @@ impl FieldDefinition {
         } else {
             self.field_type.as_str()
         }
+    }
+}
+
+fn text_limit(field_type: FieldType) -> u32 {
+    match field_type.base_type() {
+        FieldType::LongText => MAX_LONG_TEXT_LENGTH,
+        FieldType::Document => MAX_DOCUMENT_LENGTH,
+        _ => MAX_TEXT_LENGTH,
     }
 }

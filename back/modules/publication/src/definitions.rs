@@ -1,30 +1,70 @@
 use std::sync::Arc;
 
-use aphel_contract_publication::{MODULE, PUBLISHABLE, PublishableDefinition, STATES};
+use aphel_contract_publication::{
+    MODULE, PUBLISHABLE, PublishableDeclaration, PublishableDefinition, PublishableField, STATES,
+};
 use aphel_kernel::errors::{AppError, CodedKind};
-use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry, SystemField};
+use aphel_sdk::platform::application::fields::{
+    DRAFT_PREFIX, EntityDefinition, PUBLISHED_AT_FIELD, REVISED_AT_FIELD, RecordTypeRegistry,
+    SystemField, publication_state_field,
+};
 
 use crate::domain::{DEFINITION_INVALID, coded, not_publishable};
 
-fn declared() -> Vec<PublishableDefinition> {
+fn declared() -> Vec<PublishableDeclaration> {
     let Some(app) = aphel_sdk::platform::modules::try_app() else {
         return Vec::new();
     };
     let native = app
-        .contributions::<PublishableDefinition>()
+        .contributions::<PublishableDeclaration>()
         .into_iter()
-        .map(|definition: Arc<PublishableDefinition>| (*definition).clone());
+        .map(|declaration: Arc<PublishableDeclaration>| (*declaration).clone());
     let runtime = app
         .runtime_contributions(PUBLISHABLE)
         .into_iter()
         .filter_map(|contribution| {
-            serde_json::from_value::<PublishableDefinition>(contribution.data.clone())
+            serde_json::from_value::<PublishableDeclaration>(contribution.data.clone())
                 .inspect_err(|error| {
                     tracing::warn!(name = contribution.name, %error, "ignoring an invalid publishable contribution");
                 })
                 .ok()
         });
     native.chain(runtime).collect()
+}
+
+pub(crate) fn resolve(
+    registry: &RecordTypeRegistry,
+    declaration: &PublishableDeclaration,
+) -> Result<PublishableDefinition, AppError> {
+    let entity = registry
+        .require(&declaration.entity)
+        .map_err(|_| not_publishable(&declaration.entity))?;
+    let state = publication_state_field(MODULE);
+    let lifecycle = [state.as_str(), PUBLISHED_AT_FIELD, REVISED_AT_FIELD];
+    let fields = entity
+        .system_fields
+        .iter()
+        .filter(|field| {
+            field.writers.iter().any(|writer| writer == MODULE)
+                && !lifecycle.contains(&field.key.as_str())
+        })
+        .map(|field| PublishableField {
+            draft: format!("{DRAFT_PREFIX}{}", field.key),
+            published: field.key.to_string(),
+            file: field.field_type.holds_files(),
+        })
+        .collect();
+    let definition = PublishableDefinition {
+        entity: declaration.entity.clone(),
+        format: declaration.format,
+        permission: declaration.permission.clone(),
+        fields,
+        state,
+        published_at: PUBLISHED_AT_FIELD.to_owned(),
+        revised_at: REVISED_AT_FIELD.to_owned(),
+    };
+    validate(registry, &definition)?;
+    Ok(definition)
 }
 
 pub(crate) fn entities() -> Vec<String> {
@@ -122,13 +162,12 @@ pub(crate) fn find(
 ) -> Result<PublishableDefinition, AppError> {
     let mut matching = declared()
         .into_iter()
-        .filter(|definition| definition.entity == record_type);
-    let definition = matching
+        .filter(|declaration| declaration.entity == record_type);
+    let declaration = matching
         .next()
         .ok_or_else(|| not_publishable(record_type))?;
     if matching.next().is_some() {
         return Err(invalid(record_type, "more than one publication definition"));
     }
-    validate(registry, &definition)?;
-    Ok(definition)
+    resolve(registry, &declaration)
 }

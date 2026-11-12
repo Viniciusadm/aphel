@@ -61,6 +61,7 @@ pub enum FieldValueError {
     InactiveOption(String),
     TooManyOptions(usize),
     InvalidReference,
+    InvalidDocument,
     ReferenceNotFound,
     TypeUnavailable,
     NotUnique,
@@ -92,6 +93,7 @@ impl FieldValueError {
             Self::InactiveOption(value) => format!("option {value:?} is inactive"),
             Self::TooManyOptions(limit) => format!("must have at most {limit} options"),
             Self::InvalidReference => "must be a valid id".to_owned(),
+            Self::InvalidDocument => "must be valid JSON".to_owned(),
             Self::ReferenceNotFound => {
                 "references a record that does not exist or that you cannot read".to_owned()
             }
@@ -232,7 +234,20 @@ pub fn validate_native_value(
                 UserId::new(id.to_string()).map_err(|_| FieldValueError::InvalidReference)?,
             )
         }
-        FieldType::Record => FieldValue::Record(parse_uuid(expect_text(raw)?)?),
+        FieldType::Record | FieldType::File | FieldType::Image => {
+            FieldValue::Record(parse_uuid(expect_text(raw)?)?)
+        }
+        FieldType::Document => {
+            let text = expect_text(raw)?.trim().to_owned();
+            let limit = config.max_text_length(field_type);
+            if text.chars().count() > limit as usize {
+                return Err(FieldValueError::TooLong(limit));
+            }
+            if serde_json::from_str::<serde_json::Value>(&text).is_err() {
+                return Err(FieldValueError::InvalidDocument);
+            }
+            FieldValue::LongText(text)
+        }
         FieldType::References => {
             let RawValue::List(items) = raw else {
                 return Err(FieldValueError::ExpectedList);

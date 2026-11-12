@@ -9,9 +9,9 @@ The optional `publication` module keeps the published content of a record apart 
 
 ## Make an entity publishable
 
-1. Give each published field a draft twin of the same type. People edit the draft; the published field is `read_only` and lists `publication` in `writers`, so only the owner plugin and the publication module can change it.
-2. Add a state field (`select` with the options `draft`, `published` and `withdrawn`) and two `datetime` fields for the first publication and the last revision, all `read_only` with `writers = ["publication"]`.
-3. Contribute the definition to `publication.publishable` and declare `uses.required = ["publication@1"]`.
+1. Declare each published field once, with `published_by = "publication"`, on a managed entity. The host generates the working copy `draft_<key>` that people edit, and keeps `<key>` as the published projection: `read_only`, written only by the publication module. Type, limits and options are the same on both; `required`, `searchable` and `default` apply to the working copy.
+2. The host also adds the lifecycle fields `publication_state` (`draft`, `published`, `withdrawn`), `published_at` (first publication) and `revised_at` (last revision), all protected the same way. Do not declare fields with these names.
+3. Contribute `publication.publishable` with the entity and the permission that allows publishing, and declare `uses.required = ["publication@1"]`.
 
 ```toml
 [uses]
@@ -23,35 +23,33 @@ label = "Publish posts"
 grant_to = ["manager"]
 
 [[entities.fields]]
-key = "draft_title"
-label = "Title (draft)"
-type = "text"
-
-[[entities.fields]]
 key = "title"
 label = "Title"
 type = "text"
-read_only = true
-writers = ["publication"]
+required = true
+published_by = "publication"
 
 [[entities.fields]]
-key = "publication_state"
-label = "Publication"
-type = "select"
-default = "draft"
-read_only = true
-writers = ["publication"]
-options = [{ value = "draft", label = "Draft" }, { value = "published", label = "Published" }, { value = "withdrawn", label = "Withdrawn" }]
+key = "cover"
+label = "Cover"
+type = "image"
+published_by = "publication"
+
+[[entities.fields]]
+key = "body"
+label = "Text"
+type = "document"
+published_by = "publication"
 
 [[contribute]]
 point = "publication.publishable"
 name = "post"
-data = { entity = "blog.post", format = 1, permission = "blog.publish", fields = [{ draft = "draft_title", published = "title" }, { draft = "draft_body", published = "body", file = true }], state = "publication_state", published_at = "published_at", revised_at = "revised_at" }
+data = { entity = "blog.post", permission = "blog.publish" }
 ```
 
-`format` is the version of your snapshot layout. `file = true` marks fields that hold file ids (directly or inside JSON such as blocks); the revision keeps those files from being collected. A definition that breaks these rules is refused when used, with `409 publication_definition_invalid`.
+`format` (optional, default `1`) is the version of your snapshot layout. Fields of the types `file`, `image` and `document` keep the files they reference (directly or inside the JSON of a document) from being collected while a revision uses them. A `title_field` that names a published field shows the working copy in lists. An entity without published fields, or whose fields break these rules, is refused when used, with `409 publication_definition_invalid`.
 
-Expose only the published fields on the site and filter on the state, for example `conditions = { publication_state = "published" }`.
+Your screens edit `draft_<key>` and read `publication_state`, `published_at` and `revised_at`. Expose only the published fields on the site and filter on the state, for example `where = { publication_state = "published" }`.
 
 ## Publishing
 

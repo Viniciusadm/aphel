@@ -142,6 +142,8 @@ Custom fields are typed values stored next to the system fields. They are read a
 | `multi_select` | Array of option values |
 | `user` | A user id |
 | `record` | The id of a record of the target type; the caller needs read access to it |
+| `file`, `image` | The id of a file attached to the same record; `image` also needs an image type |
+| `document` | A string with valid JSON |
 
 Module-registered field types (and formula fields, which are computed and read-only) behave like the native type they are stored as. Rules:
 

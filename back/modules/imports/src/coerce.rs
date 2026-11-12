@@ -77,8 +77,12 @@ pub(crate) fn coerce_cell(
                 }
             }
         }
+        FieldType::File | FieldType::Image => {
+            return Err("files cannot be imported; attach them to the record".to_owned());
+        }
         FieldType::Text
         | FieldType::LongText
+        | FieldType::Document
         | FieldType::Email
         | FieldType::Url
         | FieldType::Phone => CellValue::Value(Value::String(text.to_owned())),

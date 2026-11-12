@@ -87,7 +87,32 @@ pub(crate) async fn attach_images(
             })
         })
         .collect();
+    let registry = state.registry().await?;
+    let file_fields: Vec<String> = registry
+        .require(&exposure.entity)
+        .map(|entity| {
+            exposure
+                .fields
+                .iter()
+                .filter(|key| {
+                    entity
+                        .system_field_by_key(key)
+                        .is_some_and(|field| field.field_type.is_file())
+                })
+                .cloned()
+                .collect()
+        })
+        .unwrap_or_default();
     if let Some(fields) = record.as_object_mut() {
+        for key in file_fields {
+            let picture = fields
+                .get(&key)
+                .and_then(Value::as_str)
+                .and_then(|id| images.iter().find(|image| image["id"].as_str() == Some(id)))
+                .cloned()
+                .unwrap_or(Value::Null);
+            fields.insert(format!("{key}_image"), picture);
+        }
         fields.insert("images".to_owned(), Value::Array(images));
     }
     Ok(())

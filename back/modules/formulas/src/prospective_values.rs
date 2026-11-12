@@ -127,9 +127,13 @@ pub fn json_formula_value(
             Value::Bool(flag) => FormulaValue::Text(flag.to_string()),
             _ => FormulaValue::Null,
         },
-        FieldType::MultiSelect | FieldType::User | FieldType::Record | FieldType::References => {
-            FormulaValue::Null
-        }
+        FieldType::MultiSelect
+        | FieldType::User
+        | FieldType::Record
+        | FieldType::References
+        | FieldType::File
+        | FieldType::Image
+        | FieldType::Document => FormulaValue::Null,
         FieldType::Custom { .. } => unreachable!("native field representation"),
     }
 }

@@ -993,10 +993,12 @@ fn declared_field_type(
             "config.expression",
             "is only accepted by formula fields",
         )),
-        Some(FieldType::References) => violations.push(FieldViolation::new(
-            "field_type",
-            "is only available to fields declared by modules and plugins",
-        )),
+        Some(FieldType::References | FieldType::File | FieldType::Image | FieldType::Document) => {
+            violations.push(FieldViolation::new(
+                "field_type",
+                "is only available to fields declared by modules and plugins",
+            ))
+        }
         Some(_) => {}
     }
     field_type

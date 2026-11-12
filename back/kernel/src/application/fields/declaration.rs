@@ -79,8 +79,70 @@ pub struct FieldDef {
     pub read_only: bool,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub writers: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub published_by: Option<String>,
     #[serde(default)]
     pub options: Vec<OptionDef>,
+}
+
+pub const DRAFT_PREFIX: &str = "draft_";
+pub const PUBLISHED_AT_FIELD: &str = "published_at";
+pub const REVISED_AT_FIELD: &str = "revised_at";
+pub const PUBLICATION_STATES: [&str; 3] = ["draft", "published", "withdrawn"];
+
+pub fn publication_state_field(writer: &str) -> String {
+    format!("{writer}_state")
+}
+
+fn valid_writer(writer: &str) -> bool {
+    !writer.is_empty()
+        && writer
+            .chars()
+            .all(|char| char.is_ascii_lowercase() || char.is_ascii_digit() || char == '_')
+}
+
+fn expand_published(
+    fields: &[FieldDef],
+) -> Result<(Vec<FieldDef>, Option<String>), crate::errors::AppError> {
+    let mut expanded = Vec::with_capacity(fields.len());
+    let mut writer: Option<String> = None;
+    for field in fields {
+        let Some(by) = &field.published_by else {
+            expanded.push(field.clone());
+            continue;
+        };
+        let problem = if !valid_writer(by) {
+            Some("names an invalid module")
+        } else if field.read_only || !field.writers.is_empty() {
+            Some("cannot also be read_only or declare writers")
+        } else if field.unique {
+            Some("cannot be unique")
+        } else if writer.as_deref().is_some_and(|current| current != by) {
+            Some("uses a different module than the other published fields")
+        } else {
+            None
+        };
+        if let Some(problem) = problem {
+            return Err(crate::errors::AppError::Configuration(format!(
+                "published field {} {problem}",
+                field.key
+            )));
+        }
+        writer = Some(by.clone());
+        let mut draft = field.clone();
+        draft.key = format!("{DRAFT_PREFIX}{}", field.key);
+        draft.published_by = None;
+        let mut published = field.clone();
+        published.published_by = None;
+        published.required = false;
+        published.searchable = false;
+        published.default = None;
+        published.read_only = true;
+        published.writers = vec![by.clone()];
+        expanded.push(draft);
+        expanded.push(published);
+    }
+    Ok((expanded, writer))
 }
 
 impl FieldDef {
@@ -123,6 +185,33 @@ fn dynamic_storage() -> super::EntityStorage {
 }
 
 impl EntityDeclaration {
+    pub fn expanded_fields(&self) -> Result<Vec<FieldDef>, crate::errors::AppError> {
+        expand_published(&self.fields).map(|(fields, _)| fields)
+    }
+
+    pub fn publisher(&self) -> Option<&str> {
+        self.fields
+            .iter()
+            .find_map(|field| field.published_by.as_deref())
+    }
+
+    pub fn field_keys(&self) -> Vec<String> {
+        let mut keys: Vec<String> = self
+            .expanded_fields()
+            .unwrap_or_else(|_| self.fields.clone())
+            .into_iter()
+            .map(|field| field.key)
+            .collect();
+        if let Some(writer) = self.publisher() {
+            keys.extend([
+                publication_state_field(writer),
+                PUBLISHED_AT_FIELD.to_owned(),
+                REVISED_AT_FIELD.to_owned(),
+            ]);
+        }
+        keys
+    }
+
     pub fn definition(
         &self,
         key: &str,
@@ -227,7 +316,8 @@ impl EntityDeclaration {
                 .managed(key)
                 .soft_delete_column("deleted_at")
                 .archive_column("archived_at");
-            for field in &self.fields {
+            let (fields, publisher) = expand_published(&self.fields)?;
+            for field in &fields {
                 if [
                     "id",
                     "created_at",
@@ -238,6 +328,14 @@ impl EntityDeclaration {
                     "archived_at",
                 ]
                 .contains(&field.key.as_str())
+                    || publisher.as_deref().is_some_and(|writer| {
+                        [
+                            publication_state_field(writer).as_str(),
+                            PUBLISHED_AT_FIELD,
+                            REVISED_AT_FIELD,
+                        ]
+                        .contains(&field.key.as_str())
+                    })
                 {
                     return Err(crate::errors::AppError::Configuration(format!(
                         "reserved entity field {}",
@@ -300,6 +398,43 @@ impl EntityDeclaration {
                         definition.index(&format!("{}_unique", field.key), &[&field.key], true);
                 }
             }
+            if let Some(writer) = &publisher {
+                let protect = |mut field: super::SystemField| {
+                    field.owner_managed = true;
+                    field.writers = vec![writer.clone()];
+                    field
+                };
+                let state_key = publication_state_field(writer);
+                let mut state = protect(super::SystemField::new(
+                    &state_key,
+                    crate::labels("Publication status"),
+                    FieldType::Select,
+                    &state_key,
+                )?);
+                state.required = true;
+                state.config.default_value = Some(crate::domain::fields::RawValue::Text(
+                    PUBLICATION_STATES[0].to_owned(),
+                ));
+                for (value, label, color) in [
+                    (PUBLICATION_STATES[0], "Draft", "gray"),
+                    (PUBLICATION_STATES[1], "Published", "green"),
+                    (PUBLICATION_STATES[2], "Withdrawn", "gray"),
+                ] {
+                    state = state.with_option(value, crate::labels(label), Some(color));
+                }
+                definition = definition.system_field(state);
+                for (key, label) in [
+                    (PUBLISHED_AT_FIELD, "Published at"),
+                    (REVISED_AT_FIELD, "Revised at"),
+                ] {
+                    definition = definition.system_field(protect(super::SystemField::new(
+                        key,
+                        crate::labels(label),
+                        FieldType::DateTime,
+                        key,
+                    )?));
+                }
+            }
             if self.owner_enabled {
                 definition =
                     definition
@@ -324,13 +459,17 @@ impl EntityDeclaration {
                 .read_only(),
             );
             definition.indexes.extend(self.indexes.clone());
+            let working = |key: &str| match self.fields.iter().find(|field| field.key == key) {
+                Some(field) if field.published_by.is_some() => format!("{DRAFT_PREFIX}{key}"),
+                _ => key.to_owned(),
+            };
             if let Some(title) = &self.title_field {
-                if !self.fields.iter().any(|field| &field.key == title) {
+                if !fields.iter().any(|field| &field.key == title) {
                     return Err(crate::errors::AppError::Configuration(format!(
                         "unknown title field {title}"
                     )));
                 }
-                definition.title_field = Some(title.clone());
+                definition.title_field = Some(working(title));
             } else if let Some(field) = self
                 .fields
                 .iter()
@@ -341,7 +480,7 @@ impl EntityDeclaration {
                         .find(|field| ["text", "email"].contains(&field.field_type.as_str()))
                 })
             {
-                definition.title_field = Some(field.key.clone());
+                definition.title_field = Some(working(&field.key));
             }
         }
         definition.capabilities.traits.extend(self.traits.clone());

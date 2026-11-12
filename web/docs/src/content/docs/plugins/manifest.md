@@ -76,7 +76,7 @@ Both tables use the same keys. In `[[fields]]` (top-level) there is one more key
 | `record_type` | string | only in `[[fields]]` | | The record type that receives the field. Extending a custom object of another owner is refused (`cannot extend custom objects of other plugins`). |
 | `key` | string | yes | | Lowercase key, at most 64 characters. |
 | `label` | string | yes | | |
-| `type` | string | yes | | One of `text`, `long_text`, `number`, `currency`, `date`, `datetime`, `select`, `multi_select`, `checkbox`, `url`, `email`, `phone`, `user`, `record`, `references`, or a field type registered by a module. Error: `is not a known field type`. |
+| `type` | string | yes | | One of `text`, `long_text`, `number`, `currency`, `date`, `datetime`, `select`, `multi_select`, `checkbox`, `url`, `email`, `phone`, `user`, `record`, `references`, `file`, `image`, `document`, or a field type registered by a module. Error: `is not a known field type`. `file` and `image` hold the id of a file attached to the same record (`image` also needs an image type); `document` holds JSON such as content blocks, up to 1 000 000 characters. These three only exist on managed entities. |
 | `required` | boolean | no | `false` | |
 | `searchable` | boolean | no | `false` | Included in global search. |
 | `unique` | boolean | no | `false` | Only for `text`, `number`, `url`, `email`, `phone`. Error: `is only supported by text, number, url, email and phone fields`. |
@@ -84,13 +84,14 @@ Both tables use the same keys. In `[[fields]]` (top-level) there is one more key
 | `sensitive` | boolean | no | `false` | Also implies `personal`. Values are redacted in audit diffs. |
 | `min`, `max` | number | no | none | `number` and `currency` only. `min` must not exceed `max`. |
 | `decimals` | integer | no | type default | `number` and `currency` only, 0 to 6. |
-| `max_length` | integer | no | type default | `text` and `long_text` only. 1 to 1024 for `text`, 1 to 65535 for `long_text`. |
+| `max_length` | integer | no | type default | `text`, `long_text` and `document` only. 1 to 1024 for `text`, 1 to 65535 for `long_text`, 1 to 1 000 000 for `document`. |
 | `pattern` | string | no | none | `text` only. A regular expression of at most 500 characters. |
 | `currency` | string | no | none | `currency` only. Three uppercase letters (ISO 4217). |
-| `default` | any | no | none | Not allowed for `user` and `record`. |
+| `default` | any | no | none | Not allowed for `user`, `record`, `file`, `image` and `document`. |
 | `target` | string | for `record` | none | Record type the field points to. Error: `is required for record fields`. Targets outside the plugin need the target's read permission in the capabilities. |
 | `read_only` | boolean | no | `false` | Managed entities only. People see the field but cannot change it (422 `field_read_only`); only the plugin's own backend writes it. Use it for totals, statuses and keys that the plugin's operations keep consistent. |
 | `writers` | array of module keys | no | `[]` | Requires `read_only`. Native modules that may also change the field, in addition to the plugin's own backend, when they write the record as that module (for example a publication module projecting the active revision). Everyone else, administrators and generic record writes, imports and bulk actions included, gets 422 `field_read_only` when the value changes. |
+| `published_by` | module key | no | none | Managed entities only. The field takes part in that module's published projection: the host creates the editable working copy `draft_<key>` and keeps `<key>` read-only for the module, plus `<module>_state`, `published_at` and `revised_at`. Cannot be combined with `read_only`, `writers` or `unique`; all published fields of an entity use the same module. See [Publication](/_aphel/docs/plugins/publication/). |
 | `options` | array of tables | for `select`, `multi_select` | `[]` | Each has `value` (string), `label` (string) and `color` (optional string). Error: `is required for select fields`. |
 
 A property that the field type does not support is rejected with `is not supported by <type> fields`.

@@ -91,16 +91,19 @@ pub async fn probe(failures: &mut Vec<String>) {
     use aphel_sdk::platform::application::shared::{Actor, ExecutionContext, FieldChange};
     let app = aphel_sdk::platform::modules::app();
     let registry = app.record_types();
-    for (_, definition) in
-        app.all_contributions::<aphel_contract_publication::PublishableDefinition>()
+    for (_, declaration) in
+        app.all_contributions::<aphel_contract_publication::PublishableDeclaration>()
     {
-        if let Err(error) = definitions::validate(registry, &definition) {
-            failures.push(format!(
-                "publication: invalid native definition {}: {error}",
-                definition.entity
-            ));
-            continue;
-        }
+        let definition = match definitions::resolve(registry, &declaration) {
+            Ok(definition) => definition,
+            Err(error) => {
+                failures.push(format!(
+                    "publication: invalid native definition {}: {error}",
+                    declaration.entity
+                ));
+                continue;
+            }
+        };
         let entity = registry
             .require(&definition.entity)
             .expect("validated publication entity");

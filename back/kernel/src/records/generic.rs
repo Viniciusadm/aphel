@@ -464,7 +464,7 @@ impl GenericRecordHandler {
                 .existing_users(std::slice::from_ref(id))
                 .await?
                 .is_empty(),
-            FieldValue::Record(id) => {
+            FieldValue::Record(id) if !field.field_type.is_file() => {
                 let key = field.config.target_record_type.as_deref().ok_or_else(|| {
                     AppError::Validation("reference target is required".to_owned())
                 })?;

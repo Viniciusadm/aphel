@@ -820,7 +820,11 @@ impl EntityDefinition {
             }
             if matches!(
                 field.field_type.base_type(),
-                FieldType::MultiSelect | FieldType::References
+                FieldType::MultiSelect
+                    | FieldType::References
+                    | FieldType::File
+                    | FieldType::Image
+                    | FieldType::Document
             ) && self.storage != super::EntityStorage::Managed
             {
                 return Err(invalid("multi_select system field", field.key.as_str()));

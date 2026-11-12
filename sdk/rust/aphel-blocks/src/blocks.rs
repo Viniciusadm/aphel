@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 use crate::error::BlockError;
 use serde_json::{Map, Value};
 
-pub const MAX_BLOCKS: usize = 100;
-pub const MAX_JSON_CHARS: usize = 60_000;
+pub const MAX_BLOCKS: usize = 300;
+pub const MAX_JSON_CHARS: usize = 400_000;
 const MAX_BUTTONS: usize = 3;
 const MAX_ID_CHARS: usize = 40;
 const MAX_LINK_CHARS: usize = 500;
@@ -52,7 +52,7 @@ const HERO: &[(&str, Kind)] = &[
     ("align", Kind::Choice(ALIGNMENTS)),
 ];
 const TEXT: &[(&str, Kind)] = &[
-    ("text", Kind::Text(20_000)),
+    ("text", Kind::Text(50_000)),
     ("width", Kind::Choice(TEXT_WIDTHS)),
 ];
 const IMAGE: &[(&str, Kind)] = &[

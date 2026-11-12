@@ -33,6 +33,19 @@ pub const REQUEST_FAILED: &str = "publication.request_failed";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct PublishableDeclaration {
+    pub entity: String,
+    pub permission: String,
+    #[serde(default = "first_format")]
+    pub format: u32,
+}
+
+fn first_format() -> u32 {
+    1
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PublishableField {
     pub draft: String,
     pub published: String,
@@ -142,7 +155,7 @@ pub const DESCRIPTOR: ContractDescriptor = ContractDescriptor {
         KeyEntry::new(
             PUBLISHABLE,
             KeyKind::ExtensionPoint,
-            "Entities whose draft fields are published as immutable revisions into protected fields",
+            "Entities whose fields declared with published_by = \"publication\" are published as immutable revisions; data: entity, permission and optional format",
         ),
         KeyEntry::new(
             OP_CAPTURE,

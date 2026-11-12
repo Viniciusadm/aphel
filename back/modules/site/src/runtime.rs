@@ -32,7 +32,7 @@ fn import_map_tag() -> String {
     format!("<script type=\"importmap\">{IMPORT_MAP}</script>")
 }
 const RENDER_FUEL: u64 = 2_000_000;
-const MAX_JSON_BYTES: usize = 512 * 1024;
+const MAX_JSON_BYTES: usize = 2 * 1024 * 1024;
 const MAX_JSON_DEPTH: usize = 16;
 const DEFAULT_DATE_FORMAT: &str = "%d/%m/%Y";
 

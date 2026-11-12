@@ -932,7 +932,10 @@ impl FilterResolver<'_> {
                 }
                 uuid_text(&text)
             }
-            FieldType::Record | FieldType::References => uuid_text(&non_empty_text(value)?),
+            FieldType::Record | FieldType::References | FieldType::File | FieldType::Image => {
+                uuid_text(&non_empty_text(value)?)
+            }
+            FieldType::Document => Ok(PlanValue::Text(non_empty_text(value)?)),
             FieldType::Custom { .. } => unreachable!("native field representation"),
         }
     }

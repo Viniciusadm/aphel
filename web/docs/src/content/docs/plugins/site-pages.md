@@ -181,7 +181,7 @@ Plugins that store structured content as blocks (hero, text, image, text with im
 
 | Part | Where | What it gives |
 | --- | --- | --- |
-| Validation | Rust crate `aphel-blocks` in `sdk/rust/aphel-blocks` (feature `plugin` for `PluginError` conversions) | `blocks::normalize` (known types and fields, text limits, safe links, at most 100 blocks), `blocks::image_ids`/`replace_images`, `slug::check`/`slug::suggest`. Errors use the codes `block_*`, `blocks_*` and `slug_*`; `BlockError::at(field)` points them at your field |
+| Validation | Rust crate `aphel-blocks` in `sdk/rust/aphel-blocks` (feature `plugin` for `PluginError` conversions) | `blocks::normalize` (known types and fields, text limits, safe links, at most 300 blocks and 400 000 characters), `blocks::image_ids`/`replace_images`, `slug::check`/`slug::suggest`. Errors use the codes `block_*`, `blocks_*` and `slug_*`; `BlockError::at(field)` points them at your field |
 | Editor | `@aphel/web-sdk` | `BlockForm`, `AddBlock`, `BlockImageField`, `BLOCK_ICONS`, the `Block` types, `newBlock`/`parseBlocks`/`serializeBlocks`, `blockProblems`/`blockSummary` and `useBlocksValidation`, which loads the same Rust validation compiled to WebAssembly. Images are attachments of the record you pass as `record: { recordType, recordId }`. Labels come from the `site-blocks` namespace |
 | Rendering | Built-in templates of the `site` module | `aphel/blocks.html` renders a list of blocks and `aphel/blocks_style.html` their styles |
 

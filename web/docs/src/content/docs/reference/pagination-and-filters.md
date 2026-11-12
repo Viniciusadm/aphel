@@ -144,6 +144,7 @@ A field accepts only the operators that make sense for its type; others answer `
 | `select`, `user`, `record` | `eq`, `neq`, `in`, `not_in`, `is_empty`, `is_not_empty` (plus `in_group` for hierarchical references) |
 | `multi_select` | `in`, `not_in`, `is_empty`, `is_not_empty` |
 | `checkbox` | `eq`, `neq` |
+| `file`, `image`, `document` | `is_empty`, `is_not_empty` |
 
 Custom field types registered by modules declare their own operators. The exact operators and value kinds of each field of a record type are returned by `GET /api/v1/fields/{record_type}/schema` and, for custom objects, by `GET /api/v1/objects/{key}/schema`.
 

@@ -1,4 +1,9 @@
-use aphel_contract_publication::{PublishableDefinition, PublishableField};
+use aphel_contract_publication::{MODULE as PUBLICATION_MODULE, PublishableDeclaration};
+use aphel_sdk::platform::application::fields::{
+    DRAFT_PREFIX, PUBLISHED_AT_FIELD, REVISED_AT_FIELD, publication_state_field,
+};
+
+const STATE_FIELD: &str = "publication_state";
 use aphel_contract_site::{
     APPEARANCE_EDIT, APPEARANCE_ENTITY, AppearanceValues, PRESENTATION_EDIT, PRESENTATION_ENTITY,
     appearance_properties,
@@ -58,37 +63,28 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
             definition = definition
                 .system_field(SystemField::new(key, key, FieldType::DateTime, key)?.read_only());
         }
-        let mut mappings = vec![PublishableField {
-            draft: "draft_values".into(),
-            published: "values".into(),
-            file: false,
-        }];
         for key in ["logo", "dark_logo", "icon", "opening_image"] {
             definition = definition.system_field(SystemField::new(
-                &format!("draft_{key}"),
+                &format!("{DRAFT_PREFIX}{key}"),
                 key,
-                FieldType::Text,
-                format!("draft_{key}"),
+                FieldType::Image,
+                format!("{DRAFT_PREFIX}{key}"),
             )?);
-            mappings.push(PublishableField {
-                draft: format!("draft_{key}"),
-                published: key.into(),
-                file: true,
-            });
         }
+        let state_field = publication_state_field(PUBLICATION_MODULE);
         for (key, kind) in [
             ("values", FieldType::LongText),
-            ("logo", FieldType::Text),
-            ("dark_logo", FieldType::Text),
-            ("icon", FieldType::Text),
-            ("opening_image", FieldType::Text),
-            ("state", FieldType::Select),
-            ("published_at", FieldType::DateTime),
-            ("revised_at", FieldType::DateTime),
+            ("logo", FieldType::Image),
+            ("dark_logo", FieldType::Image),
+            ("icon", FieldType::Image),
+            ("opening_image", FieldType::Image),
+            (state_field.as_str(), FieldType::Select),
+            (PUBLISHED_AT_FIELD, FieldType::DateTime),
+            (REVISED_AT_FIELD, FieldType::DateTime),
         ] {
             let mut field = SystemField::new(key, key, kind, key)?.owner_managed();
-            field.writers = vec!["publication".into()];
-            if key == "state" {
+            field.writers = vec![PUBLICATION_MODULE.into()];
+            if key == state_field {
                 for state in aphel_contract_publication::STATES {
                     field = field.with_option(state, state, None);
                 }
@@ -105,7 +101,7 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
         seed.writers = vec!["site".into()];
         definition = definition.system_field(seed);
         app.entity(definition.handler(Arc::new(GenericRecordHandler::new(record_type))));
-        app.contribute(Arc::new(PublishableDefinition {
+        app.contribute(Arc::new(PublishableDeclaration {
             entity: entity.into(),
             format: 1,
             permission: if entity == APPEARANCE_ENTITY {
@@ -114,10 +110,6 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
                 PRESENTATION_EDIT
             }
             .into(),
-            fields: mappings,
-            state: "state".into(),
-            published_at: "published_at".into(),
-            revised_at: "revised_at".into(),
         }));
     }
     app.contribute::<dyn aphel_sdk::provisioning::Provisioner>(Arc::new(AppearanceProvisioner));
@@ -360,7 +352,7 @@ pub(crate) async fn resolved(
         {
             if !preview.is_some_and(|preview| preview.entity == entity && preview.target == key)
                 && let Some(record) = record(state, entity, key, &AccessScope::system()).await?
-                && record["state"] == "published"
+                && record[STATE_FIELD] == "published"
             {
                 let text = record["values"].as_str().unwrap_or("{}");
                 let appearance: Value = serde_json::from_str(text)
@@ -501,7 +493,7 @@ impl aphel_sdk::provisioning::Provisioner for AppearanceProvisioner {
         let existing = record(state.as_ref(), entity, target, ctx.scope).await?;
         let record = if let Some(existing) = existing {
             if existing["seed_key"] != seed_key
-                || existing["state"] == "published"
+                || existing[STATE_FIELD] == "published"
                 || existing["draft_values"] != serialized
             {
                 return Ok(ProvisionOutcome {
@@ -561,9 +553,9 @@ pub(crate) fn probe(failures: &mut Vec<String>) {
             "dark_logo",
             "icon",
             "opening_image",
-            "state",
-            "published_at",
-            "revised_at",
+            STATE_FIELD,
+            PUBLISHED_AT_FIELD,
+            REVISED_AT_FIELD,
         ] {
             if !definition.system_field_by_key(key).is_some_and(|field| {
                 field.writable && field.owner_managed && field.writers == ["publication"]
@@ -574,7 +566,7 @@ pub(crate) fn probe(failures: &mut Vec<String>) {
             }
         }
         if !app
-            .all_contributions::<PublishableDefinition>()
+            .all_contributions::<PublishableDeclaration>()
             .iter()
             .any(|(_, definition)| definition.entity == entity)
         {
@@ -624,7 +616,7 @@ pub(crate) async fn presentation_values(
     else {
         return Ok(Default::default());
     };
-    if record["state"] != "published" {
+    if record[STATE_FIELD] != "published" {
         return Ok(Default::default());
     }
     let values = serde_json::from_str(record["values"].as_str().unwrap_or("{}"))

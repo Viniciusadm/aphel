@@ -425,7 +425,7 @@ pub async fn apply(
     let repository = MySqlFieldDefinitionRepository::new(pool.clone());
     let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
-        let mut definition = definition(&registry, &manifest.key, &record_type, field, index)?;
+        let mut definition = definition(&registry, &manifest.key, &record_type, &field, index)?;
         let existing: Option<(String, Option<String>)> = sqlx::query_as(
             "SELECT id, module_key FROM field_definitions WHERE record_type = ? AND `key` = ?",
         )
@@ -611,14 +611,15 @@ async fn preflight(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), Ap
     Ok(())
 }
 
-pub(crate) fn declared_fields(manifest: &PluginManifest) -> Vec<(String, &FieldDef)> {
-    let mut fields: Vec<(String, &FieldDef)> = Vec::new();
+pub(crate) fn declared_fields(manifest: &PluginManifest) -> Vec<(String, FieldDef)> {
+    let mut fields: Vec<(String, FieldDef)> = Vec::new();
     for entity in &manifest.entities {
         let record_type = manifest.entity_record_type(&entity.key);
         fields.extend(
             entity
-                .fields
-                .iter()
+                .expanded_fields()
+                .unwrap_or_else(|_| entity.fields.clone())
+                .into_iter()
                 .map(|field| (record_type.clone(), field)),
         );
     }
@@ -626,7 +627,7 @@ pub(crate) fn declared_fields(manifest: &PluginManifest) -> Vec<(String, &FieldD
         manifest
             .fields
             .iter()
-            .map(|extension| (extension.record_type.clone(), &extension.field)),
+            .map(|extension| (extension.record_type.clone(), extension.field.clone())),
     );
     fields
 }
