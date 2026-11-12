@@ -40,7 +40,6 @@ recommended = [
   "workflow",
   "money",
   "documents",
-  "wasm_runtime",
 ]
 
 [navigation]

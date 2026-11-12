@@ -58,7 +58,7 @@ Runtime plugins built for real customers live outside this repository (`../plugi
 
 ## Platform rules
 
-- Only the kernel is always on. No module is required by the platform; `required = true` in `aphel.modules.toml` is a build choice and blueprints declare their own required modules.
+- Only the kernel and `wasm_runtime` (the plugin runtime, declared `.required()` in its manifest) are always on; neither appears among the modules a company or operator can toggle. Every other module is optional and blueprints declare their own required modules.
 - Modules and plugins depend on contracts, never on each other's internals. Each table has one owner; no SQL or foreign keys across owners. The kernel never reads a module's table and holds no domain words (the arch check counts them).
 - Capability modules have generic names (`workflow`, `tasks`, `assignment`); domain constants live in contract crates.
 - Kernel extension points ("core points") are contributed with `app.contribute::<dyn Trait>(..)`: `FileReferenceSource`, `HealthSource`, `ReferenceProvider`, `FieldTypeDefinition`, `RuntimeCatalogSource`, `SiteRequestHandler` and others, re-exported by `aphel_sdk::points`; capability traits are imported from their owner's contract.
@@ -133,7 +133,7 @@ Code in `back/kernel/src/tenancy`; guide `web/docs/src/content/docs/admin/multi-
 
 ## Runtime plugins
 
-Third parties ship `.aphelplugin` packages (`plugin.toml` + `backend.wasm` + `web/`), installed from the UI or API without rebuilding, handled by the optional module `modules/wasm_runtime`. Guide: `web/docs/src/content/docs/plugins`.
+Third parties ship `.aphelplugin` packages (`plugin.toml` + `backend.wasm` + `web/`), installed from the UI or API without rebuilding, handled by the required module `modules/wasm_runtime` (always enabled, not listed among modules). Guide: `web/docs/src/content/docs/plugins`.
 
 - Contract: WIT world `aphel:plugin@1.0.0` in `modules/wasm_runtime/wit/plugin.wit` (copied to both plugin SDKs by `make modules`). `1.x` only adds functions; existing records, enums and signatures are frozen. No production exists yet, so changing the WIT and rebuilding plugins is allowed.
 - The host API (`host.rs`) exposes records only through `RecordTypeHandler`/`RecordQueryEngine`, plus key-value, settings, secrets, outbound HTTP under the SSRF policy, clock, log, notifications, events, operations and files; never SQL. Calls run as actor ∩ plugin capabilities (`AccessScope::restricted`); events, schedules and public routes run as the installer (`AccessScope::through_plugin`).

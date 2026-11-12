@@ -7,7 +7,6 @@ description = "Shops, snack bars and venues that sell at a register: catalog, pr
 required = [
   "catalog_items",
   "objects",
-  "wasm_runtime",
 ]
 recommended = [
   "money",

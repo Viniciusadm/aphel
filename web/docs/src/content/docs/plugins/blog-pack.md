@@ -5,7 +5,7 @@ description: Import Blog 1.2.0 on Aphel 0.1.1, publish the first entry and confi
 
 ## Release requirements
 
-Blog `1.2.0` contains Content `0.3.0` and requires Aphel `>=0.1.1`, built with `wasm_runtime`, `objects`, `site`, `publication` and `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Compiled but disabled required modules are shown in consent and enabled by the same import. A pack cannot add Rust modules to a running binary.
+Blog `1.2.0` contains Content `0.3.0` and requires Aphel `>=0.1.1`, built with `objects`, `site`, `publication` and `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Compiled but disabled required modules are shown in consent and enabled by the same import. A pack cannot add Rust modules to a running binary.
 
 `pages` and `editorial_ui` are not required. Approval is optional and is not enabled by this pack. The host version is coordinated with the shared block editor, appearance renderer and native publication service; Content refuses older hosts even if they have an earlier publication module.
 

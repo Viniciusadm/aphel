@@ -17,7 +17,7 @@ All blueprints except `crm` extend `crm`, so they include everything in `crm` fi
 
 | Key | Name | Adds on top of `crm` | Configuration package |
 | --- | --- | --- | --- |
-| `crm` | CRM | Required: `people`, `organizations`, `deals`, `notes`, `tagging`, `integrations`, `exports`, `org_export`. Recommended: `timeline`, `dashboard`, `reminders`, `favorites`, `followers`, `onboarding`, `imports`, `bulk_actions`, `duplicates`, `trash`, `privacy`, `marketplace`, `notifications`, `objects`, `search`, `saved_views`, `record_layouts`, `formulas`, `validation_rules`, `config_packages`, `calendar`, `tasks`, `workflow`, `money`, `documents`, `wasm_runtime` | `crm` |
+| `crm` | CRM | Required: `people`, `organizations`, `deals`, `notes`, `tagging`, `integrations`, `exports`, `org_export`. Recommended: `timeline`, `dashboard`, `reminders`, `favorites`, `followers`, `onboarding`, `imports`, `bulk_actions`, `duplicates`, `trash`, `privacy`, `marketplace`, `notifications`, `objects`, `search`, `saved_views`, `record_layouts`, `formulas`, `validation_rules`, `config_packages`, `calendar`, `tasks`, `workflow`, `money`, `documents` | `crm` |
 | `freelancer` | Freelancer | Recommended: `booking`, `catalog_items`, `quotes`, `email`, `automations`, `demo`, `google`, `ai` | `crm`, then `freelancer` |
 | `agency` | Agency | Recommended: `leads`, `catalog_items`, `line_items`, `deals_revenue`, `pricing`, `quotes`, `proposals`, `email`, `sequences`, `segments`, `automations`, `reports`, `booking`, `google`, `microsoft`, `ai`, `enrichment`, `esign` | `crm`, then `agency` |
 | `consultancy` | Consultancy | Recommended: `booking`, `catalog_items`, `line_items`, `deals_revenue`, `quotes`, `proposals`, `approvals`, `email`, `reports`, `google`, `microsoft`, `ai`, `esign` | `crm` |
@@ -67,7 +67,7 @@ extends = "crm"
 
 [plugins]
 recommended = ["booking", "quotes"]
-exclude = ["wasm_runtime"]
+exclude = ["marketplace"]
 
 [configuration]
 packages = ["freelancer"]

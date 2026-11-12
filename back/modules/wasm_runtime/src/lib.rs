@@ -59,7 +59,7 @@ impl Module for WasmRuntimeModule {
             .description(
                 "Runtime plugins: install .aphelplugin packages (WebAssembly backend and web bundle) without rebuilding or restarting Aphel",
             )
-            .enabled_by_default()
+            .required()
             .migration(Migration::new(
                 1,
                 "create plugins",

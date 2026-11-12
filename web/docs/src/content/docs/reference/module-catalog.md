@@ -749,7 +749,7 @@ Runtime plugins: install .aphelplugin packages (WebAssembly backend and web bund
 | Optional dependencies | none |
 | Permissions | none |
 | Web package | yes |
-| Blueprints | Recommended by every blueprint (inherited from `crm`). |
+| Blueprints | Required: always enabled in every installation and not listed among the modules a company or operator can toggle. |
 
 ### Webhooks (`webhooks`)
 
