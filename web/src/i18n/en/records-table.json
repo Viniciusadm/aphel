@@ -233,5 +233,8 @@
   "collectionActions": "List actions",
   "presets": {
     "label": "Ready filters"
+  },
+  "sort": {
+    "label": "Sort by"
   }
 }

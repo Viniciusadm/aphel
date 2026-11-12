@@ -1,15 +1,16 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useRecordFormatting } from '../formatting'
 import type { RecordResource } from '../resources'
-import type { RecordItem } from '../types'
+import type { RecordItem, SortSpec } from '../types'
 
 interface RecordCardListProps {
   resource: RecordResource
   records: RecordItem[]
   isLoading: boolean
+  sort: SortSpec[]
 }
 
-export function RecordCardList({ resource, records, isLoading }: RecordCardListProps) {
+export function RecordCardList({ resource, records, isLoading, sort }: RecordCardListProps) {
   const formatting = useRecordFormatting()
   const Item = resource.listItem
   if (!Item) return null
@@ -25,7 +26,7 @@ export function RecordCardList({ resource, records, isLoading }: RecordCardListP
   }
 
   const groups = resource.listGroups
-    ? resource.listGroups(records, { timezone: formatting.timezone })
+    ? resource.listGroups(records, { timezone: formatting.timezone, sort })
     : [{ key: 'all', title: '', items: records }]
 
   return (

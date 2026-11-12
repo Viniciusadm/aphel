@@ -41,6 +41,7 @@ import { PageSizeSelect } from '@/components/ui/page-size-select'
 import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { Pagination } from '@/components/ui/pagination'
 import { RecordCardList } from './RecordCardList'
+import { sortToParam } from './query'
 import { RecordTable } from './RecordTable'
 import { SearchBox } from './SearchBox'
 import { useRecordList } from './useRecordList'
@@ -323,7 +324,7 @@ function RecordListContent({
       <>
         {!isLoading && <PaginationSummary page={urlState.page} perPage={urlState.perPage} total={total} />}
         {showList ? (
-          <RecordCardList resource={resource} records={items} isLoading={isLoading} />
+          <RecordCardList resource={resource} records={items} isLoading={isLoading} sort={sort} />
         ) : (
         <RecordTable
           schema={schema}
@@ -438,7 +439,29 @@ function RecordListContent({
                   <option value="only">{t('archived.only')}</option>
                 </NativeSelect>
               )}
-              {!showCalendar && <>
+              {showList && resource.listSorts && resource.listSorts.length > 0 && (
+                <NativeSelect
+                  aria-label={t('sort.label')}
+                  className="w-auto"
+                  value={resource.listSorts.find((option) => sortToParam(option.sort) === sortToParam(sort))?.key ?? ''}
+                  onChange={(event) => {
+                    const option = resource.listSorts?.find((item) => item.key === event.target.value)
+                    if (option) update({ sort: option.sort, page: 1 })
+                  }}
+                >
+                  {!resource.listSorts.some((option) => sortToParam(option.sort) === sortToParam(sort)) && (
+                    <option value="" disabled>
+                      {t('sort.label')}
+                    </option>
+                  )}
+                  {resource.listSorts.map((option) => (
+                    <option key={option.key} value={option.key}>
+                      {option.label}
+                    </option>
+                  ))}
+                </NativeSelect>
+              )}
+              {!showCalendar && !showList && <>
               <ColumnsMenu
                 schema={schema}
                 columns={config.columns}
@@ -447,8 +470,8 @@ function RecordListContent({
                 onReset={() => update({ columns: undefined })}
               />
               <DensityToggle value={config.density} onChange={setDensity} />
-              <PageSizeSelect value={urlState.perPage} onChange={(perPage) => update({ perPage, page: 1 })} />
               </>}
+              {!showCalendar && <PageSizeSelect value={urlState.perPage} onChange={(perPage) => update({ perPage, page: 1 })} />}
               </PopoverContent>
           </Popover>
           <RecordListActions recordType={recordType} />

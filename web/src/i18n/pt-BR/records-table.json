@@ -233,5 +233,8 @@
   "collectionActions": "Ações da lista",
   "presets": {
     "label": "Filtros prontos"
+  },
+  "sort": {
+    "label": "Ordenar por"
   }
 }

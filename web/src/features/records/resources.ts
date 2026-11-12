@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ComponentType } from 'react'
-import type { RecordItem } from './types'
+import type { RecordItem, SortSpec } from './types'
 
 export interface RecordResource {
   traits?: Record<string, unknown>
@@ -17,8 +17,15 @@ export interface RecordResource {
   subtitleField?: string
   detailPath?: (id: string) => string
   listItem?: ComponentType<{ record: RecordItem }>
-  listGroups?: (records: RecordItem[], context: { timezone: string }) => RecordListGroup[]
+  listGroups?: (records: RecordItem[], context: { timezone: string; sort: SortSpec[] }) => RecordListGroup[]
+  listSorts?: RecordListSort[]
   defaultLayout?: 'list'
+}
+
+export interface RecordListSort {
+  key: string
+  label: string
+  sort: SortSpec[]
 }
 
 export interface RecordListGroup {
