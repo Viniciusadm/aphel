@@ -11,7 +11,7 @@ pub mod installer;
 pub mod jobs;
 pub(crate) mod keybindings;
 pub mod mail;
-pub mod module_admin;
+pub(crate) mod module_admin;
 pub mod organization_admin;
 pub mod organization_profile;
 pub mod outbound_http;

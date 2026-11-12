@@ -6,16 +6,15 @@ use sqlx::mysql::MySqlConnectOptions;
 use tracing::warn;
 
 use crate::cli::{CliResult, migrate};
-use aphel_kernel::api::routes::v1::installer::install_organization;
 use aphel_kernel::api::state::AppState;
 use aphel_kernel::application::installer::InstallCommand;
-use aphel_kernel::application::module_admin::missing_required;
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::database;
 use aphel_kernel::domain::Secret;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
 use aphel_kernel::infrastructure::secrets::{EncryptionKeyring, build_secret_vault};
+use aphel_kernel::{install_organization, missing_required};
 
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 pub(crate) enum DbCommand {

@@ -14,6 +14,8 @@ pub mod state;
 pub mod tenancy;
 pub mod worker;
 
+pub use api::routes::v1::installer::install_organization;
+pub use application::module_admin::missing_required;
 pub use context::Ctx;
 pub use kernel_module::KernelModule;
 

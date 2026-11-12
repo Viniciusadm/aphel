@@ -6,7 +6,7 @@ pub(crate) mod directory;
 pub mod field_permissions;
 pub(crate) mod fields;
 pub mod files;
-pub mod installer;
+pub(crate) mod installer;
 pub mod members;
 pub(crate) mod modules;
 pub(crate) mod organization;
