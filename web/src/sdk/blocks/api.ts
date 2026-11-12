@@ -23,6 +23,8 @@ export interface SiteCollection {
   record_type: string
   label: string
   fields: string[]
+  scope_field: string | null
+  scopes: { id: string; label: string }[]
 }
 
 export const blockSourceKeys = {

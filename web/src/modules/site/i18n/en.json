@@ -22,8 +22,8 @@
     "save": "Save address"
   },
   "appearance": {
-    "title": "Appearance",
-    "description": "Theme and presentation used on every page.",
+    "title": "Scrollbar",
+    "description": "How the scrollbar looks on the site pages.",
     "theme": "Theme",
     "themeHint": "Themes come from plugins. The default theme is simple and follows dark mode.",
     "defaultTheme": "Default theme",
@@ -32,28 +32,15 @@
     "taglinePlaceholder": "E.g.: Handmade sweets since 1998",
     "save": "Save appearance",
     "preview": "Preview",
-    "home": "Home page",
-    "homeHint": "More than one plugin offers the site home page. Choose which one shows at the main address.",
-    "homeDefault": "Automatic ({{name}})",
     "scrollbar": "Scrollbar",
     "scrollbarHint": "Applies to the page and to areas that scroll sideways, such as carousels.",
     "scrollbarDefault": "Browser default",
     "scrollbarThemed": "Thin, in the site color"
   },
   "menu": {
-    "title": "Menu",
-    "description": "Drag to change the order. Hidden items stay online; they only leave the menu.",
-    "listLabel": "Site menu items",
-    "shown": "Show in the menu",
-    "empty": "No plugin offers menu items.",
-    "saved": "Menu updated",
-    "emptyWithLinks": "No menu items. Plugins can offer items, or add a link below.",
-    "addLinkTitle": "Add a link to the menu",
     "linkLabel": "Link text",
-    "linkLabelPlaceholder": "E.g. Book a call",
     "linkUrl": "Address",
     "linkUrlHint": "A site path, such as /book/intro-call for the booking page, or a full address starting with https://.",
-    "addLink": "Add link",
     "removeLink": "Remove the link {{label}}"
   },
   "redirects": {
@@ -189,7 +176,8 @@
     "languages": "Languages",
     "customers": "Customers",
     "redirects": "Redirects",
-    "general": "Address and cache"
+    "general": "Address and cache",
+    "navigation": "Navigation"
   },
   "screens": {
     "frame": {
@@ -215,6 +203,10 @@
     "general": {
       "title": "Address and cache",
       "description": "Where the site lives, whether search engines see it and cache clearing."
+    },
+    "navigation": {
+      "title": "Navigation",
+      "description": "Which page opens the site and what shows in the menu."
     }
   },
   "appearanceEditor": {
@@ -352,5 +344,29 @@
     "publicationFailed": "Appearance was not published. Review the request in Publication, resolve its blocking reason and retry.",
     "approvalsUnavailable": "Appearance was not published. Enable Approvals to process the configured policy, then retry the publication request.",
     "reload": "Load latest draft"
+  },
+  "navigation": {
+    "homeTitle": "Home page",
+    "homeDescription": "What shows at the main address of the site. It can be a page, the blog or another collection.",
+    "home": "Open the site at",
+    "homeDefault": "Welcome screen with the site name",
+    "menuTitle": "Menu",
+    "menuDescription": "Items of the main menu, in the order they appear. An item points to a page of the site and follows its address changes; use a group to gather items in a submenu.",
+    "label": "Text in the menu",
+    "labelFallback": "Empty uses the title: {{label}}",
+    "points": "Points to",
+    "address": "Another address…",
+    "group": "Group (submenu)",
+    "url": "Address",
+    "urlHelp": "A site path such as /contact, or an address starting with https://.",
+    "missingTarget": "Page that is no longer published",
+    "addChild": "Add an item inside {{label}}",
+    "remove": "Remove {{label}}",
+    "empty": "The menu is empty.",
+    "listLabel": "Menu items",
+    "childrenLabel": "Items of {{label}}",
+    "add": "Add item",
+    "save": "Save navigation",
+    "saved": "Navigation saved."
   }
 }

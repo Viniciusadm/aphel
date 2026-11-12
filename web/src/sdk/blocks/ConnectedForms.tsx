@@ -74,6 +74,7 @@ export function CollectionBlockForm({ block, disabled, onChange }: FormProps<Col
   const list = collections.data ?? []
   const current = `${block.owner}.${block.entity}`
   const missing = block.owner !== '' && collections.isSuccess && !list.some((item) => item.record_type === current)
+  const chosenCollection = list.find((item) => item.record_type === current)
   return (
     <div className="blocks-form">
       <Field label={t('fields.sectionTitle')}>
@@ -89,11 +90,25 @@ export function CollectionBlockForm({ block, disabled, onChange }: FormProps<Col
             options={list.map((item) => ({ value: item.record_type, label: item.label }))}
             onValueChange={(value) => {
               const chosen = list.find((item) => item.record_type === value)
-              onChange({ ...block, owner: chosen?.owner ?? '', entity: chosen?.entity ?? '' })
+              onChange({ ...block, owner: chosen?.owner ?? '', entity: chosen?.entity ?? '', scope_field: '', scope: '' })
             }}
           />
         )}
       </Field>
+      {chosenCollection && chosenCollection.scopes.length > 0 && (
+        <Field label={t('connected.scope')} description={t('connected.scopeHelp')}>
+          {(control) => (
+            <SelectField
+              {...control}
+              value={block.scope}
+              disabled={disabled}
+              emptyLabel={t('connected.allScopes')}
+              options={chosenCollection.scopes.map((scope) => ({ value: scope.id, label: scope.label }))}
+              onValueChange={(scope) => onChange({ ...block, scope, scope_field: scope ? chosenCollection.scope_field ?? '' : '' })}
+            />
+          )}
+        </Field>
+      )}
       <Field label={t('connected.order')}>
         {(control) => (
           <SelectField

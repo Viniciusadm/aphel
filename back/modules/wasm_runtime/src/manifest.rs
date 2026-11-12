@@ -157,8 +157,6 @@ pub struct SiteSpec {
     #[serde(default)]
     pub pages: Vec<SitePageSpec>,
     #[serde(default)]
-    pub menu: Vec<SiteMenuSpec>,
-    #[serde(default)]
     pub theme: Option<SiteThemeSpec>,
     #[serde(default)]
     pub csp: SiteCspSpec,
@@ -191,12 +189,6 @@ pub struct SiteMenuSpec {
     pub page: String,
     #[serde(default)]
     pub labels: std::collections::BTreeMap<String, String>,
-    #[serde(default, rename = "where")]
-    pub conditions: Option<std::collections::BTreeMap<String, Value>>,
-    #[serde(default)]
-    pub label_field: Option<String>,
-    #[serde(default)]
-    pub sort: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -39,11 +39,10 @@ const DEFAULT_SETTINGS: SiteModuleSettings = {
   accounts: false,
   theme: null,
   tagline: null,
-  menu: [],
+  navigation: [],
   languages: [],
   link_people: false,
   people_owner: null,
-  links: [],
   home: null,
   scrollbar: 'default',
 }

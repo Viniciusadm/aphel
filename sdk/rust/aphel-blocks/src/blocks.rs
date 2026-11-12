@@ -140,6 +140,8 @@ const COLLECTION: &[(&str, Kind)] = &[
     ("title", Kind::Text(160)),
     ("owner", Kind::Identifier),
     ("entity", Kind::Identifier),
+    ("scope_field", Kind::Identifier),
+    ("scope", Kind::Text(36)),
     ("sort", Kind::Choice(LIST_SORTS)),
     ("limit", Kind::Choice(LIST_LIMITS)),
     ("more_label", Kind::Text(60)),

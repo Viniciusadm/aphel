@@ -167,6 +167,8 @@ export interface CollectionBlock {
   title: string
   owner: string
   entity: string
+  scope_field: string
+  scope: string
   sort: 'newest' | 'oldest'
   limit: '3' | '6' | '9' | '12'
   more_label: string
@@ -241,7 +243,7 @@ export function newBlock(type: BlockType): Block {
     case 'booking':
       return { id, type, title: '', text: '', booking: '' }
     case 'collection':
-      return { id, type, title: '', owner: '', entity: '', sort: 'newest', limit: '6', more_label: '', more_link: '' }
+      return { id, type, title: '', owner: '', entity: '', scope_field: '', scope: '', sort: 'newest', limit: '6', more_label: '', more_link: '' }
     case 'embed':
       return { id, type, url: '', title: '', height: 'medium' }
   }

@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, LazyLock, RwLock};
 
 use aphel_contract_site::{
-    HEAD_PARTIAL, HOME_PATH, ICONS_PARTIAL, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle,
+    HEAD_PARTIAL, ICONS_PARTIAL, IMAGE_WIDTHS, LAYOUT_TEMPLATE, PathPattern, SiteBundle,
     SiteContentSource, SiteCsp, SiteExposure, SitePage, THEME_ERROR, THEME_LAYOUT, THEME_NOT_FOUND,
-    check_bundle, join_template_path, menu_item_id, template_name,
+    check_bundle, join_template_path, template_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::App;
@@ -13,6 +13,7 @@ use minijinja::value::Kwargs;
 use minijinja::{Environment, Error, ErrorKind, State, Value};
 
 pub(crate) const NOT_FOUND_TEMPLATE: &str = "aphel/not_found.html";
+pub(crate) const WELCOME_TEMPLATE: &str = "aphel/welcome.html";
 pub(crate) const ERROR_TEMPLATE: &str = "aphel/error.html";
 pub(crate) const THEMES_SEGMENT: &str = "themes";
 pub(crate) const ISLANDS_SEGMENT: &str = "islands";
@@ -43,11 +44,8 @@ pub(crate) struct Route {
 }
 
 pub(crate) struct MenuCandidate {
-    pub id: String,
-    pub owner: String,
     pub item: aphel_contract_site::SiteMenuItem,
     pub path: String,
-    pub source: aphel_contract_site::PageSource,
 }
 
 impl MenuCandidate {
@@ -67,11 +65,9 @@ pub(crate) struct SiteRuntime {
     revision: String,
     pub routes: Vec<Route>,
     pub prefixed: Vec<Route>,
-    home_alternatives: Vec<Route>,
     names: BTreeMap<String, String>,
     exposures: BTreeMap<(String, String), SiteExposure>,
     pub environment: Environment<'static>,
-    pub menu: Vec<MenuCandidate>,
     pub themes: Vec<ThemeInfo>,
     pub theme: Option<String>,
     csp: BTreeMap<String, SiteCsp>,
@@ -81,6 +77,10 @@ pub(crate) struct SiteRuntime {
 }
 
 impl SiteRuntime {
+    pub fn owner_name<'a>(&'a self, owner: &'a str) -> &'a str {
+        self.names.get(owner).map(String::as_str).unwrap_or(owner)
+    }
+
     pub fn revision(&self) -> &str {
         &self.revision
     }
@@ -136,45 +136,10 @@ impl SiteRuntime {
         )
     }
 
-    pub fn find(
-        &self,
-        path: &str,
-        home: Option<&str>,
-    ) -> Option<(&Route, BTreeMap<String, String>)> {
-        self.effective_routes(home)
-            .into_iter()
+    pub fn find(&self, path: &str) -> Option<(&Route, BTreeMap<String, String>)> {
+        self.routes
+            .iter()
             .find_map(|route| route.pattern.matches(path).map(|params| (route, params)))
-    }
-
-    pub fn effective_routes(&self, home: Option<&str>) -> Vec<&Route> {
-        let chosen = home.and_then(|home| {
-            self.home_alternatives
-                .iter()
-                .find(|route| route.owner == home)
-        });
-        self.routes
-            .iter()
-            .map(|route| match chosen {
-                Some(chosen) if route.pattern.shape() == HOME_PATH => chosen,
-                _ => route,
-            })
-            .collect()
-    }
-
-    pub fn home_candidates(&self) -> Vec<(String, String)> {
-        self.routes
-            .iter()
-            .filter(|route| route.pattern.shape() == HOME_PATH)
-            .chain(&self.home_alternatives)
-            .map(|route| {
-                let name = self
-                    .names
-                    .get(&route.owner)
-                    .cloned()
-                    .unwrap_or_else(|| route.owner.clone());
-                (route.owner.clone(), name)
-            })
-            .collect()
     }
 }
 
@@ -219,7 +184,6 @@ pub(crate) async fn current(app: &App, theme: Option<&str>) -> Result<Arc<SiteRu
 fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> SiteRuntime {
     let mut environment = base_environment(theme.clone());
     let mut appearance = aphel_contract_site::ThemeAppearance::default();
-    let mut menu = Vec::new();
     let mut themes = Vec::new();
     let mut csp = BTreeMap::new();
     let mut uses_customers = false;
@@ -227,7 +191,6 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
     let mut islands: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut routes: Vec<Route> = Vec::new();
     let mut prefixed: Vec<Route> = Vec::new();
-    let mut home_alternatives: Vec<Route> = Vec::new();
     let mut names = BTreeMap::new();
     let mut exposures = BTreeMap::new();
     let mut paths: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
@@ -295,22 +258,8 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
         for item in &bundle.account {
             if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
                 account_links.push(MenuCandidate {
-                    id: menu_item_id(&bundle.owner, &item.key),
-                    owner: bundle.owner.clone(),
                     item: item.clone(),
                     path: page.path.clone(),
-                    source: page.source.clone(),
-                });
-            }
-        }
-        for item in &bundle.menu {
-            if let Some(page) = bundle.pages.iter().find(|page| page.key == item.page) {
-                menu.push(MenuCandidate {
-                    id: menu_item_id(&bundle.owner, &item.key),
-                    owner: bundle.owner.clone(),
-                    item: item.clone(),
-                    path: page.path.clone(),
-                    source: page.source.clone(),
                 });
             }
         }
@@ -331,18 +280,6 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
                     format!("/{{{}}}{relative}", aphel_contract_site::PREFIX_PARAM),
                 );
                 prefixed.push(Route {
-                    owner: bundle.owner.clone(),
-                    page,
-                    pattern,
-                });
-                continue;
-            }
-            if pattern.shape() == HOME_PATH
-                && routes
-                    .iter()
-                    .any(|route| route.pattern.shape() == HOME_PATH)
-            {
-                home_alternatives.push(Route {
                     owner: bundle.owner.clone(),
                     page,
                     pattern,
@@ -392,11 +329,9 @@ fn build(revision: String, bundles: Vec<SiteBundle>, theme: Option<String>) -> S
         revision,
         routes,
         prefixed,
-        home_alternatives,
         names,
         exposures,
         environment,
-        menu,
         appearance,
         themes,
         theme,
@@ -433,6 +368,7 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
             include_str!("../theme/presentation_style.html"),
         ),
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
+        (WELCOME_TEMPLATE, include_str!("../theme/welcome.html")),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
         (HEAD_PARTIAL, include_str!("../theme/head.html")),
         (ICONS_PARTIAL, include_str!("../theme/icons.html")),

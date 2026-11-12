@@ -48,9 +48,12 @@ export interface SiteLink {
   url: string
 }
 
-export interface SiteMenuEntry {
-  item: string
-  hidden: boolean
+export interface SiteNavigationItem {
+  id: string
+  label: string
+  target?: string | null
+  url?: string | null
+  children: SiteNavigationItem[]
 }
 
 export interface SiteSettings {
@@ -58,9 +61,8 @@ export interface SiteSettings {
   accounts: boolean
   theme: string | null
   tagline: string | null
-  menu: SiteMenuEntry[]
+  navigation: SiteNavigationItem[]
   languages: string[]
-  links: SiteLink[]
   home?: string | null
   scrollbar?: 'default' | 'themed'
 }

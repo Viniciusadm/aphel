@@ -13,16 +13,12 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleField } from '@/components/ui/toggle-field'
-import { cn } from '@/lib/utils'
 import {
   FormRow,
   type OrganizationConfiguration,
   serverFieldErrors,
   SettingsNativeSelect as NativeSelect,
   SETTINGS_MANAGE,
-  type SiteLink,
-  type SiteMenuEntry,
-  SortableList,
   SYSTEM_MANAGE,
   useAllMembers,
 } from '@/sdk'
@@ -32,14 +28,11 @@ import {
   useSiteCustomers,
   useSitePathRedirects,
   useSiteRedirects,
-  type SiteMenuItem,
   type SiteOverview,
 } from './api'
 import { currentSettings, languageName, type SiteModuleSettings, useSaveSite } from './siteSettings'
 
 const RESERVED_SEGMENTS = ['api']
-const LINK_PREFIX = 'link.'
-const LINK_LABEL_MAX = 60
 
 function segmentOf(basePath: string): string {
   return basePath.replace(/^\/+|\/+$/g, '')
@@ -223,13 +216,12 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
 }
 
 const appearanceSchema = z.object({
-  home: z.string(),
   scrollbar: z.enum(['default', 'themed']),
 })
 
 type AppearanceValues = z.infer<typeof appearanceSchema>
 
-export function AppearanceCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
+export function AppearanceCard({ configuration }: { configuration: OrganizationConfiguration }) {
   const { t } = useTranslation('site')
   const saveSite = useSaveSite(configuration)
   const invalidate = useInvalidateSite()
@@ -241,12 +233,12 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
     formState: { isSubmitting, isDirty },
   } = useForm<AppearanceValues>({
     resolver: zodResolver(appearanceSchema),
-    defaultValues: { home: settings.home ?? '', scrollbar: settings.scrollbar ?? 'default' },
+    defaultValues: { scrollbar: settings.scrollbar ?? 'default' },
   })
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const saved = await saveSite({ home: values.home || null, scrollbar: values.scrollbar })
-      reset({ home: saved.site?.home ?? '', scrollbar: saved.site?.scrollbar ?? 'default' })
+      const saved = await saveSite({ scrollbar: values.scrollbar })
+      reset({ scrollbar: saved.site?.scrollbar ?? 'default' })
       void invalidate()
       notifySuccess(t('saved'))
     } catch (error) {
@@ -264,20 +256,6 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
         <form className="grid gap-4" onSubmit={onSubmit} noValidate>
           <UnsavedChangesGuard when={isDirty} />
           <fieldset className="grid gap-4" disabled={isSubmitting}>
-            {overview.home_candidates.length > 1 && (
-              <FormRow id="site-home" label={t('appearance.home')} hint={t('appearance.homeHint')}>
-                {(describedBy) => (
-                  <NativeSelect id="site-home" className="min-w-48" aria-describedby={describedBy} {...register('home')}>
-                    <option value="">{t('appearance.homeDefault', { name: overview.home_candidates[0].name })}</option>
-                    {overview.home_candidates.map((candidate) => (
-                      <option key={candidate.owner} value={candidate.owner}>
-                        {candidate.name}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                )}
-              </FormRow>
-            )}
             <FormRow id="site-scrollbar" label={t('appearance.scrollbar')} hint={t('appearance.scrollbarHint')}>
               {(describedBy) => (
                 <NativeSelect id="site-scrollbar" className="min-w-48" aria-describedby={describedBy} {...register('scrollbar')}>
@@ -290,188 +268,6 @@ export function AppearanceCard({ configuration, overview }: { configuration: Org
           <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting || !isDirty}>
               {t('appearance.save')}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  )
-}
-
-interface MenuRow extends SiteMenuItem {
-  hidden: boolean
-  custom: boolean
-}
-
-function orderedMenu(items: SiteMenuItem[], entries: SiteMenuEntry[]): MenuRow[] {
-  const position = (id: string) => {
-    const index = entries.findIndex((entry) => entry.item === id)
-    return index === -1 ? Number.MAX_SAFE_INTEGER : index
-  }
-  return items
-    .map((item, index) => ({ item, index }))
-    .sort((left, right) => position(left.item.id) - position(right.item.id) || left.index - right.index)
-    .map(({ item }) => ({
-      ...item,
-      hidden: entries.some((entry) => entry.item === item.id && entry.hidden),
-      custom: item.id.startsWith(LINK_PREFIX),
-    }))
-}
-
-function menuItemsOf(overview: SiteOverview, links: SiteLink[]): SiteMenuItem[] {
-  return [...overview.menu_items, ...links.map((link) => ({ id: `${LINK_PREFIX}${link.id}`, label: link.label, path: link.url }))]
-}
-
-const linkSchema = z.object({
-  label: z.string().trim().min(1, 'errors.linkLabel').max(LINK_LABEL_MAX, 'errors.linkLabel'),
-  url: z
-    .string()
-    .trim()
-    .regex(/^(\/(?!\/)\S*|https?:\/\/\S+)$/, 'errors.redirectTarget'),
-})
-
-type LinkValues = z.infer<typeof linkSchema>
-
-function newLinkId(): string {
-  return crypto.randomUUID().replace(/-/g, '').slice(0, 12)
-}
-
-export function MenuCard({ configuration, overview }: { configuration: OrganizationConfiguration; overview: SiteOverview }) {
-  const { t } = useTranslation('site')
-  const saveSite = useSaveSite(configuration)
-  const [links, setLinks] = useState(() => currentSettings(configuration).links)
-  const [rows, setRows] = useState(() => orderedMenu(menuItemsOf(overview, links), currentSettings(configuration).menu))
-  const [saving, setSaving] = useState(false)
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<LinkValues>({ resolver: zodResolver(linkSchema), defaultValues: { label: '', url: '' } })
-  const errorText = (message?: string) => (message?.startsWith('errors.') ? t(message as 'errors.linkLabel') : message)
-
-  const persist = async (next: MenuRow[], nextLinks: SiteLink[] = links) => {
-    const previous = { rows, links }
-    setRows(next)
-    setLinks(nextLinks)
-    setSaving(true)
-    try {
-      await saveSite({ menu: next.map((row) => ({ item: row.id, hidden: row.hidden })), links: nextLinks })
-      notifySuccess(t('menu.saved'))
-      return true
-    } catch (error) {
-      setRows(previous.rows)
-      setLinks(previous.links)
-      notifyError(error)
-      return false
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const addLink = handleSubmit(async (values) => {
-    const link = { id: newLinkId(), label: values.label.trim(), url: values.url.trim() }
-    const added = await persist(
-      [...rows, { id: `${LINK_PREFIX}${link.id}`, label: link.label, path: link.url, hidden: false, custom: true }],
-      [...links, link],
-    )
-    if (added) reset({ label: '', url: '' })
-  })
-
-  const removeLink = (row: MenuRow) =>
-    void persist(
-      rows.filter((candidate) => candidate.id !== row.id),
-      links.filter((link) => `${LINK_PREFIX}${link.id}` !== row.id),
-    )
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('menu.title')}</CardTitle>
-        <CardDescription>{t('menu.description')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {rows.length === 0 ? (
-          <EmptyState title={t('menu.emptyWithLinks')} />
-        ) : (
-          <SortableList
-            items={rows}
-            getId={(row) => row.id}
-            getLabel={(row) => row.label}
-            disabled={saving}
-            label={t('menu.listLabel')}
-            onReorder={(ids) => void persist(ids.map((id) => rows.find((row) => row.id === id)).filter((row): row is MenuRow => row !== undefined))}
-            renderItem={(row, handle) => (
-              <div className={cn('flex flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2', row.hidden && 'opacity-70')}>
-                {handle}
-                <div className="grid min-w-32 flex-1 gap-0.5">
-                  <span className="truncate text-sm font-medium">{row.label}</span>
-                  <code className="truncate text-xs text-muted-foreground">{row.path}</code>
-                </div>
-                <ToggleField
-                  id={`site-menu-${row.id}`}
-                  type="switch"
-                  label={t('menu.shown')}
-                  checked={!row.hidden}
-                  disabled={saving}
-                  onCheckedChange={(checked) =>
-                    void persist(rows.map((candidate) => (candidate.id === row.id ? { ...candidate, hidden: checked !== true } : candidate)))
-                  }
-                />
-                {row.custom && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={saving}
-                    onClick={() => removeLink(row)}
-                    aria-label={t('menu.removeLink', { label: row.label })}
-                  >
-                    <Trash2 aria-hidden="true" />
-                  </Button>
-                )}
-              </div>
-            )}
-          />
-        )}
-        <form className="mt-4 grid gap-4 border-t pt-4" onSubmit={addLink} noValidate>
-          <p className="text-sm font-medium">{t('menu.addLinkTitle')}</p>
-          <fieldset className="grid gap-4 sm:grid-cols-2" disabled={isSubmitting || saving}>
-            <FormRow id="site-link-label" label={t('menu.linkLabel')} error={errorText(errors.label?.message)}>
-              {(describedBy) => (
-                <Input
-                  id="site-link-label"
-                  maxLength={LINK_LABEL_MAX}
-                  placeholder={t('menu.linkLabelPlaceholder')}
-                  aria-invalid={errors.label ? true : undefined}
-                  aria-describedby={describedBy}
-                  {...register('label')}
-                />
-              )}
-            </FormRow>
-            <FormRow
-              id="site-link-url"
-              label={t('menu.linkUrl')}
-              error={errorText(errors.url?.message)}
-              hint={t('menu.linkUrlHint')}
-            >
-              {(describedBy) => (
-                <Input
-                  id="site-link-url"
-                  placeholder="/book/consulta"
-                  autoComplete="off"
-                  spellCheck={false}
-                  inputMode="url"
-                  aria-invalid={errors.url ? true : undefined}
-                  aria-describedby={describedBy}
-                  {...register('url')}
-                />
-              )}
-            </FormRow>
-          </fieldset>
-          <div className="flex justify-end">
-            <Button type="submit" variant="outline" disabled={isSubmitting || saving}>
-              <Plus aria-hidden="true" />
-              {t('menu.addLink')}
             </Button>
           </div>
         </form>

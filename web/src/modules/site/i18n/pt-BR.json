@@ -22,8 +22,8 @@
     "save": "Salvar endereço"
   },
   "appearance": {
-    "title": "Aparência",
-    "description": "Tema e apresentação usados em todas as páginas.",
+    "title": "Barra de rolagem",
+    "description": "Como a barra de rolagem aparece nas páginas do site.",
     "theme": "Tema",
     "themeHint": "Temas vêm de plugins. O tema padrão é simples e se adapta ao modo escuro.",
     "defaultTheme": "Tema padrão",
@@ -32,28 +32,15 @@
     "taglinePlaceholder": "Ex.: Doces artesanais desde 1998",
     "save": "Salvar aparência",
     "preview": "Pré-visualizar",
-    "home": "Página inicial",
-    "homeHint": "Mais de um plugin oferece a página inicial do site. Escolha qual aparece no endereço principal.",
-    "homeDefault": "Automático ({{name}})",
     "scrollbar": "Barra de rolagem",
     "scrollbarHint": "Vale para a página e para áreas que rolam de lado, como carrosséis.",
     "scrollbarDefault": "Padrão do navegador",
     "scrollbarThemed": "Fina, na cor do site"
   },
   "menu": {
-    "title": "Menu",
-    "description": "Arraste para mudar a ordem. Itens ocultos continuam no ar, só saem do menu.",
-    "listLabel": "Itens do menu do site",
-    "shown": "Mostrar no menu",
-    "empty": "Nenhum plugin oferece itens de menu.",
-    "saved": "Menu atualizado",
-    "emptyWithLinks": "Nenhum item no menu. Plugins podem oferecer itens, ou adicione um link abaixo.",
-    "addLinkTitle": "Adicionar link ao menu",
     "linkLabel": "Texto do link",
-    "linkLabelPlaceholder": "Ex.: Agendar",
     "linkUrl": "Endereço",
     "linkUrlHint": "Um caminho do site, como /book/consulta para a página de agendamento, ou um endereço completo com https://.",
-    "addLink": "Adicionar link",
     "removeLink": "Remover o link {{label}}"
   },
   "redirects": {
@@ -189,7 +176,8 @@
     "languages": "Idiomas",
     "customers": "Clientes",
     "redirects": "Redirecionamentos",
-    "general": "Endereço e cache"
+    "general": "Endereço e cache",
+    "navigation": "Navegação"
   },
   "screens": {
     "frame": {
@@ -215,6 +203,10 @@
     "general": {
       "title": "Endereço e cache",
       "description": "Onde o site fica, se aparece em buscadores e a limpeza do cache."
+    },
+    "navigation": {
+      "title": "Navegação",
+      "description": "Qual página abre o site e o que aparece no menu."
     }
   },
   "appearanceEditor": {
@@ -352,5 +344,29 @@
     "publicationFailed": "A aparência não foi publicada. Confira a solicitação em Publicação, resolva o impedimento e tente novamente.",
     "approvalsUnavailable": "A aparência não foi publicada. Ative Aprovações para processar a política configurada e tente novamente a solicitação de publicação.",
     "reload": "Carregar rascunho mais recente"
+  },
+  "navigation": {
+    "homeTitle": "Página inicial",
+    "homeDescription": "O que aparece no endereço principal do site. Pode ser uma página, o blog ou outra coleção.",
+    "home": "Abrir o site em",
+    "homeDefault": "Tela de boas-vindas com o nome do site",
+    "menuTitle": "Menu",
+    "menuDescription": "Itens do menu principal, na ordem em que aparecem. Um item aponta para uma página do site e acompanha mudanças de endereço; use um grupo para juntar itens num submenu.",
+    "label": "Texto no menu",
+    "labelFallback": "Vazio usa o título: {{label}}",
+    "points": "Aponta para",
+    "address": "Outro endereço…",
+    "group": "Grupo (submenu)",
+    "url": "Endereço",
+    "urlHelp": "Um caminho do site, como /contato, ou um endereço que começa com https://.",
+    "missingTarget": "Página que não está mais publicada",
+    "addChild": "Adicionar item dentro de {{label}}",
+    "remove": "Remover {{label}}",
+    "empty": "O menu está vazio.",
+    "listLabel": "Itens do menu",
+    "childrenLabel": "Itens de {{label}}",
+    "add": "Adicionar item",
+    "save": "Salvar navegação",
+    "saved": "Navegação salva."
   }
 }

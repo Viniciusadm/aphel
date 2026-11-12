@@ -8,9 +8,10 @@ use std::collections::BTreeMap;
 
 const SETTINGS_KEY: &str = "site";
 const MAX_TAGLINE_CHARS: usize = 160;
-const MAX_MENU_ENTRIES: usize = 100;
 const MAX_LANGUAGES: usize = 5;
-const MAX_HOME_KEY_CHARS: usize = 64;
+const MAX_NAVIGATION_ITEMS: usize = 30;
+const MAX_NAVIGATION_CHILDREN: usize = 15;
+const MAX_TARGET_CHARS: usize = 200;
 pub(crate) const SITE_LANGUAGES: &[&str] = &["pt-BR", "en", "es", "fr", "de", "it"];
 
 pub(crate) fn language_slug(language: &str) -> String {
@@ -24,11 +25,10 @@ pub(crate) struct SiteSettings {
     pub accounts: bool,
     pub theme: Option<String>,
     pub tagline: Option<String>,
-    pub menu: Vec<MenuEntry>,
+    pub navigation: Vec<NavigationItem>,
     pub languages: Vec<String>,
     pub link_people: bool,
     pub people_owner: Option<String>,
-    pub links: Vec<SiteLink>,
     pub home: Option<String>,
     pub scrollbar: String,
     pub header: SiteHeader,
@@ -196,8 +196,20 @@ pub(crate) struct SiteLink {
     pub url: String,
 }
 
-pub(crate) const LINK_PREFIX: &str = "link.";
-const MAX_LINKS: usize = 20;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub(crate) struct NavigationItem {
+    pub id: String,
+    #[serde(default)]
+    pub label: String,
+    #[serde(default)]
+    pub target: Option<String>,
+    #[serde(default)]
+    pub url: Option<String>,
+    #[serde(default)]
+    pub children: Vec<NavigationItem>,
+}
+
+const MAX_LINKS: usize = MAX_NAVIGATION_ITEMS + MAX_NAVIGATION_ITEMS * MAX_NAVIGATION_CHILDREN;
 const MAX_LINK_ID_CHARS: usize = 40;
 const MAX_LINK_LABEL_CHARS: usize = 60;
 const MAX_LINK_URL_CHARS: usize = 500;
@@ -214,24 +226,94 @@ pub(crate) fn valid_link_url(url: &str) -> bool {
 
 fn valid_link(link: &SiteLink) -> bool {
     let label = link.label.trim();
-    !link.id.is_empty()
-        && link.id.len() <= MAX_LINK_ID_CHARS
-        && link.id.chars().all(|character| {
-            character.is_ascii_lowercase()
-                || character.is_ascii_digit()
-                || character == '_'
-                || character == '-'
-        })
+    valid_id(&link.id)
         && !label.is_empty()
         && label.chars().count() <= MAX_LINK_LABEL_CHARS
         && valid_link_url(link.url.trim())
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub(crate) struct MenuEntry {
-    pub item: String,
-    #[serde(default)]
-    pub hidden: bool,
+fn valid_id(id: &str) -> bool {
+    !id.is_empty()
+        && id.len() <= MAX_LINK_ID_CHARS
+        && id.chars().all(|character| {
+            character.is_ascii_lowercase()
+                || character.is_ascii_digit()
+                || character == '_'
+                || character == '-'
+        })
+}
+
+fn navigation_problem(item: &NavigationItem, depth: usize) -> Option<String> {
+    let label = item.label.trim();
+    let target = item
+        .target
+        .as_deref()
+        .map(str::trim)
+        .filter(|target| !target.is_empty());
+    let url = item
+        .url
+        .as_deref()
+        .map(str::trim)
+        .filter(|url| !url.is_empty());
+    if !valid_id(&item.id) {
+        return Some(format!(
+            "{} needs an id of lowercase letters, digits, - or _",
+            item.id
+        ));
+    }
+    if label.chars().count() > MAX_LINK_LABEL_CHARS {
+        return Some(format!(
+            "{}: the label has at most {MAX_LINK_LABEL_CHARS} characters",
+            item.id
+        ));
+    }
+    match (target, url) {
+        (Some(_), Some(_)) => {
+            return Some(format!(
+                "{}: choose a page or an address, not both",
+                item.id
+            ));
+        }
+        (Some(target), None) => {
+            if target.len() > MAX_TARGET_CHARS || crate::targets::Target::parse(target).is_none() {
+                return Some(format!("{}: unknown page", item.id));
+            }
+        }
+        (None, Some(url)) => {
+            if !valid_link_url(url) || label.is_empty() {
+                return Some(format!(
+                    "{}: needs a label and a site path (/page) or an address starting with https://",
+                    item.id
+                ));
+            }
+        }
+        (None, None) => {
+            if label.is_empty() || item.children.is_empty() {
+                return Some(format!(
+                    "{}: a group without a page or address needs a label and items",
+                    item.id
+                ));
+            }
+        }
+    }
+    if depth > 0 && !item.children.is_empty() {
+        return Some(format!("{}: items nest only one level", item.id));
+    }
+    if item.children.len() > MAX_NAVIGATION_CHILDREN {
+        return Some(format!(
+            "{}: at most {MAX_NAVIGATION_CHILDREN} items in a group",
+            item.id
+        ));
+    }
+    item.children
+        .iter()
+        .find_map(|child| navigation_problem(child, depth + 1))
+}
+
+pub(crate) fn navigation_items(items: &[NavigationItem]) -> impl Iterator<Item = &NavigationItem> {
+    items
+        .iter()
+        .flat_map(|item| std::iter::once(item).chain(item.children.iter()))
 }
 
 impl Default for SiteSettings {
@@ -241,11 +323,10 @@ impl Default for SiteSettings {
             accounts: false,
             theme: None,
             tagline: None,
-            menu: Vec::new(),
+            navigation: Vec::new(),
             languages: Vec::new(),
             link_people: false,
             people_owner: None,
-            links: Vec::new(),
             home: None,
             scrollbar: SCROLLBAR_STYLES[0].to_owned(),
             header: SiteHeader::default(),
@@ -309,19 +390,21 @@ impl OrganizationConfigExtension for SiteConfiguration {
                 ),
             ));
         }
-        let mut link_ids = std::collections::BTreeSet::new();
-        if settings.links.len() > MAX_LINKS
-            || settings
-                .links
-                .iter()
-                .any(|link| !valid_link(link) || !link_ids.insert(link.id.as_str()))
+        let mut navigation_ids = std::collections::BTreeSet::new();
+        let problem = if settings.navigation.len() > MAX_NAVIGATION_ITEMS {
+            Some(format!("must have at most {MAX_NAVIGATION_ITEMS} items"))
+        } else if let Some(item) = navigation_items(&settings.navigation)
+            .find(|item| !navigation_ids.insert(item.id.as_str()))
         {
-            violations.push(FieldViolation::new(
-                "site.links",
-                format!(
-                    "must have at most {MAX_LINKS} links with a unique id, a label of up to {MAX_LINK_LABEL_CHARS} characters and a site path (/page) or an address starting with https://"
-                ),
-            ));
+            Some(format!("{} is repeated", item.id))
+        } else {
+            settings
+                .navigation
+                .iter()
+                .find_map(|item| navigation_problem(item, 0))
+        };
+        if let Some(problem) = problem {
+            violations.push(FieldViolation::new("site.navigation", problem));
         }
         if !SCROLLBAR_STYLES.contains(&settings.scrollbar.as_str()) {
             violations.push(FieldViolation::new(
@@ -330,24 +413,14 @@ impl OrganizationConfigExtension for SiteConfiguration {
             ));
         }
         if settings.home.as_deref().is_some_and(|home| {
-            home.is_empty()
-                || home.len() > MAX_HOME_KEY_CHARS
-                || !home.chars().all(|character| {
-                    character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
-                })
+            home.len() > MAX_TARGET_CHARS || crate::targets::Target::parse(home).is_none()
         }) {
             violations.push(FieldViolation::new(
                 "site.home",
-                "must be the key of a plugin that serves the home page",
+                "must be a page or record of the site",
             ));
         }
         violations.extend(frame_violations(&settings));
-        if settings.menu.len() > MAX_MENU_ENTRIES {
-            violations.push(FieldViolation::new(
-                "site.menu",
-                format!("must have at most {MAX_MENU_ENTRIES} entries"),
-            ));
-        }
         violations
     }
 }

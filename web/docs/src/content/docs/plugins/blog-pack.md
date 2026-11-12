@@ -1,19 +1,19 @@
 ---
 title: Install and operate the Blog pack
-description: Import Blog 1.3.0 on Aphel 0.1.1, publish the first entry and configure classification, review and appearance.
+description: Import Blog 1.4.0 on Aphel 0.1.1, publish the first entry and configure classification, review and appearance.
 ---
 
 ## Release requirements
 
-Blog `1.3.0` contains Content `0.4.0` and requires Aphel `>=0.1.1`, built with `objects`, `site`, `publication` and `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Compiled but disabled required modules are shown in consent and enabled by the same import. A pack cannot add Rust modules to a running binary.
+Blog `1.4.0` contains Content `0.4.0` and requires Aphel `>=0.1.1`, built with `objects`, `site`, `publication` and `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Compiled but disabled required modules are shown in consent and enabled by the same import. A pack cannot add Rust modules to a running binary.
 
 `pages` and `editorial_ui` are not required. Approval is optional and is not enabled by this pack. The host version is coordinated with the shared block editor, appearance renderer and native publication service; Content refuses older hosts even if they have an earlier publication module.
 
 ## Import and publish
 
-1. Sign in as an administrator and open the existing plugin import screen. Select `blog-1.3.0.aphelpack`.
-2. Review the required modules, Content permissions, integrated frontend code and resources in consent, then import. The API equivalent is `POST /api/v1/wasm-runtime/packs` with multipart field `package`, first with `dry_run=true`, then with `acknowledge_web_version=1.3.0` after consent.
-3. Check that the import is complete. The pack creates a Blog collection, a menu link, the public Categories and Tags vocabularies, and an Editorial collection presentation. It creates no sample entries or mandatory terms and leaves existing identity, themes, menus and home pages intact.
+1. Sign in as an administrator and open the existing plugin import screen. Select `blog-1.4.0.aphelpack`.
+2. Review the required modules, Content permissions, integrated frontend code and resources in consent, then import. The API equivalent is `POST /api/v1/wasm-runtime/packs` with multipart field `package`, first with `dry_run=true`, then with `acknowledge_web_version=1.4.0` after consent.
+3. Check that the import is complete. The pack creates a Blog collection, a menu item that points to it, the public Categories and Tags vocabularies, and an Editorial collection presentation. It creates no sample entries or mandatory terms and leaves existing identity, themes, menus and home pages intact.
 4. Open Site → Content, select Blog, create an entry, save its title/body and choose Publish. Its list and detail use the site's configured address and mount; with the default mount the list is `/s/blog`. No domain, external credentials or additional plugin installation is needed.
 
 If `/blog` is already claimed, the pack's declared suffix strategy chooses `/blog-2` and then subsequent available suffixes. Open the collection to see its actual address; navigation uses that resolved address. Required provisioners are checked before installation, including providers of modules that consent will enable.
@@ -47,7 +47,7 @@ The generic provisioner supports other packs. A second pack can use a different 
 From the workspace containing `app/` and `plugins/`:
 
 ```bash
-CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/content/packs/blog -o plugins/packs/blog/releases/blog-1.3.0.aphelpack
+CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/content/packs/blog -o plugins/packs/blog/releases/blog-1.4.0.aphelpack
 ```
 
 The adjacent SHA-256 file verifies the delivered archive. The archive contains `pack.toml` and the Content plugin package, including its manifest, rebuilt WASM, shared-SDK web bundle and site templates. Native modules and shared web exports come from the matching host.

@@ -1,9 +1,10 @@
-import { Globe, Languages, Palette, PanelsTopLeft, Settings2, Shuffle, UserRound } from 'lucide-react'
+import { Globe, Languages, ListTree, Palette, PanelsTopLeft, Settings2, Shuffle, UserRound } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { SITE_SCREENS, siteRoutes } from './routes'
 
 const ICONS = {
+  navigation: ListTree,
   frame: PanelsTopLeft,
   appearance: Palette,
   languages: Languages,

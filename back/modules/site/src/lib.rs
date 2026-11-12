@@ -24,6 +24,7 @@ pub(crate) mod runtime;
 pub(crate) mod session;
 pub(crate) mod settings;
 pub(crate) mod sitemap;
+pub(crate) mod targets;
 mod terms;
 
 use std::sync::Arc;

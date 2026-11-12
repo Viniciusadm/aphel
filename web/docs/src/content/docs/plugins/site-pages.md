@@ -67,7 +67,7 @@ title = "{{ record.title }}"
 
 A page without `entity` is static and has no parameters, unless it declares `data`. A page with `entity` needs exactly one of `match`, `where` or `list`.
 
-Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. The home page `/` is the exception: several plugins may declare it, and the organization picks the one that answers in Site → *Appearance* (the `home` key of the `site` setting, listed as `home_candidates` by `GET /api/v1/site`); without a choice the first plugin in alphabetical order answers. Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
+Two plugins cannot serve the same path shape: installing the second fails with `409 site_route_conflict`. The home page `/` follows the same rule; the organization usually points it at a target instead (see [Navigation and home page](#navigation-and-home-page)). Paths whose first segment belongs to a public app page (`p`, `book`, `quote`) are refused the same way. Paths are matched from the most specific to the least specific, so `/blog/archive` wins over `/blog/{slug}`.
 
 ## Write the templates
 
@@ -97,7 +97,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | `url_for(key, **params)` | Address of a page of the same plugin, including the site path. |
 | `site_path(path)` | Address of a site path typed by people (`/contact`, `/book/intro`): adds the site path and the language code, except for public app pages (`book`, `quote`, `p`), which keep the site path only. Other values (`https://…`, `#anchor`) are returned unchanged. |
 | `embed(kind, key)` | Places something another module publishes, rendered on the server: `embed('form', <form id>)` (a form of the Forms module, which also works without JavaScript) or `embed('booking', <slug>)` (a card with a button to the booking page). Unknown or inactive items render nothing. The kinds and items available come from `GET /api/v1/site/embeds`. |
-| `site_list(owner, entity, sort=, limit=, where=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`), `limit` is 1 to 24 (default 6), `where` is a map of public fields to values (`where={'collection': prefix.id}`). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one. |
+| `site_list(owner, entity, sort=, limit=, where=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`) or `newest`/`oldest`, which order by `published_at` when the entity exposes it and by `created_at` otherwise; `limit` is 1 to 24 (default 6), `where` is a map of public fields to values (`where={'collection': prefix.id}`). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one, with `scope_field` and `scopes` when a public `belongs to` relation lets the list be limited to one parent record (the *Collection* block uses them to show only the Blog, for example). |
 | `value \| markdown` | Renders Markdown and removes unsafe HTML (scripts, event handlers). |
 | `value \| date(format)` | Formats an ISO date or date-time. Default `%d/%m/%Y`. |
 | `text \| from_json` | Parses a JSON text (up to 512 KB and 16 levels deep) into lists and objects, for content stored as JSON in a `long_text` field: `{% for block in record.blocks \| from_json %}`. Empty text gives nothing; invalid JSON fails the render. |
@@ -297,28 +297,15 @@ Customers are the record type `site.customer` (name, email, linked person, confi
 
 When the `people` module is enabled, Site → *Customers* can link customers to people: once a customer confirms the email (or signs in with a confirmed one), the account points (`person_id`) to the person with the same email, or to a new contact owned by the user the organization chose. Without an owner, only existing people are linked. Merging people moves the link to the person that stays; purging the person from the trash clears it.
 
-## Menu
+## Navigation and home page
 
-```toml
-[[site.menu]]
-key = "blog"
-label = "Blog"
-page = "index"
-```
+The site owns its structure; plugins do not declare menu items. In Site → *Navigation* the organization builds the menu and chooses the home page:
 
-Each item points to a page of the same plugin that has no parameters; at most 20 items per plugin.
+- A menu item points to a **target** (a page of a plugin without parameters, or a public record that has an address, such as a page, a collection or an entry) or to an address (a site path or an `https://` address). Items can be grouped one level deep. A label left empty uses the title of the target in the language of the request; labels per language come from Site → *Header and footer*.
+- Targets are stable references: `record:<record type>:<id>` or `page:<owner>:<page key>`. When the address of the record changes, the menu follows it; when the record stops being public, its item disappears. `GET /api/v1/site/targets` lists them with their current path.
+- The home page (`home` in the `site` setting) is a target too. `/` shows the page of that target, with `/` as its canonical address and pagination; without a choice, a plugin page declared at `/` answers, and without one the theme shows a welcome screen with the site name, tagline and menu.
 
-An item can also list records: point it at a `match` page and add `label_field` (the public field shown as the label), optionally `where` (equality conditions on public fields) and `sort`. Every published record that meets the conditions becomes its own menu item, up to 20, with the id `<plugin>.<key>.<record id>`; the organization orders and hides them in Site → *Header and footer* → *Menu* like any other item, and hiding the parent id `<plugin>.<key>` hides them all. Pages that show the menu are refreshed when a record of that entity changes.
-
-```toml
-[[site.menu]]
-key = "pages"
-label = "Pages"
-page = "page"
-where = { show_in_menu = true }
-label_field = "title"
-sort = "created_at"
-``` `labels = { en = "Blog", es = "Blog" }` gives the label per site language; without one, `label` is used. Labels are up to 60 characters. In Site → *Header and footer* → *Menu* the organization reorders the items of every plugin, hides the ones it does not want and adds its own links (a site path or an `https://` address, such as the booking page or a social profile); new items appear at the end. Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active }` (`active` when the visitor is on that page or below it).
+Editors can read the structure with `GET /api/v1/site/structure` and change it with `PUT /api/v1/site/home` and `PUT /api/v1/site/menu` (`settings.manage`). Links to public app pages (`/book/...`, `/quote/...`, `/p/<key>/`) keep the site address without the language code. Templates read the menu as `site.menu`, a list of `{ label, url, active, children }` where `children` has the same shape and `url` is null for groups; `active` is true when the visitor is on that page, below it, or on one of the children.
 
 The theme also receives `site.tagline` and `site.logo_url` (the organization logo, served at `/_aphel/site/logo`).
 
@@ -332,7 +319,7 @@ The *Site → Header and footer* screen fills two more objects, so every theme c
 | `site.footer.text` | List of lines of the footer text (plain text; join them with `<br>`). |
 | `site.footer.contact` | `{ phone, whatsapp, email, address }` or nothing. `phone`, `whatsapp` and `email` are `{ label, url }` (`tel:`, `https://wa.me/…`, `mailto:`); `address` is `{ lines, url }` with a map link. |
 | `site.footer.social` | List of `{ network, label, url }`; `network` is `instagram`, `facebook`, `whatsapp`, `youtube`, `tiktok`, `linkedin` or `x`. |
-| `site.footer.links` | List of `{ label, url, active }`, like `site.menu`. |
+| `site.footer.links` | List of `{ label, url, active }`. |
 | `site.footer.credit` | `true` when the organization wants the “© year name” line. |
 | `site.footer.empty` | `true` when there is no text, contact, network or link. |
 

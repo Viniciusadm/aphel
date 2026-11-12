@@ -7374,7 +7374,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address, and the plugins that offer a home page (`home_candidates`; the organization picks one in the `home` key of the `site` setting, otherwise the first one answers). Requires `settings.manage`. */
+        /** @description What the public site offers right now: the themes of installed plugins, the absolute site address, the number of pages and the languages. Navigation and the home page are chosen in the `navigation` and `home` keys of the `site` organization setting, with targets from `GET /site/targets`. Requires `settings.manage`. */
         get: operations["site_overview"];
         put?: never;
         post?: never;
@@ -7467,6 +7467,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Chooses what the site home page shows: a target from `GET /site/targets`, or null for the welcome screen. The target must be published. Requires `settings.manage`. */
+        put: operations["site_home_set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/site/languages": {
         parameters: {
             query?: never;
@@ -7477,6 +7494,40 @@ export interface paths {
         /** @description Languages the site answers in: the organization language first (`default`, no address prefix) and the extra languages chosen in Site → Languages, each with its address prefix. The code is the key of the translation maps (`<field>_translations`) that public pages read for that language. Any signed-in user. */
         get: operations["site_languages_list"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/menu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Adds a target at the end of the menu (`shown = true`, with the target's own title as label) or removes every menu item that points to it (`shown = false`; groups left empty are removed too). Requires `settings.manage`. */
+        put: operations["site_menu_target_set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/navigation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Replaces the menu (`navigation`: items with `id`, `label`, either `target` or `url`, and one level of `children`) and the home page target. Validated like the `site` organization setting; pages show the change right away. Requires `settings.manage`. */
+        put: operations["site_navigation_set"];
         post?: never;
         delete?: never;
         options?: never;
@@ -7582,6 +7633,40 @@ export interface paths {
         post?: never;
         /** @description Stops redirecting an old address; it answers 404 again unless a record takes it. Publishes `site.redirect_deleted` and writes the audit entry. Requires `settings.manage`. */
         delete: operations["site_redirects_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/structure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The target the site home page shows (`home`, null for the welcome screen) and the targets that have an item in the menu. Editors use it to show whether a page is the home page or in the menu. Any signed-in user. */
+        get: operations["site_structure"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/site/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Pages and public records that navigation items, the home page and links can point to. `target` is the stable reference to save (`record:<record type>:<id>` or `page:<owner>:<page key>`); `path` is the current address under the site, which follows the record when its address changes. Lists at most 200 records per record type. Any signed-in user. */
+        get: operations["site_targets"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -14518,8 +14603,6 @@ export interface components {
                 customers_required: boolean;
                 /** @example pt-BR */
                 default_language: string;
-                home_candidates: components["schemas"]["SiteHomeCandidateResponse"][];
-                menu_items: components["schemas"]["SiteMenuItemResponse"][];
                 pages: number;
                 people_available: boolean;
                 themes: components["schemas"]["SiteThemeResponse"][];
@@ -14550,6 +14633,13 @@ export interface components {
                 page_url: string;
                 /** @example https://www.example.com/_aphel/site/preview/3f2a... */
                 url: string;
+            };
+        };
+        Data_SiteStructureResponse: {
+            data: {
+                /** @example record:pages.page:0192f0c4-0000-7000-8000-000000000000 */
+                home?: string | null;
+                menu: string[];
             };
         };
         Data_SsoLoginStatus: {
@@ -15197,6 +15287,18 @@ export interface components {
                 to_stage: string;
             }[];
         };
+        Data_Vec_ListedTarget: {
+            data: {
+                /** @example pages.page */
+                group: string;
+                /** @example About us */
+                label: string;
+                /** @example /about-us */
+                path: string;
+                /** @example record:pages.page:0192f0c4-0000-7000-8000-000000000000 */
+                target: string;
+            }[];
+        };
         Data_Vec_LostReasonResponse: {
             data: {
                 created_at: string;
@@ -15674,6 +15776,9 @@ export interface components {
                 owner: string;
                 /** @example blog.post */
                 record_type: string;
+                /** @example collection */
+                scope_field?: string | null;
+                scopes: components["schemas"]["SiteCollectionScope"][];
             }[];
         };
         Data_Vec_SiteEmbedSourceResponse: {
@@ -18120,6 +18225,16 @@ export interface components {
             record_id: string;
             record_type: string;
             title?: string | null;
+        };
+        ListedTarget: {
+            /** @example pages.page */
+            group: string;
+            /** @example About us */
+            label: string;
+            /** @example /about-us */
+            path: string;
+            /** @example record:pages.page:0192f0c4-0000-7000-8000-000000000000 */
+            target: string;
         };
         LogCallRequest: {
             custom_fields?: Record<string, never>;
@@ -22745,6 +22860,17 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        SetSiteHome: {
+            target?: string | null;
+        };
+        SetSiteMenuTarget: {
+            shown: boolean;
+            target: string;
+        };
+        SetSiteNavigation: {
+            home?: string | null;
+            navigation: Record<string, never>[];
+        };
         SetUiPluginRequest: {
             /** @example midnight */
             ui_plugin?: string | null;
@@ -22773,6 +22899,13 @@ export interface components {
             owner: string;
             /** @example blog.post */
             record_type: string;
+            /** @example collection */
+            scope_field?: string | null;
+            scopes: components["schemas"]["SiteCollectionScope"][];
+        };
+        SiteCollectionScope: {
+            id: string;
+            label: string;
         };
         SiteEmbedOptionResponse: {
             /** @example 01932c3e-8f3a-7c4e-9a51-1f0e5b2d4c6a */
@@ -22784,24 +22917,12 @@ export interface components {
             kind: string;
             options: components["schemas"]["SiteEmbedOptionResponse"][];
         };
-        SiteHomeCandidateResponse: {
-            name: string;
-            /** @example pages */
-            owner: string;
-        };
         SiteLanguageResponse: {
             /** @example en */
             code: string;
             default: boolean;
             /** @example /en */
             prefix: string;
-        };
-        SiteMenuItemResponse: {
-            /** @example blog.index */
-            id: string;
-            label: string;
-            /** @example /blog */
-            path: string;
         };
         SiteOverviewResponse: {
             active_theme?: string | null;
@@ -22811,8 +22932,6 @@ export interface components {
             customers_required: boolean;
             /** @example pt-BR */
             default_language: string;
-            home_candidates: components["schemas"]["SiteHomeCandidateResponse"][];
-            menu_items: components["schemas"]["SiteMenuItemResponse"][];
             pages: number;
             people_available: boolean;
             themes: components["schemas"]["SiteThemeResponse"][];
@@ -22852,6 +22971,11 @@ export interface components {
             old_value: string;
             /** @example blog.post */
             record_type: string;
+        };
+        SiteStructureResponse: {
+            /** @example record:pages.page:0192f0c4-0000-7000-8000-000000000000 */
+            home?: string | null;
+            menu: string[];
         };
         SiteThemeResponse: {
             description?: string | null;
@@ -63094,6 +63218,66 @@ export interface operations {
             };
         };
     };
+    site_home_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSiteHome"];
+            };
+        };
+        responses: {
+            /** @description Site structure */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SiteStructureResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown or unpublished target (`site_target_unavailable`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     site_languages_list: {
         parameters: {
             query?: never;
@@ -63114,6 +63298,126 @@ export interface operations {
             };
             /** @description Missing or invalid session */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_menu_target_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSiteMenuTarget"];
+            };
+        };
+        responses: {
+            /** @description Site structure */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SiteStructureResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown or unpublished target (`site_target_unavailable`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_navigation_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSiteNavigation"];
+            };
+        };
+        responses: {
+            /** @description Site structure */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SiteStructureResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid items (`invalid_fields` on `site.navigation` or `site.home`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -63545,6 +63849,82 @@ export interface operations {
             };
             /** @description Unknown redirect (`site_redirect_not_found`) */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_structure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Site structure */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SiteStructureResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_targets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Linkable targets */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_ListedTarget"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

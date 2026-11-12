@@ -19,6 +19,9 @@ const MARKER_END: &str = "-->";
 const MAX_DEFERRED: usize = 20;
 pub(crate) const MAX_LIST_LIMIT: u64 = 24;
 const DEFAULT_LIST_SORT: &str = "-created_at";
+const NEWEST: &str = "newest";
+const OLDEST: &str = "oldest";
+const PUBLISHED_AT_FIELD: &str = "published_at";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -172,6 +175,19 @@ pub(crate) fn card_template(owner: &str, entity: &str) -> String {
 }
 
 fn sort_of(sort: Option<&str>, exposes: impl Fn(&str) -> bool) -> String {
+    let dated = |descending: bool| {
+        let field = if exposes(PUBLISHED_AT_FIELD) {
+            PUBLISHED_AT_FIELD
+        } else {
+            "created_at"
+        };
+        format!("{}{field}", if descending { "-" } else { "" })
+    };
+    match sort {
+        Some(NEWEST) => return dated(true),
+        Some(OLDEST) => return dated(false),
+        _ => {}
+    }
     sort.filter(|sort| {
         !sort.is_empty()
             && sort.split(',').all(|field| {

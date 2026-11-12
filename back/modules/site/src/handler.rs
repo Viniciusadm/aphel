@@ -4,8 +4,7 @@ use std::time::Duration;
 
 use aphel_contract_site::SiteCustomer;
 use aphel_contract_site::{
-    MAX_MENU_RECORDS, MAX_PER_PAGE, PageSource, PathPattern, ROBOTS_PATH, SITEMAP_PATH,
-    decode_segment, menu_record_item_id, template_name,
+    MAX_PER_PAGE, PageSource, ROBOTS_PATH, SITEMAP_PATH, decode_segment, template_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{SiteMountPrefix, SiteRequestHandler};
@@ -71,77 +70,6 @@ struct SiteContext {
     customer: Option<SiteCustomer>,
     translation: Option<String>,
     tags: Vec<String>,
-}
-
-pub(crate) struct RecordMenuLine {
-    pub id: String,
-    pub parent: String,
-    pub label: String,
-    pub path: String,
-}
-
-fn value_text(value: Option<&serde_json::Value>) -> Option<String> {
-    match value? {
-        serde_json::Value::String(text) if !text.trim().is_empty() => Some(text.trim().to_owned()),
-        serde_json::Value::Number(number) => Some(number.to_string()),
-        _ => None,
-    }
-}
-
-pub(crate) async fn record_menu(
-    state: &AppState,
-    runtime: &SiteRuntime,
-    translation: Option<&str>,
-) -> Result<(Vec<RecordMenuLine>, Vec<String>), AppError> {
-    let mut lines = Vec::new();
-    let mut tags = Vec::new();
-    for candidate in &runtime.menu {
-        let Some(records) = &candidate.item.records else {
-            continue;
-        };
-        let PageSource::Record {
-            entity,
-            match_field,
-        } = &candidate.source
-        else {
-            continue;
-        };
-        let (Some(exposure), Ok(pattern)) = (
-            runtime.exposure(&candidate.owner, entity),
-            PathPattern::parse(&candidate.path),
-        ) else {
-            continue;
-        };
-        tags.push(cache::entity_tag(entity));
-        let found = data::matching(
-            state,
-            exposure,
-            &records.conditions,
-            records.sort.as_deref(),
-            MAX_MENU_RECORDS,
-            translation,
-        )
-        .await?;
-        for record in found {
-            let (Some(id), Some(label), Some(value)) = (
-                value_text(record.get("id")),
-                value_text(record.get(&records.label_field)),
-                value_text(record.get(match_field)),
-            ) else {
-                continue;
-            };
-            let Some(path) = pattern.build(&BTreeMap::from([(match_field.clone(), value)])) else {
-                continue;
-            };
-            lines.push(RecordMenuLine {
-                id: menu_record_item_id(&candidate.owner, &candidate.item.key, &id),
-                parent: candidate.id.clone(),
-                label: label.chars().take(MAX_MENU_LABEL_CHARS).collect(),
-                path,
-            });
-        }
-    }
-    Ok((lines, tags))
 }
 
 enum Outcome {
@@ -353,7 +281,15 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if !readable_method(&parts.method) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
-    let found = match crate::prefixes::find(state, &runtime, &path, settings.home.as_deref()).await
+    let home = home_path(
+        state,
+        &runtime,
+        &settings,
+        &path,
+        language.translation().as_deref(),
+    )
+    .await;
+    let found = match crate::prefixes::find(state, &runtime, home.as_deref().unwrap_or(&path)).await
     {
         Ok(found) => found,
         Err(error) => {
@@ -407,6 +343,9 @@ async fn serve(state: &AppState, request: Request) -> Response {
         prefix: matched_prefix,
     }) = found
     else {
+        if path == "/" {
+            return welcome(&context, &runtime);
+        }
         return not_found(
             state,
             &mount,
@@ -506,11 +445,19 @@ pub(crate) async fn render_draft(
     let (language, path) = Language::resolve(&mount, full_path, &settings.languages);
     let accounts = settings.accounts || runtime.uses_customers;
     let context = site_context(state, &language, runtime, &path, None, accounts).await?;
+    let home = home_path(
+        state,
+        runtime,
+        &settings,
+        &path,
+        language.translation().as_deref(),
+    )
+    .await;
     let Some(crate::prefixes::Found {
         route,
         params,
         prefix: matched_prefix,
-    }) = crate::prefixes::find(state, runtime, &path, settings.home.as_deref()).await?
+    }) = crate::prefixes::find(state, runtime, home.as_deref().unwrap_or(&path)).await?
     else {
         return Ok(None);
     };
@@ -810,85 +757,71 @@ impl Language {
     }
 }
 
-struct MenuLine<'a> {
-    id: String,
-    parent: Option<&'a str>,
-    label: &'a str,
-    url: String,
-    path: Option<&'a str>,
+async fn navigation_of(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    items: &[crate::settings::NavigationItem],
+    context: &NavigationContext<'_>,
+    tags: &mut Vec<String>,
+) -> Result<Vec<serde_json::Value>, AppError> {
+    let mut lines = Vec::with_capacity(items.len());
+    for item in items {
+        let target = item
+            .target
+            .as_deref()
+            .and_then(crate::targets::Target::parse);
+        let (url, path, fallback) = match (&target, item.url.as_deref().map(str::trim)) {
+            (Some(target), _) => {
+                tags.extend(target.tag());
+                let Some(resolved) =
+                    crate::targets::resolve(state, runtime, target, context.translation).await?
+                else {
+                    continue;
+                };
+                (
+                    Some(context.prefixes.link(&resolved.path)),
+                    Some(resolved.path),
+                    resolved.label,
+                )
+            }
+            (None, Some(url)) if !url.is_empty() => (
+                Some(context.prefixes.link(url)),
+                url.starts_with('/').then(|| url.to_owned()),
+                None,
+            ),
+            _ => (None, None, None),
+        };
+        let children =
+            Box::pin(navigation_of(state, runtime, &item.children, context, tags)).await?;
+        if url.is_none() && children.is_empty() {
+            continue;
+        }
+        let label = crate::frame::link_label(context.texts, &item.id, &item.label);
+        let label = match (label.is_empty(), fallback) {
+            (true, Some(fallback)) => fallback,
+            _ => label.to_owned(),
+        };
+        let active = path
+            .as_deref()
+            .is_some_and(|path| crate::frame::is_active(path, context.current))
+            || children
+                .iter()
+                .any(|child| child["active"].as_bool().unwrap_or(false));
+        lines.push(json!({
+            "label": label.chars().take(MAX_MENU_LABEL_CHARS).collect::<String>(),
+            "url": url,
+            "active": active,
+            "children": children,
+        }));
+    }
+    Ok(lines)
 }
 
-fn menu_of(
-    runtime: &SiteRuntime,
-    records: &[RecordMenuLine],
-    settings: &crate::settings::SiteSettings,
-    prefixes: &crate::frame::SitePrefixes<'_>,
-    current: &str,
-    locale: &str,
-    texts: Option<&crate::settings::SiteTexts>,
-) -> Vec<serde_json::Value> {
-    let prefix = prefixes.language;
-    let position = |id: &str| {
-        settings
-            .menu
-            .iter()
-            .position(|entry| entry.item == id)
-            .unwrap_or(usize::MAX)
-    };
-    let hidden = |id: &str| {
-        settings
-            .menu
-            .iter()
-            .any(|entry| entry.item == id && entry.hidden)
-    };
-    let plugin_items = runtime
-        .menu
-        .iter()
-        .filter(|item| item.item.records.is_none())
-        .map(|item| MenuLine {
-            id: item.id.clone(),
-            parent: None,
-            label: item.label(locale),
-            url: format!("{prefix}{}", item.path),
-            path: Some(item.path.as_str()),
-        });
-    let record_items = records.iter().map(|line| MenuLine {
-        id: line.id.clone(),
-        parent: Some(line.parent.as_str()),
-        label: line.label.as_str(),
-        url: format!("{prefix}{}", line.path),
-        path: Some(line.path.as_str()),
-    });
-    let links = settings.links.iter().map(|link| {
-        let url = link.url.trim();
-        MenuLine {
-            id: format!("{}{}", crate::settings::LINK_PREFIX, link.id),
-            parent: None,
-            label: crate::frame::link_label(texts, &link.id, &link.label),
-            url: prefixes.link(url),
-            path: url.starts_with('/').then_some(url),
-        }
-    });
-    let mut items: Vec<_> = plugin_items
-        .chain(record_items)
-        .chain(links)
-        .filter(|line| !hidden(&line.id) && !line.parent.is_some_and(hidden))
-        .enumerate()
-        .collect();
-    items.sort_by_key(|(index, line)| (position(&line.id), *index));
-    items
-        .into_iter()
-        .map(|(_, line)| {
-            let active = line
-                .path
-                .is_some_and(|path| crate::frame::is_active(path, current));
-            json!({
-                "label": line.label,
-                "url": line.url,
-                "active": active,
-            })
-        })
-        .collect()
+struct NavigationContext<'a> {
+    prefixes: &'a crate::frame::SitePrefixes<'a>,
+    texts: Option<&'a crate::settings::SiteTexts>,
+    current: &'a str,
+    translation: Option<&'a str>,
 }
 
 async fn site_context(
@@ -914,8 +847,7 @@ async fn site_context(
     let mount_url = config.site_base_url().trim_end_matches('/').to_owned();
     let origin = origin_of(&mount_url).to_owned();
     let base_url = format!("{origin}{prefix}");
-    let (record_lines, tags) =
-        record_menu(state, runtime, language.translation().as_deref()).await?;
+    let mut tags = Vec::new();
     let alternates: Vec<serde_json::Value> = if language.available.is_empty() {
         Vec::new()
     } else {
@@ -956,6 +888,20 @@ async fn site_context(
         .code
         .as_ref()
         .and_then(|code| settings.translations.get(code));
+    let translation = language.translation();
+    let navigation = navigation_of(
+        state,
+        runtime,
+        &settings.navigation,
+        &NavigationContext {
+            prefixes: &prefixes,
+            texts: site_texts,
+            current,
+            translation: translation.as_deref(),
+        },
+        &mut tags,
+    )
+    .await?;
     let mut context = SiteContext {
         translation: language.translation(),
         site: json!({
@@ -977,15 +923,7 @@ async fn site_context(
             "tagline": crate::frame::tagline(&settings, site_texts),
             "header": crate::frame::header(&settings, site_texts, &prefixes),
             "footer": crate::frame::footer(&settings, site_texts, &prefixes, current),
-            "menu": menu_of(
-                runtime,
-                &record_lines,
-                &settings,
-                &prefixes,
-                current,
-                &locale,
-                site_texts,
-            ),
+            "menu": navigation,
             "logo_url": organization
                 .logo_file_id
                 .as_ref()
@@ -1473,6 +1411,48 @@ fn moved_permanently(location: &str) -> Response {
 
 fn render_error(error: minijinja::Error) -> AppError {
     AppError::Internal(format!("template error: {error:#}"))
+}
+
+async fn home_path(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    settings: &crate::settings::SiteSettings,
+    path: &str,
+    translation: Option<&str>,
+) -> Option<String> {
+    if path != "/" {
+        return None;
+    }
+    let target = crate::targets::Target::parse(settings.home.as_deref()?)?;
+    match crate::targets::resolve(state, runtime, &target, translation).await {
+        Ok(resolved) => resolved.map(|resolved| resolved.path),
+        Err(error) => {
+            tracing::warn!(%error, "could not resolve the site home page");
+            None
+        }
+    }
+}
+
+fn welcome(context: &SiteContext, runtime: &SiteRuntime) -> Response {
+    let values = json!({ "site": context.site, "page": {}, "customer": context.customer });
+    match runtime
+        .environment
+        .get_template(crate::runtime::WELCOME_TEMPLATE)
+        .and_then(|template| template.render(Value::from_serialize(&values)))
+    {
+        Ok(html) => {
+            let mut response =
+                html_response(StatusCode::OK, html, &runtime.content_security_policy(None));
+            response
+                .headers_mut()
+                .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+            response
+        }
+        Err(error) => {
+            tracing::warn!(%error, "could not render the site welcome page");
+            fallback(context, StatusCode::NOT_FOUND, Some(runtime))
+        }
+    }
 }
 
 fn fallback(context: &SiteContext, status: StatusCode, runtime: Option<&SiteRuntime>) -> Response {

@@ -168,7 +168,10 @@
     "oldest": "Oldest first",
     "limit": "How many",
     "moreLabel": "\"See all\" button text",
-    "moreHelp": "Optional. E.g. See all posts"
+    "moreHelp": "Optional. E.g. See all posts",
+    "scope": "From",
+    "scopeHelp": "Show only the items of one collection, such as the Blog.",
+    "allScopes": "All"
   },
   "providers": {
     "google_forms": "Google Forms",

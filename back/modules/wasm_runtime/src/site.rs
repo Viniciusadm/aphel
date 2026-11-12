@@ -2,9 +2,8 @@ use std::sync::{Arc, RwLock};
 
 use aphel_contract_site::{
     ALWAYS_PUBLIC_FIELDS, HOME_PATH, ISLANDS_DIR, PageSource, PathPattern, SiteApiHandler,
-    SiteApiRequest, SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem,
-    SiteMenuRecords, SitePage, SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR,
-    check_bundle, is_island_name,
+    SiteApiRequest, SiteBundle, SiteContentSource, SiteCsp, SiteExposure, SiteMenuItem, SitePage,
+    SitePageSeo, SiteTemplate, SiteTheme, THEME_ASSETS_DIR, check_bundle, is_island_name,
 };
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
@@ -55,28 +54,13 @@ fn source_of(manifest: &PluginManifest, page: &SitePageSpec) -> Result<PageSourc
     }
 }
 
-fn menu_item_of(spec: &SiteMenuSpec, label: &str) -> Result<SiteMenuItem, String> {
-    let records = match (&spec.conditions, &spec.label_field, &spec.sort) {
-        (None, None, None) => None,
-        (conditions, Some(label_field), sort) => Some(SiteMenuRecords {
-            conditions: conditions.clone().unwrap_or_default(),
-            label_field: label_field.clone(),
-            sort: sort.clone(),
-        }),
-        (_, None, _) => {
-            return Err(format!(
-                "{label} {}: where and sort need label_field",
-                spec.key
-            ));
-        }
-    };
-    Ok(SiteMenuItem {
+fn menu_item_of(spec: &SiteMenuSpec) -> SiteMenuItem {
+    SiteMenuItem {
         key: spec.key.clone(),
         label: spec.label.clone(),
         page: spec.page.clone(),
         labels: spec.labels.clone(),
-        records,
-    })
+    }
 }
 
 fn templates_of<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> Vec<SiteTemplate> {
@@ -228,17 +212,6 @@ fn bundle_of(
         pages,
         exposures,
         templates,
-        menu: site
-            .menu
-            .iter()
-            .filter_map(|item| match menu_item_of(item, "site.menu") {
-                Ok(item) => Some(item),
-                Err(problem) => {
-                    problems.push(problem);
-                    None
-                }
-            })
-            .collect(),
         theme: site.theme.as_ref().map(|theme| SiteTheme {
             appearance: theme.appearance.clone(),
             name: theme.name.clone(),
@@ -246,24 +219,7 @@ fn bundle_of(
         }),
         islands,
         csp: csp_of(&site.csp),
-        account: site
-            .account
-            .iter()
-            .filter_map(|item| match menu_item_of(item, "site.account") {
-                Ok(item) if item.records.is_some() => {
-                    problems.push(format!(
-                        "site.account {}: account links cannot use where",
-                        item.key
-                    ));
-                    None
-                }
-                Ok(item) => Some(item),
-                Err(problem) => {
-                    problems.push(problem);
-                    None
-                }
-            })
-            .collect(),
+        account: site.account.iter().map(menu_item_of).collect(),
     };
     for page in &site.pages {
         if let Some(data) = &page.data

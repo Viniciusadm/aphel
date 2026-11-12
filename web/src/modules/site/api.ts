@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
+import type { SiteNavigationItem } from '@/sdk'
 
 export interface SiteTheme {
   key: string
@@ -7,28 +8,22 @@ export interface SiteTheme {
   description: string | null
 }
 
-export interface SiteMenuItem {
-  id: string
-  label: string
-  path: string
-}
-
 export interface SiteOverview {
   base_url: string
   themes: SiteTheme[]
   active_theme: string | null
-  menu_items: SiteMenuItem[]
   pages: number
   customers_required: boolean
   default_language: string
   available_languages: string[]
   people_available: boolean
-  home_candidates: SiteHomeCandidate[]
 }
 
-export interface SiteHomeCandidate {
-  owner: string
-  name: string
+export interface SiteTarget {
+  target: string
+  label: string
+  group: string
+  path: string
 }
 
 export interface SiteCustomer {
@@ -86,6 +81,19 @@ export const siteKeys = {
 
 export function useSiteOverview() {
   return useQuery({ queryKey: siteKeys.overview, queryFn: () => api.get<SiteOverview>(SITE_PATH) })
+}
+
+export interface SiteStructure {
+  home: string | null
+  menu: string[]
+}
+
+export function saveNavigation(navigation: SiteNavigationItem[], home: string | null) {
+  return api.put<SiteStructure>(`${SITE_PATH}/navigation`, { navigation, home })
+}
+
+export function useSiteTargets() {
+  return useQuery({ queryKey: [...siteKeys.all, 'targets'], queryFn: () => api.get<SiteTarget[]>(`${SITE_PATH}/targets`) })
 }
 
 export function useSiteRedirects() {

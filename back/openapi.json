@@ -55370,7 +55370,7 @@
         "tags": [
           "site"
         ],
-        "description": "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address, and the plugins that offer a home page (`home_candidates`; the organization picks one in the `home` key of the `site` setting, otherwise the first one answers). Requires `settings.manage`.",
+        "description": "What the public site offers right now: the themes of installed plugins, the absolute site address, the number of pages and the languages. Navigation and the home page are chosen in the `navigation` and `home` keys of the `site` organization setting, with targets from `GET /site/targets`. Requires `settings.manage`.",
         "operationId": "site_overview",
         "responses": {
           "200": {
@@ -55750,6 +55750,86 @@
         "x-aphel-module": "site"
       }
     },
+    "/api/v1/site/home": {
+      "put": {
+        "tags": [
+          "site"
+        ],
+        "description": "Chooses what the site home page shows: a target from `GET /site/targets`, or null for the welcome screen. The target must be published. Requires `settings.manage`.",
+        "operationId": "site_home_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSiteHome"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Site structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SiteStructureResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unknown or unpublished target (`site_target_unavailable`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
     "/api/v1/site/languages": {
       "get": {
         "tags": [
@@ -55770,6 +55850,166 @@
           },
           "401": {
             "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/menu": {
+      "put": {
+        "tags": [
+          "site"
+        ],
+        "description": "Adds a target at the end of the menu (`shown = true`, with the target's own title as label) or removes every menu item that points to it (`shown = false`; groups left empty are removed too). Requires `settings.manage`.",
+        "operationId": "site_menu_target_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSiteMenuTarget"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Site structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SiteStructureResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unknown or unpublished target (`site_target_unavailable`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/navigation": {
+      "put": {
+        "tags": [
+          "site"
+        ],
+        "description": "Replaces the menu (`navigation`: items with `id`, `label`, either `target` or `url`, and one level of `children`) and the home page target. Validated like the `site` organization setting; pages show the change right away. Requires `settings.manage`.",
+        "operationId": "site_navigation_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSiteNavigation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Site structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SiteStructureResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid items (`invalid_fields` on `site.navigation` or `site.home`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -56354,6 +56594,106 @@
           },
           "404": {
             "description": "Unknown redirect (`site_redirect_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/structure": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "The target the site home page shows (`home`, null for the welcome screen) and the targets that have an item in the menu. Editors use it to show whether a page is the home page or in the menu. Any signed-in user.",
+        "operationId": "site_structure",
+        "responses": {
+          "200": {
+            "description": "Site structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SiteStructureResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
+    "/api/v1/site/targets": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "Pages and public records that navigation items, the home page and links can point to. `target` is the stable reference to save (`record:<record type>:<id>` or `page:<owner>:<page key>`); `path` is the current address under the site, which follows the record when its address changes. Lists at most 200 records per record type. Any signed-in user.",
+        "operationId": "site_targets",
+        "responses": {
+          "200": {
+            "description": "Linkable targets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_ListedTarget"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
             "content": {
               "application/json": {
                 "schema": {
@@ -89398,13 +89738,11 @@
             "required": [
               "base_url",
               "themes",
-              "menu_items",
               "pages",
               "customers_required",
               "default_language",
               "available_languages",
-              "people_available",
-              "home_candidates"
+              "people_available"
             ],
             "properties": {
               "active_theme": {
@@ -89429,18 +89767,6 @@
               "default_language": {
                 "type": "string",
                 "example": "pt-BR"
-              },
-              "home_candidates": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/SiteHomeCandidateResponse"
-                }
-              },
-              "menu_items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/SiteMenuItemResponse"
-                }
               },
               "pages": {
                 "type": "integer",
@@ -89542,6 +89868,35 @@
               "url": {
                 "type": "string",
                 "example": "https://www.example.com/_aphel/site/preview/3f2a..."
+              }
+            }
+          }
+        }
+      },
+      "Data_SiteStructureResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "menu"
+            ],
+            "properties": {
+              "home": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "record:pages.page:0192f0c4-0000-7000-8000-000000000000"
+              },
+              "menu": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -92005,6 +92360,44 @@
           }
         }
       },
+      "Data_Vec_ListedTarget": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "target",
+                "label",
+                "group",
+                "path"
+              ],
+              "properties": {
+                "group": {
+                  "type": "string",
+                  "example": "pages.page"
+                },
+                "label": {
+                  "type": "string",
+                  "example": "About us"
+                },
+                "path": {
+                  "type": "string",
+                  "example": "/about-us"
+                },
+                "target": {
+                  "type": "string",
+                  "example": "record:pages.page:0192f0c4-0000-7000-8000-000000000000"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_LostReasonResponse": {
         "type": "object",
         "required": [
@@ -93837,7 +94230,8 @@
                 "entity",
                 "record_type",
                 "label",
-                "fields"
+                "fields",
+                "scopes"
               ],
               "properties": {
                 "entity": {
@@ -93860,6 +94254,19 @@
                 "record_type": {
                   "type": "string",
                   "example": "blog.post"
+                },
+                "scope_field": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "example": "collection"
+                },
+                "scopes": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteCollectionScope"
+                  }
                 }
               }
             }
@@ -103221,6 +103628,33 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "ListedTarget": {
+        "type": "object",
+        "required": [
+          "target",
+          "label",
+          "group",
+          "path"
+        ],
+        "properties": {
+          "group": {
+            "type": "string",
+            "example": "pages.page"
+          },
+          "label": {
+            "type": "string",
+            "example": "About us"
+          },
+          "path": {
+            "type": "string",
+            "example": "/about-us"
+          },
+          "target": {
+            "type": "string",
+            "example": "record:pages.page:0192f0c4-0000-7000-8000-000000000000"
           }
         }
       },
@@ -121354,6 +121788,52 @@
         },
         "additionalProperties": false
       },
+      "SetSiteHome": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "SetSiteMenuTarget": {
+        "type": "object",
+        "required": [
+          "target",
+          "shown"
+        ],
+        "properties": {
+          "shown": {
+            "type": "boolean"
+          },
+          "target": {
+            "type": "string"
+          }
+        }
+      },
+      "SetSiteNavigation": {
+        "type": "object",
+        "required": [
+          "navigation"
+        ],
+        "properties": {
+          "home": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "navigation": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
       "SetUiPluginRequest": {
         "type": "object",
         "properties": {
@@ -121431,7 +121911,8 @@
           "entity",
           "record_type",
           "label",
-          "fields"
+          "fields",
+          "scopes"
         ],
         "properties": {
           "entity": {
@@ -121454,6 +121935,34 @@
           "record_type": {
             "type": "string",
             "example": "blog.post"
+          },
+          "scope_field": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "collection"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteCollectionScope"
+            }
+          }
+        }
+      },
+      "SiteCollectionScope": {
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
           }
         }
       },
@@ -121492,22 +122001,6 @@
           }
         }
       },
-      "SiteHomeCandidateResponse": {
-        "type": "object",
-        "required": [
-          "owner",
-          "name"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "owner": {
-            "type": "string",
-            "example": "pages"
-          }
-        }
-      },
       "SiteLanguageResponse": {
         "type": "object",
         "required": [
@@ -121529,39 +122022,16 @@
           }
         }
       },
-      "SiteMenuItemResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "label",
-          "path"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "blog.index"
-          },
-          "label": {
-            "type": "string"
-          },
-          "path": {
-            "type": "string",
-            "example": "/blog"
-          }
-        }
-      },
       "SiteOverviewResponse": {
         "type": "object",
         "required": [
           "base_url",
           "themes",
-          "menu_items",
           "pages",
           "customers_required",
           "default_language",
           "available_languages",
-          "people_available",
-          "home_candidates"
+          "people_available"
         ],
         "properties": {
           "active_theme": {
@@ -121586,18 +122056,6 @@
           "default_language": {
             "type": "string",
             "example": "pt-BR"
-          },
-          "home_candidates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SiteHomeCandidateResponse"
-            }
-          },
-          "menu_items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SiteMenuItemResponse"
-            }
           },
           "pages": {
             "type": "integer",
@@ -121724,6 +122182,27 @@
           "record_type": {
             "type": "string",
             "example": "blog.post"
+          }
+        }
+      },
+      "SiteStructureResponse": {
+        "type": "object",
+        "required": [
+          "menu"
+        ],
+        "properties": {
+          "home": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "record:pages.page:0192f0c4-0000-7000-8000-000000000000"
+          },
+          "menu": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

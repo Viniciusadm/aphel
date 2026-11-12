@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use crate::settings::{SiteLink, site_settings};
+use crate::settings::{NavigationItem, site_settings};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_profile::{
@@ -15,24 +15,38 @@ const SETTINGS_KEY: &str = "site";
 
 pub(crate) struct LinkProvisioner;
 
-fn link_of(request: &ProvisionRequest) -> Result<SiteLink, AppError> {
-    serde_json::from_value::<SiteLink>(request.data.clone()).map_err(|_| {
-        AppError::validation_code(
-            "plugin_pack_invalid",
-            format!("{}: a site link needs id, label and url", request.key),
-        )
-    })
+fn link_of(request: &ProvisionRequest) -> Result<NavigationItem, AppError> {
+    serde_json::from_value::<NavigationItem>(request.data.clone())
+        .ok()
+        .filter(|item| item.target.is_some() != item.url.is_some() && item.children.is_empty())
+        .ok_or_else(|| {
+            AppError::validation_code(
+                "plugin_pack_invalid",
+                format!(
+                    "{}: a site link needs an id, a label and either a target or a url",
+                    request.key
+                ),
+            )
+        })
 }
 
-fn applied(link: &SiteLink) -> Value {
-    json!({ "id": link.id, "label": link.label, "url": link.url })
+fn applied(link: &NavigationItem) -> Value {
+    json!({ "id": link.id, "label": link.label, "url": link.url, "target": link.target })
 }
 
-async fn save(ctx: &Ctx<'_>, links: Vec<SiteLink>) -> Result<(), AppError> {
+async fn save(ctx: &Ctx<'_>, links: Vec<NavigationItem>) -> Result<(), AppError> {
+    let state = aphel_sdk::runtime()?;
+    let mut settings = site_settings(&state.as_ref().organization_config.snapshot());
+    settings.navigation = links;
+    save_settings(ctx.scope, settings).await
+}
+
+pub(crate) async fn save_settings(
+    scope: &aphel_sdk::platform::domain::access::AccessScope,
+    settings: crate::settings::SiteSettings,
+) -> Result<(), AppError> {
     let state = aphel_sdk::runtime()?;
     let state = state.as_ref();
-    let mut settings = site_settings(&state.organization_config.snapshot());
-    settings.links = links;
     let value = serde_json::to_value(&settings)
         .map_err(|error| AppError::Internal(format!("site settings: {error}")))?;
     OrganizationConfigUseCases::new(MySqlOrganizationConfigPorts::new(
@@ -43,7 +57,7 @@ async fn save(ctx: &Ctx<'_>, links: Vec<SiteLink>) -> Result<(), AppError> {
         state.organization_config.clone(),
     ))
     .update(
-        ctx.scope,
+        scope,
         UpdateOrganizationConfig {
             public_base_url: None,
             app_base_path: None,
@@ -60,6 +74,8 @@ async fn save(ctx: &Ctx<'_>, links: Vec<SiteLink>) -> Result<(), AppError> {
         },
     )
     .await?;
+    crate::cache::invalidate(&state.db()?, &[crate::cache::ALL_TAG.to_owned()]).await?;
+    crate::cache::forget_all();
     Ok(())
 }
 
@@ -76,7 +92,7 @@ impl Provisioner for LinkProvisioner {
     ) -> Result<ProvisionOutcome, AppError> {
         let wanted = link_of(request)?;
         let state = aphel_sdk::runtime()?;
-        let mut links = site_settings(&state.as_ref().organization_config.snapshot()).links;
+        let mut links = site_settings(&state.as_ref().organization_config.snapshot()).navigation;
         let position = links.iter().position(|link| link.id == wanted.id);
         if let Some(existing) = &request.existing {
             let Some(position) = position else {

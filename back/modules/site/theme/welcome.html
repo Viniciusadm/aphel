@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block content %}
+<section class="welcome">
+<h1>{{ site.appearance.name or site.name }}</h1>
+{% if site.tagline %}<p class="muted">{{ site.tagline }}</p>{% endif %}
+{% if site.menu %}<ul class="welcome-links">{% for item in site.menu %}{% if item.url %}<li><a href="{{ item.url }}">{{ item.label }}</a></li>{% endif %}{% for child in item.children %}<li><a href="{{ child.url }}">{{ child.label }}</a></li>{% endfor %}{% endfor %}</ul>{% endif %}
+</section>
+{% endblock %}

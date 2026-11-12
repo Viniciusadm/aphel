@@ -43,6 +43,11 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(purge_cache))
         .routes(routes!(list_embeds))
         .routes(routes!(list_collections))
+        .routes(routes!(list_targets))
+        .routes(routes!(structure))
+        .routes(routes!(set_home))
+        .routes(routes!(set_menu_target))
+        .routes(routes!(set_navigation))
         .routes(routes!(list_languages))
         .routes(routes!(render_preview))
 }
@@ -56,35 +61,17 @@ pub(crate) struct SiteThemeResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct SiteMenuItemResponse {
-    #[schema(example = "blog.index")]
-    pub id: String,
-    pub label: String,
-    #[schema(example = "/blog")]
-    pub path: String,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct SiteOverviewResponse {
     #[schema(example = "https://www.example.com")]
     pub base_url: String,
     pub themes: Vec<SiteThemeResponse>,
     pub active_theme: Option<String>,
-    pub menu_items: Vec<SiteMenuItemResponse>,
     pub pages: usize,
     pub customers_required: bool,
     #[schema(example = "pt-BR")]
     pub default_language: String,
     pub available_languages: Vec<String>,
     pub people_available: bool,
-    pub home_candidates: Vec<SiteHomeCandidateResponse>,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct SiteHomeCandidateResponse {
-    #[schema(example = "pages")]
-    pub owner: String,
-    pub name: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -209,6 +196,15 @@ pub(crate) struct SiteCollectionResponse {
     pub record_type: String,
     pub label: String,
     pub fields: Vec<String>,
+    #[schema(example = "collection")]
+    pub scope_field: Option<String>,
+    pub scopes: Vec<SiteCollectionScope>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteCollectionScope {
+    pub id: String,
+    pub label: String,
 }
 
 fn permanent_by_default() -> bool {
@@ -226,7 +222,7 @@ fn require_manage(
     path = "/site",
     tag = TAG,
     operation_id = "site_overview",
-    description = "What the public site offers right now: the themes of installed plugins, the menu items they contribute (in declaration order, with one item per published record for items that list records; the order and visibility chosen by the organization live in the `site` organization setting) and the absolute site address, and the plugins that offer a home page (`home_candidates`; the organization picks one in the `home` key of the `site` setting, otherwise the first one answers). Requires `settings.manage`.",
+    description = "What the public site offers right now: the themes of installed plugins, the absolute site address, the number of pages and the languages. Navigation and the home page are chosen in the `navigation` and `home` keys of the `site` organization setting, with targets from `GET /site/targets`. Requires `settings.manage`.",
     security(("session_cookie" = [])),
     responses(
         (status = 200, description = "Site overview", body = Data<SiteOverviewResponse>),
@@ -249,7 +245,6 @@ async fn overview(
             .map(|organization| organization.locale)
             .unwrap_or_default()
     };
-    let (record_lines, _) = crate::handler::record_menu(&state, &runtime, None).await?;
     Ok(Json(Data::new(SiteOverviewResponse {
         base_url: config.site_base_url(),
         themes: runtime
@@ -262,21 +257,6 @@ async fn overview(
             })
             .collect(),
         active_theme: runtime.theme.clone(),
-        menu_items: runtime
-            .menu
-            .iter()
-            .filter(|item| item.item.records.is_none())
-            .map(|item| SiteMenuItemResponse {
-                id: item.id.clone(),
-                label: item.item.label.clone(),
-                path: item.path.clone(),
-            })
-            .chain(record_lines.into_iter().map(|line| SiteMenuItemResponse {
-                id: line.id,
-                label: line.label,
-                path: line.path,
-            }))
-            .collect(),
         pages: runtime.routes.len(),
         customers_required: runtime.uses_customers,
         default_language: default_language.clone(),
@@ -286,12 +266,29 @@ async fn overview(
             .map(|language| (*language).to_owned())
             .collect(),
         people_available: state.app.is_enabled(aphel_sdk::people::KEY),
-        home_candidates: runtime
-            .home_candidates()
-            .into_iter()
-            .map(|(owner, name)| SiteHomeCandidateResponse { owner, name })
-            .collect(),
     })))
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/targets",
+    tag = TAG,
+    operation_id = "site_targets",
+    description = "Pages and public records that navigation items, the home page and links can point to. `target` is the stable reference to save (`record:<record type>:<id>` or `page:<owner>:<page key>`); `path` is the current address under the site, which follows the record when its address changes. Lists at most 200 records per record type. Any signed-in user.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Linkable targets", body = Data<Vec<crate::targets::ListedTarget>>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+    )
+)]
+async fn list_targets(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<Vec<crate::targets::ListedTarget>>>, ApiError> {
+    let runtime = runtime::active(&state).await?;
+    Ok(Json(Data::new(
+        crate::targets::list(&state, &runtime).await?,
+    )))
 }
 
 #[utoipa::path(
@@ -951,39 +948,83 @@ async fn list_collections(
 ) -> Result<Json<Data<Vec<SiteCollectionResponse>>>, ApiError> {
     let runtime = runtime::active(&state).await?;
     let registry = state.registry().await?;
-    let collections = runtime
-        .exposures()
-        .filter_map(|(owner, exposure)| {
-            let entity = exposure.entity.strip_prefix(&format!("{owner}."))?;
-            runtime
-                .environment
-                .get_template(&crate::deferred::card_template(owner, entity))
-                .ok()?;
-            let label = registry
-                .require(&exposure.entity)
-                .ok()
-                .and_then(|definition| {
-                    definition
-                        .custom
-                        .as_ref()
-                        .map(|labels| labels.plural.clone())
-                })
-                .unwrap_or_else(|| exposure.entity.clone());
-            let mut fields: Vec<String> = aphel_contract_site::ALWAYS_PUBLIC_FIELDS
-                .iter()
-                .map(|field| (*field).to_owned())
-                .chain(exposure.fields.iter().cloned())
-                .collect();
-            fields.dedup();
-            Some(SiteCollectionResponse {
-                owner: owner.to_owned(),
-                entity: entity.to_owned(),
-                record_type: exposure.entity.clone(),
-                label,
-                fields,
+    let mut collections = Vec::new();
+    for (owner, exposure) in runtime.exposures() {
+        let Some(entity) = exposure.entity.strip_prefix(&format!("{owner}.")) else {
+            continue;
+        };
+        if runtime
+            .environment
+            .get_template(&crate::deferred::card_template(owner, entity))
+            .is_err()
+        {
+            continue;
+        }
+        let definition = registry.require(&exposure.entity).ok();
+        let label = definition
+            .and_then(|definition| {
+                definition
+                    .custom
+                    .as_ref()
+                    .map(|labels| labels.plural.clone())
             })
-        })
-        .collect();
+            .unwrap_or_else(|| exposure.entity.clone());
+        let mut fields: Vec<String> = aphel_contract_site::ALWAYS_PUBLIC_FIELDS
+            .iter()
+            .map(|field| (*field).to_owned())
+            .chain(exposure.fields.iter().cloned())
+            .collect();
+        fields.dedup();
+        let parent = definition.and_then(|definition| {
+            definition.relations.iter().find_map(|relation| {
+                relation.paths.iter().find_map(|path| match path {
+                    aphel_sdk::platform::application::fields::RelationPath::BelongsTo {
+                        column,
+                    } if exposure.exposes(column) => {
+                        Some((column.clone(), relation.target.as_str().to_owned()))
+                    }
+                    _ => None,
+                })
+            })
+        });
+        let mut scopes = Vec::new();
+        if let Some((_, target)) = &parent
+            && let Some(parent_exposure) = runtime.entity_exposure(target)
+        {
+            for record in crate::data::matching(
+                &state,
+                parent_exposure,
+                &std::collections::BTreeMap::new(),
+                None,
+                100,
+                None,
+            )
+            .await?
+            {
+                let id = record.get("id").and_then(serde_json::Value::as_str);
+                let name = ["name", "title", "label"]
+                    .iter()
+                    .find_map(|field| record.get(*field).and_then(serde_json::Value::as_str));
+                if let (Some(id), Some(name)) = (id, name) {
+                    scopes.push(SiteCollectionScope {
+                        id: id.to_owned(),
+                        label: name.to_owned(),
+                    });
+                }
+            }
+        }
+        collections.push(SiteCollectionResponse {
+            owner: owner.to_owned(),
+            entity: entity.to_owned(),
+            record_type: exposure.entity.clone(),
+            label,
+            fields,
+            scope_field: parent
+                .filter(|_| !scopes.is_empty())
+                .map(|(field, _)| field),
+            scopes,
+        });
+    }
     Ok(Json(Data::new(collections)))
 }
 
@@ -1028,4 +1069,192 @@ async fn list_languages(
     )
     .collect();
     Ok(Json(Data::new(languages)))
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct SiteStructureResponse {
+    #[schema(example = "record:pages.page:0192f0c4-0000-7000-8000-000000000000")]
+    pub home: Option<String>,
+    pub menu: Vec<String>,
+}
+
+fn structure_of(settings: &crate::settings::SiteSettings) -> SiteStructureResponse {
+    SiteStructureResponse {
+        home: settings.home.clone(),
+        menu: crate::settings::navigation_items(&settings.navigation)
+            .filter_map(|item| item.target.clone())
+            .collect(),
+    }
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/structure",
+    tag = TAG,
+    operation_id = "site_structure",
+    description = "The target the site home page shows (`home`, null for the welcome screen) and the targets that have an item in the menu. Editors use it to show whether a page is the home page or in the menu. Any signed-in user.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "Site structure", body = Data<SiteStructureResponse>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+    )
+)]
+async fn structure(
+    State(state): State<AppState>,
+    _tenant: AuthContext,
+) -> Result<Json<Data<SiteStructureResponse>>, ApiError> {
+    Ok(Json(Data::new(structure_of(&site_settings(
+        &state.organization_config.snapshot(),
+    )))))
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub(crate) struct SetSiteHome {
+    pub target: Option<String>,
+}
+
+async fn known_target(state: &AppState, target: &str) -> Result<(), AppError> {
+    let runtime = runtime::active(state).await?;
+    let parsed = crate::targets::Target::parse(target)
+        .ok_or_else(|| AppError::Validation("target is not a page of the site".to_owned()))?;
+    crate::targets::resolve(state, &runtime, &parsed, None)
+        .await?
+        .map(|_| ())
+        .ok_or_else(|| {
+            AppError::validation_code(
+                "site_target_unavailable",
+                "the page is not published on the site",
+            )
+        })
+}
+
+#[utoipa::path(
+    put,
+    path = "/site/home",
+    tag = TAG,
+    operation_id = "site_home_set",
+    description = "Chooses what the site home page shows: a target from `GET /site/targets`, or null for the welcome screen. The target must be published. Requires `settings.manage`.",
+    security(("session_cookie" = [])),
+    request_body = SetSiteHome,
+    responses(
+        (status = 200, description = "Site structure", body = Data<SiteStructureResponse>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 422, description = "Unknown or unpublished target (`site_target_unavailable`)", body = ErrorEnvelope),
+    )
+)]
+async fn set_home(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Json(input): Json<SetSiteHome>,
+) -> Result<Json<Data<SiteStructureResponse>>, ApiError> {
+    require_manage(&tenant.scope)?;
+    let target = input
+        .target
+        .map(|target| target.trim().to_owned())
+        .filter(|target| !target.is_empty());
+    if let Some(target) = &target {
+        known_target(&state, target).await?;
+    }
+    let mut settings = site_settings(&state.organization_config.snapshot());
+    settings.home = target;
+    crate::provision::save_settings(&tenant.scope, settings.clone()).await?;
+    Ok(Json(Data::new(structure_of(&settings))))
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub(crate) struct SetSiteMenuTarget {
+    pub target: String,
+    pub shown: bool,
+}
+
+#[utoipa::path(
+    put,
+    path = "/site/menu",
+    tag = TAG,
+    operation_id = "site_menu_target_set",
+    description = "Adds a target at the end of the menu (`shown = true`, with the target's own title as label) or removes every menu item that points to it (`shown = false`; groups left empty are removed too). Requires `settings.manage`.",
+    security(("session_cookie" = [])),
+    request_body = SetSiteMenuTarget,
+    responses(
+        (status = 200, description = "Site structure", body = Data<SiteStructureResponse>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 422, description = "Unknown or unpublished target (`site_target_unavailable`)", body = ErrorEnvelope),
+    )
+)]
+async fn set_menu_target(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Json(input): Json<SetSiteMenuTarget>,
+) -> Result<Json<Data<SiteStructureResponse>>, ApiError> {
+    require_manage(&tenant.scope)?;
+    let target = input.target.trim().to_owned();
+    let mut settings = site_settings(&state.organization_config.snapshot());
+    let present = crate::settings::navigation_items(&settings.navigation)
+        .any(|item| item.target.as_deref() == Some(target.as_str()));
+    if input.shown && !present {
+        known_target(&state, &target).await?;
+        settings.navigation.push(crate::settings::NavigationItem {
+            id: format!("nav-{}", &uuid::Uuid::now_v7().simple().to_string()[24..]),
+            label: String::new(),
+            target: Some(target),
+            url: None,
+            children: Vec::new(),
+        });
+    } else if !input.shown {
+        let keep = |item: &crate::settings::NavigationItem| {
+            item.target.as_deref() != Some(target.as_str())
+        };
+        settings.navigation = settings
+            .navigation
+            .into_iter()
+            .filter(keep)
+            .map(|mut item| {
+                item.children.retain(keep);
+                item
+            })
+            .filter(|item| item.target.is_some() || item.url.is_some() || !item.children.is_empty())
+            .collect();
+    }
+    crate::provision::save_settings(&tenant.scope, settings.clone()).await?;
+    Ok(Json(Data::new(structure_of(&settings))))
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub(crate) struct SetSiteNavigation {
+    #[schema(value_type = Vec<Object>)]
+    pub navigation: Vec<crate::settings::NavigationItem>,
+    pub home: Option<String>,
+}
+
+#[utoipa::path(
+    put,
+    path = "/site/navigation",
+    tag = TAG,
+    operation_id = "site_navigation_set",
+    description = "Replaces the menu (`navigation`: items with `id`, `label`, either `target` or `url`, and one level of `children`) and the home page target. Validated like the `site` organization setting; pages show the change right away. Requires `settings.manage`.",
+    security(("session_cookie" = [])),
+    request_body = SetSiteNavigation,
+    responses(
+        (status = 200, description = "Site structure", body = Data<SiteStructureResponse>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid items (`invalid_fields` on `site.navigation` or `site.home`)", body = ErrorEnvelope),
+    )
+)]
+async fn set_navigation(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Json(input): Json<SetSiteNavigation>,
+) -> Result<Json<Data<SiteStructureResponse>>, ApiError> {
+    require_manage(&tenant.scope)?;
+    let mut settings = site_settings(&state.organization_config.snapshot());
+    settings.navigation = input.navigation;
+    settings.home = input
+        .home
+        .map(|home| home.trim().to_owned())
+        .filter(|home| !home.is_empty());
+    crate::provision::save_settings(&tenant.scope, settings.clone()).await?;
+    Ok(Json(Data::new(structure_of(&settings))))
 }

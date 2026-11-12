@@ -221,7 +221,7 @@ export function HeaderCard({ configuration, overview }: CardProps) {
   const [errors, setErrors] = useState<Errors>({})
   const [saving, setSaving] = useState(false)
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved)
-  const menuLinks = settings.links
+  const menuLinks = (settings.navigation ?? []).flatMap((item) => [item, ...item.children]).filter((item) => item.label.trim() !== '')
   const translation = editing ? (draft.translations[editing] ?? {}) : null
   const update = (changes: Partial<HeaderDraft>) => setDraft((previous) => ({ ...previous, ...changes }))
   const translate = (changes: SiteTexts) => {

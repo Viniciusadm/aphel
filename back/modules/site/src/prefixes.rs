@@ -140,9 +140,8 @@ pub(crate) async fn find<'r>(
     state: &AppState,
     runtime: &'r SiteRuntime,
     path: &str,
-    home: Option<&str>,
 ) -> Result<Option<Found<'r>>, AppError> {
-    let fixed = runtime.find(path, home);
+    let fixed = runtime.find(path);
     if let Some((route, _)) = &fixed
         && starts_with_literal(route)
     {

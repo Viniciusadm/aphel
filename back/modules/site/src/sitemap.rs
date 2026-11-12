@@ -184,8 +184,7 @@ async fn collect(
 ) -> Result<(Vec<SitemapUrl>, Vec<String>), AppError> {
     let mut urls = Vec::new();
     let mut tags = Vec::new();
-    let home = crate::settings::site_settings(&state.organization_config.snapshot()).home;
-    for route in runtime.effective_routes(home.as_deref()) {
+    for route in &runtime.routes {
         if route.page.seo.noindex || route.page.needs_customer() || urls.len() >= MAX_URLS {
             continue;
         }

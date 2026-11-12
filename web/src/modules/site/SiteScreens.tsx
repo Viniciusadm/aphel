@@ -12,14 +12,14 @@ import {
   CacheCard,
   CustomersCard,
   LanguagesCard,
-  MenuCard,
   PathRedirectsCard,
   RedirectsCard,
   SiteSummary,
 } from './SiteCards'
 import { AppearanceEditor } from './AppearanceEditor'
+import { NavigationCards } from './NavigationCards'
 
-type ScreenKey = 'general' | 'frame' | 'appearance' | 'languages' | 'customers' | 'redirects'
+type ScreenKey = 'navigation' | 'general' | 'frame' | 'appearance' | 'languages' | 'customers' | 'redirects'
 
 function SiteScreen({
   screen,
@@ -63,7 +63,7 @@ export function SiteGeneralPage() {
         <>
           <SiteSummary overview={overview} />
           <AddressCard configuration={configuration} />
-          <AppearanceCard configuration={configuration} overview={overview} />
+          <AppearanceCard configuration={configuration} />
           <CacheCard />
         </>
       )}
@@ -74,14 +74,13 @@ export function SiteGeneralPage() {
 export function SiteFramePage() {
   return (
     <SiteScreen screen="frame">
-      {(configuration, overview) => (
-        <>
-          <AppearanceEditor mode="frame" />
-          <MenuCard key={overview.menu_items.map((item) => item.id).join()} configuration={configuration} overview={overview} />
-        </>
-      )}
+      {() => <AppearanceEditor mode="frame" />}
     </SiteScreen>
   )
+}
+
+export function SiteNavigationPage() {
+  return <SiteScreen screen="navigation">{(configuration) => <NavigationCards configuration={configuration} />}</SiteScreen>
 }
 
 export function SiteAppearancePage() {

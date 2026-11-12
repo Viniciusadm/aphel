@@ -50,7 +50,6 @@ pub const CARDS_DIR: &str = "site/cards";
 pub const SITE_API_HEADER: &str = "x-aphel-site";
 const MAX_ISLANDS: usize = 30;
 const MAX_CSP_SOURCES: usize = 10;
-const MAX_MENU_ITEMS: usize = 20;
 const MAX_LABEL_LENGTH: usize = 60;
 pub const ALWAYS_PUBLIC_FIELDS: &[&str] = &["id", "created_at", "updated_at"];
 const MAX_SEGMENTS: usize = 8;
@@ -65,8 +64,6 @@ pub struct SiteBundle {
     pub pages: Vec<SitePage>,
     pub exposures: Vec<SiteExposure>,
     pub templates: Vec<SiteTemplate>,
-    #[serde(default)]
-    pub menu: Vec<SiteMenuItem>,
     #[serde(default)]
     pub theme: Option<SiteTheme>,
     #[serde(default)]
@@ -168,21 +165,6 @@ pub struct SiteMenuItem {
     pub page: String,
     #[serde(default)]
     pub labels: BTreeMap<String, String>,
-    #[serde(default)]
-    pub records: Option<SiteMenuRecords>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SiteMenuRecords {
-    pub conditions: BTreeMap<String, Value>,
-    pub label_field: String,
-    pub sort: Option<String>,
-}
-
-pub const MAX_MENU_RECORDS: u64 = 20;
-
-pub fn menu_record_item_id(owner: &str, key: &str, record_id: &str) -> String {
-    format!("{owner}.{key}.{record_id}")
 }
 
 impl SiteMenuItem {
@@ -209,10 +191,6 @@ fn is_schema_type(value: &str) -> bool {
         && value
             .chars()
             .all(|character| character.is_ascii_alphanumeric())
-}
-
-pub fn menu_item_id(owner: &str, key: &str) -> String {
-    format!("{owner}.{key}")
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -842,44 +820,6 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
             (_, None) => {}
         }
     }
-    let mut menu_keys = BTreeSet::new();
-    if bundle.menu.len() > MAX_MENU_ITEMS {
-        problems.push(format!("site.menu: at most {MAX_MENU_ITEMS} items"));
-    }
-    for item in &bundle.menu {
-        let label = format!("site.menu {}", item.key);
-        if item.key.len() > MAX_KEY_LENGTH || !is_identifier(&item.key) {
-            problems.push(format!(
-                "{label}: the key uses lowercase letters, digits and _"
-            ));
-        }
-        if !menu_keys.insert(item.key.as_str()) {
-            problems.push(format!("{label}: the key is repeated"));
-        }
-        if item.label.trim().is_empty() || item.label.chars().count() > MAX_LABEL_LENGTH {
-            problems.push(format!(
-                "{label}: the label must have between 1 and {MAX_LABEL_LENGTH} characters"
-            ));
-        }
-        match (
-            bundle.pages.iter().find(|page| page.key == item.page),
-            &item.records,
-        ) {
-            (None, _) => problems.push(format!("{label}: the page {} does not exist", item.page)),
-            (Some(page), None) => {
-                if PathPattern::parse(&page.path).is_ok_and(|pattern| !pattern.params().is_empty())
-                {
-                    problems.push(format!(
-                        "{label}: the page {} has parameters and cannot be a menu item",
-                        item.page
-                    ));
-                }
-            }
-            (Some(page), Some(records)) => {
-                problems.extend(check_menu_records(bundle, &label, page, records));
-            }
-        }
-    }
     if bundle.islands.len() > MAX_ISLANDS {
         problems.push(format!("site/islands: at most {MAX_ISLANDS} islands"));
     }
@@ -939,40 +879,6 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         }
     }
     problems.extend(check_templates(bundle));
-    problems
-}
-
-fn check_menu_records(
-    bundle: &SiteBundle,
-    label: &str,
-    page: &SitePage,
-    records: &SiteMenuRecords,
-) -> Vec<String> {
-    let PageSource::Record { entity, .. } = &page.source else {
-        return vec![format!(
-            "{label}: a menu item with where needs a page with match"
-        )];
-    };
-    let Some(exposure) = bundle
-        .exposures
-        .iter()
-        .find(|exposure| &exposure.entity == entity)
-    else {
-        return Vec::new();
-    };
-    let mut problems = Vec::new();
-    let sorted = records.sort.as_deref().map(sort_fields).unwrap_or_default();
-    for field in records
-        .conditions
-        .keys()
-        .map(String::as_str)
-        .chain(std::iter::once(records.label_field.as_str()))
-        .chain(sorted)
-    {
-        if !exposure.exposes(field) {
-            problems.push(format!("{label}: the field {field} is not public"));
-        }
-    }
     problems
 }
 
@@ -1075,7 +981,6 @@ mod tests {
                     source: (*source).to_owned(),
                 })
                 .collect(),
-            menu: Vec::new(),
             theme: None,
             islands: Vec::new(),
             csp: SiteCsp::default(),

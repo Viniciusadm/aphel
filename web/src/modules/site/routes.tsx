@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 
 export const SITE_SCREENS = [
+  { key: 'navigation', path: '/site/navigation', component: 'SiteNavigationPage' },
   { key: 'frame', path: '/site/header-footer', component: 'SiteFramePage' },
   { key: 'appearance', path: '/site/appearance', component: 'SiteAppearancePage' },
   { key: 'languages', path: '/site/languages', component: 'SiteLanguagesPage' },
