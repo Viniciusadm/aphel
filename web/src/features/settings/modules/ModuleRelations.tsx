@@ -24,7 +24,10 @@ export function ModuleRelations({ module, nameOf, exists }: ModuleRelationsProps
     key: dependency.key,
     enabled: dependency.installed && dependency.enabled,
   }))
-  const prefers: Link[] = module.optional_dependencies.map((link) => ({ key: link.key, enabled: link.enabled }))
+  const required = new Set(requires.map((link) => link.key))
+  const prefers: Link[] = module.optional_dependencies
+    .filter((link) => !required.has(link.key))
+    .map((link) => ({ key: link.key, enabled: link.enabled }))
   const usedBy: Link[] = module.dependents.map((link) => ({ key: link.key, enabled: link.enabled }))
 
   const rows = [

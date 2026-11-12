@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import i18n, { DEFAULT_LANGUAGE, SHIPPED_LANGUAGES } from '@/i18n'
 import type { ModuleLocale, ModuleTranslations, TranslationLoader, TranslationResources, WebModule } from './define'
@@ -16,6 +16,7 @@ let ready = false
 let booted = false
 let languageRequest = 0
 let keepAllModules = false
+let retainCount = 0
 
 function moduleNamespaces(module: WebModule): [string, ModuleTranslations][] {
   const own: [string, ModuleTranslations][] = module.translations ? [[module.key, module.translations]] : []
@@ -133,10 +134,27 @@ export function syncModuleTranslations(): Promise<void> {
   const locales = localesFor()
   const loads: Promise<void>[] = []
   for (const module of registeredModules()) {
-    if (keepAllModules || isModuleActive(module.key, state)) loads.push(load(module, locales))
+    if (keepAllModules || retainCount > 0 || isModuleActive(module.key, state)) loads.push(load(module, locales))
     else unload(module)
   }
   return Promise.all(loads).then(() => undefined)
+}
+
+export function useAllModuleTranslations(): boolean {
+  const [loaded, setLoaded] = useState(false)
+  useEffect(() => {
+    retainCount += 1
+    let current = true
+    void syncModuleTranslations().then(() => {
+      if (current) setLoaded(true)
+    })
+    return () => {
+      current = false
+      retainCount -= 1
+      void syncModuleTranslations()
+    }
+  }, [])
+  return loaded
 }
 
 export function preloadInstallerTranslations(): Promise<void> {

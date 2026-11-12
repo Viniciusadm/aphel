@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useModules, useInvalidateModules } from '@/kernel/modules/api'
 import { RequirePermission } from '@/features/settings/components/RequirePermission'
 import { SETTINGS_MANAGE } from '@/features/settings/lib/permissions'
+import { useAllModuleTranslations } from '@/kernel/modules/i18n'
 import { moduleHasScreens } from '@/kernel/modules/surface'
 import { ModuleCard } from './ModuleCard'
 import { useModuleName } from './text'
@@ -41,6 +42,7 @@ function ModulesList() {
   const modules = useModules()
   const invalidate = useInvalidateModules()
   const moduleName = useModuleName()
+  const translationsLoaded = useAllModuleTranslations()
   const [query, setQuery] = useState('')
   const [state, setState] = useState<StateFilter>('all')
   const all = useMemo(() => modules.data ?? [], [modules.data])
@@ -70,7 +72,7 @@ function ModulesList() {
   return (
     <Page>
       <PageHeader title={t('title')} description={t('description')} />
-      {modules.isPending ? (
+      {modules.isPending || !translationsLoaded ? (
         <div className="grid gap-3 md:grid-cols-2" aria-busy="true">
           <Skeleton className="h-56 w-full" />
           <Skeleton className="h-56 w-full" />

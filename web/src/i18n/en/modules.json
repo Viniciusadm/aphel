@@ -2,7 +2,7 @@
   "managementDisabledTitle": "Module management is turned off",
   "managementDisabledDescription": "The platform operator turned module and plugin management off for this organization. Contact the platform operator to enable or disable modules.",
   "title": "Modules",
-  "description": "Each module turns on a set of Aphel features. Some bring everyday screens and records; others are support modules that only work when another module uses them. Disabling a module stops its screens and routines, but the data stays stored.",
+  "description": "Each module turns on a set of Aphel features. Some are work areas with their own menu item; others are supporting features that extend what the areas do. Disabling a module stops its screens and routines, but the data stays stored.",
   "listLabel": "Available modules",
   "emptyTitle": "No modules available",
   "emptyDescription": "This Aphel build includes no modules.",
@@ -247,17 +247,17 @@
     "value": "Enter the value"
   },
   "nature": {
-    "screens": "Has screens",
-    "support": "Support"
+    "screens": "System area",
+    "support": "Supporting feature"
   },
   "sections": {
     "screens": {
-      "title": "With their own screens",
-      "description": "They appear in the menu or bring records the team uses every day."
+      "title": "System areas",
+      "description": "They have their own menu item: this is where the team works every day."
     },
     "support": {
-      "title": "Support",
-      "description": "They have no everyday screen: they work when another module uses them, such as automations, imports and webhooks."
+      "title": "Supporting features",
+      "description": "They have no menu item: they extend what the areas do or work when another module uses them, such as automations, imports and webhooks."
     }
   },
   "filters": {
@@ -274,7 +274,8 @@
     "title": "What it adds",
     "menu": "in the menu: {{items}}",
     "settings": "in Settings: {{items}}",
-    "nothing": "nothing in the menu or in Settings; it serves other modules."
+    "nothing": "nothing in the menu or in Settings; it works inside other modules.",
+    "more": "{{items}} and {{count}} more"
   },
   "relations": {
     "requires": "Needs",
@@ -339,6 +340,30 @@
     "validation_rules": {
       "name": "Validation rules",
       "description": "Rules that block saving a record when a condition set by the organization is not met."
+    },
+    "exports": {
+      "description": "Exports record lists to CSV and XLSX, respecting the filter, the search and what each person can see."
+    },
+    "dashboard": {
+      "description": "Home screen with panels (widgets) from each module, which each person can arrange their own way."
+    },
+    "trash": {
+      "description": "Deleted records stay in the trash until permanent cleanup and can be restored with their links."
+    },
+    "integrations": {
+      "description": "Integration center: connect Aphel to other services, with a single setup for the whole organization."
+    },
+    "webhooks": {
+      "description": "Sends Aphel events to other systems (signed outgoing webhooks) and receives data that creates or updates records (incoming webhooks)."
+    },
+    "reports": {
+      "description": "Saved reports over records, with export and scheduled e-mail delivery."
+    },
+    "money": {
+      "description": "The organization's currencies, dated exchange rates and conversion of amounts to the base currency."
+    },
+    "scoring": {
+      "description": "Lead scoring models by profile and behavior, with cold, warm and hot bands and an explanation of each score."
     }
   }
 }

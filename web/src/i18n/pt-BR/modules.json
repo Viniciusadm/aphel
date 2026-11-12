@@ -2,7 +2,7 @@
   "managementDisabledTitle": "O gerenciamento de módulos está desativado",
   "managementDisabledDescription": "O operador da plataforma desativou o gerenciamento de módulos e plugins desta empresa. Para ativar ou desativar módulos, fale com o operador da plataforma.",
   "title": "Módulos",
-  "description": "Cada módulo liga um conjunto de recursos do Aphel. Alguns trazem telas e registros do dia a dia; outros são apoio e só funcionam quando outro módulo os usa. Ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
+  "description": "Cada módulo liga um conjunto de recursos do Aphel. Alguns são áreas de trabalho com item próprio no menu; outros são recursos de apoio que ampliam o que as áreas fazem. Ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
   "listLabel": "Módulos disponíveis",
   "emptyTitle": "Nenhum módulo disponível",
   "emptyDescription": "Este binário do Aphel não inclui módulos.",
@@ -247,17 +247,17 @@
     "value": "Digite o valor"
   },
   "nature": {
-    "screens": "Tem telas",
-    "support": "Apoio"
+    "screens": "Área do sistema",
+    "support": "Recurso de apoio"
   },
   "sections": {
     "screens": {
-      "title": "Com telas próprias",
-      "description": "Aparecem no menu ou trazem registros que a equipe usa no dia a dia."
+      "title": "Áreas do sistema",
+      "description": "Têm item próprio no menu: é onde a equipe trabalha no dia a dia."
     },
     "support": {
-      "title": "Apoio",
-      "description": "Não têm tela de uso diário: funcionam quando outro módulo os usa, como automações, importações e webhooks."
+      "title": "Recursos de apoio",
+      "description": "Não têm item no menu: ampliam o que as áreas fazem ou funcionam quando outro módulo os usa, como automações, importações e webhooks."
     }
   },
   "filters": {
@@ -274,7 +274,8 @@
     "title": "O que adiciona",
     "menu": "no menu: {{items}}",
     "settings": "em Configurações: {{items}}",
-    "nothing": "nada no menu nem em Configurações; serve a outros módulos."
+    "nothing": "nada no menu nem em Configurações; funciona dentro de outros módulos.",
+    "more": "{{items}} e mais {{count}}"
   },
   "relations": {
     "requires": "Precisa de",
@@ -339,6 +340,30 @@
     "validation_rules": {
       "name": "Regras de validação",
       "description": "Regras que impedem salvar um registro quando uma condição definida pela organização não é atendida."
+    },
+    "exports": {
+      "description": "Exporta listas de registros em CSV e XLSX, respeitando o filtro, a busca e o que cada pessoa pode ver."
+    },
+    "dashboard": {
+      "description": "Tela inicial com painéis (widgets) de cada módulo, que cada pessoa pode organizar do seu jeito."
+    },
+    "trash": {
+      "description": "Registros excluídos ficam na lixeira até a limpeza definitiva e podem ser restaurados com seus vínculos."
+    },
+    "integrations": {
+      "description": "Central de integrações: conecte o Aphel a outros serviços, com configuração única para toda a organização."
+    },
+    "webhooks": {
+      "description": "Envia eventos do Aphel para outros sistemas (webhooks de saída, assinados) e recebe dados que criam ou atualizam registros (webhooks de entrada)."
+    },
+    "reports": {
+      "description": "Relatórios salvos sobre registros, com exportação e envio por e-mail agendado."
+    },
+    "money": {
+      "description": "Moedas da organização, taxas de câmbio por data e conversão dos valores para a moeda base."
+    },
+    "scoring": {
+      "description": "Modelos de pontuação de leads por perfil e comportamento, com classificação em frio, morno e quente e a explicação de cada nota."
     }
   }
 }

@@ -35,6 +35,8 @@ function compatibilityProblem(module: ModuleInfo): CompatibilityProblem | null {
   return KNOWN_PROBLEMS.find((problem) => problem === status) ?? 'unknown'
 }
 
+const MAX_LISTED = 3
+
 interface ModuleCardProps {
   module: ModuleInfo
   modules: ModuleInfo[]
@@ -60,6 +62,8 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
   const toDisable = disableChain(modules, module.key).filter((item) => item.key !== module.key)
   const exists = (key: string) => modules.some((item) => item.key === key && !item.required)
   const pendingNames = (list: ModuleInfo[]) => list.map((item) => nameOf(item.key)).join(', ')
+  const shortList = (items: string[]) =>
+    items.length > MAX_LISTED ? t('adds.more', { items: items.slice(0, MAX_LISTED).join(', '), count: items.length - MAX_LISTED }) : items.join(', ')
   const date = (value: string) => formatDateTime(value, formatting)
 
   const enable = async () => {
@@ -173,8 +177,8 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
             {surface.menu.length === 0 && surface.settings.length === 0
               ? t('adds.nothing')
               : [
-                  surface.menu.length > 0 ? t('adds.menu', { items: surface.menu.join(', ') }) : null,
-                  surface.settings.length > 0 ? t('adds.settings', { items: surface.settings.join(', ') }) : null,
+                  surface.menu.length > 0 ? t('adds.menu', { items: shortList(surface.menu) }) : null,
+                  surface.settings.length > 0 ? t('adds.settings', { items: shortList(surface.settings) }) : null,
                 ]
                   .filter(Boolean)
                   .join(' · ')}

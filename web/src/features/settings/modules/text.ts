@@ -10,13 +10,12 @@ function useTranslate(): Translate {
 }
 
 function lookupIn(translate: Translate, module: { key: string }, path: string, fallback: string, catalogPath?: string): string {
-  const own = translate(path, { ns: module.key, defaultValue: '' })
-  if (own) return own
   if (catalogPath) {
     const shared = translate(catalogPath, { ns: 'modules', defaultValue: '' })
     if (shared) return shared
   }
-  return fallback
+  const own = translate(path, { ns: module.key, defaultValue: '' })
+  return own || fallback
 }
 
 export function useModuleName(): (module: Pick<ModuleInfo, 'key' | 'name'>) => string {
