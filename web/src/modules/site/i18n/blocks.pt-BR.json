@@ -204,5 +204,27 @@
     "info": "Informação",
     "success": "Dica",
     "warning": "Atenção"
+  },
+  "rich": {
+    "mode": "Modo de edição",
+    "visual": "Visual",
+    "source": "Markdown",
+    "help": "Selecione o texto e use a barra acima para negrito, itálico, títulos, listas e links.",
+    "toolbar": "Formatação do texto",
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "heading2": "Título",
+    "heading3": "Subtítulo",
+    "bulletList": "Lista",
+    "orderedList": "Lista numerada",
+    "blockquote": "Citação",
+    "code": "Código",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "link": "Link",
+    "unlink": "Remover link",
+    "linkUrl": "Endereço do link",
+    "apply": "Aplicar",
+    "cancel": "Cancelar"
   }
 }

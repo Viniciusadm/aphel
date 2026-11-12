@@ -25,7 +25,10 @@
     "redirectHostsPlaceholder": "suaempresa.com.br",
     "dnsTitle": "Para o domínio funcionar",
     "dnsPoint": "No painel de quem registrou o domínio, aponte {{hosts}} para este servidor (registro A com o IP do servidor, ou CNAME para o endereço dele).",
-    "dnsTls": "O cadeado (HTTPS) é emitido no proxy ou balanceador que fica à frente do Aphel. Inclua todos esses domínios no certificado."
+    "dnsTls": "O cadeado (HTTPS) é emitido no proxy ou balanceador que fica à frente do Aphel. Inclua todos esses domínios no certificado.",
+    "dnsCheck": "Verificar DNS",
+    "dnsResolves": "{{host}} aponta para {{addresses}}. Confira se é o endereço deste servidor.",
+    "dnsMissing": "{{host}} ainda não aponta para lugar nenhum. A mudança no DNS pode levar algumas horas."
   },
   "appearance": {
     "title": "Barra de rolagem",

@@ -204,5 +204,27 @@
     "info": "Information",
     "success": "Tip",
     "warning": "Warning"
+  },
+  "rich": {
+    "mode": "Editing mode",
+    "visual": "Visual",
+    "source": "Markdown",
+    "help": "Select text and use the bar above for bold, italic, headings, lists and links.",
+    "toolbar": "Text formatting",
+    "bold": "Bold",
+    "italic": "Italic",
+    "heading2": "Heading",
+    "heading3": "Subheading",
+    "bulletList": "List",
+    "orderedList": "Numbered list",
+    "blockquote": "Quote",
+    "code": "Code",
+    "undo": "Undo",
+    "redo": "Redo",
+    "link": "Link",
+    "unlink": "Remove link",
+    "linkUrl": "Link address",
+    "apply": "Apply",
+    "cancel": "Cancel"
   }
 }

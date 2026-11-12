@@ -55781,6 +55781,66 @@
         "x-aphel-module": "site"
       }
     },
+    "/api/v1/site/domain-check": {
+      "get": {
+        "tags": [
+          "site"
+        ],
+        "description": "Looks up the DNS records of the site domain and of the domains that redirect to it, so the organization can compare them with the address of this server. Returns an empty list when the site has no domain of its own. Requires `settings.manage`.",
+        "operationId": "site_domain_check",
+        "responses": {
+          "200": {
+            "description": "One entry per domain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_DomainCheckEntry"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "site"
+      }
+    },
     "/api/v1/site/embeds": {
       "get": {
         "tags": [
@@ -91744,6 +91804,43 @@
           }
         }
       },
+      "Data_Vec_DomainCheckEntry": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "host",
+                "resolves",
+                "addresses"
+              ],
+              "properties": {
+                "addresses": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "203.0.113.10"
+                  ]
+                },
+                "host": {
+                  "type": "string",
+                  "example": "www.example.com"
+                },
+                "resolves": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_DuplicateMatchResponse": {
         "type": "object",
         "required": [
@@ -96427,6 +96524,32 @@
           }
         },
         "additionalProperties": false
+      },
+      "DomainCheckEntry": {
+        "type": "object",
+        "required": [
+          "host",
+          "resolves",
+          "addresses"
+        ],
+        "properties": {
+          "addresses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "203.0.113.10"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "example": "www.example.com"
+          },
+          "resolves": {
+            "type": "boolean"
+          }
+        }
       },
       "DryRunRequest": {
         "type": "object",

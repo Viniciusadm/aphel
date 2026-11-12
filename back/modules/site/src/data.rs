@@ -369,3 +369,35 @@ pub(crate) async fn count(
         .await?;
     Ok(listing.total)
 }
+
+pub(crate) async fn neighbour(
+    state: &AppState,
+    exposure: &SiteExposure,
+    (published_at, id): (&str, &str),
+    older: bool,
+    restriction: Restriction<'_>,
+    translation: Option<&str>,
+) -> Result<Option<Value>, AppError> {
+    let (operator, sort) = match older {
+        true => (FilterOperator::Lt, "-published_at"),
+        false => (FilterOperator::Gt, "published_at"),
+    };
+    let extra = Filter::and(vec![
+        Filter::condition(
+            "published_at",
+            operator,
+            Value::String(published_at.to_owned()),
+        ),
+        Filter::condition("id", FilterOperator::Neq, Value::String(id.to_owned())),
+    ]);
+    let page = list_in(
+        state,
+        exposure,
+        (Some(sort), 1, 1),
+        restriction,
+        Some(extra),
+        translation,
+    )
+    .await?;
+    Ok(page.records.into_iter().next())
+}

@@ -74,8 +74,46 @@ fn reference_error(key: &str, message: String) -> AppError {
     }
 }
 
-fn resolve(key: &str, value: &Value, applied: &BTreeMap<String, Value>) -> Result<Value, AppError> {
+struct Installer {
+    id: String,
+    name: String,
+}
+
+async fn installer_of(pool: &sqlx::MySqlPool, scope: &AccessScope) -> Option<Installer> {
+    if scope.is_system() {
+        return None;
+    }
+    let id = scope.user_id().to_string();
+    let query = serde_json::from_value(json!({ "ids": [id] })).ok()?;
+    let found = crate::directory::users(pool, query).await.ok()?;
+    let name = found
+        .get("data")?
+        .as_array()?
+        .first()?
+        .get("name")?
+        .as_str()?
+        .to_owned();
+    Some(Installer { id, name })
+}
+
+fn resolve(
+    key: &str,
+    value: &Value,
+    applied: &BTreeMap<String, Value>,
+    installer: Option<&Installer>,
+) -> Result<Value, AppError> {
     match value {
+        Value::Object(map) if map.len() == 1 && map.contains_key("installer") => {
+            let field = map["installer"].as_str().unwrap_or_default();
+            match (installer, field) {
+                (Some(installer), "id") => Ok(Value::String(installer.id.clone())),
+                (Some(installer), "name") => Ok(Value::String(installer.name.clone())),
+                _ => Err(reference_error(
+                    key,
+                    format!("installer.{field} is not available"),
+                )),
+            }
+        }
         Value::Object(map)
             if map.contains_key("provision")
                 && map.contains_key("field")
@@ -99,13 +137,13 @@ fn resolve(key: &str, value: &Value, applied: &BTreeMap<String, Value>) -> Resul
         }
         Value::Object(map) => Ok(Value::Object(
             map.iter()
-                .map(|(name, item)| Ok((name.clone(), resolve(key, item, applied)?)))
+                .map(|(name, item)| Ok((name.clone(), resolve(key, item, applied, installer)?)))
                 .collect::<Result<Map<String, Value>, AppError>>()?,
         )),
         Value::Array(items) => Ok(Value::Array(
             items
                 .iter()
-                .map(|item| resolve(key, item, applied))
+                .map(|item| resolve(key, item, applied, installer))
                 .collect::<Result<Vec<_>, _>>()?,
         )),
         other => Ok(other.clone()),
@@ -295,6 +333,7 @@ pub async fn run(
         .filter(|(_, row)| applied_status(&row.status))
         .map(|(key, row)| (key.clone(), row.applied.clone()))
         .collect();
+    let installer = installer_of(&pool, scope).await;
     let mut unusable: BTreeSet<String> = BTreeSet::new();
     let mut results = Vec::with_capacity(order.len());
     let mut failed = false;
@@ -342,7 +381,7 @@ pub async fn run(
                 key: spec.key.clone(),
                 target: spec.target.clone(),
                 mode: spec.mode,
-                data: resolve(&spec.key, &spec.data, &applied)?,
+                data: resolve(&spec.key, &spec.data, &applied, installer.as_ref())?,
                 unique: spec.unique.clone(),
                 conflict: spec.path_conflict,
                 existing: row.and_then(|row| {

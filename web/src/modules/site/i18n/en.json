@@ -25,7 +25,10 @@
     "redirectHostsPlaceholder": "yourcompany.com",
     "dnsTitle": "To make the domain work",
     "dnsPoint": "In your domain registrar's panel, point {{hosts}} at this server (an A record with the server IP, or a CNAME to its address).",
-    "dnsTls": "The padlock (HTTPS) certificate is issued by the proxy or load balancer in front of Aphel. Include all these domains in it."
+    "dnsTls": "The padlock (HTTPS) certificate is issued by the proxy or load balancer in front of Aphel. Include all these domains in it.",
+    "dnsCheck": "Check DNS",
+    "dnsResolves": "{{host}} points to {{addresses}}. Check that this is the address of this server.",
+    "dnsMissing": "{{host}} does not point anywhere yet. DNS changes can take a few hours."
   },
   "appearance": {
     "title": "Scrollbar",

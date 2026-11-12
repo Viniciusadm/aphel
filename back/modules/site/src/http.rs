@@ -36,6 +36,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .merge(crate::appearance_http::router())
         .routes(routes!(overview))
         .routes(routes!(site_status))
+        .routes(routes!(domain_check))
         .routes(routes!(list_redirects))
         .routes(routes!(delete_redirect))
         .routes(routes!(list_path_redirects, create_path_redirect))
@@ -292,6 +293,58 @@ async fn site_status(
     Ok(Json(Data::new(
         crate::status::status(&state, &runtime).await?,
     )))
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct DomainCheckEntry {
+    #[schema(example = "www.example.com")]
+    pub host: String,
+    pub resolves: bool,
+    #[schema(example = json!(["203.0.113.10"]))]
+    pub addresses: Vec<String>,
+}
+
+#[utoipa::path(
+    get,
+    path = "/site/domain-check",
+    tag = TAG,
+    operation_id = "site_domain_check",
+    description = "Looks up the DNS records of the site domain and of the domains that redirect to it, so the organization can compare them with the address of this server. Returns an empty list when the site has no domain of its own. Requires `settings.manage`.",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "One entry per domain", body = Data<Vec<DomainCheckEntry>>),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+    )
+)]
+async fn domain_check(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<Vec<DomainCheckEntry>>>, ApiError> {
+    require_manage(&tenant.scope)?;
+    let config = state.organization_config.snapshot();
+    let mounts = &config.mounts.site;
+    let mut entries = Vec::new();
+    for host in mounts.host.iter().chain(&mounts.redirect_hosts) {
+        let name = host.split(':').next().unwrap_or(host).to_owned();
+        let lookup = tokio::time::timeout(
+            std::time::Duration::from_secs(3),
+            tokio::net::lookup_host((name.as_str(), 443)),
+        )
+        .await;
+        let mut addresses: Vec<String> = match lookup {
+            Ok(Ok(found)) => found.map(|address| address.ip().to_string()).collect(),
+            _ => Vec::new(),
+        };
+        addresses.sort();
+        addresses.dedup();
+        entries.push(DomainCheckEntry {
+            host: host.clone(),
+            resolves: !addresses.is_empty(),
+            addresses,
+        });
+    }
+    Ok(Json(Data::new(entries)))
 }
 
 #[utoipa::path(

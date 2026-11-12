@@ -92,6 +92,7 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | `page` | `owner`, `key`, `path`, `params` and the rendered `title`. |
 | `record` | The record of a `match` page, with the public fields only, plus `images` when the entity exposes them: a list of `{ id, name, type, url }`, at most 100. |
 | `records`, `pagination` | The records of a `list` page and `page`, `pages`, `total`, `previous_url`, `next_url`. |
+| `adjacent` | On a `match` page whose entity exposes `published_at`: `previous` (the next older record of the same prefix) and `next` (the next newer one), each `{ title, url }` and present only when it exists. |
 
 | Function or filter | Use |
 | --- | --- |
@@ -436,7 +437,7 @@ A list page with `feed = true` answers `<page address>/feed.xml` with RSS 2.0: t
 
 ## Public search
 
-`/busca` (Portuguese sites) and `/search` show a search form and the published records whose public `title`, `name`, `summary`, `description` or `seo_description` contain the words typed (`?q=`, 2 to 100 characters), with links to their `match` pages: at most 10 per public entity and 30 in all. Entities without a `match` page are left out. The page extends the theme layout, is never cached and carries `noindex`; `site.search` holds its address, and the built-in theme shows it in the header.
+`/busca` (Portuguese sites) and `/search` show a search form and the published records whose public `title`, `name`, `summary`, `description` or `seo_description` contain the words typed (`?q=`, 2 to 100 characters), with links to their `match` pages: at most 10 per public entity and 30 in all. Entities without a `match` page are left out. On a site with extra languages the search also reads the translations of the request language. The page extends the theme layout, is never cached and carries `noindex`; `site.search` holds its address, and the built-in theme shows it in the header.
 
 ## Images
 

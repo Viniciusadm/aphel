@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::application::fields::translations_field;
 use aphel_sdk::platform::application::query::{Filter, FilterOperator};
 use serde_json::{Value, json};
 
@@ -58,18 +59,29 @@ pub(crate) async fn results(
     if query.chars().count() < MIN_QUERY {
         return Ok(Vec::new());
     }
+    let registry = state.registry().await?;
     let mut seen = BTreeSet::new();
     let mut found = Vec::new();
     for (_, exposure) in runtime.exposures() {
         if !seen.insert(exposure.entity.clone()) {
             continue;
         }
+        let definition = registry.require(&exposure.entity).ok();
         let conditions: Vec<Filter> = SEARCHABLE_FIELDS
             .iter()
             .filter(|field| exposure.fields.iter().any(|exposed| exposed == *field))
+            .flat_map(|field| {
+                let translated = translation
+                    .map(|_| translations_field(field))
+                    .filter(|key| {
+                        definition
+                            .is_some_and(|definition| definition.system_field_by_key(key).is_some())
+                    });
+                std::iter::once((*field).to_owned()).chain(translated)
+            })
             .map(|field| {
                 Filter::condition(
-                    *field,
+                    field,
                     FilterOperator::Contains,
                     Value::String(query.to_owned()),
                 )

@@ -104,6 +104,16 @@ export function saveNavigation(navigation: SiteNavigationItem[], home: string | 
   return api.put<SiteStructure>(`${SITE_PATH}/navigation`, { navigation, home })
 }
 
+export interface DomainCheck {
+  host: string
+  resolves: boolean
+  addresses: string[]
+}
+
+export function checkDomains() {
+  return api.get<DomainCheck[]>(`${SITE_PATH}/domain-check`)
+}
+
 export function useSiteStatus() {
   return useQuery({ queryKey: [...siteKeys.all, 'status'], queryFn: () => api.get<SiteStatus>(`${SITE_PATH}/status`) })
 }

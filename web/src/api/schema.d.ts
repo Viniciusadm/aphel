@@ -7467,6 +7467,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site/domain-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Looks up the DNS records of the site domain and of the domains that redirect to it, so the organization can compare them with the address of this server. Returns an empty list when the site has no domain of its own. Requires `settings.manage`. */
+        get: operations["site_domain_check"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/site/embeds": {
         parameters: {
             query?: never;
@@ -15129,6 +15146,19 @@ export interface components {
                 updated_at: string;
             }[];
         };
+        Data_Vec_DomainCheckEntry: {
+            data: {
+                /**
+                 * @example [
+                 *       "203.0.113.10"
+                 *     ]
+                 */
+                addresses: string[];
+                /** @example www.example.com */
+                host: string;
+                resolves: boolean;
+            }[];
+        };
         Data_Vec_DuplicateMatchResponse: {
             data: {
                 record_id: string;
@@ -16335,6 +16365,17 @@ export interface components {
             /** @example Asked not to be contacted this semester */
             note?: string | null;
             reason_id: string;
+        };
+        DomainCheckEntry: {
+            /**
+             * @example [
+             *       "203.0.113.10"
+             *     ]
+             */
+            addresses: string[];
+            /** @example www.example.com */
+            host: string;
+            resolves: boolean;
         };
         DryRunRequest: {
             changed_fields?: string[];
@@ -63340,6 +63381,53 @@ export interface operations {
             };
             /** @description Missing or invalid session */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_domain_check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One entry per domain */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_DomainCheckEntry"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

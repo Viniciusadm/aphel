@@ -116,6 +116,8 @@ pub struct ClassifiableDefinition {
     #[serde(default)]
     pub published: Option<String>,
     pub vocabularies: Vec<String>,
+    #[serde(default)]
+    pub manage_permission: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

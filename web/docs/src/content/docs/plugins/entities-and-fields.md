@@ -122,7 +122,7 @@ type = "references"
 [[contribute]]
 point = "tagging.classifiable"
 name = "entry"
-data = { entity = "content.entry", field = "draft_terms", published = "terms", vocabularies = ["categories", "tags"] }
+data = { entity = "content.entry", field = "draft_terms", published = "terms", vocabularies = ["categories", "tags"], manage_permission = "content.terms.manage" }
 ```
 
 | Key | Notes |
@@ -130,6 +130,7 @@ data = { entity = "content.entry", field = "draft_terms", published = "terms", v
 | `entity` | The entity that keeps the selection. |
 | `field` | The `references` field people edit. On every save, ids of terms that no longer exist are dropped, and a term of a vocabulary not listed in `vocabularies` fails with `422 tag_not_allowed`. |
 | `published` | Optional field that receives the selection when the record is published (for example a `publication` projection). Public site pages and filters read this one. |
+| `manage_permission` | Optional permission (usually one the plugin declares). People who hold it can create, rename and delete the terms of the listed vocabularies without `settings.manage`. |
 | `vocabularies` | Keys of the vocabularies the entity accepts. |
 
 A term selected in `field` or `published` of any record cannot be deleted (`409 tag_in_use`). Without `tagging`, the field keeps its values and nothing is validated.

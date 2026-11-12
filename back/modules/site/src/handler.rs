@@ -1179,6 +1179,58 @@ async fn render_route(
                 &mut tags,
             )
             .await?;
+            if exposure.exposes("published_at")
+                && let (Some(published_at), Some(id)) = (
+                    record
+                        .get("published_at")
+                        .and_then(serde_json::Value::as_str)
+                        .map(str::to_owned),
+                    record
+                        .get("id")
+                        .and_then(serde_json::Value::as_str)
+                        .map(str::to_owned),
+                )
+            {
+                tags.push(cache::entity_tag(entity));
+                let mut adjacent = serde_json::Map::new();
+                for (key, older) in [("previous", true), ("next", false)] {
+                    let Some(mut neighbour) = data::neighbour(
+                        state,
+                        exposure,
+                        (&published_at, &id),
+                        older,
+                        restriction,
+                        context.translation.as_deref(),
+                    )
+                    .await?
+                    else {
+                        continue;
+                    };
+                    crate::prefixes::annotate(
+                        state,
+                        runtime,
+                        entity,
+                        std::slice::from_mut(&mut neighbour),
+                    )
+                    .await?;
+                    let title = ["title", "name"].iter().find_map(|field| {
+                        neighbour.get(*field).and_then(serde_json::Value::as_str)
+                    });
+                    if let (Some(path), Some(title)) = (
+                        crate::targets::record_path(runtime, entity, &neighbour),
+                        title,
+                    ) {
+                        adjacent.insert(
+                            key.to_owned(),
+                            json!({
+                                "title": title,
+                                "url": format!("{}{path}", context.site["prefix"].as_str().unwrap_or_default()),
+                            }),
+                        );
+                    }
+                }
+                values.insert("adjacent".to_owned(), serde_json::Value::Object(adjacent));
+            }
             values.insert("record".to_owned(), record);
         }
         PageSource::Single { entity, conditions } => {

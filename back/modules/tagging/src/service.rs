@@ -322,8 +322,31 @@ async fn ensure_slug_free(
     }
 }
 
+fn require_manage(ctx: &Ctx<'_>, vocabulary_key: &str) -> Result<(), AppError> {
+    let delegated = crate::classifiable::declared().iter().any(|definition| {
+        definition
+            .vocabularies
+            .iter()
+            .any(|key| key == vocabulary_key)
+            && definition
+                .manage_permission
+                .as_deref()
+                .and_then(|permission| Permission::parse(permission).ok())
+                .is_some_and(|permission| ctx.scope.scope_for(&permission).is_some())
+    });
+    match delegated {
+        true => Ok(()),
+        false => ctx.scope.require(&Permission::SETTINGS_MANAGE).map(|_| ()),
+    }
+}
+
+async fn require_manage_tag(ctx: &Ctx<'_>, tag: &Tag) -> Result<(), AppError> {
+    let keys = vocabulary_keys(ctx).await?;
+    let key = keys.get(&tag.vocabulary_id).cloned().unwrap_or_default();
+    require_manage(ctx, &key)
+}
+
 pub(crate) async fn create(ctx: &Ctx<'_>, command: CreateTagCommand) -> Result<TagView, AppError> {
-    ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     let mut violations = Vec::new();
     let name = normalize_tag_name(&command.name)
         .map_err(|message| violations.push(FieldViolation::new("name", message)))
@@ -354,6 +377,7 @@ pub(crate) async fn create(ctx: &Ctx<'_>, command: CreateTagCommand) -> Result<T
         return Err(AppError::invalid_fields("invalid tag", violations));
     }
     let vocabulary = vocabulary(ctx, command.vocabulary.as_deref()).await?;
+    require_manage(ctx, &vocabulary.key)?;
     ensure_name_free(ctx, vocabulary.id, &name, None).await?;
     let id = Uuid::now_v7();
     check_parent(ctx, &vocabulary, id, parent_id).await?;
@@ -415,8 +439,8 @@ pub(crate) async fn update(
     tag_id: &str,
     command: UpdateTagCommand,
 ) -> Result<TagView, AppError> {
-    ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     let current = find(ctx, tag_id).await?;
+    require_manage_tag(ctx, &current).await?;
     ensure_version(command.expected_updated_at, current.updated_at)?;
     let mut tag = current.clone();
     let mut violations = Vec::new();
@@ -500,8 +524,8 @@ pub(crate) async fn delete(
     tag_id: &str,
     ip: Option<String>,
 ) -> Result<(), AppError> {
-    ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     let tag = find(ctx, tag_id).await?;
+    require_manage_tag(ctx, &tag).await?;
     if TagStore::of(ctx).children_count(tag.id).await? > 0 {
         return Err(AppError::conflict_code(
             TAG_HAS_CHILDREN,

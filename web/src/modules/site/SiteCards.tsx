@@ -23,7 +23,9 @@ import {
   useAllMembers,
 } from '@/sdk'
 import {
+  checkDomains,
   siteApi,
+  type DomainCheck,
   useInvalidateSite,
   useSiteCustomers,
   useSitePathRedirects,
@@ -128,6 +130,19 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
     : `${publicBase}/`
   const errorText = (message?: string) => (message?.startsWith('errors.') ? t(message as 'errors.path') : message)
 
+  const [checks, setChecks] = useState<DomainCheck[] | null>(null)
+  const [checking, setChecking] = useState(false)
+  const verifyDomains = async () => {
+    setChecking(true)
+    try {
+      setChecks(await checkDomains())
+    } catch (error) {
+      notifyError(error)
+    } finally {
+      setChecking(false)
+    }
+  }
+
   const onSubmit = handleSubmit(async (values) => {
     try {
       const saved = await saveSite(
@@ -217,6 +232,18 @@ export function AddressCard({ configuration }: { configuration: OrganizationConf
                   {t('address.dnsPoint', { hosts: [host.trim().toLowerCase(), ...hostList(redirectHosts)].join(', ') })}
                 </span>
                 <span className="text-muted-foreground">{t('address.dnsTls')}</span>
+                {canMove && !isDirty && (
+                  <div className="grid gap-1 pt-1">
+                    <Button type="button" variant="outline" size="sm" className="justify-self-start" disabled={checking} onClick={() => void verifyDomains()}>
+                      {t('address.dnsCheck')}
+                    </Button>
+                    {checks?.map((check) => (
+                      <span key={check.host} role="status" className={check.resolves ? 'text-success' : 'text-destructive'}>
+                        {check.resolves ? t('address.dnsResolves', { host: check.host, addresses: check.addresses.join(', ') }) : t('address.dnsMissing', { host: check.host })}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             <FormRow

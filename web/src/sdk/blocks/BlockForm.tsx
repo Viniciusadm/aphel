@@ -6,9 +6,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { ToggleField } from '@/components/ui/toggle-field'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { Plus, Trash2 } from 'lucide-react'
+import { Suspense, lazy, useState } from 'react'
 
 import { MAX_BUTTONS, isSafeLink, type Block, type ButtonsBlock, type BlockButton } from './blocks'
 import { ImageField } from './ImageField'
+import { needsSourceMode } from './richtext'
 import { BookingBlockForm, CollectionBlockForm, FormBlockForm } from './ConnectedForms'
 import { ColumnsForm, ContactForm, EmbedForm, FaqForm, GalleryForm, TestimonialsForm, VideoForm } from './ItemForms'
 import type { BlockRecord } from './api'
@@ -50,11 +52,32 @@ function TextField({ label, value, onChange, disabled, maxLength, description }:
   )
 }
 
+const RichTextEditor = lazy(() => import('./RichTextEditor'))
+
 function MarkdownField({ label, value, onChange, disabled, maxLength, t }: { label: string; value: string; onChange: (value: string) => void; disabled?: boolean; maxLength: number; t: Translate }) {
+  const [source, setSource] = useState(() => needsSourceMode(value))
   return (
-    <Field label={label} description={t('fields.textHelp')}>
+    <Field label={label} description={source ? t('fields.textHelp') : t('rich.help')}>
       {(control) => (
-        <Textarea {...control} value={value} rows={8} maxLength={maxLength} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
+        <div className="grid gap-2">
+          <SegmentedControl
+            aria-label={t('rich.mode')}
+            size="sm"
+            value={source ? 'source' : 'visual'}
+            onValueChange={(mode) => setSource(mode === 'source')}
+            options={[
+              { value: 'visual', label: t('rich.visual'), disabled },
+              { value: 'source', label: t('rich.source'), disabled },
+            ]}
+          />
+          {source ? (
+            <Textarea {...control} value={value} rows={8} maxLength={maxLength} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
+          ) : (
+            <Suspense fallback={<Textarea {...control} value={value} rows={8} disabled />}>
+              <RichTextEditor id={control.id} label={label} value={value} disabled={disabled} describedBy={control['aria-describedby']} onChange={(next) => onChange(next.slice(0, maxLength))} />
+            </Suspense>
+          )}
+        </div>
       )}
     </Field>
   )

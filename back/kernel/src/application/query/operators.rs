@@ -41,7 +41,8 @@ pub fn operators_for(field_type: FieldType) -> Vec<FilterOperator> {
             IsNotEmpty,
         ],
         FieldType::LongText => vec![Contains, NotContains, IsEmpty, IsNotEmpty],
-        FieldType::File | FieldType::Image | FieldType::Document => vec![IsEmpty, IsNotEmpty],
+        FieldType::File | FieldType::Image => vec![IsEmpty, IsNotEmpty],
+        FieldType::Document => vec![Contains, NotContains, IsEmpty, IsNotEmpty],
         FieldType::Number | FieldType::Currency => vec![
             Eq, Neq, Gt, Gte, Lt, Lte, Between, In, NotIn, IsEmpty, IsNotEmpty,
         ],
