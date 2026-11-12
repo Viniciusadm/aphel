@@ -253,11 +253,11 @@
   "sections": {
     "screens": {
       "title": "Áreas do sistema",
-      "description": "Têm item próprio no menu: é onde a equipe trabalha no dia a dia."
+      "description": "Telas que você abre pelo menu lateral."
     },
     "support": {
       "title": "Recursos de apoio",
-      "description": "Não têm item no menu: ampliam o que as áreas fazem ou funcionam quando outro módulo os usa, como automações, importações e webhooks."
+      "description": "Funcionam por trás das outras telas e não aparecem no menu."
     }
   },
   "filters": {

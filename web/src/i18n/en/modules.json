@@ -253,11 +253,11 @@
   "sections": {
     "screens": {
       "title": "System areas",
-      "description": "They have their own menu item: this is where the team works every day."
+      "description": "Screens you open from the side menu."
     },
     "support": {
       "title": "Supporting features",
-      "description": "They have no menu item: they extend what the areas do or work when another module uses them, such as automations, imports and webhooks."
+      "description": "They work behind the other screens and do not appear in the menu."
     }
   },
   "filters": {
