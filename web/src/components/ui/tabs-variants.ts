@@ -6,8 +6,12 @@ export const tabsListVariants = cva('inline-flex w-fit max-w-full items-center g
       sm: 'h-(--control-height-sm) p-1',
       md: 'h-(--control-height-md) p-1.5',
     },
+    variant: {
+      pill: '',
+      line: 'h-auto w-full gap-6 rounded-none border-b bg-transparent p-0 text-muted-foreground',
+    },
   },
-  defaultVariants: { size: 'md' },
+  defaultVariants: { size: 'md', variant: 'pill' },
 })
 
 export const tabsTriggerVariants = cva(
@@ -18,9 +22,14 @@ export const tabsTriggerVariants = cva(
         sm: 'px-2.5 text-xs',
         md: 'px-3 text-sm',
       },
+      variant: {
+        pill: '',
+        line: 'relative -mb-px h-auto rounded-none border-b-[3px] border-transparent px-1 pb-3 pt-2 text-base font-medium text-foreground/70 hover:border-border data-[state=active]:border-primary-solid data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none',
+      },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'md', variant: 'pill' },
   },
 )
 
 export type TabsSize = NonNullable<VariantProps<typeof tabsListVariants>['size']>
+export type TabsVariant = NonNullable<VariantProps<typeof tabsListVariants>['variant']>

@@ -6,10 +6,10 @@ import { optionText } from './option-text'
 import { defaultUiLabels } from './default-labels'
 import { useUiLabels } from './labels-context'
 import { Badge } from './badge'
-import { tabsListVariants, tabsTriggerVariants, type TabsSize } from './tabs-variants'
+import { tabsListVariants, tabsTriggerVariants, type TabsSize, type TabsVariant } from './tabs-variants'
 
 
-const TabsSizeContext = createContext<TabsSize>('md')
+const TabsStyleContext = createContext<{ size: TabsSize; variant: TabsVariant }>({ size: 'md', variant: 'pill' })
 
 const TabsValueContext = createContext<{ value: string; select: (value: string) => void } | null>(null)
 
@@ -24,19 +24,19 @@ export function Tabs({ value, defaultValue, onValueChange, ...props }: Component
   </TabsValueContext.Provider>
 }
 
-export function TabsList({ className, children, size = 'md', ...props }: ComponentProps<typeof TabsPrimitive.List> & { size?: TabsSize }) {
+export function TabsList({ className, children, size = 'md', variant = 'pill', ...props }: ComponentProps<typeof TabsPrimitive.List> & { size?: TabsSize; variant?: TabsVariant }) {
   const context = useContext(TabsValueContext)
   const labels = useUiLabels()
   const sectionLabel = labels.sectionNavigation ?? defaultUiLabels().sectionNavigation
   const options = Children.toArray(children).flatMap((child) => isValidElement<TabsTriggerProps>(child) && child.type === TabsTrigger ? [child.props] : [])
   return (
-    <TabsSizeContext.Provider value={size}>
+    <TabsStyleContext.Provider value={{ size, variant }}>
       {context && options.length > 0 && <NativeSelect className="w-full md:hidden" aria-label={props['aria-label'] ?? sectionLabel} value={context.value} onValueChange={context.select}>
         {!options.some((option) => option.value === context.value) && <option value="" disabled>{sectionLabel}</option>}
         {options.map((option) => <option key={option.value} value={option.value} disabled={option.disabled}>{option['aria-label'] ?? (optionText(option.children) || option.value)}{option.count !== undefined ? ` (${option.count})` : ''}</option>)}
       </NativeSelect>}
-      <TabsPrimitive.List data-slot="tabs-list" className={cn(tabsListVariants({ size }), className, context && options.length > 0 && 'hidden md:inline-flex')} {...props}>{children}</TabsPrimitive.List>
-    </TabsSizeContext.Provider>
+      <TabsPrimitive.List data-slot="tabs-list" className={cn(tabsListVariants({ size, variant }), className, context && options.length > 0 && 'hidden md:inline-flex')} {...props}>{children}</TabsPrimitive.List>
+    </TabsStyleContext.Provider>
   )
 }
 
@@ -46,9 +46,9 @@ export interface TabsTriggerProps extends ComponentProps<typeof TabsPrimitive.Tr
 }
 
 export function TabsTrigger({ className, icon, count, children, ...props }: TabsTriggerProps) {
-  const size = useContext(TabsSizeContext)
+  const { size, variant } = useContext(TabsStyleContext)
   return (
-    <TabsPrimitive.Trigger data-slot="tabs-trigger" className={cn(tabsTriggerVariants({ size }), className)} {...props}>
+    <TabsPrimitive.Trigger data-slot="tabs-trigger" className={cn(tabsTriggerVariants({ size, variant }), className)} {...props}>
       {icon}
       {children}
       {count !== undefined && (

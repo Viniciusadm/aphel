@@ -2,7 +2,7 @@ import { ShieldCheck } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { momentKey } from '@/sdk'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -19,7 +19,7 @@ import type {ApprovalBox, ApprovalRequest, ApprovalStatus} from '@/sdk'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
-import { UrlTabs } from '@/components/ui/url-tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ApprovalPoliciesPanel } from './settings/ApprovalPoliciesPage'
 import { Field } from '@/components/ui/field'
 
@@ -27,16 +27,30 @@ export function ApprovalsPage() {
   const { t } = useTranslation('approvals')
   const { hasPermission } = useSession()
   const canManage = hasPermission(APPROVALS_MANAGE_PERMISSION)
+  const [params, setParams] = useSearchParams()
+  const tab = params.get('tab') === 'policies' ? 'policies' : 'requests'
+  const selectTab = (next: string) => {
+    const query = new URLSearchParams(params)
+    if (next === 'requests') query.delete('tab')
+    else query.set('tab', next)
+    setParams(query)
+  }
   return (
     <Page>
       <PageHeader title={t('inbox.title')} description={t('inbox.description')} />
       {canManage ? (
-        <UrlTabs
-          tabs={[
-            { key: 'requests', label: t('tabs.requests'), content: <ApprovalRequests canManage /> },
-            { key: 'policies', label: t('tabs.policies'), content: <ApprovalPoliciesPanel /> },
-          ]}
-        />
+        <Tabs value={tab} onValueChange={selectTab} className="flex flex-col gap-6">
+          <TabsList variant="line" aria-label={t('inbox.title')}>
+            <TabsTrigger value="requests">{t('tabs.requests')}</TabsTrigger>
+            <TabsTrigger value="policies">{t('tabs.policies')}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="requests">
+            <ApprovalRequests canManage />
+          </TabsContent>
+          <TabsContent value="policies">
+            <ApprovalPoliciesPanel />
+          </TabsContent>
+        </Tabs>
       ) : (
         <ApprovalRequests canManage={false} />
       )}
