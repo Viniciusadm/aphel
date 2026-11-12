@@ -182,6 +182,7 @@ dependencies = [
  "aphel-mod-leads",
  "aphel-mod-line-items",
  "aphel-mod-marketplace",
+ "aphel-mod-media",
  "aphel-mod-messaging",
  "aphel-mod-microsoft",
  "aphel-mod-migrations-assistant",
@@ -1293,6 +1294,21 @@ dependencies = [
  "sqlx",
  "utoipa",
  "utoipa-axum",
+]
+
+[[package]]
+name = "aphel-mod-media"
+version = "0.1.1"
+dependencies = [
+ "aphel-kernel",
+ "aphel-sdk",
+ "axum",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
 ]
 
 [[package]]

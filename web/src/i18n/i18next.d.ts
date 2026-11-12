@@ -46,6 +46,7 @@ import type layoutsNamespace from './pt-BR/layouts.json'
 import type leadProNamespace from '../modules/lead_pro/i18n/pt-BR.json'
 import type leadsNamespace from '../modules/leads/i18n/pt-BR.json'
 import type lineItemsNamespace from '../modules/line_items/i18n/pt-BR.json'
+import type mediaNamespace from '../modules/media/i18n/pt-BR.json'
 import type messagingNamespace from '../modules/messaging/i18n/pt-BR.json'
 import type microsoftNamespace from '../modules/microsoft/i18n/pt-BR.json'
 import type migrationsAssistantNamespace from '../modules/migrations_assistant/i18n/pt-BR.json'
@@ -147,6 +148,7 @@ declare module 'i18next' {
       lead_pro: typeof leadProNamespace
       leads: typeof leadsNamespace
       line_items: typeof lineItemsNamespace
+      media: typeof mediaNamespace
       messaging: typeof messagingNamespace
       microsoft: typeof microsoftNamespace
       migrations_assistant: typeof migrationsAssistantNamespace

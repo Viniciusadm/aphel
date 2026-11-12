@@ -3949,6 +3949,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/media/assets/{id}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Records that use the file of a library asset (it is attached to them), with the record title when the caller can read it. An asset in use cannot be deleted (`media_asset_in_use`). Requires `media.assets.read`. */
+        get: operations["media_asset_usage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members": {
         parameters: {
             query?: never;
@@ -15344,6 +15361,16 @@ export interface components {
                 updated_at: string;
             }[];
         };
+        Data_Vec_MediaUsageResponse: {
+            data: {
+                label?: string | null;
+                record_id: string;
+                /** @example content.entry */
+                record_type: string;
+                /** @example Entradas */
+                type_label: string;
+            }[];
+        };
         Data_Vec_MigrationSourceResponse: {
             data: {
                 /** @example month_first */
@@ -18359,6 +18386,14 @@ export interface components {
             id: string;
             locale?: string | null;
             timezone?: string | null;
+        };
+        MediaUsageResponse: {
+            label?: string | null;
+            record_id: string;
+            /** @example content.entry */
+            record_type: string;
+            /** @example Entradas */
+            type_label: string;
         };
         MeetingBookingCancelRequest: {
             /** @example Booking conflict */
@@ -44438,6 +44473,65 @@ export interface operations {
                 };
             };
             /** @description Unknown record type (`record_type_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    media_asset_usage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Asset id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Records using the asset */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_MediaUsageResponse"];
+                };
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `media.assets.read` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown asset */
             404: {
                 headers: {
                     [name: string]: unknown;

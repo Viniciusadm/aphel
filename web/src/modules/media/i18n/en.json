@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "media": "Media",
+    "site": "Site"
+  },
+  "library": {
+    "title": "Media",
+    "description": "Images and files you reuse on the site and in records, with a description for screen readers, caption and credit.",
+    "search": "Search by name or description",
+    "upload": "Upload files",
+    "uploading": "Uploading {{done}} of {{total}}…",
+    "uploaded": "{{count}} file(s) in the library.",
+    "empty": "The library is empty",
+    "emptyDescription": "Upload images here or from the site editors; they become available to reuse.",
+    "noResults": "Nothing found",
+    "onlyImages": "Images only",
+    "edit": "Edit {{name}}"
+  },
+  "edit": {
+    "title": "File details",
+    "name": "Name",
+    "alt": "Image description",
+    "altHelp": "Read by screen readers and used when the image does not load. Say what the image shows.",
+    "caption": "Caption",
+    "credit": "Credit",
+    "focal": "Focus point",
+    "focalHelp": "The part of the image that stays visible when it is cropped.",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "save": "Save",
+    "saved": "Details saved.",
+    "usage": "Where it is used",
+    "notUsed": "Not used anywhere yet.",
+    "delete": "Delete from the library",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteDescription": "The file leaves the library and cannot be recovered.",
+    "deleted": "File deleted.",
+    "inUse": "This file is in use. Remove it from the places listed before deleting it."
+  },
+  "picker": {
+    "title": "Media library",
+    "description": "Choose a file you already uploaded or upload a new one; it stays available to use again.",
+    "search": "Search the library",
+    "upload": "Upload new",
+    "empty": "The library is still empty.",
+    "noResults": "Nothing found.",
+    "pick": "Use {{name}}"
+  },
+  "errors": {
+    "media_asset_in_use": "This file is in use. Remove it from the places where it appears before deleting it."
+  }
+}

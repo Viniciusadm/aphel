@@ -13,4 +13,5 @@ recommended = [
   "reports",
   "site",
   "publication",
+  "media",
 ]

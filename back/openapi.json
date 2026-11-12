@@ -29110,6 +29110,87 @@
         "x-aphel-module": "followers"
       }
     },
+    "/api/v1/media/assets/{id}/usage": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "description": "Records that use the file of a library asset (it is attached to them), with the record title when the caller can read it. An asset in use cannot be deleted (`media_asset_in_use`). Requires `media.assets.read`.",
+        "operationId": "media_asset_usage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Asset id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Records using the asset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_MediaUsageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `media.assets.read` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown asset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "media"
+      }
+    },
     "/api/v1/members": {
       "get": {
         "tags": [
@@ -92566,6 +92647,44 @@
           }
         }
       },
+      "Data_Vec_MediaUsageResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "record_type",
+                "record_id",
+                "type_label"
+              ],
+              "properties": {
+                "label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "record_id": {
+                  "type": "string"
+                },
+                "record_type": {
+                  "type": "string",
+                  "example": "content.entry"
+                },
+                "type_label": {
+                  "type": "string",
+                  "example": "Entradas"
+                }
+              }
+            }
+          }
+        }
+      },
       "Data_Vec_MigrationSourceResponse": {
         "type": "object",
         "required": [
@@ -104121,6 +104240,33 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "MediaUsageResponse": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "record_id",
+          "type_label"
+        ],
+        "properties": {
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "record_type": {
+            "type": "string",
+            "example": "content.entry"
+          },
+          "type_label": {
+            "type": "string",
+            "example": "Entradas"
           }
         }
       },
@@ -126599,6 +126745,11 @@
       "name": "catalog",
       "description": "Plugin and configuration marketplace",
       "x-aphel-module": "marketplace"
+    },
+    {
+      "name": "media",
+      "description": "Library of reusable images and files with their descriptions",
+      "x-aphel-module": "media"
     },
     {
       "name": "currencies",

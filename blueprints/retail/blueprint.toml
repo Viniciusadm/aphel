@@ -19,6 +19,7 @@ recommended = [
   "trash",
   "site",
   "publication",
+  "media",
 ]
 
 [navigation]

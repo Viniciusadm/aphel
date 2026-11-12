@@ -7,7 +7,10 @@ import { toast } from '@/components/ui/toast-store'
 import { fileDownloadUrl, uploadFile, useAttachments } from '@/features/files'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { useQueryClient } from '@tanstack/react-query'
-import { ImagePlus, Trash2, X } from 'lucide-react'
+import { Images, ImagePlus, Trash2, X } from 'lucide-react'
+import { useSession } from '@/app/session/session-context'
+import { MEDIA_MANAGE, MEDIA_READ, mediaApi, mediaKeys, type MediaAsset } from '../media/api'
+import { MediaPicker } from '../media/MediaPicker'
 import { useId, useRef, useState } from 'react'
 
 import { useImagesInUse } from './imageUsage'
@@ -19,10 +22,15 @@ interface ImageFieldProps {
   record: BlockRecord
   value: string | null
   onChange: (value: string | null) => void
+  onAsset?: (asset: MediaAsset) => void
   disabled?: boolean
 }
 
-export function ImageField({ label, record, value, onChange, disabled }: ImageFieldProps) {
+export function ImageField({ label, record, value, onChange, onAsset, disabled }: ImageFieldProps) {
+  const { hasPermission } = useSession()
+  const library = hasPermission(MEDIA_READ)
+  const addToLibrary = hasPermission(MEDIA_MANAGE)
+  const [picking, setPicking] = useState(false)
   const t = useModuleTranslation('site-blocks')
   const client = useQueryClient()
   const input = useRef<HTMLInputElement>(null)
@@ -41,15 +49,28 @@ export function ImageField({ label, record, value, onChange, disabled }: ImageFi
     }
     setUploading(true)
     try {
-      const uploaded = await uploadFile({ file, target: record })
-      await client.invalidateQueries({ queryKey: ['files'] })
-      onChange(uploaded.file.id)
+      if (addToLibrary) {
+        const asset = await mediaApi.create(file)
+        await choose(asset)
+        await client.invalidateQueries({ queryKey: mediaKeys.all })
+      } else {
+        const uploaded = await uploadFile({ file, target: record })
+        await client.invalidateQueries({ queryKey: ['files'] })
+        onChange(uploaded.file.id)
+      }
     } catch (failure) {
       toast({ title: errorMessage(failure), variant: 'destructive' })
     } finally {
       setUploading(false)
       if (input.current) input.current.value = ''
     }
+  }
+
+  async function choose(asset: MediaAsset) {
+    const file = await mediaApi.attachTo(asset, record)
+    await client.invalidateQueries({ queryKey: ['files'] })
+    onChange(file)
+    onAsset?.(asset)
   }
 
   const others = images.filter((attachment) => attachment.file.id !== value)
@@ -80,6 +101,12 @@ export function ImageField({ label, record, value, onChange, disabled }: ImageFi
               <ImagePlus aria-hidden />
               {uploading ? t('images.uploading') : value ? t('images.replace') : t('images.choose')}
             </Button>
+            {library && (
+              <Button type="button" variant="outline" size="sm" disabled={disabled || uploading} onClick={() => setPicking(true)}>
+                <Images aria-hidden />
+                {t('images.fromLibrary')}
+              </Button>
+            )}
             {value && (
               <Button type="button" variant="ghost" size="sm" disabled={disabled} onClick={() => onChange(null)}>
                 <X aria-hidden />
@@ -120,6 +147,7 @@ export function ImageField({ label, record, value, onChange, disabled }: ImageFi
               </ul>
             </div>
           )}
+          {library && <MediaPicker open={picking} onOpenChange={setPicking} onPick={choose} canUpload={addToLibrary} accept={IMAGE_TYPES.join(',')} />}
           <ConfirmDialog
             open={removing !== null}
             onOpenChange={(open) => !open && setRemoving(null)}

@@ -42,7 +42,7 @@ approvals = { path = "modules/approvals" }
 automations = { path = "modules/automations" }
 webhooks = { path = "modules/webhooks" }
 integrations = { path = "modules/integrations" }
-wasm_runtime = { path = "modules/wasm_runtime" }
+wasm_runtime = { path = "modules/wasm_runtime", required = true }
 imports = { path = "modules/imports" }
 exports = { path = "modules/exports" }
 bulk_actions = { path = "modules/bulk_actions" }
@@ -70,6 +70,7 @@ calendar = { path = "modules/calendar" }
 documents = { path = "modules/documents" }
 site = { path = "modules/site" }
 publication = { path = "modules/publication" }
+media = { path = "modules/media" }
 
 [build]
 blueprints = ["agency", "consultancy", "crm", "freelancer", "other", "real_estate", "saas", "sales"]

@@ -49,6 +49,8 @@ A module can override this default for a permission by naming the roles that rec
 | `catalog_items.create` | Products | record | Create products and services. | organization | - | - |
 | `catalog_items.update` | Products | record | Change products and services. | organization | - | - |
 | `catalog_items.delete` | Products | record | Delete products and services. | organization | - | - |
+| `media.assets.read` | Media library | administrative | See the media library and where each file is used, and choose files from it in editors. | organization | organization | organization |
+| `media.assets.manage` | Media library | administrative | Upload files to the media library, edit their descriptions and delete files that are not in use. | organization | organization | - |
 | `deals.read` | Deals | record | Read deals. | organization | team | own |
 | `deals.create` | Deals | record | Create deals. | organization | team | own |
 | `deals.update` | Deals | record | Change deals, move them between stages and manage their team. | organization | team | own |

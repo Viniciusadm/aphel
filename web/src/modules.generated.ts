@@ -65,6 +65,7 @@ import enrichmentModule from '@modules/enrichment'
 import messagingModule from '@modules/messaging'
 import calendarModule from '@modules/calendar'
 import siteModule from '@modules/site'
+import mediaModule from '@modules/media'
 
 export const MODULES: WebModule[] = [
   kernelModule,
@@ -133,4 +134,5 @@ export const MODULES: WebModule[] = [
   messagingModule,
   calendarModule,
   siteModule,
+  mediaModule,
 ]

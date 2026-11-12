@@ -122,7 +122,8 @@
     "library": "Ou escolha uma imagem já enviada aqui",
     "pick": "Usar {{name}}",
     "onlyImages": "Envie uma imagem JPG, PNG, WebP ou GIF.",
-    "missing": "A imagem não está mais disponível."
+    "missing": "A imagem não está mais disponível.",
+    "fromLibrary": "Escolher da biblioteca"
   },
   "items": {
     "photo": "Foto {{number}}",

@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "media": "Mídia",
+    "site": "Site"
+  },
+  "library": {
+    "title": "Mídia",
+    "description": "Imagens e arquivos que você reaproveita no site e nos registros, com descrição para leitores de tela, legenda e crédito.",
+    "search": "Buscar por nome ou descrição",
+    "upload": "Enviar arquivos",
+    "uploading": "Enviando {{done}} de {{total}}…",
+    "uploaded": "{{count}} arquivo(s) na biblioteca.",
+    "empty": "A biblioteca está vazia",
+    "emptyDescription": "Envie imagens aqui ou pelos editores do site; elas ficam disponíveis para reaproveitar.",
+    "noResults": "Nada encontrado",
+    "onlyImages": "Só imagens",
+    "edit": "Editar {{name}}"
+  },
+  "edit": {
+    "title": "Detalhes do arquivo",
+    "name": "Nome",
+    "alt": "Descrição da imagem",
+    "altHelp": "Lida por leitores de tela e usada quando a imagem não carrega. Diga o que a imagem mostra.",
+    "caption": "Legenda",
+    "credit": "Crédito",
+    "focal": "Ponto de destaque",
+    "focalHelp": "A parte da imagem que fica visível quando ela é cortada.",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "save": "Salvar",
+    "saved": "Detalhes salvos.",
+    "usage": "Onde é usado",
+    "notUsed": "Ainda não é usado em nenhum lugar.",
+    "delete": "Apagar da biblioteca",
+    "deleteTitle": "Apagar {{name}}?",
+    "deleteDescription": "O arquivo sai da biblioteca e não poderá ser recuperado.",
+    "deleted": "Arquivo apagado.",
+    "inUse": "Este arquivo está em uso. Tire-o dos lugares listados antes de apagar."
+  },
+  "picker": {
+    "title": "Biblioteca de mídia",
+    "description": "Escolha um arquivo já enviado ou envie um novo; ele fica guardado para usar de novo.",
+    "search": "Buscar na biblioteca",
+    "upload": "Enviar novo",
+    "empty": "A biblioteca ainda está vazia.",
+    "noResults": "Nada encontrado.",
+    "pick": "Usar {{name}}"
+  },
+  "errors": {
+    "media_asset_in_use": "Este arquivo está em uso. Tire-o dos lugares onde aparece antes de apagar."
+  }
+}

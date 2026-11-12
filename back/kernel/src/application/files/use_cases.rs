@@ -165,6 +165,15 @@ where
         self.ports.files().list_attachments(&record, window).await
     }
 
+    pub async fn attached_records(
+        &self,
+        scope: &AccessScope,
+        file_id: &str,
+    ) -> Result<Vec<RecordRef>, AppError> {
+        let file = self.readable_file(scope, file_id).await?;
+        self.ports.files().attached_records(file.id).await
+    }
+
     pub async fn attach(
         &self,
         scope: &AccessScope,

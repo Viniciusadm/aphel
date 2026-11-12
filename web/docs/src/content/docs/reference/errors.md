@@ -157,6 +157,8 @@ The tables below list every code that the platform and the built-in modules defi
 | `plugin_authority_inactive` | 403 | The original authority is no longer active. |
 | `plugin_execution_cycle` | 409 | The plugin execution chain is cyclic or exceeds 16 entries. |
 | `publication_approvals_unavailable` | 409 / 503 | A configured approval provider is disabled (blocked publication), or an enabled provider cannot be evaluated (retryable). Enable or restore the provider. |
+| `media_asset_in_use` | 409 | The library file is attached to other records; remove it from them before deleting the asset. |
+| `site_target_unavailable` | 422 | The page chosen for the site home page or menu is not published on the site. |
 | `publication_definition_invalid` | 409 | The publication definition of the record type does not match its fields. |
 | `publication_idempotency_conflict` | 409 | The idempotency key was already used for a different publication command. |
 | `publication_not_publishable` | 422 | The record type does not take part in publication. |

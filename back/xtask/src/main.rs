@@ -38,6 +38,8 @@ struct ModuleSpec {
     rev: Option<String>,
     version: Option<String>,
     package: Option<String>,
+    #[serde(default)]
+    required: bool,
 }
 
 struct SelectedModule {
@@ -124,7 +126,7 @@ fn sync(check: bool) -> Result<bool, Failure> {
     if !chosen_by_build {
         let blueprint_plugins = blueprint_plugins(&back.join("../blueprints"))?;
         for module in &selection {
-            if !blueprint_plugins.contains(module.key.as_str()) {
+            if !module.spec.required && !blueprint_plugins.contains(module.key.as_str()) {
                 return Err(format!("optional module {} is in no blueprint", module.key).into());
             }
         }
@@ -262,7 +264,7 @@ fn read_selection(path: &Path, blueprints: &Path) -> Result<(Vec<SelectedModule>
         )
         .into());
     }
-    selected.retain(|module| wanted.contains(&module.key));
+    selected.retain(|module| module.spec.required || wanted.contains(&module.key));
     Ok((selected, true))
 }
 

@@ -26,6 +26,7 @@ recommended = [
   "esign",
   "site",
   "publication",
+  "media",
 ]
 
 [configuration]

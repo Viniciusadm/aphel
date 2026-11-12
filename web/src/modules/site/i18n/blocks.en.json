@@ -122,7 +122,8 @@
     "library": "Or pick an image already uploaded here",
     "pick": "Use {{name}}",
     "onlyImages": "Upload a JPG, PNG, WebP or GIF image.",
-    "missing": "The image is no longer available."
+    "missing": "The image is no longer available.",
+    "fromLibrary": "Choose from the library"
   },
   "items": {
     "photo": "Photo {{number}}",
