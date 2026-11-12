@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
+import { tabsListVariants, tabsTriggerVariants } from '@/components/ui/tabs-variants'
 import type { RecordTab } from './types'
 import { useActiveTab } from './use-active-tab'
 
@@ -32,14 +33,14 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
 
   return (
     <div className={cn('grid min-w-0 gap-5', className)}>
-      <nav aria-label={t('tabs.label')} className="flex flex-wrap items-center gap-2 border-b pb-2">
+      <nav aria-label={t('tabs.label')} className={cn(tabsListVariants({ variant: 'line' }), 'flex-wrap items-center')}>
         {tabs.filter(isPrimaryTab).map((tab) => {
           const next = new URLSearchParams(params)
           next.set(param ?? 'tab', tab.key)
-          return <Link key={tab.key} to={{ search: `?${next}` }} aria-current={active === tab.key ? 'page' : undefined} className={cn('inline-flex min-h-11 items-center rounded-md px-3 text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', active === tab.key ? 'bg-accent font-semibold' : 'text-muted-foreground')}>{tab.label}</Link>
+          return <Link key={tab.key} to={{ search: `?${next}` }} aria-current={active === tab.key ? 'page' : undefined} className={tabsTriggerVariants({ variant: 'line' })}>{tab.label}</Link>
         })}
         {tabs.some((tab) => !isPrimaryTab(tab)) && <DropdownMenu>
-          <DropdownMenuTrigger asChild><Button variant="ghost" size="sm">
+          <DropdownMenuTrigger asChild><Button variant="ghost" size="sm" className="mb-2 self-center">
             {tabs.find((tab) => tab.key === active && !isPrimaryTab(tab))?.label ?? t('mobile.sections')}<ChevronDown aria-hidden />
           </Button></DropdownMenuTrigger>
           <DropdownMenuContent align="start">{tabs.filter((tab) => !isPrimaryTab(tab)).map((tab) => <DropdownMenuItem key={tab.key} onSelect={() => setActive(tab.key)}>{tab.label}</DropdownMenuItem>)}</DropdownMenuContent>

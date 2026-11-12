@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react'
 import { useUiLabels } from './labels-context'
 import { defaultUiLabels } from './default-labels'
 import { cn } from '@/lib/utils'
+import { tabsListVariants, tabsTriggerVariants } from './tabs-variants'
 
 interface SectionContextValue {
   active: string
@@ -12,6 +13,8 @@ interface SectionContextValue {
 }
 
 const SectionContext = createContext<SectionContextValue | null>(null)
+
+const SectionLinkLayout = createContext<'menu' | 'tabs'>('tabs')
 
 function useSection() {
   const context = useContext(SectionContext)
@@ -39,7 +42,7 @@ export function SectionWorkspace({ value, defaultValue = '', onValueChange, clas
   }
   return (
     <SectionContext.Provider value={{ active, select, id }}>
-      <div {...props} className={cn('grid min-w-0 items-start gap-6 lg:grid-cols-[12rem_minmax(0,1fr)]', className)}>{children}</div>
+      <div {...props} className={cn('flex min-w-0 flex-col gap-6', className)}>{children}</div>
     </SectionContext.Provider>
   )
 }
@@ -50,25 +53,30 @@ export function SectionIndex({ className, children, ...props }: ComponentProps<'
   const labels = useUiLabels()
   const selected = Children.toArray(children).find((child) => isValidElement<{ value?: string }>(child) && child.props.value === context.active)
   const label = isValidElement<{ children?: ReactNode }>(selected) ? selected.props.children : (props['aria-label'] ?? labels.sectionNavigation ?? defaultUiLabels().sectionNavigation)
-  return <nav {...props} className={cn('min-w-0 lg:sticky lg:top-20 lg:border-r lg:pr-4', className)}>
+  return <nav {...props} className={cn('min-w-0', className)}>
     <details open={open} onToggle={(event) => setOpen(event.currentTarget.open)} className="rounded-md border lg:hidden">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 text-sm font-medium">{label}<ChevronDown className="size-4" aria-hidden /></summary>
-      <div className="grid gap-1 border-t p-1" onClick={(event) => { if ((event.target as HTMLElement).closest('button')) setOpen(false) }}>{children}</div>
+      <SectionLinkLayout.Provider value="menu">
+        <div className="grid gap-1 border-t p-1" onClick={(event) => { if ((event.target as HTMLElement).closest('button')) setOpen(false) }}>{children}</div>
+      </SectionLinkLayout.Provider>
     </details>
-    <div className="hidden gap-1 lg:grid">{children}</div>
+    <SectionLinkLayout.Provider value="tabs">
+      <div className={cn(tabsListVariants({ variant: 'line' }), 'hidden overflow-x-auto lg:flex')}>{children}</div>
+    </SectionLinkLayout.Provider>
   </nav>
 }
 
 export function SectionLink({ value, children, className, ...props }: Omit<ComponentProps<'button'>, 'value'> & { value: string }) {
   const context = useSection()
+  const layout = useContext(SectionLinkLayout)
   return <button {...props} type="button" aria-current={context.active === value ? 'page' : undefined}
     onClick={() => context.select(value)} aria-controls={`${context.id}-${value}`}
-    className={cn('flex min-h-11 w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm whitespace-normal focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none', context.active === value ? 'bg-accent font-semibold text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground', className)}>{children}</button>
+    className={cn(layout === 'tabs' ? tabsTriggerVariants({ variant: 'line' }) : cn('flex min-h-11 w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm whitespace-normal focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none', context.active === value ? 'bg-accent font-semibold text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'), className)}>{children}</button>
 }
 
 export function SectionContent({ value, forceMount, className, ...props }: ComponentProps<'section'> & { value: string; forceMount?: boolean }) {
   const context = useSection()
   const active = context.active === value
   if (!active && !forceMount) return null
-  return <section {...props} id={`${context.id}-${value}`} hidden={!active} data-state={active ? 'active' : 'inactive'} className={cn('min-w-0 lg:col-start-2 lg:row-start-1', className)} />
+  return <section {...props} id={`${context.id}-${value}`} hidden={!active} data-state={active ? 'active' : 'inactive'} className={cn('min-w-0', className)} />
 }

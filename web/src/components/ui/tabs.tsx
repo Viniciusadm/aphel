@@ -9,7 +9,7 @@ import { Badge } from './badge'
 import { tabsListVariants, tabsTriggerVariants, type TabsSize, type TabsVariant } from './tabs-variants'
 
 
-const TabsStyleContext = createContext<{ size: TabsSize; variant: TabsVariant }>({ size: 'md', variant: 'pill' })
+const TabsStyleContext = createContext<{ size: TabsSize; variant: TabsVariant }>({ size: 'md', variant: 'line' })
 
 const TabsValueContext = createContext<{ value: string; select: (value: string) => void } | null>(null)
 
@@ -24,7 +24,7 @@ export function Tabs({ value, defaultValue, onValueChange, ...props }: Component
   </TabsValueContext.Provider>
 }
 
-export function TabsList({ className, children, size = 'md', variant = 'pill', ...props }: ComponentProps<typeof TabsPrimitive.List> & { size?: TabsSize; variant?: TabsVariant }) {
+export function TabsList({ className, children, size = 'md', variant = 'line', ...props }: ComponentProps<typeof TabsPrimitive.List> & { size?: TabsSize; variant?: TabsVariant }) {
   const context = useContext(TabsValueContext)
   const labels = useUiLabels()
   const sectionLabel = labels.sectionNavigation ?? defaultUiLabels().sectionNavigation
