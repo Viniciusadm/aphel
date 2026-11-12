@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
@@ -91,33 +90,12 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
 
   return (
     <form className="grid gap-6" onSubmit={onSubmit} noValidate>
-      <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground" role="status">
-          {isDirty ? (
-            <span>{t('availability.unsaved')}</span>
-          ) : availability.configured ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Check className="size-4 text-success" aria-hidden="true" />
-              {t('availability.allSaved')}
-            </span>
-          ) : (
-            <>
-              <Badge variant="secondary">{t('availability.notConfigured')}</Badge>
-              <span>{t('availability.notConfiguredHint')}</span>
-            </>
-          )}
+      {!availability.configured && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <Badge variant="secondary">{t('availability.notConfigured')}</Badge>
+          <span>{t('availability.notConfiguredHint')}</span>
         </div>
-        <div className="flex items-center gap-2">
-          {isDirty && (
-            <Button type="button" variant="ghost" disabled={isSubmitting} onClick={() => reset(defaultValues(availability))}>
-              {t('actions.discard')}
-            </Button>
-          )}
-          <Button type="submit" disabled={isSubmitting || (availability.configured && !isDirty)}>
-            {isSubmitting ? t('actions.saving') : t('actions.save')}
-          </Button>
-        </div>
-      </div>
+      )}
       <FieldMessage message={errors.root?.server?.message} />
       <SettingsCard title={t('availability.sections.hours')} description={t('availability.sections.hoursHint')}>
         <div className={WIDE_FIELD}>
@@ -175,6 +153,24 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
           MAX_BUFFER_MINUTES,
         )}
       </SettingsCard>
+      {(isDirty || !availability.configured) && (
+        <div
+          role="status"
+          className="sticky bottom-4 z-10 mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-3 rounded-lg border bg-card px-4 py-2 text-sm shadow-lg"
+        >
+          <span>{isDirty ? t('availability.unsaved') : t('availability.notConfiguredBar')}</span>
+          <div className="flex items-center gap-2">
+            {isDirty && (
+              <Button type="button" variant="ghost" size="sm" disabled={isSubmitting} onClick={() => reset(defaultValues(availability))}>
+                {t('actions.discard')}
+              </Button>
+            )}
+            <Button type="submit" size="sm" disabled={isSubmitting}>
+              {isSubmitting ? t('actions.saving') : t('actions.save')}
+            </Button>
+          </div>
+        </div>
+      )}
     </form>
   )
 }

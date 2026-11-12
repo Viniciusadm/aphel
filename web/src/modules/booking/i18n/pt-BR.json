@@ -107,7 +107,7 @@
       "rulesHint": "Antecedência mínima, limite por dia, intervalos entre reuniões e até quando o cliente pode marcar."
     },
     "unsaved": "Você tem alterações não salvas.",
-    "allSaved": "Tudo salvo."
+    "notConfiguredBar": "Defina seus horários e salve para começar a receber agendamentos."
   },
   "meetingTypes": {
     "description": "Cada tipo de reunião tem um link público próprio.",

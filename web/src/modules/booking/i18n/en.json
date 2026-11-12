@@ -107,7 +107,7 @@
       "rulesHint": "Minimum notice, daily limit, buffers between meetings and how far ahead guests can book."
     },
     "unsaved": "You have unsaved changes.",
-    "allSaved": "All saved."
+    "notConfiguredBar": "Set your hours and save to start receiving bookings."
   },
   "meetingTypes": {
     "description": "Each meeting type has its own public link.",
