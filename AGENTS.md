@@ -59,6 +59,7 @@ Runtime plugins built for real customers live outside this repository (`../plugi
 ## Platform rules
 
 - Only the kernel and `wasm_runtime` (the plugin runtime, declared `.required()` in its manifest) are always on; neither appears among the modules a company or operator can toggle. Every other module is optional and blueprints declare their own required modules.
+- `back/aphel.modules.toml` compiles the modules named by the build blueprints plus those marked `required = true` (only `wasm_runtime`); `make modules` drops any other module that no blueprint names. The arch check counts `required = true` entries, so do not add more.
 - Modules and plugins depend on contracts, never on each other's internals. Each table has one owner; no SQL or foreign keys across owners. The kernel never reads a module's table and holds no domain words (the arch check counts them).
 - Capability modules have generic names (`workflow`, `tasks`, `assignment`); domain constants live in contract crates.
 - Kernel extension points ("core points") are contributed with `app.contribute::<dyn Trait>(..)`: `FileReferenceSource`, `HealthSource`, `ReferenceProvider`, `FieldTypeDefinition`, `RuntimeCatalogSource`, `SiteRequestHandler` and others, re-exported by `aphel_sdk::points`; capability traits are imported from their owner's contract.
