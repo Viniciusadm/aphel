@@ -98,7 +98,13 @@
     "horizonHint": "How many days ahead people can book.",
     "bufferBefore": "Buffer before (minutes)",
     "bufferAfter": "Buffer after (minutes)",
-    "bufferHint": "Free time reserved around each meeting."
+    "bufferHint": "Free time reserved around each meeting.",
+    "sections": {
+      "hours": "Availability hours",
+      "hoursHint": "The time zone and the intervals when you accept meetings.",
+      "rules": "Booking rules",
+      "rulesHint": "Minimum notice, daily limit, buffers between meetings and how far ahead guests can book."
+    }
   },
   "meetingTypes": {
     "description": "Each meeting type has its own public link.",
@@ -172,7 +178,8 @@
     "cancelConfirm": "Cancel booking",
     "reason": "Reason (optional)",
     "canceled": "Booking canceled",
-    "notChangeable": "This booking can no longer be changed."
+    "notChangeable": "This booking can no longer be changed.",
+    "statusAll": "All"
   },
   "public": {
     "poweredBy": "Booking by Aphel",

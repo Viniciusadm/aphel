@@ -98,7 +98,13 @@
     "horizonHint": "Até quantos dias à frente é possível agendar.",
     "bufferBefore": "Intervalo antes (minutos)",
     "bufferAfter": "Intervalo depois (minutos)",
-    "bufferHint": "Tempo livre reservado em volta de cada reunião."
+    "bufferHint": "Tempo livre reservado em volta de cada reunião.",
+    "sections": {
+      "hours": "Horários de atendimento",
+      "hoursHint": "O fuso e os intervalos em que você aceita reuniões.",
+      "rules": "Regras de agendamento",
+      "rulesHint": "Antecedência mínima, limite por dia, intervalos entre reuniões e até quando o cliente pode marcar."
+    }
   },
   "meetingTypes": {
     "description": "Cada tipo de reunião tem um link público próprio.",
@@ -172,7 +178,8 @@
     "cancelConfirm": "Cancelar agendamento",
     "reason": "Motivo (opcional)",
     "canceled": "Agendamento cancelado",
-    "notChangeable": "Este agendamento não pode mais ser alterado."
+    "notChangeable": "Este agendamento não pode mais ser alterado.",
+    "statusAll": "Todos"
   },
   "public": {
     "poweredBy": "Agendamento feito com Aphel",

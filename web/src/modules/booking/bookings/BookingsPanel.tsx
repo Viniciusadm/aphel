@@ -1,4 +1,5 @@
 import { PaginationSummary } from '@/components/ui/pagination-summary'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { NativeSelect } from '@/components/ui/native-select'
 import { CalendarX2 } from 'lucide-react'
 import { useState } from 'react'
@@ -84,15 +85,18 @@ export function BookingsPanel() {
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-end gap-4">
-        <Field label={t('bookings.status')} className="w-44">
-          {(fieldControl) => <NativeSelect value={filters.status}
-            onValueChange={(value) => update({ status: value as BookingFilters['status'] })} id={fieldControl.id}>
-              <option value={ALL}>{t('bookings.allStatuses')}</option>
-              <option value="confirmed">{t('bookingStatus.confirmed')}</option>
-              <option value="canceled">{t('bookingStatus.canceled')}</option>
-            </NativeSelect>}
-        </Field>
+      <div className="flex flex-wrap items-center gap-4">
+        <SegmentedControl
+          aria-label={t('bookings.status')}
+          size="sm"
+          value={filters.status}
+          onValueChange={(value) => update({ status: value as BookingFilters['status'] })}
+          options={[
+            { value: 'confirmed', label: t('bookingStatus.confirmed') },
+            { value: 'canceled', label: t('bookingStatus.canceled') },
+            { value: ALL, label: t('bookings.statusAll') },
+          ]}
+        />
         <Field label={t('bookings.meetingType')} className="w-56">
           {(fieldControl) => <NativeSelect value={filters.meetingTypeId ?? ALL}
             onValueChange={(value) => update({ meetingTypeId: value === ALL ? null : value })} id={fieldControl.id}>

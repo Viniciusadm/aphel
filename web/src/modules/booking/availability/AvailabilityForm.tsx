@@ -24,6 +24,7 @@ import {
 } from './form'
 import { WeeklyHoursEditor } from './WeeklyHoursEditor'
 import { Field } from '@/components/ui/field'
+import { SettingsCard, WIDE_FIELD } from '@/features/settings/components/SettingsCard'
 
 interface AvailabilityFormProps {
   userId: string | null
@@ -88,25 +89,38 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
 
   return (
     <form className="grid gap-6" onSubmit={onSubmit} noValidate>
-      {!availability.configured && (
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{t('availability.notConfigured')}</Badge>
-          <span className="text-sm text-muted-foreground">{t('availability.notConfiguredHint')}</span>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          {!availability.configured && (
+            <>
+              <Badge variant="secondary">{t('availability.notConfigured')}</Badge>
+              <span className="text-sm text-muted-foreground">{t('availability.notConfiguredHint')}</span>
+            </>
+          )}
         </div>
-      )}
+        <Button type="submit" disabled={isSubmitting || (availability.configured && !isDirty)}>
+          {isSubmitting ? t('actions.saving') : t('actions.save')}
+        </Button>
+      </div>
       <FieldMessage message={errors.root?.server?.message} />
-      <Field label={t('availability.timezone')} className="max-w-sm">
-        {(fieldControl) => <>
-          <TimeZoneInput
-          id={fieldControl.id}
-          aria-invalid={errors.timezone ? true : undefined}
-          {...register('timezone')}
-        />
-        <FieldMessage message={errors.timezone?.message} />
-        </>}
-      </Field>
-      <WeeklyHoursEditor control={control} errors={errors} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <SettingsCard title={t('availability.sections.hours')} description={t('availability.sections.hoursHint')}>
+        <div className={WIDE_FIELD}>
+          <Field label={t('availability.timezone')} className="max-w-sm">
+            {(fieldControl) => <>
+              <TimeZoneInput
+              id={fieldControl.id}
+              aria-invalid={errors.timezone ? true : undefined}
+              {...register('timezone')}
+            />
+            <FieldMessage message={errors.timezone?.message} />
+            </>}
+          </Field>
+        </div>
+        <div className={WIDE_FIELD}>
+          <WeeklyHoursEditor control={control} errors={errors} />
+        </div>
+      </SettingsCard>
+      <SettingsCard title={t('availability.sections.rules')} description={t('availability.sections.rulesHint')}>
         {numberField(
           'minNoticeMinutes',
           t('availability.minNotice'),
@@ -144,12 +158,7 @@ export function AvailabilityForm({ userId, availability }: AvailabilityFormProps
           0,
           MAX_BUFFER_MINUTES,
         )}
-      </div>
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting || (availability.configured && !isDirty)}>
-          {isSubmitting ? t('actions.saving') : t('actions.save')}
-        </Button>
-      </div>
+      </SettingsCard>
     </form>
   )
 }

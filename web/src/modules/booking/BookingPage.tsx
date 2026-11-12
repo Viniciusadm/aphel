@@ -16,7 +16,7 @@ export function BookingPage() {
     return <Navigate replace to={{ pathname: path, search: next.toString() }} />
   }
   return <Page>
-    <PageHeader title={t('page.title')} />
+    <PageHeader title={t('page.title')} description={t('page.description')} />
     <AreaNavigation label={t('page.title')} active={location.pathname} items={[
       { to: '/booking', label: t('tabs.bookings'), end: true },
       { to: '/booking/availability', label: t('tabs.availability') },
