@@ -242,6 +242,8 @@ pub struct SitePageSpec {
     pub prefix: Option<SitePrefixSpec>,
     #[serde(default)]
     pub term: Option<SiteTermSpec>,
+    #[serde(default)]
+    pub feed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

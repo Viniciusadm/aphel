@@ -96,7 +96,7 @@ fn needs_prefix(runtime: &SiteRuntime, entity: &str) -> bool {
     })
 }
 
-fn record_path(runtime: &SiteRuntime, entity: &str, record: &Value) -> Option<String> {
+pub(crate) fn record_path(runtime: &SiteRuntime, entity: &str, record: &Value) -> Option<String> {
     for route in &runtime.routes {
         if let PageSource::Record {
             entity: shown,

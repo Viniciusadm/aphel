@@ -19,9 +19,11 @@ const BATCH: u64 = 500;
 const SITEMAP_CACHE_CONTROL: &str = "public, max-age=3600";
 const RECORD_ID_SORT: &str = "id";
 
+#[derive(Default)]
 struct SitemapUrl {
     location: String,
     modified: Option<String>,
+    alternates: Vec<(String, String)>,
 }
 
 fn escape_xml(value: &str) -> String {
@@ -80,6 +82,7 @@ async fn record_urls(
                 urls.push(SitemapUrl {
                     location: joined(base, &path),
                     modified: day_of(record.get("updated_at")),
+                    ..Default::default()
                 });
             }
         }
@@ -167,6 +170,7 @@ async fn prefixed_urls(
                             urls.push(SitemapUrl {
                                 location: joined(&base, &path),
                                 modified: day_of(candidate.get("updated_at")),
+                                ..Default::default()
                             });
                         }
                     }
@@ -194,6 +198,7 @@ async fn collect(
                     urls.push(SitemapUrl {
                         location: format!("{base_url}{path}"),
                         modified: None,
+                        ..Default::default()
                     });
                 }
             }
@@ -207,6 +212,7 @@ async fn collect(
                     urls.push(SitemapUrl {
                         location: format!("{base_url}{path}"),
                         modified: day_of(record.get("updated_at")),
+                        ..Default::default()
                     });
                 }
             }
@@ -217,6 +223,7 @@ async fn collect(
                         urls.push(SitemapUrl {
                             location: format!("{base_url}{path}"),
                             modified: None,
+                            ..Default::default()
                         });
                     }
                 }
@@ -240,7 +247,7 @@ async fn collect(
 
 fn render(urls: &[SitemapUrl]) -> String {
     let mut xml = String::from(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n",
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n",
     );
     for url in urls {
         xml.push_str("  <url><loc>");
@@ -250,6 +257,13 @@ fn render(urls: &[SitemapUrl]) -> String {
             xml.push_str("<lastmod>");
             xml.push_str(&escape_xml(modified));
             xml.push_str("</lastmod>");
+        }
+        for (code, href) in &url.alternates {
+            xml.push_str("<xhtml:link rel=\"alternate\" hreflang=\"");
+            xml.push_str(&escape_xml(code));
+            xml.push_str("\" href=\"");
+            xml.push_str(&escape_xml(href));
+            xml.push_str("\"/>");
         }
         xml.push_str("</url>\n");
     }
@@ -302,22 +316,57 @@ pub(crate) async fn respond(
         );
     }
     let base_url = config.site_base_url().trim_end_matches('/').to_owned();
-    let bases: Vec<String> = std::iter::once(base_url.clone())
-        .chain(
-            site_settings(&config)
-                .languages
-                .iter()
-                .map(|language| format!("{base_url}/{}", crate::settings::language_slug(language))),
-        )
-        .collect();
+    let default_language = {
+        use aphel_sdk::platform::application::organization_profile::OrganizationRepository;
+        match state.db() {
+            Ok(pool) => aphel_sdk::platform::infrastructure::repositories::mysql_organization_profile::MySqlOrganizationRepository::new(pool)
+                .find()
+                .await
+                .ok()
+                .flatten()
+                .map(|organization| organization.locale)
+                .unwrap_or_default(),
+            Err(_) => String::new(),
+        }
+    };
+    let languages = site_settings(&config).languages;
+    let bases: Vec<(String, String)> =
+        std::iter::once((default_language.clone(), base_url.clone()))
+            .chain(
+                languages
+                    .iter()
+                    .filter(|language| **language != default_language)
+                    .map(|language| {
+                        (
+                            language.clone(),
+                            format!("{base_url}/{}", crate::settings::language_slug(language)),
+                        )
+                    }),
+            )
+            .collect();
     match collect(state, runtime, "").await {
         Ok((paths, tags)) => {
             let urls: Vec<SitemapUrl> = bases
                 .iter()
-                .flat_map(|base| {
+                .flat_map(|(_, base)| {
+                    let bases = &bases;
                     paths.iter().map(move |url| SitemapUrl {
                         location: format!("{base}{}", url.location),
                         modified: url.modified.clone(),
+                        alternates: if bases.len() > 1 {
+                            bases
+                                .iter()
+                                .map(|(code, other)| {
+                                    (code.clone(), format!("{other}{}", url.location))
+                                })
+                                .chain(std::iter::once((
+                                    "x-default".to_owned(),
+                                    format!("{}{}", bases[0].1, url.location),
+                                )))
+                                .collect()
+                        } else {
+                            Vec::new()
+                        },
                     })
                 })
                 .take(MAX_URLS)

@@ -17,6 +17,8 @@
 <meta name="twitter:title" content="{{ page.title or site.name }}">
 {% if page.seo.description %}<meta name="twitter:description" content="{{ page.seo.description }}">{% endif %}
 {% if page.seo.json_ld %}<script type="application/ld+json">{{ page.seo.json_ld | safe }}</script>{% endif %}
+{% if page.seo.breadcrumbs %}<script type="application/ld+json">{{ page.seo.breadcrumbs | safe }}</script>{% endif %}
+{% if page.feed_url %}<link rel="alternate" type="application/rss+xml" title="{{ page.title or site.name }}" href="{{ page.feed_url }}">{% endif %}
 {% endif %}
 {% for alternate in site.alternates %}<link rel="alternate" hreflang="{{ alternate.code }}" href="{{ alternate.url }}">
 {% endfor %}{% if site.alternates %}<link rel="alternate" hreflang="x-default" href="{{ site.alternates[0].url }}">

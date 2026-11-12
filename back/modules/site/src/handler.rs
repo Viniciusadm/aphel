@@ -281,6 +281,51 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if !readable_method(&parts.method) {
         return StatusCode::METHOD_NOT_ALLOWED.into_response();
     }
+    if let Some(list_path) = path.strip_suffix(aphel_contract_site::FEED_SEGMENT) {
+        let list_path = match list_path.trim_end_matches('/') {
+            "" => "/",
+            trimmed => trimmed,
+        };
+        if let Ok(Some(found)) = crate::prefixes::find(state, &runtime, list_path).await {
+            let organization = MySqlOrganizationRepository::new(match state.db() {
+                Ok(pool) => pool,
+                Err(_) => return StatusCode::SERVICE_UNAVAILABLE.into_response(),
+            })
+            .find()
+            .await
+            .ok()
+            .flatten();
+            let site_name = organization
+                .as_ref()
+                .map(|organization| organization.name.as_str().to_owned())
+                .unwrap_or_default();
+            let locale = language
+                .code
+                .clone()
+                .or_else(|| {
+                    organization
+                        .as_ref()
+                        .map(|organization| organization.locale.clone())
+                })
+                .unwrap_or_default();
+            let mount_url = config.site_base_url();
+            let translation = language.translation();
+            let request = crate::feed::FeedRequest {
+                site_name: &site_name,
+                origin: origin_of(mount_url.trim_end_matches('/')),
+                language_prefix: &prefix,
+                locale: &locale,
+                list_path,
+                translation: translation.as_deref(),
+            };
+            let key = format!("feed|{full_path}|{}", runtime.revision());
+            if let Some(response) =
+                crate::feed::respond(state, &runtime, &found, &request, key).await
+            {
+                return response;
+            }
+        }
+    }
     let home = home_path(
         state,
         &runtime,
@@ -289,8 +334,11 @@ async fn serve(state: &AppState, request: Request) -> Response {
         language.translation().as_deref(),
     )
     .await;
-    let found = match crate::prefixes::find(state, &runtime, home.as_deref().unwrap_or(&path)).await
-    {
+    let searching = home.is_none() && crate::search::is_search_path(&path);
+    let found = match match searching {
+        true => Ok(None),
+        false => crate::prefixes::find(state, &runtime, home.as_deref().unwrap_or(&path)).await,
+    } {
         Ok(found) => found,
         Err(error) => {
             tracing::error!(%error, "could not resolve the site route");
@@ -345,6 +393,9 @@ async fn serve(state: &AppState, request: Request) -> Response {
     else {
         if path == "/" {
             return welcome(&context, &runtime);
+        }
+        if searching {
+            return search_page(state, &context, &runtime, &parts, (&prefix, &path)).await;
         }
         return not_found(
             state,
@@ -579,6 +630,14 @@ fn texts(locale: &str) -> serde_json::Value {
             "toc": "Nesta publicação",
             "empty_collection": "Ainda não há publicações aqui.",
             "updated": "Atualizada em",
+            "search": "Buscar",
+            "search_label": "Buscar no site",
+            "search_empty": "Nenhum resultado para esta busca.",
+            "search_short": "Digite ao menos duas letras para buscar.",
+            "reading_time": "min de leitura",
+            "related": "Leia também",
+            "categories": "Categorias",
+            "feed": "Feed RSS",
         }),
         "es" => json!({
             "not_found_title": "Página no encontrada",
@@ -601,6 +660,14 @@ fn texts(locale: &str) -> serde_json::Value {
             "toc": "En esta publicación",
             "empty_collection": "Todavía no hay publicaciones aquí.",
             "updated": "Actualizado el",
+            "search": "Buscar",
+            "search_label": "Buscar en el sitio",
+            "search_empty": "No hay resultados para esta búsqueda.",
+            "search_short": "Escribe al menos dos letras para buscar.",
+            "reading_time": "min de lectura",
+            "related": "Lee también",
+            "categories": "Categorías",
+            "feed": "Feed RSS",
         }),
         "fr" => json!({
             "not_found_title": "Page introuvable",
@@ -623,6 +690,14 @@ fn texts(locale: &str) -> serde_json::Value {
             "toc": "Dans cette publication",
             "empty_collection": "Il n’y a pas encore de publications ici.",
             "updated": "Mis à jour le",
+            "search": "Rechercher",
+            "search_label": "Rechercher sur le site",
+            "search_empty": "Aucun résultat pour cette recherche.",
+            "search_short": "Saisissez au moins deux lettres pour rechercher.",
+            "reading_time": "min de lecture",
+            "related": "À lire aussi",
+            "categories": "Catégories",
+            "feed": "Flux RSS",
         }),
         "de" => json!({
             "not_found_title": "Seite nicht gefunden",
@@ -645,6 +720,14 @@ fn texts(locale: &str) -> serde_json::Value {
             "toc": "In diesem Beitrag",
             "empty_collection": "Hier gibt es noch keine Beiträge.",
             "updated": "Aktualisiert am",
+            "search": "Suchen",
+            "search_label": "Website durchsuchen",
+            "search_empty": "Keine Ergebnisse für diese Suche.",
+            "search_short": "Geben Sie mindestens zwei Buchstaben ein.",
+            "reading_time": "Min. Lesezeit",
+            "related": "Weitere Beiträge",
+            "categories": "Kategorien",
+            "feed": "RSS-Feed",
         }),
         "it" => json!({
             "not_found_title": "Pagina non trovata",
@@ -667,6 +750,14 @@ fn texts(locale: &str) -> serde_json::Value {
             "toc": "In questo articolo",
             "empty_collection": "Non ci sono ancora pubblicazioni qui.",
             "updated": "Aggiornato il",
+            "search": "Cerca",
+            "search_label": "Cerca nel sito",
+            "search_empty": "Nessun risultato per questa ricerca.",
+            "search_short": "Digita almeno due lettere per cercare.",
+            "reading_time": "min di lettura",
+            "related": "Leggi anche",
+            "categories": "Categorie",
+            "feed": "Feed RSS",
         }),
         _ => json!({
             "not_found_title": "Page not found",
@@ -689,6 +780,14 @@ fn texts(locale: &str) -> serde_json::Value {
             "toc": "On this page",
             "empty_collection": "There are no publications here yet.",
             "updated": "Updated on",
+            "search": "Search",
+            "search_label": "Search this site",
+            "search_empty": "No results for this search.",
+            "search_short": "Type at least two letters to search.",
+            "reading_time": "min read",
+            "related": "Read next",
+            "categories": "Categories",
+            "feed": "RSS feed",
         }),
     }
 }
@@ -915,6 +1014,7 @@ async fn site_context(
             "mount": language.mount,
             "tools": tools,
             "home": format!("{prefix}/"),
+            "search": format!("{prefix}{}", crate::search::search_path(&locale)),
             "year": chrono::Utc::now().format("%Y").to_string(),
             "texts": texts(&locale),
             "base_url": base_url,
@@ -1185,6 +1285,11 @@ async fn render_route(
                 number => format!("{base}?page={number}"),
             };
             values.insert("records".to_owned(), json!(listed.records));
+            let vocabularies = crate::terms::vocabularies(state, runtime, entity).await?;
+            if !vocabularies.is_empty() {
+                tags.extend(crate::terms::cache_tags());
+                values.insert("vocabularies".to_owned(), json!(vocabularies));
+            }
             values.insert(
                 "pagination".to_owned(),
                 json!({
@@ -1262,7 +1367,16 @@ async fn render_route(
         "author": author,
         "published": published,
         "modified": modified,
+        "breadcrumbs": breadcrumbs(prefix, base_url, path, title.as_deref(), &canonical),
     });
+    if route.page.feed {
+        page["feed_url"] = json!(format!(
+            "{}{}/{}",
+            context.site["prefix"].as_str().unwrap_or_default(),
+            path.trim_end_matches('/'),
+            aphel_contract_site::FEED_SEGMENT
+        ));
+    }
     values.insert("page".to_owned(), page);
     let html = runtime
         .environment
@@ -1286,6 +1400,32 @@ async fn render_route(
         tags,
         live: live || filled.live,
     })
+}
+
+fn breadcrumbs(
+    prefix: Option<&crate::prefixes::PrefixMatch>,
+    base_url: &str,
+    path: &str,
+    title: Option<&str>,
+    canonical: &str,
+) -> Option<String> {
+    let prefix = prefix?;
+    let segment = path.trim_start_matches('/').split('/').next()?;
+    let name = ["name", "title"].iter().find_map(|field| {
+        prefix
+            .record
+            .get(*field)
+            .and_then(serde_json::Value::as_str)
+    })?;
+    let mut items = vec![
+        json!({ "@type": "ListItem", "position": 1, "name": name, "item": format!("{base_url}/{segment}") }),
+    ];
+    if path.trim_end_matches('/') != format!("/{segment}") {
+        items.push(json!({ "@type": "ListItem", "position": 2, "name": title.unwrap_or(name), "item": canonical }));
+    }
+    serde_json::to_string(&json!({ "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items }))
+        .ok()
+        .map(|text| text.replace('<', "\\u003c").replace('>', "\\u003e").replace('&', "\\u0026"))
 }
 
 struct StructuredPage<'a> {
@@ -1429,6 +1569,56 @@ async fn home_path(
         Err(error) => {
             tracing::warn!(%error, "could not resolve the site home page");
             None
+        }
+    }
+}
+
+async fn search_page(
+    state: &AppState,
+    context: &SiteContext,
+    runtime: &SiteRuntime,
+    parts: &Parts,
+    (prefix, path): (&str, &str),
+) -> Response {
+    let query = crate::search::requested_query(parts.uri.query());
+    let results = match crate::search::results(
+        state,
+        runtime,
+        &query,
+        prefix,
+        context.translation.as_deref(),
+    )
+    .await
+    {
+        Ok(results) => results,
+        Err(error) => {
+            tracing::error!(%error, "could not search the site");
+            return fallback(context, StatusCode::SERVICE_UNAVAILABLE, Some(runtime));
+        }
+    };
+    let page = json!({
+        "query": query,
+        "short": !query.is_empty() && query.chars().count() < 2,
+        "results": results,
+        "action": format!("{prefix}{path}"),
+    });
+    let values = json!({ "site": context.site, "page": page, "customer": context.customer });
+    match runtime
+        .environment
+        .get_template(crate::search::SEARCH_TEMPLATE)
+        .and_then(|template| template.render(Value::from_serialize(&values)))
+    {
+        Ok(html) => {
+            let mut response =
+                html_response(StatusCode::OK, html, &runtime.content_security_policy(None));
+            response
+                .headers_mut()
+                .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+            response
+        }
+        Err(error) => {
+            tracing::warn!(%error, "could not render the site search page");
+            fallback(context, StatusCode::NOT_FOUND, Some(runtime))
         }
     }
 }

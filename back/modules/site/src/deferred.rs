@@ -37,6 +37,10 @@ pub(crate) enum Deferred {
         limit: u64,
         #[serde(default)]
         conditions: std::collections::BTreeMap<String, serde_json::Value>,
+        #[serde(default)]
+        exclude: Option<String>,
+        #[serde(default)]
+        heading: Option<String>,
     },
 }
 
@@ -129,7 +133,19 @@ async fn resolve_one(
             sort,
             limit,
             conditions,
-        } => list(owner, entity, sort.as_deref(), *limit, conditions, context).await,
+            exclude,
+            heading,
+        } => {
+            list(
+                owner,
+                entity,
+                (sort.as_deref(), *limit),
+                conditions,
+                (exclude.as_deref(), heading.as_deref()),
+                context,
+            )
+            .await
+        }
     }
 }
 
@@ -202,9 +218,9 @@ fn sort_of(sort: Option<&str>, exposes: impl Fn(&str) -> bool) -> String {
 async fn list(
     owner: &str,
     entity: &str,
-    sort: Option<&str>,
-    limit: u64,
+    (sort, limit): (Option<&str>, u64),
     conditions: &std::collections::BTreeMap<String, serde_json::Value>,
+    (exclude, heading): (Option<&str>, Option<&str>),
     context: &ResolveContext<'_>,
 ) -> Result<Resolution, AppError> {
     let record_type = format!("{owner}.{entity}");
@@ -227,15 +243,22 @@ async fn list(
     if conditions.keys().any(|field| !exposure.exposes(field)) {
         return Ok(empty);
     }
+    let limit = limit.clamp(1, MAX_LIST_LIMIT);
     let mut records = data::matching(
         context.state,
         exposure,
         conditions,
         Some(&sort),
-        limit.clamp(1, MAX_LIST_LIMIT),
+        limit + u64::from(exclude.is_some()),
         context.translation,
     )
     .await?;
+    if let Some(excluded) = exclude {
+        records.retain(|record| {
+            record.get("id").and_then(serde_json::Value::as_str) != Some(excluded)
+        });
+        records.truncate(limit as usize);
+    }
     crate::prefixes::annotate(context.state, context.runtime, &record_type, &mut records).await?;
     let mut tags = vec![cache::entity_tag(&record_type)];
     crate::terms::annotate(context.state, exposure, &mut records, &mut tags).await?;
@@ -295,8 +318,16 @@ async fn list(
             live: false,
         });
     }
+    let heading = heading
+        .map(|heading| {
+            format!(
+                "<h2 class=\"site-list-heading\">{}</h2>",
+                minijinja::HtmlEscape(heading)
+            )
+        })
+        .unwrap_or_default();
     Ok(Resolution {
-        html: format!("<ul class=\"site-list site-list-{owner}-{entity}\">{cards}</ul>"),
+        html: format!("{heading}<ul class=\"site-list site-list-{owner}-{entity}\">{cards}</ul>"),
         tags,
         live: false,
     })

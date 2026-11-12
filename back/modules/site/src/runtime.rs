@@ -369,6 +369,10 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
         ),
         (NOT_FOUND_TEMPLATE, include_str!("../theme/not_found.html")),
         (WELCOME_TEMPLATE, include_str!("../theme/welcome.html")),
+        (
+            crate::search::SEARCH_TEMPLATE,
+            include_str!("../theme/search.html"),
+        ),
         (ERROR_TEMPLATE, include_str!("../theme/error.html")),
         (HEAD_PARTIAL, include_str!("../theme/head.html")),
         (ICONS_PARTIAL, include_str!("../theme/icons.html")),
@@ -390,6 +394,7 @@ fn base_environment(theme: Option<String>) -> Environment<'static> {
     environment.add_filter("date", date);
     environment.add_filter("image_url", image_url);
     environment.add_filter("from_json", from_json);
+    environment.add_filter("reading_time", reading_time);
     environment.add_function("url_for", url_for);
     environment.add_function("site_path", site_path);
     environment.add_function("embed", embed);
@@ -438,6 +443,34 @@ fn depth_of(value: &serde_json::Value) -> usize {
         serde_json::Value::Object(fields) => 1 + fields.values().map(depth_of).max().unwrap_or(0),
         _ => 0,
     }
+}
+
+const WORDS_PER_MINUTE: usize = 200;
+
+fn words_in(value: &serde_json::Value) -> usize {
+    match value {
+        serde_json::Value::String(text) => text.split_whitespace().count(),
+        serde_json::Value::Array(items) => items.iter().map(words_in).sum(),
+        serde_json::Value::Object(fields) => fields
+            .iter()
+            .filter(|(key, _)| {
+                !matches!(
+                    key.as_str(),
+                    "id" | "type" | "image" | "link" | "url" | "code"
+                )
+            })
+            .map(|(_, value)| words_in(value))
+            .sum(),
+        _ => 0,
+    }
+}
+
+fn reading_time(text: Option<String>) -> usize {
+    let words = text
+        .and_then(|text| serde_json::from_str::<serde_json::Value>(&text).ok())
+        .map(|value| words_in(&value))
+        .unwrap_or_default();
+    words.div_ceil(WORDS_PER_MINUTE).max(1)
 }
 
 fn from_json(text: Option<String>) -> Result<Value, Error> {
@@ -601,6 +634,8 @@ fn site_list(owner: String, entity: String, kwargs: Kwargs) -> Result<Value, Err
     let sort: Option<String> = kwargs.get("sort")?;
     let limit: Option<u64> = kwargs.get("limit")?;
     let conditions: Option<Value> = kwargs.get("where")?;
+    let exclude: Option<String> = kwargs.get("exclude")?;
+    let heading: Option<String> = kwargs.get("heading")?;
     kwargs.assert_all_used()?;
     let conditions = match conditions {
         None => BTreeMap::new(),
@@ -622,6 +657,8 @@ fn site_list(owner: String, entity: String, kwargs: Kwargs) -> Result<Value, Err
         sort,
         limit: limit.unwrap_or(6).clamp(1, crate::deferred::MAX_LIST_LIMIT),
         conditions,
+        exclude,
+        heading,
     }))
 }
 

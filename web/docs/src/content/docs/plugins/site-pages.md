@@ -55,12 +55,13 @@ title = "{{ record.title }}"
 | Key | Type | Notes |
 | --- | --- | --- |
 | `key` | string | Unique in the plugin. Lowercase letters, digits and `_`. Used by `url_for`. |
-| `path` | string | Starts with `/`. Segments use lowercase letters, digits, `-`, `_` and `.`, and cannot start with `_`. A parameter looks like `{slug}`. `/sitemap.xml` and `/robots.txt` are reserved. |
+| `path` | string | Starts with `/`. Segments use lowercase letters, digits, `-`, `_` and `.`, and cannot start with `_`. A parameter looks like `{slug}`. `/sitemap.xml`, `/robots.txt`, `/busca` and `/search` are reserved. |
 | `template` | string | A file of the package under `site/`, ending in `.html`. |
 | `entity` | string | Optional. An entity listed in `[[site.public]]`. |
 | `match` | string | One record: the public field compared with the only path parameter, which must have the same name (`/blog/{slug}` with `match = "slug"`). |
 | `where` | table | One record chosen by equality conditions on public fields, for a page without parameters (`path = "/"` with `where = { is_home = true }`). When several records match, the most recently updated wins; when none does, the page answers 404. |
 | `list` | table | A paginated list: `sort` (public fields, `-` for descending, comma separated) and `per_page` (1 to 50, default 10). The page reads `?page=N`. |
+| `feed` | boolean | Optional, list pages only. Serves an RSS 2.0 feed of the 20 newest records at the page address plus `/feed.xml` (`/blog/feed.xml`, `/blog/categoria/news/feed.xml`) and adds its `<link rel="alternate">` to the page head. See [Feeds](#feeds). |
 | `title` | string | Optional. A template expression rendered with the page context, used in `<title>` and in the share previews. |
 | `data` | string | Optional. Path of a GET route of the plugin declared with `site = true`, using the page parameters (`/products/{slug}`). Its JSON answer reaches the template as `data`; a 404 answer makes the page 404. See [Dynamic pages](#dynamic-pages). |
 | `seo` | table | Optional. `description` and `image` are template expressions; `noindex = true` keeps the page out of search engines and the sitemap; `schema`, `author`, `published`, `modified` and `structured_data` shape the JSON-LD. See [Search engines](#search-engines). |
@@ -97,10 +98,11 @@ Templates use [MiniJinja](https://docs.rs/minijinja), a Jinja2 dialect. Output i
 | `url_for(key, **params)` | Address of a page of the same plugin, including the site path. |
 | `site_path(path)` | Address of a site path typed by people (`/contact`, `/book/intro`): adds the site path and the language code, except for public app pages (`book`, `quote`, `p`), which keep the site path only. Other values (`https://…`, `#anchor`) are returned unchanged. |
 | `embed(kind, key)` | Places something another module publishes, rendered on the server: `embed('form', <form id>)` (a form of the Forms module, which also works without JavaScript) or `embed('booking', <slug>)` (a card with a button to the booking page). Unknown or inactive items render nothing. The kinds and items available come from `GET /api/v1/site/embeds`. |
-| `site_list(owner, entity, sort=, limit=, where=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`) or `newest`/`oldest`, which order by `published_at` when the entity exposes it and by `created_at` otherwise; `limit` is 1 to 24 (default 6), `where` is a map of public fields to values (`where={'collection': prefix.id}`); a list value matches any of its items, also inside list fields such as `references` (`where={'authors': [record.id]}`). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one, with `scope_field` and `scopes` when a public `belongs to` relation lets the list be limited to one parent record (the *Collection* block uses them to show only the Blog, for example). |
+| `site_list(owner, entity, sort=, limit=, where=, exclude=, heading=)` | The published records of a public entity of any plugin, each rendered with that plugin's card template `site/cards/<entity>.html`, inside `<ul class="site-list">`. `sort` uses public fields (default `-created_at`) or `newest`/`oldest`, which order by `published_at` when the entity exposes it and by `created_at` otherwise; `limit` is 1 to 24 (default 6), `where` is a map of public fields to values (`where={'collection': prefix.id}`); a list value matches any of its items, also inside list fields such as `references` (`where={'authors': [record.id]}`). Entities without a card template render nothing; `GET /api/v1/site/collections` lists the ones that have one, with `scope_field` and `scopes` when a public `belongs to` relation lets the list be limited to one parent record (the *Collection* block uses them to show only the Blog, for example). `exclude` leaves one record id out (the current record, for related posts: `site_list('content', 'entry', where={'terms': record.terms}, exclude=record.id, limit=3)`), and `heading` adds an `<h2 class="site-list-heading">` above the list only when it has records. |
 | `value \| markdown` | Renders Markdown and removes unsafe HTML (scripts, event handlers). |
 | `value \| date(format)` | Formats an ISO date or date-time. Default `%d/%m/%Y`. |
 | `text \| from_json` | Parses a JSON text (up to 512 KB and 16 levels deep) into lists and objects, for content stored as JSON in a `long_text` field: `{% for block in record.blocks \| from_json %}`. Empty text gives nothing; invalid JSON fails the render. |
+| `blocks \| reading_time` | Minutes needed to read a JSON block document (200 words per minute, at least 1): `{{ record.body \| reading_time }} {{ site.texts.reading_time }}`. |
 | `image \| image_url(width)` | Address of an image, resized to the smallest of 320, 640, 960, 1280 or 1920 pixels that is at least `width` wide. Without `width`, the original file. |
 
 Templates are compiled when the plugin is installed: a syntax error, a missing template or a page that breaks the rules above fails the install with `422 plugin_site_invalid`, listing every problem. Templates cannot reach the network, files or the database: they only see the variables above. A render that runs too long stops and the visitor sees the theme's error page.
@@ -159,6 +161,8 @@ title = "{{ term.name }} · {{ prefix.name }}"
 | `vocabulary` | Key of a public vocabulary. Terms of other vocabularies, or of vocabularies that are not public, answer 404. |
 
 The template receives the term as `term` (`id`, `vocabulary`, `name`, `slug`, `parent_id`). The sitemap lists one address per term of the vocabulary.
+
+Every list page of an entity with term pages also receives `vocabularies`: for each vocabulary used by a `term` page of that entity, its public terms (`vocabularies.categories`), to draw a category menu with `url_for('category', prefix=prefix.path, term=category.slug)`.
 
 Records of an entity that keeps a selection of terms (`tagging.classifiable` with `published`) carry `site_terms` when that field is public: the public terms of the selection, in order, with the same keys as `term`. Use it to show and link categories and tags: `url_for('category', prefix=record.site_prefix, term=term.slug)`. Without `tagging`, `site_terms` is empty and term pages answer 404. Renaming or moving a term refreshes the cached pages that use it.
 
@@ -417,11 +421,20 @@ Empty results are left out.
 seo = { schema = "BlogPosting", author = "{{ record.byline or '' }}", published = "{{ record.published_at or '' }}", modified = "{{ record.revised_at or '' }}", structured_data = '{"keywords": {{ record.keywords | tojson }}}' }
 ```
 
-- **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. It is cached and refreshed with the pages it lists.
+- **Sitemap.** `/sitemap.xml` under the site address lists static pages, list pages and every public record of `match` pages, with `lastmod` from `updated_at`, up to 50 000 addresses. With more than one language, every address lists its translations as `<xhtml:link rel="alternate" hreflang>`, plus `x-default` for the main language. It is cached and refreshed with the pages it lists.
+- **Breadcrumbs.** Pages below the home page carry a `BreadcrumbList` JSON-LD with the home page, each parent address that is itself a page, and the current page (`page.seo.breadcrumbs`).
 - **robots.txt.** When the site is at the root of a host, `/robots.txt` allows everything except `/api/`, `/_aphel/app/` and the app path, and points to the sitemap.
 - **Indexing switch.** Site → *Address and cache* → *Let search engines find the site*. Off, every page carries `noindex`, `robots.txt` disallows everything and the sitemap answers 404. The site stays open to anyone with the link.
 - **Moved records.** When the field used by a `match` page changes (a new slug), the old address answers `301` to the new one. Chains collapse (`a → b → c` becomes `a → c`, `b → c`), and a record that takes an address back stops its redirect. Redirects only apply when no public record has the old value.
 - **Redirects by hand.** Site → *Redirects* sends an old address (a path relative to the site address, such as `/old-page`) to a site path or to another website, with `301` or, for temporary moves, `302`. They apply only when no page answers the address, also under the language prefixes (`/en/old-page` goes to `/en/<target>`).
+
+## Feeds
+
+A list page with `feed = true` answers `<page address>/feed.xml` with RSS 2.0: the 20 newest records in the page's order, with `title` (or `name`), `link` and `guid` from the record's public address, `description` from `seo_description`, `summary` or `description`, `pubDate` from `published_at` (or `created_at`) and `dc:creator` from `byline`. Prefix and term pages give one feed per collection and term. Feeds follow the language prefix, are cached with the page and refreshed when a record of the entity changes. A theme of your own links them with `page.feed_url`.
+
+## Public search
+
+`/busca` (Portuguese sites) and `/search` show a search form and the published records whose public `title`, `name`, `summary`, `description` or `seo_description` contain the words typed (`?q=`, 2 to 100 characters), with links to their `match` pages: at most 10 per public entity and 30 in all. Entities without a `match` page are left out. The page extends the theme layout, is never cached and carries `noindex`; `site.search` holds its address, and the built-in theme shows it in the header.
 
 ## Images
 

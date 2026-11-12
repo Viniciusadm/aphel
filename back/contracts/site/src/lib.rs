@@ -19,6 +19,7 @@ pub const MAX_PER_PAGE: u64 = 50;
 pub const IMAGE_WIDTHS: &[u32] = &[320, 640, 960, 1280, 1920];
 pub const SITEMAP_PATH: &str = "/sitemap.xml";
 pub const ROBOTS_PATH: &str = "/robots.txt";
+pub const SEARCH_PATHS: [&str; 2] = ["/busca", "/search"];
 pub const THEME_LAYOUT: &str = "site/theme/layout.html";
 pub const THEME_NOT_FOUND: &str = "site/theme/not_found.html";
 pub const THEME_ERROR: &str = "site/theme/error.html";
@@ -212,7 +213,11 @@ pub struct SitePage {
     pub prefix: Option<PagePrefix>,
     #[serde(default)]
     pub term: Option<PageTerm>,
+    #[serde(default)]
+    pub feed: bool,
 }
+
+pub const FEED_SEGMENT: &str = "feed.xml";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PageTerm {
@@ -609,6 +614,9 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
                 "{label}: seo.schema is a schema.org type such as Product or Article"
             ));
         }
+        if page.feed && !matches!(page.source, PageSource::List { .. }) {
+            problems.push(format!("{label}: feed needs a list page"));
+        }
         for (name, expression) in [
             ("structured_data", &page.seo.structured_data),
             ("author", &page.seo.author),
@@ -649,6 +657,12 @@ pub fn check_bundle(bundle: &SiteBundle) -> Vec<String> {
         {
             problems.push(format!(
                 "{label}: {} is reserved for the customer account pages",
+                page.path
+            ));
+        }
+        if SEARCH_PATHS.contains(&shape.as_str()) {
+            problems.push(format!(
+                "{label}: {} is reserved for the site search",
                 page.path
             ));
         }

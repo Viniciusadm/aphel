@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block title %}{% if page.query %}{{ page.query }} · {% endif %}{{ site.texts.search }} · {{ site.name }}{% endblock %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="site-search">
+<h1>{{ site.texts.search }}</h1>
+<form method="get" action="{{ page.action }}" role="search" class="site-search-form">
+<label class="visually-hidden" for="site-search-query">{{ site.texts.search_label }}</label>
+<input id="site-search-query" type="search" name="q" value="{{ page.query }}" placeholder="{{ site.texts.search_label }}" minlength="2" maxlength="100" required>
+<button type="submit">{{ site.texts.search }}</button>
+</form>
+{% if page.short %}<p class="muted">{{ site.texts.search_short }}</p>
+{% elif page.query and not page.results %}<p class="muted">{{ site.texts.search_empty }}</p>
+{% else %}<ul class="site-search-results">{% for result in page.results %}<li><a href="{{ result.url }}">{{ result.title }}</a>{% if result.summary %}<p class="muted">{{ result.summary }}</p>{% endif %}</li>{% endfor %}</ul>{% endif %}
+</section>
+{% endblock %}

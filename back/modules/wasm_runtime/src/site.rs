@@ -198,6 +198,7 @@ fn bundle_of(
                         field: term.field.clone(),
                         vocabulary: term.vocabulary.clone(),
                     }),
+                feed: page.feed,
             }),
             Err(problem) => {
                 problems.push(problem);

@@ -132,3 +132,27 @@ pub(crate) async fn slugs(state: &AppState, page_term: &PageTerm) -> Result<Vec<
         .map(|term| term.slug)
         .collect())
 }
+
+pub(crate) async fn vocabularies(
+    state: &AppState,
+    runtime: &crate::runtime::SiteRuntime,
+    entity: &str,
+) -> Result<BTreeMap<String, Vec<PublicTerm>>, AppError> {
+    let Some(resolver) = resolver(state) else {
+        return Ok(BTreeMap::new());
+    };
+    let mut found = BTreeMap::new();
+    for route in runtime.routes.iter().chain(&runtime.prefixed) {
+        let Some(page_term) = &route.page.term else {
+            continue;
+        };
+        if route.page.source.entity() != Some(entity) || found.contains_key(&page_term.vocabulary) {
+            continue;
+        }
+        found.insert(
+            page_term.vocabulary.clone(),
+            resolver.terms(&page_term.vocabulary).await?,
+        );
+    }
+    Ok(found)
+}

@@ -21,6 +21,7 @@ nav.menu a{color:var(--muted);text-decoration:none;padding:.25rem 0}
 nav.menu a:hover,nav.menu a[aria-current=page]{color:var(--fg)}
 nav.menu a[aria-current=page]{box-shadow:inset 0 -2px 0 var(--link)}
 .menu-group{position:relative}.menu-group>summary{list-style:none;cursor:pointer;color:var(--muted);padding:.25rem 0}.menu-group>summary::-webkit-details-marker{display:none}.menu-group>summary::after{content:" ▾";font-size:.8em}.menu-group>summary.active,.menu-group>summary:hover{color:var(--fg)}.menu-group .submenu{display:flex;flex-direction:column;gap:.25rem;position:absolute;z-index:10;min-width:12rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--line);border-radius:.5rem;box-shadow:0 8px 24px rgba(0,0,0,.08)}.site-mobile-menu .menu-group .submenu{position:static;border:0;box-shadow:none;padding:.25rem 0 .25rem 1rem}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.site-search-form{display:flex;gap:.5rem;margin:1rem 0 2rem}.site-search-form input{flex:1;min-height:2.5rem;padding:.4rem .75rem;border:1px solid var(--line);border-radius:.5rem;background:transparent;color:inherit;font:inherit}.site-search-form button{min-height:2.5rem;padding:.4rem 1rem;border:0;border-radius:.5rem;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}.site-search-results{list-style:none;padding:0;display:grid;gap:1.25rem}.site-search-results a{font-size:1.125rem;font-weight:600}.site-search-results p{margin:.25rem 0 0}
 .welcome{padding:4rem 0;text-align:center}.welcome-links{list-style:none;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.5rem}
 main{padding:2rem 0 3rem}
 footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.875rem;padding:1.5rem 0}
@@ -44,6 +45,7 @@ h1,h2,h3{line-height:1.25}
 img{max-width:100%;height:auto}
 .muted{color:var(--muted)}
 nav.pagination{display:flex;justify-content:space-between;margin-top:2rem}
+.search-entry{display:inline-flex;align-items:center;color:var(--muted)}.search-entry:hover{color:var(--fg)}
 .header-end{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem}
 a.account-entry{font-size:.875rem}
 nav.languages{display:flex;gap:.5rem;font-size:.8125rem}
@@ -101,6 +103,7 @@ details.danger summary{cursor:pointer;color:var(--danger);font-weight:500}
 <div class="header-end">
 {% if site.menu %}<nav class="menu desktop-menu" aria-label="{{ site.texts.menu }}">{{ menu_items(site.menu) }}</nav><details class="site-mobile-menu"><summary>{{ site.texts.menu }}</summary><nav class="menu" aria-label="{{ site.texts.menu }}">{{ menu_items(site.menu) }}</nav></details>{% endif %}
 {% if site.alternates %}<nav class="languages" aria-label="{{ site.texts.languages }}">{% for alternate in site.alternates %}<a href="{{ alternate.path }}" hreflang="{{ alternate.code }}" lang="{{ alternate.code }}"{% if alternate.current %} aria-current="true"{% endif %}>{{ alternate.code | upper }}</a>{% endfor %}</nav>{% endif %}
+<a class="search-entry" href="{{ site.search }}" aria-label="{{ site.texts.search }}" title="{{ site.texts.search }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></a>
 {% if site.header.cta %}<a class="cta" href="{{ site.header.cta.url }}">{{ site.header.cta.label }}</a>{% endif %}
 {% if site.account %}<a class="account-entry" href="{% if customer %}{{ site.account.home }}{% else %}{{ site.account.login }}{% endif %}">{% if customer %}{{ customer.name or site.texts.my_account }}{% else %}{{ site.texts.sign_in }}{% endif %}</a>{% endif %}
 </div>
