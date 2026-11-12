@@ -30,7 +30,9 @@
     "tasks": "This record's tasks will appear here.",
     "notes": "This record's notes will appear here.",
     "related": "Related records will appear here.",
-    "soon": "Coming soon"
+    "soon": "Coming soon",
+    "emptyTitle": "Nothing here yet",
+    "emptyDescription": "When there is content in {{section}}, it shows up here."
   },
   "states": {
     "notFoundTitle": "Record not found",

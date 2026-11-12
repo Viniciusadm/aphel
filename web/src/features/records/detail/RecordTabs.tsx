@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { tabsListVariants, tabsTriggerVariants } from '@/components/ui/tabs-variants'
+import { RecordTabPlaceholder } from './RecordTabPlaceholder'
 import type { RecordTab } from './types'
 import { useActiveTab } from './use-active-tab'
 
@@ -32,6 +33,7 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
   )
   const [params] = useSearchParams()
   if (tabs.length === 0) return null
+  const activeTab = tabs.find((tab) => tab.key === active)
   const showAll = tabs.length <= MAX_VISIBLE_TABS
   const visible = showAll ? tabs : tabs.filter(isPrimaryTab)
   const overflow = showAll ? [] : tabs.filter((tab) => !isPrimaryTab(tab))
@@ -52,7 +54,13 @@ export function RecordTabs({ tabs, defaultTab, param, className }: RecordTabsPro
         </DropdownMenu>}
       </nav>
       <section key={active} className="min-w-0" aria-label={tabs.find((tab) => tab.key === active)?.label}>
-        {tabs.find((tab) => tab.key === active)?.content}
+        {activeTab?.content ?? (
+          <RecordTabPlaceholder
+            icon={activeTab?.icon}
+            title={t('placeholders.emptyTitle')}
+            description={t('placeholders.emptyDescription', { section: activeTab?.label ?? '' })}
+          />
+        )}
       </section>
     </div>
   )

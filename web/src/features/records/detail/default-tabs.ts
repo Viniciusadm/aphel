@@ -2,6 +2,7 @@ import { CheckSquare, History, Link2, NotebookPen, Paperclip } from 'lucide-reac
 import { createElement, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AttachmentsPanel } from '@/features/files'
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { recordsKeys } from '../api'
 import { Timeline } from '../timeline/Timeline'
 import type { TimelineSource } from '../timeline/types'
@@ -17,6 +18,8 @@ export interface DefaultRecordTabsOptions {
 
 export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, timeline }: DefaultRecordTabsOptions) {
   const { t } = useTranslation('records-detail')
+  const notesActive = useIsModuleActive('notes')
+  const tasksActive = useIsModuleActive('tasks')
   return useMemo<RecordTab[]>(
     () => [
       {
@@ -62,7 +65,7 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
         icon: Link2,
         content: createElement(RecordTabPlaceholder, { icon: Link2, description: t('placeholders.related') }),
       },
-    ],
-    [t, recordType, recordId, readOnly, timeline],
+    ].filter((tab) => (tab.key !== 'notes' || notesActive) && (tab.key !== 'tasks' || tasksActive)),
+    [t, recordType, recordId, readOnly, timeline, notesActive, tasksActive],
   )
 }

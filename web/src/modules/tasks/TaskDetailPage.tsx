@@ -1,4 +1,4 @@
-import { CalendarClock, CalendarPlus, NotebookPen, Paperclip, RotateCcw, SquareCheck, Trash2, UserRoundPen } from 'lucide-react'
+import { CalendarClock, CalendarPlus, RotateCcw, SquareCheck, Trash2, UserRoundPen } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
@@ -6,7 +6,7 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
-import { AttachmentsPanel, RecordActionItem, RecordActionsDivider, RecordDetailPage, type RecordItem } from '@/sdk'
+import { RecordActionItem, RecordActionsDivider, RecordDetailPage, type RecordItem } from '@/sdk'
 import { TASK_DETAIL_FIELDS } from './resource'
 import { useDeleteActivity, type Activity } from '@/sdk'
 import { ActivityScheduleDialog, type ScheduledActivity } from './components/ActivityScheduleDialog'
@@ -118,22 +118,7 @@ export function TaskDetailPage() {
       back={{ to: TASKS_PATH, label: t('detail.back') }}
       primaryAction={(record) => <TaskHeaderAction record={record} dialog={dialog} onDialog={setDialog} />}
       actions={(record) => <TaskMenu record={record} onDialog={setDialog} />}
-      tabs={[
-        {
-          key: 'notes',
-          group: 'activity',
-          label: t('detail.notesTab'),
-          icon: NotebookPen,
-          content: null,
-        },
-        {
-          key: 'files',
-          group: 'activity',
-          label: t('detail.filesTab'),
-          icon: Paperclip,
-          content: <AttachmentsPanel recordType={ACTIVITY_RECORD_TYPE} recordId={id} />,
-        },
-      ]}
+      tabs={(defaults) => defaults.filter((tab) => tab.key === 'notes' || tab.key === 'files')}
     />
   )
 }

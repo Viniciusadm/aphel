@@ -30,7 +30,9 @@
     "tasks": "As tarefas deste registro aparecerão aqui.",
     "notes": "As notas deste registro aparecerão aqui.",
     "related": "Os registros relacionados aparecerão aqui.",
-    "soon": "Em breve"
+    "soon": "Em breve",
+    "emptyTitle": "Nada por aqui ainda",
+    "emptyDescription": "Quando houver conteúdo em {{section}}, ele aparece aqui."
   },
   "states": {
     "notFoundTitle": "Registro não encontrado",
