@@ -35,7 +35,7 @@ export function DefaultAppFrame({ children, settingsArea, returnPath, mobileNavO
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
-        <main className={cn('flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
+        <main className={cn('relative flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:p-6', !settingsArea && 'overflow-y-auto')}>
           {children}
         </main>
       </div>
