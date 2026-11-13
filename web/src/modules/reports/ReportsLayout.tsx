@@ -1,23 +1,21 @@
 import { useTranslation } from 'react-i18next'
-import { Outlet, useMatch } from 'react-router'
+import { Outlet } from 'react-router'
 import { ReportCard } from '@/components/ui/report-card'
 import { Slot } from '@/kernel/modules/Slot'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
 export function ReportsLayout() {
-  const { t } = useTranslation('reports')
-  const index = useMatch('/reports')
-  return <Page>
-    <PageHeader title={t('title')} description={t('description')} back={!index ? { to: '/reports', label: t('library.title') } : undefined} />
-    <Outlet />
-  </Page>
+  return <Page><Outlet /></Page>
 }
 
 export function ReportsIndex() {
   const { t } = useTranslation('reports')
-  return <nav aria-label={t('library.title')} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-    <ReportCard to="saved" title={t('tabs.saved')} description={t('library.saved')} />
-    <Slot name="reports.library" props={{}} />
-  </nav>
+  return <>
+    <PageHeader title={t('title')} description={t('description')} />
+    <nav aria-label={t('library.title')} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <ReportCard to="saved" title={t('tabs.saved')} description={t('library.saved')} />
+      <Slot name="reports.library" props={{}} />
+    </nav>
+  </>
 }

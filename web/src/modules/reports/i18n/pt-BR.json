@@ -36,14 +36,15 @@
   "empty": "Sem valor",
   "builder": {
     "list": {
-      "title": "Relatórios salvos",
+      "title": "Meus relatórios",
       "description": "Relatórios montados pela equipe, calculados sempre com as suas permissões.",
       "filter": "Módulo",
       "allModules": "Todos os módulos",
       "create": "Novo relatório",
       "emptyTitle": "Nenhum relatório salvo",
       "emptyDescription": "Monte um relatório escolhendo módulo, agrupamentos, métricas e filtros.",
-      "meta": "{{module}} · {{visualization}} · atualizado em {{date}}"
+      "meta": "{{module}} · {{visualization}} · atualizado em {{date}}",
+      "back": "Biblioteca de relatórios"
     },
     "builder": {
       "title": "Construtor de relatórios",

@@ -36,14 +36,15 @@
   "empty": "No value",
   "builder": {
     "list": {
-      "title": "Saved reports",
+      "title": "My reports",
       "description": "Reports built by the team, always computed with your permissions.",
       "filter": "Module",
       "allModules": "All modules",
       "create": "New report",
       "emptyTitle": "No saved reports",
       "emptyDescription": "Build a report by choosing a module, groups, metrics and filters.",
-      "meta": "{{module}} · {{visualization}} · updated {{date}}"
+      "meta": "{{module}} · {{visualization}} · updated {{date}}",
+      "back": "Report library"
     },
     "builder": {
       "title": "Report builder",

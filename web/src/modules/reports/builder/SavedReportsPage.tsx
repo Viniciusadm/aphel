@@ -10,7 +10,6 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, NativeSelect, useRecordFormatting } from '@/sdk'
 import { useReports, useReportEntities } from './api'
-import { Field } from '@/components/ui/field'
 
 export function SavedReportsPage() {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
@@ -22,27 +21,27 @@ export function SavedReportsPage() {
   const visible = (reports.data ?? []).filter((report) => !recordType || report.record_type === recordType)
 
   return (
-    <div className="grid gap-4">
-      <PageHeader level="section" title={t('list.title')} description={t('list.description')} actions={<>
-          <Field label={t('list.filter')}>
-            {(fieldControl) => <NativeSelect {...fieldControl} value={recordType} onChange={(event) => setRecordType(event.target.value)}>
-              <option value="">{t('list.allModules')}</option>
-              {allowedTypes.map((type) => (
-                <option key={type.recordType} value={type.recordType}>
-                  {type.label}
-                </option>
-              ))}
-            </NativeSelect>}
-          </Field>
-          {allowedTypes.length > 0 && (
-            <Button asChild>
-              <Link to="/reports/saved/new">
-                <Plus />
-                {t('list.create')}
-              </Link>
-            </Button>
-          )}
-              </>} />
+    <>
+      <PageHeader title={t('list.title')} description={t('list.description')} back={{ to: '/reports', label: t('list.back') }} actions={
+        allowedTypes.length > 0 ? (
+          <Button asChild size="sm">
+            <Link to="/reports/saved/new">
+              <Plus aria-hidden="true" />
+              {t('list.create')}
+            </Link>
+          </Button>
+        ) : undefined
+      } />
+      <div className="max-w-xs">
+        <NativeSelect aria-label={t('list.filter')} value={recordType} onChange={(event) => setRecordType(event.target.value)}>
+          <option value="">{t('list.allModules')}</option>
+          {allowedTypes.map((type) => (
+            <option key={type.recordType} value={type.recordType}>
+              {type.label}
+            </option>
+          ))}
+        </NativeSelect>
+      </div>
       {reports.isPending && (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Skeleton className="h-28" />
@@ -58,7 +57,7 @@ export function SavedReportsPage() {
           description={t('list.emptyDescription')}
           action={
             allowedTypes.length > 0 ? (
-              <Button asChild variant="outline">
+              <Button asChild size="sm">
                 <Link to="/reports/saved/new">{t('list.create')}</Link>
               </Button>
             ) : undefined
@@ -92,6 +91,6 @@ export function SavedReportsPage() {
           ))}
         </ul>
       )}
-    </div>
+    </>
   )
 }

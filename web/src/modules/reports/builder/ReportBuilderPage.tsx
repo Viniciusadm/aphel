@@ -261,7 +261,7 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
   return (
     <div className="grid gap-4">
       {guard.dialog}
-      <PageHeader level="section" title={report ? report.name : t('builder.newTitle')} back={{ to: '/reports/saved', label: t('builder.back') }} actions={<>
+      <PageHeader title={report ? report.name : t('builder.newTitle')} back={{ to: '/reports/saved', label: t('builder.back') }} actions={<>
           {report && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
