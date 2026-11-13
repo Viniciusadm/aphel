@@ -8,7 +8,7 @@ sidebar:
 Two modules give outsiders a way into Aphel without an account: **Lead forms** turn website submissions into contacts (and optionally deals), and **Booking** lets clients pick a free time in your calendar.
 
 :::note
-Both are optional modules. Lead forms are suggested by the Real Estate blueprint. Booking is suggested by the Agency, Consultancy, Freelancer and Real Estate blueprints. An administrator can turn them on or off in **Settings > Modules**. See [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
+Both are optional modules. Lead forms are suggested by the Real Estate blueprint. Booking is suggested by the Agency, Consultancy, Freelancer and Real Estate blueprints. Both work with contacts, so they need the **People** module; **Settings > Modules** offers to turn it on together with them. An administrator can turn them on or off there. See [Modules](/_aphel/docs/admin/modules/) and [Blueprints](/_aphel/docs/admin/blueprints/).
 :::
 
 ## Permissions

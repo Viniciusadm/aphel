@@ -115,7 +115,7 @@ impl Module for FormsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Lead forms", APHEL_VERSION)
             .description("Public forms that create people and deals")
-            .optional("people")
+            .depends_on("people", "*")
             .optional("leads")
             .optional("deals")
             .optional("tasks")

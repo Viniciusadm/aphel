@@ -60,7 +60,7 @@ impl Module for BookingModule {
                 "Booking links: availability, meeting types, team links and the public booking page",
             )
             .depends_on("tasks", "*")
-            .optional("people")
+            .depends_on("people", "*")
             .optional("assignment")
             .enabled_by_default()
             .owned_tables(&["booking_availability", "meeting_bookings", "meeting_types"])
