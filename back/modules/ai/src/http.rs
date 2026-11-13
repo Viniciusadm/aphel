@@ -374,18 +374,18 @@ mod tests {
     fn query_accepts_namespaced_record_types() {
         assert!(
             validate_query(&request(
-                "catalog_items.item",
+                "acme.gadget",
                 "criados nos últimos 30 dias"
             ))
             .is_ok()
         );
-        assert!(validate_query(&request("people.person", "meus leads")).is_ok());
+        assert!(validate_query(&request("acme.widget", "meus itens")).is_ok());
     }
 
     #[test]
     fn query_rejects_bad_record_types_and_empty_questions() {
-        assert!(validate_query(&request("People.Person", "x")).is_err());
+        assert!(validate_query(&request("Acme.Widget", "x")).is_err());
         assert!(validate_query(&request("people;drop", "x")).is_err());
-        assert!(validate_query(&request("people.person", "   ")).is_err());
+        assert!(validate_query(&request("acme.widget", "   ")).is_err());
     }
 }
