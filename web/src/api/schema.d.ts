@@ -3049,6 +3049,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forms/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["forms_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/goals": {
         parameters: {
             query?: never;
@@ -6094,6 +6110,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["forms_public_embed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/forms/forms/{public_id}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["forms_public_logo"];
         put?: never;
         post?: never;
         delete?: never;
@@ -10381,6 +10413,10 @@ export interface components {
         };
         /** @enum {string} */
         BundlePricing: "fixed" | "sum";
+        /** @enum {string} */
+        ButtonStyle: "solid" | "outline";
+        /** @enum {string} */
+        ButtonWidth: "auto" | "full";
         CalendarCategory: {
             color?: string | null;
             icon?: string | null;
@@ -13282,8 +13318,14 @@ export interface components {
                 workflow: components["schemas"]["LeadFormPipelineOption"][];
             };
         };
+        Data_LeadFormPreviewResponse: {
+            data: {
+                html: string;
+            };
+        };
         Data_LeadFormPublicDefinition: {
             data: {
+                appearance: components["schemas"]["LeadFormPublicAppearance"];
                 fields: components["schemas"]["LeadFormPublicField"][];
                 /** @example _aphel_hp */
                 honeypot_field: string;
@@ -16738,6 +16780,8 @@ export interface components {
             default_on: boolean;
             opens_enabled: boolean;
         };
+        /** @enum {string} */
+        EmbedMode: "theme" | "inherit";
         EnrichmentApplied: {
             cnpj: string;
             company_id: string;
@@ -17129,6 +17173,8 @@ export interface components {
             record_type: string;
             title?: string | null;
         };
+        /** @enum {string} */
+        Font: "system" | "serif" | "rounded";
         ForecastBucketResponse: {
             /** @example 120000.00 */
             amount: string;
@@ -18089,6 +18135,21 @@ export interface components {
         };
         /** @enum {string} */
         LeadDistributionStrategy: "round_robin" | "weighted" | "least_loaded";
+        LeadFormAppearance: {
+            /** @example #2563eb */
+            accent?: string | null;
+            button?: null | components["schemas"]["ButtonStyle"];
+            button_width?: null | components["schemas"]["ButtonWidth"];
+            embed_mode?: null | components["schemas"]["EmbedMode"];
+            font?: null | components["schemas"]["Font"];
+            intro?: string | null;
+            radius?: null | components["schemas"]["Radius"];
+            show_logo?: boolean | null;
+            show_title?: boolean | null;
+            surface?: null | components["schemas"]["Surface"];
+            theme?: null | components["schemas"]["Theme"];
+            width?: null | components["schemas"]["Width"];
+        };
         LeadFormDeal: {
             /** @example 1500.00 */
             amount?: string | null;
@@ -18099,6 +18160,7 @@ export interface components {
         };
         LeadFormDefinition: {
             allowed_origins?: string[];
+            appearance?: null | components["schemas"]["LeadFormAppearance"];
             deal?: null | components["schemas"]["LeadFormDeal"];
             dedupe_by_email?: boolean;
             distribution_rule_id?: string | null;
@@ -18148,7 +18210,26 @@ export interface components {
             name: string;
             stages: components["schemas"]["LeadFormStageOption"][];
         };
+        LeadFormPreviewRequest: components["schemas"]["LeadFormRequest"] & {
+            /** @example f_3b0d1c5e9a8f4f6e8b7a6c5d4e3f2a1b */
+            public_id?: string | null;
+        };
+        LeadFormPreviewResponse: {
+            html: string;
+        };
+        LeadFormPublicAppearance: {
+            attributes: {
+                [key: string]: string;
+            };
+            intro?: string | null;
+            logo_url?: string | null;
+            title?: string | null;
+            vars: {
+                [key: string]: string;
+            };
+        };
         LeadFormPublicDefinition: {
+            appearance: components["schemas"]["LeadFormPublicAppearance"];
             fields: components["schemas"]["LeadFormPublicField"][];
             /** @example _aphel_hp */
             honeypot_field: string;
@@ -22117,6 +22198,8 @@ export interface components {
             /** Format: int32 */
             version: number;
         };
+        /** @enum {string} */
+        Radius: "sharp" | "rounded" | "pill";
         RatesProviderResponse: {
             last_synced_at?: string | null;
             /** @example frankfurter */
@@ -23442,6 +23525,8 @@ export interface components {
         SubmitQuoteRequest: {
             comment?: string | null;
         };
+        /** @enum {string} */
+        Surface: "plain" | "card";
         SystemOverviewResponse: {
             /** @example x86_64 */
             arch: string;
@@ -23553,6 +23638,8 @@ export interface components {
             message: string;
             ok: boolean;
         };
+        /** @enum {string} */
+        Theme: "clean" | "soft" | "dark" | "outline";
         /** @enum {string} */
         TimeGranularity: "day" | "week" | "month" | "quarter" | "year";
         TimelineActorResponse: {
@@ -24296,6 +24383,8 @@ export interface components {
             name: string;
             type: components["schemas"]["DashboardSubjectType"];
         };
+        /** @enum {string} */
+        Width: "narrow" | "medium" | "wide";
         WithdrawRequest: {
             idempotency_key: string;
             record_id: string;
@@ -39571,6 +39660,69 @@ export interface operations {
             };
             /** @description Missing `forms.manage` (`permission_denied`) */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    forms_preview: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeadFormPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description HTML of the hosted page exactly as visitors would see it for the draft in the body (not saved, not validated beyond the appearance values). `public_id` of an existing form lets the logo load */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_LeadFormPreviewResponse"];
+                };
+            };
+            /** @description Missing `forms.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid appearance (`lead_form_invalid` with `details.fields`) or body (`invalid_json`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -56262,6 +56414,45 @@ export interface operations {
                 };
             };
             /** @description Too many requests from this address (`rate_limited`) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    forms_public_logo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public id of the form */
+                public_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logo of the organization, only for an active form; used by the hosted page header. No authentication */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": number[];
+                };
+            };
+            /** @description Unknown or inactive form, no logo configured, or the module is disabled */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Too many requests from this address */
             429: {
                 headers: {
                     [name: string]: unknown;

@@ -1,4 +1,5 @@
 use aphel_contract_automation::AutomationBuilder;
+pub(crate) mod appearance;
 pub(crate) mod http;
 pub(crate) mod model;
 pub(crate) mod public_http;
@@ -15,7 +16,7 @@ use uuid::Uuid;
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
-use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module};
+use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, SettingField, SettingKind};
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
@@ -120,6 +121,60 @@ impl Module for FormsModule {
             .optional("deals")
             .optional("tasks")
             .optional("assignment")
+            .setting(appearance::choice_setting(
+                appearance::SETTING_THEME,
+                "Tema padrão",
+                "Visual dos formulários que não escolhem um tema próprio",
+                &[
+                    ("clean", "Limpo"),
+                    ("soft", "Suave"),
+                    ("dark", "Escuro"),
+                    ("outline", "Contorno"),
+                ],
+                "clean",
+            ))
+            .setting(appearance::choice_setting(
+                appearance::SETTING_RADIUS,
+                "Arredondamento padrão",
+                "Cantos dos campos e do botão",
+                &[
+                    ("sharp", "Reto"),
+                    ("rounded", "Arredondado"),
+                    ("pill", "Pílula"),
+                ],
+                "rounded",
+            ))
+            .setting(appearance::choice_setting(
+                appearance::SETTING_FONT,
+                "Fonte padrão",
+                "Família de letra usada nos formulários",
+                &[
+                    ("system", "Do sistema"),
+                    ("serif", "Serifada"),
+                    ("rounded", "Arredondada"),
+                ],
+                "system",
+            ))
+            .setting(appearance::choice_setting(
+                appearance::SETTING_WIDTH,
+                "Largura padrão",
+                "Largura máxima do formulário",
+                &[
+                    ("narrow", "Estreita"),
+                    ("medium", "Média"),
+                    ("wide", "Larga"),
+                ],
+                "medium",
+            ))
+            .setting(
+                SettingField::new(
+                    appearance::SETTING_LOGO,
+                    "Mostrar o logo da organização",
+                    SettingKind::Boolean,
+                )
+                .default_value(serde_json::json!(true))
+                .help("O logo aparece no topo da página do formulário quando a organização tem um"),
+            )
             .migration(Migration::new(
                 1,
                 "create lead forms and submissions",

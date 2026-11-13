@@ -26,8 +26,9 @@ use aphel_sdk::platform::database::transaction::MySqlTx;
 use aphel_sdk::platform::infrastructure::repositories::mysql_directory::MySqlUserDirectory;
 
 use crate::model::{
-    LeadFormDistributionRuleOption, LeadFormOptions, LeadFormRequest, LeadFormResponse,
-    LeadFormSubmission, LeadFormSubmissionStatus, LeadFormTagOption, LeadFormUserOption,
+    LeadFormDistributionRuleOption, LeadFormOptions, LeadFormPreviewRequest,
+    LeadFormPreviewResponse, LeadFormRequest, LeadFormResponse, LeadFormSubmission,
+    LeadFormSubmissionStatus, LeadFormTagOption, LeadFormUserOption,
 };
 use crate::store::{self, StoredForm};
 use crate::validate;
@@ -46,6 +47,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(rotate_public_id))
         .routes(routes!(list_submissions))
         .routes(routes!(options))
+        .routes(routes!(preview))
 }
 
 fn parse_id(value: &str) -> Result<Uuid, AppError> {
@@ -528,4 +530,58 @@ async fn options(
             distribution_rules,
         },
     }))
+}
+
+#[utoipa::path(
+    post,
+    path = "/forms/preview",
+    tag = TAG,
+    operation_id = "forms_preview",
+    security(("session_cookie" = [])),
+    request_body = LeadFormPreviewRequest,
+    responses(
+        (status = 200, description = "HTML of the hosted page exactly as visitors would see it for the draft in the body (not saved, not validated beyond the appearance values). `public_id` of an existing form lets the logo load", body = Data<LeadFormPreviewResponse>),
+        (status = 403, description = "Missing `forms.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid appearance (`lead_form_invalid` with `details.fields`) or body (`invalid_json`)", body = ErrorEnvelope),
+    )
+)]
+async fn preview(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    JsonBody(request): JsonBody<LeadFormPreviewRequest>,
+) -> Result<Json<Data<LeadFormPreviewResponse>>, ApiError> {
+    let scope = &tenant.scope;
+    scope.require(&MANAGE)?;
+    let ctx = Ctx::from_state(&state, scope).await?;
+    let now = Utc::now().naive_utc();
+    let mut definition = request.form.definition;
+    definition.fields.truncate(crate::model::MAX_FIELDS);
+    definition.appearance = definition.appearance.and_then(crate::appearance::clean);
+    let mut violations = Vec::new();
+    if let Some(appearance) = &definition.appearance {
+        crate::appearance::validate(appearance, &mut violations);
+    }
+    if !violations.is_empty() {
+        return Err(AppError::invalid_fields_code(
+            validate::INVALID_FORM,
+            "invalid lead form",
+            violations,
+        )
+        .into());
+    }
+    let form = StoredForm {
+        id: Uuid::nil(),
+        public_id: request.public_id.unwrap_or_else(|| "preview".to_owned()),
+        name: request.form.name.trim().to_owned(),
+        is_active: true,
+        acting_user_id: None,
+        definition,
+        created_by: user_uuid(scope)?,
+        created_at: now,
+        updated_at: now,
+    };
+    let branding = crate::appearance::branding(&ctx).await?;
+    Ok(Json(Data::new(LeadFormPreviewResponse {
+        html: crate::render::page(&form, &crate::render::PageState::blank(), &branding),
+    })))
 }

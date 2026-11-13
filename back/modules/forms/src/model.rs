@@ -3,6 +3,8 @@ use serde_json::Value;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+use crate::appearance::{LeadFormAppearance, LeadFormPublicAppearance};
+
 pub(crate) const MAX_FIELDS: usize = 30;
 pub(crate) const MAX_OPTIONS: usize = 50;
 pub(crate) const MAX_ORIGINS: usize = 20;
@@ -104,6 +106,8 @@ pub(crate) struct LeadFormDefinition {
     pub(crate) dedupe_by_email: bool,
     #[serde(default)]
     pub(crate) submit_label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) appearance: Option<LeadFormAppearance>,
 }
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]
@@ -117,6 +121,20 @@ pub(crate) struct LeadFormRequest {
     pub(crate) acting_user_id: Option<Uuid>,
     #[serde(flatten)]
     pub(crate) definition: LeadFormDefinition,
+}
+
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+pub(crate) struct LeadFormPreviewRequest {
+    #[serde(default)]
+    #[schema(example = "f_3b0d1c5e9a8f4f6e8b7a6c5d4e3f2a1b")]
+    pub(crate) public_id: Option<String>,
+    #[serde(flatten)]
+    pub(crate) form: LeadFormRequest,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+pub(crate) struct LeadFormPreviewResponse {
+    pub(crate) html: String,
 }
 
 fn default_true() -> bool {
@@ -267,6 +285,7 @@ pub(crate) struct LeadFormPublicDefinition {
     #[schema(example = "_aphel_hp")]
     pub(crate) honeypot_field: String,
     pub(crate) submit_path: String,
+    pub(crate) appearance: LeadFormPublicAppearance,
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]

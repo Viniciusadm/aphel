@@ -21862,6 +21862,97 @@
         "x-aphel-module": "forms"
       }
     },
+    "/api/v1/forms/preview": {
+      "post": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_preview",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadFormPreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "HTML of the hosted page exactly as visitors would see it for the draft in the body (not saved, not validated beyond the appearance values). `public_id` of an existing form lets the logo load",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_LeadFormPreviewResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `forms.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid appearance (`lead_form_invalid` with `details.fields`) or body (`invalid_json`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "forms"
+      }
+    },
     "/api/v1/goals": {
       "get": {
         "tags": [
@@ -45168,6 +45259,56 @@
           },
           "429": {
             "description": "Too many requests from this address (`rate_limited`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-aphel-module": "forms"
+      }
+    },
+    "/api/v1/public/forms/forms/{public_id}/logo": {
+      "get": {
+        "tags": [
+          "forms"
+        ],
+        "operationId": "forms_public_logo",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "description": "Public id of the form",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logo of the organization, only for an active form; used by the hosted page header. No authentication",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown or inactive form, no logo configured, or the module is disabled"
+          },
+          "429": {
+            "description": "Too many requests from this address",
             "content": {
               "application/json": {
                 "schema": {
@@ -72951,6 +73092,20 @@
           "sum"
         ]
       },
+      "ButtonStyle": {
+        "type": "string",
+        "enum": [
+          "solid",
+          "outline"
+        ]
+      },
+      "ButtonWidth": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "full"
+        ]
+      },
       "CalendarCategory": {
         "type": "object",
         "required": [
@@ -84642,6 +84797,25 @@
           }
         }
       },
+      "Data_LeadFormPreviewResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "html"
+            ],
+            "properties": {
+              "html": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "Data_LeadFormPublicDefinition": {
         "type": "object",
         "required": [
@@ -84655,9 +84829,13 @@
               "name",
               "fields",
               "honeypot_field",
-              "submit_path"
+              "submit_path",
+              "appearance"
             ],
             "properties": {
+              "appearance": {
+                "$ref": "#/components/schemas/LeadFormPublicAppearance"
+              },
               "fields": {
                 "type": "array",
                 "items": {
@@ -97938,6 +98116,13 @@
         },
         "additionalProperties": false
       },
+      "EmbedMode": {
+        "type": "string",
+        "enum": [
+          "theme",
+          "inherit"
+        ]
+      },
       "EnrichmentApplied": {
         "type": "object",
         "required": [
@@ -99480,6 +99665,14 @@
             ]
           }
         }
+      },
+      "Font": {
+        "type": "string",
+        "enum": [
+          "system",
+          "serif",
+          "rounded"
+        ]
       },
       "ForecastBucketResponse": {
         "type": "object",
@@ -103080,6 +103273,116 @@
           "least_loaded"
         ]
       },
+      "LeadFormAppearance": {
+        "type": "object",
+        "properties": {
+          "accent": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "#2563eb"
+          },
+          "button": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ButtonStyle"
+              }
+            ]
+          },
+          "button_width": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ButtonWidth"
+              }
+            ]
+          },
+          "embed_mode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmbedMode"
+              }
+            ]
+          },
+          "font": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Font"
+              }
+            ]
+          },
+          "intro": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "radius": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Radius"
+              }
+            ]
+          },
+          "show_logo": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "show_title": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Surface"
+              }
+            ]
+          },
+          "theme": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Theme"
+              }
+            ]
+          },
+          "width": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Width"
+              }
+            ]
+          }
+        }
+      },
       "LeadFormDeal": {
         "type": "object",
         "required": [
@@ -103115,6 +103418,16 @@
             "items": {
               "type": "string"
             }
+          },
+          "appearance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LeadFormAppearance"
+              }
+            ]
           },
           "deal": {
             "oneOf": [
@@ -103334,6 +103647,81 @@
           }
         }
       },
+      "LeadFormPreviewRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LeadFormRequest"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "public_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "f_3b0d1c5e9a8f4f6e8b7a6c5d4e3f2a1b"
+              }
+            }
+          }
+        ]
+      },
+      "LeadFormPreviewResponse": {
+        "type": "object",
+        "required": [
+          "html"
+        ],
+        "properties": {
+          "html": {
+            "type": "string"
+          }
+        }
+      },
+      "LeadFormPublicAppearance": {
+        "type": "object",
+        "required": [
+          "vars",
+          "attributes"
+        ],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "intro": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "logo_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vars": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "LeadFormPublicDefinition": {
         "type": "object",
         "required": [
@@ -103341,9 +103729,13 @@
           "name",
           "fields",
           "honeypot_field",
-          "submit_path"
+          "submit_path",
+          "appearance"
         ],
         "properties": {
+          "appearance": {
+            "$ref": "#/components/schemas/LeadFormPublicAppearance"
+          },
           "fields": {
             "type": "array",
             "items": {
@@ -119069,6 +119461,14 @@
           }
         }
       },
+      "Radius": {
+        "type": "string",
+        "enum": [
+          "sharp",
+          "rounded",
+          "pill"
+        ]
+      },
       "RatesProviderResponse": {
         "type": "object",
         "required": [
@@ -123954,6 +124354,13 @@
           }
         }
       },
+      "Surface": {
+        "type": "string",
+        "enum": [
+          "plain",
+          "card"
+        ]
+      },
       "SystemOverviewResponse": {
         "type": "object",
         "required": [
@@ -124332,6 +124739,15 @@
             "type": "boolean"
           }
         }
+      },
+      "Theme": {
+        "type": "string",
+        "enum": [
+          "clean",
+          "soft",
+          "dark",
+          "outline"
+        ]
       },
       "TimeGranularity": {
         "type": "string",
@@ -127425,6 +127841,14 @@
             "$ref": "#/components/schemas/DashboardSubjectType"
           }
         }
+      },
+      "Width": {
+        "type": "string",
+        "enum": [
+          "narrow",
+          "medium",
+          "wide"
+        ]
       },
       "WithdrawRequest": {
         "type": "object",

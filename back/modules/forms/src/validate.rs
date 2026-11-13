@@ -480,6 +480,10 @@ pub(crate) async fn validate_request(
             )),
         }
     }
+    let appearance = definition.appearance.and_then(crate::appearance::clean);
+    if let Some(appearance) = &appearance {
+        crate::appearance::validate(appearance, &mut violations);
+    }
     if !violations.is_empty() {
         return Err(AppError::invalid_fields_code(
             INVALID_FORM,
@@ -503,6 +507,7 @@ pub(crate) async fn validate_request(
             allowed_origins,
             dedupe_by_email: definition.dedupe_by_email,
             submit_label,
+            appearance,
         },
     })
 }

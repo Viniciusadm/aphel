@@ -4,7 +4,9 @@ use aphel_kernel::state::AppState;
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::{render, store};
+use crate::{appearance, render, store};
+use aphel_kernel::Ctx;
+use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const EMBED_KIND: &str = "form";
 
@@ -45,8 +47,14 @@ impl SiteEmbedSource for FormEmbeds {
         else {
             return Ok(None);
         };
-        Ok(form.is_active.then(|| SiteEmbed {
-            html: render::site_embed(&form),
+        if !form.is_active {
+            return Ok(None);
+        }
+        let scope = AccessScope::system();
+        let ctx = Ctx::from_state(state, &scope).await?;
+        let branding = appearance::branding(&ctx).await.unwrap_or_default();
+        Ok(Some(SiteEmbed {
+            html: render::site_embed(&form, &branding),
             tags: Vec::new(),
         }))
     }

@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 use std::time::Duration;
 
-use axum::body::Bytes;
+use axum::body::{Body, Bytes};
 use axum::extract::{Path, State};
 use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
 use axum::response::{Html, IntoResponse, Response};
@@ -9,6 +9,7 @@ use serde_json::{Map, Value};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
+use crate::appearance::{self, Placement};
 use crate::model::{HONEYPOT_FIELD, LeadFormPublicDefinition, LeadFormSubmitResult, public_field};
 use crate::render::{self, PageState};
 use crate::store::{self, StoredForm, public_path};
@@ -53,6 +54,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(submit))
         .routes(routes!(hosted_page))
         .routes(routes!(embed_script))
+        .routes(routes!(logo))
 }
 
 async fn limit(limiter: &SharedRateLimiter, key: &str) -> Result<(), AppError> {
@@ -138,8 +140,8 @@ fn html_response(status: StatusCode, body: String, ancestors: &str) -> Response 
         HeaderValue::from_static("strict-origin-when-cross-origin"),
     );
     let policy = format!(
-        "default-src 'none'; style-src 'unsafe-inline'; script-src {}; base-uri 'none'; frame-ancestors {ancestors}",
-        *crate::render::PHONE_MASK_SCRIPT_HASH
+        "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; script-src {}; base-uri 'none'; frame-ancestors {ancestors}",
+        *crate::render::PAGE_SCRIPT_HASH
     );
     if let Ok(value) = HeaderValue::from_str(&policy) {
         headers.insert(header::CONTENT_SECURITY_POLICY, value);
@@ -171,6 +173,13 @@ async fn definition(
     let ctx = Ctx::from_state(&state, &scope).await?;
     let form = resolve(&ctx, &public_id).await?;
     require_origin(&ctx, &form, &headers)?;
+    let branding = appearance::branding(&ctx).await?;
+    let look = appearance::resolve(
+        form.definition.appearance.as_ref(),
+        &branding,
+        &form.public_id,
+        Placement::Embed,
+    );
     let definition = &form.definition;
     Ok(axum::Json(Data {
         data: LeadFormPublicDefinition {
@@ -182,6 +191,7 @@ async fn definition(
             success_message: definition.success_message.clone(),
             redirect_url: definition.redirect_url.clone(),
             honeypot_field: HONEYPOT_FIELD.to_owned(),
+            appearance: look.public(&form.name),
         },
     }))
 }
@@ -211,10 +221,14 @@ async fn hosted_page(
         Ok(ctx) => resolve(&ctx, &public_id).await,
         Err(error) => Err(error),
     };
+    let branding = match Ctx::from_state(&state, &scope).await {
+        Ok(ctx) => appearance::branding(&ctx).await.unwrap_or_default(),
+        Err(_) => appearance::Branding::default(),
+    };
     match resolved {
         Ok(form) => html_response(
             StatusCode::OK,
-            render::page(&form, &PageState::blank()),
+            render::page(&form, &PageState::blank(), &branding),
             &frame_ancestors(&form),
         ),
         Err(error) => html_response(error_status(&error), render::unavailable_page(), "*"),
@@ -399,9 +413,9 @@ async fn submit(
                     response.headers_mut().insert(header::LOCATION, location);
                     response
                 }
-                Err(_) => success_page(&form),
+                Err(_) => success_page(&ctx, &form).await,
             },
-            None => success_page(&form),
+            None => success_page(&ctx, &form).await,
         },
         Ok(form) => axum::Json(Data {
             data: LeadFormSubmitResult {
@@ -416,6 +430,7 @@ async fn submit(
             match &failure.form {
                 Some(form) => {
                     let message = html_message(&failure.error);
+                    let branding = appearance::branding(&ctx).await.unwrap_or_default();
                     html_response(
                         status,
                         render::page(
@@ -426,6 +441,7 @@ async fn submit(
                                 message: Some(&message),
                                 success: false,
                             },
+                            &branding,
                         ),
                         &frame_ancestors(form),
                     )
@@ -437,7 +453,8 @@ async fn submit(
     }
 }
 
-fn success_page(form: &StoredForm) -> Response {
+async fn success_page(ctx: &Ctx<'_>, form: &StoredForm) -> Response {
+    let branding = appearance::branding(ctx).await.unwrap_or_default();
     html_response(
         StatusCode::OK,
         render::page(
@@ -446,7 +463,67 @@ fn success_page(form: &StoredForm) -> Response {
                 success: true,
                 ..PageState::blank()
             },
+            &branding,
         ),
         &frame_ancestors(form),
     )
+}
+
+#[utoipa::path(
+    get,
+    path = "/public/forms/forms/{public_id}/logo",
+    tag = TAG,
+    operation_id = "forms_public_logo",
+    params(("public_id" = String, Path, description = "Public id of the form")),
+    responses(
+        (status = 200, description = "Logo of the organization, only for an active form; used by the hosted page header. No authentication", content_type = "image/png", body = Vec<u8>),
+        (status = 404, description = "Unknown or inactive form, no logo configured, or the module is disabled"),
+        (status = 429, description = "Too many requests from this address", body = ErrorEnvelope),
+    )
+)]
+async fn logo(
+    State(state): State<AppState>,
+    ClientInfo(client): ClientInfo,
+    Path(public_id): Path<String>,
+) -> Result<Response, ApiError> {
+    limit(&LIMITS.views, &format!("view:{}", address(&client.ip))).await?;
+    let scope = AccessScope::system();
+    let ctx = Ctx::from_state(&state, &scope).await?;
+    let form = resolve(&ctx, &public_id).await?;
+    let branding = appearance::branding(&ctx).await?;
+    let wanted = form
+        .definition
+        .appearance
+        .as_ref()
+        .and_then(|look| look.show_logo)
+        .unwrap_or(branding.use_logo);
+    let Some(file_id) = branding.logo_file_id.filter(|_| wanted) else {
+        return Ok(StatusCode::NOT_FOUND.into_response());
+    };
+    let download = ctx.files().await?.download(&scope, &file_id).await?;
+    let mime = download.file.mime_type.clone();
+    if !matches!(
+        mime.as_str(),
+        "image/png" | "image/jpeg" | "image/webp" | "image/gif"
+    ) {
+        return Ok(StatusCode::NOT_FOUND.into_response());
+    }
+    let mut response = (StatusCode::OK, Body::from_stream(download.content)).into_response();
+    let headers = response.headers_mut();
+    if let Ok(value) = HeaderValue::from_str(&mime) {
+        headers.insert(header::CONTENT_TYPE, value);
+    }
+    headers.insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static("public, max-age=300"),
+    );
+    headers.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        HeaderValue::from_static("nosniff"),
+    );
+    headers.insert(
+        header::CONTENT_SECURITY_POLICY,
+        HeaderValue::from_static("default-src 'none'; sandbox"),
+    );
+    Ok(response)
 }
