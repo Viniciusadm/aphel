@@ -91,6 +91,8 @@ export function ReportBuilderPage() {
   return <ReportEditor key={report.data.id} report={report.data} entities={entities.data} />
 }
 
+const DEFAULT_RECORD_TYPE = 'people.person'
+
 function ReportEditor({ report, entities }: { report: Report | null; entities: ReportEntity[] }) {
   const { t } = useTranslation('reports', { keyPrefix: 'builder' })
   const navigate = useNavigate()
@@ -99,7 +101,7 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
   const canManage = hasPermission(SETTINGS_MANAGE)
   const allowedTypes = entities
   const [initial] = useState(() =>
-    report ? draftFromReport(report) : emptyDraft(allowedTypes[0]?.recordType ?? ''),
+    report ? draftFromReport(report) : emptyDraft((allowedTypes.find((type) => type.recordType === DEFAULT_RECORD_TYPE) ?? allowedTypes[0])?.recordType ?? ''),
   )
   const [draft, setDraft] = useState<ReportDraft>(initial)
   const [baseline, setBaseline] = useState(() => serializeDraft(initial))
@@ -299,6 +301,17 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
         <fieldset disabled={!editable} className="grid min-w-0 gap-4">
+          <Section title={t('sections.module.title')} description={t('sections.module.description')}>
+            <Field id={ids.module} label={t('sections.module.title')} hideLabel>
+              <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
+                {allowedTypes.map((type) => (
+                  <option key={type.recordType} value={type.recordType}>
+                    {type.label}
+                  </option>
+                ))}
+              </NativeSelect>
+            </Field>
+          </Section>
           <Section title={t('sections.details.title')}>
             <Field label={t('sections.details.name')}>
               {(control) => <>
@@ -351,17 +364,6 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
                 </Field>
               )}
             </div>
-          </Section>
-          <Section title={t('sections.module.title')} description={t('sections.module.description')}>
-            <Field id={ids.module} label={t('sections.module.title')} hideLabel>
-              <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
-                {allowedTypes.map((type) => (
-                  <option key={type.recordType} value={type.recordType}>
-                    {type.label}
-                  </option>
-                ))}
-              </NativeSelect>
-            </Field>
           </Section>
           {aggregateSchema.isError ? (
             <ErrorState onRetry={() => aggregateSchema.refetch()} />

@@ -220,8 +220,10 @@ export function useReportEntities() {
     queryKey: ['reports', 'entities', i18n.language],
     queryFn: async (): Promise<ReportEntity[]> => {
       const entities = await api.get<Schemas['ReportEntityResponse'][]>('/v1/reports/entities')
-      return entities.map((entity) => ({ recordType: entity.record_type,
-        label: entity.labels[i18n.language] ?? entity.labels[i18n.language.split('-')[0]] ?? entity.labels.en ?? Object.values(entity.labels)[0] ?? entity.record_type }))
+      return entities
+        .map((entity) => ({ recordType: entity.record_type,
+          label: entity.labels[i18n.language] ?? entity.labels[i18n.language.split('-')[0]] ?? entity.labels.en ?? Object.values(entity.labels)[0] ?? entity.record_type }))
+        .sort((left, right) => left.label.localeCompare(right.label, i18n.language))
     },
   })
 }
