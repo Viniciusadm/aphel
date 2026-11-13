@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api, isApiError } from '@/api'
 import { type FilterNode } from '@/sdk'
 export const AI_KEY = 'ai'
-export const AI_PATH = '/ai'
+export const AI_PATH = '/integrations/ai'
 export const USE_PERMISSION = 'ai.use'
 export const VIEW_USAGE_PERMISSION = 'ai.view_usage'
 export const AI_RECORD_TYPES = ['people.person', 'organizations.organization', 'deals.deal']

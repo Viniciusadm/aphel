@@ -245,7 +245,8 @@
     "usedToday": "Calls today",
     "usage": "{{used}} of {{limit}}",
     "userLimit_one": "Per-person limit: {{count}} call per hour.",
-    "userLimit_other": "Per-person limit: {{count}} calls per hour."
+    "userLimit_other": "Per-person limit: {{count}} calls per hour.",
+    "menuDescription": "Provider status, usage and call log."
   },
   "log": {
     "title": "Call log",
@@ -282,5 +283,15 @@
   "permissions": {
     "ai.use": "Use the AI assistant",
     "ai.view_usage": "View AI usage and the call log"
+  },
+  "where": {
+    "title": "Where to use it",
+    "description": "The assistant shows up in the screens where you already work.",
+    "items": {
+      "summary": "Open a contact, company or deal and go to the Assistant tab.",
+      "next_actions": "In the Assistant tab of a contact, company or deal, ask for the next actions.",
+      "compose": "When writing an email, use the assistant button to generate the text.",
+      "query": "In lists, use the assistant button to filter by asking a question."
+    }
   }
 }

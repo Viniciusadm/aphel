@@ -1,7 +1,7 @@
 import { Sparkles } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { lazyComponent } from '@/lib/lazy-component'
-import { AI_KEY, AI_PATH, AI_RECORD_TYPES, USE_PERMISSION, VIEW_USAGE_PERMISSION } from './api'
+import { AI_KEY, AI_RECORD_TYPES, USE_PERMISSION } from './api'
 import { ComposerTool } from './ComposerTool'
 import { QueryTool } from './QueryTool'
 import { AiSettingsPanel } from './SettingsPanel'
@@ -14,17 +14,14 @@ const aiModule = defineModule({
   settingsPanel: AiSettingsPanel,
   register(app) {
     app.keybinding({ id: 'ai.compose_run', label: 'keybindings.composeRun', scope: 'editor', keys: ['mod+enter'] })
-    app.routes([
-      {
-        path: 'ai',
-        children: [{ index: true, lazy: async () => ({ Component: (await import('./AiPage')).AiPage }) }],
-      },
-    ])
-    app.nav({
-      to: AI_PATH,
+    app.settings('integrations', {
+      group: 'connections',
+      path: 'ai',
       label: 'nav',
+      description: 'page.menuDescription',
       icon: Sparkles,
-      permission: [USE_PERMISSION, VIEW_USAGE_PERMISSION],
+      permission: USE_PERMISSION,
+      lazy: async () => ({ Component: (await import('./AiPage')).AiPage }),
     })
     app.recordSection(AI_RECORD_TYPES, {
       key: `${AI_KEY}.assistant`,

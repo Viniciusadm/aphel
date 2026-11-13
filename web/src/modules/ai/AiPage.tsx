@@ -49,11 +49,34 @@ export function AiPage() {
       ) : (
         <>
           <StatusCard status={status.data} />
+          <WhereToUse status={status.data} />
           <DataDisclosure status={status.data} />
         </>
       )}
       {canViewUsage && <CallLog />}
     </Page>
+  )
+}
+
+function WhereToUse({ status }: { status: AiStatus }) {
+  const t = useModuleTranslation(AI_KEY)
+  const features = AI_FEATURES.filter((feature) => status.features[feature])
+  if (features.length === 0) return null
+  return (
+    <section className="grid gap-3" aria-label={t('where.title')}>
+      <div className="grid gap-0.5">
+        <h2 className="text-base font-semibold">{t('where.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('where.description')}</p>
+      </div>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {features.map((feature) => (
+          <li key={feature} className="grid gap-0.5 rounded-md border bg-card px-3 py-2">
+            <span className="text-sm font-medium">{t(`features.${feature}`)}</span>
+            <span className="text-sm text-muted-foreground">{t(`where.items.${feature}`)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 

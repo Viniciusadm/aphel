@@ -245,7 +245,8 @@
     "usedToday": "Chamadas hoje",
     "usage": "{{used}} de {{limit}}",
     "userLimit_one": "Limite por pessoa: {{count}} chamada por hora.",
-    "userLimit_other": "Limite por pessoa: {{count}} chamadas por hora."
+    "userLimit_other": "Limite por pessoa: {{count}} chamadas por hora.",
+    "menuDescription": "Situação do provedor, uso e registro de chamadas."
   },
   "log": {
     "title": "Registro de chamadas",
@@ -282,5 +283,15 @@
   "permissions": {
     "ai.use": "Usar o assistente de IA",
     "ai.view_usage": "Ver o uso e o registro de chamadas da IA"
+  },
+  "where": {
+    "title": "Onde usar",
+    "description": "O assistente aparece nas telas em que você já trabalha.",
+    "items": {
+      "summary": "Abra um contato, empresa ou negócio e vá na aba Assistente.",
+      "next_actions": "Na aba Assistente de um contato, empresa ou negócio, peça as próximas ações.",
+      "compose": "Ao escrever um e-mail, use o botão do assistente para gerar o texto.",
+      "query": "Nas listas, use o botão do assistente para filtrar com uma pergunta."
+    }
   }
 }
