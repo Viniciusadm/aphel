@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
-  "title": "Welcome to Aphel",
-  "description": "Overview from your installed modules.",
+  "title": "Home",
+  "description": "What needs your attention and what happened in your organization.",
   "period": {
     "label": "Period",
     "presets": {
@@ -70,7 +70,7 @@
     }
   },
   "events": {
-    "fallback": "recorded an event on"
+    "fallback": "made a change to"
   },
   "subject": {
     "label": "Results of",
@@ -81,7 +81,8 @@
     },
     "teams": "Teams",
     "users": "People",
-    "unnamed": "No name"
+    "unnamed": "No name",
+    "button": "Filters"
   },
   "compare": {
     "label": "Compare with the previous period",

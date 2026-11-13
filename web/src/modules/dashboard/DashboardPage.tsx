@@ -126,10 +126,10 @@ export function DashboardPage() {
 
   return (
     <Page>
-<PageHeader title={t('title')} actions={<>
-        <div className="flex min-w-0 flex-wrap items-end gap-2">
+<PageHeader title={t('title')} description={t('description')} actions={<>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           {current && <PeriodSelector value={period} onChange={(next) => save({ period: next })} />}
-          {current && <WorkspaceOptions label={t('subject.label')} count={Number(Boolean(subject)) + Number(compare)}><SubjectSelector value={subject} onChange={(next) => save({ subject: next })} />
+          {current && <WorkspaceOptions label={t('subject.button')} count={Number(Boolean(subject)) + Number(compare)}><SubjectSelector value={subject} onChange={(next) => save({ subject: next })} />
           <CompareToggle checked={compare} onChange={(next) => save({ compare: next })} /></WorkspaceOptions>}
           <Button
             variant={editing ? 'default' : 'outline'}

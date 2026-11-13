@@ -367,7 +367,7 @@
     },
     "summary": {
       "pendingTasks": "Tarefas pendentes",
-      "completedActivities": "Atividades realizadas no período"
+      "completedActivities": "Tarefas concluídas no período"
     },
     "events": {
       "created": "criou a atividade",

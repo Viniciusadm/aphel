@@ -11,7 +11,7 @@ export function RecentActivityWidget({ data }: { data: RecentActivityData }) {
   const modules = useModuleState()
   const formatting = useRecordFormatting()
   return (
-    <ol className="grid gap-3">
+    <ol className="grid max-h-[30rem] gap-3 overflow-y-auto pr-2">
       {data.items.map((event) => {
         const actor = event.actor?.display_name ?? t('widgets.recent_activity.someone')
         const action = applyFilters('dashboard.eventLabel', t('events.fallback'), { event }, modules)

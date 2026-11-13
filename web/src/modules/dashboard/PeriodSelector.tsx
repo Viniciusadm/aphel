@@ -58,20 +58,19 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
   }
 
   return (
-    <form className="flex flex-wrap items-end gap-2" onSubmit={apply}>
-      <Field label={t('period.label')}>
-        {(control) => <NativeSelect
-          {...control}
-          value={preset}
-          onChange={(event) => choose(event.target.value as PeriodPreset)}
-        >
-          {PERIOD_PRESETS.map((option) => (
-            <option key={option} value={option}>
-              {t(`period.presets.${option}`)}
-            </option>
-          ))}
-        </NativeSelect>}
-      </Field>
+    <form className="flex flex-wrap items-center gap-2" onSubmit={apply}>
+      <NativeSelect
+        aria-label={t('period.label')}
+        className="w-44"
+        value={preset}
+        onChange={(event) => choose(event.target.value as PeriodPreset)}
+      >
+        {PERIOD_PRESETS.map((option) => (
+          <option key={option} value={option}>
+            {t(`period.presets.${option}`)}
+          </option>
+        ))}
+      </NativeSelect>
       {preset === 'custom' && (
         <>
           <Field label={t('period.from')}>

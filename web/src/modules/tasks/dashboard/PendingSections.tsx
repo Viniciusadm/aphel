@@ -10,10 +10,10 @@ export function TaskPendingSections({ data }: { data: TaskPendingData }) {
   const formatting = useRecordFormatting()
   const activity = (item: PendingActivityItem) => (
     <div className="grid min-w-0 gap-0.5">
-      <Link to={`/tasks/${encodeURIComponent(item.id)}`} className="truncate font-medium hover:underline">
+      <Link to={`/tasks/${encodeURIComponent(item.id)}`} className="line-clamp-2 font-medium break-words hover:underline">
         {item.title || item.id}
       </Link>
-      <p className="truncate text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground break-words">
         {item.due_at && t('widgets.pending_center.dueAt', { date: formatDateTime(item.due_at, formatting) })}
         {item.record && (
           <>
@@ -25,7 +25,7 @@ export function TaskPendingSections({ data }: { data: TaskPendingData }) {
     </div>
   )
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-5">
       <BucketSection emptyLabel={t('widgets.pending_center.noItems')} moreLabel={(count) => t('widgets.pending_center.more', { count })} id="pending-overdue" icon={AlarmClock} tone="danger" title={t('widgets.pending_center.overdue')} bucket={data.overdue} renderItem={activity} />
       <BucketSection emptyLabel={t('widgets.pending_center.noItems')} moreLabel={(count) => t('widgets.pending_center.more', { count })} id="pending-today" icon={CalendarClock} title={t('widgets.pending_center.dueToday')} bucket={data.due_today} renderItem={activity} />
       <BucketSection emptyLabel={t('widgets.pending_center.noItems')} moreLabel={(count) => t('widgets.pending_center.more', { count })} id="pending-tomorrow" icon={CalendarDays} title={t('widgets.pending_center.dueTomorrow')} bucket={data.due_tomorrow} renderItem={activity} />

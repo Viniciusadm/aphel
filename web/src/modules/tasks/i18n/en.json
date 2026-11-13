@@ -367,7 +367,7 @@
     },
     "summary": {
       "pendingTasks": "Pending tasks",
-      "completedActivities": "Activities done in the period"
+      "completedActivities": "Tasks completed in the period"
     },
     "events": {
       "created": "created the activity",

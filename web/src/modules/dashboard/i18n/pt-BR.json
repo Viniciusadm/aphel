@@ -1,7 +1,7 @@
 {
   "name": "Painel inicial",
-  "title": "Bem-vindo ao Aphel",
-  "description": "Visão geral dos seus módulos instalados.",
+  "title": "Início",
+  "description": "O que precisa da sua atenção e o que aconteceu na organização.",
   "period": {
     "label": "Período",
     "presets": {
@@ -70,7 +70,7 @@
     }
   },
   "events": {
-    "fallback": "registrou um evento em"
+    "fallback": "fez uma alteração em"
   },
   "subject": {
     "label": "Resultados de",
@@ -81,7 +81,8 @@
     },
     "teams": "Equipes",
     "users": "Pessoas",
-    "unnamed": "Sem nome"
+    "unnamed": "Sem nome",
+    "button": "Filtros"
   },
   "compare": {
     "label": "Comparar com o período anterior",
