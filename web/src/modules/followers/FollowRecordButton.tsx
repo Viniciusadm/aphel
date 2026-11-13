@@ -1,4 +1,4 @@
-import { Bell, BellOff } from 'lucide-react'
+import { Bell, BellOff, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -24,11 +24,10 @@ export function FollowRecordButton({ recordType, recordId }: FollowRecordButtonP
   const list = followers.data?.followers ?? []
 
   return (
-    <div className="flex items-center">
+    <div className="grid gap-1">
       <Button
-        variant={following ? 'secondary' : 'outline'}
+        variant="ghost"
         size="sm"
-        className="rounded-r-none"
         aria-pressed={following}
         disabled={!followers.data || toggle.isPending}
         onClick={() =>
@@ -44,13 +43,12 @@ export function FollowRecordButton({ recordType, recordId }: FollowRecordButtonP
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="-ml-px rounded-l-none px-2.5 tabular-nums"
-            aria-label={t('button.count', { count: total })}
             disabled={!followers.data}
           >
-            {total}
+            <Users aria-hidden />
+            {t('button.count', { count: total })}
           </Button>
         </PopoverTrigger>
         <PopoverContent align="end" className="grid gap-2">

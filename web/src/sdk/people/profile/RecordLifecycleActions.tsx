@@ -62,7 +62,7 @@ export function RecordLifecycleActions({
         </Button>
       )}
       {hasPermission(deletePermission) && (
-        <Button size="sm" variant="outline" onClick={() => setConfirmingDelete(true)}>
+        <Button size="sm" variant="outline" data-destructive onClick={() => setConfirmingDelete(true)}>
           <Trash2 aria-hidden="true" />
           {t('profile.actions.delete')}
         </Button>
