@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { HexColorInput } from './HexColorInput'
+import { HexColorInput } from '@/components/ui/hex-color-input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Plus, RotateCcw, Trash2 } from 'lucide-react'
 

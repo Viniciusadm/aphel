@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { FULL_NAME_TARGET, type LeadForm, type LeadFormBody, type LeadFormFieldKind } from './api'
+import { FULL_NAME_TARGET, type LeadForm, type LeadFormAppearance, type LeadFormBody, type LeadFormFieldKind } from './api'
 
 export const MAX_FIELDS = 30
 export const MAX_NAME_LENGTH = 120
@@ -9,6 +9,23 @@ const KEY_PATTERN = /^[a-z][a-z0-9_]{0,39}$/
 const URL_PATTERN = /^https?:\/\/[^\s/"<>][^\s"<>]*$/
 const ORIGIN_PATTERN = /^https?:\/\/[a-z0-9.\-:[\]]+\/?$/i
 const AMOUNT_PATTERN = /^\d{1,16}([.,]\d{1,2})?$/
+
+const appearanceSchema = z.object({
+  theme: z.string(),
+  accent: z.string(),
+  radius: z.string(),
+  font: z.string(),
+  width: z.string(),
+  surface: z.string(),
+  button: z.string(),
+  button_width: z.string(),
+  show_title: z.string(),
+  show_logo: z.string(),
+  intro: z.string().max(200, 'errors.tooLong'),
+  embed_mode: z.string(),
+})
+
+export type AppearanceValues = z.infer<typeof appearanceSchema>
 
 const fieldSchema = z
   .object({
@@ -49,6 +66,7 @@ export const leadFormSchema = z
     redirect_url: z.string().trim(),
     allowed_origins: z.string(),
     dedupe_by_email: z.boolean(),
+    appearance: appearanceSchema,
   })
   .superRefine((values, context) => {
     const keys = values.fields.map((field) => field.key.trim())
@@ -173,7 +191,51 @@ export function toFormValues(form: LeadForm | null, fields: LeadFormFieldValues[
     redirect_url: form?.redirect_url ?? '',
     allowed_origins: (form?.allowed_origins ?? []).join('\n'),
     dedupe_by_email: form?.dedupe_by_email ?? true,
+    appearance: toAppearanceValues(form?.appearance),
   }
+}
+
+function tri(value: boolean | null | undefined): string {
+  return value === true ? 'yes' : value === false ? 'no' : ''
+}
+
+function toAppearanceValues(appearance: LeadFormAppearance | null | undefined): AppearanceValues {
+  return {
+    theme: appearance?.theme ?? '',
+    accent: appearance?.accent ?? '',
+    radius: appearance?.radius ?? '',
+    font: appearance?.font ?? '',
+    width: appearance?.width ?? '',
+    surface: appearance?.surface ?? '',
+    button: appearance?.button ?? '',
+    button_width: appearance?.button_width ?? '',
+    show_title: tri(appearance?.show_title),
+    show_logo: tri(appearance?.show_logo),
+    intro: appearance?.intro ?? '',
+    embed_mode: appearance?.embed_mode ?? '',
+  }
+}
+
+function fromTri(value: string): boolean | null {
+  return value === 'yes' ? true : value === 'no' ? false : null
+}
+
+export function toAppearanceBody(values: AppearanceValues): LeadFormAppearance | null {
+  const body = {
+    theme: optional(values.theme),
+    accent: optional(values.accent),
+    radius: optional(values.radius),
+    font: optional(values.font),
+    width: optional(values.width),
+    surface: optional(values.surface),
+    button: optional(values.button),
+    button_width: optional(values.button_width),
+    show_title: fromTri(values.show_title),
+    show_logo: fromTri(values.show_logo),
+    intro: optional(values.intro),
+    embed_mode: optional(values.embed_mode),
+  } as LeadFormAppearance
+  return Object.values(body).every((value) => value === null) ? null : body
 }
 
 function optional(value: string): string | null {
@@ -212,5 +274,6 @@ export function toRequestBody(values: LeadFormValues): LeadFormBody {
     redirect_url: optional(values.redirect_url),
     allowed_origins: parseLines(values.allowed_origins),
     dedupe_by_email: values.dedupe_by_email,
+    appearance: toAppearanceBody(values.appearance),
   }
 }

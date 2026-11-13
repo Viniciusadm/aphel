@@ -8,7 +8,7 @@ function expand(hex: string) {
   return value.length === 4 ? `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}` : value
 }
 
-export function HexColorInput({ value, label, disabled, onChange }: { value: string; label: string; disabled?: boolean; onChange: (value: string) => void }) {
+export function HexColorInput({ value, label, disabled, fallback = '#000000', placeholder, onChange }: { value: string; label: string; disabled?: boolean; fallback?: string; placeholder?: string; onChange: (value: string) => void }) {
   const [draft, setDraft] = useState<string | null>(null)
   const text = draft ?? value
   const commit = (next: string) => {
@@ -17,12 +17,13 @@ export function HexColorInput({ value, label, disabled, onChange }: { value: str
   }
   return (
     <span className="flex min-w-0 items-center gap-1.5">
-      <input type="color" className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5 disabled:cursor-not-allowed" aria-label={label} value={HEX.test(value) ? expand(value) : '#000000'} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
+      <input type="color" className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5 disabled:cursor-not-allowed" aria-label={label} value={HEX.test(value) ? expand(value) : fallback} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
       <Input
         aria-label={label}
         className="h-8 min-w-0 px-2 font-mono text-xs"
         value={text}
         maxLength={7}
+        placeholder={placeholder}
         spellCheck={false}
         autoComplete="off"
         disabled={disabled}

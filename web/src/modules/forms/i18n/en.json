@@ -135,7 +135,13 @@
     "submit": "Send",
     "afterSubmit": "After submission: {{message}}",
     "redirect": "redirects to {{url}}",
-    "defaultSuccess": "Thank you! We received your details."
+    "defaultSuccess": "Thank you! We received your details.",
+    "device": "Screen size",
+    "desktop": "Desktop",
+    "mobile": "Phone",
+    "failed": "Could not refresh the preview.",
+    "hint": "This is the real form page, with what is on screen (not saved yet).",
+    "hintNew": "This is the real form page. The logo shows once the form is saved."
   },
   "snippets": {
     "title": "Embed \"{{name}}\"",
@@ -195,6 +201,113 @@
       "lead_form_owner_unavailable": "The user who creates the records lost access",
       "lead_form_tag_failed": "The tag could not be applied",
       "lead_form_deal_failed": "The deal could not be created"
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "How the form looks to people filling it in. Anything left unset follows the organization default.",
+    "default": "Default",
+    "defaultTheme": "Follows the organization default",
+    "theme": "Theme",
+    "accent": "Accent color",
+    "accentHelp": "Color of the button, field focus and details. Empty uses the organization color.",
+    "useOrganizationColor": "Use the organization color",
+    "radius": "Corner radius",
+    "width": "Width",
+    "surface": "Background",
+    "button": "Button",
+    "buttonWidth": "Button width",
+    "font": "Font",
+    "showTitle": "Form title",
+    "showLogo": "Organization logo",
+    "show": "Show",
+    "hide": "Hide",
+    "intro": "Intro text",
+    "introHelp": "One short sentence below the title.",
+    "introPlaceholder": "E.g. Tell us about your project and we reply within one business day.",
+    "embedMode": "Form pasted on your site",
+    "embedModeHelp": "Choose whether the form uses this theme or inherits the font and colors of the site where it was pasted.",
+    "options": {
+      "theme": {
+        "clean": "Clean",
+        "soft": "Soft",
+        "dark": "Dark",
+        "outline": "Outline"
+      },
+      "radius": {
+        "sharp": "Sharp",
+        "rounded": "Rounded",
+        "pill": "Pill"
+      },
+      "width": {
+        "narrow": "Narrow",
+        "medium": "Medium",
+        "wide": "Wide"
+      },
+      "surface": {
+        "card": "Card",
+        "plain": "No card"
+      },
+      "button": {
+        "solid": "Solid",
+        "outline": "Outline"
+      },
+      "button_width": {
+        "auto": "Fit",
+        "full": "Full"
+      },
+      "font": {
+        "system": "System",
+        "serif": "Serif",
+        "rounded": "Rounded"
+      },
+      "embed_mode": {
+        "theme": "Use the theme above",
+        "inherit": "Inherit from the site"
+      }
+    }
+  },
+  "settings": {
+    "default_theme": {
+      "label": "Default theme",
+      "help": "Look of the forms that do not pick their own theme",
+      "options": {
+        "clean": "Clean",
+        "soft": "Soft",
+        "dark": "Dark",
+        "outline": "Outline"
+      }
+    },
+    "default_radius": {
+      "label": "Default corner radius",
+      "help": "Corners of the fields and the button",
+      "options": {
+        "sharp": "Sharp",
+        "rounded": "Rounded",
+        "pill": "Pill"
+      }
+    },
+    "default_font": {
+      "label": "Default font",
+      "help": "Typeface used in the forms",
+      "options": {
+        "system": "System",
+        "serif": "Serif",
+        "rounded": "Rounded"
+      }
+    },
+    "default_width": {
+      "label": "Default width",
+      "help": "Maximum width of the form",
+      "options": {
+        "narrow": "Narrow",
+        "medium": "Medium",
+        "wide": "Wide"
+      }
+    },
+    "use_logo": {
+      "label": "Show the organization logo",
+      "help": "The logo appears at the top of the form page when the organization has one"
     }
   }
 }

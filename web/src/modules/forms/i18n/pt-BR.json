@@ -135,7 +135,13 @@
     "submit": "Enviar",
     "afterSubmit": "Após o envio: {{message}}",
     "redirect": "redireciona para {{url}}",
-    "defaultSuccess": "Obrigado! Recebemos seus dados."
+    "defaultSuccess": "Obrigado! Recebemos seus dados.",
+    "device": "Tamanho da tela",
+    "desktop": "Computador",
+    "mobile": "Celular",
+    "failed": "Não foi possível atualizar a pré-visualização.",
+    "hint": "É a página real do formulário, com o que está na tela (ainda não salvo).",
+    "hintNew": "É a página real do formulário. O logo aparece depois que o formulário for salvo."
   },
   "snippets": {
     "title": "Incorporar \"{{name}}\"",
@@ -195,6 +201,113 @@
       "lead_form_owner_unavailable": "O usuário que cria os registros perdeu o acesso",
       "lead_form_tag_failed": "Não foi possível aplicar a etiqueta",
       "lead_form_deal_failed": "Não foi possível criar a oportunidade"
+    }
+  },
+  "appearance": {
+    "title": "Aparência",
+    "description": "Como o formulário aparece para quem preenche. O que não for definido aqui segue o padrão da organização.",
+    "default": "Padrão",
+    "defaultTheme": "Segue o padrão da organização",
+    "theme": "Tema",
+    "accent": "Cor de destaque",
+    "accentHelp": "Cor do botão, do foco dos campos e dos detalhes. Vazio usa a cor da organização.",
+    "useOrganizationColor": "Usar a cor da organização",
+    "radius": "Arredondamento",
+    "width": "Largura",
+    "surface": "Fundo",
+    "button": "Botão",
+    "buttonWidth": "Largura do botão",
+    "font": "Fonte",
+    "showTitle": "Título do formulário",
+    "showLogo": "Logo da organização",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "intro": "Texto de apresentação",
+    "introHelp": "Uma frase curta abaixo do título.",
+    "introPlaceholder": "Ex.: Conte sobre o seu projeto e respondemos em até um dia útil.",
+    "embedMode": "Formulário colado no seu site",
+    "embedModeHelp": "Escolha se o formulário usa este tema ou herda a fonte e as cores do site onde foi colado.",
+    "options": {
+      "theme": {
+        "clean": "Limpo",
+        "soft": "Suave",
+        "dark": "Escuro",
+        "outline": "Contorno"
+      },
+      "radius": {
+        "sharp": "Reto",
+        "rounded": "Arredondado",
+        "pill": "Pílula"
+      },
+      "width": {
+        "narrow": "Estreita",
+        "medium": "Média",
+        "wide": "Larga"
+      },
+      "surface": {
+        "card": "Cartão",
+        "plain": "Sem cartão"
+      },
+      "button": {
+        "solid": "Preenchido",
+        "outline": "Contorno"
+      },
+      "button_width": {
+        "auto": "Ajustada",
+        "full": "Inteira"
+      },
+      "font": {
+        "system": "Do sistema",
+        "serif": "Serifada",
+        "rounded": "Arredondada"
+      },
+      "embed_mode": {
+        "theme": "Usar o tema acima",
+        "inherit": "Herdar do site"
+      }
+    }
+  },
+  "settings": {
+    "default_theme": {
+      "label": "Tema padrão",
+      "help": "Visual dos formulários que não escolhem um tema próprio",
+      "options": {
+        "clean": "Limpo",
+        "soft": "Suave",
+        "dark": "Escuro",
+        "outline": "Contorno"
+      }
+    },
+    "default_radius": {
+      "label": "Arredondamento padrão",
+      "help": "Cantos dos campos e do botão",
+      "options": {
+        "sharp": "Reto",
+        "rounded": "Arredondado",
+        "pill": "Pílula"
+      }
+    },
+    "default_font": {
+      "label": "Fonte padrão",
+      "help": "Família de letra usada nos formulários",
+      "options": {
+        "system": "Do sistema",
+        "serif": "Serifada",
+        "rounded": "Arredondada"
+      }
+    },
+    "default_width": {
+      "label": "Largura padrão",
+      "help": "Largura máxima do formulário",
+      "options": {
+        "narrow": "Estreita",
+        "medium": "Média",
+        "wide": "Larga"
+      }
+    },
+    "use_logo": {
+      "label": "Mostrar o logo da organização",
+      "help": "O logo aparece no topo da página do formulário quando a organização tem um"
     }
   }
 }

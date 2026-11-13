@@ -1,64 +1,86 @@
-import { Button } from '@/components/ui/button'
-import { Field } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/components/ui/native-select'
-import { Textarea } from '@/components/ui/textarea'
-import { ToggleField } from '@/components/ui/toggle-field'
+import { Monitor, Smartphone } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { FORMS_KEY } from './api'
-import { parseOptions, type LeadFormValues } from './form'
+import { FORMS_KEY, formsApi } from './api'
+import { toRequestBody, type LeadFormValues } from './form'
+
+type Device = 'desktop' | 'mobile'
+
+const WIDTHS: Record<Device, number> = { desktop: 640, mobile: 390 }
+const FRAME_HEIGHT = 720
+const DEBOUNCE_MS = 400
 
 interface FormPreviewProps {
   values: LeadFormValues
+  publicId?: string
 }
 
-export function FormPreview({ values }: FormPreviewProps) {
+export function FormPreview({ values, publicId }: FormPreviewProps) {
   const t = useModuleTranslation(FORMS_KEY)
+  const [device, setDevice] = useState<Device>('desktop')
+  const [html, setHtml] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [available, setAvailable] = useState(0)
+  const holder = useRef<HTMLDivElement>(null)
+  const request = useRef(0)
+  const signature = JSON.stringify(values)
+
+  useEffect(() => {
+    const node = holder.current
+    if (!node) return
+    const observer = new ResizeObserver(() => setAvailable(node.clientWidth))
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const current = ++request.current
+    const timer = window.setTimeout(() => {
+      void formsApi
+        .preview({ ...toRequestBody(JSON.parse(signature) as LeadFormValues), public_id: publicId })
+        .then((result) => {
+          if (current !== request.current) return
+          setHtml(result.html)
+          setFailed(false)
+        })
+        .catch(() => {
+          if (current === request.current) setFailed(true)
+        })
+    }, DEBOUNCE_MS)
+    return () => window.clearTimeout(timer)
+  }, [signature, publicId])
+
+  const width = WIDTHS[device]
+  const scale = available > 0 ? Math.min(1, available / width) : 1
+
   return (
-    <div className="grid gap-3 rounded-md border bg-background p-4" aria-label={t('preview.label')}>
-      <p className="text-base font-semibold break-words">{values.name || t('preview.untitled')}</p>
-      {values.fields.map((field, index) => {
-        const label = `${field.label || t('preview.unnamedField')}${field.required ? ' *' : ''}`
-        const id = `lead-form-preview-${index}`
-        if (field.kind === 'checkbox') {
-          return (
-            <ToggleField key={id} id={id} label={label} checked={false} onCheckedChange={() => {}} disabled />
-          )
-        }
-        return (
-          <Field key={id} id={id} label={label}>
-            {field.kind === 'textarea' ? (
-              <Textarea id={id} className="min-h-20" placeholder={field.placeholder} readOnly />
-            ) : field.kind === 'select' ? (
-              <NativeSelect id={id} disabled>
-                <option>{field.placeholder || t('preview.selectPrompt')}</option>
-                {parseOptions(field.options).map((option) => (
-                  <option key={option.value}>{option.label}</option>
-                ))}
-              </NativeSelect>
-            ) : (
-              <Input
-                id={id}
-                type={field.kind === 'email' ? 'email' : field.kind === 'phone' ? 'tel' : 'text'}
-                placeholder={field.placeholder}
-                readOnly
-              />
-            )}
-          </Field>
-        )
-      })}
-      <div>
-        <Button asChild><span>
-          {values.submit_label || t('preview.submit')}
-        </span></Button>
+    <div className="grid gap-2">
+      <SegmentedControl
+        aria-label={t('preview.device')}
+        value={device}
+        onValueChange={setDevice}
+        options={[
+          { value: 'desktop', label: <Monitor className="size-4" aria-hidden="true" />, ariaLabel: t('preview.desktop') },
+          { value: 'mobile', label: <Smartphone className="size-4" aria-hidden="true" />, ariaLabel: t('preview.mobile') },
+        ]}
+      />
+      <div ref={holder} className="overflow-hidden rounded-md border bg-muted/30" style={{ height: FRAME_HEIGHT * scale }}>
+        {html === null ? (
+          <Skeleton className="h-full w-full" />
+        ) : (
+          <iframe
+            title={t('preview.label')}
+            sandbox=""
+            srcDoc={html}
+            className="block border-0 bg-transparent"
+            style={{ width, height: FRAME_HEIGHT, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+          />
+        )}
       </div>
-      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground break-words">
-        {t('preview.afterSubmit', {
-          message: values.redirect_url
-            ? t('preview.redirect', { url: values.redirect_url })
-            : values.success_message || t('preview.defaultSuccess'),
-        })}
-      </p>
+      {failed && <p className="text-xs text-destructive">{t('preview.failed')}</p>}
+      <p className="text-xs text-muted-foreground">{t(publicId ? 'preview.hint' : 'preview.hintNew')}</p>
     </div>
   )
 }

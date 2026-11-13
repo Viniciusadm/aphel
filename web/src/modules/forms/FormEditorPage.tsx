@@ -26,6 +26,7 @@ import {
   toRequestBody,
   type LeadFormValues,
 } from './form'
+import { AppearanceSection } from './AppearanceSection'
 import { FormPreview } from './FormPreview'
 import { Alert } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -132,7 +133,7 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
         <Skeleton className="h-64 w-full" />
       ) : (
         <FormProvider {...methods}>
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
             <form id={formId} className="grid gap-5" noValidate onSubmit={(event) => void submit(event)}>
               <section className="grid gap-3" aria-labelledby={`${formId}-general`}>
                 <h3 id={`${formId}-general`} className="text-sm font-semibold">
@@ -373,6 +374,8 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 </Field>
               </section>
 
+              <AppearanceSection formId={formId} />
+
               <section className="grid gap-3" aria-labelledby={`${formId}-security`}>
                 <h3 id={`${formId}-security`} className="text-sm font-semibold">
                   {t('editor.security')}
@@ -405,9 +408,9 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 </Alert>
               )}
             </form>
-            <aside className="grid content-start gap-2 lg:sticky lg:top-4">
+            <aside className="grid content-start gap-2 self-start lg:sticky lg:top-4">
               <h3 className="text-sm font-semibold">{t('preview.title')}</h3>
-              <FormPreview values={values} />
+              <FormPreview values={values} publicId={form?.public_id} />
             </aside>
           </div>
         </FormProvider>

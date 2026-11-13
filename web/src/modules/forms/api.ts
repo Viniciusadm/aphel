@@ -8,6 +8,8 @@ export type LeadForm = Schemas['LeadFormResponse']
 export type LeadFormBody = Schemas['LeadFormRequest']
 export type LeadFormField = Schemas['LeadFormField']
 export type LeadFormFieldKind = Schemas['LeadFormFieldKind']
+export type LeadFormAppearance = Schemas['LeadFormAppearance']
+export type LeadFormPreviewBody = Schemas['LeadFormPreviewRequest']
 export type LeadFormList = { data: LeadForm[]; meta: Schemas['PageMeta'] }
 export type LeadFormOptions = Schemas['LeadFormOptions']
 export type LeadFormSubmission = Schemas['LeadFormSubmission']
@@ -40,6 +42,7 @@ function formPath(id: string, action?: string) {
 export const formsApi = {
   list: () => api.get<LeadFormList>(`${BASE}/forms`),
   options: () => api.get<LeadFormOptions>(`${BASE}/options`),
+  preview: (body: LeadFormPreviewBody) => api.post<{ html: string }>(`${BASE}/preview`, body),
   create: (body: LeadFormBody) => api.post<LeadForm>(`${BASE}/forms`, body),
   update: (id: string, body: LeadFormBody) => api.put<LeadForm>(formPath(id), body),
   remove: (id: string) => api.delete<void>(formPath(id)),
