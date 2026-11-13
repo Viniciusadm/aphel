@@ -277,6 +277,7 @@ impl Module for QuotesModule {
         Manifest::new(KEY, "Quotes", APHEL_VERSION)
             .depends_on(aphel_sdk::documents::KEY, "*")
             .depends_on(aphel_sdk::workflow::KEY, "*")
+            .depends_on(aphel_sdk::deals::KEY, "*")
             .description(
                 "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
             )

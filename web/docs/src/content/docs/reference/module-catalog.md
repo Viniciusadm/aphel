@@ -890,7 +890,7 @@ Quotes of deals: versions, items, discounts and taxes, approval, sending, the si
 | | |
 | --- | --- |
 | Layer | domain |
-| Depends on | `documents`, `workflow` |
+| Depends on | `deals`, `documents`, `workflow` |
 | Optional dependencies | none |
 | Permissions | `quotes.read`, `quotes.create`, `quotes.update`, `quotes.delete`, `quotes.send` |
 | Web package | yes |
