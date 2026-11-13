@@ -87,7 +87,7 @@ export function FilterBuilder({
     relations,
   }
   return (
-    <div className={cn('grid gap-3', className)}>
+    <div className={cn('@container grid gap-3', className)}>
       <GroupEditor group={value} depth={1} context={context} />
       {!context.canAdd && (
         <p role="status" className="text-xs text-muted-foreground">
@@ -142,7 +142,7 @@ function GroupEditor({ group, depth, context, onRemove }: GroupEditorProps) {
         {group.children.map((child, index) => (
           <li key={child.id} className="grid gap-2">
             {index > 0 && (
-              <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              <span className="inline-flex w-fit items-center rounded-full bg-muted px-2 py-0.5 text-[0.6875rem] font-semibold tracking-wide text-muted-foreground uppercase">
                 {group.op === 'and' ? t('filters.and') : t('filters.or')}
               </span>
             )}
@@ -222,7 +222,16 @@ function ConditionEditor({ condition, context, onRemove }: ConditionEditorProps)
   const ExtensionInput = extension?.ValueInput
 
   return (
-    <div className="grid min-w-0 gap-2 rounded-lg border p-3 sm:flex sm:flex-wrap sm:items-start sm:border-0 sm:p-0" data-testid="filter-condition">
+    <div
+      className={cn(
+        'grid min-w-0 gap-2 rounded-lg border p-3 sm:flex sm:flex-wrap sm:items-start sm:border-0 sm:p-0',
+        '@lg:grid @lg:items-start @lg:[&>*]:!w-full @lg:[&>[data-slot=remove]]:!w-9 @lg:[&>[data-slot=remove]]:justify-self-end',
+        !field && '@lg:grid-cols-[minmax(0,1fr)_auto]',
+        field && '@lg:grid-cols-[minmax(0,1.2fr)_minmax(8rem,11rem)_minmax(0,1fr)_auto]',
+        field && !operand && '@lg:[&>[data-slot=remove]]:col-start-4',
+      )}
+      data-testid="filter-condition"
+    >
       <FieldPicker fields={fields} value={condition.field} onChange={(next) => replace(withField(condition, next, schema))} />
       {field && (
         <NativeSelect
@@ -255,7 +264,7 @@ function ConditionEditor({ condition, context, onRemove }: ConditionEditorProps)
           onChange={(value) => replace({ ...condition, value })}
         />
       )}
-      <Button variant="ghost" size="icon" className="ml-auto size-9" aria-label={t('filters.removeCondition')} onClick={onRemove}>
+      <Button data-slot="remove" variant="ghost" size="icon" className="ml-auto size-9" aria-label={t('filters.removeCondition')} onClick={onRemove}>
         <X aria-hidden />
       </Button>
     </div>

@@ -33,7 +33,7 @@ export function SegmentDialog({ open, recordType, editing, onOpenChange, onSaved
   const schema = useFieldSchema(recordType)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="xl">
+      <DialogContent size="2xl">
         <DialogHeader>
           <DialogTitle>{t(editing ? 'dialog.editTitle' : 'dialog.newTitle')}</DialogTitle>
           <DialogDescription>{t('dialog.description')}</DialogDescription>
