@@ -43,6 +43,7 @@ export const activityResource = registerRecordResource({
     ].filter((group) => group.items.length > 0)
   },
   defaultLayout: 'list',
+  calendarLink: { module: 'calendar', to: '/calendar' },
 })
 
 export const activityTypeResource = registerRecordResource({

@@ -5,7 +5,8 @@ import { SegmentedControl } from '@/components/ui/segmented-control'
 import { CalendarDays, List, SearchX, SlidersHorizontal, Table2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { isApiError } from '@/api'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
@@ -158,7 +159,8 @@ function RecordListContent({
   const defaultColumns = useMemo(() => defaultColumnKeys(schema, resource.titleField), [schema, resource.titleField])
   const baseConfig = useMemo(() => viewConfig(activeView, defaultColumns), [activeView, defaultColumns])
   const config = useMemo(() => resolveConfig(urlState, baseConfig), [urlState, baseConfig])
-  const dateFields = useMemo(() => calendarFields(schema), [schema])
+  const calendarElsewhere = useIsModuleActive(resource.calendarLink?.module ?? '') && resource.calendarLink !== undefined
+  const dateFields = useMemo(() => (calendarElsewhere ? [] : calendarFields(schema)), [schema, calendarElsewhere])
   const viewCalendar = viewCalendarConfig(activeView)
   const hasListLayout = Boolean(resource.listItem)
   const listSorts = resource.listSorts?.() ?? []
@@ -417,6 +419,14 @@ function RecordListContent({
         <FilterMenu schema={extensions.filterSchema} filter={config.filter} onApply={setFilter} />
         <Slot name="record.list.toolbar" props={{ recordType, filter: config.filter, applyFilter: setFilter }} />
         <div className="ml-auto flex flex-wrap items-center gap-2">
+          {calendarElsewhere && resource.calendarLink && (
+            <Button variant="outline" size="sm" asChild>
+              <Link to={resource.calendarLink.to}>
+                <CalendarDays aria-hidden />
+                {t('calendarLink')}
+              </Link>
+            </Button>
+          )}
           {(dateFields.length > 0 || hasListLayout) && (
             <LayoutToggle
               layout={showCalendar ? 'calendar' : showList ? 'list' : 'table'}

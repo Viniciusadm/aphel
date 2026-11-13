@@ -21,6 +21,7 @@ export interface RecordResource {
   listSorts?: () => RecordListSort[]
   editDialog?: ComponentType<RecordEditDialogProps>
   defaultLayout?: 'list'
+  calendarLink?: { module: string; to: string }
 }
 
 export interface RecordEditDialogProps {

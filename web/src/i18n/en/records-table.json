@@ -236,5 +236,6 @@
   },
   "sort": {
     "label": "Sort by"
-  }
+  },
+  "calendarLink": "View in calendar"
 }
