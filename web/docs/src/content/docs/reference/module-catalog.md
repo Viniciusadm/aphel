@@ -838,8 +838,8 @@ Revenue forecast per month from open deals, with the organization method, catego
 | | |
 | --- | --- |
 | Layer | domain |
-| Depends on | none |
-| Optional dependencies | `deals` |
+| Depends on | `deals` |
+| Optional dependencies | none |
 | Permissions | none |
 | Web package | yes |
 | Blueprints | Recommended by `saas`, `sales`. |
