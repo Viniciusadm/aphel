@@ -15,7 +15,9 @@
     "noAccessTitle": "No access to sequences",
     "noAccessDescription": "Ask an administrator for the permission to view sequences.",
     "pausedCount_one": "(+{{count}} paused)",
-    "pausedCount_other": "(+{{count}} paused)"
+    "pausedCount_other": "(+{{count}} paused)",
+    "filterActive": "Active",
+    "filterInactive": "Inactive"
   },
   "columns": {
     "name": "Name",

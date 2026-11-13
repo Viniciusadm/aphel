@@ -121,13 +121,13 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
   const backTo = sequence ? sequencePath(sequence.id) : SEQUENCES_PATH
 
   return (
-    <Page width="form">
+    <Page>
       <PageHeader
         back={{ to: backTo, label: t('editor.back') }}
         title={sequence ? t('editor.titleEdit', { name: sequence.name }) : t('editor.titleNew')}
       />
-      <form id={formId} className="grid gap-6" noValidate onSubmit={(event) => void onSubmit(event)}>
-        <section className="grid gap-4 rounded-lg border p-4" aria-labelledby={`${formId}-settings`}>
+      <form id={formId} className="grid gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start" noValidate onSubmit={(event) => void onSubmit(event)}>
+        <section className="grid gap-4 rounded-lg border bg-card p-4 lg:sticky lg:top-4" aria-labelledby={`${formId}-settings`}>
           <h2 id={`${formId}-settings`} className="text-base font-medium">
             {t('editor.settings')}
           </h2>
@@ -161,7 +161,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
               </label>
             )}
           />
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('editor.windowStart')}>
               {(control) => <>
                 <Input
@@ -185,7 +185,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
               <FieldMessage id={`${formId}-end-error`} message={errors.windowEnd?.message} />
               </>}
             </Field>
-            <Field label={t('editor.dailyLimit')}>
+            <Field label={t('editor.dailyLimit')} className="sm:col-span-2">
               {(control) => <>
                 <Input placeholder={t('placeholders.dailyLimit')}
                 {...control}
@@ -208,7 +208,7 @@ function SequenceForm({ sequence }: { sequence: Sequence | null }) {
             {errors.root.server.message}
           </SharedFieldError>
         )}
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-2 lg:col-span-2">
           <Button asChild variant="outline">
             <Link to={backTo}>{t('editor.cancel')}</Link>
           </Button>

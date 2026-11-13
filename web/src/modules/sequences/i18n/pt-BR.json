@@ -15,7 +15,9 @@
     "noAccessTitle": "Sem acesso às sequências",
     "noAccessDescription": "Peça a um administrador a permissão para ver sequências.",
     "pausedCount_one": "(+{{count}} pausada)",
-    "pausedCount_other": "(+{{count}} pausadas)"
+    "pausedCount_other": "(+{{count}} pausadas)",
+    "filterActive": "Ativas",
+    "filterInactive": "Inativas"
   },
   "columns": {
     "name": "Nome",

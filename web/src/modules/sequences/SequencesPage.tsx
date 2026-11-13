@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { NativeSelect } from '@/sdk'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useSequences } from './api'
 import { SequenceStatusBadge } from './components/Badges'
 import { Pager } from './components/Pager'
@@ -60,7 +60,7 @@ function SequencesList() {
   })
 
   const newButton = canManage ? (
-    <Button asChild>
+    <Button asChild size="sm">
       <Link to={`${SEQUENCES_PATH}/new`}>
         <Plus aria-hidden="true" />
         {t('page.new')}
@@ -155,8 +155,8 @@ function SequencesList() {
         {newButton}
       
       </>} />
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
-        <Field id={searchId} label={t('page.search')} hideLabel>
+      <div className="flex flex-wrap items-center gap-3">
+        <Field id={searchId} label={t('page.search')} hideLabel className="min-w-56 flex-1 sm:max-w-sm">
           <SearchInput
             id={searchId}
             value={search}
@@ -167,20 +167,20 @@ function SequencesList() {
             }}
           />
         </Field>
-        <Field label={t('page.statusFilter')} hideLabel>
-          {(fieldControl) => <NativeSelect
-            {...fieldControl}
-            value={active}
-            onChange={(event) => {
-              setActive(event.target.value as ActiveFilter)
-              setPage(1)
-            }}
-          >
-            <option value="">{t('page.allStatuses')}</option>
-            <option value="active">{t('status.active')}</option>
-            <option value="inactive">{t('status.inactive')}</option>
-          </NativeSelect>}
-        </Field>
+        <SegmentedControl
+          aria-label={t('page.statusFilter')}
+          size="sm"
+          value={active}
+          onValueChange={(value) => {
+            setActive(value as ActiveFilter)
+            setPage(1)
+          }}
+          options={[
+            { value: '', label: t('page.allStatuses') },
+            { value: 'active', label: t('page.filterActive') },
+            { value: 'inactive', label: t('page.filterInactive') },
+          ]}
+        />
       </div>
       {body}
     </Page>
