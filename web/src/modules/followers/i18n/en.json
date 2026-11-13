@@ -17,13 +17,15 @@
   },
   "page": {
     "title": "Records I follow",
-    "description": "You are notified of changes, tasks, notes and emails of these records.",
+    "description": "You are notified of changes, tasks, notes and emails of these records. To follow a new one, open the record and use Actions › Follow.",
     "typeFilter": "Type",
     "allTypes": "All types",
     "emptyTitle": "You do not follow any record",
-    "emptyDescription": "Use the Follow button on the detail of a record to keep track of it.",
+    "emptyDescription": "Open a contact, company, deal or task and use Actions › Follow. The records you follow show up here.",
     "untitled": "Untitled",
-    "since": "since {{date}}"
+    "since": "since {{date}}",
+    "total_one": "{{count}} record",
+    "total_other": "{{count}} records"
   },
   "origin": {
     "manual": "Followed by you",

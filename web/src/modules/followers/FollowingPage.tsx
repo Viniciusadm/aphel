@@ -1,18 +1,18 @@
 import { useEntities } from '@/sdk/entities'
-import { BellRing } from 'lucide-react'
+import { BellOff, BellRing } from 'lucide-react'
 import { createElement, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, NativeSelect, recordTypeIcon, useRecordFormatting } from '@/sdk'
-import { FOLLOWED_PER_PAGE, useFollowedRecords } from './api'
+import { FOLLOWED_PER_PAGE, useFollowedRecords, useFollowToggle } from './api'
 import { followedRecordHref, useRecordTypeLabel } from './labels'
 import type { FollowedRecord } from './types'
 import { PageHeader } from '@/components/ui/page-header'
-import { Field } from '@/components/ui/field'
 import { Page } from '@/components/ui/page'
 
 export function FollowingPage() {
@@ -26,10 +26,10 @@ export function FollowingPage() {
   let body
   if (followed.isPending) {
     body = (
-      <div className="grid gap-2" aria-busy="true">
-        <Skeleton className="h-14 w-full" />
-        <Skeleton className="h-14 w-full" />
-        <Skeleton className="h-14 w-full" />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
       </div>
     )
   } else if (followed.isError) {
@@ -41,9 +41,9 @@ export function FollowingPage() {
     const pages = Math.max(1, Math.ceil(total / FOLLOWED_PER_PAGE))
     body = (
       <>
-        <ul className="grid gap-2">
+        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {followed.data.data.map((record) => (
-            <FollowedRow key={`${record.record_type}:${record.record_id}`} record={record} typeLabel={typeLabel} />
+            <FollowedCard key={`${record.record_type}:${record.record_id}`} record={record} typeLabel={typeLabel} />
           ))}
         </ul>
         {pages > 1 && (
@@ -66,65 +66,82 @@ export function FollowingPage() {
     )
   }
 
+  const total = followed.data?.meta.total
+
   return (
     <Page>
-<PageHeader title={t('page.title')} actions={<>
-        <Field label={t('page.typeFilter')}>
-          {(control) => <NativeSelect
-            {...control}
-            className="w-48"
-            value={recordType}
-            onChange={(event) => {
-              setRecordType(event.target.value)
-              setPage(1)
-            }}
-          >
-            <option value="">{t('page.allTypes')}</option>
-            {(entities.data ?? []).filter((entity) => entity.access.read).map((entity) => (
-              <option key={entity.record_type} value={entity.record_type}>
-                {typeLabel(entity.record_type)}
-              </option>
-            ))}
-          </NativeSelect>}
-        </Field>
-      
-      </>} />
+      <PageHeader title={t('page.title')} description={t('page.description')} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <NativeSelect
+          aria-label={t('page.typeFilter')}
+          className="w-56"
+          value={recordType}
+          onChange={(event) => {
+            setRecordType(event.target.value)
+            setPage(1)
+          }}
+        >
+          <option value="">{t('page.allTypes')}</option>
+          {(entities.data ?? []).filter((entity) => entity.access.read).map((entity) => (
+            <option key={entity.record_type} value={entity.record_type}>
+              {typeLabel(entity.record_type)}
+            </option>
+          ))}
+        </NativeSelect>
+        {total !== undefined && <span className="text-sm text-muted-foreground tabular-nums">{t('page.total', { count: total })}</span>}
+      </div>
       {body}
     </Page>
   )
 }
 
-interface FollowedRowProps {
+interface FollowedCardProps {
   record: FollowedRecord
   typeLabel: (recordType: string) => string
 }
 
-function FollowedRow({ record, typeLabel }: FollowedRowProps) {
+function FollowedCard({ record, typeLabel }: FollowedCardProps) {
   const { t } = useTranslation('followers')
   const formatting = useRecordFormatting()
+  const unfollow = useFollowToggle(record.record_type, record.record_id)
   const href = followedRecordHref(record.record_type, record.record_id)
   const title = record.title ?? t('page.untitled')
   return (
-    <li className="flex items-center gap-3 rounded-md border px-3 py-2">
-      {createElement(recordTypeIcon(record.record_type), {
-        className: 'size-4 shrink-0 text-muted-foreground',
-        'aria-hidden': true,
-      })}
-      <div className="grid min-w-0 flex-1">
-        {href ? (
-          <Link to={href} className="truncate text-sm font-medium hover:underline">
-            {title}
-          </Link>
-        ) : (
-          <span className="truncate text-sm font-medium">{title}</span>
-        )}
-        <span className="truncate text-xs text-muted-foreground">
-          {typeLabel(record.record_type)} · {t(`origin.${record.origin}`)}
+    <li className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent/30">
+      <div className="flex min-w-0 items-start gap-3">
+        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          {createElement(recordTypeIcon(record.record_type), { className: 'size-5', 'aria-hidden': true })}
         </span>
+        <div className="grid min-w-0 flex-1 gap-0.5">
+          {href ? (
+            <Link to={href} className="truncate text-base font-semibold underline-offset-4 hover:underline">
+              {title}
+            </Link>
+          ) : (
+            <span className="truncate text-base font-semibold">{title}</span>
+          )}
+          <span className="truncate text-sm text-muted-foreground">{typeLabel(record.record_type)}</span>
+        </div>
+        <Badge tone={record.origin === 'owner' ? 'primary' : 'neutral'} className="shrink-0">
+          {t(`origin.${record.origin}`)}
+        </Badge>
       </div>
-      <span className="shrink-0 text-xs text-muted-foreground">
-        {t('page.since', { date: formatDateTime(record.followed_at, formatting) })}
-      </span>
+      <div className="mt-auto flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">
+          {t('page.since', { date: formatDateTime(record.followed_at, formatting) })}
+        </span>
+        {record.origin === 'manual' && (
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={unfollow.isPending}
+            onClick={() => unfollow.mutate(false)}
+          >
+            <BellOff aria-hidden />
+            {t('button.unfollow')}
+          </Button>
+        )}
+      </div>
     </li>
   )
 }
