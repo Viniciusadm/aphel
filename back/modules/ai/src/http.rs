@@ -187,7 +187,10 @@ fn validate_query(request: &AiQueryRequest) -> Result<(), AppError> {
     let valid_type = !record_type.is_empty()
         && record_type.len() <= RECORD_TYPE_MAX_CHARS
         && record_type.chars().all(|character| {
-            character.is_ascii_lowercase() || character.is_ascii_digit() || character == '_'
+            character.is_ascii_lowercase()
+                || character.is_ascii_digit()
+                || character == '_'
+                || character == '.'
         });
     let question = request.question.trim();
     let mut violations = Vec::new();
@@ -354,4 +357,35 @@ async fn calls(
             last_30_days,
         },
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn request(record_type: &str, question: &str) -> AiQueryRequest {
+        AiQueryRequest {
+            record_type: record_type.to_owned(),
+            question: question.to_owned(),
+        }
+    }
+
+    #[test]
+    fn query_accepts_namespaced_record_types() {
+        assert!(
+            validate_query(&request(
+                "catalog_items.item",
+                "criados nos últimos 30 dias"
+            ))
+            .is_ok()
+        );
+        assert!(validate_query(&request("people.person", "meus leads")).is_ok());
+    }
+
+    #[test]
+    fn query_rejects_bad_record_types_and_empty_questions() {
+        assert!(validate_query(&request("People.Person", "x")).is_err());
+        assert!(validate_query(&request("people;drop", "x")).is_err());
+        assert!(validate_query(&request("people.person", "   ")).is_err());
+    }
 }
