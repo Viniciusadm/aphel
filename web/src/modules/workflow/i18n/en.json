@@ -120,7 +120,8 @@
         "edit": "Edit {{name}}",
         "deactivate": "Deactivate {{name}}",
         "activate": "Reactivate {{name}}",
-        "delete": "Delete {{name}}"
+        "delete": "Delete {{name}}",
+        "titleFor": "Stages of the {{name}} pipeline"
       },
       "removal": {
         "deactivateTitle": "Deactivate the {{name}} stage",

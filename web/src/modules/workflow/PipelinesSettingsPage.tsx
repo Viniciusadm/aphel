@@ -140,7 +140,7 @@ function StagesSection({ pipeline }: { pipeline: Pipeline }) {
     <Card>
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="grid gap-1">
-          <CardTitle>{t('settings.stages.title')}</CardTitle>
+          <CardTitle>{t('settings.stages.titleFor', { name: pipeline.name })}</CardTitle>
           <CardDescription>{t('settings.stages.description')}</CardDescription>
         </div>
         <Button size="sm" onClick={() => setEditing('new')}>

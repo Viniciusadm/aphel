@@ -120,7 +120,8 @@
         "edit": "Editar {{name}}",
         "deactivate": "Desativar {{name}}",
         "activate": "Reativar {{name}}",
-        "delete": "Excluir {{name}}"
+        "delete": "Excluir {{name}}",
+        "titleFor": "Etapas do funil {{name}}"
       },
       "removal": {
         "deactivateTitle": "Desativar a etapa {{name}}",
