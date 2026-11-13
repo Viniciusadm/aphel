@@ -90,6 +90,12 @@ export interface RecordListViewProps {
   rowClassName?: (record: RecordItem) => string | undefined
   titleAddon?: (record: RecordItem) => ReactNode
   baseFilter?: FilterNode
+  /** Contagem mostrada em cada preset (chave do preset → total). */
+  presetCounts?: Record<string, number | undefined>
+  /** Colunas padrão desta tela; vence as do tipo de registro. */
+  defaultColumns?: string[]
+  /** false esconde a opção de calendário (telas de fila, onde datas não organizam o trabalho). */
+  calendar?: boolean
   archived?: ArchivedMode
   archivedFilter?: boolean
   className?: string
@@ -136,6 +142,9 @@ function RecordListContent({
   archivedFilter = false,
   className,
   baseFilter,
+  presetCounts,
+  defaultColumns: preferredColumns,
+  calendar = true,
 }: RecordListContentProps) {
   const { t } = useTranslation('records-table')
   const mobile = useMediaQuery('(max-width: 767px)')
@@ -160,11 +169,11 @@ function RecordListContent({
   const activeView = requestedView ? views.find((view) => view.id === requestedView) : undefined
   const viewMissing = Boolean(requestedView) && viewsQuery.isSuccess && !activeView
 
-  const defaultColumns = useMemo(() => defaultColumnKeys(schema, resource.titleField, resource.defaultColumns), [schema, resource.titleField, resource.defaultColumns])
+  const defaultColumns = useMemo(() => defaultColumnKeys(schema, resource.titleField, preferredColumns ?? resource.defaultColumns), [schema, resource.titleField, preferredColumns, resource.defaultColumns])
   const baseConfig = useMemo(() => viewConfig(activeView, defaultColumns), [activeView, defaultColumns])
   const config = useMemo(() => resolveConfig(urlState, baseConfig), [urlState, baseConfig])
   const calendarElsewhere = useIsModuleActive(resource.calendarLink?.module ?? '') && resource.calendarLink !== undefined
-  const dateFields = useMemo(() => (calendarElsewhere ? [] : calendarFields(schema)), [schema, calendarElsewhere])
+  const dateFields = useMemo(() => (calendarElsewhere || !calendar ? [] : calendarFields(schema)), [schema, calendarElsewhere, calendar])
   const viewCalendar = viewCalendarConfig(activeView)
   const hasListLayout = Boolean(resource.listItem)
   const listSorts = resource.listSorts?.() ?? []
@@ -369,7 +378,10 @@ function RecordListContent({
       size="sm"
       value={activePreset.key}
       onValueChange={setPreset}
-      options={presets.map((preset) => ({ value: preset.key, label: preset.label }))}
+      options={presets.map((preset) => ({
+        value: preset.key,
+        label: presetCounts?.[preset.key] === undefined ? preset.label : `${preset.label} (${presetCounts[preset.key]})`,
+      }))}
     />
   )
   const viewSwitcher = (

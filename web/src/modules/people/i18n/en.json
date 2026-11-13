@@ -3,7 +3,7 @@
   "description": "Contacts and their links to organizations",
   "list": {
     "title": "Contacts",
-    "description": "People your team works with.",
+    "description": "Everyone your team works with, from leads to customers.",
     "new": "New contact",
     "emptyTitle": "No contacts yet",
     "emptyDescription": "Add the people you talk to so you can follow conversations, tasks and deals."

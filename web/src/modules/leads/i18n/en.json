@@ -3,8 +3,31 @@
   "description": "Lifecycle stages of people and organizations, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons",
   "inbox": {
     "title": "Lead inbox",
-    "description": "Contacts in the Lead stage. Qualify, disqualify with a reason or convert them into a deal.",
-    "qualified": "{{name}} was qualified"
+    "description": "The same people as Contacts, only those who have not become a deal yet. Qualify, disqualify with a reason or convert.",
+    "qualified": "{{name}} was qualified",
+    "allContacts": "All contacts",
+    "new": "New lead",
+    "newTitle": "New lead",
+    "newDescription": "Adds a contact already in the Lead stage. It also shows up in Contacts.",
+    "presets": {
+      "new": "New",
+      "qualified": "Qualified",
+      "open": "All open"
+    },
+    "empty": {
+      "new": {
+        "title": "No new leads",
+        "description": "Leads arrive from forms, synced email or manual entry. The ones you have not reviewed yet show up here."
+      },
+      "qualified": {
+        "title": "No qualified leads",
+        "description": "When you qualify a new lead, it moves to this tab until it becomes a deal."
+      },
+      "open": {
+        "title": "No open leads",
+        "description": "New and qualified leads show up together here. Add one or wait for forms and email."
+      }
+    }
   },
   "actions": {
     "qualify": "Qualify",
@@ -156,8 +179,8 @@
     "invalidField": "{{field}}: {{message}}"
   },
   "quickFilter": {
-    "label": "Leads only",
-    "description": "Show only people in the lead stage"
+    "label": "Leads",
+    "description": "Show only people in the lead stage. The full work queue is in Leads."
   },
   "nav": {
     "leads": "Leads"

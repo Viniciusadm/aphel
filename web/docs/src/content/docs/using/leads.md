@@ -36,15 +36,15 @@ Only the active stage options can be chosen. The list of stages is a normal sele
 
 ## The lead inbox
 
-Open **Leads** in the menu. The page shows contacts in the **Lead** stage, with the usual search, filters and views. A **Leads only** quick filter is also available on the Contacts list.
+Open **Leads** in the menu. Leads and Contacts are siblings: both show the same people, and Leads is the work queue for those who have not become a deal yet. The page has three tabs with counts: **New** (Lead stage), **Qualified** and **All open**. Columns start with source, owner and entry date (and score when scoring is enabled). Use **New lead** to add a contact already in the Lead stage, and **All contacts** to go to the full list. A **Leads only** quick filter is also available on the Contacts list.
 
 For each lead you can:
 
-- **Qualify**: moves the lead to **Qualified** and removes it from the inbox. Only leads in the Lead stage can be qualified.
+- **Qualify**: moves the lead to **Qualified**, so it leaves the **New** tab. Only leads in the Lead stage can be qualified.
 - **Disqualify**: opens a dialog where you choose a **Reason** and optionally add a **Note** (up to 2000 characters). The lead leaves the inbox. The reason and note are kept in the history and feed the conversion report.
 - **Convert**: creates a deal for the lead (see below).
 
-The same buttons appear on the contact page for contacts in the **Lead** or **Qualified** stage. A qualified lead is no longer in the inbox, so use its contact page, or the Contacts list, to disqualify or convert it.
+The same buttons appear on the contact page for contacts in the **Lead** or **Qualified** stage. Qualifying a lead moves it to the **Qualified** tab, where you can still disqualify or convert it.
 
 Permissions:
 

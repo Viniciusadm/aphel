@@ -1,7 +1,7 @@
 export { IDEMPOTENCY_HEADER, newIdempotencyKey, recordsApi, recordsKeys, useFieldSchema, useOrganizationUsers } from '@/features/records/api'
 export { RecordFormDialog } from '@/features/records/form'
 export { recordDetailHref, recordListPath, recordTypeIcon, viewHref } from '@/features/records/links'
-export { RecordListView, type RecordListPreset, SearchBox, defaultColumnKeys, sortToParam } from '@/features/records/table'
+export { RecordListView, useRecordList, type RecordListPreset, SearchBox, defaultColumnKeys, sortToParam } from '@/features/records/table'
 export type { BulkActionContext } from '@/features/records/table'
 export { isFilterCondition, isFilterGroup, isFilterRelated } from '@/features/records/types'
 export type { ArchivedMode, CreateViewRequest, FieldDefinition, FieldOption, FieldSchema, FieldType, FilterCondition, FilterNode, FilterOperator, FilterRelated, PageMeta, Page as RecordsPage, RecordItem, RecordViewConfig, SavedView, SavedViewsPage, SortSpec, TableDensity, UpdateViewRequest, ViewType, ViewVisibility } from '@/features/records/types'

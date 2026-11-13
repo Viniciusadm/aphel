@@ -3,8 +3,31 @@
   "description": "Estágios de vida de pessoas e organizações, transições automáticas, a caixa de leads (qualificar, desqualificar, converter) e motivos de desqualificação.",
   "inbox": {
     "title": "Caixa de leads",
-    "description": "Contatos no estágio Lead. Qualifique, desqualifique com um motivo ou converta em oportunidade.",
-    "qualified": "{{name}} foi qualificado"
+    "description": "Os mesmos contatos de Contatos, só quem ainda não virou oportunidade. Qualifique, desqualifique com um motivo ou converta.",
+    "qualified": "{{name}} foi qualificado",
+    "allContacts": "Todos os contatos",
+    "new": "Novo lead",
+    "newTitle": "Novo lead",
+    "newDescription": "Cadastra um contato já no estágio Lead. Ele também aparece em Contatos.",
+    "presets": {
+      "new": "Novos",
+      "qualified": "Qualificados",
+      "open": "Todos abertos"
+    },
+    "empty": {
+      "new": {
+        "title": "Nenhum lead novo",
+        "description": "Leads chegam por formulários, e-mails sincronizados ou cadastro manual. Os que você ainda não avaliou aparecem aqui."
+      },
+      "qualified": {
+        "title": "Nenhum lead qualificado",
+        "description": "Quando você qualificar um lead novo, ele passa para esta aba até virar oportunidade."
+      },
+      "open": {
+        "title": "Nenhum lead em aberto",
+        "description": "Leads novos e qualificados aparecem juntos aqui. Cadastre um ou espere os formulários e e-mails."
+      }
+    }
   },
   "actions": {
     "qualify": "Qualificar",
@@ -156,8 +179,8 @@
     "invalidField": "{{field}}: {{message}}"
   },
   "quickFilter": {
-    "label": "Somente leads",
-    "description": "Mostrar só contatos no estágio lead"
+    "label": "Leads",
+    "description": "Mostrar só contatos no estágio lead. A fila de trabalho completa fica em Leads."
   },
   "nav": {
     "leads": "Leads"
