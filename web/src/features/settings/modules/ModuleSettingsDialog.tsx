@@ -1,7 +1,7 @@
 import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, type Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
@@ -57,6 +57,7 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
   const [clearedSecrets, setClearedSecrets] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
   const [testing, setTesting] = useState(false)
+  const resultRef = useRef<HTMLDivElement>(null)
   const [testResult, setTestResult] = useState<ModuleSettingsTestResult | null>(null)
   const schema = useMemo(() => buildFormSchema(module, clearedSecrets), [module, clearedSecrets])
   const fields = module.settings_schema
@@ -73,6 +74,10 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
     resolver: zodResolver(schema),
     defaultValues: initialValues(module),
   })
+
+  useEffect(() => {
+    if (testResult) resultRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [testResult])
 
   useEffect(() => {
     let focused = false
@@ -276,7 +281,7 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
           </section>
         )}
         {testResult && (
-          <Alert role="status" className={testResult.ok ? 'text-success' : 'text-destructive'}>
+          <Alert ref={resultRef} role="status" className={testResult.ok ? 'text-success' : 'text-destructive'}>
             {testResult.ok ? t('settings.testOk', { detail: testResult.message }) : t('settings.testFailed', { detail: testResult.message })}
           </Alert>
         )}

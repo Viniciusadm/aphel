@@ -123,7 +123,7 @@ fn transport_error(error: &reqwest::Error) -> AppError {
     }
 }
 
-fn status_error(status: reqwest::StatusCode) -> AppError {
+fn status_error(status: reqwest::StatusCode, detail: Option<String>) -> AppError {
     match status.as_u16() {
         401 | 403 => unavailable(
             PROVIDER_AUTH_FAILED,
@@ -135,9 +135,23 @@ fn status_error(status: reqwest::StatusCode) -> AppError {
         ),
         code => unavailable(
             PROVIDER_ERROR,
-            format!("the AI provider answered HTTP {code}"),
+            match detail {
+                Some(detail) => format!("the AI provider answered HTTP {code}: {detail}"),
+                None => format!("the AI provider answered HTTP {code}"),
+            },
         ),
     }
+}
+
+fn provider_detail(body: &str) -> Option<String> {
+    let value: Value = serde_json::from_str(body).ok()?;
+    let message = value
+        .get("error")
+        .and_then(|error| error.get("message").or(Some(error)))
+        .and_then(Value::as_str)
+        .or_else(|| value.get("message").and_then(Value::as_str))?;
+    let message: String = message.chars().take(200).collect();
+    (!message.trim().is_empty()).then_some(message)
 }
 
 async fn send(request: reqwest::RequestBuilder) -> Result<Value, AppError> {
@@ -147,7 +161,8 @@ async fn send(request: reqwest::RequestBuilder) -> Result<Value, AppError> {
         .map_err(|error| transport_error(&error))?;
     let status = response.status();
     if !status.is_success() {
-        return Err(status_error(status));
+        let body = response.text().await.unwrap_or_default();
+        return Err(status_error(status, provider_detail(&body)));
     }
     response
         .json::<Value>()
