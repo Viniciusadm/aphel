@@ -95,6 +95,8 @@ impl Module for ScoringModule {
             .description(
                 "Lead scoring models (profile and behavior criteria, decay, bands) and the scores of a record with their explanation",
             )
+            .depends_on("people", "*")
+            .depends_on("organizations", "*")
             .enabled_by_default()
             .owned_tables(&["scoring_models", "scoring_criteria", "scoring_signals", "record_scores"])
             .migration(Migration::new(

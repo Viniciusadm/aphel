@@ -614,7 +614,7 @@ Lead scoring models (profile and behavior criteria, decay, bands) and the scores
 | | |
 | --- | --- |
 | Layer | capability |
-| Depends on | none |
+| Depends on | `people`, `organizations` |
 | Optional dependencies | none |
 | Permissions | `scoring.manage` |
 | Web package | yes |
