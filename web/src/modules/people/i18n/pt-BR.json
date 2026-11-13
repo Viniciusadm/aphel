@@ -4,7 +4,9 @@
   "list": {
     "title": "Contatos",
     "description": "Pessoas com quem sua equipe se relaciona.",
-    "new": "Novo contato"
+    "new": "Novo contato",
+    "emptyTitle": "Nenhum contato ainda",
+    "emptyDescription": "Cadastre as pessoas com quem você fala para acompanhar conversas, tarefas e negócios."
   },
   "dialog": {
     "title": "Novo contato",

@@ -4,7 +4,9 @@
   "list": {
     "title": "Contacts",
     "description": "People your team works with.",
-    "new": "New contact"
+    "new": "New contact",
+    "emptyTitle": "No contacts yet",
+    "emptyDescription": "Add the people you talk to so you can follow conversations, tasks and deals."
   },
   "dialog": {
     "title": "New contact",
