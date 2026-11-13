@@ -4,7 +4,26 @@
   "list": {
     "title": "Produtos e serviços",
     "description": "Catálogo da organização para montar os itens das oportunidades.",
-    "new": "Novo produto"
+    "new": "Novo produto",
+    "presets": {
+      "active": "Ativos",
+      "inactive": "Inativos",
+      "all": "Todos"
+    },
+    "empty": {
+      "active": {
+        "title": "Nenhum produto ativo",
+        "description": "Cadastre o que você vende, com preço e unidade. Os produtos ativos podem ser escolhidos ao montar uma oportunidade."
+      },
+      "inactive": {
+        "title": "Nenhum produto inativo",
+        "description": "Produtos desativados saem da escolha nas oportunidades, mas continuam aqui com o histórico."
+      },
+      "all": {
+        "title": "Nenhum produto cadastrado",
+        "description": "Cadastre produtos e serviços com preço, unidade e recorrência para usá-los em oportunidades e propostas."
+      }
+    }
   },
   "dialog": {
     "title": "Novo produto",

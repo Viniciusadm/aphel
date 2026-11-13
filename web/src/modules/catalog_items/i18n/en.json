@@ -4,7 +4,26 @@
   "list": {
     "title": "Products and services",
     "description": "The organization catalog used to build deal items.",
-    "new": "New product"
+    "new": "New product",
+    "presets": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "all": "All"
+    },
+    "empty": {
+      "active": {
+        "title": "No active products",
+        "description": "Add what you sell, with price and unit. Active products can be picked when building a deal."
+      },
+      "inactive": {
+        "title": "No inactive products",
+        "description": "Deactivated products leave the deal picker but stay here with their history."
+      },
+      "all": {
+        "title": "No products yet",
+        "description": "Add products and services with price, unit and recurrence to use them in deals and quotes."
+      }
+    }
   },
   "dialog": {
     "title": "New product",
