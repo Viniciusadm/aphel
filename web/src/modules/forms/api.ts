@@ -15,6 +15,7 @@ export type LeadFormSubmissionList = { data: LeadFormSubmission[]; meta: Schemas
 export type LeadFormSubmissionStatus = Schemas['LeadFormSubmissionStatus']
 
 export const FORMS_KEY = 'forms'
+export const FORMS_PATH = '/forms'
 export const MANAGE_PERMISSION = 'forms.manage'
 export const FIELD_KINDS: LeadFormFieldKind[] = ['text', 'email', 'phone', 'textarea', 'select', 'checkbox']
 export const SUBMISSION_STATUSES: LeadFormSubmissionStatus[] = ['accepted', 'spam', 'failed']

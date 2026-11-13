@@ -2,17 +2,20 @@ import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useId, useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 import { Input } from '@/components/ui/input'
+import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { NativeSelect } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { FORMS_KEY, FIELD_KINDS, formsApi, useLeadFormOptions, type LeadForm, type LeadFormFieldKind } from './api'
+import { FORMS_KEY, FORMS_PATH, FIELD_KINDS, formsApi, useForms, useLeadFormOptions, type LeadForm, type LeadFormFieldKind } from './api'
 import { FieldEditor } from './FieldEditor'
 import {
   MAX_FIELDS,
@@ -28,13 +31,6 @@ import { Alert } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field } from '@/components/ui/field'
 
-interface FormEditorDialogProps {
-  open: boolean
-  form: LeadForm | null
-  onOpenChange: (open: boolean) => void
-  onSaved: (form: LeadForm, created: boolean) => void
-}
-
 interface ServerFieldError {
   field: string
   message: string
@@ -49,20 +45,32 @@ function serverFieldErrors(error: unknown): ServerFieldError[] {
   )
 }
 
-export function FormEditorDialog({ open, form, onOpenChange, onSaved }: FormEditorDialogProps) {
+export function FormEditorPage() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const forms = useForms()
+  const form = id ? (forms.data?.data.find((item) => item.id === id) ?? null) : null
+  const back = () => void navigate(FORMS_PATH)
+
+  if (id && forms.isPending) return <Page><Skeleton className="h-64 w-full" /></Page>
+  if (id && !form) return <Page><ErrorState onRetry={() => void forms.refetch()} /></Page>
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="3xl">
-        {open && <EditorBody form={form} onCancel={() => onOpenChange(false)} onSaved={onSaved} />}
-      </DialogContent>
-    </Dialog>
+    <Page>
+      <EditorBody
+        key={form?.id ?? 'new'}
+        form={form}
+        onCancel={back}
+        onSaved={(saved, created) => void navigate(FORMS_PATH, { state: { saved: saved.name, embed: created ? saved.id : null } })}
+      />
+    </Page>
   )
 }
 
 interface EditorBodyProps {
   form: LeadForm | null
   onCancel: () => void
-  onSaved: FormEditorDialogProps['onSaved']
+  onSaved: (form: LeadForm, created: boolean) => void
 }
 
 function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
@@ -105,10 +113,21 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>{form ? t('editor.editTitle', { name: form.name }) : t('editor.createTitle')}</DialogTitle>
-        <DialogDescription>{t('editor.description')}</DialogDescription>
-      </DialogHeader>
+      <PageHeader
+        title={form ? t('editor.editTitle', { name: form.name }) : t('editor.createTitle')}
+        description={t('editor.description')}
+        back={{ to: FORMS_PATH, label: t('editor.back') }}
+        actions={
+          <>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              {t('editor.cancel')}
+            </Button>
+            <Button type="submit" form={formId} disabled={formState.isSubmitting || options.isPending}>
+              {form ? t('editor.save') : t('editor.create')}
+            </Button>
+          </>
+        }
+      />
       {options.isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : (
@@ -386,21 +405,13 @@ function EditorBody({ form, onCancel, onSaved }: EditorBodyProps) {
                 </Alert>
               )}
             </form>
-            <aside className="grid content-start gap-2 lg:sticky lg:top-0">
+            <aside className="grid content-start gap-2 lg:sticky lg:top-4">
               <h3 className="text-sm font-semibold">{t('preview.title')}</h3>
               <FormPreview values={values} />
             </aside>
           </div>
         </FormProvider>
       )}
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          {t('editor.cancel')}
-        </Button>
-        <Button type="submit" form={formId} disabled={formState.isSubmitting || options.isPending}>
-          {form ? t('editor.save') : t('editor.create')}
-        </Button>
-      </DialogFooter>
     </>
   )
 }

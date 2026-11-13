@@ -113,8 +113,14 @@ function SubmissionRow({ form, submission }: { form: LeadForm; submission: LeadF
   const t = useModuleTranslation(FORMS_KEY)
   const formatting = useRecordFormatting()
   const data = (submission.data ?? {}) as Record<string, unknown>
-  const labels = new Map((form.fields ?? []).map((field) => [field.key, field.label]))
-  const entries = Object.entries(data).filter(([, value]) => displayValue(value, '', '') !== '')
+  const definitions = form.fields ?? []
+  const labels = new Map(definitions.map((field) => [field.key, field.label]))
+  const known = definitions.map((field) => field.key).filter((key) => key in data)
+  const entries = [...known, ...Object.keys(data).filter((key) => !known.includes(key))]
+    .map((key): [string, unknown] => [key, data[key]])
+    .filter(([, value]) => value !== null && value !== undefined && value !== '')
+  const optionLabel = (key: string, value: unknown) =>
+    typeof value === 'string' ? (definitions.find((field) => field.key === key)?.options?.find((option) => option.value === value)?.label ?? value) : value
 
   return (
     <li className="grid gap-2 rounded-md border bg-card px-3 py-2 text-sm">
@@ -132,7 +138,7 @@ function SubmissionRow({ form, submission }: { form: LeadForm; submission: LeadF
                 {key === '_aphel_hp' ? t('submissions.honeypot') : (labels.get(key) ?? key)}
               </dt>
               <dd className="break-words whitespace-pre-wrap">
-                {displayValue(value, t('submissions.yes'), t('submissions.no'))}
+                {displayValue(optionLabel(key, value), t('submissions.yes'), t('submissions.no'))}
               </dd>
             </div>
           ))}

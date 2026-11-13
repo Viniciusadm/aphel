@@ -12,7 +12,6 @@
     "active": "Ativo",
     "inactive": "Inativo",
     "createsDeal": "Cria oportunidade",
-    "counters": "{{fields}} campos · {{accepted}} aceitos · {{spam}} spam · {{failed}} falhas",
     "lastSubmission": "Último envio em {{date}}",
     "noSubmissions": "Nenhum envio ainda",
     "submissions": "Envios",
@@ -24,7 +23,15 @@
     "created": "Formulário \"{{name}}\" criado",
     "saved": "Formulário \"{{name}}\" salvo",
     "deleted": "Formulário \"{{name}}\" excluído",
-    "rotated": "Novo endereço público gerado para \"{{name}}\""
+    "rotated": "Novo endereço público gerado para \"{{name}}\"",
+    "fieldsCount_one": "{{count}} campo",
+    "fieldsCount_other": "{{count}} campos",
+    "acceptedCount_one": "{{count}} aceito",
+    "acceptedCount_other": "{{count}} aceitos",
+    "spamCount_one": "{{count}} spam",
+    "spamCount_other": "{{count}} spam",
+    "failedCount_one": "{{count}} falha",
+    "failedCount_other": "{{count}} falhas"
   },
   "confirm": {
     "delete": {
@@ -102,7 +109,8 @@
     "keyPlaceholder": "Ex.: telefone",
     "optionsPlaceholder": "Uma opção por linha",
     "titleTemplatePlaceholder": "Ex.: Lead do site",
-    "amountPlaceholder": "0,00"
+    "amountPlaceholder": "0,00",
+    "back": "Formulários"
   },
   "kinds": {
     "text": "Texto",

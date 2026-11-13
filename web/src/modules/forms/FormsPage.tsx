@@ -1,5 +1,6 @@
 import { ClipboardList, MoreHorizontal, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,8 +16,7 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import { FORMS_KEY, formsApi, useInvalidateForms, useForms, type LeadForm } from './api'
-import { FormEditorDialog } from './FormEditorDialog'
+import { FORMS_KEY, FORMS_PATH, formsApi, useInvalidateForms, useForms, type LeadForm } from './api'
 import { SnippetsDialog } from './SnippetsDialog'
 import { SubmissionsDialog } from './SubmissionsDialog'
 import { PageHeader } from '@/components/ui/page-header'
@@ -28,11 +28,27 @@ export function FormsPage() {
   const t = useModuleTranslation(FORMS_KEY)
   const forms = useForms()
   const invalidate = useInvalidateForms()
-  const [editing, setEditing] = useState<LeadForm | null>(null)
-  const [creating, setCreating] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
   const [snippetsOf, setSnippetsOf] = useState<LeadForm | null>(null)
+  const [embedId, setEmbedId] = useState<string | null>(null)
   const [submissionsOf, setSubmissionsOf] = useState<LeadForm | null>(null)
   const [pending, setPending] = useState<PendingConfirmation | null>(null)
+
+  useEffect(() => {
+    const state = location.state as { saved?: string; embed?: string | null } | null
+    if (!state?.saved) return
+    notifySuccess(t(state.embed ? 'page.created' : 'page.saved', { name: state.saved }))
+    if (state.embed) setEmbedId(state.embed)
+    void navigate(location.pathname, { replace: true, state: null })
+  }, [location, navigate, t])
+
+  useEffect(() => {
+    if (!embedId || !forms.data) return
+    const created = forms.data.data.find((item) => item.id === embedId)
+    if (created) setSnippetsOf(created)
+    setEmbedId(null)
+  }, [embedId, forms.data])
 
   const confirm = async ({ kind, form }: PendingConfirmation) => {
     if (kind === 'delete') {
@@ -49,7 +65,7 @@ export function FormsPage() {
   return (
     <Page>
 <PageHeader title={t('page.title')} description={t('page.description')} actions={<>
-        <Button size="sm" onClick={() => setCreating(true)}>
+        <Button size="sm" onClick={() => void navigate(`${FORMS_PATH}/new`)}>
           <Plus aria-hidden="true" />
           {t('page.new')}
         </Button>
@@ -69,7 +85,7 @@ export function FormsPage() {
           title={t('page.emptyTitle')}
           description={t('page.emptyDescription')}
           action={
-            <Button size="sm" onClick={() => setCreating(true)}>
+            <Button size="sm" onClick={() => void navigate(`${FORMS_PATH}/new`)}>
               <Plus aria-hidden="true" />
               {t('page.new')}
             </Button>
@@ -81,7 +97,7 @@ export function FormsPage() {
             <FormRow
               key={form.id}
               form={form}
-              onEdit={() => setEditing(form)}
+              onEdit={() => void navigate(`${FORMS_PATH}/${form.id}/edit`)}
               onSnippets={() => setSnippetsOf(form)}
               onSubmissions={() => setSubmissionsOf(form)}
               onConfirm={(kind) => setPending({ kind, form })}
@@ -90,23 +106,6 @@ export function FormsPage() {
         </ul>
       )}
 
-      <FormEditorDialog
-        open={creating || editing !== null}
-        form={editing}
-        onOpenChange={(open) => {
-          if (!open) {
-            setCreating(false)
-            setEditing(null)
-          }
-        }}
-        onSaved={(form, created) => {
-          setCreating(false)
-          setEditing(null)
-          void invalidate()
-          notifySuccess(t(created ? 'page.created' : 'page.saved', { name: form.name }))
-          if (created) setSnippetsOf(form)
-        }}
-      />
       <SnippetsDialog form={snippetsOf} onClose={() => setSnippetsOf(null)} />
       <SubmissionsDialog form={submissionsOf} onClose={() => setSubmissionsOf(null)} />
       <ConfirmDialog
@@ -144,12 +143,12 @@ function FormRow({ form, onEdit, onSnippets, onSubmissions, onConfirm }: FormRow
           {form.deal && <Badge variant="secondary">{t('page.createsDeal')}</Badge>}
         </div>
         <p className="text-xs text-muted-foreground">
-          {t('page.counters', {
-            fields: form.fields?.length ?? 0,
-            accepted: form.accepted_count,
-            spam: form.spam_count,
-            failed: form.failed_count,
-          })}
+          {[
+            t('page.fieldsCount', { count: form.fields?.length ?? 0 }),
+            t('page.acceptedCount', { count: form.accepted_count }),
+            t('page.spamCount', { count: form.spam_count }),
+            t('page.failedCount', { count: form.failed_count }),
+          ].join(' · ')}
         </p>
         <p className="text-xs text-muted-foreground">
           {form.last_submission_at
@@ -161,9 +160,6 @@ function FormRow({ form, onEdit, onSnippets, onSubmissions, onConfirm }: FormRow
         <Button size="sm" variant="outline" onClick={onSubmissions}>
           {t('page.submissions')}
         </Button>
-        <Button size="sm" variant="outline" onClick={onSnippets}>
-          {t('page.embed')}
-        </Button>
         <Button size="sm" variant="outline" onClick={onEdit}>
           {t('page.edit')}
         </Button>
@@ -174,6 +170,7 @@ function FormRow({ form, onEdit, onSnippets, onSubmissions, onConfirm }: FormRow
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={onSnippets}>{t('page.embed')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => onConfirm('rotate')}>{t('page.rotate')}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={() => onConfirm('delete')}>
