@@ -11,8 +11,12 @@ use async_trait::async_trait;
 use serde_json::{Value, json};
 use utoipa_axum::router::OpenApiRouter;
 
+use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, SettingField, SettingKind};
+use aphel_kernel::modules::{
+    AppBuilder, Manifest, Migration, Module, ModuleSettingsTester, SettingField, SettingKind,
+    SettingsTestOutcome, SetupHint,
+};
 use aphel_sdk::platform::api::sso::LoginProvider;
 
 pub use provider::{IdentityLogin, OidcProvider};
@@ -21,6 +25,63 @@ pub use aphel_sdk::sso::KEY;
 pub(crate) const DISCOVERY_URL: &str = "discovery_url";
 pub(crate) const BUTTON_LABEL: &str = "button_label";
 pub(crate) const DEFAULT_LABEL: &str = "Login corporativo";
+
+struct SsoSetup;
+
+#[async_trait]
+impl ModuleSettingsTester for SsoSetup {
+    fn module(&self) -> &'static str {
+        KEY
+    }
+
+    fn has_hints(&self) -> bool {
+        true
+    }
+
+    async fn hints(&self, ctx: &Ctx<'_>) -> Result<Vec<SetupHint>, AppError> {
+        Ok(vec![SetupHint {
+            key: "callback_url",
+            value: sso::callback_url(ctx, KEY),
+        }])
+    }
+
+    async fn test(
+        &self,
+        ctx: &Ctx<'_>,
+        settings: &serde_json::Map<String, Value>,
+    ) -> Result<SettingsTestOutcome, AppError> {
+        let typed = settings
+            .get(DISCOVERY_URL)
+            .and_then(Value::as_str)
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(str::to_owned);
+        let address = match typed {
+            Some(address) => address,
+            None => sso::settings::text(&support::settings(ctx, KEY).await?, DISCOVERY_URL)
+                .unwrap_or_default(),
+        };
+        let Some(url) = sso::oauth::discovery_url(&address) else {
+            return Ok(SettingsTestOutcome {
+                ok: false,
+                code: "invalid_address".to_owned(),
+                message: address,
+            });
+        };
+        Ok(match sso::oauth::discover(&url).await {
+            Ok(endpoints) => SettingsTestOutcome {
+                ok: true,
+                code: "ok".to_owned(),
+                message: endpoints.issuer.unwrap_or(url),
+            },
+            Err(_) => SettingsTestOutcome {
+                ok: false,
+                code: "unreachable".to_owned(),
+                message: url,
+            },
+        })
+    }
+}
 
 pub struct SsoModule;
 
@@ -66,6 +127,7 @@ impl Module for SsoModule {
         .routes(|_| http::router())
         .public_routes(|_| OpenApiRouter::new().merge(http::public_router()))
         .contribute::<dyn LoginProvider>(Arc::new(IdentityLogin(OidcProvider)));
+        app.contribute::<dyn ModuleSettingsTester>(Arc::new(SsoSetup));
         Ok(())
     }
 

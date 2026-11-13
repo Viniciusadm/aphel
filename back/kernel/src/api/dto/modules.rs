@@ -179,6 +179,7 @@ pub struct ModuleResponse {
     pub extension_dependents: Vec<String>,
     pub held_by: Option<String>,
     pub can_test: bool,
+    pub has_setup_hints: bool,
 }
 
 impl From<ModuleView> for ModuleResponse {
@@ -241,7 +242,12 @@ impl From<ModuleView> for ModuleResponse {
             can_test: crate::modules::try_app().is_some_and(|app| {
                 app.all_contributions::<dyn crate::modules::ModuleSettingsTester>()
                     .iter()
-                    .any(|(module, _)| *module == manifest.key)
+                    .any(|(module, tester)| *module == manifest.key && tester.can_test())
+            }),
+            has_setup_hints: crate::modules::try_app().is_some_and(|app| {
+                app.all_contributions::<dyn crate::modules::ModuleSettingsTester>()
+                    .iter()
+                    .any(|(module, tester)| *module == manifest.key && tester.has_hints())
             }),
         }
     }
@@ -255,8 +261,17 @@ pub struct TestModuleSettingsRequest {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+pub struct ModuleSetupHintResponse {
+    #[schema(example = "callback_url")]
+    pub key: String,
+    pub value: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
 pub struct TestModuleSettingsResponse {
     pub ok: bool,
+    #[schema(example = "ok")]
+    pub code: String,
     pub message: String,
 }
 

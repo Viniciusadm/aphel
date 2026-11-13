@@ -4,7 +4,8 @@
   "nav": "Single sign-on",
   "page": {
     "title": "Single sign-on (OIDC)",
-    "description": "Sign in with your company identity provider. Configure it in Settings › Modules."
+    "description": "Sign in with your company identity provider. Configure it in Settings › Modules.",
+    "menuDescription": "Identity provider, domains and callback URL."
   },
   "panel": {
     "steps": [
@@ -39,6 +40,18 @@
     "require_sso": {
       "label": "Require single sign-on",
       "help": "Refuses password login for e-mails of these domains"
+    },
+    "hints": {
+      "callback_url": {
+        "label": "Callback URL (redirect URI)",
+        "help": "Register exactly this address at the provider when you create the app; the Client ID and Client secret below come from it. It uses the organization public address (Settings › General): check it is right before registering."
+      }
+    },
+    "testButton": "Test connection",
+    "testResults": {
+      "ok": "The provider answered ({{detail}}). The address is right.",
+      "invalid_address": "Enter the provider address starting with https://.",
+      "unreachable": "Could not read the provider information at {{detail}}. Check the address."
     }
   },
   "shared": {

@@ -68,6 +68,9 @@ impl Module for GoogleModule {
         .contribute::<dyn CalendarAvailability>(Arc::new(CalendarBusy::new(Arc::new(
             GoogleProvider,
         ))));
+        app.contribute::<dyn aphel_kernel::modules::ModuleSettingsTester>(Arc::new(
+            aphel_sdk::sso::CallbackHints(KEY),
+        ));
         Ok(())
     }
 

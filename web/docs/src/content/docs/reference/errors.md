@@ -146,6 +146,8 @@ The tables below list every code that the platform and the built-in modules defi
 | `module_required_by` | 409 | Other enabled modules depend on this one; disable them first. |
 | `module_required_by_extension` | 409 | An enabled plugin requires a contract, operation or permission of this module; disable or uninstall the plugin first. |
 | `module_settings_required` | 422 | Configure the required settings before enabling the module. |
+| `module_setup_unsupported` | 404 | This module has no setup hints. |
+| `module_test_unsupported` | 404 | This module has no settings test. |
 | `mutation_already_applied` | 409 | The durable mutation was already committed. |
 | `mutation_multiple_transactions` | 409 | A durable mutation must use one committing transaction. |
 | `not_invited` | 409 | This member has no pending invitation. |

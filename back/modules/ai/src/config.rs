@@ -233,7 +233,7 @@ pub(crate) fn provider_with_key(
 pub(crate) async fn test_settings(
     ctx: &Ctx<'_>,
     raw: &serde_json::Map<String, Value>,
-) -> Result<(bool, String), AppError> {
+) -> Result<(bool, String, String), AppError> {
     let settings = AiSettings::from_value(&Value::Object(raw.clone()));
     let typed = raw
         .get(SETTING_API_KEY)
@@ -247,7 +247,10 @@ pub(crate) async fn test_settings(
     };
     let provider = match provider_with_key(&settings, api_key) {
         Ok(provider) => provider,
-        Err(error) => return Ok((false, plain_message(&error))),
+        Err(error) => {
+            let (code, message) = split_error(&error);
+            return Ok((false, code, message));
+        }
     };
     let started = std::time::Instant::now();
     let request = crate::provider::AiRequest::new(
@@ -258,13 +261,17 @@ pub(crate) async fn test_settings(
     Ok(match provider.complete(request).await {
         Ok(_) => (
             true,
+            "ok".to_owned(),
             format!(
                 "{} answered in {} ms",
                 provider.model(),
                 started.elapsed().as_millis()
             ),
         ),
-        Err(error) => (false, plain_message(&error)),
+        Err(error) => {
+            let (code, message) = split_error(&error);
+            (false, code, message)
+        }
     })
 }
 
@@ -281,10 +288,10 @@ pub(crate) async fn is_configured(
     Ok((configured, key_configured))
 }
 
-fn plain_message(error: &impl std::fmt::Display) -> String {
+fn split_error(error: &impl std::fmt::Display) -> (String, String) {
     let text = error.to_string();
     match text.split_once(": ") {
-        Some((code, rest)) if !code.contains(' ') => rest.to_owned(),
-        _ => text,
+        Some((code, rest)) if !code.contains(' ') => (code.to_owned(), rest.to_owned()),
+        _ => ("error".to_owned(), text),
     }
 }

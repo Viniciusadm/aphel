@@ -67,8 +67,10 @@
     "saveAndEnable": "Save and enable",
     "test": "Test call",
     "testing": "Testing…",
-    "testOk": "The call worked: {{detail}}",
-    "testFailed": "The call failed: {{detail}}"
+    "testOk": "The test worked.",
+    "testFailed": "The test failed.",
+    "hintCopy": "Copy",
+    "hintCopied": "Copied"
   },
   "validation": {
     "required": "Required field.",

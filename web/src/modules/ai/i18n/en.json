@@ -55,6 +55,14 @@
     "feature_plugin": {
       "label": "Plugin use",
       "help": "Lets installed plugins call the AI, counted in the same limits and log"
+    },
+    "testResults": {
+      "ok": "The provider answered.",
+      "ai_not_configured": "Enter the API key to test.",
+      "ai_provider_error": "The provider answered with an error: {{detail}}",
+      "ai_provider_auth_failed": "The provider rejected the key.",
+      "ai_provider_timeout": "The provider took too long to answer.",
+      "error": "{{detail}}"
     }
   },
   "providers": {

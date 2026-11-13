@@ -53,8 +53,8 @@ impl aphel_sdk::points::ModuleSettingsTester for AiSettingsTester {
         ctx: &aphel_kernel::context::Ctx<'_>,
         settings: &serde_json::Map<String, Value>,
     ) -> Result<aphel_sdk::points::SettingsTestOutcome, AppError> {
-        let (ok, message) = crate::config::test_settings(ctx, settings).await?;
-        Ok(aphel_sdk::points::SettingsTestOutcome { ok, message })
+        let (ok, code, message) = crate::config::test_settings(ctx, settings).await?;
+        Ok(aphel_sdk::points::SettingsTestOutcome { ok, code, message })
     }
 }
 

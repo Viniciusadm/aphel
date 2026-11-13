@@ -67,8 +67,10 @@
     "saveAndEnable": "Salvar e habilitar",
     "test": "Testar chamada",
     "testing": "Testando…",
-    "testOk": "A chamada funcionou: {{detail}}",
-    "testFailed": "A chamada falhou: {{detail}}"
+    "testOk": "O teste funcionou.",
+    "testFailed": "O teste falhou.",
+    "hintCopy": "Copiar",
+    "hintCopied": "Copiado"
   },
   "validation": {
     "required": "Campo obrigatório.",

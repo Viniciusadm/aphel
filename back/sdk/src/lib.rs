@@ -68,7 +68,7 @@ pub mod points {
     pub use aphel_kernel::domain::UserId;
     pub use aphel_kernel::modules::{
         FileReferenceSource, HealthSource, ModuleSettingsTester, ReferenceProvider,
-        SettingsTestOutcome, lookup_exists,
+        SettingsTestOutcome, SetupHint, lookup_exists,
     };
 }
 

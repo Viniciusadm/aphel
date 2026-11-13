@@ -37,6 +37,7 @@ import {
   type SettingsFormValues,
   type ValidationKey,
 } from './form'
+import { SetupHints } from './SetupHints'
 import { useModuleText } from './text'
 import { Alert } from '@/components/ui/alert'
 import { Field } from '@/components/ui/field'
@@ -67,7 +68,6 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
     register,
     handleSubmit,
     getValues,
-    trigger,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<SettingsFormValues, unknown, SettingsFormValues>({
@@ -76,7 +76,7 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
   })
 
   useEffect(() => {
-    if (testResult) resultRef.current?.scrollIntoView({ block: 'nearest' })
+    if (testResult) resultRef.current?.scrollIntoView({ block: 'center' })
   }, [testResult])
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
   const runTest = async () => {
     setFormError(null)
     setTestResult(null)
-    if (!modulesApi.testSettings || !(await trigger())) return
+    if (!modulesApi.testSettings) return
     setTesting(true)
     try {
       setTestResult(await modulesApi.testSettings(module.key, toSettings(module, getValues(), clearedSecrets)))
@@ -145,6 +145,7 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
             {t('settings.requiredHint')}
           </p>
         )}
+        {module.has_setup_hints && <SetupHints module={module} idPrefix={formId} />}
         <form id={formId} className="grid gap-4" noValidate onSubmit={onSubmit}>
           {formError && (
             <Alert className="text-destructive">
@@ -281,14 +282,18 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
           </section>
         )}
         {testResult && (
-          <Alert ref={resultRef} role="status" className={testResult.ok ? 'text-success' : 'text-destructive'}>
-            {testResult.ok ? t('settings.testOk', { detail: testResult.message }) : t('settings.testFailed', { detail: testResult.message })}
+          <Alert
+            ref={resultRef}
+            role="status"
+            className={testResult.ok ? 'border-success/30 bg-success/10 text-success' : 'text-destructive'}
+          >
+            {testResult.ok ? t('settings.testOk') : t('settings.testFailed')} {text.testMessage(testResult.code, testResult.message)}
           </Alert>
         )}
         <DialogFooter>
           {module.can_test && modulesApi.testSettings && fields.length > 0 && (
             <Button type="button" variant="outline" className="sm:mr-auto" disabled={testing || isSubmitting} aria-busy={testing} onClick={runTest}>
-              {t(testing ? 'settings.testing' : 'settings.test')}
+              {testing ? t('settings.testing') : text.testLabel(t('settings.test'))}
             </Button>
           )}
           <Button type="button" variant="outline" disabled={isSubmitting} onClick={onClose}>

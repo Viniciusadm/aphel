@@ -26,3 +26,30 @@ impl<P: IdentityProvider + 'static> aphel_kernel::api::sso::LoginProvider for Id
         login::discover_options(state, &self.0, email).await
     }
 }
+
+pub struct CallbackHints(pub &'static str);
+
+#[async_trait::async_trait]
+impl aphel_kernel::modules::ModuleSettingsTester for CallbackHints {
+    fn module(&self) -> &'static str {
+        self.0
+    }
+
+    fn can_test(&self) -> bool {
+        false
+    }
+
+    fn has_hints(&self) -> bool {
+        true
+    }
+
+    async fn hints(
+        &self,
+        ctx: &aphel_kernel::Ctx<'_>,
+    ) -> Result<Vec<aphel_kernel::modules::SetupHint>, crate::AppError> {
+        Ok(vec![aphel_kernel::modules::SetupHint {
+            key: "callback_url",
+            value: login::callback_url(ctx, self.0),
+        }])
+    }
+}

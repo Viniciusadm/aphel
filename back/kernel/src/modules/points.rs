@@ -11,18 +11,42 @@ use crate::errors::AppError;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SettingsTestOutcome {
     pub ok: bool,
+    pub code: String,
     pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SetupHint {
+    pub key: &'static str,
+    pub value: String,
 }
 
 #[async_trait]
 pub trait ModuleSettingsTester: Send + Sync {
     fn module(&self) -> &'static str;
 
+    fn can_test(&self) -> bool {
+        true
+    }
+
+    fn has_hints(&self) -> bool {
+        false
+    }
+
     async fn test(
         &self,
-        ctx: &Ctx<'_>,
-        settings: &Map<String, Value>,
-    ) -> Result<SettingsTestOutcome, AppError>;
+        _ctx: &Ctx<'_>,
+        _settings: &Map<String, Value>,
+    ) -> Result<SettingsTestOutcome, AppError> {
+        Err(AppError::not_found_code(
+            "module_test_unsupported",
+            "this module has no settings test",
+        ))
+    }
+
+    async fn hints(&self, _ctx: &Ctx<'_>) -> Result<Vec<SetupHint>, AppError> {
+        Ok(Vec::new())
+    }
 }
 
 #[async_trait]

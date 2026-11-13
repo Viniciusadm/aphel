@@ -55,6 +55,14 @@
     "feature_plugin": {
       "label": "Uso por plugins",
       "help": "Permite que plugins instalados chamem a IA, contando nos mesmos limites e no registro"
+    },
+    "testResults": {
+      "ok": "O provedor respondeu.",
+      "ai_not_configured": "Informe a chave de API para testar.",
+      "ai_provider_error": "O provedor respondeu com erro: {{detail}}",
+      "ai_provider_auth_failed": "O provedor recusou a chave informada.",
+      "ai_provider_timeout": "O provedor demorou demais para responder.",
+      "error": "{{detail}}"
     }
   },
   "providers": {

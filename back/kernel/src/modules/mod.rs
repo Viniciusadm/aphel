@@ -46,7 +46,7 @@ pub use plugin_manifest::{
 };
 pub use points::{
     FileReferenceSource, HealthSource, HttpRequestPolicy, ModuleSettingsTester, ReferenceKeySource,
-    ReferenceProvider, SettingsTestOutcome, lookup_exists,
+    ReferenceProvider, SettingsTestOutcome, SetupHint, lookup_exists,
 };
 pub use routes::{MODULE_DISABLED, RouteTakeover, module_disabled};
 pub use runtime_contribution::RuntimeContribution;

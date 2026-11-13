@@ -32872,6 +32872,87 @@
         "x-aphel-module": "kernel"
       }
     },
+    "/api/v1/modules/{key}/setup-hints": {
+      "get": {
+        "tags": [
+          "modules"
+        ],
+        "description": "Values the person needs while setting a module up, even before enabling it (for example the callback address to register at an identity provider). Only modules that declare them (`has_setup_hints`) answer.",
+        "operationId": "modules_setup_hints",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The hints of the module",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Vec_ModuleSetupHintResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module or the module has no hints (`module_setup_unsupported`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/modules/{key}/test-settings": {
       "post": {
         "tags": [
@@ -86160,7 +86241,8 @@
               "dependents",
               "enabled_dependents",
               "extension_dependents",
-              "can_test"
+              "can_test",
+              "has_setup_hints"
             ],
             "properties": {
               "can_test": {
@@ -86234,6 +86316,9 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "has_setup_hints": {
+                "type": "boolean"
               },
               "held_by": {
                 "type": [
@@ -91199,9 +91284,14 @@
             "type": "object",
             "required": [
               "ok",
+              "code",
               "message"
             ],
             "properties": {
+              "code": {
+                "type": "string",
+                "example": "ok"
+              },
               "message": {
                 "type": "string"
               },
@@ -93597,7 +93687,8 @@
                 "dependents",
                 "enabled_dependents",
                 "extension_dependents",
-                "can_test"
+                "can_test",
+                "has_setup_hints"
               ],
               "properties": {
                 "can_test": {
@@ -93672,6 +93763,9 @@
                     "type": "string"
                   }
                 },
+                "has_setup_hints": {
+                  "type": "boolean"
+                },
                 "held_by": {
                   "type": [
                     "string",
@@ -93724,6 +93818,33 @@
                 "version": {
                   "type": "string",
                   "example": "0.1.0"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Data_Vec_ModuleSetupHintResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "value"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "example": "callback_url"
+                },
+                "value": {
+                  "type": "string"
                 }
               }
             }
@@ -106534,7 +106655,8 @@
           "dependents",
           "enabled_dependents",
           "extension_dependents",
-          "can_test"
+          "can_test",
+          "has_setup_hints"
         ],
         "properties": {
           "can_test": {
@@ -106608,6 +106730,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "has_setup_hints": {
+            "type": "boolean"
           },
           "held_by": {
             "type": [
@@ -106743,6 +106868,22 @@
         "properties": {
           "label": {
             "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "ModuleSetupHintResponse": {
+        "type": "object",
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "callback_url"
           },
           "value": {
             "type": "string"
@@ -124729,9 +124870,14 @@
         "type": "object",
         "required": [
           "ok",
+          "code",
           "message"
         ],
         "properties": {
+          "code": {
+            "type": "string",
+            "example": "ok"
+          },
           "message": {
             "type": "string"
           },
@@ -128097,11 +128243,6 @@
       "x-aphel-module": "integrations"
     },
     {
-      "name": "lifecycle",
-      "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons",
-      "x-aphel-module": "leads"
-    },
-    {
       "name": "line-items",
       "description": "Scoped record line items and total policy",
       "x-aphel-module": "line_items"
@@ -128155,6 +128296,11 @@
       "name": "people",
       "description": "Contacts and their organizations",
       "x-aphel-module": "people"
+    },
+    {
+      "name": "lifecycle",
+      "description": "Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons",
+      "x-aphel-module": "leads"
     },
     {
       "name": "privacy",

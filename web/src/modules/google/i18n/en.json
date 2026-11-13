@@ -43,6 +43,12 @@
         "with_contacts": "Only events with a CRM contact",
         "all": "All events with a time"
       }
+    },
+    "hints": {
+      "callback_url": {
+        "label": "Callback URL (redirect URI)",
+        "help": "Register exactly this address at the provider when you create the app; the Client ID and Client secret below come from it. It uses the organization public address (Settings › General): check it is right before registering."
+      }
     }
   }
 }

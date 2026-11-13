@@ -247,6 +247,37 @@ export interface components {
             /** Format: int64 */
             total: number;
         };
+        LeadFormAppearance: {
+            /** @example #2563eb */
+            accent?: string | null;
+            button?: null | components["schemas"]["ButtonStyle"];
+            button_width?: null | components["schemas"]["ButtonWidth"];
+            embed_mode?: null | components["schemas"]["EmbedMode"];
+            font?: null | components["schemas"]["Font"];
+            intro?: string | null;
+            radius?: null | components["schemas"]["Radius"];
+            show_logo?: boolean | null;
+            show_title?: boolean | null;
+            surface?: null | components["schemas"]["Surface"];
+            theme?: null | components["schemas"]["Theme"];
+            width?: null | components["schemas"]["Width"];
+        };
+        /** @enum {string} */
+        Width: "narrow" | "medium" | "wide";
+        /** @enum {string} */
+        Theme: "clean" | "soft" | "dark" | "outline";
+        /** @enum {string} */
+        Surface: "plain" | "card";
+        /** @enum {string} */
+        Radius: "sharp" | "rounded" | "pill";
+        /** @enum {string} */
+        Font: "system" | "serif" | "rounded";
+        /** @enum {string} */
+        EmbedMode: "theme" | "inherit";
+        /** @enum {string} */
+        ButtonWidth: "auto" | "full";
+        /** @enum {string} */
+        ButtonStyle: "solid" | "outline";
         /** @enum {string} */
         LeadFormFieldKind: "text" | "email" | "phone" | "textarea" | "select" | "checkbox";
         LeadFormField: {
@@ -312,37 +343,6 @@ export interface components {
             /** @example {{name}} - website form */
             title_template: string;
         };
-        LeadFormAppearance: {
-            /** @example #2563eb */
-            accent?: string | null;
-            button?: null | components["schemas"]["ButtonStyle"];
-            button_width?: null | components["schemas"]["ButtonWidth"];
-            embed_mode?: null | components["schemas"]["EmbedMode"];
-            font?: null | components["schemas"]["Font"];
-            intro?: string | null;
-            radius?: null | components["schemas"]["Radius"];
-            show_logo?: boolean | null;
-            show_title?: boolean | null;
-            surface?: null | components["schemas"]["Surface"];
-            theme?: null | components["schemas"]["Theme"];
-            width?: null | components["schemas"]["Width"];
-        };
-        /** @enum {string} */
-        Width: "narrow" | "medium" | "wide";
-        /** @enum {string} */
-        Theme: "clean" | "soft" | "dark" | "outline";
-        /** @enum {string} */
-        Surface: "plain" | "card";
-        /** @enum {string} */
-        Radius: "sharp" | "rounded" | "pill";
-        /** @enum {string} */
-        Font: "system" | "serif" | "rounded";
-        /** @enum {string} */
-        EmbedMode: "theme" | "inherit";
-        /** @enum {string} */
-        ButtonWidth: "auto" | "full";
-        /** @enum {string} */
-        ButtonStyle: "solid" | "outline";
         Data_LeadFormSubmitResult: {
             data: {
                 redirect_url?: string | null;

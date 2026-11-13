@@ -590,6 +590,7 @@ export interface components {
                 enabled_dependents: string[];
                 events: components["schemas"]["ModuleEventResponse"][];
                 extension_dependents: string[];
+                has_setup_hints: boolean;
                 held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
@@ -674,6 +675,7 @@ export interface components {
                 enabled_dependents: string[];
                 events: components["schemas"]["ModuleEventResponse"][];
                 extension_dependents: string[];
+                has_setup_hints: boolean;
                 held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
@@ -804,6 +806,7 @@ export interface components {
             enabled_dependents: string[];
             events: components["schemas"]["ModuleEventResponse"][];
             extension_dependents: string[];
+            has_setup_hints: boolean;
             held_by?: string | null;
             installed_version?: string | null;
             /** @example proposals */

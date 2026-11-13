@@ -70,9 +70,12 @@ Register an app in Microsoft Entra ID with the redirect address `<public address
 
 The `sso` module connects any OpenID Connect provider (Okta, Keycloak, Auth0, Entra ID and others).
 
-1. Create an application at your provider and register the redirect address `<public address>/api/v1/public/sso/callback`.
-2. In Settings, Modules, configure Single sign-on: the issuer address or discovery document URL (an `https://` address), the client ID and secret, a label for the button, the email domains that use it, and optionally whether password sign-in is refused for those domains.
-3. Enable the module.
+1. Set the public address of the organization first (Settings, General): the redirect address is built from it.
+2. In Settings, Modules, click **Configure** on Single sign-on. The dialog shows the redirect address (`<public address>/api/v1/public/sso/callback`) with a copy button, even while the module is disabled. Create an application at your provider and register exactly that address.
+3. Fill in the issuer address or discovery document URL (an `https://` address), the client ID and secret, a label for the button, the email domains that use it, and optionally whether password sign-in is refused for those domains. **Test connection** reads the provider's discovery document and tells you whether the address is right, before anything is saved.
+4. Enable the module. Its status page lives under Integrations.
+
+The Google and Microsoft modules show their redirect address the same way.
 
 Users whose email domain matches are offered the sign-in button. Sign-in attempts through single sign-on are rate limited to 30 per 5 minutes. See [Security](/_aphel/docs/admin/security/).
 

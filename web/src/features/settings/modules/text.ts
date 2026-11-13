@@ -37,6 +37,16 @@ export function useModuleText(module: ModuleInfo) {
     eventDescription: (eventType: string, fallback: string) => lookup(`events.${eventType}`, fallback),
     fieldLabel: (field: ModuleSettingField) => lookup(`settings.${field.key}.label`, field.label),
     fieldHelp: (field: ModuleSettingField) => lookup(`settings.${field.key}.help`, field.help ?? ''),
+    testMessage: (code: string, detail: string) => {
+      for (const path of [`settings.testResults.${code}`, `errors.${code}`]) {
+        const found = translate(path, { ns: module.key, defaultValue: '', detail })
+        if (found) return found
+      }
+      return detail
+    },
+    hintLabel: (key: string, fallback: string) => lookup(`settings.hints.${key}.label`, fallback),
+    hintHelp: (key: string) => lookup(`settings.hints.${key}.help`, ''),
+    testLabel: (fallback: string) => lookup('settings.testButton', fallback),
     optionLabel: (field: ModuleSettingField, value: string, fallback: string) =>
       lookup(`settings.${field.key}.options.${value}`, fallback),
   }

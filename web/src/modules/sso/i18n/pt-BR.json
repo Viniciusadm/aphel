@@ -4,7 +4,8 @@
   "nav": "Login único",
   "page": {
     "title": "Login único (OIDC)",
-    "description": "Login com o provedor de identidade da sua empresa. Configure em Configurações › Módulos."
+    "description": "Login com o provedor de identidade da sua empresa. Configure em Configurações › Módulos.",
+    "menuDescription": "Provedor de identidade, domínios e URL de retorno."
   },
   "panel": {
     "steps": [
@@ -39,6 +40,18 @@
     "require_sso": {
       "label": "Exigir login único",
       "help": "Recusa o login por senha de e-mails desses domínios"
+    },
+    "hints": {
+      "callback_url": {
+        "label": "URL de retorno (redirect URI)",
+        "help": "Cadastre exatamente este endereço no provedor ao criar o aplicativo; é dele que saem o Client ID e o Client secret abaixo. Ele usa o endereço público da organização (Configurações › Geral): confira se está certo antes de cadastrar."
+      }
+    },
+    "testButton": "Testar conexão",
+    "testResults": {
+      "ok": "O provedor respondeu ({{detail}}). O endereço está certo.",
+      "invalid_address": "Informe o endereço do provedor começando com https://.",
+      "unreachable": "Não foi possível ler as informações do provedor em {{detail}}. Confira o endereço."
     }
   },
   "shared": {

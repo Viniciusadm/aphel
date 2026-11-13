@@ -4549,6 +4549,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/modules/{key}/setup-hints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Values the person needs while setting a module up, even before enabling it (for example the callback address to register at an identity provider). Only modules that declare them (`has_setup_hints`) answer. */
+        get: operations["modules_setup_hints"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/modules/{key}/test-settings": {
         parameters: {
             query?: never;
@@ -13695,6 +13712,7 @@ export interface components {
                 enabled_dependents: string[];
                 events: components["schemas"]["ModuleEventResponse"][];
                 extension_dependents: string[];
+                has_setup_hints: boolean;
                 held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
@@ -14969,6 +14987,8 @@ export interface components {
         };
         Data_TestModuleSettingsResponse: {
             data: {
+                /** @example ok */
+                code: string;
                 message: string;
                 ok: boolean;
             };
@@ -15616,6 +15636,7 @@ export interface components {
                 enabled_dependents: string[];
                 events: components["schemas"]["ModuleEventResponse"][];
                 extension_dependents: string[];
+                has_setup_hints: boolean;
                 held_by?: string | null;
                 installed_version?: string | null;
                 /** @example proposals */
@@ -15630,6 +15651,13 @@ export interface components {
                 update_available: boolean;
                 /** @example 0.1.0 */
                 version: string;
+            }[];
+        };
+        Data_Vec_ModuleSetupHintResponse: {
+            data: {
+                /** @example callback_url */
+                key: string;
+                value: string;
             }[];
         };
         Data_Vec_PackageTemplateResponse: {
@@ -19001,6 +19029,7 @@ export interface components {
             enabled_dependents: string[];
             events: components["schemas"]["ModuleEventResponse"][];
             extension_dependents: string[];
+            has_setup_hints: boolean;
             held_by?: string | null;
             installed_version?: string | null;
             /** @example proposals */
@@ -19034,6 +19063,11 @@ export interface components {
         };
         ModuleSettingOptionResponse: {
             label: string;
+            value: string;
+        };
+        ModuleSetupHintResponse: {
+            /** @example callback_url */
+            key: string;
             value: string;
         };
         MoveDealPipelineRequest: {
@@ -23635,6 +23669,8 @@ export interface components {
             settings: Record<string, never>;
         };
         TestModuleSettingsResponse: {
+            /** @example ok */
+            code: string;
             message: string;
             ok: boolean;
         };
@@ -47522,6 +47558,65 @@ export interface operations {
             };
             /** @description Invalid settings (`validation_error` with `details.fields`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    modules_setup_hints: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The hints of the module */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Vec_ModuleSetupHintResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module or the module has no hints (`module_setup_unsupported`) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

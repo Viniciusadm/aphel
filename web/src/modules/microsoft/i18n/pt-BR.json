@@ -48,6 +48,12 @@
         "with_contacts": "Só eventos com algum contato do CRM",
         "all": "Todos os eventos com horário"
       }
+    },
+    "hints": {
+      "callback_url": {
+        "label": "URL de retorno (redirect URI)",
+        "help": "Cadastre exatamente este endereço no provedor ao criar o aplicativo; é dele que saem o Client ID e o Client secret abaixo. Ele usa o endereço público da organização (Configurações › Geral): confira se está certo antes de cadastrar."
+      }
     }
   }
 }

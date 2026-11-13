@@ -5,9 +5,9 @@ use utoipa_axum::routes;
 
 use crate::api::dto::common::{Data, ErrorEnvelope};
 use crate::api::dto::modules::{
-    ModuleDataExportResponse, ModuleResponse, PublicModuleResponse, PublicPlatformResponse,
-    PurgeModuleDataRequest, TestModuleSettingsRequest, TestModuleSettingsResponse,
-    UpdateModuleSettingsRequest,
+    ModuleDataExportResponse, ModuleResponse, ModuleSetupHintResponse, PublicModuleResponse,
+    PublicPlatformResponse, PurgeModuleDataRequest, TestModuleSettingsRequest,
+    TestModuleSettingsResponse, UpdateModuleSettingsRequest,
 };
 use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, JsonBody};
@@ -35,6 +35,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(disable_module))
         .routes(routes!(update_module_settings))
         .routes(routes!(test_module_settings))
+        .routes(routes!(module_setup_hints))
         .routes(routes!(export_module_data))
         .routes(routes!(purge_module_data))
 }
@@ -245,7 +246,7 @@ async fn test_module_settings(
     let tester = crate::modules::app()
         .all_contributions::<dyn crate::modules::ModuleSettingsTester>()
         .into_iter()
-        .find(|(module, _)| *module == key)
+        .find(|(module, tester)| *module == key && tester.can_test())
         .map(|(_, tester)| tester)
         .ok_or_else(|| {
             crate::errors::AppError::not_found_code(
@@ -257,8 +258,58 @@ async fn test_module_settings(
     let outcome = tester.test(&ctx, &request.settings).await?;
     Ok(Json(Data::new(TestModuleSettingsResponse {
         ok: outcome.ok,
+        code: outcome.code,
         message: outcome.message,
     })))
+}
+
+#[utoipa::path(
+    get,
+    path = "/modules/{key}/setup-hints",
+    tag = TAG,
+    operation_id = "modules_setup_hints",
+    security(("session_cookie" = [])),
+    description = "Values the person needs while setting a module up, even before enabling it (for example the callback address to register at an identity provider). Only modules that declare them (`has_setup_hints`) answer.",
+    params(("key" = String, Path, description = "Module key")),
+    responses(
+        (status = 200, description = "The hints of the module", body = Data<Vec<ModuleSetupHintResponse>>),
+        (status = 401, description = "Missing or invalid credentials", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Unknown module or the module has no hints (`module_setup_unsupported`)", body = ErrorEnvelope),
+    )
+)]
+async fn module_setup_hints(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Path(key): Path<String>,
+) -> Result<Json<Data<Vec<ModuleSetupHintResponse>>>, ApiError> {
+    ensure_management_allowed()?;
+    tenant
+        .scope
+        .require(&crate::domain::access::Permission::SETTINGS_MANAGE)?;
+    let source = crate::modules::app()
+        .all_contributions::<dyn crate::modules::ModuleSettingsTester>()
+        .into_iter()
+        .find(|(module, tester)| *module == key && tester.has_hints())
+        .map(|(_, tester)| tester)
+        .ok_or_else(|| {
+            crate::errors::AppError::not_found_code(
+                "module_setup_unsupported",
+                "this module has no setup hints",
+            )
+        })?;
+    let ctx = crate::Ctx::from_state(&state, &tenant.scope).await?;
+    Ok(Json(Data::new(
+        source
+            .hints(&ctx)
+            .await?
+            .into_iter()
+            .map(|hint| ModuleSetupHintResponse {
+                key: hint.key.to_owned(),
+                value: hint.value,
+            })
+            .collect(),
+    )))
 }
 
 #[utoipa::path(
