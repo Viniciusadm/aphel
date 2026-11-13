@@ -17,6 +17,7 @@ use serde_json::Value;
 
 pub(crate) const KEY: &str = "media";
 pub(crate) const ASSET: &str = "media.asset";
+pub(crate) const FOLDER: &str = "media.folder";
 pub(crate) const READ: &str = "media.assets.read";
 pub(crate) const MANAGE: &str = "media.assets.manage";
 pub(crate) const IN_USE: &str = "media_asset_in_use";
@@ -59,9 +60,47 @@ fn definition() -> Result<EntityDefinition, AppError> {
         .system_field(text("caption", "Caption", 300)?)
         .system_field(text("credit", "Credit", 160)?)
         .system_field(focal("focal_x", "Horizontal focal point")?)
-        .system_field(focal("focal_y", "Vertical focal point")?);
+        .system_field(focal("focal_y", "Vertical focal point")?)
+        .system_field(text("folder_id", "Folder", 36)?)
+        .reference(aphel_sdk::fields::SoftReference {
+            field: "folder_id".to_owned(),
+            target: aphel_sdk::fields::ReferenceTarget::Entity {
+                entity: FOLDER.to_owned(),
+            },
+            on_delete: aphel_sdk::fields::DeletePolicy::Restrict,
+        });
     for field in definition.system_fields.iter_mut() {
         if field.key.as_str() == "name" || field.key.as_str() == "alt" {
+            field.searchable = true;
+        }
+    }
+    for key in ["created_at", "updated_at"] {
+        definition = definition
+            .system_field(SystemField::new(key, key, FieldType::DateTime, key)?.read_only());
+    }
+    Ok(definition.handler(Arc::new(GenericRecordHandler::new(record_type))))
+}
+
+fn folder_definition() -> Result<EntityDefinition, AppError> {
+    let read = Permission::from_static(READ);
+    let manage = Permission::from_static(MANAGE);
+    let record_type = RecordType::from_static(FOLDER);
+    let mut definition = EntityDefinition::new(record_type.clone(), "", read)
+        .managed(FOLDER)
+        .generic_mutations(manage.clone(), manage.clone())
+        .update_permission(manage)
+        .title_field("name")
+        .system_field(text("name", "Name", 80)?.required())
+        .system_field(text("parent_id", "Parent folder", 36)?)
+        .reference(aphel_sdk::fields::SoftReference {
+            field: "parent_id".to_owned(),
+            target: aphel_sdk::fields::ReferenceTarget::Entity {
+                entity: FOLDER.to_owned(),
+            },
+            on_delete: aphel_sdk::fields::DeletePolicy::Restrict,
+        });
+    for field in definition.system_fields.iter_mut() {
+        if field.key.as_str() == "name" {
             field.searchable = true;
         }
     }
@@ -140,6 +179,7 @@ impl Module for MediaModule {
             Permission::from_static(MANAGE),
         ))
         .grant_to(["admin", "manager"]);
+        app.entity(folder_definition()?);
         app.entity(definition()?);
         app.on(RecordDeleting, 20, |ctx, args| Box::pin(guard(ctx, args)));
         app.openapi_tag(
