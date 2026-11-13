@@ -17,7 +17,8 @@
   },
   "actions": {
     "cancel": "Cancelar",
-    "save": "Salvar"
+    "save": "Salvar",
+    "close": "Fechar"
   },
   "kinds": {
     "whatsapp": "WhatsApp",
@@ -192,7 +193,19 @@
     "noAccessDescription": "Peça a um administrador a permissão para gerenciar canais de mensagem.",
     "descriptionWhatsapp": "Conecte números do WhatsApp (Cloud API oficial da Meta). As credenciais ficam cifradas e nunca são exibidas de volta.",
     "menuDescription": "Números do WhatsApp e caixas de e-mail que alimentam a caixa de entrada.",
-    "emptyDescriptionWhatsapp": "Conecte um número do WhatsApp para receber mensagens."
+    "emptyDescriptionWhatsapp": "Conecte um número do WhatsApp para receber mensagens.",
+    "columns": {
+      "name": "Canal",
+      "type": "Tipo",
+      "address": "Número ou endereço",
+      "status": "Situação",
+      "lastCheck": "Última verificação",
+      "actions": "Ações"
+    },
+    "webhookAction": "URL do webhook",
+    "webhookTitle": "Webhook de {{name}}",
+    "webhookDescription": "Cadastre este endereço na Meta, no painel do aplicativo (WhatsApp › Configuração), usando o mesmo token de verificação deste canal.",
+    "copy": "Copiar"
   },
   "editor": {
     "editTitle": "Editar {{name}}",

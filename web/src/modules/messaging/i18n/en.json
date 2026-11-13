@@ -17,7 +17,8 @@
   },
   "actions": {
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "close": "Close"
   },
   "kinds": {
     "whatsapp": "WhatsApp",
@@ -192,7 +193,19 @@
     "noAccessDescription": "Ask an administrator for the permission to manage messaging channels.",
     "descriptionWhatsapp": "Connect WhatsApp numbers (Meta official Cloud API). Credentials are encrypted and never shown again.",
     "menuDescription": "WhatsApp numbers and mailboxes that feed the inbox.",
-    "emptyDescriptionWhatsapp": "Connect a WhatsApp number to receive messages."
+    "emptyDescriptionWhatsapp": "Connect a WhatsApp number to receive messages.",
+    "columns": {
+      "name": "Channel",
+      "type": "Type",
+      "address": "Number or address",
+      "status": "Status",
+      "lastCheck": "Last check",
+      "actions": "Actions"
+    },
+    "webhookAction": "Webhook URL",
+    "webhookTitle": "Webhook of {{name}}",
+    "webhookDescription": "Register this address at Meta, in the app dashboard (WhatsApp › Configuration), using the same verify token as this channel.",
+    "copy": "Copy"
   },
   "editor": {
     "editTitle": "Edit {{name}}",

@@ -1,4 +1,4 @@
-import { Copy, Lock, MoreHorizontal, Plus, RadioTower } from 'lucide-react'
+import { Check, Copy, Lock, MoreHorizontal, Plus, RadioTower } from 'lucide-react'
 import { useState } from 'react'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
@@ -13,7 +13,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import {
@@ -44,6 +46,7 @@ export function ChannelsPage() {
   const invalidate = useInvalidateMessaging()
   const [editing, setEditing] = useState<Editing | null>(null)
   const [deleting, setDeleting] = useState<Channel | null>(null)
+  const [webhookOf, setWebhookOf] = useState<Channel | null>(null)
 
   const hasEmail = (providers.data ?? []).some((provider) => provider.key === 'email')
 
@@ -98,19 +101,35 @@ export function ChannelsPage() {
           action={newButtons}
         />
       ) : (
-        <ul className="grid gap-2" aria-label={t('channels.listLabel')}>
-          {channels.data.data.map((channel) => (
-            <ChannelRow
-              key={channel.id}
-              channel={channel}
-              onEdit={() => setEditing({ kind: channel.kind, channel })}
-              onDelete={() => setDeleting(channel)}
-              onTested={() => void invalidate()}
-            />
-          ))}
-        </ul>
+        <Table aria-label={t('channels.listLabel')}>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{t('channels.columns.name')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('channels.columns.type')}</TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">{t('channels.columns.address')}</TableHead>
+              <TableHead scope="col">{t('channels.columns.status')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('channels.columns.lastCheck')}</TableHead>
+              <TableHead scope="col">
+                <span className="sr-only">{t('channels.columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {channels.data.data.map((channel) => (
+              <ChannelRow
+                key={channel.id}
+                channel={channel}
+                onEdit={() => setEditing({ kind: channel.kind, channel })}
+                onDelete={() => setDeleting(channel)}
+                onWebhook={() => setWebhookOf(channel)}
+                onTested={() => void invalidate()}
+              />
+            ))}
+          </TableBody>
+        </Table>
       )}
 
+      <WebhookDialog channel={webhookOf} onClose={() => setWebhookOf(null)} />
       <ChannelEditorDialog
         editing={editing}
         onOpenChange={(open) => !open && setEditing(null)}
@@ -144,11 +163,13 @@ function ChannelRow({
   channel,
   onEdit,
   onDelete,
+  onWebhook,
   onTested,
 }: {
   channel: Channel
   onEdit: () => void
   onDelete: () => void
+  onWebhook: () => void
   onTested: () => void
 }) {
   const t = useModuleTranslation(MESSAGING_KEY)
@@ -176,41 +197,33 @@ function ChannelRow({
     }
   }
 
-  const copyWebhook = async () => {
-    if (!channel.webhook_url) return
-    try {
-      await navigator.clipboard.writeText(channel.webhook_url)
-      notifySuccess(t('channels.copied'))
-    } catch (error) {
-      notifyError(error)
-    }
-  }
-
   const lastActivity = channel.kind === 'email' ? channel.last_polled_at : channel.last_checked_at
 
   return (
-    <li className="grid gap-2 rounded-md border bg-card px-3 py-3">
-      <div className="flex min-w-0 items-start gap-3">
-        <ChannelIcon kind={channel.kind} className="mt-0.5 size-5 text-muted-foreground" />
-        <div className="grid min-w-0 flex-1 gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate font-medium">{channel.name}</p>
-            <Badge variant="outline">{t(channel.kind === 'email' ? 'kinds.email' : channel.kind === 'whatsapp' ? 'kinds.whatsapp' : 'kinds.other')}</Badge>
-            <Badge variant={statusVariant(channel)}>
-              {channel.is_active ? t(`channelStatus.${channel.status}`, { defaultValue: channel.status }) : t('channelStatus.inactive')}
-            </Badge>
-          </div>
-          <p className="truncate text-sm text-muted-foreground">{channel.address || '—'}</p>
-          {lastActivity && (
-            <p className="text-xs text-muted-foreground">
-              {t(channel.kind === 'email' ? 'channels.lastPolled' : 'channels.lastChecked', {
-                date: formatDateTime(lastActivity, formatting),
-              })}
-            </p>
-          )}
-          {channel.last_error && <p className="text-xs break-words text-destructive">{channel.last_error}</p>}
+    <TableRow>
+      <TableCell>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <ChannelIcon kind={channel.kind} className="size-5 shrink-0 text-muted-foreground" />
+          <span className="truncate font-medium">{channel.name}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        {t(channel.kind === 'email' ? 'kinds.email' : channel.kind === 'whatsapp' ? 'kinds.whatsapp' : 'kinds.other')}
+      </TableCell>
+      <TableCell className="hidden whitespace-nowrap text-muted-foreground tabular-nums lg:table-cell">{channel.address || '—'}</TableCell>
+      <TableCell>
+        <div className="grid gap-1">
+          <Badge variant={statusVariant(channel)} className="w-fit">
+            {channel.is_active ? t(`channelStatus.${channel.status}`, { defaultValue: channel.status }) : t('channelStatus.inactive')}
+          </Badge>
+          {channel.last_error && <span className="max-w-64 text-xs break-words text-destructive">{channel.last_error}</span>}
+        </div>
+      </TableCell>
+      <TableCell className="hidden whitespace-nowrap text-muted-foreground md:table-cell">
+        {lastActivity ? formatDateTime(lastActivity, formatting) : '—'}
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center justify-end gap-1">
           <Button size="sm" variant="outline" disabled={testing} onClick={() => void test()}>
             {t('channels.test')}
           </Button>
@@ -222,6 +235,7 @@ function ChannelRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={onEdit}>{t('channels.edit')}</DropdownMenuItem>
+              {channel.webhook_url && <DropdownMenuItem onSelect={onWebhook}>{t('channels.webhookAction')}</DropdownMenuItem>}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={onDelete} className="text-destructive">
                 {t('channels.delete')}
@@ -229,27 +243,50 @@ function ChannelRow({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
-      {channel.webhook_url && (
-        <div className="grid gap-1 rounded-md bg-muted px-3 py-2 text-xs">
-          <span className="font-medium">{t('channels.webhookUrl')}</span>
-          <div className="flex min-w-0 items-center gap-2">
-            <code className="min-w-0 flex-1 truncate">{channel.webhook_url}</code>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="size-7"
-              onClick={() => void copyWebhook()}
-              aria-label={t('channels.copyWebhook')}
-            >
-              <Copy className="size-3.5" />
+      </TableCell>
+    </TableRow>
+  )
+}
+
+function WebhookDialog({ channel, onClose }: { channel: Channel | null; onClose: () => void }) {
+  const t = useModuleTranslation(MESSAGING_KEY)
+  const [copied, setCopied] = useState(false)
+  const copy = async () => {
+    if (!channel?.webhook_url) return
+    try {
+      await navigator.clipboard.writeText(channel.webhook_url)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      notifyError(error)
+    }
+  }
+  return (
+    <Dialog open={channel !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent size="lg">
+        <DialogHeader>
+          <DialogTitle>{t('channels.webhookTitle', { name: channel?.name ?? '' })}</DialogTitle>
+          <DialogDescription>{t('channels.webhookDescription')}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-2">
+          <span className="text-sm font-medium">{t('channels.webhookUrl')}</span>
+          <div className="flex items-start gap-2 rounded-md border bg-muted/40 p-3">
+            <code className="min-w-0 flex-1 text-xs break-all select-all">{channel?.webhook_url ?? ''}</code>
+            <Button type="button" size="sm" variant="outline" className="shrink-0" aria-label={t('channels.copyWebhook')} onClick={() => void copy()}>
+              {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+              {copied ? t('channels.copied') : t('channels.copy')}
             </Button>
           </div>
-          <span className="text-muted-foreground">
-            {channel.secrets?.verify_token ? t('channels.verifyTokenConfigured') : t('channels.verifyTokenMissing')}
-          </span>
         </div>
-      )}
-    </li>
+        <p className="text-sm text-muted-foreground">
+          {channel?.secrets?.verify_token ? t('channels.verifyTokenConfigured') : t('channels.verifyTokenMissing')}
+        </p>
+        <DialogFooter>
+          <Button type="button" onClick={onClose}>
+            {t('actions.close')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
