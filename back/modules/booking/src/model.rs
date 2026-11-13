@@ -475,6 +475,8 @@ pub(crate) struct BookingFilter {
     pub(crate) status: Option<BookingStatus>,
     pub(crate) meeting_type_id: Option<Uuid>,
     pub(crate) after: Option<DateTime<Utc>>,
+    pub(crate) between: Option<(DateTime<Utc>, DateTime<Utc>)>,
+    pub(crate) without_activity: bool,
     pub(crate) window: ListWindow,
 }
 

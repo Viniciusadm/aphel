@@ -9,7 +9,7 @@ import type { CalendarRecord } from '../api'
 
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
-import { eventTimeLabel, isFinished } from '../lib/events'
+import { categoryLabel, eventTimeLabel, isFinished } from '../lib/events'
 
 export type CalendarEventVariant = 'chip' | 'block' | 'agenda'
 
@@ -71,7 +71,7 @@ export function CalendarEvent({ dragId, activity, variant, draggable, onReschedu
             <div className="grid min-w-0 gap-0.5">
               <p className={cn('text-sm font-semibold break-words', finished && 'line-through')}>{activity.title}</p>
               <p className="text-xs text-muted-foreground">
-                {activity.category.name}
+                {categoryLabel(t, activity.category)}
               </p>
             </div>
           </div>

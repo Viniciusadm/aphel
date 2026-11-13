@@ -1,3 +1,4 @@
+mod calendar_source;
 mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
@@ -76,6 +77,9 @@ impl Module for BookingModule {
         )));
         app.contribute::<dyn aphel_contract_site::SiteEmbedSource>(std::sync::Arc::new(
             site_embed::BookingEmbeds,
+        ));
+        app.contribute::<dyn aphel_sdk::calendar::CalendarSource>(std::sync::Arc::new(
+            calendar_source::BookingCalendar,
         ));
         reference_cleanup::register(app);
         app.contract(aphel_sdk::booking::DESCRIPTOR);

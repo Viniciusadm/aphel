@@ -222,7 +222,7 @@ export function CalendarPage() {
             <ChevronRight aria-hidden />
           </Button>
         </div>
-        <h2 className="min-w-0 flex-1 truncate text-base font-semibold capitalize" aria-live="polite">
+        <h2 className="min-w-0 flex-1 truncate text-base font-semibold first-letter:uppercase" aria-live="polite">
           {viewTitle(state.mode, anchor, formatting.locale)}
         </h2>
         <SegmentedControl

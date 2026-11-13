@@ -1,3 +1,4 @@
+import { categoryLabel } from '../lib/events'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { NativeSelect, useOrganizationUsers, useTeams } from '@/sdk'
@@ -56,7 +57,7 @@ export function CalendarFilters({ ownerId, teamId, typeId, sourceId, onChange, c
         <option value="">{t('filters.allTypes')}</option>
         {categories.map((type) => (
           <option key={JSON.stringify([type.source,type.id])} value={JSON.stringify([type.source,type.id])}>
-            {type.name}
+            {categoryLabel(t, type)}
           </option>
         ))}
       </NativeSelect>

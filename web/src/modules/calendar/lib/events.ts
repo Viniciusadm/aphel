@@ -26,3 +26,9 @@ export function groupEntriesByDay(items: CalendarRecord[], timeZone: string): Ma
 export function isFinished(activity: CalendarRecord): boolean {
   return activity.finished
 }
+
+type Translate = (key: string, options?: Record<string, unknown>) => string
+
+export function categoryLabel(t: unknown, category: { source?: string; id: string; name: string }): string {
+  return category.id === category.source ? (t as Translate)(`sources.${category.source}`, { defaultValue: category.name }) : category.name
+}

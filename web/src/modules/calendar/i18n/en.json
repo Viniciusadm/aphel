@@ -60,5 +60,8 @@
   },
   "truncated": "Showing {{shown}} of {{total}} tasks in this period. Use the filters to see the rest.",
   "dragHint": "Drag an activity to another day or time to reschedule it.",
-  "navigation": "Calendar"
+  "navigation": "Calendar",
+  "sources": {
+    "booking": "Booking"
+  }
 }

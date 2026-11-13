@@ -610,6 +610,8 @@ pub(crate) async fn list_bookings(
             status,
             meeting_type_id,
             after: query.upcoming.then(|| ctx.now()),
+            between: None,
+            without_activity: false,
             window,
         })
         .await

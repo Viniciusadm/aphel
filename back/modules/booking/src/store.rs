@@ -657,6 +657,16 @@ impl BookingStore {
                     .push(" AND b.ends_at > ")
                     .push_bind(mapper::naive(after));
             }
+            if let Some((from, to)) = filter.between {
+                builder
+                    .push(" AND b.starts_at < ")
+                    .push_bind(mapper::naive(to))
+                    .push(" AND b.ends_at > ")
+                    .push_bind(mapper::naive(from));
+            }
+            if filter.without_activity {
+                builder.push(" AND b.activity_id IS NULL");
+            }
         }
         let mut count = QueryBuilder::<MySql>::new("SELECT COUNT(*) FROM meeting_bookings b ");
         conditions(&mut count, filter);

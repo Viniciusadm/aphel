@@ -60,5 +60,8 @@
   },
   "truncated": "Mostrando {{shown}} de {{total}} atividades neste período. Use os filtros para ver o restante.",
   "dragHint": "Arraste uma atividade para outro dia ou horário para remarcar.",
-  "navigation": "Calendário"
+  "navigation": "Calendário",
+  "sources": {
+    "booking": "Agendamento"
+  }
 }
