@@ -5,7 +5,7 @@
     "title": "Automações",
     "description": "Fluxos que reagem a eventos e ao tempo e executam ações nos registros sem código.",
     "new": "Nova automação",
-    "search": "Buscar por nome ou chave",
+    "search": "Buscar por nome",
     "status": "Status",
     "allStatuses": "Todos os status",
     "recordType": "Tipo de registro",
@@ -60,7 +60,7 @@
     "contact": "Contato",
     "company": "Empresa",
     "deal": "Oportunidade",
-    "activity": "Atividade",
+    "activity": "Tarefa",
     "people": {
       "person": "Contato"
     },
@@ -71,7 +71,7 @@
       "deal": "Oportunidade"
     },
     "tasks": {
-      "task": "Atividade"
+      "task": "Tarefa"
     }
   },
   "actionsBar": {
@@ -94,7 +94,6 @@
     "examples": "Exemplos",
     "blank": "Começar do zero",
     "blankDescription": "Escolha o tipo de registro e o gatilho e monte os passos no editor.",
-    "unavailable": "Gatilho ou tipo de registro indisponível nesta organização.",
     "name": "Nome",
     "descriptionLabel": "Descrição",
     "recordType": "Tipo de registro",
@@ -285,7 +284,7 @@
     "changedFields": "Gatilho: campos alterados",
     "actorType": "Gatilho: quem fez a mudança",
     "previous": "Gatilho: {{field}} (valor anterior)",
-    "activitiesRelation": "Atividades",
+    "activitiesRelation": "Tarefas",
     "relatedTitle": "Registros relacionados",
     "relatedHint": "Ex.: \"não existe tarefa aberta de acompanhamento\".",
     "addRelated": "Adicionar condição de relacionados",
@@ -400,8 +399,8 @@
       "description": "Quando a oportunidade é marcada como perdida."
     },
     "activity_completed": {
-      "label": "Atividade concluída",
-      "description": "Quando uma atividade é concluída (nos registros vinculados a ela)."
+      "label": "Tarefa concluída",
+      "description": "Quando uma tarefa é concluída (nos registros vinculados a ela)."
     },
     "note_created": {
       "label": "Nota criada",

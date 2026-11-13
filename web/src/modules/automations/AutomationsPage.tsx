@@ -14,7 +14,8 @@ import { AUTOMATIONS_PER_PAGE, automationPath, automationsApi, useAutomationCach
 import { Pager } from './components/Pager'
 import { AutomationStatusBadge } from './components/StatusBadges'
 import { CreateAutomationDialog } from './CreateAutomationDialog'
-import { automatableRecordTypes, useAutomationLabels } from './lib/labels'
+import { CORE_RECORD_TYPES, automatableRecordTypes, useAutomationLabels } from './lib/labels'
+import { isModuleActive, useModuleState } from '@/kernel/modules/registry'
 import { AUTOMATION_STATUSES, type Automation, type AutomationStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
@@ -59,10 +60,11 @@ function AutomationsList() {
     record_type: recordType || undefined,
     page,
   })
+  const moduleState = useModuleState()
   const recordTypes = automatableRecordTypes(
     catalog.data,
     (objects.data ?? []).filter((object) => object.is_active).map((object) => object.record_type),
-  )
+  ).filter((item) => !CORE_RECORD_TYPES.some((core) => core === item) || isModuleActive(item.split('.')[0], moduleState))
 
   let body
   if (automations.isPending) {

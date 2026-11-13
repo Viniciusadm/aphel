@@ -5,7 +5,7 @@
     "title": "Automations",
     "description": "Workflows that react to events and time and run actions on records without code.",
     "new": "New automation",
-    "search": "Search by name or key",
+    "search": "Search by name",
     "status": "Status",
     "allStatuses": "All statuses",
     "recordType": "Record type",
@@ -60,7 +60,7 @@
     "contact": "Contact",
     "company": "Company",
     "deal": "Deal",
-    "activity": "Activity",
+    "activity": "Task",
     "people": {
       "person": "Contact"
     },
@@ -71,7 +71,7 @@
       "deal": "Deal"
     },
     "tasks": {
-      "task": "Activity"
+      "task": "Task"
     }
   },
   "actionsBar": {
@@ -94,7 +94,6 @@
     "examples": "Examples",
     "blank": "Start from scratch",
     "blankDescription": "Choose the record type and trigger, then build the steps in the editor.",
-    "unavailable": "Trigger or record type unavailable in this organization.",
     "name": "Name",
     "descriptionLabel": "Description",
     "recordType": "Record type",
@@ -285,7 +284,7 @@
     "changedFields": "Trigger: changed fields",
     "actorType": "Trigger: who made the change",
     "previous": "Trigger: {{field}} (previous value)",
-    "activitiesRelation": "Activities",
+    "activitiesRelation": "Tasks",
     "relatedTitle": "Related records",
     "relatedHint": "E.g.: \"there is no open follow-up task\".",
     "addRelated": "Add related records condition",
@@ -400,8 +399,8 @@
       "description": "When the deal is marked as lost."
     },
     "activity_completed": {
-      "label": "Activity completed",
-      "description": "When an activity is completed (on the records linked to it)."
+      "label": "Task completed",
+      "description": "When a task is completed (on the records linked to it)."
     },
     "note_created": {
       "label": "Note created",

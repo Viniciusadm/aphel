@@ -60,9 +60,9 @@ export function RunsPanel({ automation, catalog, schema, draftSteps }: RunsPanel
               <button
                 type="button"
                 onClick={() => setOpenRun(run.id)}
-                className="grid w-full gap-1 rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-3"
+                className="grid w-full gap-1 rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:grid-cols-[5.5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3"
               >
-                <RunStatusBadge status={run.status} />
+                <span className="justify-self-start"><RunStatusBadge status={run.status} /></span>
                 <span className="grid min-w-0 gap-0.5">
                   <span className="truncate text-sm font-medium">
                     <RecordName recordType={run.record_type} recordId={run.record_id} link={false} />

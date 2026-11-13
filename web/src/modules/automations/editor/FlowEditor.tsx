@@ -6,7 +6,7 @@ import {
   GitBranch,
   Hourglass,
   Plus,
-  Sparkles as ActionIcon,
+  Play as ActionIcon,
   Timer,
   X,
   Zap,

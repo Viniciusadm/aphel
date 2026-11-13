@@ -289,7 +289,7 @@ function AutomationWorkspace({ initial, catalog }: { initial: Automation; catalo
         <AutomationStatusBadge status={automation.status} />
         <span className="text-xs text-muted-foreground">{automation.version > 0 ? t('page.version', { version: automation.version }) : t('editor.neverPublished')}</span>
         {dirty && <span className="text-xs font-medium text-warning">{t('editor.unsaved')}</span>}
-      </>} description={<p>{t('editor.recordType', { type: labels.recordTypeLabel(recordType) })} · <code>{automation.key}</code></p>} actions={<>
+      </>} description={<p>{t('editor.recordType', { type: labels.recordTypeLabel(recordType) })}</p>} actions={<>
 
             <Button type="button" variant="outline" disabled={!dirty || busy} onClick={() => save.mutate()}>
               <Save aria-hidden="true" />

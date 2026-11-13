@@ -36,7 +36,7 @@ export function PageHeader({ title, description, actions, back, badges, icon, le
         </Link>
       )}
       <div className="flex flex-row flex-wrap items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+        <div className="flex min-w-0 flex-[1_1_16rem] items-start gap-3">
           {icon}
           <div className="grid min-w-0 gap-1">
           <div className="flex flex-wrap items-center gap-2">

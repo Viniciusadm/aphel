@@ -1,6 +1,6 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useMutation } from '@tanstack/react-query'
-import { ArrowLeft, FilePlus2, Sparkles } from 'lucide-react'
+import { ArrowLeft, FilePlus2, LayoutTemplate } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -78,25 +78,22 @@ function CreateAutomationBody({
               <span className="text-sm text-muted-foreground">{t('create.blankDescription')}</span>
             </button>
           </li>
-          {AUTOMATION_EXAMPLES.map((example) => {
-            const enabled = available(example)
+          {AUTOMATION_EXAMPLES.filter(available).map((example) => {
             return (
               <li key={example.key}>
                 <button
                   type="button"
-                  disabled={!enabled}
                   onClick={() => setChoice({ kind: 'example', example })}
-                  className="grid h-full w-full gap-1 rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                  className="grid h-full w-full gap-1 rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <span className="flex items-center gap-2 font-medium">
-                    <Sparkles className="size-4 text-primary" aria-hidden="true" />
+                    <LayoutTemplate className="size-4 text-primary" aria-hidden="true" />
                     {t(`examples.${example.key}.name`)}
                   </span>
                   <span className="text-sm text-muted-foreground">{t(`examples.${example.key}.description`)}</span>
                   <span className="text-xs text-muted-foreground">
                     {labels.recordTypeLabel(example.recordType)} · {labels.triggerLabel(example.trigger)}
                   </span>
-                  {!enabled && <span className="text-xs text-warning">{t('create.unavailable')}</span>}
                 </button>
               </li>
             )
