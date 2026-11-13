@@ -125,6 +125,9 @@ export function PipelinesSection({ workflow, selectedId, onSelect }: PipelinesSe
         </Button>
       </CardHeader>
       <CardContent className="grid gap-4">
+        {workflow.length === 0 && (
+          <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">{t('list.empty')}</p>
+        )}
         <ol aria-label={t('list.title')} className="grid gap-2">
           {workflow.map((pipeline, index) => (
             <li

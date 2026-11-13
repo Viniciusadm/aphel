@@ -455,15 +455,19 @@ export function PipelinesSettingsPage() {
       <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {workflow.isPending ? (
         <Skeleton className="h-64 w-full" />
-      ) : workflow.isError || !pipeline ? (
+      ) : workflow.isError ? (
         <ErrorState onRetry={() => void workflow.refetch()} />
       ) : (
         <>
-          <PipelinesSection workflow={workflow.data} selectedId={pipeline.id} onSelect={setSelectedId} />
-          <StagesSection key={pipeline.id} pipeline={pipeline} />
-          <Fragment key={pipeline.id}>
-            <Slot name="workflow.settings.sections" props={{ pipeline, workflow: workflow.data }} />
-          </Fragment>
+          <PipelinesSection workflow={workflow.data} selectedId={pipeline?.id} onSelect={setSelectedId} />
+          {pipeline && (
+            <>
+              <StagesSection key={pipeline.id} pipeline={pipeline} />
+              <Fragment key={pipeline.id}>
+                <Slot name="workflow.settings.sections" props={{ pipeline, workflow: workflow.data }} />
+              </Fragment>
+            </>
+          )}
         </>
       )}
       <LostReasonsSection />

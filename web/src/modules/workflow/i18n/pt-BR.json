@@ -20,7 +20,8 @@
     "moveUp": "Mover o funil {{name}} para cima",
     "moveDown": "Mover o funil {{name}} para baixo",
     "stages_one": "{{count}} etapa",
-    "stages_other": "{{count}} etapas"
+    "stages_other": "{{count}} etapas",
+    "empty": "Nenhum funil ainda. Crie o primeiro para organizar as etapas dos seus registros."
   },
   "badges": {
     "default": "Padrão",

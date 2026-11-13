@@ -20,7 +20,8 @@
     "moveUp": "Move the pipeline {{name}} up",
     "moveDown": "Move the pipeline {{name}} down",
     "stages_one": "{{count}} stage",
-    "stages_other": "{{count}} stages"
+    "stages_other": "{{count}} stages",
+    "empty": "No pipelines yet. Create the first one to organize the stages of your records."
   },
   "badges": {
     "default": "Default",
