@@ -86,6 +86,28 @@ fn translated(record: &Map<String, Value>, field: &str, language: &str) -> Optio
         .filter(filled)
 }
 
+pub(crate) fn translated_languages(exposure: &SiteExposure, record: &Value) -> Vec<String> {
+    let Some(record) = record.as_object() else {
+        return Vec::new();
+    };
+    let mut languages = Vec::new();
+    for field in &exposure.fields {
+        let Some(map) = record
+            .get(&translations_field(field))
+            .and_then(Value::as_str)
+            .and_then(|text| serde_json::from_str::<Map<String, Value>>(text).ok())
+        else {
+            continue;
+        };
+        for (language, value) in map {
+            if filled(&value) && !languages.contains(&language) {
+                languages.push(language);
+            }
+        }
+    }
+    languages
+}
+
 fn project(
     exposure: &SiteExposure,
     record: Value,

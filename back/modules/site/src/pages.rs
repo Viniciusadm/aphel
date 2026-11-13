@@ -21,7 +21,7 @@ pub(crate) const PAGE_PUBLISH: &str = "site.page.publish";
 pub(crate) const OWNER: &str = "site";
 const MAX_TITLE_CHARS: usize = 160;
 const SAVING_PRIORITY: i32 = 30;
-const REVISION: &str = "pages-1";
+const REVISION: &str = "pages-2";
 
 const PAGE_TEMPLATE: &str = include_str!("../templates_builtin/page.json");
 const LANDING_TEMPLATE: &str = include_str!("../templates_builtin/page@landing.json");
@@ -63,9 +63,9 @@ pub(crate) fn register(app: &mut AppBuilder) -> Result<(), AppError> {
         app.permission(PermissionDefinition::record(permission))
             .grant_to(["admin", "manager"]);
     }
-    app.permission(PermissionDefinition::administrative(Permission::from_static(
-        PAGE_PUBLISH,
-    )))
+    app.permission(PermissionDefinition::administrative(
+        Permission::from_static(PAGE_PUBLISH),
+    ))
     .grant_to(["admin", "manager"]);
     let record_type = RecordType::from_static(PAGE_ENTITY);
     let definition = declaration()?
@@ -102,15 +102,21 @@ fn normalized_translations(
     text: &str,
     each: impl Fn(&str) -> Result<String, AppError>,
 ) -> Result<String, AppError> {
-    let parsed: Value =
-        serde_json::from_str(text).map_err(|_| invalid(field, "the translations are not valid JSON".into()))?;
+    let parsed: Value = serde_json::from_str(text)
+        .map_err(|_| invalid(field, "the translations are not valid JSON".into()))?;
     let Value::Object(map) = parsed else {
-        return Err(invalid(field, "the translations must map languages to texts".into()));
+        return Err(invalid(
+            field,
+            "the translations must map languages to texts".into(),
+        ));
     };
     let mut clean = serde_json::Map::new();
     for (language, value) in map {
         let Value::String(content) = value else {
-            return Err(invalid(field, format!("the {language} translation must be text")));
+            return Err(invalid(
+                field,
+                format!("the {language} translation must be text"),
+            ));
         };
         clean.insert(language, Value::String(each(&content)?));
     }
@@ -125,8 +131,12 @@ async fn saving_filter(
         return Ok(saving);
     }
     if let Some(Value::String(slug)) = saving.draft.values.get("slug").cloned() {
-        let slug = aphel_blocks::slug::check(&slug).map_err(|error| invalid("slug", error.message))?;
-        saving.draft.values.insert("slug".into(), Value::String(slug));
+        let slug =
+            aphel_blocks::slug::check(&slug).map_err(|error| invalid("slug", error.message))?;
+        saving
+            .draft
+            .values
+            .insert("slug".into(), Value::String(slug));
     }
     let entries: Vec<(String, String)> = saving
         .draft
@@ -138,12 +148,16 @@ async fn saving_filter(
         let cleaned = match key.as_str() {
             "draft_blocks" => Some(normalized_blocks(&key, &text)?),
             "draft_title" => Some(text.trim().to_owned()),
-            "draft_blocks_translations" if !text.trim().is_empty() => Some(
-                normalized_translations(&key, &text, |blocks| normalized_blocks(&key, blocks))?,
-            ),
-            "draft_title_translations" if !text.trim().is_empty() => Some(
-                normalized_translations(&key, &text, |title| Ok(title.trim().to_owned()))?,
-            ),
+            "draft_blocks_translations" if !text.trim().is_empty() => {
+                Some(normalized_translations(&key, &text, |blocks| {
+                    normalized_blocks(&key, blocks)
+                })?)
+            }
+            "draft_title_translations" if !text.trim().is_empty() => {
+                Some(normalized_translations(&key, &text, |title| {
+                    Ok(title.trim().to_owned())
+                })?)
+            }
             _ => None,
         };
         if let Some(cleaned) = cleaned {
@@ -174,7 +188,7 @@ impl SiteContentSource for PagesSource {
                 seo: SitePageSeo {
                     description: Some("{{ record.seo_description or '' }}".into()),
                     image: Some(SEO_IMAGE.into()),
-                    schema: Some("WebPage".into()),
+                    schema: None,
                     structured_data: Some(STRUCTURED_DATA.into()),
                     ..Default::default()
                 },
@@ -187,9 +201,15 @@ impl SiteContentSource for PagesSource {
             }],
             exposures: vec![SiteExposure {
                 entity: PAGE_ENTITY.into(),
-                fields: ["title", "slug", "blocks", "seo_description", "publication_state"]
-                    .map(String::from)
-                    .to_vec(),
+                fields: [
+                    "title",
+                    "slug",
+                    "blocks",
+                    "seo_description",
+                    "publication_state",
+                ]
+                .map(String::from)
+                .to_vec(),
                 conditions: BTreeMap::from([("publication_state".to_owned(), json!("published"))]),
                 filter: None,
                 images: true,
@@ -211,7 +231,11 @@ impl SiteContentSource for PagesSource {
         }])
     }
 
-    async fn asset(&self, _owner: &str, _path: &str) -> Result<Option<(String, Vec<u8>)>, AppError> {
+    async fn asset(
+        &self,
+        _owner: &str,
+        _path: &str,
+    ) -> Result<Option<(String, Vec<u8>)>, AppError> {
         Ok(None)
     }
 
@@ -219,4 +243,3 @@ impl SiteContentSource for PagesSource {
         Ok(None)
     }
 }
-

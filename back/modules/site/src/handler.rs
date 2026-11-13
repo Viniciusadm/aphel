@@ -441,7 +441,10 @@ async fn serve(state: &AppState, request: Request) -> Response {
     if path != "/"
         && readable_method(&parts.method)
         && previewing.is_none()
-        && let Some(target) = settings.home.as_deref().and_then(crate::targets::Target::parse)
+        && let Some(target) = settings
+            .home
+            .as_deref()
+            .and_then(crate::targets::Target::parse)
         && let Ok(Some(resolved)) =
             crate::targets::resolve(state, &runtime, &target, language.translation().as_deref())
                 .await
@@ -1615,7 +1618,10 @@ async fn render_route(
     let author = filled(&route.page.seo.author)?;
     let published = filled(&route.page.seo.published)?;
     let modified = filled(&route.page.seo.modified)?;
+    let article = matches!(route.page.source, PageSource::Record { .. })
+        && route.owner != crate::pages::OWNER;
     let json_ld = structured_data(StructuredPage {
+        article,
         site: values.get("site").unwrap_or(&context.site),
         schema: route.page.seo.schema.as_deref(),
         source: &route.page.source,
@@ -1635,7 +1641,7 @@ async fn render_route(
         "description": description,
         "image": image,
         "noindex": route.page.seo.noindex || !indexing,
-        "type": if matches!(route.page.source, PageSource::Record { .. }) { "article" } else { "website" },
+        "type": if article { "article" } else { "website" },
         "json_ld": json_ld,
         "author": author,
         "published": published,
@@ -1717,6 +1723,7 @@ fn breadcrumbs(
 }
 
 struct StructuredPage<'a> {
+    article: bool,
     site: &'a serde_json::Value,
     schema: Option<&'a str>,
     source: &'a PageSource,
@@ -1739,9 +1746,15 @@ fn structured_data(page: StructuredPage<'_>) -> String {
     if let Some(logo) = page.site["logo_url"].as_str() {
         publisher["logo"] = json!(absolute_url(base_url, logo));
     }
-    let default_schema = match (page.home, page.source) {
-        (true, PageSource::Static | PageSource::Single { .. }) => "WebSite",
-        (_, PageSource::Record { .. }) => "Article",
+    let at_home =
+        page.home || page.canonical.trim_end_matches('/') == base_url.trim_end_matches('/');
+    let default_schema = match (at_home, page.source) {
+        (true, PageSource::Static | PageSource::Single { .. } | PageSource::Record { .. })
+            if !page.article =>
+        {
+            "WebSite"
+        }
+        (_, PageSource::Record { .. }) if page.article => "Article",
         (_, PageSource::List { .. }) => "CollectionPage",
         _ => "WebPage",
     };

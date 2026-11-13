@@ -13,6 +13,7 @@ use crate::data::{self, Restriction};
 use crate::prefixes;
 use crate::runtime::{Route, SiteRuntime};
 use crate::settings::site_settings;
+use aphel_sdk::platform::application::organization_profile::OrganizationConfig;
 
 const MAX_URLS: usize = 50_000;
 const BATCH: u64 = 500;
@@ -24,6 +25,7 @@ struct SitemapUrl {
     location: String,
     modified: Option<String>,
     alternates: Vec<(String, String)>,
+    languages: Option<Vec<String>>,
 }
 
 fn escape_xml(value: &str) -> String {
@@ -82,6 +84,7 @@ async fn record_urls(
                 urls.push(SitemapUrl {
                     location: joined(base, &path),
                     modified: day_of(record.get("updated_at")),
+                    languages: Some(data::translated_languages(exposure, record)),
                     ..Default::default()
                 });
             }
@@ -245,6 +248,40 @@ async fn collect(
     Ok((urls, tags))
 }
 
+async fn home_path(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    config: &OrganizationConfig,
+) -> Option<String> {
+    let target = site_settings(config)
+        .home
+        .as_deref()
+        .and_then(crate::targets::Target::parse)?;
+    crate::targets::resolve(state, runtime, &target, None)
+        .await
+        .ok()
+        .flatten()
+        .map(|resolved| resolved.path)
+}
+
+pub(crate) async fn serves_path(
+    state: &AppState,
+    runtime: &SiteRuntime,
+    path: &str,
+) -> Result<bool, AppError> {
+    if path.trim_end_matches('/').is_empty()
+        && home_path(state, runtime, &state.organization_config.snapshot())
+            .await
+            .is_some()
+    {
+        return Ok(true);
+    }
+    let (urls, _) = collect(state, runtime, "").await?;
+    Ok(urls
+        .iter()
+        .any(|url| url.location.trim_end_matches('/') == path.trim_end_matches('/')))
+}
+
 fn render(urls: &[SitemapUrl]) -> String {
     let mut xml = String::from(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n",
@@ -344,18 +381,7 @@ pub(crate) async fn respond(
                     }),
             )
             .collect();
-    let home_location = match site_settings(&config)
-        .home
-        .as_deref()
-        .and_then(crate::targets::Target::parse)
-    {
-        Some(target) => crate::targets::resolve(state, runtime, &target, None)
-            .await
-            .ok()
-            .flatten()
-            .map(|resolved| resolved.path),
-        None => None,
-    };
+    let home_location = home_path(state, runtime, &config).await;
     match collect(state, runtime, "").await {
         Ok((mut paths, tags)) => {
             if let Some(home) = &home_location {
@@ -367,25 +393,41 @@ pub(crate) async fn respond(
             }
             let urls: Vec<SitemapUrl> = bases
                 .iter()
-                .flat_map(|(_, base)| {
+                .flat_map(|(language, base)| {
                     let bases = &bases;
-                    paths.iter().map(move |url| SitemapUrl {
-                        location: format!("{base}{}", url.location),
-                        modified: url.modified.clone(),
-                        alternates: if bases.len() > 1 {
-                            bases
-                                .iter()
-                                .map(|(code, other)| {
-                                    (code.clone(), format!("{other}{}", url.location))
-                                })
-                                .chain(std::iter::once((
-                                    "x-default".to_owned(),
-                                    format!("{}{}", bases[0].1, url.location),
-                                )))
-                                .collect()
-                        } else {
-                            Vec::new()
-                        },
+                    let default_language = &default_language;
+                    paths.iter().filter_map(move |url| {
+                        let offered = |code: &String| {
+                            code == default_language
+                                || url
+                                    .languages
+                                    .as_ref()
+                                    .is_none_or(|languages| languages.contains(code))
+                        };
+                        if !offered(language) {
+                            return None;
+                        }
+                        let available: Vec<&(String, String)> =
+                            bases.iter().filter(|(code, _)| offered(code)).collect();
+                        Some(SitemapUrl {
+                            location: format!("{base}{}", url.location),
+                            modified: url.modified.clone(),
+                            alternates: if available.len() > 1 {
+                                available
+                                    .iter()
+                                    .map(|(code, other)| {
+                                        (code.clone(), format!("{other}{}", url.location))
+                                    })
+                                    .chain(std::iter::once((
+                                        "x-default".to_owned(),
+                                        format!("{}{}", bases[0].1, url.location),
+                                    )))
+                                    .collect()
+                            } else {
+                                Vec::new()
+                            },
+                            languages: None,
+                        })
                     })
                 })
                 .take(MAX_URLS)
