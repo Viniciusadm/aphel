@@ -10,7 +10,7 @@ export const CALLS_PER_PAGE = 20
 export const AI_FEATURES = ['summary', 'next_actions', 'compose', 'query'] as const
 
 export type AiFeature = (typeof AI_FEATURES)[number]
-export type AiProviderName = 'anthropic' | 'openai_compatible'
+export type AiProviderName = 'anthropic' | 'deepseek' | 'openai_compatible'
 export type ComposeContext = 'note' | 'email' | 'message'
 
 export interface AiStatus {
@@ -173,7 +173,9 @@ const KNOWN_ERRORS = new Set([
 ])
 
 export function providerLabelKey(provider: string): string {
-  return provider === 'openai_compatible' ? 'providers.openai_compatible' : 'providers.anthropic'
+  if (provider === 'openai_compatible') return 'providers.openai_compatible'
+  if (provider === 'deepseek') return 'providers.deepseek'
+  return 'providers.anthropic'
 }
 
 export function aiErrorKey(error: unknown): string {

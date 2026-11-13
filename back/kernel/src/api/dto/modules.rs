@@ -178,6 +178,7 @@ pub struct ModuleResponse {
     pub enabled_dependents: Vec<String>,
     pub extension_dependents: Vec<String>,
     pub held_by: Option<String>,
+    pub can_test: bool,
 }
 
 impl From<ModuleView> for ModuleResponse {
@@ -237,8 +238,26 @@ impl From<ModuleView> for ModuleResponse {
             enabled_dependents: view.enabled_dependents,
             extension_dependents: view.extension_dependents,
             held_by: view.held_by,
+            can_test: crate::modules::try_app().is_some_and(|app| {
+                app.all_contributions::<dyn crate::modules::ModuleSettingsTester>()
+                    .iter()
+                    .any(|(module, _)| *module == manifest.key)
+            }),
         }
     }
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(deny_unknown_fields)]
+pub struct TestModuleSettingsRequest {
+    #[schema(value_type = Object)]
+    pub settings: Map<String, Value>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct TestModuleSettingsResponse {
+    pub ok: bool,
+    pub message: String,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

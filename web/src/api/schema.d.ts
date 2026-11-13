@@ -4533,6 +4533,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/modules/{key}/test-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Tries the given settings against the real service (for example one AI call) without saving them and without enabling the module. A secret left empty uses the one already stored. Only modules that declare a test (`can_test`) answer; the result is `ok` plus a message for the person. */
+        post: operations["modules_test_settings"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/money/currencies": {
         parameters: {
             query?: never;
@@ -13622,6 +13639,7 @@ export interface components {
         };
         Data_ModuleResponse: {
             data: {
+                can_test: boolean;
                 compatibility: components["schemas"]["ModuleCompatibilityResponse"];
                 configured_secrets: string[];
                 data_exported_at?: string | null;
@@ -14907,6 +14925,12 @@ export interface components {
                 updated_at: string;
             };
         };
+        Data_TestModuleSettingsResponse: {
+            data: {
+                message: string;
+                ok: boolean;
+            };
+        };
         Data_TrackingObjectionResponse: {
             data: {
                 created_at: string;
@@ -15536,6 +15560,7 @@ export interface components {
         };
         Data_Vec_ModuleResponse: {
             data: {
+                can_test: boolean;
                 compatibility: components["schemas"]["ModuleCompatibilityResponse"];
                 configured_secrets: string[];
                 data_exported_at?: string | null;
@@ -18881,6 +18906,7 @@ export interface components {
             record_scoped: boolean;
         };
         ModuleResponse: {
+            can_test: boolean;
             compatibility: components["schemas"]["ModuleCompatibilityResponse"];
             configured_secrets: string[];
             data_exported_at?: string | null;
@@ -23519,6 +23545,13 @@ export interface components {
         };
         TestIntegrationRequest: {
             send_test_email?: boolean;
+        };
+        TestModuleSettingsRequest: {
+            settings: Record<string, never>;
+        };
+        TestModuleSettingsResponse: {
+            message: string;
+            ok: boolean;
         };
         /** @enum {string} */
         TimeGranularity: "day" | "week" | "month" | "quarter" | "year";
@@ -47336,6 +47369,90 @@ export interface operations {
                 };
             };
             /** @description Invalid settings (`validation_error` with `details.fields`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    modules_test_settings: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                /** @description Module key */
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestModuleSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description The test ran; `ok` tells whether the service answered */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_TestModuleSettingsResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Missing `settings.manage` (`permission_denied`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unknown module or the module has no test (`module_test_unsupported`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;

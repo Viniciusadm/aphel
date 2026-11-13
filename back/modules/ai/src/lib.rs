@@ -18,7 +18,7 @@ use crate::config::{
     SETTING_BASE_URL, SETTING_DAILY_LIMIT, SETTING_MODEL, SETTING_PROVIDER,
     SETTING_SEND_PERSONAL_DATA, SETTING_USER_HOURLY_LIMIT, has_valid_scheme,
 };
-use crate::provider::{AnthropicProvider, OpenAiCompatibleProvider};
+use crate::provider::{AnthropicProvider, DeepSeekProvider, OpenAiCompatibleProvider};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, ModuleCtx, SettingField, SettingKind, SettingOption,
@@ -38,6 +38,24 @@ pub struct AiModule;
 
 fn feature_setting(feature: Feature, label: &'static str) -> SettingField {
     SettingField::new(feature.setting_key(), label, SettingKind::Boolean).default_value(json!(true))
+}
+
+struct AiSettingsTester;
+
+#[async_trait]
+impl aphel_sdk::points::ModuleSettingsTester for AiSettingsTester {
+    fn module(&self) -> &'static str {
+        KEY
+    }
+
+    async fn test(
+        &self,
+        ctx: &aphel_kernel::context::Ctx<'_>,
+        settings: &serde_json::Map<String, Value>,
+    ) -> Result<aphel_sdk::points::SettingsTestOutcome, AppError> {
+        let (ok, message) = crate::config::test_settings(ctx, settings).await?;
+        Ok(aphel_sdk::points::SettingsTestOutcome { ok, message })
+    }
 }
 
 #[async_trait]
@@ -69,6 +87,10 @@ impl Module for AiModule {
                                 label: "Anthropic (Claude)",
                             },
                             SettingOption {
+                                value: DeepSeekProvider::NAME,
+                                label: "DeepSeek",
+                            },
+                            SettingOption {
                                 value: OpenAiCompatibleProvider::NAME,
                                 label: "Compatível com OpenAI (OpenAI, Ollama, LM Studio)",
                             },
@@ -81,14 +103,14 @@ impl Module for AiModule {
             )
             .setting(
                 SettingField::new(SETTING_BASE_URL, "URL do provedor", SettingKind::Url).help(
-                    "Vazio usa https://api.anthropic.com ou https://api.openai.com/v1. Para Ollama local: http://localhost:11434/v1",
+                    "Vazio usa https://api.anthropic.com, https://api.deepseek.com ou https://api.openai.com/v1. Para Ollama local: http://localhost:11434/v1",
                 ),
             )
             .setting(
                 SettingField::new(SETTING_MODEL, "Modelo", SettingKind::Text)
                     .required()
                     .default_value(json!(DEFAULT_MODEL))
-                    .help("Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, gpt-4o-mini, llama3.1"),
+                    .help("Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-chat, deepseek-reasoner, gpt-4o-mini, llama3.1"),
             )
             .setting(
                 SettingField::new(SETTING_API_KEY, "Chave de API", SettingKind::Secret)
@@ -158,6 +180,9 @@ impl Module for AiModule {
         app.permission(PermissionDefinition::administrative(USE));
         app.permission(PermissionDefinition::administrative(VIEW_USAGE));
         exposed_operations::register(app);
+        app.contribute::<dyn aphel_sdk::points::ModuleSettingsTester>(std::sync::Arc::new(
+            AiSettingsTester,
+        ));
         Ok(())
     }
 

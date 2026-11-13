@@ -6,11 +6,13 @@ use utoipa_axum::routes;
 use crate::api::dto::common::{Data, ErrorEnvelope};
 use crate::api::dto::modules::{
     ModuleDataExportResponse, ModuleResponse, PublicModuleResponse, PublicPlatformResponse,
-    PurgeModuleDataRequest, UpdateModuleSettingsRequest,
+    PurgeModuleDataRequest, TestModuleSettingsRequest, TestModuleSettingsResponse,
+    UpdateModuleSettingsRequest,
 };
 use crate::api::error::ApiError;
 use crate::api::extractors::{AuthContext, JsonBody};
 use crate::api::state::AppState;
+use crate::application::access::Authorizer;
 use crate::modules::runtime::module_use_cases;
 
 pub const TAG: &str = "modules";
@@ -32,6 +34,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(enable_module))
         .routes(routes!(disable_module))
         .routes(routes!(update_module_settings))
+        .routes(routes!(test_module_settings))
         .routes(routes!(export_module_data))
         .routes(routes!(purge_module_data))
 }
@@ -211,6 +214,51 @@ async fn update_module_settings(
         .update_settings(&tenant.scope, &key, request.settings)
         .await?;
     Ok(Json(Data::new(view.into())))
+}
+
+#[utoipa::path(
+    post,
+    path = "/modules/{key}/test-settings",
+    tag = TAG,
+    operation_id = "modules_test_settings",
+    security(("session_cookie" = [])),
+    description = "Tries the given settings against the real service (for example one AI call) without saving them and without enabling the module. A secret left empty uses the one already stored. Only modules that declare a test (`can_test`) answer; the result is `ok` plus a message for the person.",
+    params(("key" = String, Path, description = "Module key")),
+    request_body = TestModuleSettingsRequest,
+    responses(
+        (status = 200, description = "The test ran; `ok` tells whether the service answered", body = Data<TestModuleSettingsResponse>),
+        (status = 401, description = "Missing or invalid credentials", body = ErrorEnvelope),
+        (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Unknown module or the module has no test (`module_test_unsupported`)", body = ErrorEnvelope),
+    )
+)]
+async fn test_module_settings(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    Path(key): Path<String>,
+    JsonBody(request): JsonBody<TestModuleSettingsRequest>,
+) -> Result<Json<Data<TestModuleSettingsResponse>>, ApiError> {
+    ensure_management_allowed()?;
+    tenant
+        .scope
+        .require(&crate::domain::access::Permission::SETTINGS_MANAGE)?;
+    let tester = crate::modules::app()
+        .all_contributions::<dyn crate::modules::ModuleSettingsTester>()
+        .into_iter()
+        .find(|(module, _)| *module == key)
+        .map(|(_, tester)| tester)
+        .ok_or_else(|| {
+            crate::errors::AppError::not_found_code(
+                "module_test_unsupported",
+                "this module has no settings test",
+            )
+        })?;
+    let ctx = crate::Ctx::from_state(&state, &tenant.scope).await?;
+    let outcome = tester.test(&ctx, &request.settings).await?;
+    Ok(Json(Data::new(TestModuleSettingsResponse {
+        ok: outcome.ok,
+        message: outcome.message,
+    })))
 }
 
 #[utoipa::path(

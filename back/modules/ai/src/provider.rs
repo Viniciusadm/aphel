@@ -268,6 +268,7 @@ impl AiProvider for AnthropicProvider {
 }
 
 pub(crate) struct OpenAiCompatibleProvider {
+    name: &'static str,
     base_url: String,
     model: String,
     api_key: Option<String>,
@@ -279,6 +280,27 @@ impl OpenAiCompatibleProvider {
 
     pub(crate) fn new(base_url: String, model: String, api_key: Option<String>) -> Self {
         Self {
+            name: Self::NAME,
+            base_url,
+            model,
+            api_key,
+        }
+    }
+}
+
+pub(crate) struct DeepSeekProvider;
+
+impl DeepSeekProvider {
+    pub(crate) const NAME: &'static str = "deepseek";
+    pub(crate) const DEFAULT_BASE_URL: &'static str = "https://api.deepseek.com";
+
+    pub(crate) fn provider(
+        base_url: String,
+        model: String,
+        api_key: Option<String>,
+    ) -> OpenAiCompatibleProvider {
+        OpenAiCompatibleProvider {
+            name: Self::NAME,
             base_url,
             model,
             api_key,
@@ -289,7 +311,7 @@ impl OpenAiCompatibleProvider {
 #[async_trait]
 impl AiProvider for OpenAiCompatibleProvider {
     fn name(&self) -> &'static str {
-        Self::NAME
+        self.name
     }
 
     fn model(&self) -> &str {

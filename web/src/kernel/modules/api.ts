@@ -5,6 +5,7 @@ import { api, type components } from '@/api'
 export type ModuleInfo = components['schemas']['ModuleResponse']
 export type PublicModuleInfo = components['schemas']['PublicModuleResponse']
 export type ModuleSettingField = components['schemas']['ModuleSettingFieldResponse']
+export type ModuleSettingsTestResult = components['schemas']['TestModuleSettingsResponse']
 export type ModuleDataExport = components['schemas']['ModuleDataExportResponse']
 
 export const modulesKeys = {
@@ -21,11 +22,14 @@ export const modulesApi = {
   disable: (key: string) => api.post<ModuleInfo>(`/v1/modules/${key}/disable`),
   updateSettings: (key: string, settings: Record<string, unknown>) =>
     api.put<ModuleInfo>(`/v1/modules/${key}/settings`, { settings }),
+  testSettings: (key: string, settings: Record<string, unknown>) =>
+    api.post<ModuleSettingsTestResult>(`/v1/modules/${key}/test-settings`, { settings }),
   exportData: (key: string) => api.post<ModuleDataExport>(`/v1/modules/${key}/data-export`),
   purgeData: (key: string, confirm: string) => api.post<ModuleInfo>(`/v1/modules/${key}/data-purge`, { confirm }),
 }
 
-export type ModulesApi = Pick<typeof modulesApi, 'enable' | 'disable' | 'updateSettings' | 'exportData' | 'purgeData'>
+export type ModulesApi = Pick<typeof modulesApi, 'enable' | 'disable' | 'updateSettings' | 'exportData' | 'purgeData'> &
+  Partial<Pick<typeof modulesApi, 'testSettings'>>
 
 export const ModulesApiContext = createContext<ModulesApi>(modulesApi)
 

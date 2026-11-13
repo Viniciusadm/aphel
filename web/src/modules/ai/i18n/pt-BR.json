@@ -8,16 +8,17 @@
       "help": "Serviço que recebe os dados enviados pela IA",
       "options": {
         "anthropic": "Anthropic (Claude)",
-        "openai_compatible": "Compatível com OpenAI (OpenAI, Ollama, LM Studio)"
+        "openai_compatible": "Compatível com OpenAI (OpenAI, Ollama, LM Studio)",
+        "deepseek": "DeepSeek"
       }
     },
     "base_url": {
       "label": "URL do provedor",
-      "help": "Vazio usa https://api.anthropic.com ou https://api.openai.com/v1. Para Ollama local: http://localhost:11434/v1"
+      "help": "Vazio usa https://api.anthropic.com, https://api.deepseek.com ou https://api.openai.com/v1. Para Ollama local: http://localhost:11434/v1"
     },
     "model": {
       "label": "Modelo",
-      "help": "Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, gpt-4o-mini, llama3.1"
+      "help": "Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-chat, deepseek-reasoner, gpt-4o-mini, llama3.1"
     },
     "api_key": {
       "label": "Chave de API",
@@ -58,7 +59,8 @@
   },
   "providers": {
     "anthropic": "Anthropic (Claude)",
-    "openai_compatible": "Compatível com OpenAI"
+    "openai_compatible": "Compatível com OpenAI",
+    "deepseek": "DeepSeek"
   },
   "features": {
     "summary": "Resumo do registro",

@@ -24,7 +24,7 @@ import {
 } from './form'
 import { WeeklyHoursEditor } from './WeeklyHoursEditor'
 import { Field } from '@/components/ui/field'
-import { SettingsCard, WIDE_FIELD } from '@/features/settings/components/SettingsCard'
+import { SettingsCard, WIDE_FIELD } from '@/sdk/settings'
 
 interface AvailabilityFormProps {
   userId: string | null

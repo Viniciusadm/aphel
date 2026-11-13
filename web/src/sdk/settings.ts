@@ -22,3 +22,4 @@ export { SortableList } from '@/features/settings/fields/components/SortableList
 export { FormRow } from '@/features/settings/organization/components/FormRow'
 export { IntegrationCard } from '@/features/settings/email/integration/IntegrationCard'
 export { NativeSelect as SettingsNativeSelect } from '@/features/settings/organization/components/NativeSelect'
+export { SettingsCard, WIDE_FIELD } from '@/features/settings/components/SettingsCard'

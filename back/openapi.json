@@ -32781,6 +32781,127 @@
         "x-aphel-module": "kernel"
       }
     },
+    "/api/v1/modules/{key}/test-settings": {
+      "post": {
+        "tags": [
+          "modules"
+        ],
+        "description": "Tries the given settings against the real service (for example one AI call) without saving them and without enabling the module. A secret left empty uses the one already stored. Only modules that declare a test (`can_test`) answer; the result is `ok` plus a message for the person.",
+        "operationId": "modules_test_settings",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "Module key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestModuleSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The test ran; `ok` tells whether the service answered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_TestModuleSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing `settings.manage` (`permission_denied`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown module or the module has no test (`module_test_unsupported`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "kernel"
+      }
+    },
     "/api/v1/money/currencies": {
       "get": {
         "tags": [
@@ -85860,9 +85981,13 @@
               "optional_dependencies",
               "dependents",
               "enabled_dependents",
-              "extension_dependents"
+              "extension_dependents",
+              "can_test"
             ],
             "properties": {
+              "can_test": {
+                "type": "boolean"
+              },
               "compatibility": {
                 "$ref": "#/components/schemas/ModuleCompatibilityResponse"
               },
@@ -90886,6 +91011,29 @@
           }
         }
       },
+      "Data_TestModuleSettingsResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "ok",
+              "message"
+            ],
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "ok": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
       "Data_TrackingObjectionResponse": {
         "type": "object",
         "required": [
@@ -93270,9 +93418,13 @@
                 "optional_dependencies",
                 "dependents",
                 "enabled_dependents",
-                "extension_dependents"
+                "extension_dependents",
+                "can_test"
               ],
               "properties": {
+                "can_test": {
+                  "type": "boolean"
+                },
                 "compatibility": {
                   "$ref": "#/components/schemas/ModuleCompatibilityResponse"
                 },
@@ -105989,9 +106141,13 @@
           "optional_dependencies",
           "dependents",
           "enabled_dependents",
-          "extension_dependents"
+          "extension_dependents",
+          "can_test"
         ],
         "properties": {
+          "can_test": {
+            "type": "boolean"
+          },
           "compatibility": {
             "$ref": "#/components/schemas/ModuleCompatibilityResponse"
           },
@@ -124149,6 +124305,33 @@
           }
         },
         "additionalProperties": false
+      },
+      "TestModuleSettingsRequest": {
+        "type": "object",
+        "required": [
+          "settings"
+        ],
+        "properties": {
+          "settings": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestModuleSettingsResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          }
+        }
       },
       "TimeGranularity": {
         "type": "string",

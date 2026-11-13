@@ -18,6 +18,7 @@ import { MaskedInput } from '@/components/ui/masked-input'
 import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import { isTextMaskKind, isTextMaskValid } from '@/lib/text-mask'
 import { NativeSelect } from '@/components/ui/native-select'
+import { numberMaxLength } from '../form'
 import { PLUGINS_PATH, type InstalledPlugin, type PluginSetting } from './types'
 import { Field } from '@/components/ui/field'
 
@@ -242,6 +243,7 @@ export function PluginSettingsDialog({ plugin, onClose, onSaved, save }: PluginS
                   <NumberMaskInput
                     id={inputId}
                     kind={setting.min !== null && setting.min >= 0 ? 'integer' : 'signedInteger'}
+                    maxLength={numberMaxLength(setting.min, setting.max)}
                     placeholder={t('placeholders.value')}
                     value={typeof value === 'string' ? value : ''}
                     onValueChange={(next) => setDraft({ ...draft, [setting.key]: next })}

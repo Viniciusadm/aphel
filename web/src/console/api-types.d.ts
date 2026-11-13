@@ -576,6 +576,7 @@ export interface components {
         };
         Data_ModuleResponse: {
             data: {
+                can_test: boolean;
                 compatibility: components["schemas"]["ModuleCompatibilityResponse"];
                 configured_secrets: string[];
                 data_exported_at?: string | null;
@@ -659,6 +660,7 @@ export interface components {
         };
         Data_Vec_ModuleResponse: {
             data: {
+                can_test: boolean;
                 compatibility: components["schemas"]["ModuleCompatibilityResponse"];
                 configured_secrets: string[];
                 data_exported_at?: string | null;
@@ -788,6 +790,7 @@ export interface components {
             record_scoped: boolean;
         };
         ModuleResponse: {
+            can_test: boolean;
             compatibility: components["schemas"]["ModuleCompatibilityResponse"];
             configured_secrets: string[];
             data_exported_at?: string | null;

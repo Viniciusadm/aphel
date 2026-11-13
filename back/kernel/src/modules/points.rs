@@ -1,10 +1,29 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use serde_json::{Map, Value};
 use sqlx::MySqlPool;
 
+use crate::Ctx;
 use crate::application::files::GeneratedFileKind;
 use crate::application::system::FailureEntry;
 use crate::errors::AppError;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SettingsTestOutcome {
+    pub ok: bool,
+    pub message: String,
+}
+
+#[async_trait]
+pub trait ModuleSettingsTester: Send + Sync {
+    fn module(&self) -> &'static str;
+
+    async fn test(
+        &self,
+        ctx: &Ctx<'_>,
+        settings: &Map<String, Value>,
+    ) -> Result<SettingsTestOutcome, AppError>;
+}
 
 #[async_trait]
 pub trait FileReferenceSource: Send + Sync {

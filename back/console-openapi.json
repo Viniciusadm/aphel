@@ -2645,9 +2645,13 @@
               "optional_dependencies",
               "dependents",
               "enabled_dependents",
-              "extension_dependents"
+              "extension_dependents",
+              "can_test"
             ],
             "properties": {
+              "can_test": {
+                "type": "boolean"
+              },
               "compatibility": {
                 "$ref": "#/components/schemas/ModuleCompatibilityResponse"
               },
@@ -3000,9 +3004,13 @@
                 "optional_dependencies",
                 "dependents",
                 "enabled_dependents",
-                "extension_dependents"
+                "extension_dependents",
+                "can_test"
               ],
               "properties": {
+                "can_test": {
+                  "type": "boolean"
+                },
                 "compatibility": {
                   "$ref": "#/components/schemas/ModuleCompatibilityResponse"
                 },
@@ -3528,9 +3536,13 @@
           "optional_dependencies",
           "dependents",
           "enabled_dependents",
-          "extension_dependents"
+          "extension_dependents",
+          "can_test"
         ],
         "properties": {
+          "can_test": {
+            "type": "boolean"
+          },
           "compatibility": {
             "$ref": "#/components/schemas/ModuleCompatibilityResponse"
           },

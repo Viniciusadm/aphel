@@ -17,8 +17,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import { Textarea } from '@/components/ui/textarea'
-import { useModulesApi, type ModuleInfo, type ModuleSettingField } from '@/kernel/modules/api'
+import { useModulesApi, type ModuleInfo, type ModuleSettingField, type ModuleSettingsTestResult } from '@/kernel/modules/api'
 import { moduleDefinition } from '@/kernel/modules/registry'
 import { useFieldSchema } from '@/features/records/api'
 
@@ -26,6 +27,7 @@ import { activeFields } from '@/features/records/fields'
 import {
   buildFormSchema,
   initialValues,
+  numberMaxLength,
   isSecretConfigured,
   serverViolations,
   toSettings,
@@ -54,6 +56,8 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
   const formId = useId()
   const [clearedSecrets, setClearedSecrets] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<ModuleSettingsTestResult | null>(null)
   const schema = useMemo(() => buildFormSchema(module, clearedSecrets), [module, clearedSecrets])
   const fields = module.settings_schema
   const SettingsPanel = moduleDefinition(module.key)?.settingsPanel
@@ -61,6 +65,8 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
     control,
     register,
     handleSubmit,
+    getValues,
+    trigger,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<SettingsFormValues, unknown, SettingsFormValues>({
@@ -98,6 +104,20 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
       setFormError(isApiError(error) && error.status === 403 ? t('errors.actionFailed') : t('errors.generic'))
     }
   })
+
+  const runTest = async () => {
+    setFormError(null)
+    setTestResult(null)
+    if (!modulesApi.testSettings || !(await trigger())) return
+    setTesting(true)
+    try {
+      setTestResult(await modulesApi.testSettings(module.key, toSettings(module, getValues(), clearedSecrets)))
+    } catch (error) {
+      setFormError(isApiError(error) && error.status === 403 ? t('errors.actionFailed') : t('errors.generic'))
+    } finally {
+      setTesting(false)
+    }
+  }
 
   const errorText = (field: ModuleSettingField): string | null => {
     const message = errors[field.key]?.message as ValidationKey | undefined
@@ -201,15 +221,30 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
                     invalid={invalid}
                     describedBy={describedBy}
                   />
+                ) : field.type === 'number' ? (
+                  <Controller
+                    control={control}
+                    name={field.key}
+                    render={({ field: control }) => (
+                      <NumberMaskInput
+                        id={inputId}
+                        kind={field.min != null && field.min < 0 ? 'signedInteger' : 'integer'}
+                        maxLength={numberMaxLength(field.min, field.max)}
+                        placeholder={t('placeholders.value')}
+                        value={typeof control.value === 'string' ? control.value : ''}
+                        onValueChange={control.onChange}
+                        onBlur={control.onBlur}
+                        aria-invalid={invalid}
+                        aria-describedby={describedBy}
+                      />
+                    )}
+                  />
                 ) : field.type === 'long_text' ? (
                   <Textarea placeholder={t('placeholders.value')} id={inputId} rows={4} aria-invalid={invalid} aria-describedby={describedBy} {...register(field.key)} />
                 ) : (
                   <Input
                     id={inputId}
                     type={inputType(field)}
-                    inputMode={field.type === 'number' ? 'decimal' : undefined}
-                    min={field.type === 'number' ? (field.min ?? undefined) : undefined}
-                    max={field.type === 'number' ? (field.max ?? undefined) : undefined}
                     autoComplete={field.type === 'secret' ? 'new-password' : 'off'}
                     disabled={clearing}
                     placeholder={secretConfigured ? '••••••••' : t('placeholders.value')}
@@ -240,7 +275,17 @@ export function ModuleSettingsDialog({ module, initialViolations, enableAfterSav
             )}
           </section>
         )}
+        {testResult && (
+          <Alert role="status" className={testResult.ok ? 'text-success' : 'text-destructive'}>
+            {testResult.ok ? t('settings.testOk', { detail: testResult.message }) : t('settings.testFailed', { detail: testResult.message })}
+          </Alert>
+        )}
         <DialogFooter>
+          {module.can_test && modulesApi.testSettings && fields.length > 0 && (
+            <Button type="button" variant="outline" className="sm:mr-auto" disabled={testing || isSubmitting} aria-busy={testing} onClick={runTest}>
+              {t(testing ? 'settings.testing' : 'settings.test')}
+            </Button>
+          )}
           <Button type="button" variant="outline" disabled={isSubmitting} onClick={onClose}>
             {t('settings.cancel')}
           </Button>
@@ -307,8 +352,6 @@ function inputType(field: ModuleSettingField): string {
       return 'email'
     case 'url':
       return 'url'
-    case 'number':
-      return 'number'
     default:
       return 'text'
   }

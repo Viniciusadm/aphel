@@ -23,6 +23,11 @@ export type ValidationKey =
   | 'validation.field'
   | 'validation.unknown'
 
+export function numberMaxLength(min: number | null | undefined, max: number | null | undefined): number {
+  const digits = Math.max(String(Math.abs(max ?? 999_999_999)).length, String(Math.abs(min ?? 0)).length)
+  return digits + (min != null && min < 0 ? 1 : 0)
+}
+
 export function isSecretConfigured(module: ModuleInfo, key: string): boolean {
   return module.configured_secrets.includes(key)
 }

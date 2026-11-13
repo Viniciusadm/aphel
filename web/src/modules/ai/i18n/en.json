@@ -8,16 +8,17 @@
       "help": "Service that receives the data sent by the AI features",
       "options": {
         "anthropic": "Anthropic (Claude)",
-        "openai_compatible": "OpenAI-compatible (OpenAI, Ollama, LM Studio)"
+        "openai_compatible": "OpenAI-compatible (OpenAI, Ollama, LM Studio)",
+        "deepseek": "DeepSeek"
       }
     },
     "base_url": {
       "label": "Provider URL",
-      "help": "Empty uses https://api.anthropic.com or https://api.openai.com/v1. For a local Ollama: http://localhost:11434/v1"
+      "help": "Empty uses https://api.anthropic.com, https://api.deepseek.com or https://api.openai.com/v1. For a local Ollama: http://localhost:11434/v1"
     },
     "model": {
       "label": "Model",
-      "help": "E.g. claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, gpt-4o-mini, llama3.1"
+      "help": "E.g. claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-chat, deepseek-reasoner, gpt-4o-mini, llama3.1"
     },
     "api_key": {
       "label": "API key",
@@ -58,7 +59,8 @@
   },
   "providers": {
     "anthropic": "Anthropic (Claude)",
-    "openai_compatible": "OpenAI-compatible"
+    "openai_compatible": "OpenAI-compatible",
+    "deepseek": "DeepSeek"
   },
   "features": {
     "summary": "Record summary",

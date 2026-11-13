@@ -67,7 +67,8 @@ pub mod points {
     pub use aphel_kernel::application::system::{FailureEntry, FailureSource};
     pub use aphel_kernel::domain::UserId;
     pub use aphel_kernel::modules::{
-        FileReferenceSource, HealthSource, ReferenceProvider, lookup_exists,
+        FileReferenceSource, HealthSource, ModuleSettingsTester, ReferenceProvider,
+        SettingsTestOutcome, lookup_exists,
     };
 }
 

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use serde_json::Value;
 
 use crate::KEY;
-use crate::provider::{AiProvider, AnthropicProvider, OpenAiCompatibleProvider};
+use crate::provider::{AiProvider, AnthropicProvider, DeepSeekProvider, OpenAiCompatibleProvider};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{module_secret_key, module_settings};
@@ -107,12 +107,16 @@ impl AiSettings {
     pub(crate) fn from_value(settings: &Value) -> Self {
         let provider = match text(settings, SETTING_PROVIDER).as_str() {
             OpenAiCompatibleProvider::NAME => OpenAiCompatibleProvider::NAME,
+            DeepSeekProvider::NAME => DeepSeekProvider::NAME,
             _ => AnthropicProvider::NAME,
         }
         .to_owned();
         let base_url = match text(settings, SETTING_BASE_URL) {
             url if url.is_empty() && provider == OpenAiCompatibleProvider::NAME => {
                 OpenAiCompatibleProvider::DEFAULT_BASE_URL.to_owned()
+            }
+            url if url.is_empty() && provider == DeepSeekProvider::NAME => {
+                DeepSeekProvider::DEFAULT_BASE_URL.to_owned()
             }
             url if url.is_empty() => AnthropicProvider::DEFAULT_BASE_URL.to_owned(),
             url => url.trim_end_matches('/').to_owned(),
@@ -158,6 +162,7 @@ impl AiSettings {
 
     pub(crate) fn requires_key(&self) -> bool {
         self.provider == AnthropicProvider::NAME
+            || self.provider == DeepSeekProvider::NAME
             || self.base_url == OpenAiCompatibleProvider::DEFAULT_BASE_URL
     }
 }
@@ -185,19 +190,32 @@ pub(crate) async fn provider(
     ctx: &Ctx<'_>,
     settings: &AiSettings,
 ) -> Result<Arc<dyn AiProvider>, AppError> {
+    let api_key = api_key(ctx).await?.filter(|key| !key.trim().is_empty());
+    provider_with_key(settings, api_key)
+}
+
+pub(crate) fn provider_with_key(
+    settings: &AiSettings,
+    api_key: Option<String>,
+) -> Result<Arc<dyn AiProvider>, AppError> {
     if settings.model.is_empty() {
         return Err(not_configured("no AI model is configured"));
     }
     if !has_valid_scheme(&settings.base_url) {
         return Err(not_configured("the AI provider URL must use http or https"));
     }
-    let api_key = api_key(ctx).await?.filter(|key| !key.trim().is_empty());
     if settings.requires_key() && api_key.is_none() {
         return Err(not_configured(
             "no API key is configured for the AI provider",
         ));
     }
-    Ok(if settings.provider == OpenAiCompatibleProvider::NAME {
+    Ok(if settings.provider == DeepSeekProvider::NAME {
+        Arc::new(DeepSeekProvider::provider(
+            settings.base_url.clone(),
+            settings.model.clone(),
+            api_key,
+        ))
+    } else if settings.provider == OpenAiCompatibleProvider::NAME {
         Arc::new(OpenAiCompatibleProvider::new(
             settings.base_url.clone(),
             settings.model.clone(),
@@ -212,6 +230,44 @@ pub(crate) async fn provider(
     })
 }
 
+pub(crate) async fn test_settings(
+    ctx: &Ctx<'_>,
+    raw: &serde_json::Map<String, Value>,
+) -> Result<(bool, String), AppError> {
+    let settings = AiSettings::from_value(&Value::Object(raw.clone()));
+    let typed = raw
+        .get(SETTING_API_KEY)
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|key| !key.is_empty())
+        .map(str::to_owned);
+    let api_key = match typed {
+        Some(key) => Some(key),
+        None => api_key(ctx).await?.filter(|key| !key.trim().is_empty()),
+    };
+    let provider = match provider_with_key(&settings, api_key) {
+        Ok(provider) => provider,
+        Err(error) => return Ok((false, plain_message(&error))),
+    };
+    let started = std::time::Instant::now();
+    let request = crate::provider::AiRequest::new(
+        "This is a connection check. Answer with the single word ok.",
+        vec![crate::provider::AiMessage::user("ping")],
+        16,
+    );
+    Ok(match provider.complete(request).await {
+        Ok(_) => (
+            true,
+            format!(
+                "{} answered in {} ms",
+                provider.model(),
+                started.elapsed().as_millis()
+            ),
+        ),
+        Err(error) => (false, plain_message(&error)),
+    })
+}
+
 pub(crate) async fn is_configured(
     ctx: &Ctx<'_>,
     settings: &AiSettings,
@@ -223,4 +279,12 @@ pub(crate) async fn is_configured(
         && has_valid_scheme(&settings.base_url)
         && (key_configured || !settings.requires_key());
     Ok((configured, key_configured))
+}
+
+fn plain_message(error: &impl std::fmt::Display) -> String {
+    let text = error.to_string();
+    match text.split_once(": ") {
+        Some((code, rest)) if !code.contains(' ') => rest.to_owned(),
+        _ => text,
+    }
 }
