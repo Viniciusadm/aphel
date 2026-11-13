@@ -117,7 +117,7 @@
         "deal": "deal(s)"
       },
       "tasks": {
-        "task": "activity(ies)"
+        "task": "task(s)"
       },
       "notes": {
         "note": "note(s)"
@@ -159,7 +159,16 @@
     "description": {
       "contact": "A summary of the contact, recent conversations and open business.",
       "company": "A summary of the company, its people, recent conversations and business.",
-      "deal": "A summary of the deal, its progress and what needs attention."
+      "deal": "A summary of the deal, its progress and what needs attention.",
+      "people": {
+        "person": "A summary of the contact, recent conversations and open business."
+      },
+      "organizations": {
+        "organization": "A summary of the company, its people, recent conversations and business."
+      },
+      "deals": {
+        "deal": "A summary of the deal, its progress and what needs attention."
+      }
     },
     "generate": "Generate summary",
     "regenerate": "Generate again"
@@ -227,7 +236,16 @@
       "default": "E.g. created in the last 30 days with no owner",
       "contact": "E.g. people from São Paulo created this month without e-mail",
       "company": "E.g. organizations created this year that are mine",
-      "deal": "E.g. open deals above 10k expected to close this month"
+      "deal": "E.g. open deals above 10k expected to close this month",
+      "people": {
+        "person": "E.g. people from São Paulo created this month without e-mail"
+      },
+      "organizations": {
+        "organization": "E.g. organizations created this year that are mine"
+      },
+      "deals": {
+        "deal": "E.g. open deals above 10k expected to close this month"
+      }
     },
     "sends": "Only the question and the field list go to the AI; no record is sent.",
     "generate": "Build filter",

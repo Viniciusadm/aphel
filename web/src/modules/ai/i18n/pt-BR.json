@@ -117,7 +117,7 @@
         "deal": "oportunidade(s)"
       },
       "tasks": {
-        "task": "atividade(s)"
+        "task": "tarefa(s)"
       },
       "notes": {
         "note": "nota(s)"
@@ -159,7 +159,16 @@
     "description": {
       "contact": "Um resumo do contato, das conversas recentes e dos negócios em aberto.",
       "company": "Um resumo da empresa, das pessoas, das conversas recentes e dos negócios.",
-      "deal": "Um resumo da oportunidade, do andamento e do que precisa de atenção."
+      "deal": "Um resumo da oportunidade, do andamento e do que precisa de atenção.",
+      "people": {
+        "person": "Um resumo do contato, das conversas recentes e dos negócios em aberto."
+      },
+      "organizations": {
+        "organization": "Um resumo da empresa, das pessoas, das conversas recentes e dos negócios."
+      },
+      "deals": {
+        "deal": "Um resumo da oportunidade, do andamento e do que precisa de atenção."
+      }
     },
     "generate": "Gerar resumo",
     "regenerate": "Gerar de novo"
@@ -227,7 +236,16 @@
       "default": "Ex.: criados nos últimos 30 dias e sem responsável",
       "contact": "Ex.: contatos de São Paulo criados este mês sem e-mail",
       "company": "Ex.: empresas criadas este ano que são minhas",
-      "deal": "Ex.: oportunidades abertas acima de 10 mil com fechamento previsto este mês"
+      "deal": "Ex.: oportunidades abertas acima de 10 mil com fechamento previsto este mês",
+      "people": {
+        "person": "Ex.: contatos de São Paulo criados este mês sem e-mail"
+      },
+      "organizations": {
+        "organization": "Ex.: empresas criadas este ano que são minhas"
+      },
+      "deals": {
+        "deal": "Ex.: oportunidades abertas acima de 10 mil com fechamento previsto este mês"
+      }
     },
     "sends": "Só a pergunta e a lista de campos vão para a IA; nenhum registro é enviado.",
     "generate": "Gerar filtro",
