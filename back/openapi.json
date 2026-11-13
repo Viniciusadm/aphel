@@ -122722,7 +122722,8 @@
           "removed",
           "contact_unavailable",
           "enroller_unavailable",
-          "send_failed"
+          "send_failed",
+          "step_failed"
         ]
       },
       "SequenceMetricsResponse": {

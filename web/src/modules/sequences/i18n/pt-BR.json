@@ -64,7 +64,8 @@
     "removed": "Removido manualmente",
     "contact_unavailable": "Contato sem e-mail ou indisponível",
     "enroller_unavailable": "Quem inscreveu saiu da organização",
-    "send_failed": "Falha no envio"
+    "send_failed": "Falha no envio",
+    "step_failed": "Falha no passo"
   },
   "sources": {
     "manual": "Pelo registro",
@@ -122,7 +123,8 @@
     "waitDays": "Informe de 1 a 365 dias úteis.",
     "bodyRequired": "Escreva o corpo ou escolha um modelo.",
     "subjectRequired": "Informe o assunto ou escolha um modelo.",
-    "titleRequired": "Informe o título da tarefa."
+    "titleRequired": "Informe o título da tarefa.",
+    "noSteps": "Adicione ao menos um passo que não seja uma espera."
   },
   "detail": {
     "back": "Voltar para as sequências",

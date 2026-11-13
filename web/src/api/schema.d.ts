@@ -23073,7 +23073,7 @@ export interface components {
         /** @enum {string} */
         SequenceEnrollmentStatus: "active" | "paused" | "completed" | "exited";
         /** @enum {string} */
-        SequenceExitReason: "replied" | "meeting_booked" | "deal_won" | "deal_lost" | "bounced" | "objection" | "contact_deleted" | "removed" | "contact_unavailable" | "enroller_unavailable" | "send_failed";
+        SequenceExitReason: "replied" | "meeting_booked" | "deal_won" | "deal_lost" | "bounced" | "objection" | "contact_deleted" | "removed" | "contact_unavailable" | "enroller_unavailable" | "send_failed" | "step_failed";
         SequenceMetricsResponse: {
             enrollments: components["schemas"]["SequenceEnrollmentCountsResponse"];
             steps: components["schemas"]["SequenceStepMetricsResponse"][];

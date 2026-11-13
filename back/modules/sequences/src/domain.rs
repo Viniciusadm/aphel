@@ -103,10 +103,11 @@ pub(crate) enum ExitReason {
     ContactUnavailable,
     EnrollerUnavailable,
     SendFailed,
+    StepFailed,
 }
 
 impl ExitReason {
-    pub(crate) const ALL: [Self; 11] = [
+    pub(crate) const ALL: [Self; 12] = [
         Self::Replied,
         Self::MeetingBooked,
         Self::DealWon,
@@ -118,6 +119,7 @@ impl ExitReason {
         Self::ContactUnavailable,
         Self::EnrollerUnavailable,
         Self::SendFailed,
+        Self::StepFailed,
     ];
 
     pub(crate) fn as_str(&self) -> &'static str {
@@ -133,6 +135,7 @@ impl ExitReason {
             Self::ContactUnavailable => "contact_unavailable",
             Self::EnrollerUnavailable => "enroller_unavailable",
             Self::SendFailed => "send_failed",
+            Self::StepFailed => "step_failed",
         }
     }
 

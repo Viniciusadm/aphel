@@ -64,7 +64,8 @@
     "removed": "Removed manually",
     "contact_unavailable": "Contact without e-mail or unavailable",
     "enroller_unavailable": "The enroller left the organization",
-    "send_failed": "Sending failed"
+    "send_failed": "Sending failed",
+    "step_failed": "Step failed"
   },
   "sources": {
     "manual": "From the record",
@@ -122,7 +123,8 @@
     "waitDays": "Enter 1 to 365 business days.",
     "bodyRequired": "Write the body or choose a template.",
     "subjectRequired": "Enter the subject or choose a template.",
-    "titleRequired": "Enter the task title."
+    "titleRequired": "Enter the task title.",
+    "noSteps": "Add at least one step that is not a wait."
   },
   "detail": {
     "back": "Back to sequences",

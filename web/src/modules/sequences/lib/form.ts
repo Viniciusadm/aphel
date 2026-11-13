@@ -59,6 +59,9 @@ export const sequenceFormSchema = z
     if (TIME_PATTERN.test(values.windowStart) && TIME_PATTERN.test(values.windowEnd) && values.windowEnd <= values.windowStart) {
       context.addIssue({ code: 'custom', message: 'validation.window', path: ['windowEnd'] })
     }
+    if (!values.steps.some((step) => step.kind !== 'wait')) {
+      context.addIssue({ code: 'custom', message: 'validation.noSteps', path: ['steps'] })
+    }
     let threaded = false
     values.steps.forEach((step, index) => {
       if (step.kind === 'wait' && (!Number.isInteger(step.waitDays) || step.waitDays < 1 || step.waitDays > MAX_WAIT_DAYS)) {

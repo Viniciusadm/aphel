@@ -99,6 +99,7 @@ pub(crate) enum SequenceExitReasonSchema {
     ContactUnavailable,
     EnrollerUnavailable,
     SendFailed,
+    StepFailed,
 }
 
 impl From<ExitReason> for SequenceExitReasonSchema {
@@ -115,6 +116,7 @@ impl From<ExitReason> for SequenceExitReasonSchema {
             ExitReason::ContactUnavailable => Self::ContactUnavailable,
             ExitReason::EnrollerUnavailable => Self::EnrollerUnavailable,
             ExitReason::SendFailed => Self::SendFailed,
+            ExitReason::StepFailed => Self::StepFailed,
         }
     }
 }

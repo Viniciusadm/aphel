@@ -28,6 +28,7 @@ export const EXIT_REASONS: ExitReason[] = [
   'contact_unavailable',
   'enroller_unavailable',
   'send_failed',
+  'step_failed',
 ]
 
 export const SEQUENCE_ERROR_CODES = [

@@ -438,13 +438,21 @@ fn new_run(
     }
 }
 
+fn failed_reason(kind: StepKind) -> ExitReason {
+    if kind == StepKind::AutoEmail {
+        ExitReason::SendFailed
+    } else {
+        ExitReason::StepFailed
+    }
+}
+
 fn failure(run: StepRun, error: AppError, can_retry: bool) -> Outcome {
     if can_retry && !is_definitive(&error) {
         return Outcome::Retry(error);
     }
     tracing::warn!(error = %error, enrollment_id = %run.enrollment_id, "sequence step failed");
     Outcome::Exit(
-        ExitReason::SendFailed,
+        failed_reason(run.kind),
         Some(StepRun {
             status: RunStatus::Failed,
             failure_reason: Some(truncate(error.client_message(), MAX_FAILURE_REASON_LENGTH)),
@@ -469,7 +477,7 @@ async fn recover(
 ) -> Result<(), AppError> {
     let outcome = match run.status {
         RunStatus::Sent | RunStatus::Created => Outcome::Advance(run),
-        RunStatus::Failed => Outcome::Exit(ExitReason::SendFailed, None),
+        RunStatus::Failed => Outcome::Exit(failed_reason(run.kind), None),
         RunStatus::Running => Outcome::Advance(StepRun {
             status: RunStatus::Failed,
             failure_reason: Some("the step was interrupted before it finished".to_owned()),
