@@ -244,6 +244,9 @@ impl WidgetProvider<aphel_sdk::dashboard::WidgetPorts> for ReportTotalsWidget {
     fn category(&self) -> &str {
         "overview"
     }
+    fn default_size(&self) -> crate::engine::WidgetSize {
+        crate::engine::WidgetSize::Large
+    }
     fn default_order(&self) -> Option<i32> {
         Some(40)
     }
