@@ -48,6 +48,8 @@ impl Module for ProposalsModule {
     fn manifest(&self) -> Manifest {
         let mut manifest = Manifest::new(KEY, "Proposals", VERSION)
             .depends_on(aphel_sdk::documents::KEY, "*")
+            .depends_on(aphel_sdk::deals::KEY, "*")
+            .optional("quotes")
             .description("Document templates and PDF proposals generated from deals")
             .requires_aphel("0.1.0")
             .migration(Migration::new(

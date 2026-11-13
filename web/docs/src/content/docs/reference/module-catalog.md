@@ -877,8 +877,8 @@ Document templates and PDF proposals generated from deals.
 | | |
 | --- | --- |
 | Layer | domain |
-| Depends on | `documents` |
-| Optional dependencies | none |
+| Depends on | `deals`, `documents` |
+| Optional dependencies | `quotes` |
 | Permissions | `proposals.manage`, `proposals.generate` |
 | Web package | yes |
 | Blueprints | Recommended by `agency`, `consultancy`. |
