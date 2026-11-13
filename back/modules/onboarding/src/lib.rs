@@ -16,6 +16,7 @@ pub struct OnboardingModule;
 impl Module for OnboardingModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Setup assistant", APHEL_VERSION)
+            .depends_on("config_packages", "*")
             .description("First-run setup assistant: questions, template recommendation and state")
             .enabled_by_default()
     }

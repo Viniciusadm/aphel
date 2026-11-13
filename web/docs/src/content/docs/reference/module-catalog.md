@@ -666,7 +666,7 @@ First-run setup assistant: questions, template recommendation and state.
 | | |
 | --- | --- |
 | Layer | capability |
-| Depends on | none |
+| Depends on | `config_packages` |
 | Optional dependencies | none |
 | Permissions | none |
 | Web package | yes |
