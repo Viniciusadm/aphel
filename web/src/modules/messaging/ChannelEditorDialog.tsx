@@ -1,7 +1,7 @@
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/components/ui/native-select'
-import { Loader2 } from 'lucide-react'
+import { ExternalLink, Loader2 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
@@ -34,6 +34,12 @@ interface ChannelEditorDialogProps {
   onOpenChange: (open: boolean) => void
   onSaved: (channel: Channel, created: boolean) => void
 }
+
+const GUIDE_LINKS = [
+  'https://developers.facebook.com/apps/',
+  'https://business.facebook.com/settings/system-users',
+  'https://developers.facebook.com/docs/whatsapp/cloud-api/get-started',
+]
 
 export function ChannelEditorDialog({ editing, onOpenChange, onSaved }: ChannelEditorDialogProps) {
   const t = useModuleTranslation(MESSAGING_KEY)
@@ -138,7 +144,10 @@ function ChannelForm({
   }
 
   const prefix = channel?.id ?? `new-${kind}`
-  const guide = [0, 1, 2, 3].map((index) => t(`editor.guide.${kind}.${index}` as 'editor.guide.whatsapp.0', { defaultValue: '' })).filter(Boolean)
+  const guide = [0, 1, 2, 3, 4, 5, 6, 7].map((index) => t(`editor.guide.${kind}.${index}` as 'editor.guide.whatsapp.0', { defaultValue: '' })).filter(Boolean)
+  const guideLinks = kind === 'whatsapp'
+    ? GUIDE_LINKS.map((url, index) => ({ url, label: t(`editor.guideLinks.whatsapp.${index}` as 'editor.guideLinks.whatsapp.0', { defaultValue: '' }) })).filter((link) => link.label)
+    : []
   const placeholderOf = (key: string) => t(`editor.placeholders.${key}` as 'editor.placeholders.phone_number_id', { defaultValue: '' }) || undefined
 
   return (
@@ -157,6 +166,16 @@ function ChannelForm({
               <li key={step}>{step}</li>
             ))}
           </ol>
+          {guideLinks.length > 0 && (
+            <p className="flex flex-wrap gap-x-4 gap-y-1">
+              {guideLinks.map((link) => (
+                <a key={link.url} href={link.url} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline">
+                  {link.label}
+                  <ExternalLink className="size-3" aria-hidden="true" />
+                </a>
+              ))}
+            </p>
+          )}
         </div>
       )}
 

@@ -116,7 +116,7 @@ The `enrichment` module looks up public company data by CNPJ and fills the field
 
 The `messaging` module is a shared inbox for **WhatsApp Cloud API** and email (IMAP and SMTP), with conversations on the contact timeline. Channels are managed with the `messaging.manage_channels` permission.
 
-For WhatsApp, a channel needs the phone number ID and three secrets: the access token, the app secret and a verify token. The channel shows the webhook address to register at Meta. WhatsApp accepts free-form replies only within 24 hours of the customer's last message, then only approved templates. The module settings include whether to create a contact for an unknown sender and which user acts for inbound messages.
+For WhatsApp, a channel needs the phone number ID and three secrets: the access token, the app secret and a verify token. The channel shows the webhook address to register at Meta. Most of the work happens at Meta, not in Aphel: verifying the business in Business Manager, creating an app with the WhatsApp product, registering the number (it cannot be active in the regular WhatsApp app), generating a permanent token with a system user, and registering the webhook address with the same verify token. The new channel dialog lists these steps with direct links. To try the flow without your own number, use the test number Meta provides, which sends to up to 5 registered recipients. WhatsApp accepts free-form replies only within 24 hours of the customer's last message, then only approved templates. The module settings include whether to create a contact for an unknown sender and which user acts for inbound messages.
 
 ## Webhooks
 

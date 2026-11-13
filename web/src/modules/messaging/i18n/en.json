@@ -239,14 +239,18 @@
     },
     "activeHelp": "Turn off to stop receiving and sending without deleting the history.",
     "guideTitle": {
-      "whatsapp": "Before you start, get the data from Meta"
+      "whatsapp": "Step by step at Meta (the slow part)"
     },
     "guide": {
       "whatsapp": [
-        "In the Meta for Developers dashboard, open your app and go to WhatsApp › API Setup.",
-        "Copy the phone number ID and the WhatsApp Business account ID.",
-        "Generate a permanent token with a system user and also copy the app secret (Settings › Basic).",
-        "After saving, copy the webhook URL Aphel shows on the channel and register it at Meta with the same verify token."
+        "Have a Meta Business Manager account and verify the business (company ID and documents). It can take a few days.",
+        "In Meta for Developers, create a Business app and add the WhatsApp product.",
+        "In WhatsApp › API Setup, register the number. It cannot be active in the WhatsApp app (delete the account there first). To just test, use Meta's test number, which sends to up to 5 registered recipients.",
+        "On the same screen, copy the phone number ID and the WhatsApp Business account ID.",
+        "Generate the permanent token: Business Manager › Settings › System users. Create a user, assign the app and generate the token with the whatsapp_business_messaging and whatsapp_business_management permissions. The token on the test screen expires in 24 hours.",
+        "Copy the app secret from Settings › Basic.",
+        "Save the channel here, open its webhook (row menu) and register the URL at Meta under WhatsApp › Configuration, with the same verify token. Subscribe to the \"messages\" field.",
+        "Click Test. Reminder: after 24 hours from the customer's last message, Meta only accepts approved templates."
       ]
     },
     "placeholders": {
@@ -256,7 +260,14 @@
       "app_secret": "Paste the app secret",
       "verify_token": "Any text only you know"
     },
-    "credentialsHelpNew": "Encrypted on the server and never sent back."
+    "credentialsHelpNew": "Encrypted on the server and never sent back.",
+    "guideLinks": {
+      "whatsapp": [
+        "Meta for Developers",
+        "Business Manager",
+        "Cloud API documentation"
+      ]
+    }
   },
   "tab": {
     "label": "Conversations",
