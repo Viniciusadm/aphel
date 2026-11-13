@@ -353,7 +353,8 @@ impl Module for TasksModule {
                 )
                 .capabilities(
                     aphel_sdk::platform::application::fields::EntityTraits::default()
-                        .with_trait("records.global"),
+                        .with_trait("records.global")
+                        .localized_labels(crate::labels("Activity types")),
                 )
                 .title_field("name")
                 .system_field(aphel_sdk::platform::application::fields::builtin::field(

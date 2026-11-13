@@ -94,5 +94,9 @@
   "Urgent": {
     "pt-BR": "Urgente",
     "en": "Urgent"
+  },
+  "Activity types": {
+    "pt-BR": "Tipos de atividade",
+    "en": "Activity types"
   }
 }

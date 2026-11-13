@@ -6,7 +6,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::AppError;
 use aphel_sdk::module::HookCtx;
-use aphel_sdk::platform::application::fields::{EntityDefinition, SystemField};
+use aphel_sdk::platform::application::fields::{EntityDefinition, EntityTraits, SystemField};
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
 use aphel_sdk::platform::domain::fields::{FieldConfig, FieldType};
@@ -44,12 +44,20 @@ fn focal(key: &str, label: &str) -> Result<SystemField, AppError> {
     )
 }
 
+fn labels(key: &str) -> aphel_sdk::platform::application::fields::LocalizedLabels {
+    aphel_sdk::platform::application::fields::LocalizedLabels::from_catalog(
+        include_str!("../locales/labels.json"),
+        key,
+    )
+}
+
 fn definition() -> Result<EntityDefinition, AppError> {
     let read = Permission::from_static(READ);
     let manage = Permission::from_static(MANAGE);
     let record_type = RecordType::from_static(ASSET);
     let mut definition = EntityDefinition::new(record_type.clone(), "", read)
         .managed(ASSET)
+        .capabilities(EntityTraits::default().localized_labels(labels("Files")))
         .generic_mutations(manage.clone(), manage.clone())
         .update_permission(manage)
         .title_field("name")
@@ -87,6 +95,7 @@ fn folder_definition() -> Result<EntityDefinition, AppError> {
     let record_type = RecordType::from_static(FOLDER);
     let mut definition = EntityDefinition::new(record_type.clone(), "", read)
         .managed(FOLDER)
+        .capabilities(EntityTraits::default().localized_labels(labels("Folders")))
         .generic_mutations(manage.clone(), manage.clone())
         .update_permission(manage)
         .title_field("name")
