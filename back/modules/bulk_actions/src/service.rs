@@ -223,10 +223,11 @@ pub(crate) async fn get(ctx: &Ctx<'_>, operation_id: &str) -> Result<BulkOperati
 
 pub(crate) async fn list(
     ctx: &Ctx<'_>,
+    status: Option<BulkStatus>,
     window: ListWindow,
 ) -> Result<Listing<BulkOperation>, AppError> {
     BulkOperationStore::of(ctx)
-        .list(ctx.scope.user_id(), window)
+        .list(ctx.scope.user_id(), status, window)
         .await
 }
 

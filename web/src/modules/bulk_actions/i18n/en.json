@@ -97,7 +97,9 @@
     "reportTitle": "Records not changed",
     "moreIssues_one": "And {{count}} more record.",
     "moreIssues_other": "And {{count}} more records.",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "removedRecord": "Record removed",
+    "failedHint": "The action stopped before finishing. Try again; if it keeps failing, tell your administrator."
   },
   "reasons": {
     "permissionDenied": "You are not allowed to change this record.",
@@ -116,7 +118,7 @@
     "menuDescription": "History of the bulk actions you ran, with each report.",
     "description": "Bulk actions you ran on record lists.",
     "empty": "No bulk actions yet",
-    "emptyDescription": "Select records in a list to apply a bulk action.",
+    "emptyDescription": "Open a list (for example, Contacts), select a few records and pick an action in the bar that appears.",
     "status": {
       "queued": "Queued",
       "running": "Processing",
@@ -151,6 +153,30 @@
     },
     "counts": "{{succeeded}} changed, {{issues}} not changed of {{total}}",
     "open": "View report",
-    "detailTitle": "Bulk action"
+    "detailTitle": "Bulk action",
+    "allStatuses": "All statuses",
+    "emptyFiltered": "No actions with this status",
+    "emptyFilteredDescription": "Pick another status to see the other actions.",
+    "actionNames": {
+      "assign_owner": "Assign owner",
+      "set_field": "Change field",
+      "add_tag": "Add tag",
+      "remove_tag": "Remove tag",
+      "move_stage": "Move stage",
+      "enroll_in_sequence": "Enroll in sequence",
+      "archive": "Archive",
+      "unarchive": "Restore archived",
+      "delete": "Delete"
+    },
+    "summary": {
+      "unknown": "removed item",
+      "assign_owner": "Owner: {{name}}",
+      "add_tag": "Tag “{{name}}”",
+      "remove_tag": "Tag “{{name}}”",
+      "move_stage": "To stage “{{name}}”",
+      "enroll_in_sequence": "Sequence “{{name}}”",
+      "set_field": "Field “{{field}}”: {{value}}",
+      "set_field_cleared": "Field “{{field}}” cleared"
+    }
   }
 }

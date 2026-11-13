@@ -30002,6 +30002,8 @@ export interface operations {
             query?: {
                 page?: number;
                 per_page?: number;
+                /** @example failed */
+                status?: string;
             };
             header?: never;
             path?: never;
@@ -30009,7 +30011,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Bulk operations requested by the user, most recent first */
+            /** @description Bulk operations requested by the user, most recent first; `status` (`queued`, `running`, `completed`, `failed`) narrows the list */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -64454,7 +64456,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description The old address already redirects (`site_path_redirect_exists`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            /** @description The old address already redirects (`site_path_redirect_exists`) or a page answers there (`site_path_redirect_shadowed`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
             409: {
                 headers: {
                     [name: string]: unknown;

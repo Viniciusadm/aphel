@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
+import { NativeSelect } from '@/components/ui/native-select'
 import { formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
+import { BulkActionSummary } from './BulkActionSummary'
 import { BulkResult } from './BulkResult'
 import { HISTORY_PAGE_SIZE, bulkApi, bulkKeys, useBulkHistory, type BulkOperation } from './api'
 import { PageHeader } from '@/components/ui/page-header'
@@ -25,14 +27,17 @@ const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   failed: 'destructive',
 }
 
+const STATUSES = ['queued', 'running', 'completed', 'failed'] as const
 const OPERATION_PARAM = 'operation'
+const ALL = '__all__'
 
 export function BulkHistoryPage() {
   const { t } = useTranslation('bulk_actions')
   const formatting = useRecordFormatting()
   const [page, setPage] = useState(1)
+  const [status, setStatus] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
-  const history = useBulkHistory(page)
+  const history = useBulkHistory(page, status)
   const selectedId = searchParams.get(OPERATION_PARAM)
   const selected = useQuery({
     queryKey: bulkKeys.detail(selectedId ?? ''),
@@ -49,31 +54,50 @@ export function BulkHistoryPage() {
 
   const recordTypeLabel = (recordType: string) =>
     t(`history.recordTypes.${recordType}`, { defaultValue: recordType })
+  const actionLabel = (action: string) => t(`history.actionNames.${action}`, { defaultValue: action })
+  const filtered = status !== ''
 
   return (
     <Page>
       <PageHeader title={t('history.title')} description={t('history.description')} />
+      <div className="flex flex-wrap gap-2">
+        <NativeSelect
+          value={status || ALL}
+          onValueChange={(value) => {
+            setStatus(value === ALL ? '' : value)
+            setPage(1)
+          }}
+          className="w-52"
+          aria-label={t('history.columns.status')}
+        >
+          <option value={ALL}>{t('history.allStatuses')}</option>
+          {STATUSES.map((value) => (
+            <option key={value} value={value}>
+              {t(`history.status.${value}`)}
+            </option>
+          ))}
+        </NativeSelect>
+      </div>
       {history.isPending ? (
         <ListSkeleton />
       ) : history.isError ? (
         <ErrorState onRetry={() => void history.refetch()} />
       ) : history.data.data.length === 0 ? (
-        <EmptyState title={t('history.empty')} description={t('history.emptyDescription')} />
+        <EmptyState
+          title={filtered ? t('history.emptyFiltered') : t('history.empty')}
+          description={filtered ? t('history.emptyFilteredDescription') : t('history.emptyDescription')}
+        />
       ) : (
         <>
           <PaginationSummary page={page} perPage={HISTORY_PAGE_SIZE} total={history.data.meta.total} />
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead scope="col">
-                  {t('history.columns.action')}
-                </TableHead>
+                <TableHead scope="col">{t('history.columns.action')}</TableHead>
                 <TableHead scope="col" className="hidden sm:table-cell">
                   {t('history.columns.recordType')}
                 </TableHead>
-                <TableHead scope="col">
-                  {t('history.columns.status')}
-                </TableHead>
+                <TableHead scope="col">{t('history.columns.status')}</TableHead>
                 <TableHead scope="col" className="hidden md:table-cell">
                   {t('history.columns.records')}
                 </TableHead>
@@ -87,16 +111,23 @@ export function BulkHistoryPage() {
             </TableHeader>
             <TableBody>
               {history.data.data.map((operation) => (
-                <TableRow key={operation.id}>
-                  <TableCell className="font-medium">
-                    {t(`actions.${operation.action}`, { defaultValue: operation.action })}
+                <TableRow key={operation.id} className="cursor-pointer" onClick={() => select(operation)}>
+                  <TableCell className="grid gap-0.5">
+                    <button
+                      type="button"
+                      className="w-fit text-left font-medium underline-offset-4 hover:underline"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        select(operation)
+                      }}
+                    >
+                      {actionLabel(operation.action)}
+                    </button>
+                    <BulkActionSummary operation={operation} />
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">{recordTypeLabel(operation.record_type)}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={STATUS_VARIANTS[operation.status] ?? 'secondary'}
-                      title={operation.failure_reason ?? undefined}
-                    >
+                    <Badge variant={STATUS_VARIANTS[operation.status] ?? 'secondary'}>
                       {t(`history.status.${operation.status}`, { defaultValue: operation.status })}
                     </Badge>
                   </TableCell>
@@ -111,7 +142,14 @@ export function BulkHistoryPage() {
                     {formatDateTime(operation.created_at, formatting)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => select(operation)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        select(operation)
+                      }}
+                    >
                       {t('history.open')}
                     </Button>
                   </TableCell>
@@ -131,9 +169,7 @@ export function BulkHistoryPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selected.data
-                ? t(`actions.${selected.data.action}`, { defaultValue: selected.data.action })
-                : t('history.detailTitle')}
+              {selected.data ? actionLabel(selected.data.action) : t('history.detailTitle')}
             </DialogTitle>
             <DialogDescription>
               {selected.data
@@ -146,7 +182,10 @@ export function BulkHistoryPage() {
           ) : selected.isError ? (
             <ErrorState onRetry={() => void selected.refetch()} />
           ) : (
-            <BulkResult key={selected.data.id} operation={selected.data} recordType={selected.data.record_type} />
+            <>
+              <BulkActionSummary operation={selected.data} className="text-sm" />
+              <BulkResult key={selected.data.id} operation={selected.data} recordType={selected.data.record_type} />
+            </>
           )}
         </DialogContent>
       </Dialog>

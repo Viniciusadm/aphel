@@ -1,9 +1,8 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CheckCircle2, Loader2, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { getRecordResource } from '@/sdk'
+import { RecordValue } from '@/sdk'
 import { isFinished, useBulkItems, useBulkOperation, type BulkOperation } from './api'
 
 export interface BulkResultProps {
@@ -19,7 +18,6 @@ export function BulkResult({ operation: initial, recordType }: BulkResultProps) 
   const issues = items.data?.pages.flatMap((page) => page.data) ?? []
   const issuesTotal = items.data?.pages.at(-1)?.meta.total ?? 0
   const finished = isFinished(operation.status)
-  const resource = getRecordResource(recordType)
   const percent = operation.total > 0 ? Math.round((operation.processed / operation.total) * 100) : 0
 
   return (
@@ -48,7 +46,10 @@ export function BulkResult({ operation: initial, recordType }: BulkResultProps) 
       ) : operation.status === 'failed' ? (
         <SharedFieldError className="flex items-center gap-2">
           <TriangleAlert className="size-4" aria-hidden="true" />
-          {t('result.failed')}
+          <span className="grid gap-0.5">
+            {t('result.failed')}
+            <span className="text-xs font-normal">{t('result.failedHint')}</span>
+          </span>
         </SharedFieldError>
       ) : (
         <p className="flex items-center gap-2 text-sm">
@@ -76,21 +77,18 @@ export function BulkResult({ operation: initial, recordType }: BulkResultProps) 
         <div className="grid gap-1">
           <p className="text-sm font-medium">{t('result.reportTitle')}</p>
           <ul className="grid max-h-56 gap-1 overflow-y-auto text-sm" aria-label={t('result.reportTitle')}>
-            {issues.map((item) => {
-              const href = resource?.detailPath?.(item.record_id)
-              return (
-                <li key={item.record_id} className="grid gap-0.5 rounded-md border px-2 py-1.5">
-                  {href ? (
-                    <Link to={href} className="truncate font-mono text-xs underline-offset-4 hover:underline">
-                      {item.record_id}
-                    </Link>
+            {issues.map((item) => (
+              <li key={item.record_id} className="grid gap-0.5 rounded-md border px-2 py-1.5">
+                <span className="flex min-w-0 text-sm font-medium">
+                  {isGone(item.code) ? (
+                    <span className="truncate text-muted-foreground">{t('result.removedRecord')}</span>
                   ) : (
-                    <span className="truncate font-mono text-xs">{item.record_id}</span>
+                    <RecordValue recordType={recordType} recordId={item.record_id} />
                   )}
-                  <span className="text-xs text-muted-foreground">{reasonLabel(t, item.code, item.message)}</span>
-                </li>
-              )
-            })}
+                </span>
+                <span className="text-xs text-muted-foreground">{reasonLabel(t, item.code, item.message)}</span>
+              </li>
+            ))}
           </ul>
           {items.hasNextPage && (
             <div className="flex items-center justify-between gap-2">
@@ -113,6 +111,12 @@ export function BulkResult({ operation: initial, recordType }: BulkResultProps) 
   )
 }
 
+const GONE_CODES = ['not_found', 'record_not_found', 'contact_not_found', 'company_not_found', 'deal_not_found']
+
+function isGone(code: string | null | undefined): boolean {
+  return code !== null && code !== undefined && GONE_CODES.includes(code)
+}
+
 type Translate = ReturnType<typeof useTranslation<'bulk_actions'>>['t']
 
 function reasonLabel(t: Translate, code: string | null | undefined, message: string | null | undefined): string {
@@ -120,6 +124,7 @@ function reasonLabel(t: Translate, code: string | null | undefined, message: str
     case 'permission_denied':
       return t('reasons.permissionDenied')
     case 'not_found':
+    case 'record_not_found':
     case 'contact_not_found':
     case 'company_not_found':
     case 'deal_not_found':
@@ -139,6 +144,6 @@ function reasonLabel(t: Translate, code: string | null | undefined, message: str
     case 'no_mailbox_available':
       return t('reasons.noMailbox')
     default:
-      return message ?? t('reasons.generic')
+      return t('reasons.generic')
   }
 }

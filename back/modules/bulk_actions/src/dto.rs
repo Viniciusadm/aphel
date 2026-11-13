@@ -5,8 +5,8 @@ use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
 
 use crate::{
-    BulkAction, BulkExportCommand, BulkItem, BulkOperation, BulkQuery, BulkSelection, ItemOutcome,
-    StartBulkCommand,
+    BulkAction, BulkExportCommand, BulkItem, BulkOperation, BulkQuery, BulkSelection, BulkStatus,
+    ItemOutcome, StartBulkCommand,
 };
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::exports::ExportFormatDto;
@@ -188,6 +188,30 @@ impl BulkItemsParams {
                 AppError::invalid_fields(
                     "invalid outcome",
                     vec![FieldViolation::new("outcome", "must be skipped or failed")],
+                )
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Default, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub(crate) struct BulkListParams {
+    #[param(example = "failed")]
+    pub(crate) status: Option<String>,
+}
+
+impl BulkListParams {
+    pub(crate) fn status(&self) -> Result<Option<BulkStatus>, AppError> {
+        match self.status.as_deref().map(str::trim) {
+            None | Some("") => Ok(None),
+            Some(value) => BulkStatus::parse(value).map(Some).ok_or_else(|| {
+                AppError::invalid_fields(
+                    "invalid status",
+                    vec![FieldViolation::new(
+                        "status",
+                        "must be queued, running, completed or failed",
+                    )],
                 )
             }),
         }

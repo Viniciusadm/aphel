@@ -185,20 +185,29 @@ impl BulkOperationStore {
     pub(crate) async fn list(
         &self,
         requested_by: &UserId,
+        status: Option<BulkStatus>,
         window: ListWindow,
     ) -> Result<Listing<BulkOperation>, AppError> {
-        let total: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM bulk_operations WHERE requested_by = ?")
-                .bind(requested_by.as_str())
-                .fetch_one(&self.pool)
-                .await?;
+        let status = status.map(|status| status.as_str().to_owned());
+        let total: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM bulk_operations WHERE requested_by = ? AND (? IS NULL OR status = ?)",
+        )
+        .bind(requested_by.as_str())
+        .bind(status.clone())
+        .bind(status.clone())
+        .fetch_one(&self.pool)
+        .await?;
         let mut builder = QueryBuilder::new(format!(
             "SELECT {OPERATION_COLUMNS} FROM bulk_operations WHERE "
         ));
         builder
             .push("requested_by = ")
             .push_bind(requested_by.as_str().to_owned())
-            .push(" ORDER BY created_at DESC, id DESC LIMIT ")
+            .push(" AND (")
+            .push_bind(status.clone())
+            .push(" IS NULL OR status = ")
+            .push_bind(status)
+            .push(") ORDER BY created_at DESC, id DESC LIMIT ")
             .push_bind(window.limit)
             .push(" OFFSET ")
             .push_bind(window.offset);

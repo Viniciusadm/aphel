@@ -5,7 +5,8 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use crate::dto::{
-    BulkExportRequest, BulkItemResponse, BulkItemsParams, BulkOperationResponse, StartBulkRequest,
+    BulkExportRequest, BulkItemResponse, BulkItemsParams, BulkListParams, BulkOperationResponse,
+    StartBulkRequest,
 };
 use crate::{BulkStatus, service};
 use aphel_kernel::Ctx;
@@ -66,9 +67,9 @@ async fn start_bulk_operation(
     tag = TAG,
     operation_id = "bulk_operations_list",
     security(("session_cookie" = [])),
-    params(PaginationQuery),
+    params(PaginationQuery, BulkListParams),
     responses(
-        (status = 200, description = "Bulk operations requested by the user, most recent first", body = Page<BulkOperationResponse>),
+        (status = 200, description = "Bulk operations requested by the user, most recent first; `status` (`queued`, `running`, `completed`, `failed`) narrows the list", body = Page<BulkOperationResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid pagination (`validation_error`)", body = ErrorEnvelope),
     )
@@ -76,10 +77,12 @@ async fn start_bulk_operation(
 async fn list_bulk_operations(
     State(state): State<AppState>,
     tenant: AuthContext,
+    Query(params): Query<BulkListParams>,
     pagination: Pagination,
 ) -> Result<Json<Page<BulkOperationResponse>>, ApiError> {
+    let status = params.status()?;
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
-    let listing = service::list(&ctx, window(pagination)).await?;
+    let listing = service::list(&ctx, status, window(pagination)).await?;
     Ok(Json(Page::new(
         listing.items.into_iter().map(Into::into).collect(),
         listing.total,

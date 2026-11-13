@@ -48,6 +48,6 @@ export { useRecordDetailData, useRecordPageModel, DefaultRecordPresentation } fr
 export type { RecordDetailData, RecordPageModel, RecordPageModelOptions, DefaultRecordPresentationProps } from '@/features/records/detail'
 export { RecordActionItem, RecordActionsDivider, RecordHeader, RecordFieldsPanel, RecordTabs, RecordPageShell } from '@/features/records/detail'
 export { ShareRecordButton } from '@/features/records/sharing/ShareRecordButton'
-export { UserValue } from '@/features/records/display/FieldValueDisplay'
+export { RecordValue, UserValue } from '@/features/records/display/FieldValueDisplay'
 export type { RecordSectionSource } from '@/features/records/detail/types'
 export { RECORD_PRESENTATION_CONTRACT, DEFAULT_RECORD_PRESENTATION, type RecordPresentationProps, type RecordPresentationComponent } from '@/kernel/modules/record-presentation'

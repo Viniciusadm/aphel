@@ -47,7 +47,7 @@ export const bulkKeys = {
   all: ['bulk-operations'] as const,
   detail: (id: string) => [...bulkKeys.all, 'detail', id] as const,
   items: (id: string) => [...bulkKeys.all, 'items', id] as const,
-  history: (page: number) => [...bulkKeys.all, 'history', page] as const,
+  history: (page: number, status: string) => [...bulkKeys.all, 'history', page, status] as const,
 }
 
 function operationPath(id: string, suffix = '') {
@@ -62,8 +62,10 @@ export const bulkApi = {
   get: (id: string) => api.get<BulkOperation>(operationPath(id)),
   items: (id: string, page: number) =>
     api.get<BulkItemsPage>(operationPath(id, '/items'), { query: { page, per_page: REPORT_PAGE_SIZE } }),
-  list: (page: number) =>
-    api.get<BulkOperationsPage>('/v1/bulk-operations', { query: { page, per_page: HISTORY_PAGE_SIZE } }),
+  list: (page: number, status: string) =>
+    api.get<BulkOperationsPage>('/v1/bulk-operations', {
+      query: { page, per_page: HISTORY_PAGE_SIZE, status: status || undefined },
+    }),
 }
 
 export function useBulkOperation(initial: BulkOperation | null) {
@@ -90,10 +92,10 @@ export function useBulkItems(operation: BulkOperation | undefined) {
   })
 }
 
-export function useBulkHistory(page: number) {
+export function useBulkHistory(page: number, status: string) {
   return useQuery({
-    queryKey: bulkKeys.history(page),
-    queryFn: () => bulkApi.list(page),
+    queryKey: bulkKeys.history(page, status),
+    queryFn: () => bulkApi.list(page, status),
     placeholderData: keepPreviousData,
     refetchInterval: (query) =>
       query.state.data?.data.some((operation) => !isFinished(operation.status)) ? POLL_INTERVAL_MS : false,

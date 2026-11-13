@@ -97,7 +97,9 @@
     "reportTitle": "Registros não alterados",
     "moreIssues_one": "E mais {{count}} registro.",
     "moreIssues_other": "E mais {{count}} registros.",
-    "loadMore": "Carregar mais"
+    "loadMore": "Carregar mais",
+    "removedRecord": "Registro removido",
+    "failedHint": "A ação parou antes de terminar. Tente de novo; se continuar falhando, avise quem administra o sistema."
   },
   "reasons": {
     "permissionDenied": "Você não tem permissão para alterar este registro.",
@@ -116,7 +118,7 @@
     "menuDescription": "Histórico das ações em massa que você executou, com o relatório de cada uma.",
     "description": "Ações em massa que você executou nas listas de registros.",
     "empty": "Nenhuma ação em massa ainda",
-    "emptyDescription": "Selecione registros em uma lista para aplicar uma ação em massa.",
+    "emptyDescription": "Abra uma lista (por exemplo, Contatos), marque alguns registros e escolha uma ação na barra que aparece.",
     "status": {
       "queued": "Na fila",
       "running": "Processando",
@@ -151,6 +153,30 @@
     },
     "counts": "{{succeeded}} alterados, {{issues}} não alterados de {{total}}",
     "open": "Ver relatório",
-    "detailTitle": "Ação em massa"
+    "detailTitle": "Ação em massa",
+    "allStatuses": "Todas as situações",
+    "emptyFiltered": "Nenhuma ação com esta situação",
+    "emptyFilteredDescription": "Escolha outra situação para ver as demais ações.",
+    "actionNames": {
+      "assign_owner": "Atribuir responsável",
+      "set_field": "Alterar campo",
+      "add_tag": "Adicionar etiqueta",
+      "remove_tag": "Remover etiqueta",
+      "move_stage": "Mover etapa",
+      "enroll_in_sequence": "Inscrever em sequência",
+      "archive": "Arquivar",
+      "unarchive": "Restaurar arquivados",
+      "delete": "Excluir"
+    },
+    "summary": {
+      "unknown": "item removido",
+      "assign_owner": "Responsável: {{name}}",
+      "add_tag": "Etiqueta “{{name}}”",
+      "remove_tag": "Etiqueta “{{name}}”",
+      "move_stage": "Para a etapa “{{name}}”",
+      "enroll_in_sequence": "Sequência “{{name}}”",
+      "set_field": "Campo “{{field}}”: {{value}}",
+      "set_field_cleared": "Campo “{{field}}” esvaziado"
+    }
   }
 }

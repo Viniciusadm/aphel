@@ -7917,11 +7917,20 @@
               "maximum": 100,
               "minimum": 1
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "failed"
           }
         ],
         "responses": {
           "200": {
-            "description": "Bulk operations requested by the user, most recent first",
+            "description": "Bulk operations requested by the user, most recent first; `status` (`queued`, `running`, `completed`, `failed`) narrows the list",
             "content": {
               "application/json": {
                 "schema": {
@@ -128309,11 +128318,6 @@
       "x-aphel-module": "privacy"
     },
     {
-      "name": "proposals",
-      "description": "Proposal templates and PDF proposals generated from deals",
-      "x-aphel-module": "proposals"
-    },
-    {
       "name": "publication",
       "description": "Immutable revisions of publishable records, publication requests (immediate, scheduled or waiting for approval) and withdrawal",
       "x-aphel-module": "publication"
@@ -128522,6 +128526,11 @@
       "name": "demo",
       "description": "Demonstration environment status",
       "x-aphel-module": "demo"
+    },
+    {
+      "name": "proposals",
+      "description": "Proposal templates and PDF proposals generated from deals",
+      "x-aphel-module": "proposals"
     }
   ]
 }
