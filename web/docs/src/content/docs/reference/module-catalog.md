@@ -93,8 +93,8 @@ Booking links: availability, meeting types, team links and the public booking pa
 | | |
 | --- | --- |
 | Layer | capability |
-| Depends on | `tasks` |
-| Optional dependencies | `people`, `assignment` |
+| Depends on | `tasks`, `people` |
+| Optional dependencies | `assignment` |
 | Permissions | `booking.manage` |
 | Web package | yes |
 | Blueprints | Recommended by `agency`, `consultancy`, `freelancer`, `real_estate`. |
@@ -354,8 +354,8 @@ Public forms that create people and deals.
 | | |
 | --- | --- |
 | Layer | capability |
-| Depends on | none |
-| Optional dependencies | `people`, `leads`, `deals`, `tasks`, `assignment` |
+| Depends on | `people` |
+| Optional dependencies | `leads`, `deals`, `tasks`, `assignment` |
 | Permissions | `forms.manage` |
 | Web package | yes |
 | Blueprints | Recommended by `real_estate`. |

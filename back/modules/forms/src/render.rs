@@ -16,6 +16,7 @@ pub(crate) const DEFAULT_SUBMIT_LABEL: &str = "Enviar";
 const CSS: &str = "\
 .aphel-lf-page{box-sizing:border-box;margin:0;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:40px 16px;background:var(--lf-page,#f3f4f6);font-family:var(--lf-font,system-ui,sans-serif);color:var(--lf-fg,#111827);-webkit-font-smoothing:antialiased}\
 .aphel-lf-page[data-framed]{background:transparent;padding:0}\
+.aphel-lf-page[data-framed] .aphel-lf[data-surface=card]{border:0;border-radius:0;box-shadow:none}\
 .aphel-lf{box-sizing:border-box;width:100%;max-width:var(--lf-width,560px);margin:0 auto;font-family:var(--lf-font,inherit);font-size:15px;line-height:1.5;color:var(--lf-fg,inherit)}\
 .aphel-lf *,.aphel-lf *::before,.aphel-lf *::after{box-sizing:border-box}\
 .aphel-lf[data-surface=card]{background:var(--lf-surface,transparent);border:1px solid var(--lf-line,rgba(128,128,128,.3));border-radius:calc(var(--lf-radius,10px) + 6px);padding:32px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 14px 34px -14px rgba(16,24,40,.2)}\
@@ -37,7 +38,8 @@ const CSS: &str = "\
 .aphel-lf ::placeholder{color:var(--lf-muted,#8b95a1);opacity:.75}\
 .aphel-lf input:focus,.aphel-lf select:focus,.aphel-lf textarea:focus{outline:none;border-color:var(--lf-accent,#2563eb);box-shadow:0 0 0 3px color-mix(in srgb,var(--lf-accent,#2563eb) 25%,transparent)}\
 .aphel-lf input[type=checkbox]:focus-visible{outline:2px solid var(--lf-accent,#2563eb);outline-offset:2px}\
-.aphel-lf [aria-invalid=true]{border-color:#dc2626}\
+.aphel-lf input[aria-invalid=true],.aphel-lf select[aria-invalid=true],.aphel-lf textarea[aria-invalid=true]{border-color:#dc2626}\
+.aphel-lf input[aria-invalid=true]:focus,.aphel-lf select[aria-invalid=true]:focus,.aphel-lf textarea[aria-invalid=true]:focus{box-shadow:0 0 0 3px color-mix(in srgb,#dc2626 22%,transparent)}\
 .aphel-lf-error{margin-top:6px;font-size:13px;color:#dc2626}\
 .aphel-lf[data-theme=dark] .aphel-lf-error{color:#f87171}\
 .aphel-lf-alert{margin:0 0 18px;padding:12px 14px;border:1px solid color-mix(in srgb,#dc2626 30%,transparent);border-radius:var(--lf-radius,10px);background:color-mix(in srgb,#dc2626 9%,transparent);color:#b91c1c;font-size:14px}\

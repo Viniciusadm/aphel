@@ -34,8 +34,9 @@ Open **Forms**. Each form has a public address you can embed in your website or 
 6. **Deal (optional).** Tick **Create a deal linked to the contact**, then choose the pipeline, the stage, a title and an optional amount. In the title, use the field identifier in double braces, such as `{{name}}`, to insert answers, and `{{form}}` for the form name.
 7. **Owner.** Choose a fixed owner, and optionally a **Distribution rule** (lead distribution module). With a rule, each submission goes to the rule's next available person; if nobody is available, the fixed owner or the acting user is used. Existing contacts keep their current owner.
 8. **After submission.** Set the button text, the success message and an optional redirect address (http or https).
-9. **Security.** Optionally list **Allowed websites** (up to 20, one per line, as `https://www.example.com`). When filled, only those sites can show the form in an iframe and submit through the script.
-10. Leave **Form active** on and click **Create form**.
+9. **Appearance.** Pick a theme (Clean, Soft, Dark or Outline), an accent color, corner radius, width, font, background (card or none), button style, and whether to show the title, the organization logo and a short intro sentence. Every choice defaults to the organization default, so a new form already looks right. The preview on the right is the real form page and updates as you change things. See [Appearance](#appearance).
+10. **Security.** Optionally list **Allowed websites** (up to 20, one per line, as `https://www.example.com`). When filled, only those sites can show the form in an iframe and submit through the script.
+11. Leave **Form active** on and click **Create form**.
 
 ### Publish it
 
@@ -44,10 +45,20 @@ Click **Embed** on the form. You get three options:
 | Option | Use it for |
 | --- | --- |
 | Iframe | A ready page isolated from the rest of the site; works without JavaScript. |
-| Script | Renders the form inside your page and inherits the site font. |
+| Script | Renders the form inside your page, using the form's theme or inheriting the site's font and colors (see [Appearance](#appearance)). |
 | Direct link | Sharing on social networks, email or a QR code. |
 
 The codes work only while the form is active.
+
+### Appearance
+
+The hosted page, the iframe and the script all draw the same form from one stylesheet, so a form looks the same everywhere.
+
+- **Theme.** Clean (white card on light gray), Soft (warm tones), Dark and Outline (strong borders). The accent color drives the button, the focus ring and the required marks; the button text turns black or white on its own so it stays readable.
+- **Organization defaults.** The accent color comes from the organization color (**Settings > Organization**). **Settings > Modules > Lead forms > Configure** sets the default theme, corner radius, font, width and whether the organization logo is shown. A form only needs to override what it wants to change.
+- **Logo.** When the organization has a logo and the form shows it, it appears at the top of the page and inside the script. The logo is served by a public address of the form itself and only while the form is active.
+- **Script on your site.** Choose **Use the theme above** for the same look as the hosted page, or **Inherit from the site** to keep the font and colors of the page where it was pasted (only the accent color is applied to the button). The look is read every time the form loads, so changing the theme takes effect without pasting the script again.
+- **In an iframe** the page drops its gray background and card border and blends into the site; choose **No card** under background if you want no padding box at all.
 
 ### Review submissions
 
