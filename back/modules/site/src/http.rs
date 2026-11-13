@@ -600,7 +600,7 @@ async fn list_path_redirects(
         (status = 201, description = "Redirect created", body = Data<SitePathRedirectResponse>),
         (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`)", body = ErrorEnvelope),
-        (status = 409, description = "The old address already redirects (`site_path_redirect_exists`)", body = ErrorEnvelope),
+        (status = 409, description = "The old address already redirects (`site_path_redirect_exists`) or a page answers there (`site_path_redirect_shadowed`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid address or target (`validation_error`)", body = ErrorEnvelope),
     )
 )]
@@ -613,6 +613,14 @@ async fn create_path_redirect(
     require_manage(&tenant.scope)?;
     let source_path = redirects::normalize_source(&input.source_path)?;
     let target = redirects::normalize_target(&input.target, &source_path)?;
+    let active = runtime::active(&state).await?;
+    if crate::sitemap::serves_path(&state, &active, &source_path).await? {
+        return Err(AppError::conflict_code(
+            "site_path_redirect_shadowed",
+            "a page already answers at the old address; rename or unpublish it first",
+        )
+        .into());
+    }
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let mut tx = ctx.begin().await?;
     let exists: Option<u64> =

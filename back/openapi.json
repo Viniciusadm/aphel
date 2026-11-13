@@ -56868,7 +56868,7 @@
             }
           },
           "409": {
-            "description": "The old address already redirects (`site_path_redirect_exists`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "description": "The old address already redirects (`site_path_redirect_exists`) or a page answers there (`site_path_redirect_shadowed`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
             "content": {
               "application/json": {
                 "schema": {

@@ -889,6 +889,7 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `site_path_taken` | 422 | The address is already used by another page of the site. |
 | `site_request_forbidden` | 403 | A site route call that changes data came without the `X-Aphel-Site` header sent by the site scripts. |
 | `site_route_not_found` | 404 | No installed plugin has this site route. |
+| `site_path_redirect_shadowed` | 409 | A page of the site already answers at the old address of the redirect, so the redirect would never apply. |
 | `site_redirect_not_found` | 404 | The site redirect does not exist. |
 | `plugin_reference_permission_required` | 422 | A reference field requires a permission the plugin does not declare. |
 | `plugin_role_preset_unknown` | 422 | Unknown role presets. |
