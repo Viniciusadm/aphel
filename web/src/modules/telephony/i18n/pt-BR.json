@@ -181,5 +181,9 @@
   },
   "placeholders": {
     "outcomeName": "Ex.: Atendeu"
+  },
+  "reportLibrary": {
+    "title": "Ligações",
+    "description": "Volume de ligações, resultados e desempenho da equipe no período."
   }
 }

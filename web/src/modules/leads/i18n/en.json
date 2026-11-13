@@ -188,5 +188,9 @@
   "placeholders": {
     "dealTitle": "E.g.: Proposal for Company X",
     "reasonName": "E.g.: No budget"
+  },
+  "reportLibrary": {
+    "title": "Lifecycle conversion",
+    "description": "How many contacts entered each stage, how many moved on and how long they stayed in each."
   }
 }

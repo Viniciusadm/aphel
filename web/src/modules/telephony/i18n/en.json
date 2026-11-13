@@ -181,5 +181,9 @@
   },
   "placeholders": {
     "outcomeName": "E.g.: Answered"
+  },
+  "reportLibrary": {
+    "title": "Calls",
+    "description": "Call volume, outcomes and team performance over the period."
   }
 }

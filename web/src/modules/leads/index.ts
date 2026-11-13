@@ -2,6 +2,7 @@ import { History, Route, UserPlus } from 'lucide-react'
 import { defineModule } from '@/kernel/modules/define'
 import { CONTACT_RECORD_TYPE, LEADS_PATH, LIFECYCLE_MANAGE_PERMISSION, LIFECYCLE_TAB_KEY } from './constants'
 import { LeadRecordActions } from './LeadRecordActions'
+import { LeadsReportLibraryCard } from './ReportLibraryCard'
 import { LeadsQuickFilter } from './LeadsQuickFilter'
 import { LifecycleRecordTab } from './LifecycleHistoryTab'
 import { leadsRoutes, lifecycleSettingsRoute } from './routes'
@@ -15,6 +16,7 @@ const leadsModule = defineModule({
     app.settingsGroup('organization', { key: 'sales', label: 'groups.sales', order: 20 })
     app.routes(leadsRoutes)
     app.nav({ section: 'records', to: LEADS_PATH, label: 'nav.leads', icon: UserPlus, permission: ['people.read'], order: 30 })
+    app.slot('reports.library', { key: 'leads', permission: 'people.read', render: LeadsReportLibraryCard })
     app.settings('organization', {
       group: 'sales',
       path: 'lifecycle',

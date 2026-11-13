@@ -188,5 +188,9 @@
   "placeholders": {
     "dealTitle": "Ex.: Proposta para Empresa X",
     "reasonName": "Ex.: Sem orçamento"
+  },
+  "reportLibrary": {
+    "title": "Conversão do ciclo de vida",
+    "description": "Quantos contatos entraram em cada estágio, quantos avançaram e quanto tempo ficaram em cada um."
   }
 }
