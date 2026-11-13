@@ -16,7 +16,10 @@ impl CronSchedule {
     pub fn parse(expression: &str) -> Result<Self, AppError> {
         let expression = expression.trim();
         let schedule = cron::Schedule::from_str(expression).map_err(|error| {
-            AppError::Validation(format!("invalid cron expression {expression:?}: {error}"))
+            tracing::debug!(%error, expression, "rejected a cron expression");
+            AppError::Validation(format!(
+                "invalid schedule {expression:?}: write six fields separated by spaces (seconds, minutes, hours, day of month, month, day of week), for example \"0 30 9 * * *\" for every day at 09:30"
+            ))
         })?;
         Ok(Self {
             expression: expression.to_owned(),

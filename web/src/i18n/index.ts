@@ -15,4 +15,13 @@ void i18n.use(initReactI18next).init({
   initAsync: false,
 })
 
+const brazilianCardinal = {
+  select: (count: number) => (count === 1 ? 'one' : 'other'),
+  resolvedOptions: () => ({ pluralCategories: ['one', 'other'] }),
+}
+const resolver = i18n.services.pluralResolver
+const resolveRule = resolver.getRule.bind(resolver)
+resolver.getRule = ((code: string, options?: { ordinal?: boolean }) =>
+  code.startsWith('pt') && !options?.ordinal ? brazilianCardinal : resolveRule(code, options)) as typeof resolver.getRule
+
 export default i18n

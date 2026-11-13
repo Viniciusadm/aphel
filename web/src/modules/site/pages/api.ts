@@ -11,8 +11,9 @@ import {
   type DocumentRecord,
   type PreviewLink,
   type SiteLanguage,
+  fileDownloadUrl,
+  uploadFile,
 } from '@/sdk'
-import { fileDownloadUrl, uploadFile } from '@/features/files'
 import { PageSettingsDialog } from './PageSettingsDialog'
 import { starterBlocks, type StarterTexts } from './templates'
 

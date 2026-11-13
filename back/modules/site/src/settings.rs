@@ -362,11 +362,19 @@ impl OrganizationConfigExtension for SiteConfiguration {
         let Some(value) = values.get(SETTINGS_KEY) else {
             return Vec::new();
         };
-        let Ok(settings) = serde_json::from_value::<SiteSettings>(value.clone()) else {
-            return vec![FieldViolation::new(
-                SETTINGS_KEY,
-                "invalid site configuration",
-            )];
+        let settings = match serde_path_to_error::deserialize::<_, SiteSettings>(value) {
+            Ok(settings) => settings,
+            Err(error) => {
+                let path = error.path().to_string();
+                let field = match path.as_str() {
+                    "." | "" => SETTINGS_KEY.to_owned(),
+                    path => format!("{SETTINGS_KEY}.{path}"),
+                };
+                return vec![FieldViolation::new(
+                    field,
+                    format!("invalid value: {}", error.inner()),
+                )];
+            }
         };
         let mut violations = Vec::new();
         if settings
