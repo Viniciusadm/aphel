@@ -976,6 +976,7 @@ Answered when a module needs a capability that another module provides and that 
 ### Site appearance
 
 - `site_appearance_invalid`: unsupported scope, property, value, image or collection target. Use the appearance catalog and an available target.
+- `site_page_invalid`: a site page has an address that is not lowercase letters, digits and hyphens, or blocks and translations that cannot be saved. Fix the field named in the message in Site → Pages.
 - `site_design_invalid`: a template, part, pattern, menu or font has an invalid block, link, CSS or file. Fix the item named in the message in Site → Site editor.
 - `block_style_invalid`: a block style uses an unknown property or a value outside the site tokens.
 - `blocks_too_deep`: blocks are nested more than 6 levels.

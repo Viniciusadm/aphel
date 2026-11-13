@@ -1,25 +1,24 @@
 ---
 title: Blog and site packs
-description: What the Blog, Institutional site, Pages, Comments and Blog plugins do, what each pack installs and how to operate them.
+description: What the Blog, Comments and theme plugins do, what the Blog and Institutional site packs install and how to operate them.
 ---
 
 ## Plugins and packs
 
-A pack lists plugins and seeds a few records; it contains no code of its own. Three plugins make the blog and the site:
+A pack lists plugins and seeds a few records; it contains no code of its own. Site pages built from blocks (Home, About, Services, Contact) belong to the `site` module itself, under Site → Pages, so no plugin is needed for them. These plugins make the blog and the look of the site:
 
 | Plugin | What it is |
 | --- | --- |
-| **Blog** `1.8.0` | The product for people who write: ideas, posts, series, authors, categories, tags, feeds, import and export. |
-| **Pages** `1.3.0` | Site pages built from blocks: Home, About, Services, Contact. |
-| **Comments** `0.5.0` | Visitor comments with moderation and staff replies, for any record that has a public page. |
+| **Blog** `1.8.5` | The product for people who write: ideas, posts, series, authors, categories, tags, feeds, import and export. |
+| **Comments** `0.5.1` | Visitor comments with moderation and staff replies, for any record that has a public page. |
 | **Theme plugins** `1.0.0` | `theme_editorial`, `theme_revista`, `theme_minimal`, `theme_estudio`: styles, variations, header, footer and blog templates, made only of data. |
 
 | Pack | Installs | Creates |
 | --- | --- | --- |
-| **Blog** `2.9.0` | Blog, Pages, Comments, Editorial theme | A blog, an author for the person who imports, an About page in draft, menu items, the home page pointing at the blog, categories and tags |
-| **Institutional site** `1.5.0` | Pages, Estúdio theme | Home, About, Services and Contact in draft with example text, their menu items and the home page |
+| **Blog** `2.10.0` | Blog, Comments, Editorial theme | A blog, an author for the person who imports, an About page in draft (a native site page), menu items, the home page pointing at the blog, categories and tags |
+| **Institutional site** `2.0.0` | Estúdio theme | Home, About, Services and Contact in draft (native site pages) with example text, their menu items and the home page |
 
-Both need Aphel `>=0.1.1` built with `objects`, `site` and `publication`; the Blog pack also needs `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Disabled required modules are shown in consent and enabled by the same import.
+Both need Aphel `>=0.1.1` built with `site` and `publication`; the Blog pack also needs `objects` and `tagging`. The pack checks the host version and compiled modules before installing a plugin or creating resources. Disabled required modules are shown in consent and enabled by the same import.
 
 ## Import and publish
 
@@ -59,15 +58,15 @@ Categories (hierarchical) and tags are chosen in the post details. Their selecti
 
 ## For plugin authors
 
-Pages and Blog describe a *document kind* and let the host edit it: see [Document editor](/_aphel/docs/plugins/document-editor/).
+The native site pages and the Blog plugin describe a *document kind* and let the host edit it: see [Document editor](/_aphel/docs/plugins/document-editor/).
 
 ## Build
 
 From the workspace containing `app/` and `plugins/`:
 
 ```bash
-CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/blog/packs/blog -o plugins/packs/blog/releases/blog-2.5.1.aphelpack
-CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/pages/packs/institutional -o plugins/packs/institutional/releases/institutional-1.1.0.aphelpack
+CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/blog/packs/blog -o plugins/packs/blog/releases/blog-2.10.0.aphelpack
+CARGO_NET_OFFLINE=true cargo run --manifest-path app/sdk/cli/Cargo.toml --offline -- bundle plugins/theme_estudio/packs/institutional -o plugins/packs/institutional/releases/institutional-2.0.0.aphelpack
 ```
 
 A pack recipe lists plugins by path; each plugin is packed from its own directory, so nothing is copied between them.

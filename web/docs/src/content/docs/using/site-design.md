@@ -8,7 +8,7 @@ sidebar:
 The public site is drawn from **blocks**. Pages, posts and the parts around them (header, footer, sidebars) are block templates you can change in the browser, and one **styles document** sets colors, fonts and spacing for everything.
 
 :::note
-These screens need the **Site** and **Publication** modules and the `site.appearance.edit` / `site.design.edit` permissions (administrators have both). Nothing changes for visitors until you publish.
+These screens need the **Site** and **Publication** modules and the `site.appearance.edit` / `site.design.edit` permissions (administrators have both). Pages use `site.page.*`, which administrators and managers have. Nothing changes for visitors until you publish.
 :::
 
 ## Pick a theme and a style
@@ -22,6 +22,19 @@ These screens need the **Site** and **Publication** modules and the `site.appear
 - **Shape and width** — card corners and shadow, text width and site width.
 
 *Apply appearance* publishes; on **Site → Header and footer** the same two buttons also save the header and footer, so there is nothing else to save first. The site name, logo and icon are under **Identity**; without a name the site uses the organization name. *Back to the theme colors and fonts* drops your overrides. Installing a **theme plugin** (Editorial, Revista, Minimal, Estúdio or one exported from another site) and choosing it in *Theme* changes styles, templates, header and footer at once; your own changes stay on top.
+
+## Create and publish pages
+
+**Site → Pages** lists the pages of the site as cards, with a sketch of their blocks, their address and their state (draft, published, unpublished changes, withdrawn). They belong to the **Site** module, so they work without any plugin.
+
+- **New page** asks for a title and offers a starting point: blank, *About us*, *Services* or *Campaign landing page*. The address comes from the title and can be changed.
+- The editor shows the blocks on the left and the page on the right at desktop or phone width. Blocks are hero, text, image, text with image, buttons, gallery, columns, FAQ, testimonials, contact, video, form, booking, collection of records, and the layout containers of the site editor. Changes are saved as a draft.
+- **Settings** changes the address and the description shown on Google. Visitors with the old address are sent to the new one.
+- **Publish** puts the page on the site now, or schedules it, and shows how it will look on search engines. **History** restores earlier versions. Administrators and managers publish (`site.page.publish`).
+- Each language has its own title, blocks and description when the site has more than one language; a language without translation shows the default one.
+- **Duplicate** copies the blocks, the translations and the images.
+
+Choose the home page and the menu in **Site → Navigation**. A page that is the home page answers only at the root of the site.
 
 ## Edit pages in the site editor
 
