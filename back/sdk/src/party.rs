@@ -4,7 +4,7 @@ pub use aphel_contract_party::{
     CONTACT_POINTS, CONTRACT, ContactPoint, ContactPointKind, ContactPoints, DESCRIPTOR,
 };
 use aphel_kernel::application::fields::builtin::field;
-use aphel_kernel::domain::fields::{FieldConfig, FieldType};
+use aphel_kernel::domain::fields::{FieldConfig, FieldType, TextMask};
 
 pub trait PartyTraits {
     fn with_contact_points(self, points: ContactPoints) -> Self;
@@ -61,7 +61,21 @@ pub fn address_fields() -> Result<Vec<SystemField>, AppError> {
         ("address_country", "Country"),
     ]
     .into_iter()
-    .map(|(key, label)| field(key, labels(label), FieldType::Text))
+    .map(|(key, label)| {
+        let mask = match key {
+            "address_postal_code" => Some(TextMask::Cep),
+            "address_state" => Some(TextMask::Uf),
+            _ => None,
+        };
+        let field = field(key, labels(label), FieldType::Text)?;
+        Ok(match mask {
+            Some(mask) => field.with_config(FieldConfig {
+                mask: Some(mask),
+                ..FieldConfig::default()
+            }),
+            None => field,
+        })
+    })
     .collect()
 }
 
