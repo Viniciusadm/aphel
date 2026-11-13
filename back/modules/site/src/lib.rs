@@ -16,6 +16,7 @@ pub(crate) mod handler;
 pub(crate) mod http;
 pub(crate) mod images;
 pub(crate) mod invalidation;
+pub(crate) mod pages;
 pub(crate) mod paths;
 pub(crate) mod people_link;
 pub(crate) mod prefixes;
@@ -112,7 +113,7 @@ pub struct SiteModule;
 impl Module for SiteModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Public site", APHEL_VERSION)
-            .optional("publication")
+            .depends_on("publication", "*")
             .optional("tagging")
             .description(
                 "Public pages that plugins declare (blog posts, catalogs, landing pages), rendered on the server from their published records",
@@ -173,6 +174,7 @@ impl Module for SiteModule {
         app.contract(aphel_contract_site::DESCRIPTOR);
         appearance::register(app)?;
         design::register(app)?;
+        pages::register(app)?;
         app.entity(customer_entity()?.handler(Arc::new(
             aphel_kernel::records::GenericRecordHandler::new(customers::record_type()),
         )));
