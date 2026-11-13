@@ -4,7 +4,9 @@
   "list": {
     "title": "Empresas",
     "description": "Organizações atendidas pela sua equipe.",
-    "new": "Nova empresa"
+    "new": "Nova empresa",
+    "emptyTitle": "Nenhuma empresa ainda",
+    "emptyDescription": "Cadastre as empresas que você atende para ligar contatos, tarefas e negócios a elas."
   },
   "dialog": {
     "title": "Nova empresa",

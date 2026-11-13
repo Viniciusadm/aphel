@@ -34,8 +34,9 @@ export function CompanyDetailPage() {
         icon: Network,
         content: <CompanyGroupTab companyId={id} readOnly={readOnly} />,
       }
-      const [timelineTab, ...rest] = defaults
-      return [timelineTab, people, group, ...rest.filter((tab) => tab.key !== 'related')]
+      const timelineTab = defaults.find((tab) => tab.key === 'timeline')
+      const rest = defaults.filter((tab) => tab.key !== 'timeline' && tab.key !== 'related')
+      return [...(timelineTab ? [timelineTab] : []), people, group, ...rest]
     },
     [t, tContacts, id, readOnly],
   )

@@ -20,6 +20,7 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
   const { t } = useTranslation('records-detail')
   const notesActive = useIsModuleActive('notes')
   const tasksActive = useIsModuleActive('tasks')
+  const timelineActive = useIsModuleActive('timeline')
   return useMemo<RecordTab[]>(
     () => [
       {
@@ -65,7 +66,7 @@ export function useDefaultRecordTabs({ recordType, recordId, readOnly = false, t
         icon: Link2,
         content: createElement(RecordTabPlaceholder, { icon: Link2, description: t('placeholders.related') }),
       },
-    ].filter((tab) => (tab.key !== 'notes' || notesActive) && (tab.key !== 'tasks' || tasksActive)),
-    [t, recordType, recordId, readOnly, timeline, notesActive, tasksActive],
+    ].filter((tab) => (tab.key !== 'notes' || notesActive) && (tab.key !== 'tasks' || tasksActive) && (tab.key !== 'timeline' || timelineActive)),
+    [t, recordType, recordId, readOnly, timeline, notesActive, tasksActive, timelineActive],
   )
 }

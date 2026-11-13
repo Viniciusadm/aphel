@@ -4,7 +4,9 @@
   "list": {
     "title": "Companies",
     "description": "Organizations your team works with.",
-    "new": "New company"
+    "new": "New company",
+    "emptyTitle": "No companies yet",
+    "emptyDescription": "Add the companies you work with to link contacts, tasks and deals to them."
   },
   "dialog": {
     "title": "New company",

@@ -82,6 +82,8 @@ export interface RecordListViewProps {
   presets?: RecordListPreset[]
   defaultPreset?: string
   emptyAction?: ReactNode
+  emptyTitle?: string
+  emptyDescription?: string
   toolbarActions?: ReactNode
   bulkActions?: (context: BulkActionContext) => ReactNode
   onRowClick?: (record: RecordItem) => void
@@ -123,6 +125,8 @@ function RecordListContent({
   defaultPreset,
   schema,
   emptyAction,
+  emptyTitle,
+  emptyDescription,
   toolbarActions,
   bulkActions,
   onRowClick,
@@ -317,8 +321,8 @@ function RecordListContent({
   } else if (!isLoading && items.length === 0 && urlState.page <= 1) {
     body = (
       <EmptyState
-        title={activePreset?.emptyTitle ?? t('states.emptyTitle')}
-        description={activePreset?.emptyDescription ?? t('states.emptyDescription')}
+        title={activePreset?.emptyTitle ?? emptyTitle ?? t('states.emptyTitle')}
+        description={activePreset?.emptyDescription ?? emptyDescription ?? t('states.emptyDescription')}
         action={emptyAction}
       />
     )
