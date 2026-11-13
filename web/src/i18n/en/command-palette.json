@@ -68,6 +68,7 @@
     "copyLink": "Copy the link of this record",
     "linkCopied": "Link copied",
     "allResults": "See every result for “{{query}}”",
-    "keyboard": "Customize keyboard shortcuts"
+    "keyboard": "Customize keyboard shortcuts",
+    "settingsKeyword": "settings preferences"
   }
 }

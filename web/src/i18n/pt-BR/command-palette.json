@@ -68,6 +68,7 @@
     "copyLink": "Copiar link deste registro",
     "linkCopied": "Link copiado",
     "allResults": "Ver todos os resultados para “{{query}}”",
-    "keyboard": "Personalizar atalhos de teclado"
+    "keyboard": "Personalizar atalhos de teclado",
+    "settingsKeyword": "configurações ajustes"
   }
 }

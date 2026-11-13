@@ -12,6 +12,7 @@ import { SEARCH_MIN_LENGTH, useGlobalSearch, type SearchGroup } from '@/modules/
 import { NO_FILTER_CONTEXT, useFilters } from '@/kernel/modules/filters'
 import { useModuleCommands } from '@/kernel/modules/contributions'
 import { qualifiedLabel, useNavigationEntries } from '@/kernel/modules/navigation'
+import { useAdminAreas, useSettingsAreas, useSettingsGroups } from '@/kernel/modules/settings'
 import { cn } from '@/lib/utils'
 import { useRecordTypeOptions } from '@/features/settings/fields/lib/record-types'
 import { useCommandPalette } from './context'
@@ -92,6 +93,10 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
   const { t } = useTranslation('command-palette')
   const navigate = useNavigate()
   const navigationEntries = useNavigationEntries()
+  const accountAreas = useSettingsAreas('account')
+  const adminAreas = useAdminAreas()
+  const settingsAreas = useMemo(() => [...accountAreas, ...adminAreas], [accountAreas, adminAreas])
+  const settingsGroups = useSettingsGroups(settingsAreas)
   const moduleCommands = useModuleCommands()
   const { actions: keyActions } = useKeybindings()
   const controls = useCommandPalette()
@@ -144,6 +149,19 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
         run: () => navigate(item.to),
       }
     })
+    const menuPaths = new Set(navigationEntries.map((item) => item.to))
+    const settings: PaletteCommand[] = settingsGroups
+      .flat()
+      .flatMap((group) => group.items.map((item) => ({ group, item })))
+      .filter(({ item }) => !menuPaths.has(item.to))
+      .map(({ group, item }) => ({
+        id: `settings:${item.to}`,
+        label: t('commands.goTo', { page: item.label }),
+        group: 'navigation' as const,
+        icon: item.icon,
+        keywords: [item.label, item.description, group.label, t('commands.settingsKeyword')],
+        run: () => navigate(item.to),
+      }))
     const contributed: PaletteCommand[] = moduleCommands.map((command) => ({
       id: `${command.module}:${command.id}`,
       label: command.label,
@@ -173,8 +191,8 @@ function PaletteBody({ mode, onModeChange, contextCommands, createActions }: Pal
         run: () => navigate(KEYBOARD_SETTINGS_PATH),
       },
     ]
-    return [...contextCommands, ...create, ...navigation, ...contributed, ...general]
-  }, [contextCommands, controls, createActions, keyActions, moduleCommands, navigate, navigationEntries, t])
+    return [...contextCommands, ...create, ...navigation, ...settings, ...contributed, ...general]
+  }, [contextCommands, controls, createActions, keyActions, moduleCommands, navigate, navigationEntries, settingsGroups, t])
   const commands = useFilters('commands', baseCommands, NO_FILTER_CONTEXT)
 
   const settled = searchEnabled && trimmed.length >= SEARCH_MIN_LENGTH && debouncedQuery.trim() === trimmed
