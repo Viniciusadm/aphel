@@ -23,7 +23,12 @@
     "deleted": "Modelo \"{{name}}\" excluído",
     "updated": "Modelo \"{{name}}\" atualizado",
     "noAccessTitle": "Sem acesso",
-    "noAccessDescription": "Você precisa da permissão para gerenciar modelos de proposta."
+    "noAccessDescription": "Você precisa da permissão para gerenciar modelos de proposta.",
+    "duplicate": "Duplicar",
+    "duplicated": "Modelo \"{{name}}\" criado como cópia",
+    "copyOf": "Cópia de {{name}}",
+    "noText": "Sem conteúdo",
+    "isDefaultHint": "Usado quando nenhum modelo é escolhido"
   },
   "confirmDelete": {
     "title": "Excluir modelo?",
@@ -35,13 +40,10 @@
     "editTitle": "Editar modelo",
     "back": "Voltar para os modelos",
     "name": "Nome",
-    "key": "Chave",
-    "keyHelp": "Identificador estável usado em pacotes de configuração e automações. Gerada a partir do nome se ficar vazia; não pode ser alterada depois.",
-    "keyTaken": "Já existe um modelo com esta chave.",
     "descriptionLabel": "Descrição",
     "active": "Ativo",
     "default": "Modelo padrão",
-    "defaultHelp": "Usado quando nenhum modelo é escolhido (inclusive em automações).",
+    "defaultHelp": "Usado quando nenhum modelo é escolhido, inclusive nas automações.",
     "body": "Conteúdo",
     "insertVariable": "Inserir variável",
     "searchVariable": "Buscar variável",
@@ -68,10 +70,12 @@
     "notFoundTitle": "Modelo não encontrado",
     "notFoundDescription": "O modelo pode ter sido excluído.",
     "namePlaceholder": "Ex.: Proposta comercial",
-    "keyPlaceholder": "Ex.: proposta_comercial",
     "descriptionPlaceholder": "Descreva quando usar este modelo",
     "bodyPlaceholder": "Escreva o conteúdo da proposta",
-    "editMode": "Editar modelo"
+    "editMode": "Editar modelo",
+    "nameTaken": "Já existe um modelo com este nome. Escolha outro.",
+    "activeHelp": "Modelos inativos não aparecem ao gerar uma proposta.",
+    "starterBody": "# Proposta comercial\n\n[[organization.name]], [[today]]\n\nÀ [[company.name]]\nA/C [[contact.name]]\n\n## Objeto\n\nApresentamos a proposta **[[deal.title]]**, preparada por [[owner.name]].\n\n## Itens\n\n[[items_table]]\n\n## Condições\n\n- Valor total: **[[items.total]]**\n- Validade da proposta: 15 dias a partir de [[today]]\n\n---\n\nAtenciosamente,\n[[user.name]]\n[[organization.name]]"
   },
   "issues": {
     "unknown_variable": "variável desconhecida: {{variable}}",
@@ -107,7 +111,8 @@
     "total": "Total",
     "subtotal": "Subtotal",
     "discounts": "Descontos",
-    "pageBreak": "Quebra de página"
+    "pageBreak": "Quebra de página",
+    "noDeals": "Ative o módulo de oportunidades para pré-visualizar com dados reais. Enquanto isso, as variáveis aparecem como marcadores."
   },
   "deal": {
     "title": "Propostas geradas",

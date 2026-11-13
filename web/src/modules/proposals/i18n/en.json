@@ -23,7 +23,12 @@
     "deleted": "Template \"{{name}}\" deleted",
     "updated": "Template \"{{name}}\" updated",
     "noAccessTitle": "No access",
-    "noAccessDescription": "You need the permission to manage proposal templates."
+    "noAccessDescription": "You need the permission to manage proposal templates.",
+    "duplicate": "Duplicate",
+    "duplicated": "Template \"{{name}}\" created as a copy",
+    "copyOf": "Copy of {{name}}",
+    "noText": "No content",
+    "isDefaultHint": "Used when no template is chosen"
   },
   "confirmDelete": {
     "title": "Delete template?",
@@ -35,9 +40,6 @@
     "editTitle": "Edit template",
     "back": "Back to templates",
     "name": "Name",
-    "key": "Key",
-    "keyHelp": "Stable identifier used by configuration packages and automations. Derived from the name when empty; it cannot be changed later.",
-    "keyTaken": "A template with this key already exists.",
     "descriptionLabel": "Description",
     "active": "Active",
     "default": "Default template",
@@ -68,10 +70,12 @@
     "notFoundTitle": "Template not found",
     "notFoundDescription": "The template may have been deleted.",
     "namePlaceholder": "E.g.: Commercial proposal",
-    "keyPlaceholder": "E.g.: commercial_proposal",
     "descriptionPlaceholder": "Describe when to use this template",
     "bodyPlaceholder": "Write the proposal content",
-    "editMode": "Edit template"
+    "editMode": "Edit template",
+    "nameTaken": "A template with this name already exists. Pick another one.",
+    "activeHelp": "Inactive templates are not offered when generating a proposal.",
+    "starterBody": "# Commercial proposal\n\n[[organization.name]], [[today]]\n\nTo [[company.name]]\nAttn. [[contact.name]]\n\n## Scope\n\nWe are pleased to present the proposal **[[deal.title]]**, prepared by [[owner.name]].\n\n## Items\n\n[[items_table]]\n\n## Terms\n\n- Total: **[[items.total]]**\n- This proposal is valid for 15 days from [[today]]\n\n---\n\nKind regards,\n[[user.name]]\n[[organization.name]]"
   },
   "issues": {
     "unknown_variable": "unknown variable: {{variable}}",
@@ -107,7 +111,8 @@
     "total": "Total",
     "subtotal": "Subtotal",
     "discounts": "Discounts",
-    "pageBreak": "Page break"
+    "pageBreak": "Page break",
+    "noDeals": "Turn on the deals module to preview with real data. Until then, variables show as placeholders."
   },
   "deal": {
     "title": "Generated proposals",

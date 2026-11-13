@@ -1,6 +1,6 @@
-import { FileText, MoreHorizontal, Plus } from 'lucide-react'
+import { Copy, FileText, MoreHorizontal, Pencil, Plus, Star } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
@@ -14,16 +14,33 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/sdk'
-import { useModuleTranslation } from '@/kernel/modules/i18n'
-import {MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH, proposalsApi, useInvalidateProposals, useProposalTemplates, type ProposalTemplate, type UpdateProposalTemplate} from '@/sdk'
-import { NoAccess } from './NoAccess'
-import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+import { useModuleTranslation } from '@/kernel/modules/i18n'
+import { formatDateTime, MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH, proposalsApi, useInvalidateProposals, useProposalTemplates, useRecordFormatting, type ProposalTemplate, type UpdateProposalTemplate } from '@/sdk'
+import { NoAccess } from './NoAccess'
+
+const EXCERPT_CHARS = 220
+
+function excerpt(body: string): string {
+  return body
+    .replace(/\{\{\s*[\w.]+\s*\}\}/g, '…')
+    .replace(/^[-*]{3,}\s*$/gm, '')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/^-\s+/gm, '')
+    .replace(/[*_`]/g, '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /\p{L}/u.test(line))
+    .join(' · ')
+    .slice(0, EXCERPT_CHARS)
+}
 
 export function ProposalsPage() {
   const t = useModuleTranslation(PROPOSALS_KEY)
+  const navigate = useNavigate()
   const { hasPermission } = useSession()
   const canManage = hasPermission(MANAGE_PERMISSION)
   const templates = useProposalTemplates(canManage)
@@ -42,6 +59,23 @@ export function ProposalsPage() {
     }
   }
 
+  const duplicate = async (template: ProposalTemplate) => {
+    try {
+      const copy = await proposalsApi.createTemplate({
+        name: t('list.copyOf', { name: template.name }).slice(0, 160),
+        description: template.description ?? undefined,
+        body: template.body,
+        is_active: true,
+        is_default: false,
+      })
+      notifySuccess(t('list.duplicated', { name: copy.name }))
+      await invalidate()
+      navigate(`${PROPOSALS_PATH}/${copy.id}`)
+    } catch (error) {
+      notifyError(error)
+    }
+  }
+
   const newButton = (
     <Button asChild size="sm">
       <Link to={`${PROPOSALS_PATH}/new`}>
@@ -53,31 +87,24 @@ export function ProposalsPage() {
 
   return (
     <Page>
-<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
-        {newButton}
-      
-      </>} />
+      <PageHeader title={t('list.title')} description={t('list.description')} actions={newButton} />
       {templates.isPending ? (
-        <div className="grid gap-2" aria-busy="true">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">
+          <Skeleton className="h-44 w-full" />
+          <Skeleton className="h-44 w-full" />
         </div>
       ) : templates.isError ? (
         <ErrorState onRetry={() => void templates.refetch()} />
       ) : templates.data.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title={t('list.emptyTitle')}
-          description={t('list.emptyDescription')}
-          action={newButton}
-        />
+        <EmptyState icon={FileText} title={t('list.emptyTitle')} description={t('list.emptyDescription')} action={newButton} />
       ) : (
-        <ul className="grid gap-2" aria-label={t('list.listLabel')}>
+        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label={t('list.listLabel')}>
           {templates.data.map((template) => (
-            <TemplateRow
+            <TemplateCard
               key={template.id}
               template={template}
               onUpdate={(changes) => update(template, changes)}
+              onDuplicate={() => duplicate(template)}
               onDelete={() => setDeleting(template)}
             />
           ))}
@@ -101,41 +128,41 @@ export function ProposalsPage() {
   )
 }
 
-interface TemplateRowProps {
+interface TemplateCardProps {
   template: ProposalTemplate
   onUpdate: (changes: UpdateProposalTemplate) => void
+  onDuplicate: () => void
   onDelete: () => void
 }
 
-function TemplateRow({ template, onUpdate, onDelete }: TemplateRowProps) {
+function TemplateCard({ template, onUpdate, onDuplicate, onDelete }: TemplateCardProps) {
   const t = useModuleTranslation(PROPOSALS_KEY)
   const formatting = useRecordFormatting()
   const editPath = `${PROPOSALS_PATH}/${template.id}`
+  const summary = excerpt(template.body)
 
   return (
-    <li className="flex flex-col gap-2 rounded-md border bg-card px-3 py-2 sm:flex-row sm:items-start sm:justify-between">
-      <div className="grid min-w-0 gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <Link to={editPath} className="font-medium break-words hover:underline">
+    <li className={cn('flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md', !template.is_active && 'opacity-75')}>
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <FileText className="size-5" aria-hidden="true" />
+        </span>
+        <div className="grid min-w-0 flex-1 gap-1">
+          <Link to={editPath} className="font-semibold break-words hover:underline">
             {template.name}
           </Link>
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{template.key}</code>
-          {template.is_default && <Badge variant="secondary">{t('list.default')}</Badge>}
-          <Badge variant={template.is_active ? 'success' : 'outline'}>
-            {template.is_active ? t('list.active') : t('list.inactive')}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {template.is_default && (
+              <Badge variant="secondary" title={t('list.isDefaultHint')}>
+                <Star className="size-3" aria-hidden="true" />
+                {t('list.default')}
+              </Badge>
+            )}
+            <Badge variant={template.is_active ? 'success' : 'outline'}>
+              {template.is_active ? t('list.active') : t('list.inactive')}
+            </Badge>
+          </div>
         </div>
-        {template.description && (
-          <p className="text-sm break-words text-muted-foreground">{template.description}</p>
-        )}
-        <p className="text-xs text-muted-foreground">
-          {t('list.updatedAt', { date: formatDateTime(template.updated_at, formatting) })}
-        </p>
-      </div>
-      <div className="flex gap-2 self-start">
-        <Button asChild size="sm" variant="outline">
-          <Link to={editPath}>{t('list.edit')}</Link>
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="icon" variant="ghost" aria-label={t('list.moreActions', { name: template.name })}>
@@ -155,6 +182,25 @@ function TemplateRow({ template, onUpdate, onDelete }: TemplateRowProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
+      {template.description && <p className="text-sm break-words text-muted-foreground">{template.description}</p>}
+      <p className="line-clamp-3 min-h-[3.75rem] rounded-md bg-muted/40 px-3 py-2 text-xs leading-relaxed break-words text-muted-foreground">
+        {summary || t('list.noText')}
+      </p>
+      <div className="mt-auto flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{t('list.updatedAt', { date: formatDateTime(template.updated_at, formatting) })}</p>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={onDuplicate}>
+            <Copy aria-hidden="true" />
+            {t('list.duplicate')}
+          </Button>
+          <Button asChild size="sm">
+            <Link to={editPath}>
+              <Pencil aria-hidden="true" />
+              {t('list.edit')}
+            </Link>
+          </Button>
+        </div>
       </div>
     </li>
   )

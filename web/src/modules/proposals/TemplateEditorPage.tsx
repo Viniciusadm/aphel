@@ -7,7 +7,6 @@ import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
@@ -15,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { RecordFieldInput } from '@/components/fields'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
+import { isModuleActive, useModuleState } from '@/kernel/modules/registry'
 import {MANAGE_PERMISSION, PROPOSALS_KEY, PROPOSALS_PATH, proposalsApi, proposalsKeys, useInvalidateProposals, useProposalTemplate, useProposalVariables, type ProposalIssue, type ProposalTemplate, type ProposalVariable} from '@/sdk'
 import { NoAccess } from './NoAccess'
 import { ProposalDocumentView } from './ProposalDocumentView'
@@ -23,6 +23,7 @@ import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Alert } from '@/components/ui/alert'
 import { Field } from '@/components/ui/field'
+import { ToggleField } from '@/components/ui/toggle-field'
 
 const DEBOUNCE_MS = 450
 const SYNTAX_SAMPLES = [
@@ -34,7 +35,6 @@ const SYNTAX_SAMPLES = [
 ] as const
 
 interface FormValues {
-  key: string
   name: string
   description: string
   body: string
@@ -42,12 +42,11 @@ interface FormValues {
   isDefault: boolean
 }
 
-function initialValues(template: ProposalTemplate | null): FormValues {
+function initialValues(template: ProposalTemplate | null, starter = ''): FormValues {
   return {
-    key: template?.key ?? '',
     name: template?.name ?? '',
     description: template?.description ?? '',
-    body: template?.body ?? '',
+    body: template?.body ?? starter,
     isActive: template?.is_active ?? true,
     isDefault: template?.is_default ?? false,
   }
@@ -115,13 +114,15 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
   const formId = useId()
   const bodyRef = useRef<HTMLTextAreaElement>(null)
   const leaving = useRef(false)
-  const [saved, setSaved] = useState<FormValues>(() => initialValues(template))
-  const [values, setValues] = useState<FormValues>(() => initialValues(template))
-  const [keyError, setKeyError] = useState<string | null>(null)
+  const starter = template ? '' : t('editor.starterBody').replaceAll('[[', '{{').replaceAll(']]', '}}')
+  const [saved, setSaved] = useState<FormValues>(() => initialValues(template, starter))
+  const [values, setValues] = useState<FormValues>(() => initialValues(template, starter))
+  const [nameError, setNameError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [dealId, setDealId] = useState<string | null>(null)
   const [mobilePreview, setMobilePreview] = useState(false)
   const variables = useProposalVariables()
+  const dealsActive = isModuleActive('deals', useModuleState())
   const body = useDebounced(values.body, DEBOUNCE_MS)
   const dirty = !sameValues(values, saved)
 
@@ -176,7 +177,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
 
   const submit = async () => {
     setMobilePreview(false)
-    setKeyError(null)
+    setNameError(null)
     setSaving(true)
     try {
       if (template) {
@@ -194,7 +195,6 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
         await invalidate()
       } else {
         const created = await proposalsApi.createTemplate({
-          key: values.key.trim() || undefined,
           name: values.name,
           description: values.description.trim() || undefined,
           body: values.body,
@@ -208,7 +208,7 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
       }
     } catch (error) {
       if (isApiError(error) && error.code === 'proposal_template_key_taken') {
-        setKeyError(t('editor.keyTaken'))
+        setNameError(t('editor.nameTaken'))
       } else if (isApiError(error) && error.code === 'proposal_template_invalid') {
         notifyError(error, { title: t('editor.invalid') })
       } else {
@@ -248,34 +248,18 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
             if (canSave) void submit()
           }}
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t('editor.name')}>
-              {(control) => <Input placeholder={t('editor.namePlaceholder')}
-                {...control}
-                value={values.name}
-                maxLength={160}
-                required
-                onChange={(event) => change('name', event.target.value)}
-              />}
-            </Field>
-            <Field label={t('editor.key')}>
-              {(control) => <>
-                <Input placeholder={t('editor.keyPlaceholder')}
-                {...control}
-                value={values.key}
-                maxLength={64}
-                disabled={Boolean(template)}
-                className="font-mono"
-                aria-invalid={keyError ? true : undefined}
-                aria-describedby={`${formId}-key-help`}
-                onChange={(event) => change('key', event.target.value.toLowerCase())}
-              />
-              <p id={`${formId}-key-help`} className={keyError ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
-                {keyError ?? t('editor.keyHelp')}
-              </p>
-              </>}
-            </Field>
-          </div>
+          <Field label={t('editor.name')} required error={nameError}>
+            {(control) => <Input placeholder={t('editor.namePlaceholder')}
+              {...control}
+              value={values.name}
+              maxLength={160}
+              required
+              onChange={(event) => {
+                setNameError(null)
+                change('name', event.target.value)
+              }}
+            />}
+          </Field>
           <Field label={t('editor.descriptionLabel')}>
             {(control) => <Input placeholder={t('editor.descriptionPlaceholder')}
               {...control}
@@ -284,25 +268,24 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
               onChange={(event) => change('description', event.target.value)}
             />}
           </Field>
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox
-                checked={values.isActive}
-                onCheckedChange={(checked) => {
-                  const active = checked === true
-                  setValues((previous) => ({ ...previous, isActive: active, isDefault: active && previous.isDefault }))
-                }}
-              />
-              {t('editor.active')}
-            </label>
-            <label className="flex items-center gap-2 text-sm" title={t('editor.defaultHelp')}>
-              <Checkbox
-                checked={values.isDefault}
-                disabled={!values.isActive}
-                onCheckedChange={(checked) => change('isDefault', checked === true)}
-              />
-              {t('editor.default')}
-            </label>
+          <div className="grid gap-3 rounded-md border bg-muted/30 p-3 sm:grid-cols-2">
+            <ToggleField
+              type="switch"
+              label={t('editor.active')}
+              description={t('editor.activeHelp')}
+              checked={values.isActive}
+              onCheckedChange={(active) =>
+                setValues((previous) => ({ ...previous, isActive: active, isDefault: active && previous.isDefault }))
+              }
+            />
+            <ToggleField
+              type="switch"
+              label={t('editor.default')}
+              description={t('editor.defaultHelp')}
+              checked={values.isDefault}
+              disabled={!values.isActive}
+              onCheckedChange={(checked) => change('isDefault', checked)}
+            />
           </div>
           <Field
             id={`${formId}-body`}
@@ -346,9 +329,13 @@ function EditorForm({ template }: { template: ProposalTemplate | null }) {
         <section className={cn("min-w-0 content-start gap-3 lg:sticky lg:top-20 lg:grid lg:self-start", mobilePreview ? "grid" : "hidden")} aria-label={t('preview.title')}>
           <div className="grid gap-2 rounded-lg border bg-card p-4">
             <h2 className="text-base font-semibold">{t('preview.title')}</h2>
-            <Field id={`${formId}-deal`} label={t('preview.deal')} description={t('preview.hint')}>
-              <RecordFieldInput id={`${formId}-deal`} targetRecordType="deal" value={dealId} onChange={setDealId} />
-            </Field>
+            {dealsActive ? (
+              <Field id={`${formId}-deal`} label={t('preview.deal')} description={t('preview.hint')}>
+                <RecordFieldInput id={`${formId}-deal`} targetRecordType="deals.deal" value={dealId} onChange={setDealId} />
+              </Field>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t('preview.noDeals')}</p>
+            )}
           </div>
           {preview.isError ? (
             <ErrorState description={t('preview.error')} onRetry={() => void preview.refetch()} />

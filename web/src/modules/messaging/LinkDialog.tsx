@@ -81,7 +81,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
         ) : (
           <RecordFieldInput
             id={`link-contact-${conversation.id}`}
-            targetRecordType="contact"
+            targetRecordType="people.person"
             value={contactId}
             onChange={setContactId}
           />
@@ -93,7 +93,7 @@ function LinkForm({ conversation, onDone }: { conversation: Conversation; onDone
         ) : (
           <RecordFieldInput
             id={`link-deal-${conversation.id}`}
-            targetRecordType="deal"
+            targetRecordType="deals.deal"
             value={dealId}
             onChange={setDealId}
           />

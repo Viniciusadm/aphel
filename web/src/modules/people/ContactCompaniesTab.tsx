@@ -120,7 +120,7 @@ function LinkCompanyForm({ contactId }: { contactId: string }) {
       }}
     >
       <Field id={companyLabelId} label={t('organizations.organizationLabel')} className="min-w-0">
-        <RecordFieldInput targetRecordType="company" value={companyId} onChange={setCompanyId} id={companyLabelId} />
+        <RecordFieldInput targetRecordType="organizations.organization" value={companyId} onChange={setCompanyId} id={companyLabelId} />
       </Field>
       <Field label={t('organizations.roleLabel')}>
         {(control) => <NativeSelect {...control} value={role} onChange={(event) => setRole(event.target.value)}>
