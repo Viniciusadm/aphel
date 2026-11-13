@@ -79,6 +79,7 @@ pub(crate) struct LeadFormAppearance {
 pub(crate) enum Placement {
     Page,
     Embed,
+    Site,
 }
 
 #[derive(Debug, Clone)]
@@ -225,6 +226,7 @@ pub(crate) fn resolve(
     let mode = match placement {
         Placement::Page => EmbedMode::Theme,
         Placement::Embed => own.embed_mode.unwrap_or(EmbedMode::Theme),
+        Placement::Site => own.embed_mode.unwrap_or(EmbedMode::Inherit),
     };
     let show_logo = own.show_logo.unwrap_or(branding.use_logo) && branding.has_logo;
     Resolved {
@@ -239,7 +241,7 @@ pub(crate) fn resolve(
         width: own.width.unwrap_or(branding.width),
         surface: own.surface.unwrap_or(match placement {
             Placement::Page => Surface::Card,
-            Placement::Embed => Surface::Plain,
+            Placement::Embed | Placement::Site => Surface::Plain,
         }),
         button: own.button.unwrap_or(ButtonStyle::Solid),
         button_width: own.button_width.unwrap_or(ButtonWidth::Auto),

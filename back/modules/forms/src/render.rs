@@ -192,7 +192,7 @@ pub(crate) fn site_embed(form: &StoredForm, branding: &Branding) -> String {
         form.definition.appearance.as_ref(),
         branding,
         &form.public_id,
-        Placement::Embed,
+        Placement::Site,
     );
     format!(
         "<div class=\"site-form aphel-lf\" data-aphel-form=\"{public_id}\" data-lf=\"{public_id}\"{attributes} style=\"{style}\">{head}{markup}</div><script src=\"{script}\" defer></script>",
@@ -366,12 +366,15 @@ const EMBED_SCRIPT: &str = r#"(function () {
     var look = definition.appearance || {};
     if ((' ' + container.className + ' ').indexOf(' aphel-lf ') < 0) container.className = (container.className + ' aphel-lf').trim();
     container.setAttribute('data-lf', definition.public_id);
-    Object.keys(look.attributes || {}).forEach(function (name) {
-      container.setAttribute('data-' + name, look.attributes[name]);
-    });
-    Object.keys(look.vars || {}).forEach(function (name) {
-      container.style.setProperty(name, look.vars[name]);
-    });
+    var hosted = container.classList.contains('site-form');
+    if (!hosted) {
+      Object.keys(look.attributes || {}).forEach(function (name) {
+        container.setAttribute('data-' + name, look.attributes[name]);
+      });
+      Object.keys(look.vars || {}).forEach(function (name) {
+        container.style.setProperty(name, look.vars[name]);
+      });
+    }
     if (look.logo_url || look.title || look.intro) {
       var head = element('div', { 'class': 'aphel-lf-head' });
       if (look.logo_url) head.appendChild(element('img', { 'class': 'aphel-lf-logo', src: base + look.logo_url, alt: '' }));
