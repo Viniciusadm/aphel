@@ -1,6 +1,6 @@
 import { DECIMAL_SEPARATOR_CHARS, type DecimalSeparator } from './decimal-separator'
 
-export type NumberMaskKind = 'integer' | 'signedInteger' | 'quantity' | 'percent'
+export type NumberMaskKind = 'integer' | 'signedInteger' | 'quantity' | 'percent' | 'amount'
 
 interface NumberMaskRule {
   decimals: number
@@ -13,6 +13,7 @@ const RULES: Record<NumberMaskKind, NumberMaskRule> = {
   signedInteger: { decimals: 0, signed: true },
   quantity: { decimals: 3, signed: false },
   percent: { decimals: 2, signed: false, max: 100 },
+  amount: { decimals: 2, signed: false },
 }
 
 export function numberMaskAllowsDecimals(kind: NumberMaskKind): boolean {

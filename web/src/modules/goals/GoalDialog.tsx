@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useId, useMemo } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { isApiError } from '@/api'
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { authFieldViolations as fieldViolations, FormRow, SettingsNativeSelect as NativeSelect } from '@/sdk'
 import {
@@ -340,13 +341,22 @@ function GoalForm({ owners, editing, onClose, onSaved }: GoalFormProps) {
             error={errorText(errors.target?.message)}
           >
             {(describedBy) => (
-              <Input placeholder={t('placeholders.target')}
-                id={`${formId}-target`}
-                inputMode="decimal"
-                autoComplete="off"
-                aria-describedby={describedBy}
-                aria-invalid={errors.target ? true : undefined}
-                {...register('target')}
+              <Controller
+                control={control}
+                name="target"
+                render={({ field }) => (
+                  <NumberMaskInput
+                    id={`${formId}-target`}
+                    kind={isCountMetric(metric) ? 'integer' : 'amount'}
+                    maxLength={isCountMetric(metric) ? 9 : 15}
+                    placeholder={t('placeholders.target')}
+                    aria-describedby={describedBy}
+                    aria-invalid={errors.target ? true : undefined}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
               />
             )}
           </FormRow>
