@@ -18,7 +18,7 @@
     },
     "model": {
       "label": "Model",
-      "help": "E.g. claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-chat, deepseek-reasoner, gpt-4o-mini, llama3.1"
+      "help": "E.g. claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-v4-flash, deepseek-v4-pro, gpt-4o-mini, llama3.1"
     },
     "api_key": {
       "label": "API key",

@@ -110,7 +110,7 @@ impl Module for AiModule {
                 SettingField::new(SETTING_MODEL, "Modelo", SettingKind::Text)
                     .required()
                     .default_value(json!(DEFAULT_MODEL))
-                    .help("Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-chat, deepseek-reasoner, gpt-4o-mini, llama3.1"),
+                    .help("Ex.: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5, deepseek-v4-flash, deepseek-v4-pro, gpt-4o-mini, llama3.1"),
             )
             .setting(
                 SettingField::new(SETTING_API_KEY, "Chave de API", SettingKind::Secret)
