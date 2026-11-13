@@ -168,6 +168,7 @@ export function InboxPage() {
                     key={conversation.id}
                     conversation={conversation}
                     active={conversation.id === selected}
+                    showStatus={!filters.status}
                     onSelect={() => select(conversation.id)}
                   />
                 ))}
@@ -217,10 +218,12 @@ export function InboxPage() {
 function ConversationRow({
   conversation,
   active,
+  showStatus,
   onSelect,
 }: {
   conversation: Conversation
   active: boolean
+  showStatus: boolean
   onSelect: () => void
 }) {
   const t = useModuleTranslation(MESSAGING_KEY)
@@ -257,7 +260,7 @@ function ConversationRow({
               {conversation.unread_count}
             </Badge>
           )}
-          <StatusBadge status={conversation.status} />
+          {showStatus && <StatusBadge status={conversation.status} />}
         </span>
       </button>
     </li>

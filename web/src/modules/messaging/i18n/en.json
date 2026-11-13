@@ -205,12 +205,39 @@
     "secretConfigured": "Configured. Fill in only to replace it.",
     "keepSecret": "•••••••• (configured)",
     "active": "Active channel (receives and sends messages)",
-    "namePlaceholder": "E.g.: Sales WhatsApp",
+    "namePlaceholder": "E.g. Sales WhatsApp",
     "valuePlaceholder": "Enter the value",
     "newChannel": "New {{name}} channel",
     "providerHelp": "Configure the connection to {{name}}.",
     "providerUnavailable": "The provider is unavailable. Enable its module to edit this channel.",
-    "clearCredential": "Clear {{name}}"
+    "clearCredential": "Clear {{name}}",
+    "sections": {
+      "identity": "Identification",
+      "identityHelp": "How this channel shows up for the team.",
+      "connectionHelp": "Number data from Meta. Find it in your app dashboard, under WhatsApp › API Setup.",
+      "options": "Options",
+      "advanced": "Advanced"
+    },
+    "activeHelp": "Turn off to stop receiving and sending without deleting the history.",
+    "guideTitle": {
+      "whatsapp": "Before you start, get the data from Meta"
+    },
+    "guide": {
+      "whatsapp": [
+        "In the Meta for Developers dashboard, open your app and go to WhatsApp › API Setup.",
+        "Copy the phone number ID and the WhatsApp Business account ID.",
+        "Generate a permanent token with a system user and also copy the app secret (Settings › Basic).",
+        "After saving, copy the webhook URL Aphel shows on the channel and register it at Meta with the same verify token."
+      ]
+    },
+    "placeholders": {
+      "phone_number_id": "E.g. 109876543210987",
+      "business_account_id": "E.g. 204988776655443",
+      "access_token": "Paste the permanent token",
+      "app_secret": "Paste the app secret",
+      "verify_token": "Any text only you know"
+    },
+    "credentialsHelpNew": "Encrypted on the server and never sent back."
   },
   "tab": {
     "label": "Conversations",

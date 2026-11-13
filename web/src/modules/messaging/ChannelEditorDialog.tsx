@@ -2,12 +2,12 @@ import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
 import { UserFieldInput } from '@/components/fields'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ToggleField } from '@/components/ui/toggle-field'
 import {
   Dialog,
   DialogContent,
@@ -138,18 +138,32 @@ function ChannelForm({
   }
 
   const prefix = channel?.id ?? `new-${kind}`
+  const guide = [0, 1, 2, 3].map((index) => t(`editor.guide.${kind}.${index}` as 'editor.guide.whatsapp.0', { defaultValue: '' })).filter(Boolean)
+  const placeholderOf = (key: string) => t(`editor.placeholders.${key}` as 'editor.placeholders.phone_number_id', { defaultValue: '' }) || undefined
 
   return (
     <form
-      className="grid gap-4"
+      className="grid gap-5"
       onSubmit={(event) => {
         event.preventDefault()
         void save()
       }}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
+      {guide.length > 0 && !channel && (
+        <div className="grid gap-2 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+          <p className="font-medium">{t(`editor.guideTitle.${kind}` as 'editor.guideTitle.whatsapp')}</p>
+          <ol className="grid list-decimal gap-1 pl-5 text-muted-foreground">
+            {guide.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      <FormSection title={t('editor.sections.identity')} description={t('editor.sections.identityHelp')}>
         <Field id={`${prefix}-name`} label={t('editor.name')} error={errors.name}>
-          <Input placeholder={t('editor.namePlaceholder')}
+          <Input
+            placeholder={t('editor.namePlaceholder')}
             id={`${prefix}-name`}
             value={name}
             maxLength={120}
@@ -158,101 +172,112 @@ function ChannelForm({
             aria-invalid={errors.name ? true : undefined}
           />
         </Field>
-        <Field
-          id={`${prefix}-acting-user`}
-          label={t('editor.actingUser')}
-          description={t('editor.actingUserHint')}
-          error={errors.acting_user_id}
-        >
-          <UserFieldInput id={`${prefix}-acting-user`} value={actingUserId} onChange={setActingUserId} />
-        </Field>
-      </div>
+      </FormSection>
 
-      <fieldset className="grid gap-4 sm:grid-cols-2">
-        <legend className="mb-2 text-sm font-semibold">{t('editor.connection')}</legend>
-        {provider.fields.map((field) => (
-          <Field
-            key={field.key}
-            id={`${prefix}-${field.key}`}
-            label={channelText(field.label)}
-            description={channelText(field.hint) || undefined}
-            error={errors[`config.${field.key}`]}
-          >
-            {field.input_type === 'select' ? (
-              <NativeSelect id={`${prefix}-${field.key}`} value={config[field.key] ?? ''} onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}>
-                {field.options.map((option) => <option key={option.value} value={option.value}>{channelText(option.label)}</option>)}
-              </NativeSelect>
-            ) : field.input_type === 'tel' ? (
-              <PhoneFieldInput
-                id={`${prefix}-${field.key}`}
-                locale={formatting.locale}
-                fieldLabel={channelText(field.label)}
-                invalid={Boolean(errors[`config.${field.key}`])}
-                value={config[field.key] || null}
-                onChange={(value) => setConfig((current) => ({ ...current, [field.key]: value ?? '' }))}
-              />
-            ) : field.input_type === 'digits' ? (
-              <MaskedInput
-                id={`${prefix}-${field.key}`}
-                mask="digits"
-                value={config[field.key] ?? ''}
-                required={field.required}
-                onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}
-                aria-invalid={errors[`config.${field.key}`] ? true : undefined}
-              />
-            ) : (
-            <Input placeholder={t('editor.valuePlaceholder')}
-              id={`${prefix}-${field.key}`}
-              type={field.input_type}
-              inputMode={field.input_type === 'number' ? 'numeric' : undefined}
-              value={config[field.key] ?? ''}
-              required={field.required}
-              onChange={(event) => setConfig((current) => ({ ...current, [field.key]: event.target.value }))}
-              aria-invalid={errors[`config.${field.key}`] ? true : undefined}
-            />
-            )}
-          </Field>
-        ))}
-      </fieldset>
-
-      <fieldset className="grid gap-4 sm:grid-cols-2">
-        <legend className="mb-1 text-sm font-semibold">{t('editor.credentials')}</legend>
-        <p className="text-xs text-muted-foreground sm:col-span-2">{t('editor.credentialsHelp')}</p>
-        {provider.secrets.map((field) => {
-          const configured = channel?.secrets?.[field.key] === true
-          return (
+      <FormSection title={t('editor.connection')} description={t('editor.sections.connectionHelp')}>
+        <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
+          {provider.fields.map((field) => (
             <Field
               key={field.key}
               id={`${prefix}-${field.key}`}
               label={channelText(field.label)}
-              description={configured ? t('editor.secretConfigured') : channelText(field.hint) || undefined}
-              error={errors[`secrets.${field.key}`]}
+              description={channelText(field.hint) || undefined}
+              error={errors[`config.${field.key}`]}
+              className={field.input_type === 'tel' ? 'sm:col-span-2' : undefined}
             >
-              <Input
-                id={`${prefix}-${field.key}`}
-                type="password"
-                autoComplete="new-password"
-                value={secrets[field.key] ?? ''}
-                required={field.required && !configured}
-                placeholder={configured ? t('editor.keepSecret') : undefined}
-                onChange={(event) => setSecrets((current) => ({ ...current, [field.key]: event.target.value }))}
-                aria-invalid={errors[`secrets.${field.key}`] ? true : undefined}
-              />
+              {field.input_type === 'select' ? (
+                <NativeSelect id={`${prefix}-${field.key}`} value={config[field.key] ?? ''} onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}>
+                  {field.options.map((option) => <option key={option.value} value={option.value}>{channelText(option.label)}</option>)}
+                </NativeSelect>
+              ) : field.input_type === 'tel' ? (
+                <PhoneFieldInput
+                  id={`${prefix}-${field.key}`}
+                  locale={formatting.locale}
+                  fieldLabel={channelText(field.label)}
+                  invalid={Boolean(errors[`config.${field.key}`])}
+                  value={config[field.key] || null}
+                  onChange={(value) => setConfig((current) => ({ ...current, [field.key]: value ?? '' }))}
+                />
+              ) : field.input_type === 'digits' ? (
+                <MaskedInput
+                  id={`${prefix}-${field.key}`}
+                  mask="digits"
+                  maxLength={24}
+                  placeholder={placeholderOf(field.key)}
+                  value={config[field.key] ?? ''}
+                  required={field.required}
+                  onValueChange={(value) => setConfig((current) => ({ ...current, [field.key]: value }))}
+                  aria-invalid={errors[`config.${field.key}`] ? true : undefined}
+                />
+              ) : (
+                <Input
+                  placeholder={placeholderOf(field.key) ?? t('editor.valuePlaceholder')}
+                  id={`${prefix}-${field.key}`}
+                  type={field.input_type}
+                  inputMode={field.input_type === 'number' ? 'numeric' : undefined}
+                  value={config[field.key] ?? ''}
+                  required={field.required}
+                  onChange={(event) => setConfig((current) => ({ ...current, [field.key]: event.target.value }))}
+                  aria-invalid={errors[`config.${field.key}`] ? true : undefined}
+                />
+              )}
             </Field>
-          )
-        })}
-        {provider.secrets.filter((field) => !field.required && channel?.secrets?.[field.key]).map((field) => (
-          <label key={field.key} className="flex items-center gap-2 text-sm sm:col-span-2">
-            <Checkbox checked={clearSecrets.includes(field.key)} onCheckedChange={(checked) => setClearSecrets((current) => checked === true ? [...current, field.key] : current.filter((key) => key !== field.key))} />
-            {t('editor.clearCredential', { name: channelText(field.label) })}
-          </label>
-        ))}
-      </fieldset>
+          ))}
+        </div>
+      </FormSection>
 
-      <label className="flex items-center gap-2 text-sm">
-        <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(checked === true)} />
-        {t('editor.active')}
-      </label>
+      <FormSection title={t('editor.credentials')} description={t(channel ? 'editor.credentialsHelp' : 'editor.credentialsHelpNew')}>
+        <div className="grid gap-4">
+          {provider.secrets.map((field) => {
+            const configured = channel?.secrets?.[field.key] === true
+            return (
+              <Field
+                key={field.key}
+                id={`${prefix}-${field.key}`}
+                label={channelText(field.label)}
+                description={configured ? t('editor.secretConfigured') : channelText(field.hint) || undefined}
+                error={errors[`secrets.${field.key}`]}
+              >
+                <Input
+                  id={`${prefix}-${field.key}`}
+                  type="password"
+                  autoComplete="new-password"
+                  value={secrets[field.key] ?? ''}
+                  required={field.required && !configured}
+                  placeholder={configured ? t('editor.keepSecret') : placeholderOf(field.key)}
+                  onChange={(event) => setSecrets((current) => ({ ...current, [field.key]: event.target.value }))}
+                  aria-invalid={errors[`secrets.${field.key}`] ? true : undefined}
+                />
+              </Field>
+            )
+          })}
+          {provider.secrets.filter((field) => !field.required && channel?.secrets?.[field.key]).map((field) => (
+            <ToggleField
+              key={field.key}
+              label={t('editor.clearCredential', { name: channelText(field.label) })}
+              checked={clearSecrets.includes(field.key)}
+              onCheckedChange={(checked) => setClearSecrets((current) => (checked ? [...current, field.key] : current.filter((key) => key !== field.key)))}
+            />
+          ))}
+        </div>
+      </FormSection>
+
+      <FormSection title={t('editor.sections.options')}>
+        <ToggleField type="switch" label={t('editor.active')} description={t('editor.activeHelp')} checked={isActive} onCheckedChange={setIsActive} />
+        <details className="group rounded-md border px-3 py-2 text-sm" open={Boolean(actingUserId)}>
+          <summary className="cursor-pointer font-medium">{t('editor.sections.advanced')}</summary>
+          <div className="mt-3">
+            <Field
+              id={`${prefix}-acting-user`}
+              label={t('editor.actingUser')}
+              description={t('editor.actingUserHint')}
+              error={errors.acting_user_id}
+            >
+              <UserFieldInput id={`${prefix}-acting-user`} value={actingUserId} onChange={setActingUserId} />
+            </Field>
+          </div>
+        </details>
+      </FormSection>
 
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
@@ -264,5 +289,17 @@ function ChannelForm({
         </Button>
       </DialogFooter>
     </form>
+  )
+}
+
+function FormSection({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+  return (
+    <section className="grid gap-3 rounded-lg border p-4">
+      <div className="grid gap-0.5">
+        <h3 className="text-sm font-semibold">{title}</h3>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      </div>
+      {children}
+    </section>
   )
 }

@@ -210,7 +210,34 @@
     "newChannel": "Novo canal {{name}}",
     "providerHelp": "Configure a conexão com {{name}}.",
     "providerUnavailable": "O provedor está indisponível. Ative seu módulo para editar este canal.",
-    "clearCredential": "Limpar {{name}}"
+    "clearCredential": "Limpar {{name}}",
+    "sections": {
+      "identity": "Identificação",
+      "identityHelp": "Como este canal aparece na equipe.",
+      "connectionHelp": "Dados do número na Meta. Ficam no painel do seu aplicativo, em WhatsApp › Configuração da API.",
+      "options": "Opções",
+      "advanced": "Avançado"
+    },
+    "activeHelp": "Desative para parar de receber e enviar sem apagar o histórico.",
+    "guideTitle": {
+      "whatsapp": "Antes de começar, tenha em mãos os dados da Meta"
+    },
+    "guide": {
+      "whatsapp": [
+        "No painel da Meta para desenvolvedores, abra o seu aplicativo e vá em WhatsApp › Configuração da API.",
+        "Copie o ID do número de telefone e o ID da conta do WhatsApp Business.",
+        "Gere um token permanente com um usuário do sistema e copie também o segredo do aplicativo (Configurações › Básico).",
+        "Depois de salvar, copie a URL do webhook que o Aphel mostra no canal e cadastre na Meta com o mesmo token de verificação."
+      ]
+    },
+    "placeholders": {
+      "phone_number_id": "Ex.: 109876543210987",
+      "business_account_id": "Ex.: 204988776655443",
+      "access_token": "Cole o token permanente",
+      "app_secret": "Cole o segredo do aplicativo",
+      "verify_token": "Um texto qualquer que só você conhece"
+    },
+    "credentialsHelpNew": "Ficam cifradas no servidor e nunca voltam para a tela."
   },
   "tab": {
     "label": "Conversas",
