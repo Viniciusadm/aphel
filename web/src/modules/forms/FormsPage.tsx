@@ -14,6 +14,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { FORMS_KEY, FORMS_PATH, formsApi, useInvalidateForms, useForms, type LeadForm } from './api'
@@ -92,18 +93,34 @@ export function FormsPage() {
           }
         />
       ) : (
-        <ul className="grid gap-2" aria-label={t('page.listLabel')}>
-          {forms.data.data.map((form) => (
-            <FormRow
-              key={form.id}
-              form={form}
-              onEdit={() => void navigate(`${FORMS_PATH}/${form.id}/edit`)}
-              onSnippets={() => setSnippetsOf(form)}
-              onSubmissions={() => setSubmissionsOf(form)}
-              onConfirm={(kind) => setPending({ kind, form })}
-            />
-          ))}
-        </ul>
+        <Table aria-label={t('page.listLabel')}>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{t('page.columns.name')}</TableHead>
+              <TableHead scope="col">{t('page.columns.status')}</TableHead>
+              <TableHead scope="col" className="hidden text-right lg:table-cell">{t('page.columns.fields')}</TableHead>
+              <TableHead scope="col" className="hidden text-right md:table-cell">{t('page.columns.accepted')}</TableHead>
+              <TableHead scope="col" className="hidden text-right lg:table-cell">{t('page.columns.spam')}</TableHead>
+              <TableHead scope="col" className="hidden text-right lg:table-cell">{t('page.columns.failed')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('page.columns.last')}</TableHead>
+              <TableHead scope="col">
+                <span className="sr-only">{t('page.columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {forms.data.data.map((form) => (
+              <FormRow
+                key={form.id}
+                form={form}
+                onEdit={() => void navigate(`${FORMS_PATH}/${form.id}/edit`)}
+                onSnippets={() => setSnippetsOf(form)}
+                onSubmissions={() => setSubmissionsOf(form)}
+                onConfirm={(kind) => setPending({ kind, form })}
+              />
+            ))}
+          </TableBody>
+        </Table>
       )}
 
       <SnippetsDialog form={snippetsOf} onClose={() => setSnippetsOf(null)} />
@@ -133,52 +150,45 @@ function FormRow({ form, onEdit, onSnippets, onSubmissions, onConfirm }: FormRow
   const t = useModuleTranslation(FORMS_KEY)
   const formatting = useRecordFormatting()
   return (
-    <li className="flex flex-col gap-2 rounded-md border bg-card px-3 py-2 sm:flex-row sm:items-start sm:justify-between">
-      <div className="grid min-w-0 gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium break-words">{form.name}</span>
-          <Badge variant={form.is_active ? 'success' : 'outline'}>
-            {form.is_active ? t('page.active') : t('page.inactive')}
-          </Badge>
-          {form.deal && <Badge variant="secondary">{t('page.createsDeal')}</Badge>}
+    <TableRow>
+      <TableCell className="font-medium break-words">{form.name}</TableCell>
+      <TableCell>
+        <Badge variant={form.is_active ? 'success' : 'outline'}>
+          {form.is_active ? t('page.active') : t('page.inactive')}
+        </Badge>
+      </TableCell>
+      <TableCell className="hidden text-right tabular-nums lg:table-cell">{form.fields?.length ?? 0}</TableCell>
+      <TableCell className="hidden text-right tabular-nums md:table-cell">{form.accepted_count}</TableCell>
+      <TableCell className="hidden text-right tabular-nums lg:table-cell">{form.spam_count}</TableCell>
+      <TableCell className="hidden text-right tabular-nums lg:table-cell">{form.failed_count}</TableCell>
+      <TableCell className="hidden whitespace-nowrap md:table-cell">
+        {form.last_submission_at ? formatDateTime(form.last_submission_at, formatting) : <span className="text-muted-foreground">{t('page.noSubmissions')}</span>}
+      </TableCell>
+      <TableCell>
+        <div className="flex justify-end gap-2">
+          <Button size="sm" variant="outline" onClick={onSubmissions}>
+            {t('page.submissions')}
+          </Button>
+          <Button size="sm" variant="outline" onClick={onEdit}>
+            {t('page.edit')}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" aria-label={t('page.moreActions', { name: form.name })}>
+                <MoreHorizontal aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onSnippets}>{t('page.embed')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onConfirm('rotate')}>{t('page.rotate')}</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onSelect={() => onConfirm('delete')}>
+                {t('page.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {[
-            t('page.fieldsCount', { count: form.fields?.length ?? 0 }),
-            t('page.acceptedCount', { count: form.accepted_count }),
-            t('page.spamCount', { count: form.spam_count }),
-            t('page.failedCount', { count: form.failed_count }),
-          ].join(' · ')}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {form.last_submission_at
-            ? t('page.lastSubmission', { date: formatDateTime(form.last_submission_at, formatting) })
-            : t('page.noSubmissions')}
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2 self-start">
-        <Button size="sm" variant="outline" onClick={onSubmissions}>
-          {t('page.submissions')}
-        </Button>
-        <Button size="sm" variant="outline" onClick={onEdit}>
-          {t('page.edit')}
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" aria-label={t('page.moreActions', { name: form.name })}>
-              <MoreHorizontal aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={onSnippets}>{t('page.embed')}</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onConfirm('rotate')}>{t('page.rotate')}</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={() => onConfirm('delete')}>
-              {t('page.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </li>
+      </TableCell>
+    </TableRow>
   )
 }

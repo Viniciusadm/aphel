@@ -11,8 +11,6 @@
     "emptyDescription": "Create a form, pick the fields and copy the code to your website.",
     "active": "Active",
     "inactive": "Inactive",
-    "createsDeal": "Creates deal",
-    "lastSubmission": "Last submission on {{date}}",
     "noSubmissions": "No submissions yet",
     "submissions": "Submissions",
     "embed": "Embed",
@@ -24,14 +22,16 @@
     "saved": "Form \"{{name}}\" saved",
     "deleted": "Form \"{{name}}\" deleted",
     "rotated": "New public address generated for \"{{name}}\"",
-    "fieldsCount_one": "{{count}} field",
-    "fieldsCount_other": "{{count}} fields",
-    "acceptedCount_one": "{{count}} accepted",
-    "acceptedCount_other": "{{count}} accepted",
-    "spamCount_one": "{{count}} spam",
-    "spamCount_other": "{{count}} spam",
-    "failedCount_one": "{{count}} failure",
-    "failedCount_other": "{{count}} failures"
+    "columns": {
+      "name": "Form",
+      "status": "Status",
+      "fields": "Fields",
+      "accepted": "Accepted",
+      "spam": "Spam",
+      "failed": "Failures",
+      "last": "Last submission",
+      "actions": "Actions"
+    }
   },
   "confirm": {
     "delete": {

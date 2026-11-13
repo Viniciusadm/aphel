@@ -11,8 +11,6 @@
     "emptyDescription": "Crie um formulário, escolha os campos e copie o código para o seu site.",
     "active": "Ativo",
     "inactive": "Inativo",
-    "createsDeal": "Cria oportunidade",
-    "lastSubmission": "Último envio em {{date}}",
     "noSubmissions": "Nenhum envio ainda",
     "submissions": "Envios",
     "embed": "Incorporar",
@@ -24,14 +22,16 @@
     "saved": "Formulário \"{{name}}\" salvo",
     "deleted": "Formulário \"{{name}}\" excluído",
     "rotated": "Novo endereço público gerado para \"{{name}}\"",
-    "fieldsCount_one": "{{count}} campo",
-    "fieldsCount_other": "{{count}} campos",
-    "acceptedCount_one": "{{count}} aceito",
-    "acceptedCount_other": "{{count}} aceitos",
-    "spamCount_one": "{{count}} spam",
-    "spamCount_other": "{{count}} spam",
-    "failedCount_one": "{{count}} falha",
-    "failedCount_other": "{{count}} falhas"
+    "columns": {
+      "name": "Formulário",
+      "status": "Situação",
+      "fields": "Campos",
+      "accepted": "Aceitos",
+      "spam": "Spam",
+      "failed": "Falhas",
+      "last": "Último envio",
+      "actions": "Ações"
+    }
   },
   "confirm": {
     "delete": {
