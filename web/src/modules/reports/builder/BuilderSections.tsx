@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { type ReactNode } from 'react'
+import { createContext, type ReactNode, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,7 +29,22 @@ const DURATION_UNITS = ['days', 'hours'] as const
 type DurationUnit = (typeof DURATION_UNITS)[number]
 
 
+const FlatContext = createContext(false)
+
+/** Seção do construtor: cartão próprio, ou bloco sem moldura quando está dentro de um Panel. */
 export function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+  const flat = useContext(FlatContext)
+  if (flat) {
+    return (
+      <section className="grid min-w-0 content-start gap-3 lg:[&:not(:first-child)]:border-l lg:[&:not(:first-child)]:pl-8">
+        <div className="grid gap-1">
+          <h3 className="text-base leading-none font-semibold">{title}</h3>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+        {children}
+      </section>
+    )
+  }
   return (
     <Card>
       <CardHeader className="gap-1">
@@ -38,6 +53,17 @@ export function Section({ title, description, children }: { title: string; descr
       </CardHeader>
       <CardContent className="grid gap-3">{children}</CardContent>
     </Card>
+  )
+}
+
+/** Um único cartão com as seções lado a lado: sem cartões soltos de alturas diferentes deixando vazios. */
+export function Panel({ columns, children }: { columns: string; children: ReactNode }) {
+  return (
+    <FlatContext.Provider value>
+      <Card>
+        <CardContent className={cn('grid items-start gap-x-8 gap-y-8', columns)}>{children}</CardContent>
+      </Card>
+    </FlatContext.Provider>
   )
 }
 

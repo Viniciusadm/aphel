@@ -33,6 +33,7 @@ import {
   Section,
   SortSection,
   VisualizationSection,
+  Panel,
 } from './BuilderSections'
 import { useGroupOptions } from './options'
 import {
@@ -348,7 +349,8 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
             <TabsTrigger value="display">{t('tabs.display')}</TabsTrigger>
             <TabsTrigger value="details">{t('tabs.details')}</TabsTrigger>
           </TabsList>
-          <TabsContent value="data" className="grid items-start gap-4 lg:grid-cols-2">
+          <TabsContent value="data">
+            <Panel columns="md:grid-cols-2 xl:grid-cols-3">
           <Section title={t('sections.module.title')} description={t('sections.module.description')}>
             <Field id={ids.module} label={t('sections.module.title')} hideLabel>
               <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
@@ -368,24 +370,30 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
                 <MetricsSection draft={draft} onChange={update} fields={fields} />
               </>
             )}
+          </Panel>
           </TabsContent>
-          <TabsContent value="filter" className="grid items-start gap-4 lg:grid-cols-2">
+          <TabsContent value="filter">
+            <Panel columns="lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             {!aggregateSchema.isError && (
               <>
                 <FiltersSection schema={filterSchema} value={filterDraft} onChange={changeFilter} extensions={filterExtensions} />
                 <PeriodSection draft={draft} onChange={update} fields={fields} />
               </>
             )}
+          </Panel>
           </TabsContent>
-          <TabsContent value="display" className="grid items-start gap-4 lg:grid-cols-2">
+          <TabsContent value="display">
+            <Panel columns="lg:grid-cols-2">
             {!aggregateSchema.isError && (
               <>
                 <VisualizationSection draft={draft} onChange={update} fields={fields} />
                 <SortSection draft={draft} onChange={update} options={groupOptions} fields={fields} />
               </>
             )}
+          </Panel>
           </TabsContent>
-          <TabsContent value="details" className="grid items-start gap-4 lg:grid-cols-2">
+          <TabsContent value="details">
+            <Panel columns="lg:grid-cols-2">
           <Section title={t('sections.details.title')}>
             <Field label={t('sections.details.name')}>
               {(control) => <>
@@ -440,6 +448,7 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
             </div>
           </Section>
             {report?.can_edit && <SchedulesPanel report={report} currentUserId={me.user.id} />}
+          </Panel>
           </TabsContent>
         </Tabs>
       </fieldset>
