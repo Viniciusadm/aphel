@@ -851,7 +851,7 @@ Lifecycle stages of people and organizations, automatic transitions, the lead in
 | | |
 | --- | --- |
 | Layer | domain |
-| Depends on | none |
+| Depends on | `people`, `organizations` |
 | Optional dependencies | none |
 | Permissions | `lifecycle.manage` |
 | Web package | yes |

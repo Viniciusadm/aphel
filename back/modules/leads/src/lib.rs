@@ -108,6 +108,8 @@ impl Module for LeadsModule {
             .description(
                 "Lifecycle stages of people and organizations, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons",
             )
+            .depends_on("people", "*")
+            .depends_on("organizations", "*")
             .enabled_by_default()
             .owned_tables(&["lead_disqualification_reasons", "lead_disqualifications", "lifecycle_settings", "lifecycle_stage_history", "leads_contact_extension", "leads_company_extension"])
             .migration(Migration::new(
