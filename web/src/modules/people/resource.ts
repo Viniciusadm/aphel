@@ -11,9 +11,10 @@ export const contactResource = registerRecordResource({
   createPermission: 'people.create',
   updatePermission: 'people.update',
   basePath: '/v1/people',
-  summaryFields: ['email', 'phone', 'mobile', 'company_id', 'owner_id', 'lifecycle_stage'],
+  summaryFields: ['email', 'phone', 'mobile', 'company_id', 'job_title', 'owner_id', 'lifecycle_stage'],
   titleField: 'name',
   subtitleField: 'email',
+  defaultColumns: ['name', 'email', 'phone', 'company_id', 'job_title', 'owner_id'],
   detailPath: (id) => `${CONTACTS_PATH}/${encodeURIComponent(id)}`,
 })
 

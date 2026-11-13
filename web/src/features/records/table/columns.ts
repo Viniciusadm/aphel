@@ -3,8 +3,10 @@ import type { FieldDefinition, FieldSchema } from '../types'
 
 export const DEFAULT_VISIBLE_COLUMNS = 6
 
-export function defaultColumnKeys(schema: FieldSchema, titleField?: string): string[] {
+export function defaultColumnKeys(schema: FieldSchema, titleField?: string, preferred?: string[]): string[] {
   const fields = activeFields(schema)
+  const chosen = (preferred ?? []).filter((key) => fields.some((field) => field.key === key))
+  if (chosen.length > 0) return chosen
   const title = fields.find((field) => field.key === titleField)
   const rest = fields.filter((field) => field !== title)
   return [...(title ? [title] : []), ...rest].slice(0, DEFAULT_VISIBLE_COLUMNS).map((field) => field.key)

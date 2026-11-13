@@ -15,6 +15,7 @@ export interface RecordResource {
   collectionQueryKeys?: readonly (readonly unknown[])[]
   summaryFields?: string[]
   subtitleField?: string
+  defaultColumns?: string[]
   detailPath?: (id: string) => string
   listItem?: ComponentType<{ record: RecordItem }>
   listGroups?: (records: RecordItem[], context: { timezone: string; sort: SortSpec[] }) => RecordListGroup[]

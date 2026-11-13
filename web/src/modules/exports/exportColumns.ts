@@ -16,7 +16,7 @@ export function useCurrentListConfig(recordType: string): {
     if (!schema.data) return { config: null, fields: [], search: urlState.search }
     const requested = urlState.view && urlState.view !== ALL_RECORDS_VIEW ? urlState.view : null
     const activeView = requested ? views.data?.find((view) => view.id === requested) : undefined
-    const base = viewConfig(activeView, defaultColumnKeys(schema.data, resource.titleField))
+    const base = viewConfig(activeView, defaultColumnKeys(schema.data, resource.titleField, resource.defaultColumns))
     return {
       config: resolveConfig(urlState, base),
       fields: activeFields(schema.data),

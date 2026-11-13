@@ -160,7 +160,7 @@ function RecordListContent({
   const activeView = requestedView ? views.find((view) => view.id === requestedView) : undefined
   const viewMissing = Boolean(requestedView) && viewsQuery.isSuccess && !activeView
 
-  const defaultColumns = useMemo(() => defaultColumnKeys(schema, resource.titleField), [schema, resource.titleField])
+  const defaultColumns = useMemo(() => defaultColumnKeys(schema, resource.titleField, resource.defaultColumns), [schema, resource.titleField, resource.defaultColumns])
   const baseConfig = useMemo(() => viewConfig(activeView, defaultColumns), [activeView, defaultColumns])
   const config = useMemo(() => resolveConfig(urlState, baseConfig), [urlState, baseConfig])
   const calendarElsewhere = useIsModuleActive(resource.calendarLink?.module ?? '') && resource.calendarLink !== undefined
