@@ -197,7 +197,8 @@
     "general": "Endereço e cache",
     "navigation": "Navegação",
     "overview": "Visão geral",
-    "editor": "Editor do site"
+    "editor": "Editor do site",
+    "pages": "Páginas"
   },
   "screens": {
     "frame": {
@@ -609,5 +610,100 @@
     "uploaded": "Arquivo da fonte enviado",
     "remove": "Remover fonte",
     "removeFile": "Remover"
+  },
+  "pages": {
+    "list": {
+      "title": "Páginas do site",
+      "description": "Monte as páginas do seu site por blocos, veja como ficam e publique quando estiver pronto.",
+      "new": "Nova página",
+      "emptyTitle": "Nenhuma página ainda",
+      "emptyDescription": "Comece por \"Quem somos\" ou pela página inicial do site.",
+      "columnUpdated": "Última alteração",
+      "home": "Página inicial",
+      "inMenu": "No menu",
+      "open": "Editar {{title}}"
+    },
+    "state": {
+      "draft": "Rascunho",
+      "published": "Publicada",
+      "changed": "Alterações não publicadas",
+      "withdrawn": "Fora do ar"
+    },
+    "create": {
+      "title": "Nova página",
+      "description": "Dê um nome à página. Você monta o conteúdo em seguida.",
+      "fieldTitle": "Título",
+      "fieldTitlePlaceholder": "Ex.: Quem somos",
+      "fieldSlug": "Endereço",
+      "fieldSlugHelp": "Como a página aparece no navegador: {{url}}",
+      "submit": "Criar e editar",
+      "cancel": "Cancelar"
+    },
+    "slug": {
+      "invalid": "Use só letras minúsculas sem acento, números e hífen. Ex.: quem-somos",
+      "reserved": "Este endereço é usado pelo sistema. Escolha outro."
+    },
+    "settings": {
+      "title": "Configurações da página",
+      "description": "O endereço muda no site assim que você salvar. A descrição entra no ar ao publicar.",
+      "slug": "Endereço",
+      "slugPublishedHelp": "Quem tiver o endereço antigo será levado automaticamente para o novo.",
+      "seoDescription": "Descrição para buscadores",
+      "seoDescriptionHelp": "Aparece no Google e quando o link é compartilhado. Até 300 caracteres.",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "saved": "Configurações salvas."
+    },
+    "templates": {
+      "label": "Começar com",
+      "blank": "Em branco",
+      "blankHelp": "Só um destaque e um texto",
+      "about": "Quem somos",
+      "aboutHelp": "História, valores e depoimentos",
+      "services": "Serviços",
+      "servicesHelp": "Serviços, perguntas e contato",
+      "campaign": "Landing de campanha",
+      "campaignHelp": "Oferta, benefícios e chamada para contato"
+    },
+    "review": {
+      "badge": "Aguardando aprovação"
+    },
+    "schedule": {
+      "badge": "Agendada: {{date}}"
+    },
+    "starter": {
+      "aboutHero": "Conte em uma frase o que a empresa faz e para quem.",
+      "aboutStoryTitle": "Nossa história",
+      "aboutStory": "Conte como a empresa começou, quem está por trás dela e o que mudou desde então.",
+      "aboutValuesTitle": "No que acreditamos",
+      "value1Title": "Cuidado",
+      "value1Text": "Explique como vocês tratam cada cliente.",
+      "value2Title": "Qualidade",
+      "value2Text": "Conte o que torna o seu trabalho diferente.",
+      "value3Title": "Responsabilidade",
+      "value3Text": "Fale do compromisso com a cidade e com as pessoas.",
+      "aboutTestimonialsTitle": "O que dizem sobre nós",
+      "servicesSubtitle": "Tudo o que fazemos, explicado de um jeito simples.",
+      "servicesTitle": "O que oferecemos",
+      "service1Title": "Serviço 1",
+      "service2Title": "Serviço 2",
+      "service3Title": "Serviço 3",
+      "serviceText": "Descreva o serviço e para quem ele é indicado.",
+      "faqTitle": "Perguntas frequentes",
+      "faq1Question": "Como faço para contratar?",
+      "faq1Answer": "Explique o passo a passo para o cliente começar.",
+      "faq2Question": "Quais são as formas de pagamento?",
+      "faq2Answer": "Liste as formas de pagamento aceitas.",
+      "contactTitle": "Fale com a gente",
+      "contactText": "Responda dúvidas e peça um orçamento pelos canais abaixo.",
+      "campaignSubtitle": "Diga em uma frase o que a pessoa ganha e até quando vale.",
+      "campaignButton": "Quero aproveitar",
+      "campaignBenefitsTitle": "Por que aproveitar agora",
+      "benefit1Title": "Benefício 1",
+      "benefit2Title": "Benefício 2",
+      "benefit3Title": "Benefício 3",
+      "benefitText": "Explique a vantagem em poucas palavras.",
+      "campaignCall": "Não perca: a oferta acaba em breve."
+    }
   }
 }

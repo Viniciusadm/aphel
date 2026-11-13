@@ -1,7 +1,7 @@
-import { Gauge, Globe, Languages, LayoutTemplate, ListTree, Palette, PanelsTopLeft, Settings2, Shuffle, UserRound } from 'lucide-react'
+import { FileText, Gauge, Globe, Languages, LayoutTemplate, ListTree, Palette, PanelsTopLeft, Settings2, Shuffle, UserRound } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
-import { SITE_OVERVIEW_PATH, SITE_SCREENS, siteRoutes } from './routes'
+import { SITE_OVERVIEW_PATH, SITE_PAGES_PATH, SITE_SCREENS, siteRoutes } from './routes'
 
 const ICONS = {
   navigation: ListTree,
@@ -22,6 +22,7 @@ const siteModule = defineModule({
   },
   register(app) {
     app.routes(siteRoutes)
+    app.routes([{ path: 'site/pages/:id', lazy: async () => ({ Component: (await import('./pages/PageEditorPage')).PageEditorPage }) }], { layout: 'bare' })
     app.routes([{ path: 'site/editor', lazy: async () => ({ Component: (await import('./SiteEditorPage')).SiteEditorPage }) }], { layout: 'bare' })
     app.nav({
       to: '/site/editor',
@@ -39,6 +40,15 @@ const siteModule = defineModule({
     app.keybinding({ ...editor, id: 'editorial.redo', label: 'editorKeys.redo', keys: ['mod+shift+z', 'mod+y'] })
     app.keybinding({ ...editor, id: 'editorial.move_up', label: 'editorKeys.moveUp', keys: ['alt+arrowup'], allowInEditable: true })
     app.keybinding({ ...editor, id: 'editorial.move_down', label: 'editorKeys.moveDown', keys: ['alt+arrowdown'], allowInEditable: true })
+    app.nav({
+      to: SITE_PAGES_PATH,
+      label: 'nav.pages',
+      icon: FileText,
+      permission: ['site.page.read'],
+      section: 'operations',
+      group: { key: 'site', label: 'nav.site', icon: Globe },
+      order: 37,
+    })
     app.nav({
       to: SITE_OVERVIEW_PATH,
       label: 'nav.overview',

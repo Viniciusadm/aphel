@@ -197,7 +197,8 @@
     "general": "Address and cache",
     "navigation": "Navigation",
     "overview": "Overview",
-    "editor": "Site editor"
+    "editor": "Site editor",
+    "pages": "Pages"
   },
   "screens": {
     "frame": {
@@ -609,5 +610,100 @@
     "uploaded": "Font file uploaded",
     "remove": "Remove font",
     "removeFile": "Remove"
+  },
+  "pages": {
+    "list": {
+      "title": "Site pages",
+      "description": "Build the pages of your site from blocks, see how they look and publish when they are ready.",
+      "new": "New page",
+      "emptyTitle": "No pages yet",
+      "emptyDescription": "Start with \"About us\" or with the home page of the site.",
+      "columnUpdated": "Last change",
+      "home": "Home page",
+      "inMenu": "In the menu",
+      "open": "Edit {{title}}"
+    },
+    "state": {
+      "draft": "Draft",
+      "published": "Published",
+      "changed": "Unpublished changes",
+      "withdrawn": "Withdrawn"
+    },
+    "create": {
+      "title": "New page",
+      "description": "Name the page. You build its content next.",
+      "fieldTitle": "Title",
+      "fieldTitlePlaceholder": "E.g. About us",
+      "fieldSlug": "Address",
+      "fieldSlugHelp": "How the page shows in the browser: {{url}}",
+      "submit": "Create and edit",
+      "cancel": "Cancel"
+    },
+    "slug": {
+      "invalid": "Use only lowercase letters without accents, digits and hyphens. E.g. about-us",
+      "reserved": "This address is used by the system. Choose another one."
+    },
+    "settings": {
+      "title": "Page settings",
+      "description": "The address changes on the site as soon as you save. The description goes live when you publish.",
+      "slug": "Address",
+      "slugPublishedHelp": "Visitors with the old address are sent to the new one automatically.",
+      "seoDescription": "Description for search engines",
+      "seoDescriptionHelp": "Shown on Google and when the link is shared. Up to 300 characters.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saved": "Settings saved."
+    },
+    "templates": {
+      "label": "Start with",
+      "blank": "Blank",
+      "blankHelp": "Just a highlight and a text",
+      "about": "About us",
+      "aboutHelp": "Story, values and testimonials",
+      "services": "Services",
+      "servicesHelp": "Services, questions and contact",
+      "campaign": "Campaign landing page",
+      "campaignHelp": "Offer, benefits and a call to contact"
+    },
+    "review": {
+      "badge": "Awaiting approval"
+    },
+    "schedule": {
+      "badge": "Scheduled: {{date}}"
+    },
+    "starter": {
+      "aboutHero": "Say in one sentence what the company does and for whom.",
+      "aboutStoryTitle": "Our story",
+      "aboutStory": "Tell how the company started, who is behind it and what changed since then.",
+      "aboutValuesTitle": "What we believe in",
+      "value1Title": "Care",
+      "value1Text": "Explain how you treat every customer.",
+      "value2Title": "Quality",
+      "value2Text": "Tell what makes your work different.",
+      "value3Title": "Responsibility",
+      "value3Text": "Talk about your commitment to the city and to people.",
+      "aboutTestimonialsTitle": "What people say about us",
+      "servicesSubtitle": "Everything we do, explained in plain words.",
+      "servicesTitle": "What we offer",
+      "service1Title": "Service 1",
+      "service2Title": "Service 2",
+      "service3Title": "Service 3",
+      "serviceText": "Describe the service and who it is for.",
+      "faqTitle": "Frequently asked questions",
+      "faq1Question": "How do I hire you?",
+      "faq1Answer": "Explain the steps a customer takes to start.",
+      "faq2Question": "How can I pay?",
+      "faq2Answer": "List the payment methods you accept.",
+      "contactTitle": "Talk to us",
+      "contactText": "Ask questions or request a quote through the channels below.",
+      "campaignSubtitle": "Say in one sentence what people get and until when.",
+      "campaignButton": "I want it",
+      "campaignBenefitsTitle": "Why now",
+      "benefit1Title": "Benefit 1",
+      "benefit2Title": "Benefit 2",
+      "benefit3Title": "Benefit 3",
+      "benefitText": "Explain the advantage in a few words.",
+      "campaignCall": "Don't miss it: the offer ends soon."
+    }
   }
 }
