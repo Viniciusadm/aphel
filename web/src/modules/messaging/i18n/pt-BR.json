@@ -95,7 +95,13 @@
     "noAccessDescription": "Peça a um administrador a permissão para ver as conversas.",
     "noChannelsTitle": "Nenhum canal conectado",
     "noChannelsDescription": "Conecte um número do WhatsApp para começar a receber conversas aqui.",
-    "connectChannel": "Conectar um canal"
+    "connectChannel": "Conectar um canal",
+    "statusTabs": {
+      "open": "Abertas",
+      "pending": "Pendentes",
+      "resolved": "Resolvidas",
+      "all": "Todas"
+    }
   },
   "panel": {
     "title": "Conversa com {{name}}",

@@ -1,4 +1,6 @@
 import { WorkspaceOptions } from '@/components/ui/workspace-options'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Avatar } from '@/components/ui/avatar'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Inbox, Lock, MessageCircle, Search, Settings2 } from 'lucide-react'
 import { useState } from 'react'
@@ -10,11 +12,10 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/sdk'
+import { useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
 import {
-  CONVERSATION_STATUSES,
   CONVERSATIONS_PER_PAGE,
   MESSAGING_KEY,
   MANAGE_CHANNELS_PERMISSION,
@@ -85,29 +86,21 @@ export function InboxPage() {
           className={cn('min-h-0 flex-col gap-2 rounded-md border bg-card p-2', selected ? 'hidden md:flex' : 'flex')}
           aria-label={t('inbox.listLabel')}
         >
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              value={filters.search}
-              onChange={(event) => update({ search: event.target.value })}
-              placeholder={t('inbox.search')}
-              aria-label={t('inbox.search')}
-              className="pl-8"
-            />
-          </div>
-          <WorkspaceOptions label={t('inbox.filters.title')} count={Number(filters.status !== 'open') + Number(filters.assignee !== 'any') + Number(Boolean(filters.channelId)) + Number(filters.unread)}>
-            <NativeSelect value={filters.status ?? ALL}
-              onValueChange={(value) => update({ status: value === ALL ? null : (value as ConversationStatus) })} aria-label={t('inbox.filters.status')}>
-                <option value={ALL}>{t('inbox.filters.allStatuses')}</option>
-                {CONVERSATION_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {t(`status.${status}`)}
-                  </option>
-                ))}
-              </NativeSelect>
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search
+                className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <Input
+                value={filters.search}
+                onChange={(event) => update({ search: event.target.value })}
+                placeholder={t('inbox.search')}
+                aria-label={t('inbox.search')}
+                className="pl-8"
+              />
+            </div>
+            <WorkspaceOptions label={t('inbox.filters.title')} count={Number(filters.assignee !== 'any') + Number(Boolean(filters.channelId)) + Number(filters.unread)}>
             <NativeSelect value={filters.assignee} onValueChange={(value) => update({ assignee: value as AssigneeFilter })} aria-label={t('inbox.filters.assignee')}>
                 {ASSIGNEE_FILTERS.map((assignee) => (
                   <option key={assignee} value={assignee}>
@@ -133,8 +126,19 @@ export function InboxPage() {
               {t('inbox.filters.unread')}
             </Button>
           </WorkspaceOptions>
-
-          <p className="px-1 text-xs text-muted-foreground" role="status">{filters.status ? t(`status.${filters.status}`) : t('inbox.filters.allStatuses')}{filters.unread ? ` · ${t('inbox.filters.unread')}` : ''}</p>
+          </div>
+          <SegmentedControl
+            aria-label={t('inbox.filters.status')}
+            className="w-full [&>button]:flex-1"
+            value={filters.status ?? ALL}
+            onValueChange={(value) => update({ status: value === ALL ? null : (value as ConversationStatus) })}
+            options={[
+              { value: 'open', label: t('inbox.statusTabs.open') },
+              { value: 'pending', label: t('inbox.statusTabs.pending') },
+              { value: 'resolved', label: t('inbox.statusTabs.resolved') },
+              { value: ALL, label: t('inbox.statusTabs.all') },
+            ]}
+          />
           <div className="min-h-0 flex-1 overflow-y-auto">
             {conversations.isPending ? (
               <div className="grid gap-2 p-1" aria-busy="true">
@@ -215,6 +219,16 @@ export function InboxPage() {
   )
 }
 
+function shortTime(iso: string, locale: string, timeZone: string): string {
+  const date = new Date(iso)
+  const dayKey = (value: Date) => new Intl.DateTimeFormat('en-CA', { timeZone }).format(value)
+  const sameDay = dayKey(date) === dayKey(new Date())
+  return new Intl.DateTimeFormat(
+    locale,
+    sameDay ? { hour: '2-digit', minute: '2-digit', timeZone } : { day: '2-digit', month: '2-digit', timeZone },
+  ).format(date)
+}
+
 function ConversationRow({
   conversation,
   active,
@@ -229,6 +243,7 @@ function ConversationRow({
   const t = useModuleTranslation(MESSAGING_KEY)
   const formatting = useRecordFormatting()
   const unread = conversation.unread_count > 0
+  const name = peerLabel(conversation)
   return (
     <li>
       <button
@@ -236,31 +251,30 @@ function ConversationRow({
         onClick={onSelect}
         aria-current={active ? 'true' : undefined}
         className={cn(
-          'grid w-full gap-1 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-          active && 'bg-accent',
+          'flex w-full items-start gap-3 rounded-lg border-l-2 border-transparent px-2.5 py-2.5 text-left transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+          active && 'border-primary bg-accent',
         )}
       >
-        <span className="flex min-w-0 items-center gap-2">
-          <ChannelIcon kind={conversation.channel.kind} className="text-muted-foreground" />
-          <span className={cn('min-w-0 flex-1 truncate text-sm', unread ? 'font-semibold' : 'font-medium')}>
-            {peerLabel(conversation)}
+        <Avatar name={name} size="lg" className="size-10 text-sm" />
+        <span className="grid min-w-0 flex-1 gap-0.5">
+          <span className="flex min-w-0 items-baseline gap-2">
+            <span className={cn('min-w-0 flex-1 truncate text-sm', unread ? 'font-semibold' : 'font-medium')}>{name}</span>
+            <time dateTime={conversation.last_message_at} className={cn('shrink-0 text-xs', unread ? 'font-medium text-primary' : 'text-muted-foreground')}>
+              {shortTime(conversation.last_message_at, formatting.locale, formatting.timezone)}
+            </time>
           </span>
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {formatDateTime(conversation.last_message_at, formatting)}
+          {conversation.subject && <span className="truncate text-xs font-medium">{conversation.subject}</span>}
+          <span className="flex min-w-0 items-center gap-2">
+            <ChannelIcon kind={conversation.channel.kind} className="size-3 text-muted-foreground" />
+            <span className={cn('min-w-0 flex-1 truncate text-xs', unread ? 'text-foreground' : 'text-muted-foreground')}>
+              {conversation.last_message_direction === 'out' && `${t('inbox.you')}: `}
+              {conversation.last_message_preview ?? ''}
+            </span>
+            {unread && (
+              <Badge aria-label={t('inbox.unreadCount', { count: conversation.unread_count })}>{conversation.unread_count}</Badge>
+            )}
+            {showStatus && <StatusBadge status={conversation.status} />}
           </span>
-        </span>
-        {conversation.subject && <span className="truncate text-xs font-medium">{conversation.subject}</span>}
-        <span className="flex min-w-0 items-center gap-2">
-          <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-            {conversation.last_message_direction === 'out' && `${t('inbox.you')}: `}
-            {conversation.last_message_preview ?? ''}
-          </span>
-          {unread && (
-            <Badge aria-label={t('inbox.unreadCount', { count: conversation.unread_count })}>
-              {conversation.unread_count}
-            </Badge>
-          )}
-          {showStatus && <StatusBadge status={conversation.status} />}
         </span>
       </button>
     </li>

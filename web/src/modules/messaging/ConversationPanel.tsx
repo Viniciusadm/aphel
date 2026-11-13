@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { UserFieldInput } from '@/components/fields'
+import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -99,11 +100,12 @@ function ConversationHeader({ conversation, onBack }: { conversation: Conversati
   }
 
   return (
-    <header className="grid gap-2 border-b p-3">
+    <header className="grid gap-2 border-b bg-muted/30 p-3">
       <div className="flex min-w-0 items-start gap-2">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack} aria-label={t('panel.back')}>
           <ArrowLeft />
         </Button>
+        <Avatar name={peerLabel(conversation)} size="lg" className="size-10 text-sm" />
         <div className="grid min-w-0 flex-1 gap-0.5">
           <h2 className="truncate text-base font-semibold">{peerLabel(conversation)}</h2>
           <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -214,7 +216,7 @@ function MessageBubble({ message }: { message: Message }) {
       <div
         className={cn(
           'grid max-w-[85%] gap-1 rounded-lg border px-3 py-2 text-sm sm:max-w-[75%]',
-          outgoing ? 'border-primary/20 bg-primary/10' : 'bg-muted',
+          outgoing ? 'border-primary/20 bg-primary/10' : 'bg-card shadow-xs',
         )}
       >
         <span className="text-xs font-medium text-muted-foreground">{author}</span>
