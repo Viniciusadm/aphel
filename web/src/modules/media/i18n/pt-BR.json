@@ -2,21 +2,39 @@
   "name": "Biblioteca de mídia",
   "description": "Biblioteca de imagens e arquivos com texto alternativo, legenda, crédito e ponto focal, reaproveitados por qualquer registro sem novo envio.",
   "nav": {
-    "media": "Mídia",
-    "site": "Site"
+    "media": "Mídia"
   },
   "library": {
     "title": "Mídia",
-    "description": "Imagens e arquivos que você reaproveita no site e nos registros, com descrição para leitores de tela, legenda e crédito.",
+    "description": "Imagens e arquivos organizados em pastas, para reaproveitar no site e nos registros, com descrição, legenda e crédito.",
     "search": "Buscar por nome ou descrição",
     "upload": "Enviar arquivos",
     "uploading": "Enviando {{done}} de {{total}}…",
     "uploaded": "{{count}} arquivo(s) na biblioteca.",
     "empty": "A biblioteca está vazia",
-    "emptyDescription": "Envie imagens aqui ou pelos editores do site; elas ficam disponíveis para reaproveitar.",
+    "emptyDescription": "Envie arquivos aqui ou arraste-os para esta área.",
     "noResults": "Nada encontrado",
     "onlyImages": "Só imagens",
-    "edit": "Editar {{name}}"
+    "edit": "Editar {{name}}",
+    "kind": "Tipo de arquivo",
+    "kinds": {
+      "all": "Tudo",
+      "images": "Imagens",
+      "documents": "Documentos"
+    },
+    "sort": "Ordenar",
+    "sorts": {
+      "newest": "Mais recentes",
+      "oldest": "Mais antigas",
+      "name": "Nome (A–Z)"
+    },
+    "view": "Modo de exibição",
+    "views": {
+      "grid": "Grade",
+      "list": "Lista"
+    },
+    "file": "Arquivo",
+    "emptyFolder": "Esta pasta está vazia"
   },
   "edit": {
     "title": "Detalhes do arquivo",
@@ -37,7 +55,8 @@
     "deleteTitle": "Apagar {{name}}?",
     "deleteDescription": "O arquivo sai da biblioteca e não poderá ser recuperado.",
     "deleted": "Arquivo apagado.",
-    "inUse": "Este arquivo está em uso. Tire-o dos lugares listados antes de apagar."
+    "inUse": "Este arquivo está em uso. Tire-o dos lugares listados antes de apagar.",
+    "folder": "Pasta"
   },
   "picker": {
     "title": "Biblioteca de mídia",
@@ -50,5 +69,50 @@
   },
   "errors": {
     "media_asset_in_use": "Este arquivo está em uso. Tire-o dos lugares onde aparece antes de apagar."
+  },
+  "folders": {
+    "title": "Pastas",
+    "all": "Todos os arquivos",
+    "withoutFolder": "Sem pasta",
+    "root": "Sem pasta (início)",
+    "new": "Nova pasta",
+    "newTitle": "Nova pasta",
+    "renameTitle": "Renomear pasta",
+    "dialogDescription": "Pastas ajudam a organizar a biblioteca; os arquivos continuam disponíveis em todos os lugares.",
+    "name": "Nome da pasta",
+    "parent": "Dentro de",
+    "create": "Criar pasta",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "rename": "Renomear",
+    "delete": "Excluir pasta",
+    "deleteTitle": "Excluir a pasta {{name}}?",
+    "deleteDescription": "A pasta precisa estar vazia: mova ou apague os arquivos e as subpastas antes.",
+    "deleted": "Pasta excluída.",
+    "notEmpty": "A pasta não está vazia: mova ou apague os arquivos e as subpastas antes."
+  },
+  "bulk": {
+    "selected_one": "{{count}} selecionado",
+    "selected_other": "{{count}} selecionados",
+    "select": "Selecionar {{name}}",
+    "move": "Mover para…",
+    "moved_one": "{{count}} arquivo movido.",
+    "moved_other": "{{count}} arquivos movidos.",
+    "delete": "Apagar",
+    "clear": "Limpar seleção",
+    "deleteTitle_one": "Apagar {{count}} arquivo?",
+    "deleteTitle_other": "Apagar {{count}} arquivos?",
+    "deleteDescription": "Os arquivos saem da biblioteca e não poderão ser recuperados. Os que estão em uso não são apagados.",
+    "deleted_one": "{{count}} arquivo apagado.",
+    "deleted_other": "{{count}} arquivos apagados.",
+    "blocked_one": "{{count}} arquivo está em uso e não foi apagado.",
+    "blocked_other": "{{count}} arquivos estão em uso e não foram apagados."
+  },
+  "placeholders": {
+    "name": "Ex.: banner-lancamento.jpg",
+    "alt": "Ex.: Equipe reunida em volta da mesa, revisando o projeto",
+    "caption": "Ex.: Evento de lançamento, São Paulo",
+    "credit": "Ex.: Foto: Maria Silva",
+    "folder": "Ex.: Campanhas 2026"
   }
 }

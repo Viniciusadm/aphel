@@ -2,21 +2,39 @@
   "name": "Media library",
   "description": "Library of images and files with alternative text, caption, credit and focal point, reused by any record without uploading again",
   "nav": {
-    "media": "Media",
-    "site": "Site"
+    "media": "Media"
   },
   "library": {
     "title": "Media",
-    "description": "Images and files you reuse on the site and in records, with a description for screen readers, caption and credit.",
+    "description": "Images and files organized in folders, reused across the site and records, with description, caption and credit.",
     "search": "Search by name or description",
     "upload": "Upload files",
     "uploading": "Uploading {{done}} of {{total}}…",
     "uploaded": "{{count}} file(s) in the library.",
     "empty": "The library is empty",
-    "emptyDescription": "Upload images here or from the site editors; they become available to reuse.",
+    "emptyDescription": "Upload files here or drag them onto this area.",
     "noResults": "Nothing found",
     "onlyImages": "Images only",
-    "edit": "Edit {{name}}"
+    "edit": "Edit {{name}}",
+    "kind": "File type",
+    "kinds": {
+      "all": "All",
+      "images": "Images",
+      "documents": "Documents"
+    },
+    "sort": "Sort",
+    "sorts": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "name": "Name (A–Z)"
+    },
+    "view": "View",
+    "views": {
+      "grid": "Grid",
+      "list": "List"
+    },
+    "file": "File",
+    "emptyFolder": "This folder is empty"
   },
   "edit": {
     "title": "File details",
@@ -37,7 +55,8 @@
     "deleteTitle": "Delete {{name}}?",
     "deleteDescription": "The file leaves the library and cannot be recovered.",
     "deleted": "File deleted.",
-    "inUse": "This file is in use. Remove it from the places listed before deleting it."
+    "inUse": "This file is in use. Remove it from the places listed before deleting it.",
+    "folder": "Folder"
   },
   "picker": {
     "title": "Media library",
@@ -50,5 +69,50 @@
   },
   "errors": {
     "media_asset_in_use": "This file is in use. Remove it from the places where it appears before deleting it."
+  },
+  "folders": {
+    "title": "Folders",
+    "all": "All files",
+    "withoutFolder": "No folder",
+    "root": "No folder (top level)",
+    "new": "New folder",
+    "newTitle": "New folder",
+    "renameTitle": "Rename folder",
+    "dialogDescription": "Folders help organize the library; files stay available everywhere.",
+    "name": "Folder name",
+    "parent": "Inside",
+    "create": "Create folder",
+    "save": "Save",
+    "cancel": "Cancel",
+    "rename": "Rename",
+    "delete": "Delete folder",
+    "deleteTitle": "Delete the folder {{name}}?",
+    "deleteDescription": "The folder must be empty: move or delete its files and subfolders first.",
+    "deleted": "Folder deleted.",
+    "notEmpty": "The folder is not empty: move or delete its files and subfolders first."
+  },
+  "bulk": {
+    "selected_one": "{{count}} selected",
+    "selected_other": "{{count}} selected",
+    "select": "Select {{name}}",
+    "move": "Move to…",
+    "moved_one": "{{count}} file moved.",
+    "moved_other": "{{count}} files moved.",
+    "delete": "Delete",
+    "clear": "Clear selection",
+    "deleteTitle_one": "Delete {{count}} file?",
+    "deleteTitle_other": "Delete {{count}} files?",
+    "deleteDescription": "The files leave the library and cannot be recovered. Files in use are not deleted.",
+    "deleted_one": "{{count}} file deleted.",
+    "deleted_other": "{{count}} files deleted.",
+    "blocked_one": "{{count}} file is in use and was not deleted.",
+    "blocked_other": "{{count}} files are in use and were not deleted."
+  },
+  "placeholders": {
+    "name": "E.g. launch-banner.jpg",
+    "alt": "E.g. Team gathered around a table reviewing the project",
+    "caption": "E.g. Launch event, São Paulo",
+    "credit": "E.g. Photo: Maria Silva",
+    "folder": "E.g. 2026 campaigns"
   }
 }
