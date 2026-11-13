@@ -344,8 +344,27 @@ pub(crate) async fn respond(
                     }),
             )
             .collect();
+    let home_location = match site_settings(&config)
+        .home
+        .as_deref()
+        .and_then(crate::targets::Target::parse)
+    {
+        Some(target) => crate::targets::resolve(state, runtime, &target, None)
+            .await
+            .ok()
+            .flatten()
+            .map(|resolved| resolved.path),
+        None => None,
+    };
     match collect(state, runtime, "").await {
-        Ok((paths, tags)) => {
+        Ok((mut paths, tags)) => {
+            if let Some(home) = &home_location {
+                for url in &mut paths {
+                    if url.location == *home {
+                        url.location = "/".to_owned();
+                    }
+                }
+            }
             let urls: Vec<SitemapUrl> = bases
                 .iter()
                 .flat_map(|(_, base)| {

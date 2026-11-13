@@ -438,6 +438,22 @@ async fn serve(state: &AppState, request: Request) -> Response {
             }
         }
     }
+    if path != "/"
+        && readable_method(&parts.method)
+        && previewing.is_none()
+        && let Some(target) = settings.home.as_deref().and_then(crate::targets::Target::parse)
+        && let Ok(Some(resolved)) =
+            crate::targets::resolve(state, &runtime, &target, language.translation().as_deref())
+                .await
+        && resolved.path == path
+    {
+        let query = parts
+            .uri
+            .query()
+            .map(|query| format!("?{query}"))
+            .unwrap_or_default();
+        return moved_permanently(&format!("{prefix}/{query}"));
+    }
     let home = home_path(
         state,
         &runtime,

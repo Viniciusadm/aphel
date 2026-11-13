@@ -87,7 +87,7 @@ pub(crate) async fn status(
             .await?
             .map(|resolved| SiteStatusLink {
                 label: resolved.label.unwrap_or_default(),
-                url: format!("{base}{}", resolved.path),
+                url: format!("{base}/"),
             }),
         None => None,
     };
