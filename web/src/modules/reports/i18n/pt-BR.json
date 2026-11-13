@@ -264,6 +264,13 @@
       "description": "Descreva o que este relatório mostra",
       "day": "Ex.: 1",
       "limit": "Ex.: 10"
+    },
+    "tabs": {
+      "label": "Configuração do relatório",
+      "data": "Dados",
+      "filter": "Filtros e período",
+      "display": "Exibição",
+      "details": "Detalhes e envio"
     }
   },
   "nav": {

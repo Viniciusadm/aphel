@@ -264,6 +264,13 @@
       "description": "Describe what this report shows",
       "day": "E.g.: 1",
       "limit": "E.g.: 10"
+    },
+    "tabs": {
+      "label": "Report setup",
+      "data": "Data",
+      "filter": "Filters and period",
+      "display": "Display",
+      "details": "Details and delivery"
     }
   },
   "nav": {

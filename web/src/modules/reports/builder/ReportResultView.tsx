@@ -325,7 +325,7 @@ function PieReport({
             )}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Pie data={slices} dataKey="value" nameKey="name" innerRadius="45%" outerRadius="80%" paddingAngle={1} stroke="var(--background)" strokeWidth={2}>
+          <Pie data={slices} dataKey="value" nameKey="name" innerRadius="45%" outerRadius="80%" paddingAngle={1} isAnimationActive={false} stroke="var(--background)" strokeWidth={2}>
             {slices.map((slice, index) => (
               <Cell key={slice.name} fill={colors[index % colors.length]} />
             ))}

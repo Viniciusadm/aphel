@@ -1,3 +1,4 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageHeader } from '@/components/ui/page-header'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQueryClient } from '@tanstack/react-query'
@@ -260,6 +261,45 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
   const previewEmpty =
     preview.data !== undefined && preview.data.rows.length === 0 && preview.data.groups.length > 0
 
+  const previewSection = (
+<Section title={t('preview.title')} description={t('preview.description')}>
+            <div aria-live="polite" aria-busy={preview.isFetching} className="grid min-w-0 gap-3">
+              {!ready && <p className="text-sm text-muted-foreground">{t('preview.incomplete')}</p>}
+              {ready && preview.isPending && <Skeleton className="h-64 w-full" />}
+              {ready && previewError && (
+                <Alert className="grid gap-1">
+                  <p className="font-medium">{t('preview.error')}</p>
+                  {violations.length > 0 ? (
+                    <ul className="list-inside list-disc text-muted-foreground">
+                      {violations.map((violation) => (
+                        <li key={`${violation.field}:${violation.message}`}>
+                          <code>{violation.field}</code>: {localizeViolationMessage(violation.message)}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground">{isApiError(previewError) ? previewError.message : String(previewError)}</p>
+                  )}
+                </Alert>
+              )}
+              {ready && !previewError && preview.data && (
+                <>
+                  {previewEmpty ? (
+                    <EmptyState title={t('preview.emptyTitle')} description={t('preview.emptyDescription')} />
+                  ) : (
+                    <ReportResultView
+                      result={preview.data}
+                      visualization={draft.visualization}
+                      chartMetric={draft.chartMetric}
+                    />
+                  )}
+                  {preview.data.truncated && <p className="text-xs text-muted-foreground">{t('preview.truncated')}</p>}
+                </>
+              )}
+            </div>
+          </Section>
+  )
+
   return (
     <div className="grid gap-4">
       {guard.dialog}
@@ -299,8 +339,16 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
               </>} />
       {!editable && <p className="text-sm text-muted-foreground">{t('builder.readOnly')}</p>}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
-        <fieldset disabled={!editable} className="grid min-w-0 gap-4">
+      {previewSection}
+      <fieldset disabled={!editable} className="min-w-0">
+        <Tabs defaultValue="data" className="grid gap-4">
+          <TabsList aria-label={t('tabs.label')}>
+            <TabsTrigger value="data">{t('tabs.data')}</TabsTrigger>
+            <TabsTrigger value="filter">{t('tabs.filter')}</TabsTrigger>
+            <TabsTrigger value="display">{t('tabs.display')}</TabsTrigger>
+            <TabsTrigger value="details">{t('tabs.details')}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="data" className="grid items-start gap-4 lg:grid-cols-2">
           <Section title={t('sections.module.title')} description={t('sections.module.description')}>
             <Field id={ids.module} label={t('sections.module.title')} hideLabel>
               <NativeSelect id={ids.module} value={draft.recordType} onChange={(event) => changeRecordType(event.target.value)}>
@@ -312,6 +360,32 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
               </NativeSelect>
             </Field>
           </Section>
+            {aggregateSchema.isError ? (
+              <ErrorState onRetry={() => aggregateSchema.refetch()} />
+            ) : (
+              <>
+                <GroupsSection draft={draft} onChange={update} options={groupOptions} />
+                <MetricsSection draft={draft} onChange={update} fields={fields} />
+              </>
+            )}
+          </TabsContent>
+          <TabsContent value="filter" className="grid items-start gap-4 lg:grid-cols-2">
+            {!aggregateSchema.isError && (
+              <>
+                <FiltersSection schema={filterSchema} value={filterDraft} onChange={changeFilter} extensions={filterExtensions} />
+                <PeriodSection draft={draft} onChange={update} fields={fields} />
+              </>
+            )}
+          </TabsContent>
+          <TabsContent value="display" className="grid items-start gap-4 lg:grid-cols-2">
+            {!aggregateSchema.isError && (
+              <>
+                <VisualizationSection draft={draft} onChange={update} fields={fields} />
+                <SortSection draft={draft} onChange={update} options={groupOptions} fields={fields} />
+              </>
+            )}
+          </TabsContent>
+          <TabsContent value="details" className="grid items-start gap-4 lg:grid-cols-2">
           <Section title={t('sections.details.title')}>
             <Field label={t('sections.details.name')}>
               {(control) => <>
@@ -365,65 +439,10 @@ function ReportEditor({ report, entities }: { report: Report | null; entities: R
               )}
             </div>
           </Section>
-          {aggregateSchema.isError ? (
-            <ErrorState onRetry={() => aggregateSchema.refetch()} />
-          ) : (
-            <>
-              <GroupsSection draft={draft} onChange={update} options={groupOptions} />
-              <MetricsSection draft={draft} onChange={update} fields={fields} />
-              <FiltersSection
-                schema={filterSchema}
-                value={filterDraft}
-                onChange={changeFilter}
-                extensions={filterExtensions}
-              />
-              <PeriodSection draft={draft} onChange={update} fields={fields} />
-              <SortSection draft={draft} onChange={update} options={groupOptions} fields={fields} />
-              <VisualizationSection draft={draft} onChange={update} fields={fields} />
-            </>
-          )}
-        </fieldset>
-
-        <div className="grid min-w-0 gap-4 lg:sticky lg:top-4">
-          <Section title={t('preview.title')} description={t('preview.description')}>
-            <div aria-live="polite" aria-busy={preview.isFetching} className="grid min-w-0 gap-3">
-              {!ready && <p className="text-sm text-muted-foreground">{t('preview.incomplete')}</p>}
-              {ready && preview.isPending && <Skeleton className="h-64 w-full" />}
-              {ready && previewError && (
-                <Alert className="grid gap-1">
-                  <p className="font-medium">{t('preview.error')}</p>
-                  {violations.length > 0 ? (
-                    <ul className="list-inside list-disc text-muted-foreground">
-                      {violations.map((violation) => (
-                        <li key={`${violation.field}:${violation.message}`}>
-                          <code>{violation.field}</code>: {localizeViolationMessage(violation.message)}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-muted-foreground">{isApiError(previewError) ? previewError.message : String(previewError)}</p>
-                  )}
-                </Alert>
-              )}
-              {ready && !previewError && preview.data && (
-                <>
-                  {previewEmpty ? (
-                    <EmptyState title={t('preview.emptyTitle')} description={t('preview.emptyDescription')} />
-                  ) : (
-                    <ReportResultView
-                      result={preview.data}
-                      visualization={draft.visualization}
-                      chartMetric={draft.chartMetric}
-                    />
-                  )}
-                  {preview.data.truncated && <p className="text-xs text-muted-foreground">{t('preview.truncated')}</p>}
-                </>
-              )}
-            </div>
-          </Section>
-          {report?.can_edit && <SchedulesPanel report={report} currentUserId={me.user.id} />}
-        </div>
-      </div>
+            {report?.can_edit && <SchedulesPanel report={report} currentUserId={me.user.id} />}
+          </TabsContent>
+        </Tabs>
+      </fieldset>
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
