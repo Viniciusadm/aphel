@@ -68,10 +68,10 @@ export function InboxPage() {
 
   return (
     <Page className={cn(selected && "max-md:[&>[data-slot=page-header]]:hidden")}>
-<PageHeader title={t('inbox.title')} actions={<>
+<PageHeader title={t('inbox.title')} description={t('inbox.description')} actions={<>
         {hasPermission(MANAGE_CHANNELS_PERMISSION) && (
           <Button asChild size="sm" variant="outline">
-            <Link to="/messaging/channels">
+            <Link to="/integrations/channels">
               <Settings2 aria-hidden="true" />
               {t('inbox.manageChannels')}
             </Link>
@@ -145,7 +145,22 @@ export function InboxPage() {
             ) : conversations.isError ? (
               <ErrorState onRetry={() => void conversations.refetch()} />
             ) : conversations.data.data.length === 0 ? (
-              <EmptyState icon={Inbox} title={t('inbox.emptyTitle')} description={t('inbox.emptyDescription')} />
+              channels.data?.data.length === 0 ? (
+                <EmptyState
+                  icon={Inbox}
+                  title={t('inbox.noChannelsTitle')}
+                  description={t('inbox.noChannelsDescription')}
+                  action={
+                    hasPermission(MANAGE_CHANNELS_PERMISSION) ? (
+                      <Button asChild size="sm">
+                        <Link to="/integrations/channels">{t('inbox.connectChannel')}</Link>
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              ) : (
+                <EmptyState icon={Inbox} title={t('inbox.emptyTitle')} description={t('inbox.emptyDescription')} />
+              )
             ) : (
               <ul className="grid gap-1">
                 {conversations.data.data.map((conversation) => (

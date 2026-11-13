@@ -91,7 +91,10 @@
     "you": "Você",
     "unreadCount": "{{count}} não lidas",
     "noAccessTitle": "Sem acesso à caixa de entrada",
-    "noAccessDescription": "Peça a um administrador a permissão para ver as conversas."
+    "noAccessDescription": "Peça a um administrador a permissão para ver as conversas.",
+    "noChannelsTitle": "Nenhum canal conectado",
+    "noChannelsDescription": "Conecte um número do WhatsApp para começar a receber conversas aqui.",
+    "connectChannel": "Conectar um canal"
   },
   "panel": {
     "title": "Conversa com {{name}}",
@@ -186,7 +189,10 @@
     "verifyTokenConfigured": "Token de verificação configurado: use o mesmo valor no campo \"Verify token\" da Meta.",
     "verifyTokenMissing": "Token de verificação não configurado.",
     "noAccessTitle": "Sem acesso aos canais",
-    "noAccessDescription": "Peça a um administrador a permissão para gerenciar canais de mensagem."
+    "noAccessDescription": "Peça a um administrador a permissão para gerenciar canais de mensagem.",
+    "descriptionWhatsapp": "Conecte números do WhatsApp (Cloud API oficial da Meta). As credenciais ficam cifradas e nunca são exibidas de volta.",
+    "menuDescription": "Números do WhatsApp e caixas de e-mail que alimentam a caixa de entrada.",
+    "emptyDescriptionWhatsapp": "Conecte um número do WhatsApp para receber mensagens."
   },
   "editor": {
     "editTitle": "Editar {{name}}",

@@ -91,7 +91,10 @@
     "you": "You",
     "unreadCount": "{{count}} unread",
     "noAccessTitle": "No access to the inbox",
-    "noAccessDescription": "Ask an administrator for the permission to see conversations."
+    "noAccessDescription": "Ask an administrator for the permission to see conversations.",
+    "noChannelsTitle": "No channel connected",
+    "noChannelsDescription": "Connect a WhatsApp number to start receiving conversations here.",
+    "connectChannel": "Connect a channel"
   },
   "panel": {
     "title": "Conversation with {{name}}",
@@ -186,7 +189,10 @@
     "verifyTokenConfigured": "Verify token configured: use the same value in Meta's \"Verify token\" field.",
     "verifyTokenMissing": "Verify token not configured.",
     "noAccessTitle": "No access to channels",
-    "noAccessDescription": "Ask an administrator for the permission to manage messaging channels."
+    "noAccessDescription": "Ask an administrator for the permission to manage messaging channels.",
+    "descriptionWhatsapp": "Connect WhatsApp numbers (Meta official Cloud API). Credentials are encrypted and never shown again.",
+    "menuDescription": "WhatsApp numbers and mailboxes that feed the inbox.",
+    "emptyDescriptionWhatsapp": "Connect a WhatsApp number to receive messages."
   },
   "editor": {
     "editTitle": "Edit {{name}}",

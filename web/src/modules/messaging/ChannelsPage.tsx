@@ -45,6 +45,8 @@ export function ChannelsPage() {
   const [editing, setEditing] = useState<Editing | null>(null)
   const [deleting, setDeleting] = useState<Channel | null>(null)
 
+  const hasEmail = (providers.data ?? []).some((provider) => provider.key === 'email')
+
   if (!canManage) {
     return <EmptyState icon={Lock} title={t('channels.noAccessTitle')} description={t('channels.noAccessDescription')} />
   }
@@ -77,7 +79,7 @@ export function ChannelsPage() {
       <PageHeader
         back={{ to: '/messaging', label: t('channels.back') }}
         title={t('channels.title')}
-        description={t('channels.description')}
+        description={t(hasEmail ? 'channels.description' : 'channels.descriptionWhatsapp')}
         actions={newButtons}
       />
 
@@ -92,7 +94,7 @@ export function ChannelsPage() {
         <EmptyState
           icon={RadioTower}
           title={t('channels.emptyTitle')}
-          description={t('channels.emptyDescription')}
+          description={t(hasEmail ? 'channels.emptyDescription' : 'channels.emptyDescriptionWhatsapp')}
           action={newButtons}
         />
       ) : (

@@ -1,4 +1,5 @@
 import { Inbox, MessageSquareReply, MessageSquareText, MessageSquareWarning, MessagesSquare, RadioTower } from 'lucide-react'
+import { Navigate } from 'react-router'
 import { type TimelineRenderer } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
 import { MANAGE_CHANNELS_PERMISSION, MESSAGING_KEY, VIEW_PERMISSION } from './api'
@@ -6,6 +7,7 @@ import { ConversationsTab } from './ConversationsTab'
 import { ConversationEventContent, MessageEventContent } from './MessageEventContent'
 
 const BASE_PATH = '/messaging'
+const CHANNELS_PATH = '/integrations/channels'
 
 const conversationRenderer: TimelineRenderer = {
   icon: MessagesSquare,
@@ -31,7 +33,7 @@ const messagingModule = defineModule({
         path: 'messaging',
         children: [
           { index: true, lazy: async () => ({ Component: (await import('./InboxPage')).InboxPage }) },
-          { path: 'channels', lazy: async () => ({ Component: (await import('./ChannelsPage')).ChannelsPage }) },
+          { path: 'channels', element: <Navigate to={CHANNELS_PATH} replace /> },
         ],
       },
     ])
@@ -39,13 +41,17 @@ const messagingModule = defineModule({
       to: BASE_PATH,
       label: 'nav.inbox',
       icon: Inbox,
+      end: true,
       permission: [VIEW_PERMISSION],
     })
-    app.nav({ section: 'work',
-      to: `${BASE_PATH}/channels`,
+    app.settings('integrations', {
+      group: 'connections',
+      path: 'channels',
       label: 'nav.channels',
+      description: 'channels.menuDescription',
       icon: RadioTower,
-      permission: [MANAGE_CHANNELS_PERMISSION],
+      permission: MANAGE_CHANNELS_PERMISSION,
+      lazy: async () => ({ Component: (await import('./ChannelsPage')).ChannelsPage }),
     })
     app.recordSection(['people.person', 'deals.deal'], {
       key: `${MESSAGING_KEY}.conversations`,

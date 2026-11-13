@@ -11,7 +11,7 @@
       "required": true,
       "label": {
         "en": "Phone number ID",
-        "pt-BR": "Phone number ID"
+        "pt-BR": "ID do número de telefone"
       },
       "hint": {
         "en": "Numeric id of the number, not the phone itself.",
@@ -25,11 +25,11 @@
       "required": false,
       "label": {
         "en": "WhatsApp Business Account ID",
-        "pt-BR": "WhatsApp Business Account ID"
+        "pt-BR": "ID da conta do WhatsApp Business"
       },
       "hint": {
-        "en": "",
-        "pt-BR": ""
+        "en": "Numeric id of the account (WABA) at Meta.",
+        "pt-BR": "Identificador numérico da conta (WABA) na Meta."
       },
       "options": []
     },
@@ -69,7 +69,7 @@
       "required": true,
       "label": {
         "en": "App secret",
-        "pt-BR": "App secret"
+        "pt-BR": "Segredo do aplicativo"
       },
       "hint": {
         "en": "App secret (Settings > Basic), used to validate the webhook signature.",
