@@ -220,7 +220,9 @@ impl AutomationRuntime {
                 return false;
             }
             match (trigger_key.as_str(), record_event) {
-                (RECORD_CREATED | RECORD_UPDATED | RECORD_DELETED, Some((prefix, _))) => {
+                (RECORD_CREATED | RECORD_UPDATED | RECORD_DELETED, Some((prefix, _)))
+                    if prefix.contains('.') =>
+                {
                     aphel_sdk::platform::application::shared::RecordType::parse(prefix)
                         .is_ok_and(|key| key.as_str() == record_type)
                 }
