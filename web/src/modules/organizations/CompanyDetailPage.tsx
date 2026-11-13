@@ -2,6 +2,7 @@ import { Network, Users } from 'lucide-react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { useSession } from '@/app/session/session-context'
 import { DEFAULT_READ_ONLY_FIELD_KEYS, RecordDetailPage, type RecordTab } from '@/sdk'
 import {RecordLifecycleActions, useProfileTimeline} from '@/sdk'
@@ -18,6 +19,7 @@ export function CompanyDetailPage() {
   const { hasPermission } = useSession()
   const readOnly = !hasPermission('organizations.update')
   const timeline = useProfileTimeline(COMPANY_RECORD_TYPE, id)
+  const peopleActive = useIsModuleActive('people')
 
   const tabs = useCallback(
     (defaults: RecordTab[]): RecordTab[] => {
@@ -36,9 +38,9 @@ export function CompanyDetailPage() {
       }
       const timelineTab = defaults.find((tab) => tab.key === 'timeline')
       const rest = defaults.filter((tab) => tab.key !== 'timeline' && tab.key !== 'related')
-      return [...(timelineTab ? [timelineTab] : []), people, group, ...rest]
+      return [...(timelineTab ? [timelineTab] : []), ...(peopleActive ? [people] : []), group, ...rest]
     },
-    [t, tContacts, id, readOnly],
+    [t, tContacts, id, readOnly, peopleActive],
   )
 
   return (

@@ -2,6 +2,7 @@ import { Building2, GitBranch, Lock, Plus, Unlink } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useIsModuleActive } from '@/kernel/modules/registry'
 import { RecordFieldInput } from '@/components/fields'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
@@ -68,29 +69,37 @@ function GroupTotalsPanel({ totals, companyId }: { totals: CompanyGroupTotals; c
   const { t } = useTranslation('organizations', { keyPrefix: 'hierarchy' })
   const formatting = useRecordFormatting()
   const search = groupFilterSearch(companyId)
+  const peopleActive = useIsModuleActive('people')
+  const dealsActive = useIsModuleActive('deals')
   return (
     <section aria-labelledby="company-group-totals" className="grid gap-2">
       <h3 id="company-group-totals" className="text-sm font-medium">
         {t('totals.title')}
       </h3>
-      <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="grid grid-cols-1 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">
         <Stat label={t('totals.organizations')} value={count(totals.companies_count, formatting)} />
-        <Stat
-          label={t('totals.people')}
-          value={count(totals.contacts_count, formatting)}
-          to={totals.contacts_count == null ? undefined : `/people?${search}`}
-        />
-        <Stat
-          label={t('totals.openDeals')}
-          value={money(totals.open_deals_amount, totals.currency, formatting)}
-          hint={t('totals.dealsCount', { count: totals.open_deals_count ?? 0 })}
-          to={totals.open_deals_count == null ? undefined : `/deals?${search}`}
-        />
-        <Stat
-          label={t('totals.won')}
-          value={money(totals.won_amount, totals.currency, formatting)}
-          hint={t('totals.dealsCount', { count: totals.won_deals_count ?? 0 })}
-        />
+        {peopleActive && (
+          <Stat
+            label={t('totals.people')}
+            value={count(totals.contacts_count, formatting)}
+            to={totals.contacts_count == null ? undefined : `/people?${search}`}
+          />
+        )}
+        {dealsActive && (
+          <>
+            <Stat
+              label={t('totals.openDeals')}
+              value={money(totals.open_deals_amount, totals.currency, formatting)}
+              hint={t('totals.dealsCount', { count: totals.open_deals_count ?? 0 })}
+              to={totals.open_deals_count == null ? undefined : `/deals?${search}`}
+            />
+            <Stat
+              label={t('totals.won')}
+              value={money(totals.won_amount, totals.currency, formatting)}
+              hint={t('totals.dealsCount', { count: totals.won_deals_count ?? 0 })}
+            />
+          </>
+        )}
       </dl>
     </section>
   )
@@ -126,12 +135,14 @@ function NodeLabel({ node, current }: { node: CompanyHierarchyNode; current: boo
 function TreeItem({ entry, currentId }: TreeItemProps) {
   const { t } = useTranslation('organizations', { keyPrefix: 'hierarchy' })
   const { node, children } = entry
+  const peopleActive = useIsModuleActive('people')
+  const dealsActive = useIsModuleActive('deals')
   const current = node.id === currentId
   const details: ReactNode[] = []
   if (node.accessible) {
     if (node.owner) details.push(node.owner.display_name)
-    if (node.contacts_count != null) details.push(t('tree.people', { count: node.contacts_count }))
-    if (node.open_deals_count != null) details.push(t('tree.openDeals', { count: node.open_deals_count }))
+    if (peopleActive && node.contacts_count != null) details.push(t('tree.people', { count: node.contacts_count }))
+    if (dealsActive && node.open_deals_count != null) details.push(t('tree.openDeals', { count: node.open_deals_count }))
   }
   return (
     <li className="grid gap-1">
