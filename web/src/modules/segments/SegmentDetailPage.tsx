@@ -5,6 +5,8 @@ import { Link, useParams } from 'react-router'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Avatar } from '@/components/ui/avatar'
+import { SegmentFilterSummary } from './SegmentFilterSummary'
 import { getRecordResource } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import {MEMBERS_PER_PAGE, isSegmentRecordType, useSegment, useSegmentMembers} from '@/sdk'
@@ -39,6 +41,7 @@ export function SegmentDetailPage() {
               {' · '}
               {members.data ? t('page.count', { count: members.data.meta.total }) : t('detail.loading')}
             </p>
+            <span className="mt-2 block"><SegmentFilterSummary recordType={recordType} filter={segment.data.filter} /></span>
           </>
         }
       />
@@ -56,7 +59,8 @@ export function SegmentDetailPage() {
               const label = member.label ?? member.id
               const href = resource?.detailPath?.(member.id)
               return (
-                <li key={member.id} className="min-w-0 px-4 py-2.5 text-sm">
+                <li key={member.id} className="flex min-w-0 items-center gap-3 px-4 py-2.5 text-sm">
+                  <Avatar name={label} size="md" />
                   {href ? (
                     <Link to={href} className="block truncate font-medium underline-offset-4 hover:underline">
                       {label}

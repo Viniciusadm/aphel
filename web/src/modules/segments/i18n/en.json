@@ -29,7 +29,30 @@
     "count_other": "{{count}} records",
     "countUnavailable": "Invalid filter",
     "editLabel": "Edit {{name}}",
-    "deleteLabel": "Delete {{name}}"
+    "deleteLabel": "Delete {{name}}",
+    "updated": "Updated {{date}}",
+    "moreConditions": "+{{count}} conditions",
+    "conditions": "Segment conditions",
+    "empty": {
+      "people": {
+        "person": {
+          "title": "No contact segments",
+          "description": "Group contacts by a rule, such as \"customers in São Paulo\" or \"leads without a reply for 7 days\". The group updates itself."
+        }
+      },
+      "organizations": {
+        "organization": {
+          "title": "No company segments",
+          "description": "Group companies by a rule, such as \"in healthcare\" or \"no recent contact\". The group updates itself."
+        }
+      },
+      "deals": {
+        "deal": {
+          "title": "No deal segments",
+          "description": "Group deals by a rule, such as \"above $10k\" or \"stalled for 30 days\". The group updates itself."
+        }
+      }
+    }
   },
   "dialog": {
     "newTitle": "New segment",

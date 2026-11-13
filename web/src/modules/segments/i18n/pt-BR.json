@@ -29,7 +29,30 @@
     "count_other": "{{count}} registros",
     "countUnavailable": "Filtro inválido",
     "editLabel": "Editar {{name}}",
-    "deleteLabel": "Excluir {{name}}"
+    "deleteLabel": "Excluir {{name}}",
+    "updated": "Atualizado em {{date}}",
+    "moreConditions": "+{{count}} condições",
+    "conditions": "Condições do segmento",
+    "empty": {
+      "people": {
+        "person": {
+          "title": "Nenhum segmento de contatos",
+          "description": "Agrupe contatos por uma regra, como \"clientes de São Paulo\" ou \"leads sem resposta há 7 dias\". O grupo se atualiza sozinho."
+        }
+      },
+      "organizations": {
+        "organization": {
+          "title": "Nenhum segmento de empresas",
+          "description": "Agrupe empresas por uma regra, como \"do setor de saúde\" ou \"sem contato recente\". O grupo se atualiza sozinho."
+        }
+      },
+      "deals": {
+        "deal": {
+          "title": "Nenhum segmento de oportunidades",
+          "description": "Agrupe oportunidades por uma regra, como \"acima de R$ 10 mil\" ou \"paradas há 30 dias\". O grupo se atualiza sozinho."
+        }
+      }
+    }
   },
   "dialog": {
     "newTitle": "Novo segmento",
