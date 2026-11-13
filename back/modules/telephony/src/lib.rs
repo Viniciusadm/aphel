@@ -46,6 +46,7 @@ impl Module for TelephonyModule {
         Manifest::new(KEY, "Calls", APHEL_VERSION)
             .description("Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report")
             .depends_on("tasks", "*")
+            .depends_on("people", "*")
             .enabled_by_default()
             .owned_tables(&["activity_calls", "call_outcomes", "call_session_items", "call_sessions"])
             .migration(Migration::new(

@@ -133,7 +133,7 @@ Call logging as tasks, call outcomes, call sessions, telephony providers and the
 | | |
 | --- | --- |
 | Layer | capability |
-| Depends on | `tasks` |
+| Depends on | `tasks`, `people` |
 | Optional dependencies | none |
 | Permissions | none |
 | Web package | yes |
