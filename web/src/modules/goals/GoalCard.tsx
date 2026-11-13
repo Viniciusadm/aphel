@@ -4,7 +4,7 @@ import { Badge, type BadgeProps } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
-import type { Goal, GoalStatus } from './api'
+import { GOAL_METRIC_MODULE, useMetricModuleActive, type Goal, type GoalStatus } from './api'
 import { formatGoalValue, useGoalPeriodLabel } from './format'
 
 const STATUS_VARIANT: Record<GoalStatus, BadgeProps['variant']> = {
@@ -31,8 +31,13 @@ function OwnerIcon({ goal }: { goal: Goal }) {
 export function GoalProgressBar({ goal, className }: { goal: Goal; className?: string }) {
   const { t } = useTranslation('goals')
   const progress = goal.progress
+  const metricActive = useMetricModuleActive()
   if (!progress) {
-    return <p className={cn('text-xs text-muted-foreground', className)}>{t('progress.unavailable')}</p>
+    return (
+      <p className={cn('text-xs text-muted-foreground', className)}>
+        {metricActive(goal.metric) ? t('progress.unavailable') : t('progress.moduleOff', { module: t(`modules.${GOAL_METRIC_MODULE[goal.metric]}`) })}
+      </p>
+    )
   }
   const percent = Math.round(progress.ratio * 100)
   const width = Math.min(100, Math.max(0, progress.ratio * 100))

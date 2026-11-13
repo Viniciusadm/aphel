@@ -21,7 +21,7 @@
   "metrics": {
     "won_amount": "Amount won",
     "won_count": "Deals won",
-    "activities_done": "Activities completed",
+    "activities_done": "Tasks completed",
     "new_contacts": "New people"
   },
   "periods": {
@@ -54,7 +54,8 @@
     "expected": "Expected by today: {{percent}}%",
     "valueText": "{{percent}}% of the goal",
     "unavailable": "You cannot access the data used to compute this goal.",
-    "noValue": "—"
+    "noValue": "—",
+    "moduleOff": "Turn on the {{module}} module to track this goal."
   },
   "card": {
     "label": "{{metric}} goal of {{owner}}",
@@ -119,5 +120,10 @@
   },
   "placeholders": {
     "target": "E.g.: 100000"
+  },
+  "modules": {
+    "deals": "Deals",
+    "tasks": "Tasks",
+    "people": "People"
   }
 }

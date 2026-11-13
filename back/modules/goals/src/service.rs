@@ -160,6 +160,9 @@ pub(crate) async fn goal_progress(
     today: NaiveDate,
 ) -> Result<Option<GoalProgress>, AppError> {
     let scope = ctx.scope;
+    if !scope.module_enabled(goal.metric.module()) {
+        return Ok(None);
+    }
     let query_ports = ctx.query();
     if let Some(credited) = split_credit_owner(goal) {
         let amount_key = metric_source(goal.metric)
@@ -219,6 +222,19 @@ pub(crate) fn period_bounds(period: GoalPeriod, day: NaiveDate) -> (NaiveDate, N
         .and_then(|next| next.checked_sub_days(Days::new(1)))
         .unwrap_or(start);
     (start, end)
+}
+
+fn ensure_metric_available(
+    scope: &AccessScope,
+    metric: GoalMetric,
+    violations: &mut Vec<FieldViolation>,
+) {
+    if !scope.module_enabled(metric.module()) {
+        violations.push(FieldViolation::new(
+            "metric",
+            "the module that provides this metric is disabled",
+        ));
+    }
 }
 
 fn parse_date(value: &str, path: &str, violations: &mut Vec<FieldViolation>) -> Option<NaiveDate> {
@@ -409,6 +425,7 @@ pub(crate) async fn create(
     let mut violations = Vec::new();
     let owner = parse_owner(&command.owner, &mut violations);
     let metric = command.metric;
+    ensure_metric_available(scope, metric, &mut violations);
     let period = command.period;
     let starts_on = parse_date(&command.starts_on, "starts_on", &mut violations);
     let target = parse_target(&command.target, Some(metric), &mut violations);
@@ -416,6 +433,9 @@ pub(crate) async fn create(
     let (Some(owner), Some(starts_on), Some(target)) = (owner, starts_on, target) else {
         return Err(AppError::invalid_fields(INVALID_GOAL, violations));
     };
+    if !violations.is_empty() {
+        return Err(AppError::invalid_fields(INVALID_GOAL, violations));
+    }
     ensure_owner(ctx, &manager, &owner).await?;
     let (starts_on, ends_on) = period_bounds(period, starts_on);
     let now = ctx.now();
@@ -468,6 +488,9 @@ pub(crate) async fn update(
         goal.owner = owner;
     }
     if let Some(metric) = command.metric {
+        if metric != current.metric {
+            ensure_metric_available(ctx.scope, metric, &mut violations);
+        }
         goal.metric = metric;
     }
     if let Some(period) = command.period {

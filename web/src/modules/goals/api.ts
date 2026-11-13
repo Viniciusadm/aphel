@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
+import { isModuleActive, useModuleState } from '@/kernel/modules/registry'
 import type { components } from '@/api/schema'
 
 type Schemas = components['schemas']
@@ -15,6 +16,18 @@ export type GoalOwnerOptions = Schemas['GoalOwnerOptionsResponse']
 export type GoalOwnerOption = Schemas['GoalOwnerOptionResponse']
 
 export const GOAL_METRICS: GoalMetric[] = ['won_amount', 'won_count', 'activities_done', 'new_contacts']
+
+export const GOAL_METRIC_MODULE: Record<GoalMetric, 'deals' | 'tasks' | 'people'> = {
+  won_amount: 'deals',
+  won_count: 'deals',
+  activities_done: 'tasks',
+  new_contacts: 'people',
+}
+
+export function useMetricModuleActive(): (metric: GoalMetric) => boolean {
+  const state = useModuleState()
+  return (metric) => isModuleActive(GOAL_METRIC_MODULE[metric], state)
+}
 export const GOAL_PERIODS: GoalPeriod[] = ['month', 'quarter', 'year']
 export const GOAL_OWNER_TYPES: GoalOwnerType[] = ['user', 'team', 'organization']
 export const GOALS_PER_PAGE = 24

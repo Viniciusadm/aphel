@@ -47,6 +47,14 @@ impl GoalMetric {
             .find(|metric| metric.as_str() == value)
     }
 
+    pub(crate) fn module(&self) -> &'static str {
+        match self {
+            Self::WonAmount | Self::WonCount => "deals",
+            Self::ActivitiesDone => "tasks",
+            Self::NewContacts => "people",
+        }
+    }
+
     pub(crate) fn is_count(&self) -> bool {
         !matches!(self, Self::WonAmount)
     }

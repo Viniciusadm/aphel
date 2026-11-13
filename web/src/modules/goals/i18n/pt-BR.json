@@ -21,7 +21,7 @@
   "metrics": {
     "won_amount": "Valor ganho",
     "won_count": "Oportunidades ganhas",
-    "activities_done": "Atividades realizadas",
+    "activities_done": "Tarefas concluídas",
     "new_contacts": "Novos contatos"
   },
   "periods": {
@@ -54,7 +54,8 @@
     "expected": "Esperado até hoje: {{percent}}%",
     "valueText": "{{percent}}% da meta",
     "unavailable": "Você não tem acesso aos dados usados para calcular esta meta.",
-    "noValue": "—"
+    "noValue": "—",
+    "moduleOff": "Ative o módulo {{module}} para acompanhar esta meta."
   },
   "card": {
     "label": "Meta de {{metric}} de {{owner}}",
@@ -119,5 +120,10 @@
   },
   "placeholders": {
     "target": "Ex.: 100000"
+  },
+  "modules": {
+    "deals": "Oportunidades",
+    "tasks": "Tarefas",
+    "people": "Pessoas"
   }
 }

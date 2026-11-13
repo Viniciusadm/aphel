@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { authFieldViolations as fieldViolations, FormRow, SettingsNativeSelect as NativeSelect } from '@/sdk'
 import {
   GOAL_METRICS,
+  useMetricModuleActive,
   GOAL_PERIODS,
   goalCreditMode,
   goalsApi,
@@ -112,7 +113,7 @@ function availableOwnerTypes(owners: GoalOwnerOptions): GoalOwnerType[] {
   return types
 }
 
-function initialValues(editing: Goal | null, owners: GoalOwnerOptions): FormValues {
+function initialValues(editing: Goal | null, owners: GoalOwnerOptions, firstMetric: GoalMetric): FormValues {
   if (editing) {
     return {
       ownerType: editing.owner_type,
@@ -129,7 +130,7 @@ function initialValues(editing: Goal | null, owners: GoalOwnerOptions): FormValu
     ownerType: availableOwnerTypes(owners)[0] ?? 'user',
     userId: owners.users.length === 1 ? owners.users[0].id : '',
     teamId: owners.teams.length === 1 ? owners.teams[0].id : '',
-    metric: 'won_amount',
+    metric: firstMetric,
     period: 'month',
     month: currentMonth(),
     target: '',
@@ -166,13 +167,15 @@ function GoalForm({ owners, editing, onClose, onSaved }: GoalFormProps) {
   const { t } = useTranslation('goals')
   const formId = useId()
   const periodLabel = useGoalPeriodLabel()
+  const metricActive = useMetricModuleActive()
+  const firstMetric = GOAL_METRICS.find(metricActive) ?? 'activities_done'
   const {
     register,
     handleSubmit,
     setError,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: initialValues(editing, owners) })
+  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: initialValues(editing, owners, firstMetric) })
   const ownerType = useWatch({ control, name: 'ownerType' })
   const period = useWatch({ control, name: 'period' })
   const month = useWatch({ control, name: 'month' })
@@ -291,7 +294,7 @@ function GoalForm({ owners, editing, onClose, onSaved }: GoalFormProps) {
           <FormRow id={`${formId}-metric`} label={t('dialog.metric')} error={errorText(errors.metric?.message)}>
             {(describedBy) => (
               <NativeSelect id={`${formId}-metric`} aria-describedby={describedBy} {...register('metric')}>
-                {GOAL_METRICS.map((value: GoalMetric) => (
+                {GOAL_METRICS.filter((value) => metricActive(value) || value === editing?.metric).map((value: GoalMetric) => (
                   <option key={value} value={value}>
                     {t(`metrics.${value}`)}
                   </option>

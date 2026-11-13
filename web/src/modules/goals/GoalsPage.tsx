@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Pagination } from '@/components/ui/pagination'
-import { SettingsNativeSelect as NativeSelect } from '@/sdk'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { cn } from '@/lib/utils'
 import {
   GOAL_OWNER_TYPES,
@@ -102,28 +102,28 @@ export function GoalsPage() {
         {newButton}
       
       </>} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <NativeSelect aria-label={t('page.viewLabel')} value={view} onChange={(event) => { setView(event.target.value as GoalView); setPage(1) }}>
-          {(['current', 'all'] as const).map((candidate) => <option key={candidate} value={candidate}>{t(`page.views.${candidate}`)}</option>)}
-        </NativeSelect>
-        <label className="flex min-w-0 items-center gap-2 text-sm">
-          <span className="shrink-0 text-muted-foreground">{t('page.ownerFilter')}</span>
-          <NativeSelect
-            className="sm:w-48"
-            value={ownerType}
-            onChange={(event) => {
-              setOwnerType(event.target.value as GoalOwnerType | '')
-              setPage(1)
-            }}
-          >
-            <option value="">{t('page.allOwners')}</option>
-            {GOAL_OWNER_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {t(`ownerTypes.${type}`)}
-              </option>
-            ))}
-          </NativeSelect>
-        </label>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SegmentedControl
+          aria-label={t('page.viewLabel')}
+          value={view}
+          onValueChange={(value) => {
+            setView(value)
+            setPage(1)
+          }}
+          options={(['current', 'all'] as const).map((candidate) => ({ value: candidate, label: t(`page.views.${candidate}`) }))}
+        />
+        <SegmentedControl
+          aria-label={t('page.ownerFilter')}
+          value={ownerType === '' ? 'all' : ownerType}
+          onValueChange={(value) => {
+            setOwnerType(value === 'all' ? '' : (value as GoalOwnerType))
+            setPage(1)
+          }}
+          options={[
+            { value: 'all', label: t('page.allOwners') },
+            ...GOAL_OWNER_TYPES.map((type) => ({ value: type, label: t(`ownerTypes.${type}`) })),
+          ]}
+        />
       </div>
       {body}
       {canCreate && (
