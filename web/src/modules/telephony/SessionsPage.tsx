@@ -15,8 +15,8 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast-store'
-import { formatDateTime, NativeSelect, recordsKeys, useRecordFormatting } from '@/sdk'
-import {listAllViews} from '@/sdk'
+import { formatDateTime, NativeSelect, useRecordFormatting } from '@/sdk'
+import {useSavedViews} from '@/sdk'
 import { callsApi, callsKeys } from './api'
 import { callSessionPath } from './constants'
 import { callErrorKey } from './lib/errors'
@@ -46,10 +46,7 @@ function StartSessionCard() {
   const { t } = useTranslation('telephony')
   const formId = useId()
   const navigate = useNavigate()
-  const views = useQuery({
-    queryKey: recordsKeys.views(CONTACT),
-    queryFn: () => listAllViews(CONTACT),
-  })
+  const views = useSavedViews(CONTACT)
   const [viewId, setViewId] = useState('')
   const [name, setName] = useState('')
   const [script, setScript] = useState<string | null>(null)
@@ -111,7 +108,7 @@ function StartSessionCard() {
                 }}
               >
                 <option value="">{t('start.pickView')}</option>
-                {views.data.map((view) => (
+                {(views.data ?? []).map((view) => (
                   <option key={view.id} value={view.id}>
                     {view.name}
                   </option>

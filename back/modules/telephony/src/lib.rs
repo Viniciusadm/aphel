@@ -47,6 +47,7 @@ impl Module for TelephonyModule {
             .description("Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report")
             .depends_on("tasks", "*")
             .depends_on("people", "*")
+            .depends_on("saved_views", "*")
             .enabled_by_default()
             .owned_tables(&["activity_calls", "call_outcomes", "call_session_items", "call_sessions"])
             .migration(Migration::new(
