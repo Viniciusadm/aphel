@@ -1,20 +1,19 @@
 import { PaginationSummary } from '@/components/ui/pagination-summary'
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { Archive, Download, PackageCheck, Terminal } from 'lucide-react'
+import { Archive, Download, PackageCheck, Terminal, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { isApiError } from '@/api'
-import { notifyError, notifySuccess } from '@/components/feedback'
+import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { formatDateTime, ListSkeleton, ORGANIZATION_EXPORT, RequirePermission, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
-import { EXPORTS_PER_PAGE, downloadUrl, isPending, useOrgExports, useRequestOrgExport } from './api'
+import { ToggleField } from '@/components/ui/toggle-field'
+import { EXPORTS_PER_PAGE, downloadUrl, isPending, useDeleteOrgExport, useOrgExports, useRequestOrgExport } from './api'
 import { asOrgExportStatus, type OrgExport, type OrgExportStatus } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
@@ -43,6 +42,8 @@ function OrgExportSection() {
   const [page, setPage] = useState(1)
   const exports = useOrgExports(page)
   const hasPending = exports.data?.data.some((item) => isPending(item.status)) ?? false
+  const remove = useDeleteOrgExport()
+  const [deleting, setDeleting] = useState<OrgExport | null>(null)
 
   return (
     <Page>
@@ -52,7 +53,10 @@ function OrgExportSection() {
         <RestoreCard />
       </div>
       <div className="grid min-w-0 gap-3">
-        <h3 className="text-base font-semibold">{t('history.title')}</h3>
+        <div className="grid gap-0.5">
+          <h3 className="text-base font-semibold">{t('history.title')}</h3>
+          <p className="text-sm text-muted-foreground">{t('history.retention')}</p>
+        </div>
         {exports.isPending ? (
           <ListSkeleton />
         ) : exports.isError ? (
@@ -64,7 +68,7 @@ function OrgExportSection() {
             <PaginationSummary page={page} perPage={EXPORTS_PER_PAGE} total={exports.data.meta.total} />
             <ul className="grid gap-2">
               {exports.data.data.map((item) => (
-                <ExportRow key={item.id} item={item} />
+                <ExportRow key={item.id} item={item} onDelete={() => setDeleting(item)} />
               ))}
             </ul>
             <Pagination
@@ -76,6 +80,19 @@ function OrgExportSection() {
           </>
         )}
       </div>
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={t('history.deleteTitle')}
+        description={t('history.deleteDescription')}
+        confirmLabel={t('history.delete')}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return
+          await remove.mutateAsync(deleting.id)
+          notifySuccess(t('history.deleted'))
+        }}
+      />
     </Page>
   )
 }
@@ -112,17 +129,12 @@ function RequestCard({ disabled }: { disabled: boolean }) {
             </li>
           ))}
         </ul>
-        <label className="flex items-start gap-2 text-sm">
-          <Checkbox
-            checked={includeFiles}
-            onCheckedChange={(value) => setIncludeFiles(value === true)}
-            className="mt-0.5"
-          />
-          <span className="grid gap-0.5">
-            <span className="font-medium">{t('request.includeFiles')}</span>
-            <span className="text-muted-foreground">{t('request.includeFilesHint')}</span>
-          </span>
-        </label>
+        <ToggleField
+          label={t('request.includeFiles')}
+          description={t('request.includeFilesHint')}
+          checked={includeFiles}
+          onCheckedChange={setIncludeFiles}
+        />
         <p className="text-xs text-muted-foreground">{t('request.privacyNote')}</p>
         <div>
           <Button onClick={submit} disabled={disabled || request.isPending}>
@@ -147,6 +159,8 @@ function RestoreCard() {
         <CardDescription>{t('restore.description')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3 text-sm">
+        <p className="text-muted-foreground">{t('restore.installer')}</p>
+        <p className="text-muted-foreground">{t('restore.cli')}</p>
         <pre className="overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-xs">
           aphel org import aphel-export.zip --organization nova-organizacao
         </pre>
@@ -168,7 +182,7 @@ function formatBytes(bytes: number, locale: string): string {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`
 }
 
-function ExportRow({ item }: { item: OrgExport }) {
+function ExportRow({ item, onDelete }: { item: OrgExport; onDelete: () => void }) {
   const { t } = useTranslation('org_export')
   const formatting = useRecordFormatting()
   const { me } = useSession()
@@ -188,7 +202,7 @@ function ExportRow({ item }: { item: OrgExport }) {
         <p className="text-sm break-words text-muted-foreground">{t('history.requestedBy', { name: requester })}</p>
         {summary && (
           <p className="text-sm text-muted-foreground">
-            {t('history.summary', {
+            {t(item.include_files ? 'history.summary' : 'history.summaryWithoutFiles', {
               records,
               files: summary.files,
               size: formatBytes(summary.archive_bytes, formatting.locale),
@@ -196,18 +210,24 @@ function ExportRow({ item }: { item: OrgExport }) {
             {summary.missing_files > 0 && ` · ${t('history.missingFiles', { count: summary.missing_files })}`}
           </p>
         )}
-        {item.status === 'failed' && item.failure_reason && (
-          <SharedFieldError className="break-words">{item.failure_reason}</SharedFieldError>
+        {item.status === 'failed' && <p className="text-sm break-words text-destructive">{t('history.failedHint')}</p>}
+      </div>
+      <div className="flex gap-2 self-start sm:self-center">
+        {item.status === 'completed' && (
+          <Button asChild variant="outline" size="sm">
+            <a href={downloadUrl(item.id)} download>
+              <Download aria-hidden="true" />
+              {t('history.download')}
+            </a>
+          </Button>
+        )}
+        {!isPending(item.status) && (
+          <Button variant="ghost" size="sm" onClick={onDelete} aria-label={t('history.deleteLabel')}>
+            <Trash2 aria-hidden="true" />
+            {t('history.delete')}
+          </Button>
         )}
       </div>
-      {item.status === 'completed' && (
-        <Button asChild variant="outline" size="sm" className="self-start sm:self-center">
-          <a href={downloadUrl(item.id)} download>
-            <Download aria-hidden="true" />
-            {t('history.download')}
-          </a>
-        </Button>
-      )}
     </li>
   )
 }

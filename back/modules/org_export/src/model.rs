@@ -14,6 +14,7 @@ pub(crate) const ORG_EXPORT_RECORD_TYPE: RecordType =
     RecordType::from_static("org_export.organization_export");
 pub(crate) const ORG_EXPORT_RUN_JOB: &str = "organization_export.run";
 pub(crate) const ORG_EXPORT_REQUESTED: &str = "organization_export.requested";
+pub(crate) const ORG_EXPORT_DELETED: &str = "organization_export.deleted";
 pub(crate) const ORG_EXPORT_COMPLETED: &str = "organization_export.completed";
 pub(crate) const ORG_EXPORT_FAILED: &str = "organization_export.failed";
 pub(crate) const ORGANIZATION_RESTORED: &str = "organization.restored";

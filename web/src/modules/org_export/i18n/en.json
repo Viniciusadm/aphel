@@ -1,5 +1,5 @@
 {
-  "name": "Organization backup",
+  "name": "Full export",
   "description": "Full export of the organization (zip with records, relationships, files, configuration and manifest) and its restoration",
   "page": {
     "title": "Full export",
@@ -26,9 +26,11 @@
   },
   "restore": {
     "title": "Restore in another installation",
-    "description": "Restoring runs from the server command line, into an organization that already exists:",
+    "description": "There are two ways to restore a package on another installation.",
     "empty": "The destination organization must be empty (no records). The configuration package is applied before the data and the original ids are kept when possible.",
-    "members": "Users are matched by email to the members of the destination organization; anyone who is not a member is left without an owner."
+    "members": "Users are matched by email to the members of the destination organization; anyone who is not a member is left without an owner.",
+    "installer": "On the first screen of a new installation, use the “Restore from a backup” link and upload the zip.",
+    "cli": "Or, from the server command line, on an organization that already exists:"
   },
   "history": {
     "title": "Previous exports",
@@ -39,7 +41,15 @@
     "missingFiles_one": "{{count}} file could not be read",
     "missingFiles_other": "{{count}} files could not be read",
     "withoutFiles": "Without attachments",
-    "download": "Download"
+    "download": "Download",
+    "retention": "Each package holds personal data from every record. Delete the ones you no longer need.",
+    "delete": "Delete",
+    "deleteLabel": "Delete this export",
+    "deleteTitle": "Delete this export?",
+    "deleteDescription": "The zip file will be deleted and can no longer be downloaded. Your organization data is not affected.",
+    "deleted": "Export deleted",
+    "failedHint": "The export could not be completed. Try generating it again; if it keeps failing, tell your administrator.",
+    "summaryWithoutFiles": "{{records}} records · {{size}}"
   },
   "status": {
     "queued": "Queued",

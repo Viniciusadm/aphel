@@ -26,6 +26,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(request_org_export, list_org_exports))
         .routes(routes!(get_org_export))
         .routes(routes!(download_org_export))
+        .routes(routes!(delete_org_export))
 }
 
 #[utoipa::path(
@@ -147,4 +148,30 @@ async fn download_org_export(
         .body(Body::from_stream(download.content))
         .map_err(|error| AppError::Internal(format!("cannot build download response: {error}")))?;
     Ok(response)
+}
+
+#[utoipa::path(
+    delete,
+    path = "/organization-exports/{export_id}",
+    tag = TAG,
+    operation_id = "organization_exports_delete",
+    security(("session_cookie" = [])),
+    params(("export_id" = String, Path, description = "Organization export id")),
+    responses(
+        (status = 204, description = "Export and its zip file deleted; publishes `organization_export.deleted`. Requires `organization.export`"),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Missing `organization.export` (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Export not found (`organization_export_not_found`)", body = ErrorEnvelope),
+        (status = 409, description = "The export is still queued or running (`organization_export_in_progress`)", body = ErrorEnvelope),
+    )
+)]
+async fn delete_org_export(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Path(export_id): Path<String>,
+) -> Result<StatusCode, ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    service::delete(&ctx, state.storage.as_ref(), &export_id, client.0.ip).await?;
+    Ok(StatusCode::NO_CONTENT)
 }

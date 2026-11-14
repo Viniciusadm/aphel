@@ -24,6 +24,7 @@ export const orgExportApi = {
   list: (page: number) =>
     api.get<OrgExportPage>(BASE_PATH, { query: { page, per_page: EXPORTS_PER_PAGE } }),
   request: (body: OrgExportRequest) => api.post<OrgExport>(BASE_PATH, body),
+  remove: (id: string) => api.delete<void>(`${BASE_PATH}/${encodeURIComponent(id)}`),
 }
 
 export function useOrgExports(page: number) {
@@ -40,6 +41,14 @@ export function useRequestOrgExport() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: orgExportApi.request,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: orgExportKeys.all }),
+  })
+}
+
+export function useDeleteOrgExport() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: orgExportApi.remove,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: orgExportKeys.all }),
   })
 }

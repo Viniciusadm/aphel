@@ -76,7 +76,7 @@ A module can override this default for a permission by naming the roles that rec
 | `notes.create` | Notes | record | Create notes. | organization | team | own |
 | `notes.update` | Notes | record | Edit notes. | organization | team | own |
 | `notes.delete` | Notes | record | Delete notes. | organization | team | own |
-| `organization.export` | Organization backup | administrative | Create and download full backups of the organization. | organization | - | - |
+| `organization.export` | Full export | administrative | Create and download full backups of the organization. | organization | - | - |
 | `organizations.read` | Organizations | record | Read organizations. | organization | team | own |
 | `organizations.create` | Organizations | record | Create organizations. | organization | team | own |
 | `organizations.update` | Organizations | record | Change organizations. | organization | team | own |

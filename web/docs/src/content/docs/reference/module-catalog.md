@@ -477,7 +477,7 @@ Administration of custom objects and the relationships between record types.
 | Web package | yes |
 | Blueprints | Recommended by every blueprint (inherited from `crm`). |
 
-### Organization backup (`org_export`)
+### Full export (`org_export`)
 
 Full export of the organization (zip with records, relationships, files, configuration and manifest) and its restoration.
 

@@ -121,6 +121,24 @@ impl OrgExportStore {
         Ok(())
     }
 
+    pub(crate) async fn delete(
+        &self,
+        tx: &mut MySqlTx,
+        export: &OrgExport,
+    ) -> Result<(), AppError> {
+        sqlx::query("DELETE FROM organization_exports WHERE id = ?")
+            .bind(export.id.to_string())
+            .execute(&mut **tx)
+            .await?;
+        if let Some(file_id) = export.file_id {
+            sqlx::query("DELETE FROM files WHERE id = ?")
+                .bind(file_id.to_string())
+                .execute(&mut **tx)
+                .await?;
+        }
+        Ok(())
+    }
+
     pub(crate) async fn find(&self, export_id: Uuid) -> Result<Option<OrgExport>, AppError> {
         sqlx::query(AssertSqlSafe(format!(
             "SELECT {SELECT_COLUMNS} FROM organization_exports e LEFT JOIN users u ON u.id = e.requested_by \

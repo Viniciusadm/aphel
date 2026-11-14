@@ -1,5 +1,5 @@
 {
-  "name": "Backup da organização",
+  "name": "Exportação completa",
   "description": "Exportação completa da organização (zip com registros, relacionamentos, arquivos, configuração e manifesto) e sua restauração.",
   "page": {
     "title": "Exportação completa",
@@ -26,9 +26,11 @@
   },
   "restore": {
     "title": "Restaurar em outra instalação",
-    "description": "A restauração é feita pela linha de comando do servidor, numa organização já criada:",
+    "description": "Há duas formas de restaurar um pacote em outra instalação.",
     "empty": "A organização de destino precisa estar vazia (sem registros). A configuração do pacote é aplicada antes dos dados e os ids originais são mantidos quando possível.",
-    "members": "Usuários são associados pelo e-mail aos membros da organização de destino; quem não for membro fica sem responsável."
+    "members": "Usuários são associados pelo e-mail aos membros da organização de destino; quem não for membro fica sem responsável.",
+    "installer": "Na primeira tela de uma instalação nova, use o link “Restaurar a partir de um backup” e envie o zip.",
+    "cli": "Ou, pela linha de comando do servidor, numa organização já criada:"
   },
   "history": {
     "title": "Exportações anteriores",
@@ -39,7 +41,15 @@
     "missingFiles_one": "{{count}} arquivo não pôde ser lido",
     "missingFiles_other": "{{count}} arquivos não puderam ser lidos",
     "withoutFiles": "Sem anexos",
-    "download": "Baixar"
+    "download": "Baixar",
+    "retention": "Cada pacote reúne dados pessoais de todos os registros. Apague os que não forem mais necessários.",
+    "delete": "Excluir",
+    "deleteLabel": "Excluir esta exportação",
+    "deleteTitle": "Excluir esta exportação?",
+    "deleteDescription": "O arquivo zip será apagado e não poderá mais ser baixado. Os dados da organização não são afetados.",
+    "deleted": "Exportação excluída",
+    "failedHint": "A exportação não pôde ser concluída. Tente gerar de novo; se continuar falhando, avise quem administra o sistema.",
+    "summaryWithoutFiles": "{{records}} registros · {{size}}"
   },
   "status": {
     "queued": "Na fila",

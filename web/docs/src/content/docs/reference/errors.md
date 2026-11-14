@@ -617,7 +617,7 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `too_many_custom_objects` | 422 | The organization reached the maximum number of custom objects. |
 | `too_many_relationships` | 422 | The organization reached the maximum number of relationships. |
 
-### Organization backup (`org_export`)
+### Full export (`org_export`)
 
 | Code | Status | Meaning |
 | --- | --- | --- |

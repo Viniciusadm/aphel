@@ -42,7 +42,7 @@ pub struct OrgExportModule;
 
 impl Module for OrgExportModule {
     fn manifest(&self) -> ModuleManifest {
-        ModuleManifest::new(KEY, "Organization backup", APHEL_VERSION)
+        ModuleManifest::new(KEY, "Full export", APHEL_VERSION)
             .description("Full export of the organization (zip with records, relationships, files, configuration and manifest) and its restoration")
 
             .owned_tables(&["organization_exports"])

@@ -13,8 +13,8 @@ use crate::store::{OrgDataStore, OrgExportStore, RowSource};
 use crate::{
     ArchiveWriter, CONFIG_KEYS_FILE, CONFIG_PACKAGE_FILE, ConfigKind, DATASETS,
     DOMAIN_EVENTS_DATASET, DataRow, ExportSummary, FILE_BLOBS_DIR, FILES_FILE, MEMBERS_FILE,
-    Manifest, ManifestOrganization, ORG_EXPORT_COMPLETED, ORG_EXPORT_FAILED, ORG_EXPORT_FORMAT,
-    ORG_EXPORT_FORMAT_VERSION, ORG_EXPORT_IN_PROGRESS, ORG_EXPORT_NOT_READY,
+    Manifest, ManifestOrganization, ORG_EXPORT_COMPLETED, ORG_EXPORT_DELETED, ORG_EXPORT_FAILED,
+    ORG_EXPORT_FORMAT, ORG_EXPORT_FORMAT_VERSION, ORG_EXPORT_IN_PROGRESS, ORG_EXPORT_NOT_READY,
     ORG_EXPORT_RECORD_TYPE, ORG_EXPORT_REQUESTED, ORG_EXPORT_RUN_JOB, OrgExport, OrgExportStatus,
     TempFile, ZIP_MIME_TYPE, file_stream, org_export_not_found, record_path, record_priority,
     sha256_file,
@@ -172,6 +172,63 @@ pub(crate) async fn get(ctx: &Ctx<'_>, export_id: &str) -> Result<OrgExport, App
         .find(id)
         .await?
         .ok_or_else(org_export_not_found)
+}
+
+pub(crate) async fn delete(
+    ctx: &Ctx<'_>,
+    storage: &dyn FileStorage,
+    export_id: &str,
+    ip: Option<String>,
+) -> Result<(), AppError> {
+    let export = get(ctx, export_id).await?;
+    if matches!(
+        export.status,
+        OrgExportStatus::Queued | OrgExportStatus::Running
+    ) {
+        return Err(AppError::conflict_code(
+            ORG_EXPORT_IN_PROGRESS,
+            "an export that is still being prepared cannot be deleted",
+        ));
+    }
+    let storage_key = match export.file_id {
+        Some(file_id) => MySqlFileRepository::new(ctx.pool().clone())
+            .find_file(file_id)
+            .await?
+            .map(|file| file.storage_key),
+        None => None,
+    };
+    let now = ctx.now();
+    let record = RecordRef::new(ORG_EXPORT_RECORD_TYPE, export.id);
+    let mut tx = ctx.begin().await?;
+    OrgExportStore::of(ctx).delete(&mut tx, &export).await?;
+    ctx.events()
+        .publish(
+            &mut tx,
+            DomainEvent::new(Actor::from_scope(ctx.scope), ORG_EXPORT_DELETED, now)
+                .with_record(record.clone())
+                .with_payload(json!({ "export_id": export.id.to_string() })),
+        )
+        .await?;
+    ctx.audit()
+        .record(
+            &mut tx,
+            AuditEntry::new(Actor::from_scope(ctx.scope), ORG_EXPORT_DELETED, now)
+                .with_record(record)
+                .with_changes(vec![FieldChange::new(
+                    "export",
+                    json!(export.id.to_string()),
+                    Value::Null,
+                )])
+                .with_ip(ip),
+        )
+        .await?;
+    tx.commit().await?;
+    if let Some(key) = storage_key
+        && let Err(error) = storage.delete(&key).await
+    {
+        tracing::warn!(export_id = %export.id, "could not delete the export file: {error}");
+    }
+    Ok(())
 }
 
 pub(crate) async fn download(

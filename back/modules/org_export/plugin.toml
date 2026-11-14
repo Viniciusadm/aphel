@@ -1,5 +1,5 @@
 key = "org_export"
-name = "Organization backup"
+name = "Full export"
 version = "0.1.0"
 layer = "capability"
 runtime = "native"
