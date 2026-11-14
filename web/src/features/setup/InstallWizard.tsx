@@ -14,10 +14,8 @@ import {
   browserTimezone,
   timezoneOptions,
 } from '@/features/settings/organization/lib/preferences'
-import type { SetupTaskContribution } from '@/kernel/modules/define'
 import { switchInstallerLanguage } from '@/kernel/modules/i18n'
 import { ModulesSync } from '@/kernel/modules/ModulesSync'
-import { contributions, sortContributions } from '@/kernel/modules/registry'
 import { SetupFrameContext, SetupStepFrame } from '@/kernel/setup'
 import { INSTALLER_STATUS_KEY, install, useInstallerCatalog, type InstallerMe } from './api'
 import { SetupLoadingCard } from './components/SetupLoadingCard'
@@ -27,7 +25,7 @@ import { EMPTY_BUSINESS, type BusinessAnswers } from './lib/business'
 import { clearDraft, readDraft, writeDraft } from './lib/draft'
 import { ORGANIZATION_FIELDS, SERVER_FIELDS, SERVER_MESSAGES, setupSchema, type SetupValues } from './lib/form'
 import { EMPTY_CHOICE, dependencyClosure, preselect, withIncluded, withoutSecrets, type InstallerCatalog, type ModuleChoice } from './lib/modules'
-import { DRAFT_STEPS, isDraftStep, useStepLabel } from './lib/steps'
+import { DRAFT_STEPS, isDraftStep } from './lib/steps'
 import { organizationSummary } from './lib/summary'
 import { AccountStep } from './steps/AccountStep'
 import { BusinessStep } from './steps/BusinessStep'
@@ -39,11 +37,9 @@ import { RestoreStep } from './steps/RestoreStep'
 
 const KEYS = [...DRAFT_STEPS, 'email', 'ready']
 
-const allTasks = () => sortContributions(contributions<SetupTaskContribution>('setupTasks'))
 
 export function InstallWizard() {
   const { t, i18n } = useTranslation('setup')
-  const label = useStepLabel()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const catalogQuery = useInstallerCatalog()
@@ -80,9 +76,7 @@ export function InstallWizard() {
   const [restoring, setRestoring] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [installed, setInstalled] = useState<InstallerMe | null>(null)
-  const [progress, setProgress] = useState<string | null>(null)
   const [results, setResults] = useState<ReadyResult[]>([])
-  const [tasks] = useState(allTasks)
 
   useEffect(() => {
     const locale = draft?.values?.locale
@@ -202,20 +196,9 @@ export function InstallWizard() {
       storeSession(queryClient, me)
       queryClient.setQueryData(INSTALLER_STATUS_KEY, false)
       form.resetField('adminPassword')
-      const enabled = dependencyClosure(catalog.modules, choice.modules)
       const outcomes: ReadyResult[] = [{ ok: true, text: t('ready.created', { name: values.organizationName.trim() }) }]
-      for (const task of tasks.filter((item) => item.module === 'kernel' || enabled.has(item.module) || catalog.modules.some((module) => module.key === item.module && module.required))) {
-        setProgress(label(task.value.progressLabel))
-        try {
-          const result = await task.value.run()
-          if (result) outcomes.push({ ok: true, text: result.summary })
-        } catch {
-          outcomes.push({ ok: false, text: label(task.value.failureLabel) })
-        }
-      }
       setResults(outcomes)
       setInstalled(me)
-      setProgress(null)
       advance()
     } catch (failure) {
       failInstall(failure)
@@ -290,7 +273,6 @@ export function InstallWizard() {
           summary={summary()}
           error={error}
           submitting={submitting}
-          progress={progress}
           onSubmit={() => void createWorkspace()}
         />
       )

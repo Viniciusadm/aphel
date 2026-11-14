@@ -186,7 +186,7 @@ Fictional demo data (seed, removal and reset) and the public demo mode status.
 | --- | --- |
 | Layer | capability |
 | Depends on | none |
-| Optional dependencies | `onboarding`, `money`, `workflow`, `catalog_items`, `pricing`, `line_items`, `quotes`, `approvals` |
+| Optional dependencies | `money`, `workflow`, `catalog_items`, `pricing`, `line_items`, `quotes`, `approvals` |
 | Permissions | none |
 | Web package | no |
 | Blueprints | Recommended by `freelancer`. |
@@ -659,18 +659,6 @@ Sales sequences (cadences): steps, enrollments, automatic exits, sending limits 
 | Web package | yes |
 | Blueprints | Recommended by `agency`, `sales`. |
 
-### Setup assistant (`onboarding`)
-
-First-run setup assistant: questions, template recommendation and state.
-
-| | |
-| --- | --- |
-| Layer | capability |
-| Depends on | `config_packages` |
-| Optional dependencies | none |
-| Permissions | none |
-| Web package | yes |
-| Blueprints | Recommended by every blueprint (inherited from `crm`). |
 
 ### Single sign-on (OIDC) (`sso`)
 

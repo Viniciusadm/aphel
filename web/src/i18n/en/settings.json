@@ -21,7 +21,6 @@
     "duplicates": "Duplicates",
     "trash": "Trash",
     "configPackages": "Configuration packages",
-    "onboarding": "Setup assistant",
     "apiTokens": "API tokens",
     "webhooks": "Outgoing webhooks",
     "incomingWebhooks": "Incoming webhooks",
@@ -409,9 +408,6 @@
     },
     "audit": {
       "description": "History of who changed what in the organization."
-    },
-    "onboarding": {
-      "description": "Run the initial setup walkthrough again."
     },
     "configPackages": {
       "description": "Export or install ready-made configuration between organizations."

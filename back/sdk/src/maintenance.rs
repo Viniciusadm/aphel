@@ -247,13 +247,3 @@ pub fn ids_of(records: &[RecordRef], record_type: &crate::shared::RecordType) ->
         .map(|record| record.record_id.to_string())
         .collect()
 }
-
-#[async_trait]
-pub trait TemplateOnboarding: Send + Sync {
-    async fn complete_with_template(
-        &self,
-        ctx: &Ctx<'_>,
-        template_key: &str,
-        install_id: &str,
-    ) -> Result<(), AppError>;
-}

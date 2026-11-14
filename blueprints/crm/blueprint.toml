@@ -20,7 +20,6 @@ recommended = [
   "reminders",
   "favorites",
   "followers",
-  "onboarding",
   "imports",
   "bulk_actions",
   "duplicates",

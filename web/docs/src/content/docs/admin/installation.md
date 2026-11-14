@@ -148,6 +148,8 @@ On a fresh database, the sign-in page redirects to the installer at `/setup` (th
 | Email | Optional outgoing email (SMTP). You can skip it and set it up later. |
 | Ready | Result of the setup, including applying the blueprint's configuration packages. |
 
+The initial configuration is decided only here, by the business type you choose. There is no assistant to reopen afterwards; to load another ready-made configuration later, use [Configuration packages](/_aphel/docs/admin/config-packages/).
+
 When you finish, Aphel creates the organization and the administrator (with a verified email) in one transaction, enables the chosen modules, applies the blueprint configuration, signs you in and shows the app. The address your browser used becomes the public address. You can change it later.
 
 :::caution

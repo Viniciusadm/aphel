@@ -753,12 +753,6 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `sequence_not_found` | 404 | Sequence was not found. |
 | `sequence_record_type_unsupported` | 422 | The record type cannot be enrolled in a sequence. |
 
-### Setup assistant (`onboarding`)
-
-| Code | Status | Meaning |
-| --- | --- | --- |
-| `onboarding_not_pending` | 409 | The onboarding assistant is not open; reopen it first. |
-
 ### Single sign-on (OIDC) (`sso`)
 
 | Code | Status | Meaning |

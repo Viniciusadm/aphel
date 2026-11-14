@@ -73,8 +73,6 @@ export function createModuleApp(key: string): ModuleApp {
     referenceOptions: (kind, provider) => contribute(`reference:${kind}`, key, provider),
     timelineSource: (factory) => contribute('timelineSource', key, factory),
     configPackageLabels: (labels) => contribute('configPackageLabels', key, labels),
-    setupStep: (step) => contribute('setupSteps', key, step, step.order),
-    setupTask: (task) => contribute('setupTasks', key, task, task.order),
     on: (name, handler) => contribute(`on:${name}`, key, handler),
   }
 }

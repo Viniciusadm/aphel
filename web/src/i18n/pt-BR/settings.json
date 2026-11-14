@@ -21,7 +21,6 @@
     "duplicates": "Duplicatas",
     "trash": "Lixeira",
     "configPackages": "Pacotes de configuração",
-    "onboarding": "Assistente inicial",
     "apiTokens": "Tokens de API",
     "webhooks": "Webhooks de saída",
     "incomingWebhooks": "Webhooks de entrada",
@@ -409,9 +408,6 @@
     },
     "audit": {
       "description": "Histórico de quem alterou o quê na organização."
-    },
-    "onboarding": {
-      "description": "Refaça o passo a passo de configuração inicial."
     },
     "configPackages": {
       "description": "Exporte ou instale configurações prontas entre organizações."

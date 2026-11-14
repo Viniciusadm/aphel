@@ -191,7 +191,6 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `notifications` | `notifications` | 9 | Notifications and delivery preferences |
 | `custom-objects` | `objects` | 6 | Object administration |
 | `relationships` | `objects` | 8 | Object relationships |
-| `onboarding` | `onboarding` | 5 | First-run setup assistant of the organization: questions, template recommendation and state |
 | `organization-exports` | `org_export` | 4 | Full export of the organization (zip with records, relationships, files, configuration and manifest) for backup and restoration with `aphel org import` |
 | `organizations` | `organizations` | 9 | Companies |
 | `people` | `people` | 11 | Contacts and their organizations |

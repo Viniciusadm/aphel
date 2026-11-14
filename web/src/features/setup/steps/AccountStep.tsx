@@ -19,11 +19,10 @@ interface AccountStepProps {
   summary: SummaryLine[]
   error: string | null
   submitting: boolean
-  progress: string | null
   onSubmit: () => void
 }
 
-export function AccountStep({ form, summary, error, submitting, progress, onSubmit }: AccountStepProps) {
+export function AccountStep({ form, summary, error, submitting, onSubmit }: AccountStepProps) {
   const { t } = useTranslation('setup')
   const {
     register,
@@ -83,7 +82,7 @@ export function AccountStep({ form, summary, error, submitting, progress, onSubm
       {submitting && (
         <p role="status" className="flex items-center gap-2 rounded-md border bg-muted/30 p-3 text-sm">
           <LoaderCircle className="size-4 shrink-0 animate-spin text-primary" aria-hidden />
-          {progress ?? t('account.submitting')}
+          {t('account.submitting')}
         </p>
       )}
       <section className="grid gap-2 rounded-lg border bg-muted/30 p-4" aria-labelledby="setup-summary">

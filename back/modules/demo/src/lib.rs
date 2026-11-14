@@ -26,7 +26,6 @@ impl Module for DemoModule {
             .description(
                 "Fictional demo data (seed, removal and reset) and the public demo mode status",
             )
-            .optional("onboarding")
             .optional(aphel_sdk::money::KEY)
             .optional("workflow")
             .optional(aphel_sdk::catalog_items::KEY)

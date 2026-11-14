@@ -102,13 +102,6 @@ pub struct CreateValidationRuleCommand {
     pub is_active: Option<bool>,
     pub ip: Option<String>,
 }
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct CompleteOnboardingCommand {
-    pub template_key: Option<String>,
-    pub install_id: Option<String>,
-    pub ip: Option<String>,
-}
-
 pub struct CurrencyConfiguration {
     pub base: String,
     pub currencies: Vec<CurrencyEntry>,
@@ -152,14 +145,6 @@ pub trait ValidationAdministration: Send + Sync {
         ctx: &Ctx<'_>,
         command: CreateValidationRuleCommand,
     ) -> Result<Uuid, AppError>;
-}
-#[async_trait::async_trait]
-pub trait OnboardingCompletion: Send + Sync {
-    async fn complete(
-        &self,
-        ctx: &Ctx<'_>,
-        command: CompleteOnboardingCommand,
-    ) -> Result<(), AppError>;
 }
 #[async_trait::async_trait]
 pub trait StageAdministration: Send + Sync {

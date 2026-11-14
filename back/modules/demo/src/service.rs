@@ -13,7 +13,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::{Email, UserId};
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::configuration::{ApplyCommand, PackageSource, configuration_packages};
-use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog, TemplateOnboarding};
+use aphel_sdk::maintenance::{DatasetSeed, DatasetSession, MaintenanceCatalog};
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::security::{PasswordHasher, password_violation};
 use aphel_sdk::platform::application::shared::{
@@ -252,7 +252,7 @@ async fn install_template(ctx: &Ctx<'_>, template_key: &str) -> Result<(), AppEr
             plan.issues
         )));
     }
-    let result = packages
+    packages
         .apply(
             ctx,
             ApplyCommand {
@@ -263,11 +263,6 @@ async fn install_template(ctx: &Ctx<'_>, template_key: &str) -> Result<(), AppEr
             },
         )
         .await?;
-    if let Some(onboarding) = ctx.services().get::<dyn TemplateOnboarding>() {
-        onboarding
-            .complete_with_template(ctx, template_key, &result.install.id.to_string())
-            .await?;
-    }
     Ok(())
 }
 
