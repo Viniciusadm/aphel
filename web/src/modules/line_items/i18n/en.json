@@ -93,22 +93,5 @@
     "quantity": "1",
     "unitPrice": "0.00",
     "discount": "0"
-  },
-  "settings": {
-    "title": "Items and totals",
-    "description": "Choose where the deal amount comes from: typed by hand or calculated from its items.",
-    "amountMode": "Deal amount",
-    "modes": {
-      "manual": "Typed manually",
-      "items": "Sum of items"
-    },
-    "modeHints": {
-      "manual": "You type the amount on the deal. Items are for reference only.",
-      "items": "When a deal has items, the amount is their sum and the field is read-only. Without items, it stays manual."
-    },
-    "switchHint": "Current amounts do not change now: each deal follows the sum when its items change or when you click \"Use total as amount\".",
-    "save": "Save",
-    "saved": "Settings saved.",
-    "conflict": "Someone else changed this setting. The data was reloaded."
   }
 }

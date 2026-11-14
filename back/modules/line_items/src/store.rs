@@ -191,72 +191,45 @@ impl LineItemStore {
         Ok(())
     }
 
-    pub(crate) async fn settings(&self) -> Result<Option<LineItemSettings>, AppError> {
-        let row =
-            sqlx::query("SELECT amount_mode, updated_at FROM line_item_settings WHERE id = 1")
-                .fetch_optional(&self.pool)
-                .await?;
-        row.map(|row| {
-            let mode: String = row.try_get("amount_mode")?;
-            Ok(LineItemSettings {
-                amount_mode: AmountMode::parse(&mode)
-                    .ok_or_else(|| invalid_column("line_item_settings.amount_mode", &mode))?,
-                updated_at: Some(instant(&row, "updated_at")?),
-            })
-        })
-        .transpose()
+    pub(crate) async fn settings(&self) -> Result<LineItemSettings, AppError> {
+        let settings = aphel_sdk::platform::modules::module_settings(&self.pool, crate::KEY).await?;
+        let mode = settings
+            .get(crate::SETTING_AMOUNT_MODE)
+            .and_then(|value| value.as_str())
+            .and_then(AmountMode::parse)
+            .unwrap_or_default();
+        Ok(LineItemSettings { amount_mode: mode })
     }
 
-    pub(crate) async fn settings_locked(
+    pub(crate) async fn save_amount_mode(
         &self,
         tx: &mut MySqlTx,
-    ) -> Result<LineItemSettings, AppError> {
-        let row = sqlx::query(
-            "SELECT amount_mode, updated_at FROM line_item_settings WHERE id = 1 FOR UPDATE",
-        )
-        .fetch_one(&mut **tx)
-        .await?;
-        let mode: String = row.try_get("amount_mode")?;
-        Ok(LineItemSettings {
-            amount_mode: AmountMode::parse(&mode)
-                .ok_or_else(|| invalid_column("line_item_settings.amount_mode", &mode))?,
-            updated_at: Some(instant(&row, "updated_at")?),
-        })
-    }
-
-    pub(crate) async fn save_settings(
-        &self,
-        tx: &mut MySqlTx,
-        updated_by: &UserId,
-        settings: &LineItemSettings,
-        at: DateTime<Utc>,
+        mode: AmountMode,
     ) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO line_item_settings (id, amount_mode, updated_by, created_at, \
-             updated_at) VALUES (1, ?, ?, ?, ?) \
-             ON DUPLICATE KEY UPDATE amount_mode = VALUES(amount_mode), \
-             updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)",
+            "UPDATE installed_modules \
+             SET settings = JSON_SET(COALESCE(settings, JSON_OBJECT()), '$.amount_mode', ?) \
+             WHERE module_key = ?",
         )
-        .bind(settings.amount_mode.as_str())
-        .bind(updated_by.as_str())
-        .bind(naive(at))
-        .bind(naive(at))
+        .bind(mode.as_str())
+        .bind(crate::KEY)
         .execute(&mut **tx)
         .await?;
         Ok(())
     }
 
     pub(crate) async fn amount_managed(&self, record: &RecordRef) -> Result<bool, AppError> {
-        let managed: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM line_item_settings WHERE amount_mode = ?) \
-             AND EXISTS(SELECT 1 FROM line_items WHERE record_type = ? AND record_id = ?)",
+        if self.settings().await?.amount_mode != AmountMode::Items {
+            return Ok(false);
+        }
+        let has_items: bool = sqlx::query_scalar(
+            "SELECT EXISTS(SELECT 1 FROM line_items WHERE record_type = ? AND record_id = ?)",
         )
-        .bind(AmountMode::Items.as_str())
         .bind(record.record_type.as_str())
         .bind(record.record_id.to_string())
         .fetch_one(&self.pool)
         .await?;
-        Ok(managed)
+        Ok(has_items)
     }
 }
 

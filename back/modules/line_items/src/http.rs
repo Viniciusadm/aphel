@@ -10,8 +10,7 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use crate::domain::{
-    LineItemInput, LineItemLine, LineItemSettings, LineItemsSummary, ReorderLineItemsCommand,
-    SaveLineItemCommand, UpdateLineItemSettingsCommand,
+    LineItemInput, LineItemLine, LineItemsSummary, ReorderLineItemsCommand, SaveLineItemCommand,
 };
 
 use crate::service;
@@ -66,7 +65,6 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(update_line_item, delete_line_item))
         .routes(routes!(reorder_line_items))
         .routes(routes!(apply_line_items_total))
-        .routes(routes!(get_line_item_settings, update_line_item_settings))
 }
 
 #[utoipa::path(
@@ -267,61 +265,6 @@ async fn apply_line_items_total(
     )
     .await?;
     Ok(Json(Data::new(summary.into())))
-}
-
-#[utoipa::path(
-    get,
-    path = "/line-items/settings",
-    tag = TAG,
-    operation_id = "line_item_settings_get",
-    security(("session_cookie" = [])),
-    description = "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
-    responses(
-        (status = 200, description = "Line item settings", body = Data<LineItemSettingsResponse>),
-        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `line_items.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
-    )
-)]
-async fn get_line_item_settings(
-    State(state): State<AppState>,
-    tenant: AuthContext,
-) -> Result<Json<Data<LineItemSettingsResponse>>, ApiError> {
-    let settings = service::settings(&Ctx::from_state(&state, &tenant.scope).await?).await?;
-    Ok(Json(Data::new(settings.into())))
-}
-
-#[utoipa::path(
-    patch,
-    path = "/line-items/settings",
-    tag = TAG,
-    operation_id = "line_item_settings_update",
-    security(("session_cookie" = [])),
-    description = "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
-    params(
-        ("If-Match" = Option<String>, Header, description = "`updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved"),
-    ),
-    request_body = UpdateLineItemSettingsRequest,
-    responses(
-        (status = 200, description = "Settings updated", body = Data<LineItemSettingsResponse>),
-        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
-        (status = 409, description = "The settings changed since the `If-Match` version (`version_conflict`)", body = ErrorEnvelope),
-        (status = 422, description = "Invalid `amount_mode` or malformed `If-Match` (`validation_error`)", body = ErrorEnvelope),
-    )
-)]
-async fn update_line_item_settings(
-    State(state): State<AppState>,
-    tenant: AuthContext,
-    client: ClientInfo,
-    IfMatch(expected): IfMatch,
-    JsonBody(request): JsonBody<UpdateLineItemSettingsRequest>,
-) -> Result<Json<Data<LineItemSettingsResponse>>, ApiError> {
-    let settings = service::update_settings(
-        &Ctx::from_state(&state, &tenant.scope).await?,
-        request.into_command(client.0.ip, expected),
-    )
-    .await?;
-    Ok(Json(Data::new(settings.into())))
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
@@ -570,41 +513,6 @@ impl From<LineItemsSummary> for LineItemsResponse {
             amount_mode: summary.amount_mode.into(),
             amount_managed: summary.amount_managed,
             can_apply_total: summary.can_apply_total,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub(crate) struct LineItemSettingsResponse {
-    pub(crate) amount_mode: AmountModeSchema,
-    #[schema(example = "2026-10-20T13:45:00Z")]
-    pub(crate) updated_at: Option<String>,
-}
-
-impl From<LineItemSettings> for LineItemSettingsResponse {
-    fn from(settings: LineItemSettings) -> Self {
-        Self {
-            amount_mode: settings.amount_mode.into(),
-            updated_at: settings.updated_at.map(timestamp),
-        }
-    }
-}
-
-#[derive(Debug, Default, Deserialize, ToSchema)]
-pub(crate) struct UpdateLineItemSettingsRequest {
-    pub(crate) amount_mode: Option<AmountModeSchema>,
-}
-
-impl UpdateLineItemSettingsRequest {
-    pub(crate) fn into_command(
-        self,
-        ip: Option<String>,
-        expected_updated_at: Option<DateTime<Utc>>,
-    ) -> UpdateLineItemSettingsCommand {
-        UpdateLineItemSettingsCommand {
-            amount_mode: self.amount_mode.map(Into::into),
-            ip,
-            expected_updated_at,
         }
     }
 }

@@ -3716,24 +3716,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/line-items/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
-        get: operations["line_item_settings_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** @description Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction. */
-        patch: operations["line_item_settings_update"];
-        trace?: never;
-    };
     "/api/v1/line-items/{record_type}/{record_id}/items": {
         parameters: {
             query?: never;
@@ -13276,13 +13258,6 @@ export interface components {
                 updated_at: string;
             };
         };
-        Data_LineItemSettingsResponse: {
-            data: {
-                amount_mode: components["schemas"]["AmountMode"];
-                /** @example 2026-10-20T13:45:00Z */
-                updated_at?: string | null;
-            };
-        };
         Data_LineItemsResponse: {
             data: {
                 amount_managed: boolean;
@@ -18233,11 +18208,6 @@ export interface components {
             unit_price: string;
             /** @example 2026-10-20T13:45:00Z */
             updated_at: string;
-        };
-        LineItemSettingsResponse: {
-            amount_mode: components["schemas"]["AmountMode"];
-            /** @example 2026-10-20T13:45:00Z */
-            updated_at?: string | null;
         };
         LineItemsResponse: {
             amount_managed: boolean;
@@ -23579,9 +23549,6 @@ export interface components {
             name?: string | null;
             /** Format: int32 */
             signature_tolerance_seconds?: number | null;
-        };
-        UpdateLineItemSettingsRequest: {
-            amount_mode?: null | components["schemas"]["AmountMode"];
         };
         UpdateLostReasonRequest: {
             is_active?: boolean | null;
@@ -43252,125 +43219,6 @@ export interface operations {
                 };
             };
             /** @description Unknown trigger or stage (`validation_error` with `details.fields`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    line_item_settings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Line item settings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_LineItemSettingsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `line_items.read` and `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    line_item_settings_update: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description `updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved */
-                "If-Match"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateLineItemSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Settings updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_LineItemSettingsResponse"];
-                };
-            };
-            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The settings changed since the `If-Match` version (`version_conflict`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Invalid `amount_mode` or malformed `If-Match` (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;

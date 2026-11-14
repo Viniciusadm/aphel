@@ -93,22 +93,5 @@
     "quantity": "1",
     "unitPrice": "0,00",
     "discount": "0"
-  },
-  "settings": {
-    "title": "Itens e totais",
-    "description": "Escolha de onde vem o valor das oportunidades: digitado à mão ou calculado pelos itens.",
-    "amountMode": "Valor da oportunidade",
-    "modes": {
-      "manual": "Digitado manualmente",
-      "items": "Soma dos itens"
-    },
-    "modeHints": {
-      "manual": "Você digita o valor na oportunidade. Os itens servem só de referência.",
-      "items": "Quando a oportunidade tem itens, o valor é a soma deles e o campo fica só para leitura. Sem itens, continua manual."
-    },
-    "switchHint": "Os valores atuais não mudam agora: cada oportunidade passa a seguir a soma quando seus itens forem alterados ou ao clicar em \"Usar total como valor\".",
-    "save": "Salvar",
-    "saved": "Configuração salva.",
-    "conflict": "Outra pessoa alterou esta configuração. Carregamos os dados novamente."
   }
 }

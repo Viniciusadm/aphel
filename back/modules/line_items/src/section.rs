@@ -55,8 +55,7 @@ impl LineItemsSection {
             .store
             .settings()
             .await?
-            .map(|settings| settings.amount_mode)
-            .unwrap_or_default())
+            .amount_mode)
     }
 
     async fn change(&self, content: &Value) -> Result<Option<PlanChange>, AppError> {
@@ -76,11 +75,8 @@ impl ConfigSection<MySqlTx> for LineItemsSection {
     }
 
     async fn export(&self, _scope: &AccessScope) -> Result<Option<Value>, AppError> {
-        Ok(self
-            .store
-            .settings()
-            .await?
-            .map(|settings| json!({ "amount_mode": settings.amount_mode.as_str() })))
+        let mode = self.current_mode().await?;
+        Ok(Some(json!({ "amount_mode": mode.as_str() })))
     }
 
     async fn validate(
@@ -112,11 +108,11 @@ impl ConfigSection<MySqlTx> for LineItemsSection {
     async fn apply(
         &self,
         tx: &mut MySqlTx,
-        scope: &AccessScope,
+        _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,
         _decisions: &Decisions,
-        context: &mut ApplyContext,
+        _context: &mut ApplyContext,
     ) -> Result<(), AppError> {
         if self.change(content).await?.is_none() {
             return Ok(());
@@ -126,11 +122,6 @@ impl ConfigSection<MySqlTx> for LineItemsSection {
         else {
             return Ok(());
         };
-        let mut settings = self.store.settings().await?.unwrap_or_default();
-        settings.amount_mode = mode;
-        settings.updated_at = Some(context.at);
-        self.store
-            .save_settings(tx, scope.user_id(), &settings, context.at)
-            .await
+        self.store.save_amount_mode(tx, mode).await
     }
 }

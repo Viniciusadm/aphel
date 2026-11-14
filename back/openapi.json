@@ -27346,168 +27346,6 @@
         "x-aphel-module": "leads"
       }
     },
-    "/api/v1/line-items/settings": {
-      "get": {
-        "tags": [
-          "line-items"
-        ],
-        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
-        "operationId": "line_item_settings_get",
-        "responses": {
-          "200": {
-            "description": "Line item settings",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LineItemSettingsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `line_items.read` and `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "line_items"
-      },
-      "patch": {
-        "tags": [
-          "line-items"
-        ],
-        "description": "Scoped line items. Parent entity permissions and monetary field access apply; mutations, audit and owner projections share one transaction.",
-        "operationId": "line_item_settings_update",
-        "parameters": [
-          {
-            "name": "If-Match",
-            "in": "header",
-            "description": "`updated_at` of the settings as read (ISO-8601, quotes optional); ignored while the settings were never saved",
-            "required": false,
-            "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateLineItemSettingsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Settings updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_LineItemSettingsResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The settings changed since the `If-Match` version (`version_conflict`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid `amount_mode` or malformed `If-Match` (`validation_error`)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "session_cookie": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "x-aphel-module": "line_items"
-      }
-    },
     "/api/v1/line-items/{record_type}/{record_id}/items": {
       "get": {
         "tags": [
@@ -84676,32 +84514,6 @@
           }
         }
       },
-      "Data_LineItemSettingsResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "amount_mode"
-            ],
-            "properties": {
-              "amount_mode": {
-                "$ref": "#/components/schemas/AmountMode"
-              },
-              "updated_at": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "2026-10-20T13:45:00Z"
-              }
-            }
-          }
-        }
-      },
       "Data_LineItemsResponse": {
         "type": "object",
         "required": [
@@ -103816,24 +103628,6 @@
           },
           "updated_at": {
             "type": "string",
-            "example": "2026-10-20T13:45:00Z"
-          }
-        }
-      },
-      "LineItemSettingsResponse": {
-        "type": "object",
-        "required": [
-          "amount_mode"
-        ],
-        "properties": {
-          "amount_mode": {
-            "$ref": "#/components/schemas/AmountMode"
-          },
-          "updated_at": {
-            "type": [
-              "string",
-              "null"
-            ],
             "example": "2026-10-20T13:45:00Z"
           }
         }
@@ -124735,21 +124529,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "UpdateLineItemSettingsRequest": {
-        "type": "object",
-        "properties": {
-          "amount_mode": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AmountMode"
-              }
-            ]
-          }
-        }
       },
       "UpdateLostReasonRequest": {
         "type": "object",

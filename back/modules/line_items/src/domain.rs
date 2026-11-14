@@ -9,7 +9,7 @@ use aphel_kernel::records::Patch;
 use aphel_sdk::line_items::{AmountMode, LineData, LineItem, LineTotalError};
 use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
 use aphel_sdk::platform::application::fields::decimal_json;
-use aphel_sdk::platform::application::shared::{FieldChange, RecordType};
+use aphel_sdk::platform::application::shared::FieldChange;
 
 use aphel_sdk::platform::application::shared::money_text;
 
@@ -23,9 +23,6 @@ pub(crate) const LINE_ITEM_ADDED: &str = "line_items.item_added";
 pub(crate) const LINE_ITEM_UPDATED: &str = "line_items.item_updated";
 pub(crate) const LINE_ITEM_REMOVED: &str = "line_items.item_removed";
 pub(crate) const LINE_ITEMS_REORDERED: &str = "line_items.items_reordered";
-pub(crate) const LINE_ITEM_SETTINGS_UPDATED: &str = "line_item_settings.updated";
-pub(crate) const LINE_ITEM_SETTINGS_RECORD_TYPE: RecordType =
-    RecordType::from_static("line_items.line_item_settings");
 
 pub(crate) const INVALID_LINE_ITEM: &str = "invalid line item";
 
@@ -56,13 +53,6 @@ pub(crate) struct ReorderLineItemsCommand {
     pub(crate) ip: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub(crate) struct UpdateLineItemSettingsCommand {
-    pub(crate) amount_mode: Option<AmountMode>,
-    pub(crate) ip: Option<String>,
-    pub(crate) expected_updated_at: Option<DateTime<Utc>>,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LineItemLine {
     pub item: LineItem,
@@ -87,7 +77,6 @@ pub struct LineItemsSummary {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct LineItemSettings {
     pub(crate) amount_mode: AmountMode,
-    pub(crate) updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]

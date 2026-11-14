@@ -7,10 +7,10 @@ use uuid::Uuid;
 
 use crate::domain::{
     HostRecord, INVALID_LINE_ITEM, LINE_ITEM_ADDED, LINE_ITEM_REMOVED,
-    LINE_ITEM_SETTINGS_RECORD_TYPE, LINE_ITEM_SETTINGS_UPDATED, LINE_ITEM_UPDATED,
+    LINE_ITEM_UPDATED,
     LINE_ITEMS_LIMIT_REACHED, LINE_ITEMS_REORDERED, LineItemInput, LineItemLine, LineItemSettings,
     LineItemsSummary, PRODUCT_CURRENCY_MISMATCH, RECORD_HAS_NO_ITEMS, ReorderLineItemsCommand,
-    SaveLineItemCommand, UpdateLineItemSettingsCommand, item_changes, item_not_found,
+    SaveLineItemCommand, item_changes, item_not_found,
     item_snapshot, line, line_total, parse_decimal,
 };
 use crate::recurring::apply_item_recurrence;
@@ -32,7 +32,6 @@ use aphel_sdk::platform::application::fields::{CustomFieldPorts, ReferenceChecke
 use aphel_sdk::platform::application::query::RecordQueryPorts;
 use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, ensure_version};
 use aphel_sdk::platform::database::transaction::MySqlTx;
-use aphel_sdk::platform::domain::access::Permission;
 
 use aphel_sdk::line_items::catalog_item;
 fn parse_id(value: &str) -> Option<Uuid> {
@@ -385,61 +384,6 @@ pub(crate) async fn apply_total(
     Ok(result)
 }
 
-pub(crate) async fn settings(ctx: &Ctx<'_>) -> Result<LineItemSettings, AppError> {
-    if ctx.scope.require(&Permission::SETTINGS_MANAGE).is_err() {
-        ctx.scope.require(
-            &aphel_sdk::platform::domain::access::Permission::from_static("line_items.read"),
-        )?;
-    }
-    current_settings(ctx).await
-}
-
-pub(crate) async fn update_settings(
-    ctx: &Ctx<'_>,
-    command: UpdateLineItemSettingsCommand,
-) -> Result<LineItemSettings, AppError> {
-    let scope = ctx.scope;
-    scope.require(&Permission::SETTINGS_MANAGE)?;
-    let mut tx = ctx.begin().await?;
-    let current = LineItemStore::of(ctx).settings_locked(&mut tx).await?;
-    if let Some(updated_at) = current.updated_at {
-        ensure_version(command.expected_updated_at, updated_at)?;
-    }
-    let mut settings = current.clone();
-    if let Some(mode) = command.amount_mode {
-        settings.amount_mode = mode;
-    }
-    if settings.amount_mode == current.amount_mode && current.updated_at.is_some() {
-        return Ok(current);
-    }
-    let now = ctx.now();
-    settings.updated_at = Some(now);
-    LineItemStore::of(ctx)
-        .save_settings(&mut tx, scope.user_id(), &settings, now)
-        .await?;
-    publish_mutation(
-        ctx.events(),
-        ctx.audit(),
-        &mut tx,
-        scope,
-        now,
-        RecordMutation {
-            record: RecordRef::new(LINE_ITEM_SETTINGS_RECORD_TYPE, Uuid::nil()),
-            event_type: LINE_ITEM_SETTINGS_UPDATED,
-            payload: json!({ "amount_mode": settings.amount_mode.as_str() }),
-            changes: vec![FieldChange::new(
-                "amount_mode",
-                json!(current.amount_mode.as_str()),
-                json!(settings.amount_mode.as_str()),
-            )],
-            ip: command.ip,
-        },
-    )
-    .await?;
-    tx.commit().await?;
-    Ok(settings)
-}
-
 fn build_summary(parent: &HostRecord, items: Vec<LineItem>, mode: AmountMode) -> LineItemsSummary {
     let total = items_total(&items);
     let lines: Vec<LineItemLine> = items.into_iter().map(line).collect();
@@ -686,7 +630,7 @@ async fn record(
 }
 
 async fn current_settings(ctx: &Ctx<'_>) -> Result<LineItemSettings, AppError> {
-    Ok(LineItemStore::of(ctx).settings().await?.unwrap_or_default())
+    LineItemStore::of(ctx).settings().await
 }
 
 async fn writable_mode(ctx: &Ctx<'_>, record_ref: &RecordRef) -> Result<AmountMode, AppError> {
