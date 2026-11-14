@@ -5,6 +5,8 @@ import { isApiError } from '@/api'
 import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess, PageLoader, UnsavedChangesGuard } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
+import { Notice } from '@/components/ui/notice'
+import { OptionCard } from '@/components/ui/option-card'
 import { ErrorState } from '@/components/ui/error-state'
 import { DEAL_AMOUNT_MODES, settingsApi, settingsKeys, useLineItemSettings, type AmountMode, type LineItemSettings } from './settings-api'
 import { PageHeader } from '@/components/ui/page-header'
@@ -68,26 +70,20 @@ function SettingsForm({ settings }: { settings: LineItemSettings }) {
       <fieldset className="grid gap-3" disabled={!canEdit || saving}>
         <legend className="mb-2 text-base font-semibold">{t('settings.amountMode')}</legend>
         {DEAL_AMOUNT_MODES.map((value) => (
-          <label
+          <OptionCard
             key={value}
-            className="flex cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary"
-          >
-            <input
-              type="radio"
-              name="amount_mode"
-              value={value}
-              checked={mode === value}
-              onChange={() => setMode(value)}
-              className="mt-1 accent-[var(--primary)]"
-            />
-            <span className="grid gap-0.5">
-              <span className="text-sm font-medium">{t(`settings.modes.${value}`)}</span>
-              <span className="text-xs text-muted-foreground">{t(`settings.modeHints.${value}`)}</span>
-            </span>
-          </label>
+            type="radio"
+            name="amount_mode"
+            value={value}
+            checked={mode === value}
+            onChange={() => setMode(value)}
+            title={t(`settings.modes.${value}`)}
+            description={t(`settings.modeHints.${value}`)}
+            disabled={!canEdit || saving}
+          />
         ))}
       </fieldset>
-      {mode === 'items' && <p className="text-sm text-muted-foreground">{t('settings.switchHint')}</p>}
+      {mode === 'items' && dirty && <Notice>{t('settings.switchHint')}</Notice>}
       {canEdit && (
         <div className="flex justify-end">
           <Button type="submit" disabled={saving || !dirty}>
