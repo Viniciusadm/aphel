@@ -105,7 +105,7 @@ If a privacy request removes personal data that came from an import, the import 
 ## Exporting records
 
 1. Open a record list and apply the filter, search and sort you want.
-2. Click **Export**.
+2. Click **List actions** and then **Export**.
 3. Choose the format, **CSV** or **Excel (XLSX)**, and the columns. Use **All** or **None** to select quickly, and tick **Record ID** if you need ids.
 4. Click **Generate file**. The file is built in the background; you can close the window and you are notified when it is ready. Click **Download file**.
 
@@ -114,7 +114,7 @@ What you should know:
 - The file uses the current filter, search and sort of the list and includes only records you can see.
 - You need `<type>.export` (for example `people.export`, `organizations.export`, `deals.export`, `catalog_items.export`) and the read permission of the type.
 - A single export is limited to 100,000 records and 200 columns. Narrow the filter if you hit the limit.
-- Open **Data** and then **Exports** to see your previous exports and download them again. The page shows only your own exports.
+- Open **Data** and then **List exports** to see your previous exports and download them again. The page shows only your own exports. Files are kept until you delete them with **Delete**; deleting removes the file and does not affect any record.
 
 ## Bulk actions
 

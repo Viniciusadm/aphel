@@ -2624,7 +2624,7 @@ export interface paths {
         get: operations["exports_get"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["exports_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -37216,6 +37216,63 @@ export interface operations {
             };
             /** @description Export not found or requested by someone else (`export_not_found`) */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    exports_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Export id */
+                export_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Export and its generated file deleted; publishes `export.deleted` */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Export not found or requested by someone else (`export_not_found`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The export is still queued or running (`export_in_progress`) */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -20,7 +20,7 @@ pub(crate) const TAG: &str = "exports";
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(request_export, list_exports))
-        .routes(routes!(get_export))
+        .routes(routes!(get_export, delete_export))
 }
 
 #[utoipa::path(
@@ -97,4 +97,29 @@ async fn get_export(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let job = service::get(&ctx, &export_id).await?;
     Ok(Json(Data::new(job.into())))
+}
+
+#[utoipa::path(
+    delete,
+    path = "/exports/{export_id}",
+    tag = TAG,
+    operation_id = "exports_delete",
+    security(("session_cookie" = [])),
+    params(("export_id" = String, Path, description = "Export id")),
+    responses(
+        (status = 204, description = "Export and its generated file deleted; publishes `export.deleted`"),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 404, description = "Export not found or requested by someone else (`export_not_found`)", body = ErrorEnvelope),
+        (status = 409, description = "The export is still queued or running (`export_in_progress`)", body = ErrorEnvelope),
+    )
+)]
+async fn delete_export(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Path(export_id): Path<String>,
+) -> Result<StatusCode, ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    service::delete(&ctx, state.storage.as_ref(), &export_id, client.0.ip).await?;
+    Ok(StatusCode::NO_CONTENT)
 }

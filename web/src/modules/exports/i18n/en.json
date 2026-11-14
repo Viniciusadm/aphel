@@ -1,5 +1,5 @@
 {
-  "name": "Exports",
+  "name": "List export",
   "recordTypes": {
     "contact": "people",
     "company": "organizations",
@@ -41,14 +41,14 @@
   "ready_one": "File ready with {{count}} record.",
   "ready_other": "File ready with {{count}} records.",
   "download": "Download file",
-  "failed": "The file could not be generated.",
+  "failed": "The file could not be generated. Try again; if it keeps failing, tell your administrator.",
   "close": "Close",
   "history": {
-    "title": "Exports",
+    "title": "List exports",
     "menuDescription": "Files exported from record lists, ready to download again.",
-    "description": "Files you exported from record lists.",
+    "description": "Files you exported from record lists. They are kept until you delete them.",
     "empty": "No exports yet",
-    "emptyDescription": "Use the Export button on a record list to generate a file.",
+    "emptyDescription": "Open a list (for example, Contacts), click List actions and choose Export.",
     "status": {
       "queued": "Queued",
       "running": "Generating",
@@ -62,6 +62,12 @@
       "rows": "Records",
       "createdAt": "Requested at",
       "actions": "Actions"
-    }
+    },
+    "delete": "Delete",
+    "deleteLabel": "Delete this export",
+    "deleteTitle": "Delete this export?",
+    "deleteDescription": "The file will be deleted and can no longer be downloaded. Your records are not affected.",
+    "deleted": "Export deleted",
+    "failedHint": "The file could not be generated. Try again; if it keeps failing, tell your administrator."
   }
 }

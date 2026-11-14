@@ -15,6 +15,7 @@ pub(crate) const MAX_EXPORT_ROWS: u64 = 100_000;
 pub(crate) const ID_COLUMN: &str = "id";
 
 pub(crate) const EXPORT_REQUESTED: &str = "export.requested";
+pub(crate) const EXPORT_DELETED: &str = "export.deleted";
 pub(crate) const EXPORT_COMPLETED: &str = "export.completed";
 pub(crate) const EXPORT_FAILED: &str = "export.failed";
 

@@ -1,5 +1,5 @@
 {
-  "name": "Exportações",
+  "name": "Exportação de listas",
   "recordTypes": {
     "contact": "contatos",
     "company": "empresas",
@@ -41,14 +41,14 @@
   "ready_one": "Arquivo pronto com {{count}} registro.",
   "ready_other": "Arquivo pronto com {{count}} registros.",
   "download": "Baixar arquivo",
-  "failed": "Não foi possível gerar o arquivo.",
+  "failed": "Não foi possível gerar o arquivo. Tente de novo; se continuar falhando, avise quem administra o sistema.",
   "close": "Fechar",
   "history": {
-    "title": "Exportações",
+    "title": "Exportações de listas",
     "menuDescription": "Arquivos exportados das listas de registros, prontos para baixar de novo.",
-    "description": "Arquivos que você exportou das listas de registros.",
+    "description": "Arquivos que você exportou das listas de registros. Eles ficam guardados até você excluir.",
     "empty": "Nenhuma exportação ainda",
-    "emptyDescription": "Use o botão Exportar em uma lista de registros para gerar um arquivo.",
+    "emptyDescription": "Abra uma lista (por exemplo, Contatos), clique em Ações da lista e escolha Exportar.",
     "status": {
       "queued": "Na fila",
       "running": "Gerando",
@@ -62,6 +62,12 @@
       "rows": "Registros",
       "createdAt": "Solicitada em",
       "actions": "Ações"
-    }
+    },
+    "delete": "Excluir",
+    "deleteLabel": "Excluir esta exportação",
+    "deleteTitle": "Excluir esta exportação?",
+    "deleteDescription": "O arquivo será apagado e não poderá mais ser baixado. Os registros não são afetados.",
+    "deleted": "Exportação excluída",
+    "failedHint": "Não foi possível gerar o arquivo. Tente de novo; se continuar falhando, avise quem administra o sistema."
   }
 }

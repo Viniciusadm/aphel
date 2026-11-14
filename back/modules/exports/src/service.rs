@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::store::{ExportStore, RecordLabelStore, RecordRowStore};
 use crate::{
-    CSV_MIME_TYPE, ColumnSpec, EXPORT_COMPLETED, EXPORT_FAILED, EXPORT_PAGE_SIZE,
+    CSV_MIME_TYPE, ColumnSpec, EXPORT_COMPLETED, EXPORT_DELETED, EXPORT_FAILED, EXPORT_PAGE_SIZE,
     EXPORT_RECORD_TYPE, EXPORT_REQUESTED, EXPORT_RUN_JOB, ExportCell, ExportFormat, ExportJob,
     ExportQuery, ExportStatus, GeneratedFile, ID_COLUMN, LabelSet, MAX_EXPORT_ROWS,
     RequestExportCommand, RunExportRequest, XLSX_MIME_TYPE, collect_references,
@@ -14,13 +14,15 @@ use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
 use aphel_sdk::platform::application::fields::FieldSet;
+use aphel_sdk::platform::application::files::FileRepository;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterOperator, ID_FIELD, MAX_LIST_VALUES, RecordQuery,
     RecordQueryEngine, RecordQueryExecutor, RecordQueryPorts,
 };
 use aphel_sdk::platform::application::shared::{
-    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue, RecordRef,
+    Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, FileStorage, Job,
+    JobQueue, RecordRef,
 };
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
@@ -29,6 +31,7 @@ use aphel_sdk::platform::infrastructure::storage::MySqlFileRepository;
 pub const EXPORT_NOT_FOUND: &str = "export_not_found";
 pub const EXPORT_NOT_SUPPORTED: &str = "export_not_supported";
 pub const EXPORT_TOO_LARGE: &str = "export_too_large";
+pub const EXPORT_IN_PROGRESS: &str = "export_in_progress";
 
 pub fn export_not_found() -> AppError {
     AppError::not_found_code(EXPORT_NOT_FOUND, "export was not found")
@@ -141,6 +144,60 @@ pub(crate) async fn get(ctx: &Ctx<'_>, export_id: &str) -> Result<ExportJob, App
         return Err(export_not_found());
     }
     Ok(job)
+}
+
+pub(crate) async fn delete(
+    ctx: &Ctx<'_>,
+    storage: &dyn FileStorage,
+    export_id: &str,
+    ip: Option<String>,
+) -> Result<(), AppError> {
+    let job = get(ctx, export_id).await?;
+    if matches!(job.status, ExportStatus::Queued | ExportStatus::Running) {
+        return Err(AppError::conflict_code(
+            EXPORT_IN_PROGRESS,
+            "an export that is still being prepared cannot be deleted",
+        ));
+    }
+    let storage_key = match job.file_id {
+        Some(file_id) => MySqlFileRepository::new(ctx.pool().clone())
+            .find_file(file_id)
+            .await?
+            .map(|file| file.storage_key),
+        None => None,
+    };
+    let now = ctx.now();
+    let record = RecordRef::new(EXPORT_RECORD_TYPE, job.id);
+    let mut tx = ctx.begin().await?;
+    ExportStore::of(ctx).delete(&mut tx, &job).await?;
+    ctx.events()
+        .publish(
+            &mut tx,
+            DomainEvent::new(Actor::from_scope(ctx.scope), EXPORT_DELETED, now)
+                .with_record(record.clone())
+                .with_payload(json!({ "export_id": job.id.to_string() })),
+        )
+        .await?;
+    ctx.audit()
+        .record(
+            &mut tx,
+            AuditEntry::new(Actor::from_scope(ctx.scope), EXPORT_DELETED, now)
+                .with_record(record)
+                .with_changes(vec![FieldChange::new(
+                    "export",
+                    json!(job.id.to_string()),
+                    Value::Null,
+                )])
+                .with_ip(ip),
+        )
+        .await?;
+    tx.commit().await?;
+    if let Some(key) = storage_key
+        && let Err(error) = storage.delete(&key).await
+    {
+        tracing::warn!(export_id = %job.id, "could not delete the export file: {error}");
+    }
+    Ok(())
 }
 
 pub(crate) async fn list(

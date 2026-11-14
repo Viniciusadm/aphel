@@ -122,6 +122,20 @@ impl ExportStore {
         Ok(())
     }
 
+    pub(crate) async fn delete(&self, tx: &mut MySqlTx, job: &ExportJob) -> Result<(), AppError> {
+        sqlx::query("DELETE FROM export_jobs WHERE id = ?")
+            .bind(job.id.to_string())
+            .execute(&mut **tx)
+            .await?;
+        if let Some(file_id) = job.file_id {
+            sqlx::query("DELETE FROM files WHERE id = ?")
+                .bind(file_id.to_string())
+                .execute(&mut **tx)
+                .await?;
+        }
+        Ok(())
+    }
+
     pub(crate) async fn find(&self, export_id: Uuid) -> Result<Option<ExportJob>, AppError> {
         sqlx::query(AssertSqlSafe(format!(
             "SELECT {EXPORT_COLUMNS} FROM export_jobs WHERE id = ?"

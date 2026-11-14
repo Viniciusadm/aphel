@@ -1,7 +1,7 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Download, FileDown, LoaderCircle } from 'lucide-react'
 import { type ArchivedMode, fileDownloadUrl, sortToParam, useCustomObjectLabel } from '@/sdk'
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { isExportable, useExportJob, useRequestExport, type ExportFormat } from './api'
 import { orderedColumns, useCurrentListConfig } from './exportColumns'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { ToggleField } from '@/components/ui/toggle-field'
 
 const FORMATS: ExportFormat[] = ['csv', 'xlsx']
@@ -50,7 +51,6 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
   const [exportId, setExportId] = useState<string | null>(null)
   const request = useRequestExport()
   const job = useExportJob(exportId)
-  const idPrefix = useId()
   const customLabel = useCustomObjectLabel(recordType)
   const typeLabel = isExportable(recordType) ? t(`recordTypes.${recordType}`) : (customLabel ?? recordType)
 
@@ -111,7 +111,7 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
           )}
           {status === 'failed' && (
             <SharedFieldError>
-              {job.data?.failure_reason ?? t('failed')}
+              {t('failed')}
             </SharedFieldError>
           )}
           <DialogFooter>
@@ -124,20 +124,12 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
         <form className="grid gap-4" onSubmit={submit}>
           <fieldset className="grid gap-2">
             <legend className="mb-1 text-sm font-medium">{t('format')}</legend>
-            <div className="flex flex-wrap gap-4">
-              {FORMATS.map((option) => (
-                <label key={option} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name={`${idPrefix}-format`}
-                    value={option}
-                    checked={format === option}
-                    onChange={() => setFormat(option)}
-                  />
-                  {t(`formats.${option}`)}
-                </label>
-              ))}
-            </div>
+            <SegmentedControl
+              aria-label={t('format')}
+              value={format}
+              onValueChange={setFormat}
+              options={FORMATS.map((option) => ({ value: option, label: t(`formats.${option}`) }))}
+            />
           </fieldset>
           <fieldset className="grid gap-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -156,12 +148,12 @@ function ExportDialogContent({ recordType, archived, onClose }: ExportDialogCont
                 </Button>
               </div>
             </div>
-            <ul className="grid max-h-64 gap-2 overflow-y-auto rounded-md border p-3 sm:grid-cols-2">
+            <div className="grid max-h-64 gap-2 overflow-y-auto rounded-md border p-3 sm:grid-cols-2">
               <ToggleField label={t('includeId')} checked={includeId} onCheckedChange={(checked) => setIncludeId(checked === true)} />
               {fields.map((field) => (
                 <ToggleField key={field.key} label={field.label} checked={chosen.has(field.key)} onCheckedChange={(checked) => toggle(field.key, checked === true)} className="min-w-0" />
               ))}
-            </ul>
+            </div>
             {config && columns.length === 0 && (
               <SharedFieldError>
                 {t('noColumns')}

@@ -168,7 +168,7 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `mailboxes` | `email` | 8 | Personal mailboxes (IMAP/SMTP and module providers), connection test and synchronization |
 | `enrichment` | `enrichment` | 3 | Company enrichment by CNPJ from public sources |
 | `esign` | `esign` | 6 | Sends PDFs attached to deals for electronic signature on Clicksign and tracks their status through webhooks |
-| `exports` | `exports` | 3 | CSV and XLSX exports of filtered records |
+| `exports` | `exports` | 4 | CSV and XLSX exports of filtered records |
 | `favorites` | `favorites` | 4 | Personal favorites: pinned records and saved views shown in the sidebar |
 | `followers` | `followers` | 4 | Following registered records and owner-provided events |
 | `forecast` | `forecast` | 4 | Revenue forecast: organization settings and the forecast per month |

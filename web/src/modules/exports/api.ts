@@ -33,7 +33,7 @@ export function exportPermission(recordType: string): string | null {
   return isExportable(recordType) ? `${PERMISSION_PREFIX[recordType]}.export` : null
 }
 
-function isRunning(status: string | undefined): boolean {
+export function isRunning(status: string | undefined): boolean {
   return status === 'queued' || status === 'running'
 }
 
@@ -48,6 +48,7 @@ export const exportsApi = {
   get: (id: string) => api.get<ExportJob>(`/v1/exports/${encodeURIComponent(id)}`),
   list: (page: number) =>
     api.get<ExportJobsPage>('/v1/exports', { query: { page, per_page: HISTORY_PAGE_SIZE } }),
+  remove: (id: string) => api.delete<void>(`/v1/exports/${encodeURIComponent(id)}`),
 }
 
 export function useRequestExport() {
@@ -77,5 +78,13 @@ export function useExportJob(id: string | null) {
     queryFn: () => exportsApi.get(id ?? ''),
     enabled: Boolean(id),
     refetchInterval: (query) => (isRunning(query.state.data?.status) ? POLL_INTERVAL_MS : false),
+  })
+}
+
+export function useDeleteExport() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: exportsApi.remove,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: exportsKeys.all }),
   })
 }

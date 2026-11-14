@@ -27,7 +27,9 @@ pub(crate) use format::*;
 pub use generated::*;
 pub use model::*;
 pub use runtime::{ExportRunHandler, system_scope};
-pub use service::{EXPORT_NOT_FOUND, EXPORT_NOT_SUPPORTED, EXPORT_TOO_LARGE, export_not_found};
+pub use service::{
+    EXPORT_IN_PROGRESS, EXPORT_NOT_FOUND, EXPORT_NOT_SUPPORTED, EXPORT_TOO_LARGE, export_not_found,
+};
 
 pub const KEY: &str = "exports";
 
