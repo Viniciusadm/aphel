@@ -85,7 +85,7 @@ Settings is split into four areas. Each area only lists the screens you are allo
 | Area | Purpose | Typical screens |
 | --- | --- | --- |
 | My account | Your own preferences and sign-in security. Available to everyone. | Appearance, Preferences, Navigation and language, Account security, Security events, API tokens |
-| Settings | How the organization works: access, record structure and sales. | Outgoing email, Organization, General, File storage, Users, Teams, Roles, Fields, Layouts, Validation rules, Custom objects, plus the Sales group |
+| Settings | How the organization works: access, record structure and sales. | System email, Organization, General, File storage, Users, Teams, Roles, Fields, Layouts, Validation rules, Custom objects, plus the Sales group |
 | Integrations | Connections to other services and the module list. | Modules, webhooks and the connectors you enabled |
 | Data | Import, export and data care. | Audit log, Trash, Privacy, Full export and similar |
 

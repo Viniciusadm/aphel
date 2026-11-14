@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
+import { Notice } from '@/components/ui/notice'
+import { Link } from 'react-router'
 import { Input } from '@/components/ui/input'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
@@ -143,6 +145,13 @@ function OutgoingEmailForm({ configuration }: { configuration: OrganizationConfi
           </Button>
         }
       />
+      <Notice>
+        {t('configuration.mail.scope')}{' '}
+        <Link to="/account/mailboxes" className="font-medium underline underline-offset-4">
+          {t('configuration.mail.scopeLink')}
+        </Link>
+        .
+      </Notice>
       <MailNotConfiguredNotice showLink={false} />
       <form id="outgoing-email-form" onSubmit={(event) => void state.submit(event)} className="grid gap-6">
         <MailFields configuration={configuration} state={state} />

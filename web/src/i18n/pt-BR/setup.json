@@ -155,7 +155,7 @@
   "email": {
     "title": "Conecte seu e-mail",
     "description": "O Aphel envia por e-mail os convites para sua equipe, as redefinições de senha e as notificações. Conecte seu servidor SMTP para que cheguem às pessoas na hora.",
-    "later": "Você pode pular: convites e redefinições de senha vão mostrar um link para você copiar e enviar. Conecte o e-mail quando quiser em Configurações › E-mail de saída.",
+    "later": "Você pode pular: convites e redefinições de senha vão mostrar um link para você copiar e enviar. Conecte o e-mail quando quiser em Configurações › E-mail do sistema.",
     "continue": "Continuar"
   },
   "ready": {

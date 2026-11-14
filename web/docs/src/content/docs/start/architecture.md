@@ -207,7 +207,7 @@ Files go through one storage abstraction on top of the `object_store` crate. The
 
 ## Email
 
-Outgoing email uses SMTP through `lettre`. The SMTP settings are organization configuration, edited under **Settings**, **Outgoing email**, with the password in the secret vault. `SMTP_*` environment variables act as a fallback. The mailer is resolved on every send, so changes apply without a restart. Without SMTP, sending fails with `mail_not_configured` without bringing anything down, and screens that would send an invitation or password reset show the link instead. Notification emails are sent by a job. Links in emails always use the saved public address, never the `Host` header of a request.
+Outgoing email uses SMTP through `lettre`. The SMTP settings are organization configuration, edited under **Settings**, **System email**, with the password in the secret vault. `SMTP_*` environment variables act as a fallback. The mailer is resolved on every send, so changes apply without a restart. Without SMTP, sending fails with `mail_not_configured` without bringing anything down, and screens that would send an invitation or password reset show the link instead. Notification emails are sent by a job. Links in emails always use the saved public address, never the `Host` header of a request.
 
 The email module can also connect personal mailboxes over IMAP and SMTP. See [Email and sequences](/_aphel/docs/using/email-and-sequences/).
 

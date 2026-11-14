@@ -74,7 +74,7 @@
   },
   "mailboxes": {
     "title": "Email mailboxes",
-    "description": "Connect your mailbox so messages exchanged with customers show up on records, and send emails from Aphel.",
+    "description": "Connect your mailbox so messages exchanged with customers show up on records and so you can send emails from Aphel. Only you can see and manage your mailboxes.",
     "tabs": {
       "mailboxes": "Mailboxes",
       "templates": "Personal templates"
@@ -142,7 +142,10 @@
       "required": "Required field.",
       "defaultVisibility": "Default conversation visibility",
       "visibilityHint": "Applies to the conversations of this mailbox. You can change it per conversation later."
-    }
+    },
+    "scopeAdmin": "These mailboxes and personal templates are yours alone. Shared templates, blocklist, tracking and contact capture apply to the whole team and live in",
+    "scopeMember": "These mailboxes and personal templates are yours alone. Tracking, blocklist and contact capture are set by your administrators.",
+    "teamLink": "Settings › Team email."
   },
   "templates": {
     "create": "New template",
@@ -184,13 +187,17 @@
     "missingVariables": "Some variables have no value in the preview:"
   },
   "settings": {
-    "title": "Email",
-    "description": "Organization templates, addresses kept out of the CRM, tracking and contact capture.",
+    "title": "Team email",
+    "description": "Shared templates, blocklist, tracking and contact capture for all the organization’s emails.",
     "tabs": {
       "templates": "Templates",
       "blocklist": "Blocklist",
       "preferences": "Tracking and capture"
-    }
+    },
+    "scope": "These rules apply to the whole team. Each person connects their own mailbox in",
+    "mailboxesLink": "My account › Mailboxes",
+    "system": "The server that sends system emails (invitations, password resets and notifications) is in",
+    "systemLink": "System email"
   },
   "blocklist": {
     "description": "Messages from or to these domains and addresses are not synced or linked to records. Use it for personal and internal domains and newsletters.",

@@ -41,9 +41,9 @@
     "navigation": "Navigation and language",
     "catalog": "Community catalog",
     "mailboxes": "Email mailboxes",
-    "email": "Email",
+    "email": "Team email",
     "general": "General",
-    "outgoingEmail": "Outgoing email",
+    "outgoingEmail": "System email",
     "storage": "File storage",
     "appearance": "Appearance",
     "keyboard": "Keyboard shortcuts",
@@ -380,7 +380,7 @@
       "description": "Connect your mailbox, follow its sync status and create your templates."
     },
     "email": {
-      "description": "Organization templates, blocklist, tracking and contact capture."
+      "description": "Shared templates, blocklist, tracking and contact capture for the whole organization."
     },
     "leadDistribution": {
       "description": "Rules to distribute new leads across the team."
@@ -425,7 +425,7 @@
       "description": "Public address, app path and maximum upload size."
     },
     "outgoingEmail": {
-      "description": "SMTP server used for every email the system sends."
+      "description": "SMTP server that sends system emails: invitations, password resets and notifications."
     },
     "storage": {
       "description": "Local disk or S3 compatible storage for attachments and exports."
@@ -497,11 +497,11 @@
       }
     },
     "mail": {
-      "title": "Outgoing email",
+      "title": "System email",
       "description": "SMTP server used for invitations, password resets, notifications and reports. The password is kept in the secret vault and is never shown.",
-      "notConfiguredTitle": "Outgoing email is not configured",
+      "notConfiguredTitle": "System email is not configured",
       "notConfiguredDescription": "System emails are not being sent. Invitations and password resets show a link to copy until SMTP is configured.",
-      "configure": "Set up outgoing email",
+      "configure": "Set up system email",
       "unavailable": "The SMTP provider is not available in this installation.",
       "testHint": "Use \"Test\" with sending an email checked to receive a test message at your own address. On errors, the server message (authentication, TLS or connection) appears in the result.",
       "copyableLinkLabel": "Link to copy",
@@ -521,7 +521,9 @@
       "sections": {
         "server": "Server",
         "account": "Sender and access"
-      }
+      },
+      "scope": "This server only sends system emails. To email customers from records, each person connects their own mailbox in",
+      "scopeLink": "My account › Mailboxes"
     },
     "storage": {
       "title": "File storage",

@@ -4,7 +4,7 @@ import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { UnsavedChangesGuard, notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -31,37 +31,6 @@ function Section({ title, description, children }: { title: string; description:
       </div>
       {children}
     </section>
-  )
-}
-
-function ToggleRow({
-  id,
-  label,
-  description,
-  checked,
-  disabled,
-  onChange,
-}: {
-  id: string
-  label: string
-  description: string
-  checked: boolean
-  disabled?: boolean
-  onChange: (checked: boolean) => void
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <Checkbox
-        id={id}
-        checked={checked}
-        disabled={disabled}
-        className="mt-0.5"
-        onCheckedChange={(value) => onChange(value === true)}
-      />
-      <Field id={id} label={label}>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </Field>
-    </div>
   )
 }
 
@@ -118,27 +87,27 @@ function TrackingForm({ initial }: { initial: TrackingSettings }) {
       }}
     >
       <UnsavedChangesGuard when={dirty} />
-      <ToggleRow
+      <ToggleField type="switch"
         id={`${formId}-opens`}
         label={t('tracking.opens')}
         description={t('tracking.opensDescription')}
         checked={values.opens_enabled}
-        onChange={(checked) => setValues((current) => ({ ...current, opens_enabled: checked }))}
+        onCheckedChange={(checked) => setValues((current) => ({ ...current, opens_enabled: checked }))}
       />
-      <ToggleRow
+      <ToggleField type="switch"
         id={`${formId}-clicks`}
         label={t('tracking.clicks')}
         description={t('tracking.clicksDescription')}
         checked={values.clicks_enabled}
-        onChange={(checked) => setValues((current) => ({ ...current, clicks_enabled: checked }))}
+        onCheckedChange={(checked) => setValues((current) => ({ ...current, clicks_enabled: checked }))}
       />
-      <ToggleRow
+      <ToggleField type="switch"
         id={`${formId}-default`}
         label={t('tracking.defaultOn')}
         description={t('tracking.defaultOnDescription')}
         checked={anyEnabled && values.default_on}
         disabled={!anyEnabled}
-        onChange={(checked) => setValues((current) => ({ ...current, default_on: checked }))}
+        onCheckedChange={(checked) => setValues((current) => ({ ...current, default_on: checked }))}
       />
       <p className="text-xs text-muted-foreground">{t('tracking.privacyNote')}</p>
       <div className="flex justify-end">
@@ -198,26 +167,26 @@ function CaptureForm({ initial }: { initial: CaptureSettings }) {
       }}
     >
       <UnsavedChangesGuard when={dirty} />
-      <ToggleRow
+      <ToggleField type="switch"
         id={`${formId}-people`}
         label={t('capture.createContacts')}
         description={t('capture.createContactsDescription')}
         checked={values.create_contacts}
-        onChange={(checked) => setValues((current) => ({ ...current, create_contacts: checked }))}
+        onCheckedChange={(checked) => setValues((current) => ({ ...current, create_contacts: checked }))}
       />
-      <ToggleRow
+      <ToggleField type="switch"
         id={`${formId}-organizations`}
         label={t('capture.createCompanies')}
         description={t('capture.createCompaniesDescription')}
         checked={values.create_companies}
-        onChange={(checked) => setValues((current) => ({ ...current, create_companies: checked }))}
+        onCheckedChange={(checked) => setValues((current) => ({ ...current, create_companies: checked }))}
       />
-      <ToggleRow
+      <ToggleField type="switch"
         id={`${formId}-deals`}
         label={t('capture.linkOpenDeals')}
         description={t('capture.linkOpenDealsDescription')}
         checked={values.link_open_deals}
-        onChange={(checked) => setValues((current) => ({ ...current, link_open_deals: checked }))}
+        onCheckedChange={(checked) => setValues((current) => ({ ...current, link_open_deals: checked }))}
       />
       <Field label={t('capture.initialHistoryDays')} className="max-w-xs">
         {(control) => <>

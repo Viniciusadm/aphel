@@ -41,9 +41,9 @@
     "navigation": "Navegação e idioma",
     "catalog": "Catálogo da comunidade",
     "mailboxes": "Caixas de e-mail",
-    "email": "E-mail",
+    "email": "E-mail da equipe",
     "general": "Geral",
-    "outgoingEmail": "E-mail de envio",
+    "outgoingEmail": "E-mail do sistema",
     "storage": "Armazenamento de arquivos",
     "appearance": "Aparência",
     "keyboard": "Atalhos de teclado",
@@ -380,7 +380,7 @@
       "description": "Conecte sua caixa de e-mail, acompanhe a sincronização e crie seus modelos."
     },
     "email": {
-      "description": "Modelos da organização, lista de bloqueio, rastreio e captura de contatos."
+      "description": "Modelos compartilhados, lista de bloqueio, rastreio e captura de contatos para toda a organização."
     },
     "leadDistribution": {
       "description": "Regras para distribuir novos leads entre a equipe."
@@ -425,7 +425,7 @@
       "description": "Endereço público, caminho do sistema e tamanho máximo de upload."
     },
     "outgoingEmail": {
-      "description": "Servidor SMTP usado em todos os e-mails do sistema."
+      "description": "Servidor SMTP que envia os e-mails do sistema: convites, redefinição de senha e notificações."
     },
     "storage": {
       "description": "Disco local ou S3 compatível para anexos e exportações."
@@ -497,9 +497,9 @@
       }
     },
     "mail": {
-      "title": "E-mail de envio",
+      "title": "E-mail do sistema",
       "description": "Servidor SMTP usado em convites, redefinição de senha, notificações e relatórios. A senha fica no cofre de segredos e nunca é exibida.",
-      "notConfiguredTitle": "E-mail de envio não configurado",
+      "notConfiguredTitle": "E-mail do sistema não configurado",
       "notConfiguredDescription": "Os e-mails do sistema não estão sendo enviados. Convites e redefinições de senha mostram um link para copiar até o SMTP ser configurado.",
       "configure": "Configurar e-mail de envio",
       "unavailable": "O provedor SMTP não está disponível nesta instalação.",
@@ -521,7 +521,9 @@
       "sections": {
         "server": "Servidor",
         "account": "Remetente e acesso"
-      }
+      },
+      "scope": "Este servidor envia só os e-mails do sistema. Para enviar e-mails a clientes pelos registros, cada pessoa conecta a própria caixa em",
+      "scopeLink": "Minha conta › Caixas de e-mail"
     },
     "storage": {
       "title": "Armazenamento de arquivos",

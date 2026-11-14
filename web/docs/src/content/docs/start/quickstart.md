@@ -123,7 +123,7 @@ Notes:
 
 - Open the wizard at the address your users will use. The installer saves the origin of your browser as the public address, which Aphel uses for links in emails.
 - You can choose **Restore from a backup instead** on the first step to restore a backup exported from another installation. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
-- Without SMTP, invitations and password resets show a link for you to copy and send. You can configure email later in **Settings**, under **Outgoing email**.
+- Without SMTP, invitations and password resets show a link for you to copy and send. You can configure email later in **Settings**, under **System email**.
 - Your answers are kept as a draft in the browser while you move between steps. The password is never kept.
 
 ## What you see first

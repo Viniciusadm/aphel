@@ -155,7 +155,7 @@
   "email": {
     "title": "Connect your email",
     "description": "Aphel sends invitations to your team, password resets and notifications by email. Connect your SMTP server so they reach people right away.",
-    "later": "You can skip this: invitations and password resets will show a link for you to copy and send. Connect email anytime in Settings › Outgoing email.",
+    "later": "You can skip this: invitations and password resets will show a link for you to copy and send. Connect email anytime in Settings › System email.",
     "continue": "Continue"
   },
   "ready": {

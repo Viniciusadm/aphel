@@ -1,7 +1,10 @@
 import { AlertCircle, Inbox, Mail, Pencil, PlugZap, RefreshCw, Server, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
+import { Notice } from '@/components/ui/notice'
+import { useSession } from '@/app/session/session-context'
+import { SETTINGS_MANAGE } from '@/sdk'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -54,10 +57,23 @@ function useOAuthReturn() {
 export function MailboxesPage() {
   const { t } = useTranslation('email')
   useOAuthReturn()
+  const { hasPermission } = useSession()
+  const canManage = hasPermission(SETTINGS_MANAGE)
 
   return (
     <Page>
       <PageHeader title={t('mailboxes.title')} description={t('mailboxes.description')} />
+      <Notice>
+        {canManage ? t('mailboxes.scopeAdmin') : t('mailboxes.scopeMember')}
+        {canManage && (
+          <>
+            {' '}
+            <Link to="/settings/email" className="font-medium underline underline-offset-4">
+              {t('mailboxes.teamLink')}
+            </Link>
+          </>
+        )}
+      </Notice>
       <SectionWorkspace defaultValue="mailboxes">
         <SectionIndex>
           <SectionLink value="mailboxes">{t('mailboxes.tabs.mailboxes')}</SectionLink>

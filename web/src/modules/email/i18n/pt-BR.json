@@ -74,7 +74,7 @@
   },
   "mailboxes": {
     "title": "Caixas de e-mail",
-    "description": "Conecte sua caixa para que as mensagens trocadas com clientes apareçam nos registros e para enviar e-mails pelo Aphel.",
+    "description": "Conecte a sua caixa para que as mensagens trocadas com clientes apareçam nos registros e para enviar e-mails pelo Aphel. Só você vê e gerencia as suas caixas.",
     "tabs": {
       "mailboxes": "Caixas",
       "templates": "Modelos pessoais"
@@ -142,7 +142,10 @@
       "required": "Campo obrigatório.",
       "defaultVisibility": "Visibilidade padrão das conversas",
       "visibilityHint": "Vale para as conversas desta caixa. Você pode mudar conversa por conversa depois."
-    }
+    },
+    "scopeAdmin": "Estas caixas e os modelos pessoais são só seus. Modelos compartilhados, lista de bloqueio, rastreio e captura de contatos valem para toda a equipe e ficam em",
+    "scopeMember": "Estas caixas e os modelos pessoais são só seus. Rastreio, lista de bloqueio e captura de contatos são definidos pela administração.",
+    "teamLink": "Configurações › E-mail da equipe."
   },
   "templates": {
     "create": "Novo modelo",
@@ -184,13 +187,17 @@
     "missingVariables": "Algumas variáveis ficaram sem valor na prévia:"
   },
   "settings": {
-    "title": "E-mail",
-    "description": "Modelos da organização, endereços que não entram no CRM, rastreio e captura de contatos.",
+    "title": "E-mail da equipe",
+    "description": "Modelos compartilhados, lista de bloqueio, rastreio e captura de contatos para todos os e-mails da organização.",
     "tabs": {
       "templates": "Modelos",
       "blocklist": "Lista de bloqueio",
       "preferences": "Rastreio e captura"
-    }
+    },
+    "scope": "Estas regras valem para toda a equipe. Cada pessoa conecta a própria caixa em",
+    "mailboxesLink": "Minha conta › Caixas de e-mail",
+    "system": "O servidor que envia os e-mails do sistema (convites, redefinição de senha e notificações) fica em",
+    "systemLink": "E-mail do sistema"
   },
   "blocklist": {
     "description": "Mensagens de ou para estes domínios e endereços não são sincronizadas nem ligadas a registros. Use para domínios pessoais, internos e newsletters.",

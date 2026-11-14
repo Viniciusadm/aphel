@@ -11,7 +11,7 @@ All of this needs the `settings.manage` permission, except mailboxes, which each
 
 | Integration | Module | Configured in | Needs |
 | --- | --- | --- | --- |
-| Outgoing email (system messages) | kernel | Settings, Outgoing email | An SMTP server |
+| Outgoing email (system messages) | kernel | Settings, System email | An SMTP server |
 | Email mailboxes | `email` | My account, Email mailboxes (per user) | IMAP and SMTP credentials, or Google or Microsoft connected |
 | Google | `google` | Settings, Modules | An OAuth client in Google Cloud |
 | Microsoft | `microsoft` | Settings, Modules | An app registration in Microsoft Entra ID |
@@ -31,7 +31,7 @@ Note on language: the labels of some module settings are written in Portuguese i
 
 System messages (invitations, password resets, notifications, reports, security notices) are sent over SMTP.
 
-1. Open Settings, Outgoing email.
+1. Open Settings, System email.
 2. Fill the SMTP host, port (default 587), connection security (`starttls`, `tls` or `none`), user name, sender address and password. Host and sender are required together.
 3. Use Test to check the connection. Tick the option to send a test message to yourself.
 

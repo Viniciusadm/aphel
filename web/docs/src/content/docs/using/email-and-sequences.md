@@ -90,13 +90,13 @@ A message can be Draft, Scheduled, Sending, Sent, Failed or Cancelled. A schedul
 Templates keep the usual messages ready to reuse. Variables written as `{{...}}` are filled with data from the record when you compose.
 
 - **Personal templates**: in **Email mailboxes**, tab **Personal templates**. Only you see them. Requires `emails.send`.
-- **Organization templates**: in **Settings**, organization section, **Email**, tab **Templates**. Everyone who can send emails can use them. Creating them requires `settings.manage`.
+- **Organization templates**: in **Settings**, organization section, **Team email**, tab **Templates**. Everyone who can send emails can use them. Creating them requires `settings.manage`.
 
 A template has a name, a key (lowercase letters, numbers and underscore; used by configuration packages), an optional record type it is meant for, a subject and an HTML body. Use **Insert variable** to pick variables. Deleting a template does not change emails already sent. Body is limited to 512 KB.
 
 ## Tracking opens and clicks
 
-Administrators set tracking in **Settings**, organization section, **Email**, tab **Tracking and capture**:
+Administrators set tracking in **Settings**, organization section, **Team email**, tab **Tracking and capture**:
 
 | Setting | Effect |
 | --- | --- |
@@ -118,7 +118,7 @@ Administrators (`settings.manage`) tune what is synced:
   - A default initial history, suggested when mailboxes are connected.
 
 :::note
-**Outgoing email** in settings is a different thing: it is the system's own sender for notifications and scheduled report emails. It is not your mailbox.
+**System email** in settings is a different thing: it is the system's own sender for notifications and scheduled report emails. It is not your mailbox.
 :::
 
 ## Sequences

@@ -74,7 +74,7 @@ Boolean variables accept `0`, `false`, `no` and `off` as false unless the table 
 
 ### Outgoing email fallback
 
-These variables are used only when the matching value is not set in Settings, Outgoing email. See [which setting wins](#which-setting-wins).
+These variables are used only when the matching value is not set in Settings, System email. See [which setting wins](#which-setting-wins).
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -134,7 +134,7 @@ Settings that live in the database are edited under Settings in the app. They re
 | General | Maximum upload size | 25 MB | Between 1 and 4096 MB. Applies to attachments, imports and emails. Also raise the proxy limit. |
 | File storage | Type | Local disk, folder `./storage` | `Local disk` or `S3 compatible`. The folder is relative to the working directory of the server and the worker, which must see the same folder. |
 | File storage | S3 options | bucket `aphel`, region `us-east-1`, path-style on, plain http off | Bucket, region, optional endpoint (MinIO, SeaweedFS, R2, B2), access key, secret key. The secret key goes to the secret vault. A test button writes, reads and deletes a small object. |
-| Outgoing email | SMTP | none | Host, port (587), security (`starttls`), user name, sender, password. The password goes to the secret vault and is never shown. Host and sender must be set together. |
+| System email | SMTP | none | Host, port (587), security (`starttls`), user name, sender, password. The password goes to the secret vault and is never shown. Host and sender must be set together. |
 | Outgoing webhooks, Delivery | Require https | off | Rejects plain `http` endpoint URLs. |
 | Outgoing webhooks, Delivery | Maximum time per delivery | 10 s | 1 to 120. |
 | Outgoing webhooks, Delivery | Consecutive failures before disabling | 15 | 1 to 1000. |
@@ -154,7 +154,7 @@ The Webhooks and Catalog screens exist only when the corresponding modules are c
 | Topic | Rule |
 | --- | --- |
 | Public address, app path, site path and domain, upload limit, file storage, API token limits, webhook delivery, catalog | Only the organization setting exists. There is no environment equivalent. |
-| Outgoing email (SMTP) | Per value, the organization setting wins when its SMTP host is set. A value left empty there falls back to the matching `SMTP_*` variable. When no host is set in the app, everything comes from the environment. The password is read from the secret vault first, then from `SMTP_PASSWORD`. |
+| System email (SMTP) | Per value, the organization setting wins when its SMTP host is set. A value left empty there falls back to the matching `SMTP_*` variable. When no host is set in the app, everything comes from the environment. The password is read from the secret vault first, then from `SMTP_PASSWORD`. |
 | Private-network webhooks | The environment variable `WEBHOOKS_ALLOW_PRIVATE_NETWORKS` decides. The Delivery screen cannot override it. |
 | Worker, scheduler, health, lockout, email synchronization | Only the environment. |
 | Module settings | Stored per module and edited on the Modules screen. See [Modules](/_aphel/docs/admin/modules/). |
