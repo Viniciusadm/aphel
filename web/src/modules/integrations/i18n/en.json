@@ -1,8 +1,8 @@
 {
-  "name": "Integrations",
-  "title": "Integrations",
+  "name": "Connections",
+  "title": "Connections",
   "description": "See what is connected to Aphel and open each connection's settings. Passwords and keys are encrypted and never shown again.",
-  "listLabel": "Available integrations",
+  "listLabel": "Available connections",
   "empty": {
     "title": "No connections available",
     "description": "Turn on modules such as Webhooks, Message channels, AI assistant or Single sign-on to see them here."

@@ -1,8 +1,8 @@
 {
-  "name": "Integrações",
-  "title": "Integrações",
+  "name": "Conexões",
+  "title": "Conexões",
   "description": "Veja o que está conectado ao Aphel e abra a configuração de cada conexão. Senhas e chaves ficam criptografadas e nunca são exibidas de novo.",
-  "listLabel": "Integrações disponíveis",
+  "listLabel": "Conexões disponíveis",
   "empty": {
     "title": "Nenhuma conexão disponível",
     "description": "Ative módulos como Webhooks, Canais de mensagem, Assistente de IA ou Login único para vê-los aqui."

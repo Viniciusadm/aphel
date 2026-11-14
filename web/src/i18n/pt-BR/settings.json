@@ -24,7 +24,7 @@
     "apiTokens": "Tokens de API",
     "webhooks": "Webhooks de saída",
     "incomingWebhooks": "Webhooks de entrada",
-    "integrations": "Integrações",
+    "integrations": "Conexões",
     "security": "Segurança da conta",
     "securityLog": "Eventos de segurança",
     "privacy": "Privacidade",
@@ -386,7 +386,7 @@
       "description": "Regras para distribuir novos leads entre a equipe."
     },
     "integrations": {
-      "description": "Conecte e-mail, calendário e outros serviços."
+      "description": "Veja e configure tudo o que está conectado ao Aphel."
     },
     "modules": {
       "description": "Ative recursos adicionais para a organização."
