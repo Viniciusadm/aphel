@@ -60,17 +60,31 @@ function storageKey(source: string): string {
   return `${STORAGE_PREFIX}.${source}`
 }
 
-export function readStepImports(source: string): Record<string, string> {
+export interface StepImport {
+  id: string
+  rows: number | null
+  sourceName: string
+}
+
+export function readStepImports(source: string): Record<string, StepImport> {
   try {
     const raw = window.localStorage.getItem(storageKey(source))
     const parsed: unknown = raw ? JSON.parse(raw) : {}
-    return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, string>) : {}
+    if (typeof parsed !== 'object' || parsed === null) return {}
+    return Object.fromEntries(
+      Object.entries(parsed as Record<string, unknown>).map(([step, value]) => [
+        step,
+        typeof value === 'string'
+          ? { id: value, rows: null, sourceName: '' }
+          : (value as StepImport),
+      ]),
+    )
   } catch {
     return {}
   }
 }
 
-export function writeStepImports(source: string, imports: Record<string, string>): void {
+export function writeStepImports(source: string, imports: Record<string, StepImport>): void {
   try {
     window.localStorage.setItem(storageKey(source), JSON.stringify(imports))
   } catch {

@@ -4,7 +4,7 @@
   "page": {
     "title": "Migrate from another CRM",
     "description": "Bring organizations, people, deals (with their won or lost status), tasks and notes exported from another CRM. The assistant recognizes the export columns, converts dates, amounts and phone numbers and prepares the imports already mapped.",
-    "inferredHeaders": "The recognized column names come from the public documentation of each tool and may vary with the account language and version. Columns that are not recognized can be mapped by hand when reviewing the import."
+    "inferredHeaders": "The recognized column names come from the public documentation of each tool and may vary with the account language and version. Columns that are not recognized can be mapped by hand when reviewing the import. So before importing, compare the numbers in the “Check against…” panel with what the source tool shows."
   },
   "source": {
     "title": "Which tool are you coming from?",
@@ -85,6 +85,11 @@
       "running": "Importing",
       "completed": "Completed",
       "failed": "Failed"
+    },
+    "check": {
+      "ok": "Checked: all {{rows}} rows of the {{source}} file were accounted for.",
+      "missing": "Does not match: the file had {{rows}} rows and Aphel accounted for {{accounted}} (difference of {{count}}).",
+      "withProblems": "All {{rows}} rows were accounted for, but {{count}} were not imported. Open the report to see why."
     }
   },
   "targets": {
@@ -137,5 +142,33 @@
     "errors": "Rows with errors",
     "row": "Row {{row}}: {{message}}",
     "another": "Migrate another file"
+  },
+  "reconciliation": {
+    "title": "Check against {{source}}",
+    "description": "Compare these file numbers with what {{source}} shows. Type the {{source}} number to see if it matches; if it does not, adjust before importing.",
+    "item": "Item",
+    "file": "In the file",
+    "inSource": "In {{source}}",
+    "result": "Result",
+    "typeHere": "Type here",
+    "matches": "Matches",
+    "differs": "Differs by {{difference}}",
+    "notANumber": "Not a number",
+    "rows": "Records",
+    "emptyRows_other": "{{count}} empty rows skipped",
+    "total": "Total value ({{field}})",
+    "unreadable_one": "{{count}} value could not be read",
+    "unreadable_other": "{{count}} values could not be read",
+    "status": {
+      "won": "Won",
+      "lost": "Lost",
+      "open": "Open"
+    },
+    "dateRange_one": "{{field}}: {{count}} date, from {{first}} to {{last}}",
+    "dateRange_other": "{{field}}: {{count}} dates, from {{first}} to {{last}}",
+    "noDates": "{{field}}: no dates read",
+    "duplicates_one": "{{count}} row repeats the identifier of another row in the file",
+    "duplicates_other": "{{count}} rows repeat the identifier of another row in the file",
+    "emptyRows_one": "{{count}} empty row skipped"
   }
 }

@@ -85698,6 +85698,7 @@
               "recognized",
               "unrecognized",
               "changed_cells",
+              "reconciliation",
               "issues",
               "distinct",
               "sample"
@@ -85751,6 +85752,9 @@
                 "items": {
                   "$ref": "#/components/schemas/RecognizedColumnResponse"
                 }
+              },
+              "reconciliation": {
+                "$ref": "#/components/schemas/ReconciliationResponse"
               },
               "record_type": {
                 "type": "string"
@@ -95990,6 +95994,42 @@
           }
         }
       },
+      "DateCheckResponse": {
+        "type": "object",
+        "required": [
+          "target",
+          "filled",
+          "converted"
+        ],
+        "properties": {
+          "converted": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "filled": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "first": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "example": "expected_close_date"
+          }
+        }
+      },
       "DealMemberResponse": {
         "type": "object",
         "required": [
@@ -105780,6 +105820,7 @@
           "recognized",
           "unrecognized",
           "changed_cells",
+          "reconciliation",
           "issues",
           "distinct",
           "sample"
@@ -105833,6 +105874,9 @@
             "items": {
               "$ref": "#/components/schemas/RecognizedColumnResponse"
             }
+          },
+          "reconciliation": {
+            "$ref": "#/components/schemas/ReconciliationResponse"
           },
           "record_type": {
             "type": "string"
@@ -106453,6 +106497,35 @@
           },
           "value": {
             "type": "string"
+          }
+        }
+      },
+      "MoneyCheckResponse": {
+        "type": "object",
+        "required": [
+          "target",
+          "filled",
+          "converted",
+          "total"
+        ],
+        "properties": {
+          "converted": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "filled": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "target": {
+            "type": "string",
+            "example": "amount"
+          },
+          "total": {
+            "type": "string",
+            "example": "125000.00"
           }
         }
       },
@@ -119127,6 +119200,55 @@
           }
         }
       },
+      "ReconciliationResponse": {
+        "type": "object",
+        "required": [
+          "rows",
+          "empty_rows",
+          "duplicates",
+          "money",
+          "dates"
+        ],
+        "properties": {
+          "dates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DateCheckResponse"
+            }
+          },
+          "duplicates": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "empty_rows": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "money": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoneyCheckResponse"
+            }
+          },
+          "rows": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "statuses": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StatusCountsResponse"
+              }
+            ]
+          }
+        }
+      },
       "RecordChecklistItemResponse": {
         "type": "object",
         "required": [
@@ -123627,6 +123749,31 @@
           },
           "provider_call_id": {
             "type": "string"
+          }
+        }
+      },
+      "StatusCountsResponse": {
+        "type": "object",
+        "required": [
+          "won",
+          "lost",
+          "open"
+        ],
+        "properties": {
+          "lost": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "open": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "won": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       },

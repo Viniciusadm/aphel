@@ -4,7 +4,7 @@
   "page": {
     "title": "Migrar de outro CRM",
     "description": "Traga empresas, pessoas, negócios (com a situação ganho ou perdido), atividades e anotações exportados de outro CRM. O assistente reconhece as colunas da exportação, converte datas, valores e telefones e prepara as importações já mapeadas.",
-    "inferredHeaders": "Os nomes de coluna reconhecidos foram levantados a partir da documentação pública de cada ferramenta e podem variar conforme o idioma e a versão da conta. Colunas não reconhecidas podem ser mapeadas manualmente na revisão da importação."
+    "inferredHeaders": "Os nomes de coluna reconhecidos foram levantados a partir da documentação pública de cada ferramenta e podem variar conforme o idioma e a versão da conta. Colunas não reconhecidas podem ser mapeadas manualmente na revisão da importação. Por isso, antes de importar, compare os números do painel “Confira com…” com os que a ferramenta de origem mostra."
   },
   "source": {
     "title": "De qual ferramenta você está vindo?",
@@ -85,6 +85,11 @@
       "running": "Importando",
       "completed": "Concluída",
       "failed": "Falhou"
+    },
+    "check": {
+      "ok": "Conferido: as {{rows}} linhas do arquivo do {{source}} foram todas contabilizadas.",
+      "missing": "Não bate: o arquivo tinha {{rows}} linhas e o Aphel contabilizou {{accounted}} (diferença de {{count}}).",
+      "withProblems": "Todas as {{rows}} linhas foram contabilizadas, mas {{count}} não foram importadas. Abra o relatório para ver o motivo de cada uma."
     }
   },
   "targets": {
@@ -137,5 +142,33 @@
     "errors": "Linhas com erro",
     "row": "Linha {{row}}: {{message}}",
     "another": "Migrar outro arquivo"
+  },
+  "reconciliation": {
+    "title": "Confira com o {{source}}",
+    "description": "Compare estes números do arquivo com os que o {{source}} mostra. Digite o número do {{source}} para ver se bate; se não bater, ajuste antes de importar.",
+    "item": "Item",
+    "file": "No arquivo",
+    "inSource": "No {{source}}",
+    "result": "Resultado",
+    "typeHere": "Digite aqui",
+    "matches": "Bate",
+    "differs": "Difere em {{difference}}",
+    "notANumber": "Não é um número",
+    "rows": "Registros",
+    "emptyRows_other": "{{count}} linhas vazias ignoradas",
+    "total": "Valor total ({{field}})",
+    "unreadable_one": "{{count}} valor não pôde ser lido",
+    "unreadable_other": "{{count}} valores não puderam ser lidos",
+    "status": {
+      "won": "Ganhos",
+      "lost": "Perdidos",
+      "open": "Em aberto"
+    },
+    "dateRange_one": "{{field}}: {{count}} data, de {{first}} a {{last}}",
+    "dateRange_other": "{{field}}: {{count}} datas, de {{first}} a {{last}}",
+    "noDates": "{{field}}: nenhuma data lida",
+    "duplicates_one": "{{count}} linha repete o identificador de outra do arquivo",
+    "duplicates_other": "{{count}} linhas repetem o identificador de outra do arquivo",
+    "emptyRows_one": "{{count}} linha vazia ignorada"
   }
 }

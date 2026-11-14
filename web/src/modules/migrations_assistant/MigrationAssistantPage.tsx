@@ -1,4 +1,4 @@
-import { ArrowRight, FileUp, Info, RotateCcw } from 'lucide-react'
+import { ArrowRight, CheckCircle2, CircleAlert, FileUp, Info, RotateCcw } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import {
   emptyMaps,
   readStepImports,
+  type StepImport,
   stepKind,
   useCreateMigrationImport,
   useMigrateHistory,
@@ -35,6 +36,7 @@ import type {
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
+import { ReconciliationPanel } from './ReconciliationPanel'
 
 const SOURCE_PARAM = 'source'
 const MAPPABLE: MapTarget[] = ['pipeline_id', 'stage_id', 'owner_id']
@@ -117,9 +119,9 @@ function SourceSteps({ source }: { source: MigrationSource }) {
   const { t } = useTranslation('migrations_assistant')
   const [imports, setImports] = useState(() => readStepImports(source.key))
 
-  const remember = (step: string, importId: string | undefined) => {
+  const remember = (step: string, started: StepImport | undefined) => {
     const next = { ...imports }
-    if (importId) next[step] = importId
+    if (started) next[step] = started
     else delete next[step]
     setImports(next)
     writeStepImports(source.key, next)
@@ -138,8 +140,8 @@ function SourceSteps({ source }: { source: MigrationSource }) {
               source={source}
               step={step}
               position={index + 1}
-              importId={imports[step.key]}
-              onImport={(importId) => remember(step.key, importId)}
+              started={imports[step.key]}
+              onImport={(started) => remember(step.key, started)}
             />
           </li>
         ))}
@@ -152,11 +154,11 @@ interface StepCardProps {
   source: MigrationSource
   step: MigrationStep
   position: number
-  importId: string | undefined
-  onImport: (importId: string | undefined) => void
+  started: StepImport | undefined
+  onImport: (started: StepImport | undefined) => void
 }
 
-function StepCard({ source, step, position, importId, onImport }: StepCardProps) {
+function StepCard({ source, step, position, started, onImport }: StepCardProps) {
   const { t } = useTranslation('migrations_assistant')
   const targetLabel = useTargetLabel()
   return (
@@ -176,8 +178,8 @@ function StepCard({ source, step, position, importId, onImport }: StepCardProps)
       <CardContent className="grid min-w-0 gap-4">
         {stepKind(step) !== 'import' ? (
           <HistoryUpload source={source} step={step} />
-        ) : importId ? (
-          <ImportStatus importId={importId} onReset={() => onImport(undefined)} />
+        ) : started ? (
+          <ImportStatus started={started} onReset={() => onImport(undefined)} />
         ) : (
           <StepUpload source={source} step={step} onImport={onImport} />
         )}
@@ -200,7 +202,7 @@ function StepCard({ source, step, position, importId, onImport }: StepCardProps)
 interface StepUploadProps {
   source: MigrationSource
   step: MigrationStep
-  onImport: (importId: string) => void
+  onImport: (started: StepImport) => void
 }
 
 function StepUpload({ source, step, onImport }: StepUploadProps) {
@@ -225,7 +227,11 @@ function StepUpload({ source, step, onImport }: StepUploadProps) {
     if (!file) return
     create.mutate(
       { source: source.key, step: step.key, file, maps },
-      { onSuccess: (result) => onImport(result.import.id), onError: (error) => notifyError(error) },
+      {
+        onSuccess: (result) =>
+          onImport({ id: result.import.id, rows: result.preview.row_count - result.preview.reconciliation.empty_rows, sourceName: source.name }),
+        onError: (error) => notifyError(error),
+      },
     )
   }
 
@@ -241,7 +247,7 @@ function StepUpload({ source, step, onImport }: StepUploadProps) {
         />
       </label>
       {preview.isPending && <p className="text-sm text-muted-foreground">{t('upload.analyzing')}</p>}
-      {preview.data && <PreviewPanel preview={preview.data} maps={maps} onMapsChange={setMaps} />}
+      {preview.data && <PreviewPanel preview={preview.data} maps={maps} onMapsChange={setMaps} sourceName={source.name} />}
       {preview.data && (
         <div>
           <Button onClick={submit} disabled={create.isPending}>
@@ -302,7 +308,7 @@ function HistoryUpload({ source, step }: { source: MigrationSource; step: Migrat
         />
       </label>
       {preview.isPending && <p className="text-sm text-muted-foreground">{t('upload.analyzing')}</p>}
-      {preview.data && <PreviewPanel preview={preview.data} maps={maps} onMapsChange={setMaps} />}
+      {preview.data && <PreviewPanel preview={preview.data} maps={maps} onMapsChange={setMaps} sourceName={source.name} />}
       {preview.data && (
         <div>
           <Button onClick={submit} disabled={migrate.isPending}>
@@ -355,7 +361,7 @@ interface PreviewPanelProps {
   onMapsChange: (maps: ValueMaps) => void
 }
 
-function PreviewPanel({ preview, maps, onMapsChange }: PreviewPanelProps) {
+function PreviewPanel({ preview, maps, onMapsChange, sourceName }: PreviewPanelProps & { sourceName: string }) {
   const { t } = useTranslation('migrations_assistant')
   const targetLabel = useTargetLabel()
   const issues = Object.entries(preview.issues)
@@ -371,6 +377,7 @@ function PreviewPanel({ preview, maps, onMapsChange }: PreviewPanelProps) {
           changed: preview.changed_cells,
         })}
       </p>
+      <ReconciliationPanel preview={preview} sourceName={sourceName} />
       <div className="grid gap-2">
         <h4 className="text-sm font-semibold">{t('preview.recognized')}</h4>
         <ul className="flex flex-wrap gap-2">
@@ -493,8 +500,9 @@ function ValueMapEditors({ preview, maps, onMapsChange }: PreviewPanelProps) {
   )
 }
 
-function ImportStatus({ importId, onReset }: { importId: string; onReset: () => void }) {
+function ImportStatus({ started, onReset }: { started: StepImport; onReset: () => void }) {
   const { t } = useTranslation('migrations_assistant')
+  const importId = started.id
   const job = useImportJob(importId)
 
   if (job.isPending) return <p className="text-sm text-muted-foreground">{t('import.loading')}</p>
@@ -528,6 +536,7 @@ function ImportStatus({ importId, onReset }: { importId: string; onReset: () => 
             skipped: totals.skipped,
           })}
         </span>
+        <ImportCheck started={started} totals={totals} finished={data.status === 'completed'} />
       </div>
       <div className="flex flex-wrap gap-2">
         <Button asChild size="sm">
@@ -542,5 +551,41 @@ function ImportStatus({ importId, onReset }: { importId: string; onReset: () => 
         </Button>
       </div>
     </div>
+  )
+}
+
+function ImportCheck({
+  started,
+  totals,
+  finished,
+}: {
+  started: StepImport
+  totals: { total: number; imported: number; updated: number; failed: number; skipped: number }
+  finished: boolean
+}) {
+  const { t } = useTranslation('migrations_assistant')
+  if (!finished || started.rows === null) return null
+  const accounted = totals.imported + totals.updated + totals.failed + totals.skipped
+  const missing = started.rows - accounted
+  const ok = missing === 0 && totals.total === started.rows
+  const problems = totals.failed + totals.skipped
+  if (ok && problems > 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-warning">
+        <CircleAlert className="size-3.5" aria-hidden="true" />
+        {t('import.check.withProblems', { rows: started.rows, count: problems })}
+      </span>
+    )
+  }
+  return ok ? (
+    <span className="inline-flex items-center gap-1 text-xs text-success">
+      <CheckCircle2 className="size-3.5" aria-hidden="true" />
+      {t('import.check.ok', { rows: started.rows, source: started.sourceName })}
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1 text-xs text-destructive">
+      <CircleAlert className="size-3.5" aria-hidden="true" />
+      {t('import.check.missing', { rows: started.rows, accounted, count: Math.abs(missing) })}
+    </span>
   )
 }

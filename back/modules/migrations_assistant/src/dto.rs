@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 
 use crate::{
     DateOrder, DecimalStyle, HistoryReport, MigrationHistory, MigrationImport, MigrationPreview,
-    SourceTool, ValueMaps,
+    Reconciliation, SourceTool, ValueMaps,
 };
 use aphel_sdk::imports::dto::ImportJobResponse;
 use aphel_sdk::platform::api::dto::files::FormFile;
@@ -138,6 +138,84 @@ pub(crate) struct RecognizedColumnResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct MoneyCheckResponse {
+    #[schema(example = "amount")]
+    pub(crate) target: String,
+    pub(crate) filled: u64,
+    pub(crate) converted: u64,
+    #[schema(example = "125000.00")]
+    pub(crate) total: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct DateCheckResponse {
+    #[schema(example = "expected_close_date")]
+    pub(crate) target: String,
+    pub(crate) filled: u64,
+    pub(crate) converted: u64,
+    pub(crate) first: Option<String>,
+    pub(crate) last: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct StatusCountsResponse {
+    pub(crate) won: u64,
+    pub(crate) lost: u64,
+    pub(crate) open: u64,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ReconciliationResponse {
+    pub(crate) rows: u64,
+    pub(crate) empty_rows: u64,
+    pub(crate) duplicates: u64,
+    pub(crate) money: Vec<MoneyCheckResponse>,
+    pub(crate) dates: Vec<DateCheckResponse>,
+    pub(crate) statuses: Option<StatusCountsResponse>,
+}
+
+impl From<Reconciliation> for ReconciliationResponse {
+    fn from(value: Reconciliation) -> Self {
+        Self {
+            rows: value.rows,
+            empty_rows: value.empty_rows,
+            duplicates: value.duplicates,
+            money: value
+                .money
+                .into_iter()
+                .map(|check| MoneyCheckResponse {
+                    target: check.target,
+                    filled: check.filled,
+                    converted: check.converted,
+                    total: format!(
+                        "{}{}.{:02}",
+                        if check.cents < 0 { "-" } else { "" },
+                        check.cents.abs() / 100,
+                        check.cents.abs() % 100
+                    ),
+                })
+                .collect(),
+            dates: value
+                .dates
+                .into_iter()
+                .map(|check| DateCheckResponse {
+                    target: check.target,
+                    filled: check.filled,
+                    converted: check.converted,
+                    first: check.first,
+                    last: check.last,
+                })
+                .collect(),
+            statuses: value.statuses.map(|counts| StatusCountsResponse {
+                won: counts.won,
+                lost: counts.lost,
+                open: counts.open,
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct MigrationPreviewResponse {
     pub(crate) source: String,
     pub(crate) step: String,
@@ -147,6 +225,7 @@ pub(crate) struct MigrationPreviewResponse {
     pub(crate) recognized: Vec<RecognizedColumnResponse>,
     pub(crate) unrecognized: Vec<String>,
     pub(crate) changed_cells: u64,
+    pub(crate) reconciliation: ReconciliationResponse,
     #[schema(example = json!({ "owner_id": 2 }))]
     pub(crate) issues: BTreeMap<String, u64>,
     #[schema(example = json!({ "stage_id": ["Qualified", "Proposal Made"] }))]
@@ -175,6 +254,7 @@ impl From<MigrationPreview> for MigrationPreviewResponse {
                 .collect(),
             unrecognized: preview.file.unrecognized,
             changed_cells: preview.file.changed_cells,
+            reconciliation: preview.file.reconciliation.into(),
             issues: preview.file.issues,
             distinct: preview.file.distinct,
             sample: preview

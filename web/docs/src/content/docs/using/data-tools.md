@@ -234,6 +234,8 @@ Open **Data** and then **Migrate from another CRM** (you need `settings.manage`,
 
 Supported sources: Pipedrive, HubSpot, RD Station CRM and Agendor. The recognized column names come from each tool's public documentation and can vary with account language and version. Columns the assistant does not recognize stay in the file and can be mapped by hand while reviewing the import.
 
+Because those names were never checked against real exports, every upload shows a **Check against the source tool** panel before anything is imported. It lists what the file holds after conversion: the number of records, the total of each money column, how many deals are won, lost and open, the range of each date column and how many rows repeat another row's identifier, with a count of the values that could not be read. Type the number your source tool shows for the same list next to each item: Aphel answers **Matches** or **Differs by** the difference. After the import finishes, the step also confirms that every row of the file was accounted for (imported, updated, skipped or failed) and warns when some rows were not imported.
+
 Work through the steps in this order, so that links find records already imported:
 
 1. **Companies.** Upload the organizations CSV.

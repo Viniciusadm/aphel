@@ -13586,6 +13586,7 @@ export interface components {
                     [key: string]: number;
                 };
                 recognized: components["schemas"]["RecognizedColumnResponse"][];
+                reconciliation: components["schemas"]["ReconciliationResponse"];
                 record_type: string;
                 /** Format: int64 */
                 row_count: number;
@@ -16235,6 +16236,16 @@ export interface components {
                 subject?: null | components["schemas"]["WidgetSubjectResponse"];
             };
         };
+        DateCheckResponse: {
+            /** Format: int64 */
+            converted: number;
+            /** Format: int64 */
+            filled: number;
+            first?: string | null;
+            last?: string | null;
+            /** @example expected_close_date */
+            target: string;
+        };
         DealMemberResponse: {
             added_by?: string | null;
             created_at: string;
@@ -18818,6 +18829,7 @@ export interface components {
                 [key: string]: number;
             };
             recognized: components["schemas"]["RecognizedColumnResponse"][];
+            reconciliation: components["schemas"]["ReconciliationResponse"];
             record_type: string;
             /** Format: int64 */
             row_count: number;
@@ -18970,6 +18982,16 @@ export interface components {
             /** @example callback_url */
             key: string;
             value: string;
+        };
+        MoneyCheckResponse: {
+            /** Format: int64 */
+            converted: number;
+            /** Format: int64 */
+            filled: number;
+            /** @example amount */
+            target: string;
+            /** @example 125000.00 */
+            total: string;
         };
         MoveDealPipelineRequest: {
             fields?: Record<string, never> | null;
@@ -22135,6 +22157,17 @@ export interface components {
             /** @example money */
             transform: string;
         };
+        ReconciliationResponse: {
+            dates: components["schemas"]["DateCheckResponse"][];
+            /** Format: int64 */
+            duplicates: number;
+            /** Format: int64 */
+            empty_rows: number;
+            money: components["schemas"]["MoneyCheckResponse"][];
+            /** Format: int64 */
+            rows: number;
+            statuses?: null | components["schemas"]["StatusCountsResponse"];
+        };
         RecordChecklistItemResponse: {
             done: boolean;
             /** @example 2026-10-20T13:45:00Z */
@@ -23366,6 +23399,14 @@ export interface components {
         StartedCallResponse: {
             provider: string;
             provider_call_id: string;
+        };
+        StatusCountsResponse: {
+            /** Format: int64 */
+            lost: number;
+            /** Format: int64 */
+            open: number;
+            /** Format: int64 */
+            won: number;
         };
         StatusRequest: {
             status: components["schemas"]["ConversationStatus"];

@@ -4,6 +4,7 @@ use bytes::Bytes;
 
 use crate::{ColumnRule, DateOrder, DecimalStyle, SourceStep, SourceTool, Transform};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::imports::dto::DuplicateKeyDto as DuplicateKey;
 use aphel_sdk::imports::{ParsedSource, normalize_label};
 
 const MAX_DISTINCT_VALUES: usize = 200;
@@ -149,7 +150,42 @@ pub(crate) struct RecognizedColumn {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub(crate) struct MoneyCheck {
+    pub(crate) target: String,
+    pub(crate) filled: u64,
+    pub(crate) converted: u64,
+    pub(crate) cents: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub(crate) struct DateCheck {
+    pub(crate) target: String,
+    pub(crate) filled: u64,
+    pub(crate) converted: u64,
+    pub(crate) first: Option<String>,
+    pub(crate) last: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub(crate) struct StatusCounts {
+    pub(crate) won: u64,
+    pub(crate) lost: u64,
+    pub(crate) open: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub(crate) struct Reconciliation {
+    pub(crate) rows: u64,
+    pub(crate) empty_rows: u64,
+    pub(crate) duplicates: u64,
+    pub(crate) money: Vec<MoneyCheck>,
+    pub(crate) dates: Vec<DateCheck>,
+    pub(crate) statuses: Option<StatusCounts>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(crate) struct NormalizedFile {
+    pub(crate) reconciliation: Reconciliation,
     pub(crate) headers: Vec<String>,
     pub(crate) rows: Vec<Vec<String>>,
     pub(crate) recognized: Vec<RecognizedColumn>,
@@ -235,7 +271,26 @@ pub(crate) fn normalize(
         file.headers.push(DERIVED_STATUS_HEADER.to_owned());
     }
     let mut distinct: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    let mut money: BTreeMap<String, MoneyCheck> = BTreeMap::new();
+    let mut dates: BTreeMap<String, DateCheck> = BTreeMap::new();
+    let mut statuses = (step.record_type == DEAL_RECORD_TYPE).then(StatusCounts::default);
+    let key_target = match step.duplicate_key {
+        DuplicateKey::Email => Some("email"),
+        DuplicateKey::Name => Some("name"),
+        DuplicateKey::Domain => Some("domain"),
+        _ => None,
+    };
+    let key_index = key_target.and_then(|target| {
+        rules
+            .iter()
+            .position(|rule| rule.is_some_and(|rule| rule.target == target))
+    });
+    let mut seen_keys: BTreeSet<String> = BTreeSet::new();
+    file.reconciliation.rows = source.rows.len() as u64;
     for row in &source.rows {
+        if row.cells.iter().all(|cell| cell.trim().is_empty()) {
+            file.reconciliation.empty_rows += 1;
+        }
         let mut cells = row.cells.clone();
         cells.resize(source.headers.len(), String::new());
         let raw_stage = stage_index.map(|index| cells[index].trim().to_owned());
@@ -255,6 +310,44 @@ pub(crate) fn normalize(
                 }
             }
             let converted = convert(tool, rule.transform, &raw, &members, maps);
+            match rule.transform {
+                Transform::Money => {
+                    let check = money
+                        .entry(rule.target.to_owned())
+                        .or_insert_with(|| MoneyCheck {
+                            target: rule.target.to_owned(),
+                            ..MoneyCheck::default()
+                        });
+                    check.filled += 1;
+                    if let Some(amount) = converted
+                        .as_deref()
+                        .and_then(|text| text.parse::<f64>().ok())
+                    {
+                        check.converted += 1;
+                        check.cents += (amount * 100.0).round() as i64;
+                    }
+                }
+                Transform::Date | Transform::DateTime => {
+                    let check = dates
+                        .entry(rule.target.to_owned())
+                        .or_insert_with(|| DateCheck {
+                            target: rule.target.to_owned(),
+                            ..DateCheck::default()
+                        });
+                    check.filled += 1;
+                    if let Some(text) = converted.as_deref() {
+                        let day: String = text.chars().take(10).collect();
+                        check.converted += 1;
+                        if check.first.as_ref().is_none_or(|first| day < *first) {
+                            check.first = Some(day.clone());
+                        }
+                        if check.last.as_ref().is_none_or(|last| day > *last) {
+                            check.last = Some(day);
+                        }
+                    }
+                }
+                _ => {}
+            }
             let value = match converted {
                 Some(value) => value,
                 None => {
@@ -276,6 +369,13 @@ pub(crate) fn normalize(
                 Some(index) => closed_status(&cells[index]),
                 None => raw_stage.as_deref().and_then(closed_status),
             };
+            if let Some(counts) = statuses.as_mut() {
+                match closed {
+                    Some(WON_STATUS) => counts.won += 1,
+                    Some(LOST_STATUS) => counts.lost += 1,
+                    _ => counts.open += 1,
+                }
+            }
             if derive_status {
                 cells.push(closed.unwrap_or_default().to_owned());
             }
@@ -287,8 +387,17 @@ pub(crate) fn normalize(
                 file.changed_cells += 1;
             }
         }
+        if let Some(index) = key_index {
+            let key = normalize_label(&cells[index]);
+            if !key.is_empty() && !seen_keys.insert(key) {
+                file.reconciliation.duplicates += 1;
+            }
+        }
         file.rows.push(cells);
     }
+    file.reconciliation.money = money.into_values().collect();
+    file.reconciliation.dates = dates.into_values().collect();
+    file.reconciliation.statuses = statuses;
     file.distinct = distinct
         .into_iter()
         .map(|(target, values)| (target, values.into_iter().collect()))
