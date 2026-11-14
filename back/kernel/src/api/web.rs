@@ -420,8 +420,42 @@ fn docs_page(path: &str) -> Response {
     response
 }
 
+const STATIC_EXTENSIONS: &[&str] = &[
+    "js",
+    "mjs",
+    "css",
+    "map",
+    "png",
+    "jpg",
+    "jpeg",
+    "gif",
+    "svg",
+    "webp",
+    "avif",
+    "ico",
+    "woff",
+    "woff2",
+    "ttf",
+    "otf",
+    "json",
+    "txt",
+    "xml",
+    "webmanifest",
+    "wasm",
+    "html",
+    "pdf",
+    "zip",
+    "csv",
+    "xlsx",
+];
+
 fn looks_like_file(path: &str) -> bool {
     path.rsplit('/')
         .next()
-        .is_some_and(|segment| segment.contains('.'))
+        .and_then(|segment| segment.rsplit_once('.'))
+        .is_some_and(|(_, extension)| {
+            STATIC_EXTENSIONS
+                .iter()
+                .any(|known| known.eq_ignore_ascii_case(extension))
+        })
 }

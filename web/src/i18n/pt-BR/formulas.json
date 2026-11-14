@@ -8,7 +8,8 @@
     "decimalsHint": "De 0 a 6. Vazio mantém o valor calculado.",
     "currency": "Moeda",
     "currencyHint": "Código ISO de 3 letras. Vazio usa BRL.",
-    "decimalsPlaceholder": "Ex.: 2"
+    "decimalsPlaceholder": "Ex.: 2",
+    "currencyResultHint": "Esta fórmula usa campos de moeda, mas o resultado está como Número e será mostrado sem o símbolo. Escolha o tipo de resultado Moeda para exibir o valor com a moeda."
   },
   "resultTypes": {
     "number": "Número",

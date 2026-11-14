@@ -17068,6 +17068,7 @@ export interface components {
             relation: string;
         };
         FormulaCatalogFieldResponse: {
+            is_currency: boolean;
             is_formula: boolean;
             key: string;
             kind: components["schemas"]["FormulaValueKind"];

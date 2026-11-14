@@ -84,6 +84,7 @@ pub struct FormulaCatalogFieldResponse {
     #[schema(value_type = FormulaValueKindSchema)]
     pub kind: String,
     pub is_formula: bool,
+    pub is_currency: bool,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -130,6 +131,7 @@ impl From<FormulaCatalog> for FormulaCatalogResponse {
                     label: field.label,
                     kind: field.kind.as_str().to_owned(),
                     is_formula: field.is_formula,
+                    is_currency: field.is_currency,
                 })
                 .collect(),
             relations: catalog

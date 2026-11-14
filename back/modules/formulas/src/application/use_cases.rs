@@ -12,7 +12,8 @@ use aphel_sdk::platform::application::fields::{FieldSet, ReferenceChecker, value
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::domain::fields::{
-    FieldConfig, FieldDefinition, FieldKey, FormulaResultType, FormulaSettings, MAX_DECIMALS,
+    FieldConfig, FieldDefinition, FieldKey, FieldType, FormulaResultType, FormulaSettings,
+    MAX_DECIMALS,
 };
 
 pub const FORMULA_RECORD_NOT_FOUND: &str = "record_not_found";
@@ -35,6 +36,7 @@ pub struct CatalogField {
     pub label: String,
     pub kind: ValueKind,
     pub is_formula: bool,
+    pub is_currency: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -117,6 +119,8 @@ where
                         label: field.definition().label.clone(),
                         kind: field.kind?,
                         is_formula: field.is_formula(),
+                        is_currency: field.definition().field_type.base_type()
+                            == FieldType::Currency,
                     })
                 })
                 .collect(),

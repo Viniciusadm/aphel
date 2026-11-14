@@ -69,6 +69,9 @@ export function FormulaSettings({
   const previewData = request ? preview.data : undefined
   const failed = preview.isError && !(isApiError(preview.error) && preview.error.code === 'record_not_found')
 
+  const usesCurrency =
+    resultType === 'number' &&
+    (catalog.data?.fields ?? []).some((field) => field.is_currency && new RegExp(`\\b${field.key}\\b`).test(expression))
   const expressionError = errors.config?.expression?.message
   const resultTypeError = errors.config?.resultType?.message
   const expressionId = 'field-config-expression'
@@ -156,6 +159,7 @@ export function FormulaSettings({
           </FormField>
         )}
       </div>
+      {usesCurrency && <p className="text-sm text-warning">{t('settings.currencyResultHint')}</p>}
       <FormField id={expressionId} label={t('editor.label')} hint={t('editor.hint')} error={expressionError}>
         <Controller
           control={control}

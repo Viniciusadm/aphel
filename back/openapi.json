@@ -99204,9 +99204,13 @@
           "key",
           "label",
           "kind",
-          "is_formula"
+          "is_formula",
+          "is_currency"
         ],
         "properties": {
+          "is_currency": {
+            "type": "boolean"
+          },
           "is_formula": {
             "type": "boolean"
           },

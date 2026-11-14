@@ -8,7 +8,8 @@
     "decimalsHint": "From 0 to 6. Empty keeps the calculated value.",
     "currency": "Currency",
     "currencyHint": "3-letter ISO code. Empty uses BRL.",
-    "decimalsPlaceholder": "E.g.: 2"
+    "decimalsPlaceholder": "E.g.: 2",
+    "currencyResultHint": "This formula uses currency fields, but the result is a Number and will show without the currency symbol. Choose the Currency result type to display the value with its currency."
   },
   "resultTypes": {
     "number": "Number",
