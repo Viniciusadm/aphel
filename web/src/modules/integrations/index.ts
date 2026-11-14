@@ -8,7 +8,7 @@ const integrationsModule = defineModule({
   register(app) {
     app.settings('integrations', {
       group: 'connections',
-      path: 'integrations',
+      path: 'connections',
       label: 'settings:tabs.integrations',
       description: 'settings:items.integrations.description',
       icon: Plug,
