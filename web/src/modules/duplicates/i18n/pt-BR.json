@@ -53,7 +53,17 @@
     "emptyTitle": "Nenhuma duplicata por aqui",
     "emptyDescription": "Quando as regras encontrarem registros parecidos, eles aparecem nesta fila.",
     "emptyFiltered": "Nenhum par nesta situação.",
-    "noTypes": "Nenhum tipo de registro com detecção de duplicatas disponível."
+    "noTypes": "Nenhum tipo de registro com detecção de duplicatas disponível.",
+    "scanning": "Verificando…",
+    "scanDone_one": "Verificação concluída: {{count}} par encontrado.",
+    "scanDone_other": "Verificação concluída: {{count}} pares encontrados.",
+    "scanNever": "Nenhuma verificação foi feita ainda. Use “Verificar agora” para analisar todos os registros.",
+    "scanRunning": "Verificando os registros em busca de duplicatas…",
+    "scanFailed": "A última verificação, em {{date}}, não terminou. Tente de novo; se continuar falhando, avise quem administra o sistema.",
+    "scanLast_one": "Última verificação em {{date}}: {{records}} registros analisados, {{count}} par encontrado.",
+    "scanLast_other": "Última verificação em {{date}}: {{records}} registros analisados, {{count}} pares encontrados.",
+    "emptyRules": "Regras ligadas: {{rules}}.",
+    "noPermission": "Mesclar exige permissão para editar e para excluir este tipo de registro."
   },
   "settings": {
     "title": "Regras de detecção",
@@ -76,10 +86,13 @@
     "submit": "Mesclar",
     "confirmTitle": "Mesclar “{{duplicate}}” em “{{primary}}”?",
     "confirmDescription": "O registro mesclado vai para a lixeira e o endereço dele passa a abrir o principal. Esta ação não pode ser desfeita.",
-    "success": "Registros mesclados. {{count}} vínculos foram movidos para o principal.",
     "missing": "Um dos registros não foi encontrado ou já foi mesclado.",
     "invalid": "Escolha dois registros diferentes para mesclar.",
-    "noPermission": "Você precisa de permissão para editar o principal e excluir a duplicata."
+    "noPermission": "Você precisa de permissão para editar o principal e excluir a duplicata.",
+    "createdAt": "Criado em {{date}}",
+    "open": "Abrir em outra aba",
+    "success_one": "Registros mesclados. {{count}} vínculo foi movido para o principal.",
+    "success_other": "Registros mesclados. {{count}} vínculos foram movidos para o principal."
   },
   "warning": {
     "title": "Possível duplicata",

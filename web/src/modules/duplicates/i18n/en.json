@@ -53,7 +53,17 @@
     "emptyTitle": "No duplicates here",
     "emptyDescription": "When the rules find similar records, they show up in this queue.",
     "emptyFiltered": "No pair with this status.",
-    "noTypes": "No record type with duplicate detection is available."
+    "noTypes": "No record type with duplicate detection is available.",
+    "scanning": "Scanning…",
+    "scanDone_one": "Scan finished: {{count}} pair found.",
+    "scanDone_other": "Scan finished: {{count}} pairs found.",
+    "scanNever": "No scan has run yet. Use “Scan now” to analyze all records.",
+    "scanRunning": "Scanning the records for duplicates…",
+    "scanFailed": "The last scan, on {{date}}, did not finish. Try again; if it keeps failing, tell your administrator.",
+    "scanLast_one": "Last scan on {{date}}: {{records}} records analyzed, {{count}} pair found.",
+    "scanLast_other": "Last scan on {{date}}: {{records}} records analyzed, {{count}} pairs found.",
+    "emptyRules": "Rules on: {{rules}}.",
+    "noPermission": "Merging needs permission to edit and to delete this record type."
   },
   "settings": {
     "title": "Detection rules",
@@ -76,10 +86,13 @@
     "submit": "Merge",
     "confirmTitle": "Merge “{{duplicate}}” into “{{primary}}”?",
     "confirmDescription": "The merged record goes to the trash and its address opens the primary one. This cannot be undone.",
-    "success": "Records merged. {{count}} links moved to the primary record.",
     "missing": "One of the records was not found or was already merged.",
     "invalid": "Choose two different records to merge.",
-    "noPermission": "You need permission to edit the primary record and delete the duplicate."
+    "noPermission": "You need permission to edit the primary record and delete the duplicate.",
+    "createdAt": "Created on {{date}}",
+    "open": "Open in a new tab",
+    "success_one": "Records merged. {{count}} link was moved to the primary record.",
+    "success_other": "Records merged. {{count}} links were moved to the primary record."
   },
   "warning": {
     "title": "Possible duplicate",

@@ -17,7 +17,9 @@
       "restored": "Registro restaurado",
       "archived": "Registro arquivado",
       "unarchived": "Registro desarquivado",
-      "purged": "Registro removido definitivamente"
-    }
+      "purged": "Registro removido definitivamente",
+      "merged": "Registro mesclado"
+    },
+    "eventFallback": "Evento do registro"
   }
 }

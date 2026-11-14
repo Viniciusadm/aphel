@@ -14707,6 +14707,53 @@
       }
     },
     "/api/v1/duplicates/scan": {
+      "get": {
+        "tags": [
+          "duplicates"
+        ],
+        "operationId": "duplicates_scan_status",
+        "responses": {
+          "200": {
+            "description": "State of the latest duplicate scan (`queued`, `running`, `completed` or `failed`) with when it was requested, started and finished and how many records it analyzed and how many pairs it found; `data` is null when no scan ever ran",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_Option_ScanStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "duplicates"
+      },
       "post": {
         "tags": [
           "duplicates"
@@ -14726,7 +14773,7 @@
         ],
         "responses": {
           "202": {
-            "description": "Queues the `duplicates.scan` job (it also runs daily)"
+            "description": "Queues the `duplicates.scan` job (it also runs daily) and marks the scan as queued; follow it with `GET /duplicates/scan`"
           },
           "401": {
             "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
@@ -85634,6 +85681,61 @@
           }
         }
       },
+      "Data_Option_ScanStatusResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "status",
+                  "requested_at",
+                  "records",
+                  "candidates"
+                ],
+                "properties": {
+                  "candidates": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0
+                  },
+                  "finished_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "records": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0
+                  },
+                  "requested_at": {
+                    "type": "string"
+                  },
+                  "started_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "completed"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
       "Data_OrgExportResponse": {
         "type": "object",
         "required": [
@@ -120189,6 +120291,46 @@
           },
           "visibility": {
             "$ref": "#/components/schemas/ViewVisibility"
+          }
+        }
+      },
+      "ScanStatusResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "requested_at",
+          "records",
+          "candidates"
+        ],
+        "properties": {
+          "candidates": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "records": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "requested_at": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "example": "completed"
           }
         }
       },

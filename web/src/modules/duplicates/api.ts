@@ -10,6 +10,7 @@ export type DuplicateRules = Schemas['DuplicateRulesResponse']
 export type DuplicateMatch = Schemas['DuplicateMatchResponse']
 export type MergeRequest = Schemas['MergeRequest']
 export type MergeResponse = Schemas['MergeResponse']
+export type DuplicateScanStatus = NonNullable<Schemas['Data_Option_ScanStatusResponse']['data']>
 
 export type DuplicateRecordType = string
 
@@ -37,6 +38,7 @@ export const duplicatesKeys = {
   list: (recordType: DuplicateRecordType, status: CandidateStatus, page: number) =>
     [...duplicatesKeys.all, 'list', recordType, status, page] as const,
   rules: (recordType: DuplicateRecordType) => [...duplicatesKeys.all, 'rules', recordType] as const,
+  scan: () => [...duplicatesKeys.all, 'scan'] as const,
 }
 
 export const duplicatesApi = {
@@ -56,6 +58,7 @@ export const duplicatesApi = {
   updateRules: (recordType: DuplicateRecordType, rules: Record<string, boolean>) =>
     api.put<DuplicateRules>('/v1/duplicates/rules', { record_type: recordType, rules }),
   scan: () => api.post<void>('/v1/duplicates/scan'),
+  scanStatus: () => api.get<DuplicateScanStatus | null>('/v1/duplicates/scan'),
 }
 
 export function useDuplicateTypes() {
@@ -108,6 +111,24 @@ export function useUpdateDuplicateRules(recordType: DuplicateRecordType) {
   })
 }
 
+const SCAN_POLL_MS = 2000
+
+export function isScanActive(status: DuplicateScanStatus | null | undefined): boolean {
+  return status?.status === 'queued' || status?.status === 'running'
+}
+
+export function useDuplicateScanStatus() {
+  return useQuery({
+    queryKey: duplicatesKeys.scan(),
+    queryFn: duplicatesApi.scanStatus,
+    refetchInterval: (query) => (isScanActive(query.state.data) ? SCAN_POLL_MS : false),
+  })
+}
+
 export function useRequestDuplicateScan() {
-  return useMutation({ mutationFn: duplicatesApi.scan })
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: duplicatesApi.scan,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: duplicatesKeys.scan() }),
+  })
 }

@@ -50,14 +50,14 @@ function RulesForm({ recordType, current }: { recordType: DuplicateRecordType; c
         })
       }}
     >
-      <ul className="grid gap-3">
+      <div className="grid gap-3">
         {current.rules.map((rule) => {
           const labelKey = ruleLabelKey(rule.rule)
           return (
             <ToggleField key={rule.rule} label={labelKey ? t(labelKey) : rule.rule} checked={values[rule.rule] ?? false} onCheckedChange={(checked) => setValues((previous) => ({ ...previous, [rule.rule]: checked === true }))} />
           )
         })}
-      </ul>
+      </div>
       <div>
         <Button type="submit" size="sm" disabled={!changed || save.isPending}>
           {t('settings.save')}

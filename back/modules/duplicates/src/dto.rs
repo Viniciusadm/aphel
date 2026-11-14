@@ -10,7 +10,7 @@ use crate::domain::DuplicateRule;
 use crate::service::DuplicateTypeInfo;
 use crate::{
     CandidateQuery, CandidateView, DuplicateMatch, DuplicateProbeInput, MergeCommand, MergeOutcome,
-    RecordSummary, RuleSetting,
+    RecordSummary, RuleSetting, ScanStatus,
 };
 use aphel_sdk::platform::api::dto::common::timestamp;
 
@@ -285,6 +285,33 @@ impl From<DuplicateTypeInfo> for DuplicateTypeResponse {
                 update: info.kind.update.as_str().to_owned(),
                 delete: info.kind.delete.as_str().to_owned(),
             },
+        }
+    }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ScanStatusResponse {
+    #[schema(example = "completed")]
+    pub(crate) status: String,
+    pub(crate) requested_at: String,
+    pub(crate) started_at: Option<String>,
+    pub(crate) finished_at: Option<String>,
+    pub(crate) records: u64,
+    pub(crate) candidates: u64,
+}
+
+impl From<ScanStatus> for ScanStatusResponse {
+    fn from(status: ScanStatus) -> Self {
+        let format = |value: chrono::DateTime<chrono::Utc>| {
+            value.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+        };
+        Self {
+            status: status.status,
+            requested_at: format(status.requested_at),
+            started_at: status.started_at.map(format),
+            finished_at: status.finished_at.map(format),
+            records: status.records,
+            candidates: status.candidates,
         }
     }
 }

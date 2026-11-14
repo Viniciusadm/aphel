@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde_json::json;
 use uuid::Uuid;
 
+use crate::ScanStatus;
 use crate::domain::{CandidateStatus, DuplicateRule};
 use crate::store::{DuplicateStore, MergeStore};
 use crate::{
@@ -371,8 +372,15 @@ pub(crate) async fn detect_for_record(
     Ok(visible)
 }
 
+pub(crate) async fn scan_status(ctx: &Ctx<'_>) -> Result<Option<ScanStatus>, AppError> {
+    DuplicateStore::of(ctx).scan_status().await
+}
+
 pub(crate) async fn request_scan(ctx: &Ctx<'_>) -> Result<(), AppError> {
     ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
+    DuplicateStore::of(ctx)
+        .mark_scan_queued(Some(ctx.scope.user_id().as_str()))
+        .await?;
     ctx.jobs()
         .enqueue_now(
             Job::new(DUPLICATES_SCAN_JOB, json!({}))
@@ -399,12 +407,30 @@ pub(crate) async fn redirect(
 }
 
 pub(crate) async fn scan_all(ctx: &Ctx<'_>) -> Result<ScanSummary, AppError> {
+    let store = DuplicateStore::of(ctx);
+    store.mark_scan_running().await?;
     let mut summary = ScanSummary::default();
     for kind in duplicate_types(ctx.registry()) {
-        let found = scan_type(ctx, &kind).await?;
-        summary.records += found.records;
-        summary.candidates += found.candidates;
+        match scan_type(ctx, &kind).await {
+            Ok(found) => {
+                summary.records += found.records;
+                summary.candidates += found.candidates;
+            }
+            Err(error) => {
+                store
+                    .mark_scan_finished("failed", summary.records as u64, summary.candidates as u64)
+                    .await?;
+                return Err(error);
+            }
+        }
     }
+    store
+        .mark_scan_finished(
+            "completed",
+            summary.records as u64,
+            summary.candidates as u64,
+        )
+        .await?;
     Ok(summary)
 }
 

@@ -2030,7 +2030,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["duplicates_scan_status"];
         put?: never;
         post: operations["duplicates_scan"];
         delete?: never;
@@ -13574,6 +13574,19 @@ export interface components {
                 updated_at: string;
             };
         };
+        Data_Option_ScanStatusResponse: {
+            data: null | {
+                /** Format: int64 */
+                candidates: number;
+                finished_at?: string | null;
+                /** Format: int64 */
+                records: number;
+                requested_at: string;
+                started_at?: string | null;
+                /** @example completed */
+                status: string;
+            };
+        };
         Data_OrgExportResponse: {
             data: {
                 created_at: string;
@@ -22436,6 +22449,17 @@ export interface components {
             updated_at: string;
             view_type: components["schemas"]["ViewType"];
             visibility: components["schemas"]["ViewVisibility"];
+        };
+        ScanStatusResponse: {
+            /** Format: int64 */
+            candidates: number;
+            finished_at?: string | null;
+            /** Format: int64 */
+            records: number;
+            requested_at: string;
+            started_at?: string | null;
+            /** @example completed */
+            status: string;
         };
         /** @enum {string} */
         ScoreBand: "cold" | "warm" | "hot";
@@ -34249,6 +34273,44 @@ export interface operations {
             };
         };
     };
+    duplicates_scan_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description State of the latest duplicate scan (`queued`, `running`, `completed` or `failed`) with when it was requested, started and finished and how many records it analyzed and how many pairs it found; `data` is null when no scan ever ran */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_Option_ScanStatusResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     duplicates_scan: {
         parameters: {
             query?: never;
@@ -34261,7 +34323,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Queues the `duplicates.scan` job (it also runs daily) */
+            /** @description Queues the `duplicates.scan` job (it also runs daily) and marks the scan as queued; follow it with `GET /duplicates/scan` */
             202: {
                 headers: {
                     [name: string]: unknown;

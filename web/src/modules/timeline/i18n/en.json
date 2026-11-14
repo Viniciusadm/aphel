@@ -17,7 +17,9 @@
       "restored": "Record restored",
       "archived": "Record archived",
       "unarchived": "Record unarchived",
-      "purged": "Record purged"
-    }
+      "purged": "Record purged",
+      "merged": "Record merged"
+    },
+    "eventFallback": "Record event"
   }
 }

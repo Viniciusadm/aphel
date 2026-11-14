@@ -7,7 +7,7 @@ use utoipa_axum::routes;
 use crate::dto::{
     DuplicateCandidateResponse, DuplicateCheckRequest, DuplicateListParams, DuplicateMatchResponse,
     DuplicateRulesParams, DuplicateRulesResponse, DuplicateTypeResponse, MergeRequest,
-    MergeResponse, UpdateDuplicateRulesRequest, match_response,
+    MergeResponse, ScanStatusResponse, UpdateDuplicateRulesRequest, match_response,
 };
 use crate::service;
 use aphel_kernel::Ctx;
@@ -27,7 +27,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(list_duplicate_types))
         .routes(routes!(get_rules, update_rules))
         .routes(routes!(check_duplicates))
-        .routes(routes!(scan_duplicates))
+        .routes(routes!(scan_duplicates, scan_status))
         .routes(routes!(merge_records))
         .routes(routes!(get_duplicate))
         .routes(routes!(dismiss_duplicate))
@@ -165,7 +165,7 @@ async fn check_duplicates(
     operation_id = "duplicates_scan",
     security(("session_cookie" = [])),
     responses(
-        (status = 202, description = "Queues the `duplicates.scan` job (it also runs daily)"),
+        (status = 202, description = "Queues the `duplicates.scan` job (it also runs daily) and marks the scan as queued; follow it with `GET /duplicates/scan`"),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
         (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
@@ -177,6 +177,26 @@ async fn scan_duplicates(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     service::request_scan(&ctx).await?;
     Ok(StatusCode::ACCEPTED)
+}
+
+#[utoipa::path(
+    get,
+    path = "/duplicates/scan",
+    tag = TAG,
+    operation_id = "duplicates_scan_status",
+    security(("session_cookie" = [])),
+    responses(
+        (status = 200, description = "State of the latest duplicate scan (`queued`, `running`, `completed` or `failed`) with when it was requested, started and finished and how many records it analyzed and how many pairs it found; `data` is null when no scan ever ran", body = Data<Option<ScanStatusResponse>>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
+    )
+)]
+async fn scan_status(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+) -> Result<Json<Data<Option<ScanStatusResponse>>>, ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let status = service::scan_status(&ctx).await?;
+    Ok(Json(Data::new(status.map(Into::into))))
 }
 
 #[utoipa::path(

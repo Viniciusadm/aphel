@@ -5,7 +5,7 @@ import { useModuleTranslation } from '@/kernel/modules/i18n'
 import { TIMELINE_MODULE_KEY } from './api'
 import { asObject, asText, eventType, nameOf, payloadOf } from './text'
 
-const RECORD_ACTIONS = ['created', 'updated', 'deleted', 'restored', 'archived', 'unarchived', 'purged'] as const
+const RECORD_ACTIONS = ['created', 'updated', 'deleted', 'restored', 'archived', 'unarchived', 'purged', 'merged'] as const
 const MAX_CHANGES = 6
 
 type RecordAction = (typeof RECORD_ACTIONS)[number]
@@ -88,5 +88,8 @@ export function AttachmentTimelineContent({ item }: { item: TimelineItem }) {
 }
 
 export function EventTimelineContent({ item }: { item: TimelineItem }) {
-  return <GenericTimelineContent item={{ ...item, title: eventType(item) }} />
+  const t = useModuleTranslation(TIMELINE_MODULE_KEY)
+  const action = eventType(item).split('.').at(-1) ?? ''
+  const known = (RECORD_ACTIONS as readonly string[]).includes(action)
+  return <GenericTimelineContent item={{ ...item, title: known ? t(`timeline.actions.${action as RecordAction}`) : t('timeline.eventFallback') }} />
 }

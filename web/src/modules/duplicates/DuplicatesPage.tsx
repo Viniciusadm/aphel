@@ -1,6 +1,8 @@
 import { PaginationSummary } from '@/components/ui/pagination-summary'
-import { ArrowLeftRight, CopyCheck, RefreshCw } from 'lucide-react'
+import { ArrowLeftRight, CopyCheck, Loader2, RefreshCw } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess } from '@/components/feedback'
@@ -8,18 +10,23 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { formatDateTime, ListSkeleton, NativeSelect, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
+import { formatDateTime, getRecordResource, ListSkeleton, NativeSelect, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import {
   CANDIDATE_STATUSES,
   DUPLICATES_PER_PAGE,
+  duplicatesKeys,
   isCandidateStatus,
+  isScanActive,
   useDismissDuplicate,
   useDuplicateCandidates,
+  useDuplicateRules,
+  useDuplicateScanStatus,
   useDuplicateTypes,
   useRequestDuplicateScan,
   type DuplicateCandidate,
   type DuplicateRecordType,
+  type DuplicateScanStatus,
   type DuplicateTypeInfo,
 } from './api'
 import { DuplicateRulesCard } from './DuplicateRulesCard'
@@ -51,6 +58,20 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
   const candidates = useDuplicateCandidates(recordType, status, page)
   const scan = useRequestDuplicateScan()
   const canManage = hasPermission(SETTINGS_MANAGE)
+  const scanStatus = useDuplicateScanStatus()
+  const scanning = isScanActive(scanStatus.data)
+  const rules = useDuplicateRules(recordType, canManage)
+  const queryClient = useQueryClient()
+  const wasScanning = useRef(false)
+  useEffect(() => {
+    if (wasScanning.current && !scanning && scanStatus.data) {
+      void queryClient.invalidateQueries({ queryKey: duplicatesKeys.all })
+      if (scanStatus.data.status === 'completed') {
+        notifySuccess(t('queue.scanDone', { count: scanStatus.data.candidates }))
+      }
+    }
+    wasScanning.current = scanning
+  }, [scanning, scanStatus.data, queryClient, t])
 
   const update = (next: { type?: DuplicateRecordType; status?: string; page?: number }) => {
     const params = new URLSearchParams()
@@ -67,6 +88,17 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
       onError: (error) => notifyError(error),
     })
 
+  const enabledRules = (rules.data?.rules ?? [])
+    .filter((rule) => rule.enabled)
+    .map((rule) => {
+      const key = ruleLabelKey(rule.rule)
+      return key ? t(key) : rule.rule
+    })
+  const emptyDescription =
+    enabledRules.length > 0
+      ? `${t('queue.emptyDescription')} ${t('queue.emptyRules', { rules: enabledRules.join(', ') })}`
+      : t('queue.emptyDescription')
+
   return (
     <div className="grid gap-6">
       <Page>
@@ -75,13 +107,14 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
           description={t('queue.description')}
           actions={
             canManage && (
-              <Button size="sm" variant="outline" disabled={scan.isPending} onClick={requestScan}>
-                <RefreshCw aria-hidden="true" />
-                {t('queue.scan')}
+              <Button size="sm" variant="outline" disabled={scan.isPending || scanning} onClick={requestScan}>
+                {scanning ? <Loader2 className="animate-spin" aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
+                {scanning ? t('queue.scanning') : t('queue.scan')}
               </Button>
             )
           }
         />
+        <ScanLine status={scanStatus.data ?? null} loading={scanStatus.isPending} />
         <div className="flex flex-wrap items-end gap-3">
           <label className="grid gap-1 text-sm">
             <span className="text-muted-foreground">{t('queue.typeLabel')}</span>
@@ -115,7 +148,7 @@ function DuplicatesQueue({ types }: { types: DuplicateTypeInfo[] }) {
           <EmptyState
             icon={CopyCheck}
             title={status === 'pending' ? t('queue.emptyTitle') : t('queue.emptyFiltered')}
-            description={status === 'pending' ? t('queue.emptyDescription') : undefined}
+            description={status === 'pending' ? emptyDescription : undefined}
           />
         ) : (
           <>
@@ -155,9 +188,9 @@ function CandidateItem({ candidate, type }: { candidate: DuplicateCandidate; typ
     <li className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="grid min-w-0 gap-2">
         <p className="flex min-w-0 flex-wrap items-center gap-2 font-medium">
-          <span className="truncate">{candidate.record.title}</span>
+          <RecordTitle recordType={recordType} id={candidate.record.id} title={candidate.record.title} />
           <ArrowLeftRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-          <span className="truncate">{candidate.duplicate.title}</span>
+          <RecordTitle recordType={recordType} id={candidate.duplicate.id} title={candidate.duplicate.title} />
         </p>
         <p className="text-sm break-words text-muted-foreground">
           {[candidate.record.subtitle, candidate.duplicate.subtitle].filter(Boolean).join(' · ')}
@@ -176,6 +209,9 @@ function CandidateItem({ candidate, type }: { candidate: DuplicateCandidate; typ
           </span>
         </div>
       </div>
+      {pending && !canMerge && !canDismiss && (
+        <p className="max-w-xs text-xs text-muted-foreground">{t('queue.noPermission')}</p>
+      )}
       {(canMerge || canDismiss) && (
         <div className="flex flex-wrap gap-2">
           {canDismiss && (
@@ -207,5 +243,39 @@ function CandidateItem({ candidate, type }: { candidate: DuplicateCandidate; typ
         </div>
       )}
     </li>
+  )
+}
+
+function RecordTitle({ recordType, id, title }: { recordType: string; id: string; title: string }) {
+  const href = getRecordResource(recordType)?.detailPath?.(id)
+  if (!href) return <span className="truncate">{title}</span>
+  return (
+    <Link to={href} className="truncate underline-offset-4 hover:underline" title={title}>
+      {title}
+    </Link>
+  )
+}
+
+function ScanLine({ status, loading }: { status: DuplicateScanStatus | null; loading: boolean }) {
+  const { t } = useTranslation('duplicates')
+  const formatting = useRecordFormatting()
+  if (loading) return null
+  if (status === null) return <p className="text-sm text-muted-foreground">{t('queue.scanNever')}</p>
+  if (isScanActive(status)) {
+    return (
+      <p className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+        {t('queue.scanRunning')}
+      </p>
+    )
+  }
+  const when = formatDateTime(status.finished_at ?? status.requested_at, formatting)
+  if (status.status === 'failed') {
+    return <p className="text-sm text-destructive">{t('queue.scanFailed', { date: when })}</p>
+  }
+  return (
+    <p className="text-sm text-muted-foreground">
+      {t('queue.scanLast', { date: when, records: status.records, count: status.candidates })}
+    </p>
   )
 }

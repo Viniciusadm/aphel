@@ -134,6 +134,16 @@ pub(crate) struct CandidateResolution {
     pub(crate) resolved_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ScanStatus {
+    pub(crate) status: String,
+    pub(crate) requested_at: DateTime<Utc>,
+    pub(crate) started_at: Option<DateTime<Utc>>,
+    pub(crate) finished_at: Option<DateTime<Utc>>,
+    pub(crate) records: u64,
+    pub(crate) candidates: u64,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub(crate) struct ScanSummary {
     pub(crate) records: usize,

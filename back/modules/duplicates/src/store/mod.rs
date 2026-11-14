@@ -2,6 +2,7 @@ pub(crate) mod merges;
 
 pub(crate) use merges::MergeStore;
 
+use chrono::NaiveDateTime;
 use serde_json::Value;
 use sqlx::mysql::MySqlRow;
 use sqlx::types::Json;
@@ -15,7 +16,8 @@ use crate::domain::{
 };
 use crate::{
     CandidateResolution, CandidateView, DuplicateType, NewCandidate, RecordFingerprint,
-    RecordSummary, RuleSetting, identifier_key, normalize_identifier, rules_json, split_identifier,
+    RecordSummary, RuleSetting, ScanStatus, identifier_key, normalize_identifier, rules_json,
+    split_identifier,
 };
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
@@ -305,6 +307,77 @@ impl DuplicateStore {
         .bind(setting.rule.as_str())
         .bind(setting.enabled)
         .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    pub(crate) async fn scan_status(&self) -> Result<Option<ScanStatus>, AppError> {
+        let row = sqlx::query(
+            "SELECT status, requested_at, started_at, finished_at, records, candidates \
+             FROM duplicate_scan_status WHERE id = 1",
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+        row.map(|row| {
+            let requested_at: NaiveDateTime = row.try_get("requested_at")?;
+            let started_at: Option<NaiveDateTime> = row.try_get("started_at")?;
+            let finished_at: Option<NaiveDateTime> = row.try_get("finished_at")?;
+            let records: u32 = row.try_get("records")?;
+            let candidates: u32 = row.try_get("candidates")?;
+            Ok(ScanStatus {
+                status: row.try_get("status")?,
+                requested_at: mapper::utc(requested_at),
+                started_at: started_at.map(mapper::utc),
+                finished_at: finished_at.map(mapper::utc),
+                records: u64::from(records),
+                candidates: u64::from(candidates),
+            })
+        })
+        .transpose()
+    }
+
+    pub(crate) async fn mark_scan_queued(
+        &self,
+        requested_by: Option<&str>,
+    ) -> Result<(), AppError> {
+        sqlx::query(
+            "INSERT INTO duplicate_scan_status (id, status, requested_by, requested_at) \
+             VALUES (1, 'queued', ?, CURRENT_TIMESTAMP(6)) \
+             ON DUPLICATE KEY UPDATE status = IF(status IN ('queued', 'running'), status, 'queued'), \
+               requested_by = IF(status IN ('queued', 'running'), requested_by, VALUES(requested_by)), \
+               requested_at = IF(status IN ('queued', 'running'), requested_at, CURRENT_TIMESTAMP(6))",
+        )
+        .bind(requested_by)
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
+
+    pub(crate) async fn mark_scan_running(&self) -> Result<(), AppError> {
+        sqlx::query(
+            "INSERT INTO duplicate_scan_status (id, status, started_at) \
+             VALUES (1, 'running', CURRENT_TIMESTAMP(6)) \
+             ON DUPLICATE KEY UPDATE status = 'running', started_at = CURRENT_TIMESTAMP(6), finished_at = NULL",
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
+
+    pub(crate) async fn mark_scan_finished(
+        &self,
+        status: &str,
+        records: u64,
+        candidates: u64,
+    ) -> Result<(), AppError> {
+        sqlx::query(
+            "UPDATE duplicate_scan_status SET status = ?, finished_at = CURRENT_TIMESTAMP(6), \
+             records = ?, candidates = ? WHERE id = 1",
+        )
+        .bind(status)
+        .bind(records.min(u64::from(u32::MAX)) as u32)
+        .bind(candidates.min(u64::from(u32::MAX)) as u32)
+        .execute(&self.pool)
         .await?;
         Ok(())
     }

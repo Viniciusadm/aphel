@@ -37,11 +37,21 @@ impl Module for DuplicatesModule {
             .enabled_by_default()
             .optional(aphel_sdk::leads::KEY)
             .optional("trash")
-            .owned_tables(&["duplicate_candidates", "duplicate_rules", "record_merges"])
+            .owned_tables(&[
+                "duplicate_candidates",
+                "duplicate_rules",
+                "duplicate_scan_status",
+                "record_merges",
+            ])
             .migration(Migration::new(
                 1,
                 "create duplicates",
                 include_str!("../migrations/0001_create_duplicates.sql"),
+            ))
+            .migration(Migration::new(
+                2,
+                "create duplicate scan status",
+                include_str!("../migrations/0002_create_duplicate_scan_status.sql"),
             ))
     }
 

@@ -12,7 +12,7 @@ import { PageLoader } from '@/components/feedback/PageLoader'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { type FieldSchema, FieldValueDisplay, getRecordResource, isEmptyValue, type RecordItem, type RecordResource, recordTitle, useFieldSchema, useRecord } from '@/sdk'
+import { type FieldSchema, FieldValueDisplay, formatDateTime, getRecordResource, isEmptyValue, type RecordItem, type RecordResource, recordTitle, useFieldSchema, useRecord, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { useDuplicateTypes, useMergeRecords, type DuplicateTypeInfo } from './api'
 import { defaultChoices, mergeableFields, mergeRows, movedTotal, type MergeRow, type MergeSide } from './lib/merge'
@@ -155,8 +155,8 @@ function MergeForm({ info, resource, schema, primary, duplicate, onSwap }: Merge
         </Button>
       } />
       <div className="grid gap-3 sm:grid-cols-2">
-        <SideHeader label={t('merge.primary')} name={primaryName} highlighted />
-        <SideHeader label={t('merge.duplicate')} name={duplicateName} />
+        <SideHeader label={t('merge.primary')} name={primaryName} record={primary} href={resource.detailPath?.(primary.id)} highlighted />
+        <SideHeader label={t('merge.duplicate')} name={duplicateName} record={duplicate} href={resource.detailPath?.(duplicate.id)} />
       </div>
       <div className="grid gap-2">
         {rows.map((row) => (
@@ -188,11 +188,30 @@ function MergeForm({ info, resource, schema, primary, duplicate, onSwap }: Merge
   )
 }
 
-function SideHeader({ label, name, highlighted = false }: { label: string; name: string; highlighted?: boolean }) {
+interface SideHeaderProps {
+  label: string
+  name: string
+  record: RecordItem
+  href: string | undefined
+  highlighted?: boolean
+}
+
+function SideHeader({ label, name, record, href, highlighted = false }: SideHeaderProps) {
+  const { t } = useTranslation('duplicates')
+  const formatting = useRecordFormatting()
+  const created = typeof record.created_at === 'string' ? formatDateTime(record.created_at, formatting) : null
   return (
     <div className={cn('grid gap-0.5 rounded-lg border p-3', highlighted && 'border-primary')}>
       <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</span>
       <span className="truncate font-medium">{name}</span>
+      <span className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
+        {created && <span>{t('merge.createdAt', { date: created })}</span>}
+        {href && (
+          <Link to={href} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">
+            {t('merge.open')}
+          </Link>
+        )}
+      </span>
     </div>
   )
 }
