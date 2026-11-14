@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast-store'
-import { formatDateTime, useRecordFormatting } from '@/features/records/formatting'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import {
   TEST_EMAIL_PROVIDERS,
   integrationStatus,
