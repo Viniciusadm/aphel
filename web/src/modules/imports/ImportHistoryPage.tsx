@@ -1,5 +1,7 @@
 import { entityLabel, useEntities } from '@/sdk/entities'
 import { PaginationSummary } from '@/components/ui/pagination-summary'
+import { Trash2 } from 'lucide-react'
+import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -9,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { fileDownloadUrl, formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
-import {HISTORY_PAGE_SIZE, isRunning, useImportHistory, type ImportJob} from '@/sdk'
+import {HISTORY_PAGE_SIZE, isRunning, useDeleteImport, useImportHistory, type ImportJob} from '@/sdk'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Page } from '@/components/ui/page'
@@ -30,6 +32,8 @@ export function ImportHistoryPage() {
   const formatting = useRecordFormatting()
   const [page, setPage] = useState(1)
   const imports = useImportHistory(page)
+  const remove = useDeleteImport()
+  const [deleting, setDeleting] = useState<ImportJob | null>(null)
 
   const recordTypeLabel = (recordType: string) =>
     entityLabel(entities.data?.find((entity) => entity.record_type === recordType), i18n.language, recordType)
@@ -110,6 +114,12 @@ export function ImportHistoryPage() {
                           </a>
                         </Button>
                       )}
+                      {!isRunning(job.status) && (
+                        <Button variant="ghost" size="sm" onClick={() => setDeleting(job)} aria-label={t('history.deleteLabel')}>
+                          <Trash2 aria-hidden />
+                          {t('history.delete')}
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm" asChild>
                         <Link to={`/imports/${job.id}`}>
                           {job.status === 'draft' || isRunning(job.status) ? t('history.continue') : t('history.open')}
@@ -129,6 +139,19 @@ export function ImportHistoryPage() {
           />
         </>
       )}
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={t('history.deleteTitle')}
+        description={t('history.deleteDescription')}
+        confirmLabel={t('history.delete')}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return
+          await remove.mutateAsync(deleting.id)
+          notifySuccess(t('history.deleted'))
+        }}
+      />
     </Page>
   )
 }

@@ -482,6 +482,7 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | --- | --- | --- |
 | `empty_import` | 422 | The file must have a header line and at least one data row. |
 | `import_not_editable` | 409 | The import was already started and can no longer be changed. |
+| `import_in_progress` | 409 | The import is queued or running and cannot be deleted. |
 | `import_not_found` | 404 | Import was not found. |
 | `import_not_retryable` | 409 | Privacy-redacted imports cannot be changed or retried. |
 | `import_not_supported` | 422 | The record type cannot be imported. |

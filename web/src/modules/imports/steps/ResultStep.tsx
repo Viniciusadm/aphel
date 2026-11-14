@@ -83,7 +83,7 @@ export function ResultStep({ job }: ResultStepProps) {
               {errorMessage(retry.error)}
             </SharedFieldError>
           )}
-          {hasFailures && <p className="text-xs text-muted-foreground">{t('result.retryHint')}</p>}
+          {hasFailures && !job.privacy_redacted_at && <p className="text-xs text-muted-foreground">{t('result.retryHint')}</p>}
         </CardContent>
       </Card>
 

@@ -33,7 +33,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(create_import).layer(DefaultBodyLimit::disable()))
         .routes(routes!(list_imports))
-        .routes(routes!(get_import))
+        .routes(routes!(get_import, delete_import))
         .routes(routes!(configure_import))
         .routes(routes!(validate_import))
         .routes(routes!(start_import))
@@ -222,6 +222,32 @@ async fn get_import(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let details = service::get(&ctx, &import_id).await?;
     Ok(Json(Data::new(details.into())))
+}
+
+#[utoipa::path(
+    delete,
+    path = "/imports/{import_id}",
+    tag = TAG,
+    operation_id = "imports_delete",
+    security(("session_cookie" = [])),
+    params(("import_id" = String, Path, description = "Import id")),
+    responses(
+        (status = 204, description = "Import, its rows and its files deleted (rows already written to records stay). Only the creator can delete"),
+        (status = 401, description = "Missing or invalid session", body = ErrorEnvelope),
+        (status = 403, description = "Not the creator (`permission_denied`)", body = ErrorEnvelope),
+        (status = 404, description = "Import not found (`import_not_found`)", body = ErrorEnvelope),
+        (status = 409, description = "The import is queued or running (`import_in_progress`)", body = ErrorEnvelope),
+    )
+)]
+async fn delete_import(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Path(import_id): Path<String>,
+) -> Result<StatusCode, ApiError> {
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    service::delete(&ctx, state.storage.as_ref(), &import_id, client.0.ip).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(

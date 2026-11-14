@@ -65,6 +65,7 @@ export const importsApi = {
   validate: (id: string) => api.post<ImportValidation>(importPath(id, '/validate')),
   start: (id: string) => api.post<ImportJob>(importPath(id, '/start')),
   retryFailed: (id: string) => api.post<ImportJob>(importPath(id, '/retry-failed')),
+  remove: (id: string) => api.delete<void>(importPath(id)),
   rows: (id: string, status: string, page: number) =>
     api.get<ImportRowsPage>(importPath(id, '/rows'), {
       query: { status, page, per_page: ERROR_ROWS_PAGE_SIZE },
@@ -87,6 +88,14 @@ export function useImportHistory(page: number) {
     placeholderData: keepPreviousData,
     refetchInterval: (query) =>
       query.state.data?.data.some((job) => isRunning(job.status)) ? POLL_INTERVAL_MS : false,
+  })
+}
+
+export function useDeleteImport() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: importsApi.remove,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: importsKeys.all }),
   })
 }
 

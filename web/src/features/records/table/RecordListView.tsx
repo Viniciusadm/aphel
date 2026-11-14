@@ -332,7 +332,7 @@ function RecordListContent({
       <EmptyState
         title={activePreset?.emptyTitle ?? emptyTitle ?? t('states.emptyTitle')}
         description={activePreset?.emptyDescription ?? emptyDescription ?? t('states.emptyDescription')}
-        action={emptyAction}
+        action={<div className="flex flex-wrap justify-center gap-2">{emptyAction}<Slot name="record.list.empty" props={{ recordType }} /></div>}
       />
     )
   } else {

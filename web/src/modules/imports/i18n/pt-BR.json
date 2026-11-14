@@ -14,7 +14,8 @@
       "result": "Resultado"
     },
     "stepsLabel": "Etapas da importação",
-    "unsupported": "Este tipo de registro não pode ser importado."
+    "unsupported": "Este tipo de registro não pode ser importado.",
+    "titleGeneric": "Importar"
   },
   "upload": {
     "title": "Envie um arquivo CSV ou uma planilha",
@@ -41,7 +42,7 @@
     "options": "Duplicatas e relacionamentos",
     "duplicateKey": "Identificar duplicatas por",
     "duplicateStrategy": "Quando encontrar uma duplicata",
-    "createReferences": "Criar registros referenciados ausentes quando o módulo permitir",
+    "createReferences": "Criar automaticamente os registros ligados que ainda não existem, como a empresa de um contato",
     "keys": {
       "none": "Não verificar",
       "email": "E-mail",
@@ -94,7 +95,7 @@
     "reimport": "Reimportar arquivo corrigido",
     "reimportLabel": "Arquivo corrigido",
     "retry": "Tentar de novo as linhas com erro",
-    "retryHint": "Use quando o problema estava fora do arquivo, como um responsável que ainda não era membro.",
+    "retryHint": "“Tentar de novo” serve quando o problema estava fora do arquivo, como um responsável que ainda não era membro. Se o erro está nas linhas, corrija o arquivo abaixo.",
     "errorsTitle": "Linhas com erro",
     "goToList": "Ver {{recordType}}",
     "newImport": "Nova importação",
@@ -134,6 +135,11 @@
       "result": "Resultado",
       "createdAt": "Criada em",
       "actions": "Ações"
-    }
+    },
+    "delete": "Excluir",
+    "deleteLabel": "Excluir esta importação",
+    "deleteTitle": "Excluir esta importação?",
+    "deleteDescription": "O histórico, o arquivo enviado e o arquivo de erros serão apagados. Os registros que já foram importados continuam onde estão.",
+    "deleted": "Importação excluída"
   }
 }

@@ -16,6 +16,7 @@ pub(crate) const IMPORT_STARTED: &str = "import.started";
 pub(crate) const IMPORT_COMPLETED: &str = "import.completed";
 pub(crate) const IMPORT_FAILED: &str = "import.failed";
 pub(crate) const IMPORT_RETRIED: &str = "import.retried";
+pub(crate) const IMPORT_DELETED: &str = "import.deleted";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ImportStatus {

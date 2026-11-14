@@ -33,7 +33,8 @@ export function ImportWizardPage() {
   const entities = useImportEntities()
   const { t, i18n } = useTranslation('imports')
   const job = useImportJob(id)
-  const recordType = job.data?.record_type ?? params.get('record_type') ?? entities.data?.[0]?.record_type ?? ''
+  const requested = params.get('record_type')
+  const recordType = job.data?.record_type ?? (entities.data?.some((entity) => entity.record_type === requested) ? requested : null) ?? (entities.data?.find((entity) => entity.record_type === 'people.person') ?? entities.data?.[0])?.record_type ?? ''
 
   let body
   if (!id) {
@@ -87,7 +88,7 @@ function ImportLayout({ recordType, step, children }: ImportLayoutProps) {
     <Page>
       <PageHeader
         back={{ to: recordListPath(recordType) ?? '/', label: t('wizard.back') }}
-        title={t('wizard.title', { recordType: typeLabel })}
+        title={typeLabel === recordType ? t('wizard.titleGeneric') : t('wizard.title', { recordType: typeLabel })}
       />
       <ol aria-label={t('wizard.stepsLabel')} className="flex flex-wrap gap-2 text-sm">
         {STEPS.map((item, index) => (

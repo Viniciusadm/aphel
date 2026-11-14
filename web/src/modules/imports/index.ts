@@ -17,6 +17,7 @@ const importsModule = defineModule({
       order: 120,
       lazy: async () => ({ Component: (await import('./ImportHistoryPage')).ImportHistoryPage }),
     })
+    app.slot('record.list.empty', { key: 'records', order: 2000, render: ImportAction })
     app.slot('record.list.actions', { key: 'records', order: 2000, render: ImportAction })
   },
 })

@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use crate::store::ImportStore;
 use crate::{
-    DuplicateKey, DuplicateStrategy, IMPORT_RECORD_TYPE, IMPORT_RETRIED, IMPORT_RUN_JOB,
+    DuplicateKey, DuplicateStrategy, IMPORT_RECORD_TYPE, IMPORT_DELETED, IMPORT_RETRIED, IMPORT_RUN_JOB,
     IMPORT_STARTED, ImportJob, ImportJobFilter, ImportOptions, ImportRow, ImportStatus,
     ImportTarget, ImportTotals, PREVIEW_ROWS, RowReport, RowStatus, ValidationReport,
     normalize_label, parse_source, source_mime_type, suggest_mapping,
@@ -45,6 +45,7 @@ pub const IMPORT_NOT_FOUND: &str = "import_not_found";
 pub const IMPORT_NOT_SUPPORTED: &str = "import_not_supported";
 pub const IMPORT_NOT_EDITABLE: &str = "import_not_editable";
 pub const IMPORT_NOT_RETRYABLE: &str = "import_not_retryable";
+pub const IMPORT_IN_PROGRESS: &str = "import_in_progress";
 pub const MAX_REPORTED_ROWS: usize = 200;
 pub const RUN_TIME_BUDGET: Duration = Duration::from_secs(120);
 pub const IMPORT_WRITE_CONCURRENCY: usize = 4;
@@ -570,6 +571,49 @@ pub(crate) async fn retry_failed(
     let fields = field_set(ctx, &job.record_type).await?;
     let targets = import_targets(&fields, ctx.registry())?;
     Ok(ImportDetails::new(job, targets, &fields))
+}
+
+pub(crate) async fn delete(
+    ctx: &Ctx<'_>,
+    storage: &dyn aphel_sdk::platform::application::shared::FileStorage,
+    import_id: &str,
+    ip: Option<String>,
+) -> Result<(), AppError> {
+    let job = owned(ctx, import_id).await?;
+    if matches!(job.status, ImportStatus::Queued | ImportStatus::Running) {
+        return Err(AppError::conflict_code(
+            IMPORT_IN_PROGRESS,
+            "an import that is still running cannot be deleted",
+        ));
+    }
+    let files = MySqlFileRepository::new(ctx.pool().clone());
+    let mut keys = Vec::new();
+    for file_id in [job.file_id, job.error_file_id].into_iter().flatten() {
+        if let Some(file) = files.find_file(file_id).await? {
+            keys.push(file.storage_key);
+        }
+    }
+    let now = ctx.now();
+    let mut tx = ctx.begin().await?;
+    ImportStore::of(ctx).delete_job(&mut tx, &job).await?;
+    ctx.audit()
+        .record(
+            &mut tx,
+            AuditEntry::new(Actor::from_scope(ctx.scope), IMPORT_DELETED, now)
+                .with_record(RecordRef::new(IMPORT_RECORD_TYPE, job.id))
+                .with_changes(vec![FieldChange::new(
+                    "import",
+                    json!(job.id.to_string()),
+                    Value::Null,
+                )])
+                .with_ip(ip),
+        )
+        .await?;
+    tx.commit().await?;
+    for key in keys {
+        discard_generated_file(storage, &key).await;
+    }
+    Ok(())
 }
 
 fn check_mapping_complete(job: &ImportJob, targets: &[ImportTarget]) -> Result<(), AppError> {
