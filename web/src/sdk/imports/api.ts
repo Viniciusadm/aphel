@@ -21,7 +21,7 @@ export const HISTORY_PAGE_SIZE = 25
 
 export function useImportEntities() {
   const query = useEntities()
-  return { ...query, data: query.data?.filter((entity) => entity.traits['imports.importable'] === true && entity.access.create) }
+  return { ...query, data: query.data?.filter((entity) => 'imports.importable' in entity.traits && entity.access.create) }
 }
 
 export function isRunning(status: string | undefined): boolean {

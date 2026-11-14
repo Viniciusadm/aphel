@@ -98,14 +98,16 @@
     "errorsTitle": "Failed rows",
     "goToList": "See {{recordType}}",
     "newImport": "New import",
-    "redacted": "Personal data and original files were removed. This import cannot be changed or retried."
+    "redacted": "Personal data and original files were removed. This import cannot be changed or retried.",
+    "completedWithErrors": "Import completed with errors"
   },
   "status": {
     "draft": "Draft",
     "queued": "Queued",
     "running": "Running",
     "completed": "Completed",
-    "failed": "Failed"
+    "failed": "Failed",
+    "completedWithErrors": "Completed with errors"
   },
   "errors": {
     "load": "The import could not be loaded.",
@@ -118,10 +120,10 @@
     "description": "Track your imports, resume drafts and download the rows that failed.",
     "new": "New import",
     "empty": "No imports yet",
-    "emptyDescription": "Use the Import button on a record list to get started.",
+    "emptyDescription": "Use Import in a list's \"List actions\" (contacts, leads, companies and others), or click New import.",
     "rows_one": "{{count}} row",
     "rows_other": "{{count}} rows",
-    "totals": "{{imported}} created, {{updated}} updated, {{failed}} failed of {{total}}",
+    "totals": "{{total}} rows: {{imported}} created, {{updated}} updated, {{failed}} failed",
     "errorFile": "Failed rows",
     "continue": "Continue",
     "open": "Open",

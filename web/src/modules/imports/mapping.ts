@@ -1,3 +1,4 @@
+import { localizeViolationMessage } from '@/api/violations'
 import type {DuplicateKey, ImportJob, ImportTarget} from '@/sdk'
 
 type DeclaredJob = ImportJob & { duplicate_keys?: DuplicateKey[] }
@@ -41,7 +42,8 @@ export interface ImportRowReport {
 
 export function describeError(error: ImportRowError): string {
   const where = error.column ?? error.field
-  return where ? `${where}: ${error.message}` : error.message
+  const message = localizeViolationMessage(error.message)
+  return where ? `${where}: ${message}` : message
 }
 
 export function processedRows(job: ImportJob): number {

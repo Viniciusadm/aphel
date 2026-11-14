@@ -98,14 +98,16 @@
     "errorsTitle": "Linhas com erro",
     "goToList": "Ver {{recordType}}",
     "newImport": "Nova importação",
-    "redacted": "Os dados pessoais e arquivos originais foram removidos. Esta importação não pode ser alterada ou repetida."
+    "redacted": "Os dados pessoais e arquivos originais foram removidos. Esta importação não pode ser alterada ou repetida.",
+    "completedWithErrors": "Importação concluída com erros"
   },
   "status": {
     "draft": "Rascunho",
     "queued": "Na fila",
     "running": "Em andamento",
     "completed": "Concluída",
-    "failed": "Falhou"
+    "failed": "Falhou",
+    "completedWithErrors": "Concluída com erros"
   },
   "errors": {
     "load": "Não foi possível carregar a importação.",
@@ -118,10 +120,10 @@
     "description": "Acompanhe as importações que você fez, retome rascunhos e baixe as linhas com erro.",
     "new": "Nova importação",
     "empty": "Nenhuma importação ainda",
-    "emptyDescription": "Use o botão Importar em uma lista de registros para começar.",
+    "emptyDescription": "Use o botão Importar em \"Ações da lista\", na tela de contatos, leads, empresas e outros cadastros, ou clique em Nova importação.",
     "rows_one": "{{count}} linha",
     "rows_other": "{{count}} linhas",
-    "totals": "{{imported}} criadas, {{updated}} atualizadas, {{failed}} com erro de {{total}}",
+    "totals": "{{total}} linhas: {{imported}} criados, {{updated}} atualizados, {{failed}} com erro",
     "errorFile": "Linhas com erro",
     "continue": "Continuar",
     "open": "Abrir",

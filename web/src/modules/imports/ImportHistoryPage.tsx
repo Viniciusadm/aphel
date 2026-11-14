@@ -48,6 +48,7 @@ export function ImportHistoryPage() {
     <Page>
       <PageHeader
         title={t('history.title')}
+        description={t('history.description')}
         actions={
           <Button asChild>
             <Link to="/imports/new">{t('history.new')}</Link>
@@ -92,8 +93,8 @@ export function ImportHistoryPage() {
                   <TableCell className="max-w-56 truncate font-medium">{job.file_name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{recordTypeLabel(job.record_type)}</TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_VARIANTS[job.status] ?? 'secondary'}>
-                      {t(`status.${job.status}`, { defaultValue: job.status })}
+                    <Badge variant={job.status === 'completed' && job.totals.failed > 0 ? 'warning' : (STATUS_VARIANTS[job.status] ?? 'secondary')}>
+                      {t(`status.${job.status === 'completed' && job.totals.failed > 0 ? 'completedWithErrors' : job.status}`, { defaultValue: job.status })}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden text-muted-foreground md:table-cell">{totalsText(job)}</TableCell>

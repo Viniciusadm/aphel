@@ -35,13 +35,15 @@ export function ResultStep({ job }: ResultStepProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2">
-            {completed ? (
+            {completed && !hasFailures ? (
               <CircleCheck className="size-5 text-success" aria-hidden />
             ) : (
-              <CircleAlert className="size-5 text-destructive" aria-hidden />
+              <CircleAlert className={completed ? 'size-5 text-warning' : 'size-5 text-destructive'} aria-hidden />
             )}
-            {completed ? t('result.completed') : t('result.failed')}
-            <Badge variant={completed ? 'success' : 'destructive'}>{t(`status.${completed ? 'completed' : 'failed'}`)}</Badge>
+            {!completed ? t('result.failed') : hasFailures ? t('result.completedWithErrors') : t('result.completed')}
+            <Badge variant={!completed ? 'destructive' : hasFailures ? 'warning' : 'success'}>
+              {t(`status.${!completed ? 'failed' : hasFailures ? 'completedWithErrors' : 'completed'}`)}
+            </Badge>
           </CardTitle>
           {job.privacy_redacted_at ? <CardDescription>{t('result.redacted')}</CardDescription> : job.failure_reason && <CardDescription>{job.failure_reason}</CardDescription>}
         </CardHeader>
