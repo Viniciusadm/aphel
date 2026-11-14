@@ -72,6 +72,7 @@ pub(crate) fn product_definition() -> Result<EntityDefinition, AppError> {
                     .label_alias("code", LabelNormalization::Exact)
                     .restore_order(2),
             )
+            .events("product")
             .update_permission(Permission::PRODUCTS_UPDATE)
             .title_field("name")
             .soft_delete_column("deleted_at")

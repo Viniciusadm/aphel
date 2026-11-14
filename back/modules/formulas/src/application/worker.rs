@@ -34,11 +34,16 @@ fn is_record_event(event_type: &str) -> bool {
     if aphel_sdk::platform::domain::custom_objects::is_custom_record_type(record_type) {
         return true;
     }
-    let Ok(record_type) = RecordType::parse(record_type) else {
+    let Some(app) = aphel_sdk::platform::modules::try_app() else {
         return false;
     };
-    aphel_sdk::platform::modules::try_app()
-        .is_some_and(|app| app.record_types().get(&record_type).is_some())
+    let registry = app.record_types();
+    RecordType::parse(record_type)
+        .ok()
+        .is_some_and(|record_type| registry.get(&record_type).is_some())
+        || registry
+            .definitions()
+            .any(|definition| definition.event_prefix == record_type)
 }
 
 pub fn is_formula_trigger(event_type: &str) -> bool {
