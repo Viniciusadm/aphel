@@ -7,6 +7,7 @@ const favoritesModule = defineModule({
   key: 'favorites',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   register(app) {
+    app.appears('appears')
     app.slot('app.sidebar', {
       key: 'favorites',
       render: ({ collapsed, onNavigate }) => <SidebarFavorites collapsed={collapsed} onNavigate={onNavigate} />,

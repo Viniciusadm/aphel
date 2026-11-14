@@ -277,6 +277,7 @@ export interface ModuleApp {
   routes(routes: RouteObject[], options?: RouteOptions): void
   publicRoutes(routes: RouteObject[]): void
   nav(item: NavContribution): void
+  appears(label: string): void
   navSection(section: NavSectionContribution): void
   traitListView(view: TraitListViewContribution): void
   ruleError(code: string, formatter: (messages: string[]) => string): void

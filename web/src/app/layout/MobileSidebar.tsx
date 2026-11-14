@@ -32,8 +32,8 @@ export function MobileSidebar({ open, onOpenChange, settingsArea, returnPath }: 
             <SettingsNav area={settingsArea} returnPath={returnPath} onNavigate={close} />
           ) : (
             <>
-              <SidebarNav onNavigate={close} />
               <Slot name="app.sidebar" props={{ onNavigate: close }} />
+              <SidebarNav onNavigate={close} />
             </>
           )}
         </div>

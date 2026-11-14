@@ -33,6 +33,7 @@ export function createModuleApp(key: string): ModuleApp {
     routes: (routes, options) => contribute<RouteEntry>('routes', key, { routes, layout: options?.layout ?? 'app' }),
     publicRoutes: (routes) => contribute<RouteObject[]>('publicRoutes', key, routes),
     nav: (item) => contribute('nav', key, item, item.order ?? NAV_ORDER.modules),
+    appears: (label) => contribute('appears', key, label),
     ruleError: (code, formatter) => registerRuleError(code, formatter),
     traitListView: (view) => contribute('traitListViews', key, view),
     navSection: (section) => contribute('navSections', key, section, section.order),

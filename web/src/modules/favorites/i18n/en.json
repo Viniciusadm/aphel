@@ -4,7 +4,6 @@
   "sidebar": {
     "title": "Favorites",
     "label": "Favorites",
-    "empty": "Pin records and views with the star to reach them from here.",
     "unavailable": "Unavailable item",
     "unavailableHint": "The record was deleted or you no longer have access to it.",
     "actions": "Actions for {{label}}",
@@ -39,5 +38,6 @@
     "favorite": "Add to favorites",
     "unfavorite": "Remove from favorites",
     "group": "Favorites"
-  }
+  },
+  "appears": "at the top of the sidebar, as the star on records and views and in the command palette"
 }

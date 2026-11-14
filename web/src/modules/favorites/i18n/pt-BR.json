@@ -4,7 +4,6 @@
   "sidebar": {
     "title": "Favoritos",
     "label": "Favoritos",
-    "empty": "Fixe registros e visualizações com a estrela para acessá-los daqui.",
     "unavailable": "Item indisponível",
     "unavailableHint": "O registro foi excluído ou você não tem mais acesso a ele.",
     "actions": "Ações de {{label}}",
@@ -39,5 +38,6 @@
     "favorite": "Adicionar aos favoritos",
     "unfavorite": "Remover dos favoritos",
     "group": "Favoritos"
-  }
+  },
+  "appears": "no topo do menu lateral, na estrela das fichas e visualizações e na paleta de comandos"
 }

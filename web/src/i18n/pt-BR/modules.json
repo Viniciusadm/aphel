@@ -283,8 +283,9 @@
     "title": "O que adiciona",
     "menu": "no menu: {{items}}",
     "settings": "em Configurações: {{items}}",
-    "nothing": "nada no menu nem em Configurações; funciona dentro de outros módulos.",
-    "more": "{{items}} e mais {{count}}"
+    "nothing": "nenhum item próprio no menu nem em Configurações; aparece dentro das telas de outros módulos.",
+    "more": "{{items}} e mais {{count}}",
+    "appears": "aparece {{items}}"
   },
   "relations": {
     "requires": "Precisa de",

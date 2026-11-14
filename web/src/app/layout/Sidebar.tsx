@@ -37,8 +37,8 @@ export function Sidebar({ collapsed, onToggleCollapsed, settingsArea, returnPath
           <SettingsNav area={settingsArea} returnPath={returnPath} collapsed={collapsed} />
         ) : (
           <>
-            <SidebarNav collapsed={collapsed} />
             <Slot name="app.sidebar" props={{ collapsed }} />
+            <SidebarNav collapsed={collapsed} />
           </>
         )}
       </div>

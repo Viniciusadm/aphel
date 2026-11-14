@@ -8,6 +8,7 @@ export interface ModuleSurface {
   hasScreens: boolean
   menu: string[]
   settings: string[]
+  appears: string[]
 }
 
 function unique(values: string[]): string[] {
@@ -27,6 +28,9 @@ export function useModuleSurface(key: string): ModuleSurface {
     const settings = contributions<SettingsEntry>('settings')
       .filter((item) => item.module === key)
       .map((item) => translate(key, item.value.item.label))
-    return { hasScreens: menu.length > 0, menu: unique(menu), settings: unique(settings) }
+    const appears = contributions<string>('appears')
+      .filter((item) => item.module === key)
+      .map((item) => translate(key, item.value))
+    return { hasScreens: menu.length > 0, menu: unique(menu), settings: unique(settings), appears: unique(appears) }
   }, [key, translate])
 }

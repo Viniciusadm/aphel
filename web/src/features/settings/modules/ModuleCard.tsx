@@ -189,11 +189,12 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
           {showSurface && (
           <p className="text-xs text-muted-foreground">
             <span className="font-medium">{t('adds.title')}: </span>
-            {surface.menu.length === 0 && surface.settings.length === 0
+            {surface.menu.length === 0 && surface.settings.length === 0 && surface.appears.length === 0
               ? t('adds.nothing')
               : [
                   surface.menu.length > 0 ? t('adds.menu', { items: shortList(surface.menu) }) : null,
                   surface.settings.length > 0 ? t('adds.settings', { items: shortList(surface.settings) }) : null,
+                  surface.appears.length > 0 ? t('adds.appears', { items: shortList(surface.appears) }) : null,
                 ]
                   .filter(Boolean)
                   .join(' · ')}

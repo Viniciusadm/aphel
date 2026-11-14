@@ -283,8 +283,9 @@
     "title": "What it adds",
     "menu": "in the menu: {{items}}",
     "settings": "in Settings: {{items}}",
-    "nothing": "nothing in the menu or in Settings; it works inside other modules.",
-    "more": "{{items}} and {{count}} more"
+    "nothing": "no menu item or settings of its own; it appears inside the screens of other modules.",
+    "more": "{{items}} and {{count}} more",
+    "appears": "appears {{items}}"
   },
   "relations": {
     "requires": "Needs",

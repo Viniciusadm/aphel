@@ -56,7 +56,7 @@ function CollapsedFavorites({ favorites, onNavigate }: { favorites: Favorite[]; 
   if (available.length === 0) return null
 
   return (
-    <nav aria-label={t('sidebar.label')} className="mt-3 flex flex-col gap-1 border-t border-sidebar-border px-2 pt-3">
+    <nav aria-label={t('sidebar.label')} className="mb-3 flex flex-col gap-1 border-b border-sidebar-border px-2 pb-3">
       {available.map((favorite) => {
         const Icon = favoriteIcon(favorite)
         const label = labelOf(favorite)
@@ -186,7 +186,7 @@ export function SidebarFavorites({ collapsed = false, onNavigate }: SidebarFavor
 
   const items = favorites.data ?? []
   if (collapsed) return <CollapsedFavorites favorites={items} onNavigate={onNavigate} />
-  if (!favorites.isSuccess) return null
+  if (!favorites.isSuccess || items.length === 0) return null
 
   const ids = items.map((favorite) => favorite.id)
   const labelById = (id: UniqueIdentifier) => {
@@ -225,7 +225,7 @@ export function SidebarFavorites({ collapsed = false, onNavigate }: SidebarFavor
   const ToggleIcon = open ? ChevronDown : ChevronRight
 
   return (
-    <section aria-label={t('sidebar.label')} className="mt-3 border-t border-sidebar-border px-2 pt-3">
+    <section aria-label={t('sidebar.label')} className="mb-3 border-b border-sidebar-border px-2 pb-3">
       <button
         type="button"
         onClick={toggleOpen}
@@ -235,36 +235,32 @@ export function SidebarFavorites({ collapsed = false, onNavigate }: SidebarFavor
       >
         <ToggleIcon className="size-3.5" aria-hidden />
         <span>{t('sidebar.title')}</span>
-        {items.length > 0 && <span className="ml-auto font-normal tabular-nums">{items.length}</span>}
+        <span className="ml-auto font-normal tabular-nums">{items.length}</span>
       </button>
       {open && (
         <div id={listId} className="mt-1">
-          {items.length === 0 ? (
-            <p className="px-2 py-1 text-xs text-muted-foreground">{t('sidebar.empty')}</p>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-              accessibility={{ announcements, screenReaderInstructions: { draggable: t('reorder.instructions') } }}
-            >
-              <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-                <ul className="flex flex-col gap-0.5">
-                  {items.map((favorite, index) => (
-                    <FavoriteRow
-                      key={favorite.id}
-                      favorite={favorite}
-                      index={index}
-                      total={items.length}
-                      onMove={move}
-                      onRemove={(item) => remove.mutate(item)}
-                      onNavigate={onNavigate}
-                    />
-                  ))}
-                </ul>
-              </SortableContext>
-            </DndContext>
-          )}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            accessibility={{ announcements, screenReaderInstructions: { draggable: t('reorder.instructions') } }}
+          >
+            <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+              <ul className="flex flex-col gap-0.5">
+                {items.map((favorite, index) => (
+                  <FavoriteRow
+                    key={favorite.id}
+                    favorite={favorite}
+                    index={index}
+                    total={items.length}
+                    onMove={move}
+                    onRemove={(item) => remove.mutate(item)}
+                    onNavigate={onNavigate}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
       )}
     </section>
