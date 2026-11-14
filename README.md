@@ -26,7 +26,7 @@ The installer offers a blueprint or a blank system. A blueprint (`blueprints/<ke
 - **Dashboard:** sales indicators, pending items, recent activity and deals by stage.
 - **Notifications:** in-app and by email, with per-kind preferences and a daily digest.
 - **Import and export:** CSV import with mapping, validation and reprocessing of errors; export to CSV and XLSX.
-- **Installation:** setup wizard on first access, organization settings (name, logo, color, language, time zone, currency) and demo data.
+- **Installation:** setup wizard on first access, organization settings (name, logo, color, language, time zone, currency).
 - **REST API** at `/api/v1`, documented at `/api/docs` (OpenAPI 3.1).
 
 Interface in English and Brazilian Portuguese, responsive (mobile, tablet and desktop), with light and dark themes.
@@ -44,12 +44,6 @@ docker compose -f docker-compose.prod.yml up -d
 Before the last command, change `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` in `.env`. `up` pulls the prebuilt image (`ghcr.io/viniciusadm/aphel`, amd64 and arm64), without compiling anything on the server. Then open **http://localhost:3001**: the setup wizard registers the company and the first administrator.
 
 Three services start: `app` (web server and API), `worker` (notifications, emails, imports, exports) and `mysql`, with volumes for the database and the files.
-
-To explore with fictitious data:
-
-```bash
-docker compose -f docker-compose.prod.yml exec app aphel demo seed
-```
 
 Production (HTTPS, reverse proxy, SMTP), manual installation with the binary and systemd: [docs/installation.md](docs/installation.md).
 
@@ -79,9 +73,6 @@ Full list, with the effect of each one: [docs/configuration.md](docs/configurati
 | `aphel serve` | HTTP server (the default without a subcommand). `--with-worker` runs the worker in the same process |
 | `aphel worker` | Job queue and scheduler |
 | `aphel migrate` | Applies pending migrations and exits |
-| `aphel demo seed` | Fills the installation with fictitious data (refuses if there are already records, unless `--force` is used) |
-| `aphel demo remove` | Deletes only the demo data |
-| `aphel demo reset` | Deletes the demo data and seeds it again |
 | `aphel modules list\|doctor\|hooks\|uninstall` | Inspects and uninstalls the modules compiled into the binary |
 | `aphel search reindex` | Rebuilds the global search index |
 | `aphel secrets generate-key` | Generates a value for `APP_ENCRYPTION_KEY` |

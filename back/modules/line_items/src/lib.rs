@@ -1,4 +1,3 @@
-mod dataset_seed;
 pub mod domain;
 pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
@@ -37,9 +36,6 @@ impl Module for LineItemsModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
-            dataset_seed::LineItemsSeed,
-        ));
         app.contract(aphel_sdk::line_items::DESCRIPTOR);
         app.contribute(std::sync::Arc::new(
             aphel_sdk::platform::infrastructure::custom_objects::RecordTypeScopedTable(

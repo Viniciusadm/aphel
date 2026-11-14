@@ -90,11 +90,6 @@ fn parse_config(config: &Value) -> Result<EmailConfig, ChannelError> {
     })
 }
 
-fn demo_mode() -> bool {
-    std::env::var("DEMO_MODE")
-        .is_ok_and(|value| matches!(value.trim(), "1" | "true" | "TRUE" | "yes"))
-}
-
 fn provider() -> Result<SharedMailboxProvider, ChannelError> {
     crate::store::mail_providers()
         .find(IMAP_PROVIDER)
@@ -351,12 +346,6 @@ impl MessagingChannel for EmailChannel {
         context: &ChannelContext<'_>,
         message: &OutgoingMessage,
     ) -> Result<SentMessage, ChannelError> {
-        if demo_mode() {
-            return Err(ChannelError::permanent(
-                "demo_restricted",
-                "sending e-mail is disabled in the demo",
-            ));
-        }
         let (config, account) = account(context)?;
         let outgoing = ProviderEmail {
             message_id: message.message_id.clone(),

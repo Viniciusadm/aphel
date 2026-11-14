@@ -60,7 +60,7 @@ pub(crate) struct Cli {
         long,
         global = true,
         value_name = "SLUG",
-        help = "Tenant to act on when CONTROL_DATABASE_URL is set (migrate, doctor, modules, mounts, secrets rotate, search, org, demo)"
+        help = "Tenant to act on when CONTROL_DATABASE_URL is set (migrate, doctor, modules, mounts, secrets rotate, search, org)"
     )]
     pub(crate) tenant: Option<String>,
 }
@@ -226,7 +226,7 @@ pub(crate) async fn run() -> CliResult {
 
 fn acts_on_one_tenant(matches: &clap::ArgMatches) -> bool {
     match matches.subcommand() {
-        Some(("doctor" | "modules" | "mounts" | "search" | "org" | "demo", _)) => true,
+        Some(("doctor" | "modules" | "mounts" | "search" | "org", _)) => true,
         Some(("secrets", arguments)) => arguments.subcommand_name() == Some("rotate"),
         _ => false,
     }

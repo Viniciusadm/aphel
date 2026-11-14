@@ -97,14 +97,6 @@ These are read by the email module. They do not apply when the module is not com
 | `EMAIL_SYNC_MAX_MESSAGE_MB` | `25` | Largest message that is downloaded. Accepted range 1 to 100. |
 | `EMAIL_ALLOW_PRIVATE_NETWORKS` | `false` | Allows IMAP and SMTP mailboxes on private-network addresses. Only `1`, `true`, `TRUE` and `yes` enable it. |
 
-### Demo mode
-
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `DEMO_MODE` | `false` | Turns the installation into a public demonstration: outgoing email is discarded instead of sent, and password reset, sign out of all devices, password change, session revocation, API tokens and two-factor changes answer `403 demo_restricted`. The installer is also blocked. Only `1`, `true`, `TRUE` and `yes` enable it. |
-| `DEMO_USER_EMAIL` | `demo@aphel.demo` | Email of the limited visitor account created by `aphel demo seed` and `aphel demo reset`. |
-| `DEMO_USER_PASSWORD` | `aphel-demo` | Password of that visitor. |
-| `DEMO_RESET_TIME` | `03:00` | Daily reset time, in UTC. |
 
 ### Variables for Docker Compose only
 

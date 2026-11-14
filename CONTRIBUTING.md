@@ -22,7 +22,7 @@ make dev-web
 
 - `make up` starts MySQL 8.4 and Mailpit (emails at http://127.0.0.1:8025).
 - `make dev-back` runs the backend at http://127.0.0.1:3001; `make dev-web` runs Vite at http://localhost:5173.
-- On an empty database, the first access opens the installation assistant. `cargo run -- demo seed --organization demo` (in `back/`) creates sample data.
+- On an empty database, the first access opens the installation assistant.
 
 Ports in use and other details: [docs/development.md](docs/development.md).
 

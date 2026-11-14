@@ -22,7 +22,7 @@ Include, if possible:
 - steps to reproduce or a proof of concept;
 - a suggested fix, if you have one.
 
-Do not access, change or delete third-party data to demonstrate the problem; use your own installation (the demo data helps: `aphel demo seed --organization demo`).
+Do not access, change or delete third-party data to demonstrate the problem; use your own installation.
 
 ## What to expect
 

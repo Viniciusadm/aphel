@@ -53,14 +53,6 @@ Requirements: Docker with the `docker compose` plugin.
 
 5. Open **http://localhost:3001** in a browser and continue with [the setup wizard](#the-setup-wizard).
 
-To fill the instance with fictitious data after setup:
-
-```bash
-docker compose -f docker-compose.prod.yml exec app aphel demo seed
-```
-
-`aphel demo remove` deletes only the demo data, and `aphel demo reset` removes it and seeds it again.
-
 ## Option 2: From source
 
 Requirements: rustup (the Rust version is pinned by the repository), Node.js 24, Docker and GNU Make.

@@ -151,7 +151,7 @@ Each blueprint below also contains everything from CRM.
 | Blueprint | Adds these modules | Configuration package |
 | --- | --- | --- |
 | B2B Sales | Leads, Assignment, Scoring, Goals, Forecast, Reports, Calls, Email, Sequences, Segments, Automations, Approvals, Google, Microsoft, Single sign-on, AI assistant, CNPJ enrichment | sales |
-| Freelancer | Booking, Products, Quotes, Email, Automations, Demo data, Google, AI assistant | freelancer |
+| Freelancer | Booking, Products, Quotes, Email, Automations, Google, AI assistant | freelancer |
 | SaaS | Leads, Scoring, Line items, Deal revenue, Renewals, Goals, Forecast, Segments, Automations, Webhooks, Extra widgets, Google, Microsoft, Single sign-on, AI assistant | saas |
 | Consultancy | Booking, Products, Line items, Deal revenue, Quotes, Proposals, Approvals, Email, Reports, Google, Microsoft, AI assistant, Electronic signature | none of its own (CRM only) |
 | Real Estate | Leads, Assignment, Lead forms, Calls, Messaging channels, Booking, Email, Automations, Google, AI assistant, CNPJ enrichment, Electronic signature | real_estate |

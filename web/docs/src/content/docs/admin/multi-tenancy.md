@@ -63,7 +63,7 @@ Sign-in uses Argon2 passwords, locks an operator for 15 minutes after 5 wrong pa
 | `aphel tenants suspend <slug>` / `resume <slug>` | Stop or restart serving a tenant and running its jobs |
 | `aphel tenants delete <slug> --confirm <slug> --export <zip>` | Export, then delete the files, database and registration |
 | `aphel migrate` | Migrate the control database and every active or suspended tenant |
-| `aphel <command> --tenant <slug>` | Run `doctor`, `modules`, `mounts`, `secrets rotate`, `search`, `org` or `demo` on one tenant |
+| `aphel <command> --tenant <slug>` | Run `doctor`, `modules`, `mounts`, `secrets rotate`, `search` or `org` on one tenant |
 | `aphel console create-operator --email ...` | Create a console operator |
 | `aphel tenancy-check` | Run the isolation check |
 

@@ -178,19 +178,6 @@ Home dashboard: widget catalog and data, per-user layout and the organization de
 | Web package | yes |
 | Blueprints | Recommended by every blueprint (inherited from `crm`). |
 
-### Demo (`demo`)
-
-Fictional demo data (seed, removal and reset) and the public demo mode status.
-
-| | |
-| --- | --- |
-| Layer | capability |
-| Depends on | none |
-| Optional dependencies | `money`, `workflow`, `catalog_items`, `pricing`, `line_items`, `quotes`, `approvals` |
-| Permissions | none |
-| Web package | no |
-| Blueprints | Recommended by `freelancer`. |
-
 ### Documents (`documents`)
 
 Shared document rendering, layout and owner-authorized sources.

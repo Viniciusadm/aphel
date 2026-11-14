@@ -1,4 +1,3 @@
-mod dataset_seed;
 pub mod domain;
 pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
@@ -88,9 +87,6 @@ impl Module for MoneyModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
-            dataset_seed::MoneySeed,
-        ));
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::ConfigSectionFactory::new(50, |pool, registry| {
                 let _ = registry;

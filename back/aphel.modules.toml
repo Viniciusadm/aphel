@@ -29,7 +29,6 @@ favorites = { path = "modules/favorites" }
 followers = { path = "modules/followers" }
 dashboard = { path = "modules/dashboard" }
 reports = { path = "modules/reports" }
-demo = { path = "modules/demo" }
 assignment = { path = "modules/assignment" }
 tagging = { path = "modules/tagging" }
 segments = { path = "modules/segments" }

@@ -347,7 +347,6 @@ fn aphel_variable_names() -> Vec<String> {
         "METRICS_",
         "APHEL_",
         "WEBHOOK",
-        "DEMO_",
         "HEALTH_",
         "WORKER_",
     ];

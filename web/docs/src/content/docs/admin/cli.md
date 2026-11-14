@@ -43,7 +43,6 @@ docker compose -f docker-compose.prod.yml exec app aphel doctor
 | `mounts reset` | Serve the internal app at `/` again |
 | `org export`, `org import` | Full export and restore |
 | `search reindex` | Rebuild the search index |
-| `demo seed`, `demo remove`, `demo reset` | Demonstration data |
 | `openapi` | Print the OpenAPI document |
 | `catalog` | List what the build offers to plugins |
 | `entity-schema` | Generate the SQL of a managed entity |
@@ -94,7 +93,7 @@ Manages the tenants of a multi-tenant installation (`CONTROL_DATABASE_URL`). Eve
 | `tenants delete <slug> --confirm <slug> (--export <zip> \| --no-export)` | Marks the tenant as deleting, writes `org export` to the zip, removes its stored files, drops its database and its registration. Cannot be undone |
 | `tenants migrate [<slug>]` | Same as `migrate` with or without `--tenant` |
 
-Commands that act on one organization (`doctor`, `modules`, `mounts`, `secrets rotate`, `search`, `org`, `demo`) take `--tenant <slug>` in a multi-tenant installation and refuse to run without it. `db reset` and `upgrade` only work on a single-company installation.
+Commands that act on one organization (`doctor`, `modules`, `mounts`, `secrets rotate`, `search`, `org`) take `--tenant <slug>` in a multi-tenant installation and refuse to run without it. `db reset` and `upgrade` only work on a single-company installation.
 
 The console on `CONSOLE_HOST` offers the same actions to operators, plus hosts, health and the action history. Its first operator comes from the command line; the others are invited from the console with a link valid for 7 days:
 
@@ -244,29 +243,6 @@ aphel search reindex
 aphel search reindex --record-type deal
 ```
 
-## demo
-
-Added by the `demo` module. Creates fictional data for demonstrations and tests. Applies migrations first when `RUN_MIGRATIONS` is true.
-
-| Subcommand | Meaning |
-| --- | --- |
-| `seed` | Fill the installation with fictional data. Refuses when it already has records unless `--force` |
-| `remove` | Delete the fictional data created by `seed` |
-| `reset` | Delete the demo data and seed again |
-
-| Flag | Applies to | Meaning |
-| --- | --- | --- |
-| `--force` | `seed` | Seed even when the installation already has records |
-| `--full` | `reset` | Also delete every record, file and non-administrator user, including what visitors created, before seeding |
-| `--visitor-email EMAIL` | `seed`, `reset` | Email of the limited demo visitor to create or reset. Defaults to `DEMO_USER_EMAIL` when `DEMO_MODE` is on |
-| `--visitor-password PASSWORD` | `seed`, `reset` | Password of that visitor. Defaults to `DEMO_USER_PASSWORD` |
-
-```bash
-aphel demo seed
-aphel demo reset --full
-```
-
-Do not seed demo data into a production installation. The `docker/demo` folder in the repository holds a compose file and a daily reset script for a public demo.
 
 ## openapi
 

@@ -1,9 +1,0 @@
-{
-  "name": "Demo",
-  "description": "Fictional demo data (seed, removal and reset) and the public demo mode status",
-  "banner": {
-    "label": "Demo environment",
-    "message": "The data is fictional and goes back to the initial state every day at {{time}} (UTC). Emails are not sent.",
-    "credentials": "Sign in with {{email}} and the password {{password}}."
-  }
-}

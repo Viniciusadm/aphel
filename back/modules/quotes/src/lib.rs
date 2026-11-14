@@ -1,4 +1,3 @@
-mod dataset_seed;
 pub(crate) mod document;
 pub mod domain;
 pub(crate) mod exposed_operations;
@@ -300,9 +299,6 @@ impl Module for QuotesModule {
             "quote",
         )));
         reference_cleanup::register(app);
-        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
-            dataset_seed::QuotesSeed,
-        ));
         app.contribute::<dyn aphel_sdk::documents::DocumentSource>(Arc::new(
             document::QuoteDocumentSource,
         ));

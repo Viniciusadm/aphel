@@ -159,7 +159,6 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `deal-members` | `deals` | 9 | Team of a deal (members, roles and revenue credit split) and the configurable member roles |
 | `deals` | `deals` | 13 | Deals, stage changes and the Kanban board |
 | `deals-reports` | `deals` | 2 | Deal conversion and sales performance reports |
-| `demo` | `demo` | 1 | Demonstration environment status |
 | `duplicates` | `duplicates` | 9 | Duplicate detection rules, the duplicate queue and record merging |
 | `email settings` | `email` | 5 | Organization e-mail settings: relationship capture and blocklist |
 | `email templates` | `email` | 6 | Organization and personal e-mail templates with record variables |

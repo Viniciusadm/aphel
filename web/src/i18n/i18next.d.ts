@@ -20,7 +20,6 @@ import type consoleNamespace from './pt-BR/console.json'
 import type dashboardNamespace from '../modules/dashboard/i18n/pt-BR.json'
 import type dealsNamespace from '../modules/deals/i18n/pt-BR.json'
 import type dealsRevenueNamespace from '../modules/deals_revenue/i18n/pt-BR.json'
-import type demoNamespace from '../modules/demo/i18n/pt-BR.json'
 import type duplicatesNamespace from '../modules/duplicates/i18n/pt-BR.json'
 import type emailNamespace from '../modules/email/i18n/pt-BR.json'
 import type enrichmentNamespace from '../modules/enrichment/i18n/pt-BR.json'
@@ -120,7 +119,6 @@ declare module 'i18next' {
       dashboard: typeof dashboardNamespace
       deals: typeof dealsNamespace
       deals_revenue: typeof dealsRevenueNamespace
-      demo: typeof demoNamespace
       duplicates: typeof duplicatesNamespace
       email: typeof emailNamespace
       enrichment: typeof enrichmentNamespace

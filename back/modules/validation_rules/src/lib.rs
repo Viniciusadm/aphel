@@ -1,5 +1,4 @@
 pub mod application;
-mod dataset_seed;
 pub mod dto;
 mod http;
 pub mod infrastructure;
@@ -25,9 +24,6 @@ impl Module for ValidationRulesModule {
         .owned_tables(&["validation_rules"])
     }
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
-            dataset_seed::ValidationRulesSeed,
-        ));
         app.openapi_tag(http::TAG, "ValidationRules")
             .routes(|_| http::router());
         app.on(aphel_kernel::records::RecordValidating, 30, |ctx, args| {

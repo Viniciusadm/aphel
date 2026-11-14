@@ -95,7 +95,7 @@ async fn installer_status(
     request_body = InstallRequest,
     responses(
         (status = 201, description = "Instance installed, session started", body = MeResponse),
-        (status = 403, description = "Missing `X-Requested-With: aphel` (`csrf_header_missing`) or demo mode (`demo_restricted`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing `X-Requested-With: aphel` (`csrf_header_missing`)", body = ErrorEnvelope),
         (status = 404, description = "The instance is already installed (`not_found`)", body = ErrorEnvelope),
         (status = 409, description = "Email already registered (`email_taken`)", body = ErrorEnvelope),
         (status = 413, description = "Request body too large (`payload_too_large`)", body = ErrorEnvelope),

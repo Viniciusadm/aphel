@@ -14213,28 +14213,6 @@
         "x-aphel-module": "deals"
       }
     },
-    "/api/v1/demo": {
-      "get": {
-        "tags": [
-          "demo"
-        ],
-        "description": "Public. Tells whether this installation runs in demonstration mode (`DEMO_MODE=true`) and, when it does, the public credentials of the limited demo visitor and the daily reset time. Outside demo mode only `enabled: false` is returned.",
-        "operationId": "demo_status",
-        "responses": {
-          "200": {
-            "description": "Demonstration mode status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Data_DemoStatusResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-aphel-module": "demo"
-      }
-    },
     "/api/v1/duplicates": {
       "get": {
         "tags": [
@@ -24869,7 +24847,7 @@
             }
           },
           "403": {
-            "description": "Missing `X-Requested-With: aphel` (`csrf_header_missing`) or demo mode (`demo_restricted`)",
+            "description": "Missing `X-Requested-With: aphel` (`csrf_header_missing`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -81483,42 +81461,6 @@
           }
         }
       },
-      "Data_DemoStatusResponse": {
-        "type": "object",
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "required": [
-              "enabled"
-            ],
-            "properties": {
-              "enabled": {
-                "type": "boolean"
-              },
-              "reset_time_utc": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "example": "03:00"
-              },
-              "visitor": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/DemoVisitorResponse"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      },
       "Data_DisqualificationReasonResponse": {
         "type": "object",
         "required": [
@@ -93439,7 +93381,7 @@
                 },
                 "key": {
                   "type": "string",
-                  "example": "demo"
+                  "example": "site"
                 }
               }
             }
@@ -95997,51 +95939,6 @@
           }
         ],
         "example": "15000.00"
-      },
-      "DemoStatusResponse": {
-        "type": "object",
-        "required": [
-          "enabled"
-        ],
-        "properties": {
-          "enabled": {
-            "type": "boolean"
-          },
-          "reset_time_utc": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "example": "03:00"
-          },
-          "visitor": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DemoVisitorResponse"
-              }
-            ]
-          }
-        }
-      },
-      "DemoVisitorResponse": {
-        "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "demo@aphel.demo"
-          },
-          "password": {
-            "type": "string",
-            "example": "aphel-demo"
-          }
-        }
       },
       "DesignPreviewInput": {
         "type": "object",
@@ -116609,7 +116506,7 @@
           },
           "key": {
             "type": "string",
-            "example": "demo"
+            "example": "site"
           }
         }
       },
@@ -126910,11 +126807,6 @@
       "name": "quotes",
       "description": "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
       "x-aphel-module": "quotes"
-    },
-    {
-      "name": "demo",
-      "description": "Demonstration environment status",
-      "x-aphel-module": "demo"
     },
     {
       "name": "proposals",

@@ -1,4 +1,3 @@
-mod dataset_seed;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -100,9 +99,6 @@ impl Module for ApprovalsModule {
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
         app.contribute::<dyn aphel_sdk::approvals::ApprovalRequirementSource>(Arc::new(
             hooks::EngineApprovalGate,
-        ));
-        app.contribute::<dyn aphel_sdk::maintenance::DatasetSeed>(std::sync::Arc::new(
-            dataset_seed::ApprovalsSeed,
         ));
         app.contract(aphel_sdk::approvals::DESCRIPTOR);
         app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(

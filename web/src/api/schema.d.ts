@@ -1959,23 +1959,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/demo": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Public. Tells whether this installation runs in demonstration mode (`DEMO_MODE=true`) and, when it does, the public credentials of the limited demo visitor and the daily reset time. Outside demo mode only `enabled: false` is returned. */
-        get: operations["demo_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/duplicates": {
         parameters: {
             query?: never;
@@ -12519,14 +12502,6 @@ export interface components {
                 remaining_percent: string;
             };
         };
-        Data_DemoStatusResponse: {
-            data: {
-                enabled: boolean;
-                /** @example 03:00 */
-                reset_time_utc?: string | null;
-                visitor?: null | components["schemas"]["DemoVisitorResponse"];
-            };
-        };
         Data_DisqualificationReasonResponse: {
             data: {
                 created_at: string;
@@ -15586,7 +15561,7 @@ export interface components {
         Data_Vec_PublicModuleResponse: {
             data: {
                 enabled: boolean;
-                /** @example demo */
+                /** @example site */
                 key: string;
             }[];
         };
@@ -16261,18 +16236,6 @@ export interface components {
         };
         /** @example 15000.00 */
         DecimalInput: string | number;
-        DemoStatusResponse: {
-            enabled: boolean;
-            /** @example 03:00 */
-            reset_time_utc?: string | null;
-            visitor?: null | components["schemas"]["DemoVisitorResponse"];
-        };
-        DemoVisitorResponse: {
-            /** @example demo@aphel.demo */
-            email: string;
-            /** @example aphel-demo */
-            password: string;
-        };
         DesignPreviewInput: {
             content: string;
             path: string;
@@ -21519,7 +21482,7 @@ export interface components {
         };
         PublicModuleResponse: {
             enabled: boolean;
-            /** @example demo */
+            /** @example site */
             key: string;
         };
         PublicPlatformResponse: {
@@ -33949,26 +33912,6 @@ export interface operations {
             };
         };
     };
-    demo_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Demonstration mode status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_DemoStatusResponse"];
-                };
-            };
-        };
-    };
     duplicates_list: {
         parameters: {
             query?: {
@@ -41461,7 +41404,7 @@ export interface operations {
                     "application/json": components["schemas"]["MeResponse"];
                 };
             };
-            /** @description Missing `X-Requested-With: aphel` (`csrf_header_missing`) or demo mode (`demo_restricted`) */
+            /** @description Missing `X-Requested-With: aphel` (`csrf_header_missing`) */
             403: {
                 headers: {
                     [name: string]: unknown;

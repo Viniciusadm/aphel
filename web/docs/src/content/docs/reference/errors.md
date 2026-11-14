@@ -380,14 +380,6 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `pipeline_not_found` | 404 | Pipeline was not found. |
 | `workflow_catalog_unavailable` | 503 | Workflow metadata is not enabled. |
 
-### Demo (`demo`)
-
-| Code | Status | Meaning |
-| --- | --- | --- |
-| `demo_already_seeded` | 409 | The installation already has records; run `aphel demo remove` first or seed with --force. |
-| `demo_not_installed` | 409 | The installation has no active administrator; run the installer first. |
-| `demo_restricted` | 403 | This action is disabled in the demonstration environment. |
-
 ### Duplicates (`duplicates`)
 
 | Code | Status | Meaning |
