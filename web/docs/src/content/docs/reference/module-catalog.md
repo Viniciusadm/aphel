@@ -845,19 +845,6 @@ Lifecycle stages of people and organizations, automatic transitions, the lead in
 | Web package | yes |
 | Blueprints | Recommended by `agency`, `other`, `real_estate`, `saas`, `sales`. |
 
-### Migration assistant (`migrations_assistant`)
-
-Assisted migration from other CRMs: recognized columns, conversion of their CSV exports and pre-filled imports.
-
-| | |
-| --- | --- |
-| Layer | domain |
-| Depends on | none |
-| Optional dependencies | `imports`, `tasks`, `notes` |
-| Permissions | none |
-| Web package | yes |
-| Blueprints | Recommended by `saas`. |
-
 ### Proposals (`proposals`)
 
 Document templates and PDF proposals generated from deals.

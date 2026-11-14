@@ -49,7 +49,6 @@ import type lineItemsNamespace from '../modules/line_items/i18n/pt-BR.json'
 import type mediaNamespace from '../modules/media/i18n/pt-BR.json'
 import type messagingNamespace from '../modules/messaging/i18n/pt-BR.json'
 import type microsoftNamespace from '../modules/microsoft/i18n/pt-BR.json'
-import type migrationsAssistantNamespace from '../modules/migrations_assistant/i18n/pt-BR.json'
 import type mobileNamespace from './pt-BR/mobile.json'
 import type modulesNamespace from './pt-BR/modules.json'
 import type moneyNamespace from '../modules/money/i18n/pt-BR.json'
@@ -150,7 +149,6 @@ declare module 'i18next' {
       media: typeof mediaNamespace
       messaging: typeof messagingNamespace
       microsoft: typeof microsoftNamespace
-      migrations_assistant: typeof migrationsAssistantNamespace
       mobile: typeof mobileNamespace
       modules: typeof modulesNamespace
       money: typeof moneyNamespace

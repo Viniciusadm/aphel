@@ -17,7 +17,6 @@ recommended = [
   "automations",
   "webhooks",
   "insights",
-  "migrations_assistant",
   "google",
   "microsoft",
   "sso",

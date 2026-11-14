@@ -49,7 +49,6 @@ duplicates = { path = "modules/duplicates" }
 trash = { path = "modules/trash" }
 privacy = { path = "modules/privacy" }
 org_export = { path = "modules/org_export" }
-migrations_assistant = { path = "modules/migrations_assistant" }
 catalog_items = { path = "modules/catalog_items" }
 pricing = { path = "modules/pricing" }
 quotes = { path = "modules/quotes" }

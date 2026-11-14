@@ -25,7 +25,6 @@ All of these are modules. They can be switched on or off by an administrator (se
 | Duplicates | `duplicates` | Recommended in the base CRM blueprint |
 | Trash | `trash` | Recommended in the base CRM blueprint |
 | Privacy | `privacy` | Recommended in the base CRM blueprint |
-| Migrate from another CRM | `migrations_assistant` | Recommended only in the SaaS blueprint; an administrator can enable it in any workspace |
 
 If a button or settings item described here is missing, the module is probably disabled, or you lack the permission listed for it.
 
@@ -228,19 +227,3 @@ The package contains records of every type as JSON Lines, links between records,
 
 Restoring a package is done by an administrator from the server command line into an empty organization. See [Backup and restore](/_aphel/docs/admin/backup-and-restore/).
 
-## Migrate from another CRM
-
-Open **Data** and then **Migrate from another CRM** (you need `settings.manage`, plus the create permission of the data you bring). This assistant converts exports from other tools and prepares ready-to-run imports.
-
-Supported sources: Pipedrive, HubSpot, RD Station CRM and Agendor. The recognized column names come from each tool's public documentation and can vary with account language and version. Columns the assistant does not recognize stay in the file and can be mapped by hand while reviewing the import.
-
-Because those names were never checked against real exports, every upload shows a **Check against the source tool** panel before anything is imported. It lists what the file holds after conversion: the number of records, the total of each money column, how many deals are won, lost and open, the range of each date column and how many rows repeat another row's identifier, with a count of the values that could not be read. Type the number your source tool shows for the same list next to each item: Aphel answers **Matches** or **Differs by** the difference. After the import finishes, the step also confirms that every row of the file was accounted for (imported, updated, skipped or failed) and warns when some rows were not imported.
-
-Work through the steps in this order, so that links find records already imported:
-
-1. **Companies.** Upload the organizations CSV.
-2. **People.** Each person is linked to a company by name; missing companies are created.
-3. **Deals.** Each deal is linked to company and person by name. Pick the Aphel pipeline and stage for each pipeline and stage of the source tool, and match owners by name or email. Won and lost status is carried over.
-4. **Activities** (tasks) and **Notes.** These are migrated directly (up to 5,000 rows per file) and linked to the deal, person and company already in Aphel. Notes without a matching record are listed in an error report. Attachments are not part of CSV exports and are not migrated.
-
-For the first three steps the assistant creates a draft import: review the mapping, then start it as described in [Importing records](#importing-records). Choose the date order (day/month/year or month/day/year) and decimal style for the source before uploading.

@@ -185,7 +185,6 @@ dependencies = [
  "aphel-mod-media",
  "aphel-mod-messaging",
  "aphel-mod-microsoft",
- "aphel-mod-migrations-assistant",
  "aphel-mod-money",
  "aphel-mod-notes",
  "aphel-mod-notifications",

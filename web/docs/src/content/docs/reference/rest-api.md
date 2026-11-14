@@ -185,7 +185,6 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `communication` | `messaging` | 3 | Communication opt-outs |
 | `messaging` | `messaging` | 16 | Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP) |
 | `microsoft` | `microsoft` | 7 | Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes |
-| `migration-assistant` | `migrations_assistant` | 4 | Assisted migration from other CRMs (Pipedrive, HubSpot, RD Station CRM, Agendor): recognized columns, conversion of their CSV exports and pre-filled imports |
 | `currencies` | `money` | 9 | Enabled currencies of the organization and dated exchange rates to the base currency |
 | `notes` | `notes` | 7 | Notes attached to records |
 | `notifications` | `notifications` | 9 | Notifications and delivery preferences |

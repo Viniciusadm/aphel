@@ -577,13 +577,6 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `whatsapp_invalid_signature` | 401 | The WhatsApp webhook signature is wrong. |
 | `whatsapp_invalid_verify_token` | 403 | The WhatsApp verification token is wrong. |
 
-### Migration assistant (`migrations_assistant`)
-
-| Code | Status | Meaning |
-| --- | --- | --- |
-| `migration_history_step` | 422 | Tasks and notes are migrated with POST /migration-assistant/history. |
-| `migration_source_not_found` | 404 | The source tool or step is not supported. |
-
 ### Money (`money`)
 
 | Code | Status | Meaning |

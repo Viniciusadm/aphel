@@ -22,7 +22,7 @@ All blueprints except `crm` extend `crm`, so they include everything in `crm` fi
 | `agency` | Agency | Recommended: `leads`, `catalog_items`, `line_items`, `deals_revenue`, `pricing`, `quotes`, `proposals`, `email`, `sequences`, `segments`, `automations`, `reports`, `booking`, `google`, `microsoft`, `ai`, `enrichment`, `esign` | `crm`, then `agency` |
 | `consultancy` | Consultancy | Recommended: `booking`, `catalog_items`, `line_items`, `deals_revenue`, `quotes`, `proposals`, `approvals`, `email`, `reports`, `google`, `microsoft`, `ai`, `esign` | `crm` |
 | `real_estate` | Real Estate | Recommended: `leads`, `assignment`, `forms`, `telephony`, `messaging`, `booking`, `email`, `automations`, `google`, `ai`, `enrichment`, `esign` | `crm`, then `real_estate` |
-| `saas` | SaaS | Recommended: `leads`, `scoring`, `line_items`, `deals_revenue`, `renewals`, `goals`, `forecast`, `segments`, `automations`, `webhooks`, `insights`, `migrations_assistant`, `google`, `microsoft`, `sso`, `ai` | `crm`, then `saas` |
+| `saas` | SaaS | Recommended: `leads`, `scoring`, `line_items`, `deals_revenue`, `renewals`, `goals`, `forecast`, `segments`, `automations`, `webhooks`, `insights`, `google`, `microsoft`, `sso`, `ai` | `crm`, then `saas` |
 | `sales` | B2B Sales | Recommended: `leads`, `assignment`, `scoring`, `goals`, `forecast`, `reports`, `telephony`, `email`, `sequences`, `segments`, `automations`, `approvals`, `google`, `microsoft`, `sso`, `ai`, `enrichment` | `crm`, then `sales` |
 | `other` | Other business | Recommended: `leads`, `catalog_items`, `quotes`, `email`, `automations`, `reports` | `crm` |
 
