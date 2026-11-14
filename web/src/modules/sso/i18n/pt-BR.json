@@ -112,5 +112,18 @@
       "invalid_token": "O provedor devolveu uma identidade inválida.",
       "provider_unavailable": "O provedor não respondeu. Tente de novo em instantes."
     }
+  },
+  "card": {
+    "description": "Entre no Aphel com a conta corporativa (Okta, Keycloak, Entra ID e outros OpenID Connect).",
+    "state": {
+      "on": "Ativo",
+      "off": "Não configurado",
+      "attention": "Atenção"
+    },
+    "action": "Abrir",
+    "missing": "Falta configurar o provedor.",
+    "required": "Login único obrigatório para todos.",
+    "optional": "Disponível junto com e-mail e senha.",
+    "domains": "Domínios: {{domains}}."
   }
 }

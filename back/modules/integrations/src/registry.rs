@@ -1,7 +1,5 @@
-use std::sync::Arc;
-
-use crate::engine::{IntegrationRegistry, WebhookIntegrationProvider};
+use crate::engine::IntegrationRegistry;
 
 pub(crate) fn builtin_integrations() -> IntegrationRegistry {
-    IntegrationRegistry::new().with(Arc::new(WebhookIntegrationProvider))
+    IntegrationRegistry::new()
 }

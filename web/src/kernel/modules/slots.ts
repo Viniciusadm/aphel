@@ -31,6 +31,7 @@ export interface SlotPropsMap {
     applyFilter: (filter: FilterNode | null) => void
   }
   'record.list.actions': { recordType: string }
+  'integrations.cards': Record<string, never>
   'record.list.empty': { recordType: string }
   'record.list.viewActions': { recordType: string; viewId: string }
   'record.list.rowActions': { recordType: string; record: RecordItem }

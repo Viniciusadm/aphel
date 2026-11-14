@@ -292,5 +292,19 @@
   },
   "keybindings": {
     "send": "Enviar a resposta"
+  },
+  "card": {
+    "description": "WhatsApp e e-mail na caixa de entrada compartilhada, com as conversas na linha do tempo do contato.",
+    "state": {
+      "on": "Ativo",
+      "off": "Não configurado",
+      "attention": "Atenção"
+    },
+    "action": "Abrir",
+    "none": "Nenhum canal conectado.",
+    "active_one": "1 canal ativo.",
+    "active_other": "{{count}} canais ativos.",
+    "failing_one": "1 canal com erro de conexão.",
+    "failing_other": "{{count}} canais com erro de conexão."
   }
 }

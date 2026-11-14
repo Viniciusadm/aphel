@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ToggleField } from '@/components/ui/toggle-field'
 import {
   Dialog,
   DialogContent,
@@ -132,15 +132,13 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
                     control={control}
                     name={field.key}
                     render={({ field: control }) => (
-                      <label className="flex items-center gap-2 text-sm">
-                        <Checkbox
-                          id={inputId}
-                          checked={control.value === true}
-                          aria-describedby={describedBy}
-                          onCheckedChange={(checked) => control.onChange(checked === true)}
-                        />
-                        {label}
-                      </label>
+                      <ToggleField
+                        id={inputId}
+                        label={label}
+                        checked={control.value === true}
+                        controlProps={{ 'aria-describedby': describedBy }}
+                        onCheckedChange={(checked) => control.onChange(checked)}
+                      />
                     )}
                   />
                   {help && (
@@ -185,17 +183,15 @@ export function IntegrationConfigDialog({ integration, open, onOpenChange, onSav
                   <p className="text-xs text-muted-foreground">{t('form.secretConfigured')}</p>
                 )}
                 {secretConfigured && !field.required && (
-                  <label className="flex items-center gap-2 text-xs">
-                    <Checkbox
-                      checked={clearing}
-                      onCheckedChange={(checked) =>
-                        setClearSecrets((current) =>
-                          checked === true ? [...current, field.key] : current.filter((key) => key !== field.key),
-                        )
-                      }
-                    />
-                    {t('form.clearSecret')}
-                  </label>
+                  <ToggleField
+                    label={t('form.clearSecret')}
+                    checked={clearing}
+                    onCheckedChange={(checked) =>
+                      setClearSecrets((current) =>
+                        checked ? [...current, field.key] : current.filter((key) => key !== field.key),
+                      )
+                    }
+                  />
                 )}
                 {help && (
                   <p id={helpId} className="text-xs text-muted-foreground">

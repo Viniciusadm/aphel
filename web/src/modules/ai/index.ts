@@ -8,12 +8,15 @@ import { AiSettingsPanel } from './SettingsPanel'
 
 const RecordAiTab = lazyComponent(async () => (await import('./RecordAiTab')).RecordAiTab)
 
+import { AiCard } from './IntegrationCard'
+
 const aiModule = defineModule({
   key: AI_KEY,
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
   settingsPanel: AiSettingsPanel,
   register(app) {
     app.keybinding({ id: 'ai.compose_run', label: 'keybindings.composeRun', scope: 'editor', keys: ['mod+enter'] })
+    app.slot('integrations.cards', { key: 'assistant', order: 200, permission: [USE_PERMISSION], render: AiCard })
     app.settings('integrations', {
       group: 'connections',
       path: 'ai',

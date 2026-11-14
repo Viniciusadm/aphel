@@ -112,5 +112,18 @@
       "invalid_token": "The provider returned an invalid identity.",
       "provider_unavailable": "The provider did not answer. Try again in a moment."
     }
+  },
+  "card": {
+    "description": "Sign in with your corporate account (Okta, Keycloak, Entra ID and other OpenID Connect providers).",
+    "state": {
+      "on": "Active",
+      "off": "Not set up",
+      "attention": "Needs attention"
+    },
+    "action": "Open",
+    "missing": "The provider is not set up yet.",
+    "required": "Single sign-on is required for everyone.",
+    "optional": "Available alongside email and password.",
+    "domains": "Domains: {{domains}}."
   }
 }

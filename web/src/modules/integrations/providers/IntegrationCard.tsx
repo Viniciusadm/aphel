@@ -7,7 +7,7 @@ import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback
 import { Badge, type BadgeProps } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ToggleField } from '@/components/ui/toggle-field'
 import {
   Dialog,
   DialogContent,
@@ -253,10 +253,7 @@ function TestConnectionDialog({ integration, name, onClose, onTested }: TestConn
           <DialogDescription>{t('test.description')}</DialogDescription>
         </DialogHeader>
         {canSendEmail && (
-          <label htmlFor={checkboxId} className="flex items-center gap-2 text-sm">
-            <Checkbox id={checkboxId} checked={sendEmail} onCheckedChange={(checked) => setSendEmail(checked === true)} />
-            {t('test.sendEmail')}
-          </label>
+          <ToggleField id={checkboxId} label={t('test.sendEmail')} checked={sendEmail} onCheckedChange={setSendEmail} />
         )}
         <DialogFooter>
           <Button type="button" variant="outline" disabled={running} onClick={onClose}>

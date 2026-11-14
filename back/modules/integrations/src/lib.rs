@@ -20,7 +20,7 @@ impl Module for IntegrationsModule {
     fn manifest(&self) -> Manifest {
         Manifest::new(KEY, "Integrations", APHEL_VERSION)
             .description(
-                "Integration center: providers (generic webhook and module providers), configuration, connection test and activation",
+                "Integration center: connection cards contributed by modules (webhooks, channels, AI, single sign-on) and a provider framework with configuration, connection test and activation",
             )
             .owned_tables(&["integrations"])
             .migration(Migration::new(

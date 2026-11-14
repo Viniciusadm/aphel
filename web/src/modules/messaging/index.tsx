@@ -7,6 +7,7 @@ import { ConversationsTab } from './ConversationsTab'
 import { ConversationEventContent, MessageEventContent } from './MessageEventContent'
 
 const BASE_PATH = '/messaging'
+import { ChannelsCard } from './IntegrationCard'
 const CHANNELS_PATH = '/integrations/channels'
 
 const conversationRenderer: TimelineRenderer = {
@@ -44,6 +45,7 @@ const messagingModule = defineModule({
       end: true,
       permission: [VIEW_PERMISSION],
     })
+    app.slot('integrations.cards', { key: 'channels', order: 300, permission: [MANAGE_CHANNELS_PERMISSION], render: ChannelsCard })
     app.settings('integrations', {
       group: 'connections',
       path: 'channels',

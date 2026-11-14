@@ -1,6 +1,10 @@
 {
   "name": "Integrações",
   "title": "Integrações",
-  "description": "Conecte o Aphel a outros serviços. Cada integração é configurada uma vez para toda a organização; senhas e chaves ficam criptografadas e nunca são exibidas de novo.",
-  "listLabel": "Integrações disponíveis"
+  "description": "Veja o que está conectado ao Aphel e abra a configuração de cada conexão. Senhas e chaves ficam criptografadas e nunca são exibidas de novo.",
+  "listLabel": "Integrações disponíveis",
+  "empty": {
+    "title": "Nenhuma conexão disponível",
+    "description": "Ative módulos como Webhooks, Canais de mensagem, Assistente de IA ou Login único para vê-los aqui."
+  }
 }

@@ -319,5 +319,16 @@
       "compose": "Ao escrever um e-mail, use o botão do assistente para gerar o texto.",
       "query": "Nas listas, use o botão do assistente para filtrar com uma pergunta."
     }
+  },
+  "card": {
+    "description": "Resumos, próximos passos, redação de mensagens e consultas em linguagem natural.",
+    "state": {
+      "on": "Ativo",
+      "off": "Não configurado",
+      "attention": "Atenção"
+    },
+    "action": "Abrir",
+    "model": "Modelo {{model}}.",
+    "missing": "Falta informar a chave do provedor de IA."
   }
 }

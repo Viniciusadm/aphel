@@ -319,5 +319,16 @@
       "compose": "When writing an email, use the assistant button to generate the text.",
       "query": "In lists, use the assistant button to filter by asking a question."
     }
+  },
+  "card": {
+    "description": "Summaries, next steps, message drafting and natural-language queries.",
+    "state": {
+      "on": "Active",
+      "off": "Not set up",
+      "attention": "Needs attention"
+    },
+    "action": "Open",
+    "model": "Model {{model}}.",
+    "missing": "The AI provider key is missing."
   }
 }

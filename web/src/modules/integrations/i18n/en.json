@@ -1,6 +1,10 @@
 {
   "name": "Integrations",
   "title": "Integrations",
-  "description": "Connect Aphel to other services. Each integration is configured once for the whole organization; passwords and keys are encrypted and never shown again.",
-  "listLabel": "Available integrations"
+  "description": "See what is connected to Aphel and open each connection's settings. Passwords and keys are encrypted and never shown again.",
+  "listLabel": "Available integrations",
+  "empty": {
+    "title": "No connections available",
+    "description": "Turn on modules such as Webhooks, Message channels, AI assistant or Single sign-on to see them here."
+  }
 }

@@ -310,10 +310,30 @@
     "placeholders": {
       "tolerance": "E.g.: 300",
       "description": "Describe what this webhook is for"
+    },
+    "card": {
+      "description": "Receive data from forms and other systems through an Aphel URL, creating or updating records.",
+      "none": "No webhook yet.",
+      "active_one": "1 active webhook.",
+      "active_other": "{{count}} active webhooks."
     }
   },
   "placeholders": {
     "description": "Describe what this webhook is for",
     "tolerance": "E.g.: 300"
+  },
+  "card": {
+    "description": "Notify other systems when something happens in Aphel, such as a won deal or a new contact.",
+    "state": {
+      "on": "Active",
+      "off": "Not set up",
+      "attention": "Needs attention"
+    },
+    "action": "Open",
+    "none": "No endpoint yet.",
+    "active_one": "1 active endpoint.",
+    "active_other": "{{count}} active endpoints.",
+    "problems_one": "1 endpoint failing or disabled.",
+    "problems_other": "{{count}} endpoints failing or disabled."
   }
 }

@@ -120,3 +120,5 @@ export { PageSizeSelect, type PageSizeSelectProps } from '@/components/ui/page-s
 export { PaginationSummary, type PaginationSummaryProps } from '@/components/ui/pagination-summary'
 
 export { WorkspaceOptions, type WorkspaceOptionsProps } from '@/components/ui/workspace-options'
+
+export { ConnectionCard, type ConnectionCardProps, type ConnectionState } from '@/components/ui/connection-card'

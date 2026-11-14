@@ -2,31 +2,34 @@ import { Plug } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Skeleton } from '@/components/ui/skeleton'
-import { IntegrationCard, useIntegrations, useInvalidateIntegrations } from '@/sdk'
-import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { useSlot } from '@/kernel/modules/slots'
+import { IntegrationCard } from './providers/IntegrationCard'
+import { useIntegrations, useInvalidateIntegrations } from './providers/api'
 
 export function IntegrationsPage() {
   const { t } = useTranslation('integrations')
-  const integrations = useIntegrations()
+  const cards = useSlot('integrations.cards', {})
+  const providers = useIntegrations()
   const invalidate = useInvalidateIntegrations()
+  const configurable = providers.data ?? []
 
   return (
     <Page>
       <PageHeader title={t('title')} description={t('description')} />
-      {integrations.isPending ? (
-        <div className="grid gap-3 md:grid-cols-2" aria-busy="true">
-          <Skeleton className="h-44 w-full" />
-          <Skeleton className="h-44 w-full" />
-        </div>
-      ) : integrations.isError ? (
-        <ErrorState onRetry={() => void integrations.refetch()} />
-      ) : integrations.data.length === 0 ? (
-        <EmptyState icon={Plug} title={t('title')} description={t('description')} />
+      {cards.length === 0 && configurable.length === 0 && !providers.isPending ? (
+        providers.isError ? (
+          <ErrorState onRetry={() => void providers.refetch()} />
+        ) : (
+          <EmptyState icon={Plug} title={t('empty.title')} description={t('empty.description')} />
+        )
       ) : (
         <ul className="grid gap-3 md:grid-cols-2" aria-label={t('listLabel')}>
-          {integrations.data.map((integration) => (
+          {cards.map(({ key, Component }) => (
+            <Component key={key} />
+          ))}
+          {configurable.map((integration) => (
             <IntegrationCard key={integration.provider_key} integration={integration} onChanged={invalidate} />
           ))}
         </ul>

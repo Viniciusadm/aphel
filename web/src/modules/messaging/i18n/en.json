@@ -292,5 +292,19 @@
   },
   "keybindings": {
     "send": "Send the reply"
+  },
+  "card": {
+    "description": "WhatsApp and email in the shared inbox, with conversations on the contact timeline.",
+    "state": {
+      "on": "Active",
+      "off": "Not set up",
+      "attention": "Needs attention"
+    },
+    "action": "Open",
+    "none": "No channel connected.",
+    "active_one": "1 active channel.",
+    "active_other": "{{count}} active channels.",
+    "failing_one": "1 channel with a connection error.",
+    "failing_other": "{{count}} channels with a connection error."
   }
 }

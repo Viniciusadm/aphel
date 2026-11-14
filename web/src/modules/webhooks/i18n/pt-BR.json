@@ -310,10 +310,30 @@
     "placeholders": {
       "tolerance": "Ex.: 300",
       "description": "Descreva para que serve este webhook"
+    },
+    "card": {
+      "description": "Receba dados de formulários e de outros sistemas por um endereço do Aphel, criando ou atualizando registros.",
+      "none": "Nenhum webhook criado.",
+      "active_one": "1 webhook ativo.",
+      "active_other": "{{count}} webhooks ativos."
     }
   },
   "placeholders": {
     "description": "Descreva para que serve este webhook",
     "tolerance": "Ex.: 300"
+  },
+  "card": {
+    "description": "Avise outros sistemas quando algo acontece no Aphel, como oportunidade ganha ou contato criado.",
+    "state": {
+      "on": "Ativo",
+      "off": "Não configurado",
+      "attention": "Atenção"
+    },
+    "action": "Abrir",
+    "none": "Nenhum endereço cadastrado.",
+    "active_one": "1 endereço ativo.",
+    "active_other": "{{count}} endereços ativos.",
+    "problems_one": "1 endereço com falhas ou desativado.",
+    "problems_other": "{{count}} endereços com falhas ou desativados."
   }
 }
