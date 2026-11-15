@@ -3,17 +3,22 @@
   "description": "Projeções de receita recorrente dos negócios.",
   "panel": {
     "tab": "Receita",
-    "mrr": "MRR",
-    "arr": "ARR",
+    "mrr": "Receita mensal (MRR)",
+    "arr": "Receita anual (ARR)",
     "tcv": "Valor total do contrato (TCV)",
     "contractStart": "Início do contrato",
     "contractEnd": "Fim do contrato",
     "empty": "—",
-    "hint": "MRR, ARR e TCV são calculados a partir dos itens recorrentes. O fim do contrato é o início mais o maior prazo dos itens (12 meses quando o item não tem prazo), menos um dia.",
     "emptyTitle": "Sem receita recorrente",
     "emptyDescription": "Defina a frequência de cobrança dos itens para calcular MRR, ARR e o período do contrato.",
     "renewalOf": "Renovação de",
-    "renewedBy": "Renovada em"
+    "renewedBy": "Renovada em",
+    "recurringTitle": "Receita recorrente",
+    "recurringDescription": "Calculada a partir dos itens recorrentes da oportunidade.",
+    "contractTitle": "Contrato",
+    "contractDescription": "O fim é o início mais o maior prazo dos itens, menos um dia. Itens sem prazo contam 12 meses.",
+    "renewalTitle": "Renovação",
+    "renewalDescription": "Oportunidades ligadas por renovação de contrato."
   },
   "widgets": {
     "hidden": "Oculto",

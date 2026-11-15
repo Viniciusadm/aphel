@@ -3,17 +3,22 @@
   "description": "Recurring revenue projections for deals",
   "panel": {
     "tab": "Revenue",
-    "mrr": "MRR",
-    "arr": "ARR",
+    "mrr": "Monthly recurring revenue (MRR)",
+    "arr": "Annual recurring revenue (ARR)",
     "tcv": "Total contract value (TCV)",
     "contractStart": "Contract start",
     "contractEnd": "Contract end",
     "empty": "—",
-    "hint": "MRR, ARR and TCV come from the recurring items. The contract ends on the start plus the longest item term (12 months when an item has no term), minus one day.",
     "emptyTitle": "No recurring revenue",
     "emptyDescription": "Set the billing frequency of the items to calculate MRR, ARR and the contract period.",
     "renewalOf": "Renewal of",
-    "renewedBy": "Renewed in"
+    "renewedBy": "Renewed in",
+    "recurringTitle": "Recurring revenue",
+    "recurringDescription": "Calculated from the recurring items of the deal.",
+    "contractTitle": "Contract",
+    "contractDescription": "The end is the start plus the longest item term, minus one day. Items without a term count as 12 months.",
+    "renewalTitle": "Renewal",
+    "renewalDescription": "Deals linked by a contract renewal."
   },
   "widgets": {
     "hidden": "Hidden",
