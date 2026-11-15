@@ -1251,22 +1251,6 @@ export interface paths {
         patch: operations["calendar_reschedule"];
         trace?: never;
     };
-    "/api/v1/catalog": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["catalog_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/catalog-items": {
         parameters: {
             query?: never;
@@ -1301,38 +1285,6 @@ export interface paths {
         head?: never;
         /** @description Partially updates a product (permission `catalog_items.update`) and publishes `product.updated` with the changes. Omitted properties stay unchanged and `null` clears an optional one (`price: null` means `0.00`). Deactivating a product (`is_active: false`) only hides it from new deal items; existing items keep their copied name, price and unit. Send `If-Match` with the `updated_at` you read to avoid overwriting someone else's change. */
         patch: operations["products_update"];
-        trace?: never;
-    };
-    "/api/v1/catalog/templates/{id}/apply": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["catalog_template_apply"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/catalog/templates/{id}/compare": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["catalog_template_compare"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/api/v1/communication/opt-outs": {
@@ -9687,12 +9639,6 @@ export interface components {
             /** @example people:read */
             scope: string;
         };
-        ApplyCatalogVersionRequest: {
-            fingerprint: string;
-            resolutions?: {
-                [key: string]: components["schemas"]["ResolutionBody"];
-            };
-        };
         ApplyEnrichmentLookup: {
             items: string[];
             only_blank?: boolean;
@@ -10489,60 +10435,11 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /** @enum {string} */
-        CatalogEntryKindResponse: "template" | "module";
-        CatalogEntryResponse: {
-            author: string;
-            compatible: boolean;
-            description?: string | null;
-            documentation_url?: string | null;
-            homepage?: string | null;
-            /** @example aphel.b2b */
-            id: string;
-            installed_version?: string | null;
-            kind: components["schemas"]["CatalogEntryKindResponse"];
-            /** @example AGPL-3.0-or-later */
-            license: string;
-            locale?: string | null;
-            /** @example 0.1.0 */
-            min_aphel_version: string;
-            module?: null | components["schemas"]["CatalogModuleResponse"];
-            name: string;
-            package?: null | components["schemas"]["CatalogPackageResponse"];
-            tags: string[];
-            update_available: boolean;
-            /** @example 1.0.0 */
-            version: string;
-        };
-        CatalogModuleResponse: {
-            install_notes?: string | null;
-            /** @example forms */
-            key: string;
-            repository?: string | null;
-        };
-        CatalogPackageResponse: {
-            sha256: string;
-            /** Format: int64 */
-            size?: number | null;
-            url: string;
-        };
         CatalogReadiness: {
             backend_errors: string[];
             state: string;
             /** Format: int64 */
             version?: number | null;
-        };
-        CatalogResponse: {
-            /** @example 0.1.0 */
-            aphel_version: string;
-            description?: string | null;
-            enabled: boolean;
-            entries: components["schemas"]["CatalogEntryResponse"][];
-            homepage?: string | null;
-            name?: string | null;
-            rejected: components["schemas"]["RejectedCatalogEntryResponse"][];
-            source?: string | null;
-            updated_at?: string | null;
         };
         ChangeMemberRoleRequest: {
             role_id: string;
@@ -12127,20 +12024,6 @@ export interface components {
                 state: string;
                 /** Format: int64 */
                 version?: number | null;
-            };
-        };
-        Data_CatalogResponse: {
-            data: {
-                /** @example 0.1.0 */
-                aphel_version: string;
-                description?: string | null;
-                enabled: boolean;
-                entries: components["schemas"]["CatalogEntryResponse"][];
-                homepage?: string | null;
-                name?: string | null;
-                rejected: components["schemas"]["RejectedCatalogEntryResponse"][];
-                source?: string | null;
-                updated_at?: string | null;
             };
         };
         Data_ChannelResponse: {
@@ -22028,11 +21911,6 @@ export interface components {
             code?: string | null;
             password?: string | null;
         };
-        RejectedCatalogEntryResponse: {
-            id?: string | null;
-            position: number;
-            reason: string;
-        };
         RelatedFilter: {
             filter: components["schemas"]["FilterNode"];
             none?: boolean;
@@ -30025,62 +29903,6 @@ export interface operations {
             };
         };
     };
-    catalog_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Entries of the community catalog read from the catalog source set in Settings → Modules (templates and modules), with compatibility with this Aphel and the installed version of each template. `enabled` is false when the catalog is turned off; invalid entries are listed in `rejected` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_CatalogResponse"];
-                };
-            };
-            /** @description Missing or invalid session */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The index could not be read or is not a valid `aphel-catalog` (`catalog_unavailable`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
     products_list: {
         parameters: {
             query?: {
@@ -30402,170 +30224,6 @@ export interface operations {
                 };
             };
             /** @description Invalid system or custom fields or malformed `If-Match` (`validation_error`), or fields the role cannot write (`field_not_accessible`, `field_read_only`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    catalog_template_apply: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Catalog entry id, such as `aphel.b2b` */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApplyCatalogVersionRequest"];
-            };
-        };
-        responses: {
-            /** @description Downloads and verifies the package again and installs or updates it through the versioning flow (`POST /config-package-versions/apply`), recording the package URL as the origin */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_VersionApplyResponse"];
-                };
-            };
-            /** @description Missing or invalid session */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Catalog turned off (`catalog_disabled`) or unknown entry (`catalog_entry_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The organization or the installed version changed after the comparison (`plan_outdated`). The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Verification failure (see compare), invalid package (`invalid_package`) or resolutions (`invalid_resolution`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    catalog_template_compare: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
-                "Idempotency-Key"?: string;
-            };
-            path: {
-                /** @description Catalog entry id, such as `aphel.b2b` */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Downloads the template package, checks its SHA-256 and the minimum Aphel version, and compares it with the installed version (same body as `POST /config-package-versions/compare`). Nothing is written */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Data_VersionComparisonResponse"];
-                };
-            };
-            /** @description Missing or invalid session */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Missing `settings.manage` (`permission_denied`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Catalog turned off (`catalog_disabled`) or unknown entry (`catalog_entry_not_found`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Module entry (`catalog_entry_not_installable`), Aphel too old (`aphel_too_old`), checksum mismatch (`checksum_mismatch`), package that does not match the entry (`catalog_package_mismatch`) or download failure (`catalog_unavailable`). `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -353,8 +353,11 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 
 | Code | Status | Meaning |
 | --- | --- | --- |
+| `aphel_too_old` | 422 | The package requires a newer Aphel version than the one installed. |
+| `checksum_mismatch` | 422 | The package does not match the SHA-256 it declares and was not installed. |
 | `config_package_install_not_found` | 404 | Installation was not found. |
 | `invalid_decision` | 422 | The conflict decisions of the configuration package are invalid. |
+| `invalid_package` | 422 | The configuration package is not valid. |
 | `invalid_resolution` | 422 | The conflict resolutions of the configuration package version are invalid. |
 | `plan_outdated` | 409 | The organization changed since the plan was made; review the plan again. |
 | `template_not_found` | 404 | Template was not found. |
@@ -534,19 +537,6 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `product_currency_mismatch` | 422 | The product is priced in another currency. |
 | `record_currency_has_items` | 422 | The currency of a record with items cannot be changed. |
 | `record_has_no_items` | 422 | The record has no items to sum. |
-
-### Marketplace (`marketplace`)
-
-| Code | Status | Meaning |
-| --- | --- | --- |
-| `aphel_too_old` | 422 | The package requires a newer Aphel version than the one installed. |
-| `catalog_disabled` | 404 | The community catalog is disabled in this installation. |
-| `catalog_entry_not_found` | 404 | The community catalog has no entry with that id. |
-| `catalog_entry_not_installable` | 422 | Modules are installed by compiling them into the binary, not from the catalog. |
-| `catalog_package_mismatch` | 422 | The downloaded package does not match the catalog entry. |
-| `catalog_unavailable` | 422 | The community catalog could not be read. |
-| `checksum_mismatch` | 422 | The downloaded package does not match the SHA-256 declared in the catalog and was not installed. |
-| `invalid_package` | 422 | The configuration or catalog package is not valid. |
 
 ### Messaging channels (`messaging`)
 

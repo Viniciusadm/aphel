@@ -10,7 +10,6 @@ import type automationsNamespace from '../modules/automations/i18n/pt-BR.json'
 import type bookingNamespace from '../modules/booking/i18n/pt-BR.json'
 import type bulkActionsNamespace from '../modules/bulk_actions/i18n/pt-BR.json'
 import type calendarNamespace from '../modules/calendar/i18n/pt-BR.json'
-import type catalogNamespace from './pt-BR/catalog.json'
 import type catalogItemsNamespace from '../modules/catalog_items/i18n/pt-BR.json'
 import type commandPaletteNamespace from './pt-BR/command-palette.json'
 import type commonNamespace from './pt-BR/common.json'
@@ -110,7 +109,6 @@ declare module 'i18next' {
       booking: typeof bookingNamespace
       bulk_actions: typeof bulkActionsNamespace
       calendar: typeof calendarNamespace
-      catalog: typeof catalogNamespace
       catalog_items: typeof catalogItemsNamespace
       'command-palette': typeof commandPaletteNamespace
       common: typeof commonNamespace

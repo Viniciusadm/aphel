@@ -27,7 +27,6 @@ ENV SQLX_OFFLINE=true
 COPY back/ ./
 COPY --from=modules /src/back/app/Cargo.toml ./app/Cargo.toml
 COPY --from=modules /src/back/app/src/modules.rs ./app/src/modules.rs
-COPY catalog/ /src/catalog/
 COPY --from=web /src/web/dist /src/web/dist
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/src/back/target \

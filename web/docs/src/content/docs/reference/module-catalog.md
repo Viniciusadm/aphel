@@ -360,19 +360,6 @@ Quantity, pricing, discounts and totals attached to records.
 | Web package | yes |
 | Blueprints | Recommended by `agency`, `consultancy`, `saas`. |
 
-### Marketplace (`marketplace`)
-
-Catalog of installable plugins and configuration packages.
-
-| | |
-| --- | --- |
-| Layer | capability |
-| Depends on | none |
-| Optional dependencies | none |
-| Permissions | none |
-| Web package | yes |
-| Blueprints | Recommended by every blueprint (inherited from `crm`). |
-
 ### Media library (`media`)
 
 A library of images and files (`media.asset`) with name, alternative text, caption, credit and focal point. Choosing an asset in an editor attaches the same file to the record that uses it, so nothing is uploaded twice and the public site serves it as that record's image. `GET /api/v1/media/assets/{id}/usage` lists the records that use an asset, and deleting an asset in use is refused (`media_asset_in_use`). Editors with `media.assets.manage` send their uploads through the library.

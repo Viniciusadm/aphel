@@ -180,7 +180,6 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `integrations` | `integrations` | 7 | Integration center: providers, configuration, connection test and activation |
 | `lifecycle` | `leads` | 12 | Lifecycle stages of people and organizations: automatic transitions, stage history, conversion report, lead inbox actions (qualify, disqualify, convert) and disqualification reasons |
 | `line-items` | `line_items` | 6 | Scoped record line items and total policy |
-| `catalog` | `marketplace` | 4 | Plugin and configuration marketplace |
 | `communication` | `messaging` | 3 | Communication opt-outs |
 | `messaging` | `messaging` | 16 | Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP) |
 | `microsoft` | `microsoft` | 7 | Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes |

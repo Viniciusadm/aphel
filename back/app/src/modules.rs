@@ -21,8 +21,6 @@ pub fn compiled() -> Vec<Box<dyn Module>> {
         #[cfg(feature = "plugins")]
         Box::new(module_validation_rules::ValidationRulesModule),
         #[cfg(feature = "plugins")]
-        Box::new(module_marketplace::MarketplaceModule),
-        #[cfg(feature = "plugins")]
         Box::new(module_people::PeopleModule),
         #[cfg(feature = "plugins")]
         Box::new(module_organizations::OrganizationsModule),

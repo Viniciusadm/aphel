@@ -39,7 +39,6 @@
     "scoring": "Lead scoring",
     "objects": "Custom objects",
     "navigation": "Navigation and language",
-    "catalog": "Community catalog",
     "mailboxes": "Email mailboxes",
     "email": "Team email",
     "general": "General",
@@ -412,9 +411,6 @@
     "configPackages": {
       "description": "Export or install ready-made configuration between organizations."
     },
-    "catalog": {
-      "description": "Configuration templates shared by the community."
-    },
     "migrationAssistant": {
       "description": "Import data from another CRM."
     },
@@ -470,7 +466,6 @@
       "required": "Fill in this field.",
       "range": "Use a value between {{min}} and {{max}}.",
       "timeout": "Use a value between 1 and 120 seconds.",
-      "catalogUrl": "Enter an https URL (http only with the development option).",
       "appPath": "Use only lowercase letters, digits and hyphens, in a single segment (e.g. app).",
       "appPathReserved": "This path is used by the API. Choose another one, such as app."
     },
@@ -575,26 +570,8 @@
       "limit": "Requests per window",
       "window": "Window (s)"
     },
-    "catalog": {
-      "title": "Community catalog",
-      "description": "Where the catalog templates and modules come from.",
-      "mode": "Source",
-      "modes": {
-        "builtin": "Built-in catalog (no internet)",
-        "remote": "Remote index",
-        "off": "Off"
-      },
-      "indexUrl": "Index URL",
-      "allowHttp": "Allow http (development only)",
-      "timeout": "Maximum fetch time (s)"
-    },
     "numeric": {
       "valuePlaceholder": "Enter the value"
-    }
-  },
-  "modules": {
-    "catalog": {
-      "timeoutPlaceholder": "E.g.: 30"
     }
   }
 }

@@ -141,7 +141,6 @@ Settings that live in the database are edited under Settings in the app. They re
 | Outgoing webhooks, Delivery | Days of delivery history | 30 | 1 to 3650. |
 | API tokens | Requests per window | 600 | 1 to 100000, per token. |
 | API tokens | Window | 60 s | 1 to 3600. |
-| Community catalog | Source | Built-in catalog | `builtin` (no internet), `remote` (with an index URL) or `off`. A remote index must be an https URL unless the development option allows http. Fetch time is 1 to 120 s, default 10. |
 
 The Site screen exists only when the `site` module is enabled. It also previews a theme before it goes live (only in the browser that opens the preview, for 30 minutes), manages redirects added by hand (an old path to a site path or another website, permanent or temporary), lists the redirects of moved addresses (remove one to make the old address answer 404 again) and refreshes every page on demand.
 

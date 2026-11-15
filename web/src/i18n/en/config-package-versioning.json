@@ -75,7 +75,6 @@
     "description": "Upload an aphel-config file with id and version. Aphel compares it with the installed version and shows the conflicts with what was changed here.",
     "choose": "Choose file",
     "comparing": "Comparing…",
-    "catalogLink": "Open the catalog",
     "errors": {
       "tooLarge": "The file is larger than 2 MB.",
       "invalidJson": "The file is not valid JSON.",

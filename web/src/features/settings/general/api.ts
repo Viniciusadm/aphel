@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/api'
 
 export type StorageDriver = 'local' | 's3'
-export type CatalogMode = 'builtin' | 'remote' | 'off'
 
 export interface StorageSettings {
   driver: StorageDriver
@@ -25,13 +24,6 @@ export interface WebhookDelivery {
 export interface ApiTokenLimits {
   limit: number
   window_secs: number
-}
-
-export interface CatalogSource {
-  mode: CatalogMode
-  index_url?: string | null
-  allow_http: boolean
-  timeout_secs: number
 }
 
 export interface MailSettings {
@@ -84,7 +76,6 @@ export interface OrganizationConfiguration {
   storage_secret_configured: boolean
   webhooks: WebhookDelivery
   api_tokens: ApiTokenLimits
-  catalog: CatalogSource
   mail: MailSettings
   mail_secret_configured: boolean
   mail_configured: boolean
@@ -104,7 +95,6 @@ export interface UpdateOrganizationConfiguration {
   storage_secret_access_key?: string | null
   webhooks?: WebhookDelivery
   api_tokens?: ApiTokenLimits
-  catalog?: CatalogSource
 }
 
 export interface StorageTestResult {

@@ -142,7 +142,7 @@ The built-in blueprints do not define custom menu sections or extra roles. They 
 
 Required: People (Contacts), Organizations (Companies), Deals, Notes, Tags, Integrations, Exports and Full export.
 
-Recommended: Timeline, Dashboard, Reminders, Favorites, Followers, Imports, Bulk actions, Duplicates, Trash, Privacy, Marketplace, Notifications, Objects (custom objects), Search, Saved views, Record layouts, Formulas, Validation rules, Configuration packages, Calendar, Tasks, Workflow (pipelines), Money and Documents. The WebAssembly runtime (runtime plugins) is part of every installation.
+Recommended: Timeline, Dashboard, Reminders, Favorites, Followers, Imports, Bulk actions, Duplicates, Trash, Privacy, Notifications, Objects (custom objects), Search, Saved views, Record layouts, Formulas, Validation rules, Configuration packages, Calendar, Tasks, Workflow (pipelines), Money and Documents. The WebAssembly runtime (runtime plugins) is part of every installation.
 
 ### What each business type adds
 

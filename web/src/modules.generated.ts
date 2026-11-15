@@ -8,7 +8,6 @@ import savedViewsModule from '@modules/saved_views'
 import recordLayoutsModule from '@modules/record_layouts'
 import formulasModule from '@modules/formulas'
 import validationRulesModule from '@modules/validation_rules'
-import marketplaceModule from '@modules/marketplace'
 import peopleModule from '@modules/people'
 import organizationsModule from '@modules/organizations'
 import leadsModule from '@modules/leads'
@@ -75,7 +74,6 @@ export const MODULES: WebModule[] = [
   recordLayoutsModule,
   formulasModule,
   validationRulesModule,
-  marketplaceModule,
   peopleModule,
   organizationsModule,
   leadsModule,

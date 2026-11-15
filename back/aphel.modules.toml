@@ -8,7 +8,6 @@ record_layouts = { path = "modules/record_layouts" }
 formulas = { path = "modules/formulas" }
 validation_rules = { path = "modules/validation_rules" }
 
-marketplace = { path = "modules/marketplace" }
 people = { path = "modules/people" }
 organizations = { path = "modules/organizations" }
 leads = { path = "modules/leads" }

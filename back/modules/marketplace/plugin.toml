@@ -1,5 +1,0 @@
-key = "marketplace"
-name = "Marketplace"
-version = "0.1.0"
-layer = "capability"
-runtime = "native"

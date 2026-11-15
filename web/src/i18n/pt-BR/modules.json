@@ -314,11 +314,6 @@
       "description": "Campos calculados por fórmula, com validação, pré-visualização do resultado e recálculo quando os campos usados mudam.",
       "appears": "como tipo de campo Fórmula ao criar campos"
     },
-    "marketplace": {
-      "name": "Marketplace",
-      "description": "Catálogo para encontrar e instalar plugins e pacotes de configuração.",
-      "appears": "em Módulos, com a fonte do catálogo"
-    },
     "notifications": {
       "name": "Notificações",
       "description": "Avisos dentro do sistema e por push, com preferências de entrega por pessoa.",

@@ -314,11 +314,6 @@
       "description": "Formula fields with validation, a result preview and recalculation when the fields they use change.",
       "appears": "as the Formula field type when creating fields"
     },
-    "marketplace": {
-      "name": "Marketplace",
-      "description": "Catalog to find and install plugins and configuration packages.",
-      "appears": "in Modules, with the catalog source"
-    },
     "notifications": {
       "name": "Notifications",
       "description": "In-app and push notices, with delivery preferences per person.",

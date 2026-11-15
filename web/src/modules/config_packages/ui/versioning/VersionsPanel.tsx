@@ -1,8 +1,7 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { FileJson, PackageCheck, Upload } from 'lucide-react'
+import { FileJson, Upload } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { notifyError } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -112,12 +111,6 @@ function UploadCard({ disabled, onChoose }: { disabled: boolean; onChoose: (pkg:
         <Button variant="outline" disabled={disabled} onClick={() => inputRef.current?.click()}>
           <Upload aria-hidden="true" />
           {disabled ? t('upload.comparing') : t('upload.choose')}
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link to="/data/catalog">
-            <PackageCheck aria-hidden="true" />
-            {t('upload.catalogLink')}
-          </Link>
         </Button>
         {error && (
           <SharedFieldError>

@@ -39,7 +39,6 @@
     "scoring": "Pontuação de leads",
     "objects": "Objetos personalizados",
     "navigation": "Navegação e idioma",
-    "catalog": "Catálogo da comunidade",
     "mailboxes": "Caixas de e-mail",
     "email": "E-mail da equipe",
     "general": "Geral",
@@ -412,9 +411,6 @@
     "configPackages": {
       "description": "Exporte ou instale configurações prontas entre organizações."
     },
-    "catalog": {
-      "description": "Modelos de configuração compartilhados pela comunidade."
-    },
     "migrationAssistant": {
       "description": "Importe dados de outro CRM."
     },
@@ -470,7 +466,6 @@
       "required": "Preencha este campo.",
       "range": "Use um valor entre {{min}} e {{max}}.",
       "timeout": "Use um valor entre 1 e 120 segundos.",
-      "catalogUrl": "Informe uma URL https (http só com a opção de desenvolvimento).",
       "appPath": "Use só letras minúsculas, números e hífens, num único trecho (ex.: app).",
       "appPathReserved": "Esse caminho é usado pela API. Escolha outro, como app."
     },
@@ -575,26 +570,8 @@
       "limit": "Requisições por janela",
       "window": "Janela (s)"
     },
-    "catalog": {
-      "title": "Catálogo comunitário",
-      "description": "De onde vêm os modelos e módulos do catálogo.",
-      "mode": "Origem",
-      "modes": {
-        "builtin": "Catálogo embutido (sem internet)",
-        "remote": "Índice remoto",
-        "off": "Desligado"
-      },
-      "indexUrl": "URL do índice",
-      "allowHttp": "Permitir http (só desenvolvimento)",
-      "timeout": "Tempo máximo de busca (s)"
-    },
     "numeric": {
       "valuePlaceholder": "Digite o valor"
-    }
-  },
-  "modules": {
-    "catalog": {
-      "timeoutPlaceholder": "Ex.: 30"
     }
   }
 }
