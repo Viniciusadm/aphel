@@ -4,17 +4,17 @@
   "description": "Habilite moedas e taxas de câmbio para registros e agregações monetárias.",
   "enabled": {
     "title": "Moedas habilitadas",
-    "description": "{{base}} é a moeda base e está sempre habilitada. Registros monetários podem usar as moedas habilitadas.",
+    "description": "A moeda base é {{base}} e está sempre habilitada. Registros monetários podem usar as moedas habilitadas.",
     "listLabel": "Moedas habilitadas",
     "base": "Moeda base",
-    "currentRate": "1 = {{rate}} {{base}} desde {{date}}",
+    "currentRate": "1 {{code}} = {{rate}} {{base}} desde {{date}}",
     "noRate": "Sem cotação",
-    "code": "Código ISO",
+    "code": "Moeda",
     "add": "Habilitar moeda",
     "added": "{{code}} habilitada",
     "remove": "Desabilitar {{code}}",
     "removed": "{{code}} desabilitada",
-    "invalidCode": "Informe um código ISO 4217 de três letras, como USD."
+    "choose": "Escolha uma moeda"
   },
   "rates": {
     "title": "Cotações",
@@ -40,9 +40,6 @@
     "empty": "Nenhuma cotação",
     "emptyHint": "Cadastre a cotação das moedas habilitadas para converter os valores.",
     "emptyNoCurrencies": "Habilite uma moeda além da base para cadastrar cotações.",
-    "previous": "Anterior",
-    "next": "Próxima",
-    "page": "Página {{page}} de {{total}}",
     "columns": {
       "date": "Data",
       "currency": "Moeda",
@@ -53,7 +50,8 @@
     "sources": {
       "manual": "Manual",
       "integration": "Integração"
-    }
+    },
+    "current": "Vigente"
   },
   "errors": {
     "currency_not_enabled": "A moeda não está habilitada na organização.",

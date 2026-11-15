@@ -4,17 +4,17 @@
   "description": "Enable currencies and exchange rates for monetary records and aggregates.",
   "enabled": {
     "title": "Enabled currencies",
-    "description": "{{base}} is the base currency and is always enabled. Monetary records can use the enabled currencies.",
+    "description": "The base currency is {{base}} and is always enabled. Monetary records can use the enabled currencies.",
     "listLabel": "Enabled currencies",
     "base": "Base currency",
-    "currentRate": "1 = {{rate}} {{base}} since {{date}}",
+    "currentRate": "1 {{code}} = {{rate}} {{base}} since {{date}}",
     "noRate": "No rate",
-    "code": "ISO code",
+    "code": "Currency",
     "add": "Enable currency",
     "added": "{{code}} enabled",
     "remove": "Disable {{code}}",
     "removed": "{{code}} disabled",
-    "invalidCode": "Enter a three-letter ISO 4217 code, such as USD."
+    "choose": "Choose a currency"
   },
   "rates": {
     "title": "Exchange rates",
@@ -40,9 +40,6 @@
     "empty": "No exchange rates",
     "emptyHint": "Record the rate of the enabled currencies to convert amounts.",
     "emptyNoCurrencies": "Enable a currency besides the base one to record rates.",
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{page}} of {{total}}",
     "columns": {
       "date": "Date",
       "currency": "Currency",
@@ -53,7 +50,8 @@
     "sources": {
       "manual": "Manual",
       "integration": "Integration"
-    }
+    },
+    "current": "Current"
   },
   "errors": {
     "currency_not_enabled": "The currency is not enabled for the organization.",

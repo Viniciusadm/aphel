@@ -1,6 +1,6 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Coins, Pencil, Plus, Trash2, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, PageLoader } from '@/components/feedback'
@@ -18,7 +18,10 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast-store'
-import { formatDate, formatNumber, NativeSelect, RequirePermission, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
+import { formatDate, NativeSelect, RequirePermission, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Pagination } from '@/components/ui/pagination'
+import { currencyName, formatRate, selectableCurrencies } from './format'
 import {currenciesApi, RATES_PER_PAGE, useCurrencySettings, useExchangeRates, useInvalidateCurrencies} from '@/sdk'
 import {currencyErrorKey} from '@/sdk'
 import { RatesProviderSettings } from './RatesProviderSettings'
@@ -28,9 +31,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Field } from '@/components/ui/field'
 import { Page } from '@/components/ui/page'
 
-const CURRENCY_CODE = /^[A-Za-z]{3}$/
 const RATE_PATTERN = /^\d+([.,]\d{1,10})?$/
-const RATE_DECIMALS = 10
 
 interface RateEditor {
   rate: ExchangeRate | null
@@ -55,11 +56,11 @@ function CurrenciesSettings() {
       ) : settings.isError ? (
         <ErrorState onRetry={() => void settings.refetch()} />
       ) : (
-        <>
+        <div className="grid gap-6">
           <EnabledCurrencies settings={settings.data} />
           <RatesProviderSettings settings={settings.data} />
           <ExchangeRates settings={settings.data} />
-        </>
+        </div>
       )}
     </Page>
   )
@@ -71,11 +72,13 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
   const canEdit = hasPermission(SETTINGS_MANAGE)
   const formatting = useRecordFormatting()
   const invalidate = useInvalidateCurrencies()
-  const inputId = useId()
   const [code, setCode] = useState('')
-  const [invalid, setInvalid] = useState(false)
   const [saving, setSaving] = useState(false)
   const enabled = settings.currencies.filter((currency) => !currency.is_base).map((currency) => currency.code)
+  const options = useMemo(
+    () => selectableCurrencies(formatting.locale).filter((option) => option.code !== settings.base && !enabled.includes(option.code)),
+    [formatting.locale, settings.base, enabled],
+  )
 
   const save = async (next: string[], message: string) => {
     setSaving(true)
@@ -93,98 +96,90 @@ function EnabledCurrencies({ settings }: { settings: CurrencySettings }) {
   }
 
   const add = async () => {
-    const normalized = code.trim().toUpperCase()
-    if (!CURRENCY_CODE.test(normalized)) {
-      setInvalid(true)
-      return
-    }
-    if (normalized === settings.base || enabled.includes(normalized)) {
-      setCode('')
-      return
-    }
-    if (await save([...enabled, normalized], t('enabled.added', { code: normalized }))) setCode('')
+    if (!code) return
+    if (await save([...enabled, code], t('enabled.added', { code }))) setCode('')
   }
 
   return (
-    <div className="grid gap-4">
-      <div className="grid gap-1">
-        <h3 className="text-base font-semibold">{t('enabled.title')}</h3>
-        <p className="text-sm text-muted-foreground">{t('enabled.description', { base: settings.base })}</p>
-      </div>
-      <ul className="grid gap-2" aria-label={t('enabled.listLabel')}>
-        {settings.currencies.map((currency) => (
-          <li key={currency.code} className="flex flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2">
-            <Coins className="size-4 text-muted-foreground" aria-hidden="true" />
-            <span className="min-w-12 font-mono text-sm font-medium">{currency.code}</span>
-            {currency.is_base ? (
-              <Badge variant="secondary">{t('enabled.base')}</Badge>
-            ) : currency.current_rate ? (
-              <span className="text-sm text-muted-foreground">
-                {t('enabled.currentRate', {
-                  rate: formatNumber(currency.current_rate.rate, formatting, RATE_DECIMALS),
-                  base: settings.base,
-                  date: formatDate(currency.current_rate.effective_date, formatting),
-                })}
-              </span>
-            ) : (
-              <Badge variant="warning">{t('enabled.noRate')}</Badge>
-            )}
-            {canEdit && !currency.is_base && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="ml-auto"
-                disabled={saving}
-                aria-label={t('enabled.remove', { code: currency.code })}
-                onClick={() =>
-                  void save(
-                    enabled.filter((item) => item !== currency.code),
-                    t('enabled.removed', { code: currency.code }),
-                  )
-                }
-              >
-                <X aria-hidden="true" />
-              </Button>
-            )}
-          </li>
-        ))}
-      </ul>
-      {canEdit && (
-        <form
-          className="flex flex-wrap items-end gap-2"
-          noValidate
-          onSubmit={(event) => {
-            event.preventDefault()
-            void add()
-          }}
-        >
-          <Field label={t('enabled.code')}>
-            {(control) => <Input
-              {...control}
-              className="w-32 font-mono uppercase"
-              maxLength={3}
-              value={code}
-              placeholder="USD"
-              aria-invalid={invalid ? true : undefined}
-              aria-describedby={invalid ? `${inputId}-error` : undefined}
-              onChange={(event) => {
-                setCode(event.target.value)
-                setInvalid(false)
-              }}
-            />}
-          </Field>
-          <Button type="submit" variant="outline" disabled={saving || !code.trim()}>
-            <Plus aria-hidden="true" />
-            {t('enabled.add')}
-          </Button>
-          {invalid && (
-            <SharedFieldError id={`${inputId}-error`} className="basis-full">
-              {t('enabled.invalidCode')}
-            </SharedFieldError>
-          )}
-        </form>
-      )}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('enabled.title')}</CardTitle>
+        <CardDescription>{t('enabled.description', { base: currencyName(settings.base, formatting.locale) })}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <ul className="grid gap-2" aria-label={t('enabled.listLabel')}>
+          {settings.currencies.map((currency) => (
+            <li key={currency.code} className="flex flex-wrap items-center gap-3 rounded-md border bg-background px-3 py-2">
+              <Coins className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div className="grid min-w-0 flex-1 gap-0.5">
+                <span className="text-sm font-medium">
+                  {currencyName(currency.code, formatting.locale)} <span className="font-normal text-muted-foreground">({currency.code})</span>
+                </span>
+                {!currency.is_base && currency.current_rate && (
+                  <span className="text-xs text-muted-foreground">
+                    {t('enabled.currentRate', {
+                      code: currency.code,
+                      rate: formatRate(currency.current_rate.rate, formatting.locale),
+                      base: settings.base,
+                      date: formatDate(currency.current_rate.effective_date, formatting),
+                    })}
+                  </span>
+                )}
+              </div>
+              {currency.is_base ? (
+                <Badge variant="secondary">{t('enabled.base')}</Badge>
+              ) : (
+                !currency.current_rate && <Badge variant="warning">{t('enabled.noRate')}</Badge>
+              )}
+              {canEdit && !currency.is_base && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8"
+                  disabled={saving}
+                  aria-label={t('enabled.remove', { code: currency.code })}
+                  onClick={() =>
+                    void save(
+                      enabled.filter((item) => item !== currency.code),
+                      t('enabled.removed', { code: currency.code }),
+                    )
+                  }
+                >
+                  <X aria-hidden="true" />
+                </Button>
+              )}
+            </li>
+          ))}
+        </ul>
+        {canEdit && (
+          <form
+            className="flex flex-wrap items-end gap-2"
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault()
+              void add()
+            }}
+          >
+            <Field label={t('enabled.code')} className="w-full sm:w-80">
+              {(control) => (
+                <NativeSelect {...control} value={code} onChange={(event) => setCode(event.target.value)}>
+                  <option value="">{t('enabled.choose')}</option>
+                  {options.map((option) => (
+                    <option key={option.code} value={option.code}>
+                      {option.label}
+                    </option>
+                  ))}
+                </NativeSelect>
+              )}
+            </Field>
+            <Button type="submit" variant="outline" disabled={saving || !code}>
+              <Plus aria-hidden="true" />
+              {t('enabled.add')}
+            </Button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -200,7 +195,7 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
   const [removing, setRemoving] = useState<ExchangeRate | null>(null)
   const rates = useExchangeRates(currency, page)
   const foreign = settings.currencies.filter((item) => !item.is_base).map((item) => item.code)
-  const lastPage = rates.data ? Math.max(1, Math.ceil(rates.data.meta.total / RATES_PER_PAGE)) : 1
+  const current = new Map(settings.currencies.map((item) => [item.code, item.current_rate?.effective_date ?? null]))
 
   const remove = async () => {
     if (!removing) return
@@ -215,12 +210,13 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
   }
 
   return (
-    <div className="grid gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-1">
-          <h3 className="text-base font-semibold">{t('rates.title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('rates.description', { base: settings.base })}</p>
-        </div>
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="grid gap-1.5">
+            <CardTitle>{t('rates.title')}</CardTitle>
+            <CardDescription>{t('rates.description', { base: settings.base })}</CardDescription>
+          </div>
         <div className="flex flex-wrap items-center gap-2">
           <NativeSelect
             aria-label={t('rates.filter')}
@@ -233,7 +229,7 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
             <option value="">{t('rates.allCurrencies')}</option>
             {foreign.map((code) => (
               <option key={code} value={code}>
-                {code}
+                {currencyName(code, formatting.locale)} ({code})
               </option>
             ))}
           </NativeSelect>
@@ -244,7 +240,9 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
             </Button>
           )}
         </div>
-      </div>
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-4">
       {rates.isPending ? (
         <PageLoader />
       ) : rates.isError ? (
@@ -281,10 +279,13 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
               {rates.data.data.map((rate) => (
                 <TableRow key={rate.id}>
                   <TableCell className="tabular-nums">{formatDate(rate.effective_date, formatting)}</TableCell>
-                  <TableCell className="font-mono">{rate.currency}</TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formatNumber(rate.rate, formatting, RATE_DECIMALS)}
+                  <TableCell>
+                    {currencyName(rate.currency, formatting.locale)} <span className="text-muted-foreground">({rate.currency})</span>
+                    {current.get(rate.currency) === rate.effective_date && (
+                      <Badge variant="success" className="ml-2">{t('rates.current')}</Badge>
+                    )}
                   </TableCell>
+                  <TableCell className="text-right tabular-nums">{formatRate(rate.rate, formatting.locale)}</TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant="outline">{t(`rates.sources.${rate.source}`)}</Badge>
                   </TableCell>
@@ -314,17 +315,7 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
               ))}
             </TableBody>
           </Table>
-          {lastPage > 1 && (
-            <div className="flex items-center justify-end gap-2 text-sm">
-              <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                {t('rates.previous')}
-              </Button>
-              <span className="tabular-nums text-muted-foreground">{t('rates.page', { page, total: lastPage })}</span>
-              <Button size="sm" variant="outline" disabled={page >= lastPage} onClick={() => setPage(page + 1)}>
-                {t('rates.next')}
-              </Button>
-            </div>
-          )}
+          <Pagination page={page} perPage={RATES_PER_PAGE} total={rates.data.meta.total} onPageChange={setPage} />
         </>
       )}
       <RateDialog
@@ -343,7 +334,8 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
         variant="destructive"
         onConfirm={remove}
       />
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
