@@ -93,10 +93,10 @@ export function RetentionPanel({ creating, onCreatingChange }: RetentionPanelPro
   }
 
   return (
-    <div className="grid min-w-0 gap-6">
+    <div className="grid min-w-0 gap-8">
       <section className="grid min-w-0 gap-3">
         <div className="grid gap-1">
-          <h3 className="font-medium">{t('retention.title')}</h3>
+          <h2 className="text-base font-semibold">{t('retention.title')}</h2>
           <p className="text-sm text-muted-foreground">{t('retention.description')}</p>
         </div>
         {policies.isPending ? (
@@ -112,7 +112,9 @@ export function RetentionPanel({ creating, onCreatingChange }: RetentionPanelPro
               <TableRow>
                 <TableHead scope="col">{t('retention.columns.name')}</TableHead>
                 <TableHead scope="col" className="hidden md:table-cell">{t('retention.columns.rule')}</TableHead>
-                <TableHead scope="col" className="hidden lg:table-cell">{t('retention.columns.lastRun')}</TableHead>
+                <TableHead scope="col">{t('retention.columns.status')}</TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">{t('retention.columns.lastRun')}</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">{t('retention.columns.preview')}</TableHead>
                 <TableHead scope="col" className="text-right">
                   <span className="sr-only">{t('retention.columns.actions')}</span>
                 </TableHead>
@@ -219,22 +221,22 @@ function PolicyRow({ policy, busy, onPreview, onEnable, onDisable, onRun, onEdit
     : null
   return (
     <TableRow>
-      <TableCell className="max-w-64">
-        <span className="block truncate font-medium">{policy.name}</span>
+      <TableCell className="max-w-64 truncate font-medium">{policy.name}</TableCell>
+      <TableCell className="hidden text-muted-foreground md:table-cell">
+        {t(`actionSummaries.${policy.action as 'archive_inactive'}`, { target, days: policy.threshold_days })}
+      </TableCell>
+      <TableCell>
         <Badge variant={policy.is_enabled ? 'success' : 'outline'}>
           {policy.is_enabled ? t('retention.active') : t('retention.inactive')}
         </Badge>
       </TableCell>
-      <TableCell className="hidden text-muted-foreground md:table-cell">
-        {t(`actionSummaries.${policy.action as 'archive_inactive'}`, { target, days: policy.threshold_days })}
+      <TableCell className="hidden tabular-nums sm:table-cell">
+        {policy.last_run_at ? formatDateTime(policy.last_run_at, formatting) : t('retention.neverRun')}
       </TableCell>
       <TableCell className="hidden text-muted-foreground lg:table-cell">
-        {policy.last_run_at ? formatDateTime(policy.last_run_at, formatting) : t('retention.neverRun')}
-        {policy.previewed_count !== null && policy.previewed_count !== undefined && policy.previewed_at && (
-          <span className="block text-xs">
-            {t('retention.lastPreview', { count: policy.previewed_count, date: formatDateTime(policy.previewed_at, formatting) })}
-          </span>
-        )}
+        {policy.previewed_count !== null && policy.previewed_count !== undefined && policy.previewed_at
+          ? t('retention.lastPreview', { count: policy.previewed_count, date: formatDateTime(policy.previewed_at, formatting) })
+          : t('retention.neverPreviewed')}
       </TableCell>
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-1">
@@ -243,7 +245,7 @@ function PolicyRow({ policy, busy, onPreview, onEnable, onDisable, onRun, onEdit
               {t('actions.disable')}
             </Button>
           ) : (
-            <Button size="sm" disabled={busy} onClick={onEnable}>
+            <Button variant="outline" size="sm" disabled={busy} onClick={onEnable}>
               {t('actions.enable')}
             </Button>
           )}
@@ -282,7 +284,7 @@ function RunsHistory() {
   return (
     <section className="grid min-w-0 gap-3">
       <div className="grid gap-1">
-        <h3 className="font-medium">{t('runs.title')}</h3>
+        <h2 className="text-base font-semibold">{t('runs.title')}</h2>
         <p className="text-sm text-muted-foreground">{t('runs.description')}</p>
       </div>
       {runs.isPending ? (
@@ -293,22 +295,28 @@ function RunsHistory() {
         <EmptyState icon={History} title={t('runs.empty')} />
       ) : (
         <>
-          <PaginationSummary page={page} perPage={RUNS_PER_PAGE} total={runs.data.meta.total} />
+          {runs.data.meta.total > RUNS_PER_PAGE && (
+            <PaginationSummary page={page} perPage={RUNS_PER_PAGE} total={runs.data.meta.total} />
+          )}
           <Table>
             <caption className="sr-only">{t('runs.title')}</caption>
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">{t('runs.columns.policy')}</TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">{t('runs.columns.trigger')}</TableHead>
                 <TableHead scope="col">{t('runs.columns.status')}</TableHead>
-                <TableHead scope="col" className="hidden md:table-cell">{t('runs.columns.result')}</TableHead>
-                <TableHead scope="col" className="hidden sm:table-cell">{t('runs.columns.when')}</TableHead>
+                <TableHead scope="col" className="hidden text-right md:table-cell">{t('runs.columns.affected')}</TableHead>
+                <TableHead scope="col" className="hidden text-right lg:table-cell">{t('runs.columns.files')}</TableHead>
+                <TableHead scope="col" className="hidden text-right lg:table-cell">{t('runs.columns.errors')}</TableHead>
+                <TableHead scope="col">{t('runs.columns.when')}</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">{t('runs.columns.by')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {runs.data.data.map((run) => (
                 <TableRow key={run.id}>
-                  <TableCell className="max-w-56">
-                    <span className="block truncate font-medium">{run.policy_name}</span>
+                  <TableCell className="max-w-64 truncate font-medium">{run.policy_name}</TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <Badge variant="outline">{t(`runs.triggers.${run.trigger as 'schedule'}`)}</Badge>
                   </TableCell>
                   <TableCell>
@@ -317,13 +325,11 @@ function RunsHistory() {
                       <SharedFieldError>{run.status === 'failed' ? t('runs.failed') : t('runs.partial')}</SharedFieldError>
                     )}
                   </TableCell>
-                  <TableCell className="hidden text-muted-foreground md:table-cell">
-                    {t('runs.summary', { affected: run.affected, files: run.files_removed, errors: run.errors })}
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground sm:table-cell">
-                    {formatDateTime(run.started_at ?? run.created_at, formatting)}
-                    {run.requested_by && <span className="block text-xs">{run.requested_by.display_name}</span>}
-                  </TableCell>
+                  <TableCell className="hidden text-right tabular-nums md:table-cell">{run.affected}</TableCell>
+                  <TableCell className="hidden text-right tabular-nums lg:table-cell">{run.files_removed}</TableCell>
+                  <TableCell className="hidden text-right tabular-nums lg:table-cell">{run.errors}</TableCell>
+                  <TableCell className="tabular-nums">{formatDateTime(run.started_at ?? run.created_at, formatting)}</TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">{run.requested_by?.display_name ?? '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
