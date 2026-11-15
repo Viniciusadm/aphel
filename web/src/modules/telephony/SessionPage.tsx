@@ -372,7 +372,7 @@ function QueueList({
       ) : items.isError ? (
         <ErrorState onRetry={() => void items.refetch()} />
       ) : (
-        <ol className="grid max-h-[32rem] gap-1 overflow-y-auto rounded-md border p-1">
+        <ol className="relative grid max-h-[32rem] gap-1 overflow-y-auto rounded-md border p-1">
           {items.data.data.map((entry) => {
             const current = entry.position === session.position && session.status === 'active'
             return (
