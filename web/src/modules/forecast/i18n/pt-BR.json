@@ -59,7 +59,13 @@
     "listLabel": "Oportunidades",
     "empty": "Nenhuma oportunidade neste mês.",
     "noAmount": "Sem valor",
-    "weighted": "{{probability}}% · {{amount}} na previsão"
+    "columns": {
+      "deal": "Oportunidade",
+      "stage": "Etapa",
+      "closeDate": "Fechamento",
+      "amount": "Valor",
+      "weighted": "Na previsão"
+    }
   },
   "states": {
     "emptyTitle": "Nenhuma oportunidade no horizonte",
@@ -72,7 +78,7 @@
   "settings": {
     "title": "Configuração da previsão",
     "description": "Defina como a previsão de receita é calculada para toda a organização.",
-    "method": "Método de cálculo",
+    "method": "Cálculo",
     "categories": "Categorias de previsão",
     "categoriesEnabled": "Separar a previsão em categorias",
     "categoriesHint": "As categorias são definidas pela probabilidade usada no cálculo. O método \"somente commit\" sempre usa as categorias.",
@@ -84,7 +90,6 @@
       "best_case": "Melhor cenário: de {{min}}% a {{max}}%",
       "commit": "Commit: a partir de {{min}}%"
     },
-    "horizonTitle": "Horizonte",
     "horizon": "Meses exibidos por padrão",
     "horizonHint": "A partir do mês atual, no fuso da organização.",
     "save": "Salvar",
@@ -94,7 +99,10 @@
       "order": "Commit deve começar acima do melhor cenário.",
       "conflict": "A configuração foi alterada por outra pessoa. Recarregue a página.",
       "invalid": "Valor inválido."
-    }
+    },
+    "methodDescription": "Como o valor previsto de cada oportunidade aberta é calculado.",
+    "methodLabel": "Método de cálculo",
+    "categoriesDescription": "Separe a previsão em faixas de confiança, de acordo com a probabilidade."
   },
   "nav": {
     "forecast": "Previsão"

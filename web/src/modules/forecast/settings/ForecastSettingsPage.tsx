@@ -8,10 +8,10 @@ import { isApiError } from '@/api'
 import { useSession } from '@/app/session/session-context'
 import { notifyError, notifySuccess, PageLoader, UnsavedChangesGuard } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { ErrorState } from '@/components/ui/error-state'
-import { Input } from '@/components/ui/input'
-import { authFieldViolations as fieldViolations, FormRow, SettingsNativeSelect as NativeSelect } from '@/sdk'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
+import { ToggleField } from '@/components/ui/toggle-field'
+import { authFieldViolations as fieldViolations, SettingsCard, SettingsNativeSelect as NativeSelect, WIDE_FIELD } from '@/sdk'
 import {
   FORECAST_METHODS,
   MAX_HORIZON_MONTHS,
@@ -64,11 +64,16 @@ export function ForecastSettingsPage() {
   const query = useForecastSettings()
   return (
     <Page>
-      <PageHeader title={t('settings.title')} description={t('settings.description')} />
       {query.isPending ? (
-        <PageLoader />
+        <>
+          <PageHeader title={t('settings.title')} description={t('settings.description')} />
+          <PageLoader />
+        </>
       ) : query.isError ? (
-        <ErrorState onRetry={() => void query.refetch()} />
+        <>
+          <PageHeader title={t('settings.title')} description={t('settings.description')} />
+          <ErrorState onRetry={() => void query.refetch()} />
+        </>
       ) : (
         <SettingsForm key={query.data.updated_at ?? 'default'} settings={query.data} />
       )}
@@ -132,103 +137,113 @@ function SettingsForm({ settings }: { settings: ForecastSettings }) {
 
   const errorText = (message?: string) => (message ? t(message as 'settings.errors.invalid') : undefined)
 
-  return (
-    <form className="grid max-w-2xl gap-8" onSubmit={(event) => void onSubmit(event)} noValidate>
-      <UnsavedChangesGuard when={canEdit && isDirty} />
-      <fieldset className="grid gap-3" disabled={!canEdit || isSubmitting}>
-        <legend className="mb-2 text-base font-semibold">{t('settings.method')}</legend>
-        {FORECAST_METHODS.map((value) => (
-          <label key={value} className="flex cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary">
-            <input type="radio" value={value} className="mt-1 accent-[var(--primary)]" {...register('method')} />
-            <span className="grid gap-0.5">
-              <span className="text-sm font-medium">{t(`methods.${value}`)}</span>
-              <span className="text-xs text-muted-foreground">{t(`methodHints.${value}`)}</span>
-            </span>
-          </label>
-        ))}
-      </fieldset>
+  const disabled = !canEdit || isSubmitting
 
-      <fieldset className="grid gap-4" disabled={!canEdit || isSubmitting}>
-        <legend className="mb-2 text-base font-semibold">{t('settings.categories')}</legend>
-        <div className="flex items-start gap-3">
+  return (
+    <>
+      <PageHeader
+        title={t('settings.title')}
+        description={t('settings.description')}
+        actions={
+          canEdit && (
+            <Button type="submit" form={formId} disabled={isSubmitting || !isDirty}>
+              {t('settings.save')}
+            </Button>
+          )
+        }
+      />
+      <form id={formId} className="grid gap-6" onSubmit={(event) => void onSubmit(event)} noValidate>
+        <UnsavedChangesGuard when={canEdit && isDirty} />
+        <SettingsCard title={t('settings.method')} description={t('settings.methodDescription')} disabled={disabled}>
+          <Field label={t('settings.methodLabel')} description={t(`methodHints.${method}`)}>
+            {(control) => (
+              <NativeSelect {...control} {...register('method')}>
+                {FORECAST_METHODS.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`methods.${value}`)}
+                  </option>
+                ))}
+              </NativeSelect>
+            )}
+          </Field>
+          <Field label={t('settings.horizon')} description={t('settings.horizonHint')}>
+            {(control) => (
+              <NativeSelect {...control} {...register('horizon')}>
+                {Array.from({ length: MAX_HORIZON_MONTHS }, (_, index) => index + 1).map((value) => (
+                  <option key={value} value={value}>
+                    {t('page.months', { count: value })}
+                  </option>
+                ))}
+              </NativeSelect>
+            )}
+          </Field>
+        </SettingsCard>
+
+        <SettingsCard title={t('settings.categories')} description={t('settings.categoriesDescription')} disabled={disabled}>
           <Controller
             control={control}
             name="categoriesEnabled"
             render={({ field }) => (
-              <Checkbox
-                id={`${formId}-categories`}
+              <ToggleField
+                className={WIDE_FIELD}
+                type="switch"
+                label={t('settings.categoriesEnabled')}
+                description={t('settings.categoriesHint')}
                 checked={field.value}
-                onCheckedChange={(checked) => field.onChange(checked === true)}
-                disabled={!canEdit || isSubmitting}
-                className="mt-0.5"
+                onCheckedChange={field.onChange}
+                disabled={disabled}
               />
             )}
           />
-          <Field id={`${formId}-categories`} label={t('settings.categoriesEnabled')}>
-            <p className="text-xs text-muted-foreground">{t('settings.categoriesHint')}</p>
-          </Field>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormRow id={`${formId}-best-case`} label={t('settings.bestCase')} error={errorText(errors.bestCase?.message)}>
-            {(describedBy) => (
-              <Input placeholder={t('placeholders.percent')}
-                id={`${formId}-best-case`}
-                type="number"
-                min={1}
-                max={100}
-                inputMode="numeric"
-                aria-describedby={describedBy}
-                aria-invalid={errors.bestCase ? true : undefined}
-                {...register('bestCase')}
-              />
+          <Controller
+            control={control}
+            name="bestCase"
+            render={({ field }) => (
+              <Field label={t('settings.bestCase')} error={errorText(errors.bestCase?.message)}>
+                {(control) => (
+                  <NumberMaskInput
+                    {...control}
+                    kind="integer"
+                    maxLength={3}
+                    className="w-32"
+                    placeholder={t('placeholders.percent')}
+                    value={String(field.value ?? '')}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
+              </Field>
             )}
-          </FormRow>
-          <FormRow id={`${formId}-commit`} label={t('settings.commit')} error={errorText(errors.commit?.message)}>
-            {(describedBy) => (
-              <Input placeholder={t('placeholders.percent')}
-                id={`${formId}-commit`}
-                type="number"
-                min={1}
-                max={100}
-                inputMode="numeric"
-                aria-describedby={describedBy}
-                aria-invalid={errors.commit ? true : undefined}
-                {...register('commit')}
-              />
+          />
+          <Controller
+            control={control}
+            name="commit"
+            render={({ field }) => (
+              <Field label={t('settings.commit')} error={errorText(errors.commit?.message)}>
+                {(control) => (
+                  <NumberMaskInput
+                    {...control}
+                    kind="integer"
+                    maxLength={3}
+                    className="w-32"
+                    placeholder={t('placeholders.percent')}
+                    value={String(field.value ?? '')}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
+              </Field>
             )}
-          </FormRow>
-        </div>
-        {showRanges && (
-          <ul className="grid gap-1 rounded-md border bg-muted/40 p-3 text-sm" aria-label={t('settings.rangesLabel')}>
-            <li>{t('settings.ranges.pipeline', { max: Math.max(0, Number(bestCase) - 1) })}</li>
-            <li>{t('settings.ranges.best_case', { min: Number(bestCase), max: Math.max(0, Number(commit) - 1) })}</li>
-            <li>{t('settings.ranges.commit', { min: Number(commit) })}</li>
-          </ul>
-        )}
-      </fieldset>
-
-      <fieldset className="grid gap-4" disabled={!canEdit || isSubmitting}>
-        <legend className="mb-2 text-base font-semibold">{t('settings.horizonTitle')}</legend>
-        <FormRow id={`${formId}-horizon`} label={t('settings.horizon')} hint={t('settings.horizonHint')}>
-          {(describedBy) => (
-            <NativeSelect id={`${formId}-horizon`} className="sm:w-48" aria-describedby={describedBy} {...register('horizon')}>
-              {Array.from({ length: MAX_HORIZON_MONTHS }, (_, index) => index + 1).map((value) => (
-                <option key={value} value={value}>
-                  {t('page.months', { count: value })}
-                </option>
-              ))}
-            </NativeSelect>
+          />
+          {showRanges && (
+            <ul className={`${WIDE_FIELD} grid gap-1 rounded-md border bg-muted/40 p-3 text-sm`} aria-label={t('settings.rangesLabel')}>
+              <li>{t('settings.ranges.pipeline', { max: Math.max(0, Number(bestCase) - 1) })}</li>
+              <li>{t('settings.ranges.best_case', { min: Number(bestCase), max: Math.max(0, Number(commit) - 1) })}</li>
+              <li>{t('settings.ranges.commit', { min: Number(commit) })}</li>
+            </ul>
           )}
-        </FormRow>
-      </fieldset>
-
-      {canEdit && (
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting || !isDirty}>
-            {t('settings.save')}
-          </Button>
-        </div>
-      )}
-    </form>
+        </SettingsCard>
+      </form>
+    </>
   )
 }

@@ -59,7 +59,13 @@
     "listLabel": "Deals",
     "empty": "No deals in this month.",
     "noAmount": "No amount",
-    "weighted": "{{probability}}% · {{amount}} in the forecast"
+    "columns": {
+      "deal": "Deal",
+      "stage": "Stage",
+      "closeDate": "Close date",
+      "amount": "Amount",
+      "weighted": "In forecast"
+    }
   },
   "states": {
     "emptyTitle": "No deals in the horizon",
@@ -72,7 +78,7 @@
   "settings": {
     "title": "Forecast settings",
     "description": "Choose how the revenue forecast is calculated for the whole organization.",
-    "method": "Calculation method",
+    "method": "Calculation",
     "categories": "Forecast categories",
     "categoriesEnabled": "Split the forecast in categories",
     "categoriesHint": "Categories come from the probability used in the calculation. The \"commit only\" method always uses them.",
@@ -84,7 +90,6 @@
       "best_case": "Best case: {{min}}% to {{max}}%",
       "commit": "Commit: from {{min}}%"
     },
-    "horizonTitle": "Horizon",
     "horizon": "Months shown by default",
     "horizonHint": "From the current month, in the organization timezone.",
     "save": "Save",
@@ -94,7 +99,10 @@
       "order": "Commit must start above best case.",
       "conflict": "The settings were changed by someone else. Reload the page.",
       "invalid": "Invalid value."
-    }
+    },
+    "methodDescription": "How the forecast amount of each open deal is calculated.",
+    "methodLabel": "Calculation method",
+    "categoriesDescription": "Split the forecast into confidence ranges based on probability."
   },
   "nav": {
     "forecast": "Forecast"

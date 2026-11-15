@@ -8,8 +8,9 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrency, formatNumber, SettingsNativeSelect as NativeSelect, useRecordFormatting } from '@/sdk'
+import { formatCurrency, formatNumber, useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import {
   FORECAST_CATEGORIES,
@@ -29,11 +30,12 @@ function useMonthLabel() {
   const formatting = useRecordFormatting()
   return (startsOn: string, style: 'short' | 'long' = 'short') => {
     const [year, month] = startsOn.split('-').map(Number)
-    return new Intl.DateTimeFormat(formatting.locale, {
+    const label = new Intl.DateTimeFormat(formatting.locale, {
       timeZone: 'UTC',
       month: style,
       year: style === 'long' ? 'numeric' : '2-digit',
     }).format(new Date(Date.UTC(year, month - 1, 1)))
+    return style === 'long' ? label.charAt(0).toLocaleUpperCase(formatting.locale) + label.slice(1) : label
   }
 }
 
@@ -52,9 +54,14 @@ export function ForecastPage() {
   let body
   if (report.isPending) {
     body = (
-      <div className="grid gap-3" aria-busy="true">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-72 w-full" />
+      <div className="grid gap-4" aria-busy="true">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+        <Skeleton className="h-80 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     )
   } else if (report.isError) {
@@ -76,35 +83,30 @@ export function ForecastPage() {
 
   return (
     <Page>
-<PageHeader title={t('page.title')} description={t('page.description')} actions={<>
-        <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2 text-sm">
-            <span className="shrink-0 text-muted-foreground">{t('page.horizon')}</span>
-            <NativeSelect
-              className="w-36"
-              value={months ?? report.data?.settings.horizon_months ?? ''}
-              onChange={(event) => setMonths(Number(event.target.value))}
-            >
-              {Array.from(new Set([...HORIZON_OPTIONS, report.data?.settings.horizon_months ?? 6]))
+<PageHeader
+        title={t('page.title')}
+        description={t('page.description')}
+        actions={
+          <>
+            <SegmentedControl
+              aria-label={t('page.horizon')}
+              value={String(months ?? report.data?.settings.horizon_months ?? 6)}
+              onValueChange={(value) => setMonths(Number(value))}
+              options={Array.from(new Set([...HORIZON_OPTIONS, report.data?.settings.horizon_months ?? 6]))
                 .sort((a, b) => a - b)
-                .map((value) => (
-                  <option key={value} value={value}>
-                    {t('page.months', { count: value })}
-                  </option>
-                ))}
-            </NativeSelect>
-          </label>
-          {hasPermission('settings.manage') && (
-            <Button asChild size="sm" variant="outline">
-              <Link to="/settings/forecast">
-                <Settings2 aria-hidden="true" />
-                {t('page.configure')}
-              </Link>
-            </Button>
-          )}
-        </div>
-      
-      </>} />
+                .map((value) => ({ value: String(value), label: t('page.months', { count: value }) }))}
+            />
+            {hasPermission('settings.manage') && (
+              <Button asChild variant="outline">
+                <Link to="/settings/forecast">
+                  <Settings2 aria-hidden="true" />
+                  {t('page.configure')}
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
       {body}
       <ForecastDealsDialog drillDown={drillDown} onClose={() => setDrillDown(null)} />
     </Page>
@@ -231,7 +233,7 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
     onDrillDown({ month: month.month, label: monthLabel(month.starts_on, 'long'), category })
 
   return (
-    <Table className="min-w-[36rem]">
+    <Table>
       <caption className="sr-only">{t('table.caption')}</caption>
       <TableHeader>
         <TableRow>
@@ -245,12 +247,12 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
             {t('table.forecast')}
           </TableHead>
           {categories.map((category) => (
-            <TableHead key={category} scope="col" className="text-right">
+            <TableHead key={category} scope="col" className="hidden text-right md:table-cell">
               {t(`categories.${category}`)}
             </TableHead>
           ))}
           {showWon && (
-            <TableHead scope="col" className="text-right">
+            <TableHead scope="col" className="hidden text-right sm:table-cell">
               {t('table.won')}
             </TableHead>
           )}
@@ -259,7 +261,7 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
       <TableBody>
         {report.months.map((month) => (
           <TableRow key={month.month} className="last:border-b-0">
-            <TableHead scope="row" className="text-left capitalize">
+            <TableHead scope="row" className="text-left whitespace-normal">
               {monthLabel(month.starts_on, 'long')}
             </TableHead>
             <TableCell className="text-right tabular-nums">
@@ -278,7 +280,7 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
             {categories.map((category) => {
               const bucket = categoryAmount(month, category)
               return (
-                <TableCell key={category} className="text-right tabular-nums">
+                <TableCell key={category} className="hidden text-right tabular-nums md:table-cell">
                   <DrillButton
                     disabled={!bucket || bucket.count === 0}
                     label={t('table.drillDownCategory', {
@@ -296,7 +298,7 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
               )
             })}
             {showWon && (
-              <TableCell className="text-right tabular-nums text-muted-foreground">{money(month.won?.amount)}</TableCell>
+              <TableCell className="hidden text-right tabular-nums text-muted-foreground sm:table-cell">{money(month.won?.amount)}</TableCell>
             )}
           </TableRow>
         ))}
@@ -309,11 +311,11 @@ function ForecastTable({ report, onDrillDown }: ContentProps) {
           <TableCell className="text-right tabular-nums">{money(report.totals.open.amount)}</TableCell>
           <TableCell className="text-right tabular-nums">{money(report.totals.forecast)}</TableCell>
           {categories.map((category) => (
-            <TableCell key={category} className="text-right tabular-nums">
+            <TableCell key={category} className="hidden text-right tabular-nums md:table-cell">
               {money(categoryAmount(report.totals, category)?.amount)}
             </TableCell>
           ))}
-          {showWon && <TableCell className="text-right tabular-nums">{money(report.totals.won?.amount)}</TableCell>}
+          {showWon && <TableCell className="hidden text-right tabular-nums sm:table-cell">{money(report.totals.won?.amount)}</TableCell>}
         </TableRow>
       </tfoot>
     </Table>
