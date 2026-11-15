@@ -1,21 +1,28 @@
-import { ArrowDown, ArrowUp, ListChecks, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, ListChecks, MoreHorizontal, Pencil, Plus, Power, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { ConfirmDialog, PageLoader } from '@/components/feedback'
 import { notifyError, notifySuccess } from '@/components/feedback/notify'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { RecordTypeSelect, RequirePermission, SETTINGS_MANAGE, useFieldSchema } from '@/sdk'
 import { useInvalidateValidationRules, useValidationRules, validationRulesApi } from '@/modules/validation_rules/ui/api'
 import { VALIDATION_RULES_PATH } from '@/modules/validation_rules/ui/routes'
 import type { ValidationRule } from '@/modules/validation_rules/ui/types'
-import { ValidationRuleDialog } from '@/modules/validation_rules/ui/ValidationRuleDialog'
 import { useIsModuleActive } from '@/kernel/modules/registry'
-import { PageHeader } from '@/components/ui/page-header'
-import { Page } from '@/components/ui/page'
 
 export function ValidationRulesPage() {
   return (
@@ -25,22 +32,19 @@ export function ValidationRulesPage() {
   )
 }
 
-interface EditorState {
-  rule: ValidationRule | null
-}
-
 function ValidationRulesSettings() {
   const { t } = useTranslation('validation-rules')
   const { t: tFields } = useTranslation('fields')
   const quotesActive = useIsModuleActive('quotes')
+  const navigate = useNavigate()
   const { recordType = '' } = useParams()
   const rules = useValidationRules(recordType)
   const schema = useFieldSchema(recordType)
   const invalidate = useInvalidateValidationRules()
-  const [editor, setEditor] = useState<EditorState | null>(null)
   const [removing, setRemoving] = useState<ValidationRule | null>(null)
   const [busy, setBusy] = useState(false)
   const fieldLabel = (key: string) => schema.data?.fields.find((field) => field.key === key)?.label ?? key
+  const editPath = (id: string) => `${VALIDATION_RULES_PATH}/${recordType}/${id}`
 
   const run = async (task: () => Promise<unknown>, message: string) => {
     setBusy(true)
@@ -70,110 +74,110 @@ function ValidationRulesSettings() {
     void run(() => validationRulesApi.reorder(recordType, ids), t('toasts.reordered'))
   }
 
+  const create = (
+    <Button onClick={() => void navigate(editPath('new'))}>
+      <Plus aria-hidden="true" />
+      {t('new')}
+    </Button>
+  )
+
   return (
     <Page>
-      <PageHeader title={t('title')} description={t('description')} />
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <RecordTypeSelect
-          value={recordType}
-          label={t('recordType')}
-          to={(type) => `${VALIDATION_RULES_PATH}/${type}`}
-          extraTypes={quotesActive ? [{ value: 'quotes.quote', label: tFields('recordTypes.quote') }] : []}
-        />
-        <Button onClick={() => setEditor({ rule: null })}>
-          <Plus aria-hidden="true" />
-          {t('new')}
-        </Button>
-      </div>
-      <p className="text-sm text-muted-foreground">{t('help')}</p>
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <>
+            <RecordTypeSelect
+              value={recordType}
+              label={t('recordType')}
+              to={(type) => `${VALIDATION_RULES_PATH}/${type}`}
+              extraTypes={quotesActive ? [{ value: 'quotes.quote', label: tFields('recordTypes.quote') }] : []}
+            />
+            {create}
+          </>
+        }
+      />
       {rules.isPending ? (
         <PageLoader />
       ) : rules.isError ? (
         <ErrorState onRetry={() => void rules.refetch()} />
       ) : rules.data.length === 0 ? (
-        <EmptyState icon={ListChecks} title={t('empty.title')} description={t('empty.description')} />
+        <EmptyState icon={ListChecks} title={t('empty.title')} description={t('empty.description')} action={create} />
       ) : (
-        <ul className="grid gap-2" aria-label={t('list.label')}>
-          {rules.data.map((rule, index) => (
-            <li key={rule.id} className="grid min-w-0 gap-2 rounded-md border bg-card p-3">
-              <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
-                <div className="grid min-w-0 gap-1">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <span className="font-medium break-words">{rule.name}</span>
-                    <Badge variant="secondary">{t(`timing.${rule.applies_on}`)}</Badge>
-                    {!rule.is_active && <Badge variant="outline">{t('list.inactive')}</Badge>}
-                    {rule.field && (
-                      <span className="text-xs text-muted-foreground">
-                        {t('list.highlight', { field: fieldLabel(rule.field) })}
-                      </span>
-                    )}
+        <Table>
+          <caption className="sr-only">{t('list.label')}</caption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{t('list.columns.name')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('list.columns.message')}</TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">{t('list.columns.timing')}</TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">{t('list.columns.field')}</TableHead>
+              <TableHead scope="col">{t('list.columns.status')}</TableHead>
+              <TableHead scope="col" className="text-right">
+                <span className="sr-only">{t('list.columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rules.data.map((rule, index) => (
+              <TableRow key={rule.id}>
+                <TableCell className="max-w-36 sm:max-w-64">
+                  <Link to={editPath(rule.id)} className="block truncate font-medium underline-offset-4 hover:underline">
+                    {rule.name}
+                  </Link>
+                </TableCell>
+                <TableCell className="hidden max-w-80 truncate text-muted-foreground md:table-cell">{rule.message}</TableCell>
+                <TableCell className="hidden sm:table-cell">{t(`timing.${rule.applies_on}`)}</TableCell>
+                <TableCell className="hidden text-muted-foreground lg:table-cell">
+                  {rule.field ? fieldLabel(rule.field) : t('list.generalError')}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={rule.is_active ? 'success' : 'outline'}>
+                    {rule.is_active ? t('list.active') : t('list.inactive')}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={editPath(rule.id)} aria-label={t('list.edit', { name: rule.name })}>
+                        <Pencil aria-hidden="true" />
+                        <span className="hidden sm:inline">{t('list.editShort')}</span>
+                      </Link>
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" aria-label={t('list.actions', { name: rule.name })}>
+                          <MoreHorizontal aria-hidden="true" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem disabled={busy} onSelect={() => void toggle(rule)}>
+                          <Power aria-hidden="true" />
+                          {rule.is_active ? t('list.deactivate') : t('list.activate')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled={busy || index === 0} onSelect={() => move(index, -1)}>
+                          <ArrowUp aria-hidden="true" />
+                          {t('list.moveUpShort')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled={busy || index === rules.data.length - 1} onSelect={() => move(index, 1)}>
+                          <ArrowDown aria-hidden="true" />
+                          {t('list.moveDownShort')}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem variant="destructive" onSelect={() => setRemoving(rule)}>
+                          <Trash2 aria-hidden="true" />
+                          {t('list.removeShort')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <p className="text-sm break-words text-muted-foreground">{rule.message}</p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() => void toggle(rule)}
-                  >
-                    {rule.is_active ? t('list.deactivate') : t('list.activate')}
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    disabled={busy || index === 0}
-                    aria-label={t('list.moveUp', { name: rule.name })}
-                    onClick={() => move(index, -1)}
-                  >
-                    <ArrowUp aria-hidden="true" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    disabled={busy || index === rules.data.length - 1}
-                    aria-label={t('list.moveDown', { name: rule.name })}
-                    onClick={() => move(index, 1)}
-                  >
-                    <ArrowDown aria-hidden="true" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={t('list.edit', { name: rule.name })}
-                    onClick={() => setEditor({ rule })}
-                  >
-                    <Pencil aria-hidden="true" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="text-destructive"
-                    aria-label={t('list.remove', { name: rule.name })}
-                    onClick={() => setRemoving(rule)}
-                  >
-                    <Trash2 aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-              <code className="block rounded bg-muted px-2 py-1 font-mono text-xs break-all">{rule.expression}</code>
-            </li>
-          ))}
-        </ul>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
-      <ValidationRuleDialog
-        open={editor !== null}
-        recordType={recordType}
-        rule={editor?.rule ?? null}
-        onOpenChange={(open) => {
-          if (!open) setEditor(null)
-        }}
-        onSaved={(created) => {
-          setEditor(null)
-          void invalidate()
-          notifySuccess(created ? t('toasts.created') : t('toasts.updated'))
-        }}
-      />
       <ConfirmDialog
         open={removing !== null}
         onOpenChange={(open) => {

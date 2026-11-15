@@ -1,8 +1,8 @@
 {
   "title": "Regras de validação",
-  "description": "Condições que impedem salvar um registro com dados inconsistentes. Valem para formulários, edição inline, API, importação, automações e ações em massa.",
+  "description": "Condições que impedem salvar um registro com dados inconsistentes.",
   "recordType": "Tipo de registro",
-  "help": "A fórmula descreve a condição de erro: quando o resultado for verdadeiro, a gravação é bloqueada e a mensagem aparece para o usuário.",
+  "help": "A condição descreve o erro: quando o resultado for verdadeiro, a gravação é bloqueada e a mensagem aparece para quem está salvando.",
   "new": "Nova regra",
   "empty": {
     "title": "Nenhuma regra para este tipo de registro",
@@ -17,7 +17,22 @@
     "edit": "Editar {{name}}",
     "remove": "Excluir {{name}}",
     "activate": "Ativar",
-    "deactivate": "Desativar"
+    "deactivate": "Desativar",
+    "columns": {
+      "name": "Regra",
+      "message": "Mensagem",
+      "timing": "Quando",
+      "field": "Campo destacado",
+      "status": "Situação",
+      "actions": "Ações"
+    },
+    "active": "Ativa",
+    "generalError": "Erro geral",
+    "editShort": "Editar",
+    "actions": "Ações de {{name}}",
+    "moveUpShort": "Mover para cima",
+    "moveDownShort": "Mover para baixo",
+    "removeShort": "Excluir"
   },
   "timing": {
     "always": "Na criação e na edição",
@@ -27,10 +42,7 @@
   "dialog": {
     "newTitle": "Nova regra de validação",
     "editTitle": "Editar regra de validação",
-    "description": "Escreva a condição que torna o registro inválido e a mensagem que o usuário verá.",
     "name": "Nome",
-    "key": "Chave",
-    "keyHint": "Identificador estável usado nos pacotes de configuração. Deixe em branco para gerar a partir do nome.",
     "message": "Mensagem de erro",
     "messageHint": "Texto mostrado ao usuário quando a regra bloquear a gravação.",
     "field": "Campo destacado",
@@ -39,13 +51,13 @@
     "timing": "Quando aplicar",
     "active": "Regra ativa",
     "expression": "Condição de erro",
-    "expressionHint": "Fórmula booleana. Exemplo: amount > 10000 and is_empty(source)",
+    "expressionHint": "Fórmula verdadeiro ou falso. Exemplo: amount > 10000 and is_empty(source)",
     "save": "Salvar",
     "cancel": "Cancelar",
     "required": "Preencha este campo.",
     "namePlaceholder": "Ex.: Valor mínimo do contrato",
-    "keyPlaceholder": "Ex.: valor_minimo_contrato",
-    "messagePlaceholder": "Ex.: O valor deve ser maior que zero"
+    "messagePlaceholder": "Ex.: O valor deve ser maior que zero",
+    "activeHint": "Regras inativas não bloqueiam gravações."
   },
   "test": {
     "title": "Testar contra um registro",
@@ -71,5 +83,14 @@
     "title": "Excluir regra",
     "description": "A regra \"{{name}}\" deixará de valer e será apagada. Para só suspendê-la, desative-a.",
     "confirm": "Excluir"
+  },
+  "edit": {
+    "back": "Regras de validação",
+    "description": "Defina quando a regra vale, a condição de erro e a mensagem que a pessoa verá.",
+    "ruleTitle": "Regra",
+    "ruleDescription": "Nome, mensagem e quando a regra se aplica.",
+    "conditionTitle": "Condição de erro",
+    "notFoundTitle": "Regra não encontrada",
+    "notFoundDescription": "Ela pode ter sido excluída. Volte para a lista de regras."
   }
 }

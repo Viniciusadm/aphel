@@ -1,8 +1,8 @@
 {
   "title": "Validation rules",
-  "description": "Conditions that prevent saving a record with inconsistent data. They apply to forms, inline editing, API, imports, automations and bulk actions.",
+  "description": "Conditions that prevent saving a record with inconsistent data.",
   "recordType": "Record type",
-  "help": "The formula describes the error condition: when it results in true, the write is blocked and the message is shown to the user.",
+  "help": "The condition describes the error: when the result is true, saving is blocked and the message is shown to whoever is saving.",
   "new": "New rule",
   "empty": {
     "title": "No rules for this record type",
@@ -17,7 +17,22 @@
     "edit": "Edit {{name}}",
     "remove": "Delete {{name}}",
     "activate": "Activate",
-    "deactivate": "Deactivate"
+    "deactivate": "Deactivate",
+    "columns": {
+      "name": "Rule",
+      "message": "Message",
+      "timing": "When",
+      "field": "Highlighted field",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "active": "Active",
+    "generalError": "General error",
+    "editShort": "Edit",
+    "actions": "Actions for {{name}}",
+    "moveUpShort": "Move up",
+    "moveDownShort": "Move down",
+    "removeShort": "Delete"
   },
   "timing": {
     "always": "On create and update",
@@ -27,10 +42,7 @@
   "dialog": {
     "newTitle": "New validation rule",
     "editTitle": "Edit validation rule",
-    "description": "Write the condition that makes the record invalid and the message the user will see.",
     "name": "Name",
-    "key": "Key",
-    "keyHint": "Stable identifier used by configuration packages. Leave blank to generate it from the name.",
     "message": "Error message",
     "messageHint": "Text shown to the user when the rule blocks the write.",
     "field": "Highlighted field",
@@ -39,13 +51,13 @@
     "timing": "When to apply",
     "active": "Active rule",
     "expression": "Error condition",
-    "expressionHint": "Boolean formula. Example: amount > 10000 and is_empty(source)",
+    "expressionHint": "True or false formula. Example: amount > 10000 and is_empty(source)",
     "save": "Save",
     "cancel": "Cancel",
     "required": "Fill in this field.",
     "namePlaceholder": "E.g.: Minimum contract value",
-    "keyPlaceholder": "E.g.: minimum_contract_value",
-    "messagePlaceholder": "E.g.: The value must be greater than zero"
+    "messagePlaceholder": "E.g.: The value must be greater than zero",
+    "activeHint": "Inactive rules do not block saving."
   },
   "test": {
     "title": "Test against a record",
@@ -71,5 +83,14 @@
     "title": "Delete rule",
     "description": "The rule \"{{name}}\" will stop applying and will be deleted. To only suspend it, deactivate it.",
     "confirm": "Delete"
+  },
+  "edit": {
+    "back": "Validation rules",
+    "description": "Set when the rule applies, the error condition and the message people will see.",
+    "ruleTitle": "Rule",
+    "ruleDescription": "Name, message and when the rule applies.",
+    "conditionTitle": "Error condition",
+    "notFoundTitle": "Rule not found",
+    "notFoundDescription": "It may have been deleted. Go back to the list of rules."
   }
 }
