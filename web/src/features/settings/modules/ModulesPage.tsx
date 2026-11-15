@@ -114,7 +114,7 @@ function ModulesList() {
                     title={<span id={`modules-${section.id}`}>{t(`sections.${section.id}.title`)}</span>}
                     description={t(`sections.${section.id}.description`)}
                   />
-                  <ul className="divide-y rounded-lg border bg-card" aria-label={t(`sections.${section.id}.title`)}>
+                  <ul className="grid gap-3 md:grid-cols-2" aria-label={t(`sections.${section.id}.title`)}>
                     {section.items.map((module) => (
                       <ModuleCard key={module.key} module={module} modules={all} nameOf={nameOf} onChanged={invalidate} />
                     ))}

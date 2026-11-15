@@ -5,6 +5,7 @@ import { isApiError } from '@/api'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -131,17 +132,16 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
   }
 
   return (
-    <li id={moduleAnchor(module.key)} tabIndex={-1} className="scroll-mt-24 p-4 outline-none">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="grid min-w-0 flex-1 gap-3">
-          <div className="grid gap-2">
+    <li className="contents">
+      <Card id={moduleAnchor(module.key)} tabIndex={-1} className="scroll-mt-24 gap-4 py-4 outline-none">
+        <CardHeader className="px-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
                 <Puzzle className="size-5" aria-hidden="true" />
               </span>
               <div className="grid min-w-0 gap-0.5">
-                <h3 className="break-words font-semibold">{name}</h3>
+                <CardTitle className="break-words">{name}</CardTitle>
                 {showSurface && (
                   <p className="text-xs text-muted-foreground">
                     {surface.hasScreens ? t('nature.screens') : t('nature.support')}
@@ -161,9 +161,9 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
               )}
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">{text.description}</p>
-        </div>
-        <div className="grid gap-3 text-sm">
+          <CardDescription>{text.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 px-4 text-sm">
           {problem && (
             <Alert
               role="status" className="flex gap-2 text-destructive"
@@ -186,78 +186,72 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
               </Button>
             </p>
           )}
-          <details className="text-sm">
-            <summary className="cursor-pointer text-xs font-medium text-muted-foreground">{t('moreInfo')}</summary>
-            <div className="mt-3 grid gap-3">
-            {showSurface && (
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium">{t('adds.title')}: </span>
-              {surface.menu.length === 0 && surface.settings.length === 0 && surface.appears.length === 0
-                ? t('adds.nothing')
-                : [
-                    surface.menu.length > 0 ? t('adds.menu', { items: shortList(surface.menu) }) : null,
-                    surface.settings.length > 0 ? t('adds.settings', { items: shortList(surface.settings) }) : null,
-                    surface.appears.length > 0 ? t('adds.appears', { items: shortList(surface.appears) }) : null,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-            </p>
-            )}
-            <ModuleRelations module={module} nameOf={nameOf} exists={exists} />
-            <details className="text-xs">
-              <summary className="cursor-pointer font-medium text-muted-foreground">{t('details.summary')}</summary>
-              <div className="mt-2 grid gap-3">
-                <p className="text-muted-foreground">
-                  {t('version', { version: module.version })} · <code>{module.key}</code>
-                </p>
-                <div className="grid gap-1">
-                  <h4 className="font-medium">{t('details.permissions')}</h4>
-                  {module.permissions.length === 0 ? (
-                    <p className="text-muted-foreground">{t('details.noPermissions')}</p>
-                  ) : (
-                    <ul className="grid gap-1">
-                      {module.permissions.map((permission) => (
-                        <li key={permission.permission} className="break-words">
-                          <span>{text.permissionLabel(permission.permission, permission.label)}</span> <code className="text-muted-foreground">{permission.permission}</code>
-                          {permission.record_scoped && (
-                            <span className="text-muted-foreground"> · {t('details.recordScoped')}</span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="grid gap-1">
-                  <h4 className="font-medium">{t('details.events')}</h4>
-                  {module.events.length === 0 ? (
-                    <p className="text-muted-foreground">{t('details.noEvents')}</p>
-                  ) : (
-                    <ul className="grid gap-1">
-                      {module.events.map((event) => (
-                        <li key={event.event_type} className="break-words">
-                          <code>{event.event_type}</code>
-                          {event.description && (
-                            <span className="text-muted-foreground"> · {text.eventDescription(event.event_type, event.description)}</span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+          {showSurface && (
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium">{t('adds.title')}: </span>
+            {surface.menu.length === 0 && surface.settings.length === 0 && surface.appears.length === 0
+              ? t('adds.nothing')
+              : [
+                  surface.menu.length > 0 ? t('adds.menu', { items: shortList(surface.menu) }) : null,
+                  surface.settings.length > 0 ? t('adds.settings', { items: shortList(surface.settings) }) : null,
+                  surface.appears.length > 0 ? t('adds.appears', { items: shortList(surface.appears) }) : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+          </p>
+          )}
+          <ModuleRelations module={module} nameOf={nameOf} exists={exists} />
+          <details className="text-xs">
+            <summary className="cursor-pointer font-medium text-muted-foreground">{t('details.summary')}</summary>
+            <div className="mt-2 grid gap-3">
+              <p className="text-muted-foreground">
+                {t('version', { version: module.version })} · <code>{module.key}</code>
+              </p>
+              <div className="grid gap-1">
+                <h4 className="font-medium">{t('details.permissions')}</h4>
+                {module.permissions.length === 0 ? (
+                  <p className="text-muted-foreground">{t('details.noPermissions')}</p>
+                ) : (
+                  <ul className="grid gap-1">
+                    {module.permissions.map((permission) => (
+                      <li key={permission.permission} className="break-words">
+                        <span>{text.permissionLabel(permission.permission, permission.label)}</span> <code className="text-muted-foreground">{permission.permission}</code>
+                        {permission.record_scoped && (
+                          <span className="text-muted-foreground"> · {t('details.recordScoped')}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-            </details>
-            <div className="grid gap-0.5 text-xs text-muted-foreground">
-              {module.enabled && module.enabled_at && <p>{t('enabledAt', { date: date(module.enabled_at) })}</p>}
-              {!module.enabled && module.disabled_at && <p>{t('disabledAt', { date: date(module.disabled_at) })}</p>}
-              {module.data_exported_at && <p>{t('dataExportedAt', { date: date(module.data_exported_at) })}</p>}
-              {module.data_purged_at && <p>{t('dataPurgedAt', { date: date(module.data_purged_at) })}</p>}
-            </div>
+              <div className="grid gap-1">
+                <h4 className="font-medium">{t('details.events')}</h4>
+                {module.events.length === 0 ? (
+                  <p className="text-muted-foreground">{t('details.noEvents')}</p>
+                ) : (
+                  <ul className="grid gap-1">
+                    {module.events.map((event) => (
+                      <li key={event.event_type} className="break-words">
+                        <code>{event.event_type}</code>
+                        {event.description && (
+                          <span className="text-muted-foreground"> · {text.eventDescription(event.event_type, event.description)}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </details>
+          <div className="grid gap-0.5 text-xs text-muted-foreground">
+            {module.enabled && module.enabled_at && <p>{t('enabledAt', { date: date(module.enabled_at) })}</p>}
+            {!module.enabled && module.disabled_at && <p>{t('disabledAt', { date: date(module.disabled_at) })}</p>}
+            {module.data_exported_at && <p>{t('dataExportedAt', { date: date(module.data_exported_at) })}</p>}
+            {module.data_purged_at && <p>{t('dataPurgedAt', { date: date(module.data_purged_at) })}</p>}
+          </div>
           {module.held_by && <p className="text-xs text-warning">{t('plugins.heldByPlugin', { plugin: module.held_by })}</p>}
-        </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 md:shrink-0">
+        </CardContent>
+        <CardFooter className="mt-auto flex-wrap gap-2 px-4">
           {module.enabled ? (
             <Button size="sm" variant="outline" disabled={busy} onClick={() => setConfirmDisable(true)}>
               {t('actions.disable')}
@@ -304,8 +298,8 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
       {configuring !== null && (
         <ModuleSettingsDialog
           module={module}

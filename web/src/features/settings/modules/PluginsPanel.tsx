@@ -208,13 +208,6 @@ function PluginsPanelContent() {
 
   const busy = review.isPending || install.isPending || reviewPack.isPending || installPack.isPending
 
-  const submitFile = (file: File | undefined) => {
-    if (!file) return
-    if (file.name.toLowerCase().endsWith(PACK_EXTENSION)) reviewPack.mutate(file)
-    else if (file.name.toLowerCase().endsWith(PACKAGE_EXTENSION)) review.mutate(file)
-    else notifyError(new Error(t('plugins.wrongFile')))
-  }
-
   const upload = (
     <>
       <input
@@ -224,7 +217,9 @@ function PluginsPanelContent() {
         className="sr-only"
         aria-label={t('plugins.upload')}
         onChange={(event) => {
-          submitFile(event.target.files?.[0])
+          const file = event.target.files?.[0]
+          if (file?.name.toLowerCase().endsWith(PACK_EXTENSION)) reviewPack.mutate(file)
+          else if (file) review.mutate(file)
           event.target.value = ''
         }}
       />
@@ -240,14 +235,7 @@ function PluginsPanelContent() {
   )
 
   return (
-    <Page
-      aria-label={t('plugins.title')}
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault()
-        if (!busy) submitFile(event.dataTransfer.files?.[0])
-      }}
-    >
+    <Page aria-label={t('plugins.title')}>
       <PageHeader level="section" title={t('plugins.title')} description={t('plugins.description')} actions={<>
         {upload}
       
@@ -261,7 +249,7 @@ function PluginsPanelContent() {
       ) : plugins.isError ? (
         <ErrorState description={loadErrorDescription(plugins.error)} onRetry={() => void plugins.refetch()} />
       ) : plugins.data.length === 0 ? (
-        <EmptyState icon={Plug} title={t('plugins.emptyTitle')} description={t('plugins.emptyDescription')} action={<Button size="sm" onClick={() => input.current?.click()} disabled={busy}><PackagePlus aria-hidden="true" />{t('plugins.upload')}</Button>} />
+        <EmptyState icon={Plug} title={t('plugins.emptyTitle')} description={t('plugins.emptyDescription')} />
       ) : (
         <div className="grid gap-6">
           {groupByPack(plugins.data).map((group) => (
@@ -272,23 +260,26 @@ function PluginsPanelContent() {
                   {group.pack && <span className="text-xs text-muted-foreground">{t('plugins.packLabel', { version: group.pack.version, count: group.plugins.length })}</span>}
                 </div>
               )}
-              <ul className="divide-y rounded-lg border bg-card" aria-label={group.pack ? group.pack.name : t('plugins.looseTitle')}>
+              <ul className="grid gap-3 md:grid-cols-2">
                 {group.plugins.map((plugin) => (
-                  <li key={plugin.key} className="grid gap-3 p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="grid min-w-0 gap-1">
+                  <li key={plugin.key} className="flex h-80 flex-col gap-3 overflow-hidden rounded-md border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="grid gap-1">
                         <span className="font-semibold">{plugin.name}</span>
-                        <span className="text-xs text-muted-foreground">{t('version', { version: plugin.version })}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {plugin.key} · {t('version', { version: plugin.version })}
+                        </span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1">
                         {plugin.backend_error && <Badge variant="destructive">{t('plugins.backendFailed')}</Badge>}
                         <Badge variant={plugin.enabled ? 'success' : 'secondary'}>
                           {plugin.enabled ? t('status.enabled') : t('status.disabled')}
                         </Badge>
                       </div>
                     </div>
-                    {plugin.description && <p className="text-sm text-muted-foreground">{plugin.description}</p>}
-                    <div className="flex flex-wrap gap-2">
+                    {plugin.description && <p className="line-clamp-2 text-sm text-muted-foreground">{plugin.description}</p>}
+                    <PluginDeclarationList plugin={plugin} compact />
+                    <div className="mt-auto flex flex-wrap gap-2">
                       <Button size="sm" variant="outline" onClick={() => setDetails(plugin)}>
                         <Info aria-hidden="true" />
                         {t('plugins.viewDetails')}
@@ -306,7 +297,7 @@ function PluginsPanelContent() {
                           {t('plugins.settings')}
                         </Button>
                       )}
-                      <Button size="sm" variant="ghost" className="ml-auto text-destructive" onClick={() => setRemoving(plugin)}>
+                      <Button size="sm" variant="outline" onClick={() => setRemoving(plugin)}>
                         <Trash2 aria-hidden="true" />
                         {t('plugins.uninstall')}
                       </Button>

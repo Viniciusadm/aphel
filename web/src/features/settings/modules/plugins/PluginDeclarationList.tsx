@@ -30,8 +30,6 @@ const DECLARATIONS = [
   ['routes', (plugin: PluginDeclarations) => plugin.routes],
 ] as const
 
-const INLINE_LIMIT = 4
-
 export function PluginDeclarationList({ plugin, compact = false }: { plugin: PluginDeclarations; compact?: boolean }) {
   const { t } = useTranslation('modules')
   const rows = DECLARATIONS.map(([label, values]) => [label, values(plugin)] as const).filter(
@@ -72,36 +70,14 @@ export function PluginDeclarationList({ plugin, compact = false }: { plugin: Plu
   }
   if (rows.length === 0 && !plugin.has_web) return null
   return (
-    <section className="grid gap-3">
-      <h3 className="text-sm font-semibold">{t('plugins.declarationsTitle')}</h3>
-      <dl className="grid gap-2 text-sm">
-        {rows.map(([label, values]) => (
-          <div key={label} className="grid gap-1.5 rounded-md border bg-card p-3">
-            <dt className="flex items-center justify-between gap-2 font-medium">
-              {t(`plugins.declares.${label}`)}
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">{values.length}</span>
-            </dt>
-            <dd>
-              {values.length > INLINE_LIMIT ? (
-                <details>
-                  <summary className="cursor-pointer text-xs text-muted-foreground">{t('plugins.declarationsShow')}</summary>
-                  <ul className="mt-2 flex flex-wrap gap-1.5">
-                    {values.map((value) => (
-                      <li key={value} className="max-w-full break-words rounded bg-muted px-1.5 py-0.5 text-xs">{value}</li>
-                    ))}
-                  </ul>
-                </details>
-              ) : (
-                <ul className="flex flex-wrap gap-1.5">
-                  {values.map((value) => (
-                    <li key={value} className="max-w-full break-words rounded bg-muted px-1.5 py-0.5 text-xs">{value}</li>
-                  ))}
-                </ul>
-              )}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    <dl className="grid gap-1 text-xs">
+      {plugin.has_web && <div><dt className="font-medium">{t('plugins.webPresent')}</dt><dd className="text-muted-foreground">{t('plugins.webWarning')}</dd></div>}
+      {rows.map(([label, values]) => (
+        <div key={label} className="flex flex-wrap gap-1">
+          <dt className="font-medium">{t(`plugins.declares.${label}`)}:</dt>
+          <dd className="break-words text-muted-foreground">{values.join(', ')}</dd>
+        </div>
+      ))}
+    </dl>
   )
 }

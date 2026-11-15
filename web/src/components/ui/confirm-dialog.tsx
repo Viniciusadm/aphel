@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from 'react'
 import { Button } from './button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, type DialogSize } from './dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './dialog'
 import { Input } from './input'
 import { Label } from './label'
 import { useUiLabels } from './labels-context'
@@ -18,7 +18,6 @@ export interface ConfirmDialogProps {
   variant?: ConfirmDialogVariant
   confirmationText?: string
   confirmDisabled?: boolean
-  size?: DialogSize
   pending?: boolean
   onError?: (error: unknown) => void
   onConfirm: () => void | Promise<void>
@@ -111,7 +110,6 @@ export function ConfirmDialog({
   onError,
   onConfirm,
   variant = 'default',
-  size,
   ...body
 }: ConfirmDialogProps) {
   const [submitting, setSubmitting] = useState(false)
@@ -136,7 +134,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={changeOpen}>
-      <DialogContent size={size} showCloseButton={!busy} aria-busy={busy}>
+      <DialogContent showCloseButton={!busy} aria-busy={busy}>
         <ConfirmDialogBody
           {...body}
           variant={variant}

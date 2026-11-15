@@ -1,5 +1,7 @@
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ToggleField } from '@/components/ui/toggle-field'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import type { PluginConflict } from './types'
 
 interface PluginConflictListProps {
@@ -10,8 +12,9 @@ interface PluginConflictListProps {
 
 export function PluginConflictList({ conflicts, acknowledged = false, onAcknowledge }: PluginConflictListProps) {
   const { t } = useTranslation('modules')
+  const id = useId()
   return (
-    <section role="note" className="grid gap-2 rounded-md border border-warning/40 bg-warning/5 p-4">
+    <section role="note" className="grid gap-2 rounded-md border border-warning/40 p-3">
       <h3 className="text-sm font-semibold text-warning">{t('plugins.consentConflictsTitle')}</h3>
       <p className="text-xs text-muted-foreground">{t('plugins.consentConflictsDescription')}</p>
       <ul className="grid gap-1 text-xs">
@@ -24,7 +27,14 @@ export function PluginConflictList({ conflicts, acknowledged = false, onAcknowle
           </li>
         ))}
       </ul>
-      {onAcknowledge && <ToggleField label={t('plugins.consentConflictsAck')} checked={acknowledged} onCheckedChange={onAcknowledge} />}
+      {onAcknowledge && (
+        <div className="flex items-center gap-2">
+          <Checkbox id={id} checked={acknowledged} onCheckedChange={(checked) => onAcknowledge(checked === true)} />
+          <Label htmlFor={id} className="text-sm font-normal">
+            {t('plugins.consentConflictsAck')}
+          </Label>
+        </div>
+      )}
     </section>
   )
 }

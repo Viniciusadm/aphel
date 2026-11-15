@@ -2,7 +2,7 @@
   "managementDisabledTitle": "O gerenciamento de módulos está desativado",
   "managementDisabledDescription": "O operador da plataforma desativou o gerenciamento de módulos e plugins desta empresa. Para ativar ou desativar módulos, fale com o operador da plataforma.",
   "title": "Módulos",
-  "description": "Escolha quais recursos do Aphel ficam ligados na sua empresa. Módulos com tela própria aparecem no menu; os de apoio ampliam o que outras telas fazem. Ao desabilitar um módulo, as telas e rotinas dele param, mas os dados continuam guardados.",
+  "description": "Cada módulo liga um conjunto de recursos do Aphel. Alguns são áreas de trabalho com item próprio no menu; outros são recursos de apoio que ampliam o que as áreas fazem. Ao desabilitar, as telas e rotinas do módulo param, mas os dados continuam guardados.",
   "listLabel": "Módulos disponíveis",
   "emptyTitle": "Nenhum módulo disponível",
   "emptyDescription": "Este binário do Aphel não inclui módulos.",
@@ -249,10 +249,7 @@
     "packLabel_one": "pacote · versão {{version}} · 1 plugin",
     "packLabel_other": "pacote · versão {{version}} · {{count}} plugins",
     "looseTitle": "Plugins avulsos",
-    "packPresetsDescription": "O pacote já marcou os papéis que sugere. Desmarque o que não quiser criar; papéis que já existem só recebem as permissões que faltam.",
-    "declarationsTitle": "Tudo que o plugin declara",
-    "declarationsShow": "Mostrar lista completa",
-    "wrongFile": "Escolha um arquivo .aphelplugin ou .aphelpack."
+    "packPresetsDescription": "O pacote já marcou os papéis que sugere. Desmarque o que não quiser criar; papéis que já existem só recebem as permissões que faltam."
   },
   "placeholders": {
     "none": "Nenhum",
@@ -294,6 +291,7 @@
     "requires": "Precisa de",
     "prefers": "Funciona melhor com",
     "usedBy": "Usado por",
+    "standalone": "Não depende de outros módulos nem é usado por eles.",
     "state": {
       "enabled": "habilitado",
       "disabled": "desabilitado"
@@ -377,6 +375,5 @@
     "scoring": {
       "description": "Modelos de pontuação de leads por perfil e comportamento, com classificação em frio, morno e quente e a explicação de cada nota."
     }
-  },
-  "moreInfo": "Mais informações"
+  }
 }

@@ -36,7 +36,9 @@ export function ModuleRelations({ module, nameOf, exists }: ModuleRelationsProps
     { id: 'usedBy', label: t('relations.usedBy'), links: usedBy, warnWhenOff: false },
   ].filter((row) => row.links.length > 0)
 
-  if (rows.length === 0) return null
+  if (rows.length === 0) {
+    return <p className="text-xs text-muted-foreground">{t('relations.standalone')}</p>
+  }
 
   return (
     <dl className="grid gap-2 text-xs">

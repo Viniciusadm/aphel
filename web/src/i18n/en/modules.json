@@ -249,10 +249,7 @@
     "packLabel_one": "pack · version {{version}} · 1 plugin",
     "packLabel_other": "pack · version {{version}} · {{count}} plugins",
     "looseTitle": "Standalone plugins",
-    "packPresetsDescription": "The pack already checked the roles it suggests. Uncheck what you do not want created; existing roles only get the missing permissions.",
-    "declarationsTitle": "Everything the plugin declares",
-    "declarationsShow": "Show full list",
-    "wrongFile": "Choose a .aphelplugin or .aphelpack file."
+    "packPresetsDescription": "The pack already checked the roles it suggests. Uncheck what you do not want created; existing roles only get the missing permissions."
   },
   "placeholders": {
     "none": "None",
@@ -294,6 +291,7 @@
     "requires": "Needs",
     "prefers": "Works better with",
     "usedBy": "Used by",
+    "standalone": "It does not depend on other modules and no module uses it.",
     "state": {
       "enabled": "enabled",
       "disabled": "disabled"
@@ -377,6 +375,5 @@
     "scoring": {
       "description": "Lead scoring models by profile and behavior, with cold, warm and hot bands and an explanation of each score."
     }
-  },
-  "moreInfo": "More information"
+  }
 }

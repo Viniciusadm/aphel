@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '@/components/feedback'
-import { Notice } from '@/components/ui/notice'
 import { PluginWebAdmission } from './PluginWebAdmission'
 import { PluginDeclarationList } from './PluginDeclarationList'
 import { PluginRolePresetChecklist } from './PluginRolePresetChecklist'
@@ -50,7 +49,6 @@ export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: P
         if (!open) onCancel()
       }}
       title={title}
-      size="xl"
       description={t('plugins.consentDescription')}
       confirmLabel={t('plugins.consentConfirm')}
       pending={pending}
@@ -58,22 +56,26 @@ export function PluginConsentDialog({ consent, pending, onCancel, onConfirm }: P
       onConfirm={() => onConfirm(selected, acknowledgedNow, webAdmitted)}
     >
       {consent && (
-        <div className="grid gap-4 text-sm">
+        <div className="grid gap-3 text-sm">
           {consent.description && <p className="text-muted-foreground">{consent.description}</p>}
           {consent.has_web && <PluginWebAdmission checked={webAdmitted} onChange={(value) => setWebAdmission({ key: consentKey, value })} />}
           {asksNothing && <p>{t('plugins.consentNothing')}</p>}
           {consent.public_routes.length > 0 && (
-            <Notice tone="warning">{t('plugins.consentPublicWarning')}</Notice>
+            <p role="note" className="text-warning">
+              {t('plugins.consentPublicWarning')}
+            </p>
           )}
           {consent.allowed_hosts.length > 0 && (
-            <Notice tone="warning">{t('plugins.consentHttpWarning')}</Notice>
+            <p role="note" className="text-warning">
+              {t('plugins.consentHttpWarning')}
+            </p>
           )}
           {consent.module_conflicts.map((plan) => (
-            <Notice key={plan.module} tone="warning">
+            <p key={plan.module} role="note" className="text-warning">
               {plan.blocked_by.length > 0
                 ? t('plugins.consentModuleBlocked', { name: plan.name, blockedBy: plan.blocked_by.join(', ') })
                 : t('plugins.consentModuleDisables', { name: plan.name })}
-            </Notice>
+            </p>
           ))}
           {hasConflicts && (
             <PluginConflictList
