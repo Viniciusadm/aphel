@@ -8,7 +8,7 @@ import { RecordLinkText } from '@/kernel/widgets/shared'
 
 type RecentEvent = RecentActivityData['items'][number]
 
-export function ActivityEventRow({ event }: { event: RecentEvent }) {
+export function ActivityEventRow({ event, timeOnly = false }: { event: RecentEvent; timeOnly?: boolean }) {
   const { t } = useTranslation('dashboard')
   const modules = useModuleState()
   const formatting = useRecordFormatting()
@@ -23,7 +23,9 @@ export function ActivityEventRow({ event }: { event: RecentEvent }) {
           {event.record && <RecordLinkText record={event.record} fallback={event.record.record_type} />}
         </p>
         <time dateTime={event.occurred_at} className="text-xs text-muted-foreground">
-          {formatDateTime(event.occurred_at, formatting)}
+          {timeOnly
+            ? new Intl.DateTimeFormat(formatting.locale, { hour: '2-digit', minute: '2-digit', timeZone: formatting.timezone }).format(new Date(event.occurred_at))
+            : formatDateTime(event.occurred_at, formatting)}
         </time>
       </div>
     </li>
