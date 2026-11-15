@@ -96,7 +96,10 @@
     "number": "0"
   },
   "categories": {
-    "sales": "Vendas"
+    "sales": "Vendas",
+    "history": "Histórico",
+    "overview": "Visão geral",
+    "reports": "Relatórios"
   },
   "activity": {
     "title": "Atividade",

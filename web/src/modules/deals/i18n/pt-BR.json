@@ -444,5 +444,13 @@
       "unarchived": "desarquivou a oportunidade"
     },
     "stageChange": "{{from}} → {{to}}"
+  },
+  "widgets": {
+    "sales_indicators": {
+      "title": "Indicadores de vendas"
+    },
+    "deals_by_stage": {
+      "title": "Oportunidades por etapa"
+    }
   }
 }

@@ -96,7 +96,10 @@
     "number": "0"
   },
   "categories": {
-    "sales": "Sales"
+    "sales": "Sales",
+    "history": "History",
+    "overview": "Overview",
+    "reports": "Reports"
   },
   "activity": {
     "title": "Activity",

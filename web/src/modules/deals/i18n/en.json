@@ -444,5 +444,13 @@
       "unarchived": "unarchived the deal"
     },
     "stageChange": "{{from}} → {{to}}"
+  },
+  "widgets": {
+    "sales_indicators": {
+      "title": "Sales indicators"
+    },
+    "deals_by_stage": {
+      "title": "Deals by stage"
+    }
   }
 }
