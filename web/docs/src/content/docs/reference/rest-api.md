@@ -155,7 +155,7 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `calendar` | `calendar` | 2 | Calendar entries from enabled providers |
 | `catalog-items` | `catalog_items` | 8 | Catalog of products and services |
 | `config-packages` | `config_packages` | 8 | Configuration packages |
-| `dashboard` | `dashboard` | 6 | Dashboard widgets, their data and the per-user layout |
+| `dashboard` | `dashboard` | 7 | Dashboard widgets, their data and the per-user layout |
 | `deal-members` | `deals` | 9 | Team of a deal (members, roles and revenue credit split) and the configurable member roles |
 | `deals` | `deals` | 13 | Deals, stage changes and the Kanban board |
 | `deals-reports` | `deals` | 2 | Deal conversion and sales performance reports |

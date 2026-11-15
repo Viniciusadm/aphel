@@ -89,12 +89,34 @@
     "against": "Comparado a {{range}}"
   },
   "nav": {
-    "home": "Início"
+    "home": "Início",
+    "activity": "Atividade"
   },
   "placeholders": {
     "number": "0"
   },
   "categories": {
     "sales": "Vendas"
+  },
+  "activity": {
+    "title": "Atividade",
+    "description": "O que aconteceu nos registros que você segue ou pelos quais é responsável. Para acompanhar um registro, abra a ficha e use Ações › Seguir.",
+    "period": "Período",
+    "periods": {
+      "d1": "Último dia",
+      "d7": "Últimos 7 dias",
+      "d30": "Últimos 30 dias",
+      "d90": "Últimos 90 dias"
+    },
+    "recordType": "Tipo de registro",
+    "allTypes": "Todos os tipos",
+    "person": "Pessoa",
+    "everyone": "Todas as pessoas",
+    "loadMore": "Carregar mais",
+    "loading": "Carregando…",
+    "emptyTitle": "Nenhuma atividade no período",
+    "emptyDescription": "Quando houver mudanças, notas ou tarefas nos registros que você segue, elas aparecem aqui. Experimente um período maior.",
+    "emptyFilteredTitle": "Nada com esses filtros",
+    "emptyFilteredDescription": "Troque o tipo de registro, a pessoa ou o período."
   }
 }

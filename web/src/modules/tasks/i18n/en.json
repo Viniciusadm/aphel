@@ -371,7 +371,12 @@
     },
     "events": {
       "created": "created the activity",
-      "completed": "completed the activity"
+      "completed": "completed the activity",
+      "updated": "changed the activity",
+      "deleted": "deleted the activity",
+      "restored": "restored the activity",
+      "archived": "archived the activity",
+      "unarchived": "unarchived the activity"
     }
   },
   "presets": {

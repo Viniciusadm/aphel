@@ -101,7 +101,12 @@
       "contactsTotal": "Contacts"
     },
     "events": {
-      "created": "created the contact"
+      "created": "created the contact",
+      "updated": "changed the contact",
+      "deleted": "deleted the contact",
+      "restored": "restored the contact",
+      "archived": "archived the contact",
+      "unarchived": "unarchived the contact"
     }
   }
 }

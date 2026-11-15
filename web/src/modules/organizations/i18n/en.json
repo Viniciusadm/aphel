@@ -88,7 +88,12 @@
   },
   "dashboard": {
     "events": {
-      "created": "created the company"
+      "created": "created the company",
+      "updated": "changed the company",
+      "deleted": "deleted the company",
+      "restored": "restored the company",
+      "archived": "archived the company",
+      "unarchived": "unarchived the company"
     }
   }
 }

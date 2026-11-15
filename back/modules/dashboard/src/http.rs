@@ -5,7 +5,7 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use crate::dto::{
-    DashboardLayoutResponse, DashboardSubjectsResponse, SaveDashboardLayoutRequest,
+    ActivityPageResponse, ActivityParams, DashboardLayoutResponse, DashboardSubjectsResponse, SaveDashboardLayoutRequest,
     WidgetDataParams, WidgetDataResponse, WidgetDescriptorResponse,
 };
 use crate::service;
@@ -23,6 +23,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(list_widgets))
         .routes(routes!(widget_data))
         .routes(routes!(list_subjects))
+        .routes(routes!(activity_feed))
         .routes(routes!(get_layout, save_layout, reset_layout))
 }
 
@@ -165,4 +166,28 @@ async fn list_subjects(
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let subjects = service::subjects(&ctx).await?;
     Ok(Json(Data::new(subjects.into())))
+}
+
+#[utoipa::path(
+    get,
+    path = "/dashboard/activity",
+    tag = TAG,
+    operation_id = "dashboard_activity",
+    security(("session_cookie" = [])),
+    params(ActivityParams),
+    responses(
+        (status = 200, description = "Recent actions on the records the caller follows or owns, newest first, under the caller read scope and field policy. `days` limits the period, `record_type` and `actor_id` filter. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one). Empty while no module provides the follow scope", body = ActivityPageResponse),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
+        (status = 422, description = "Invalid cursor, period or page size (`validation_error`)", body = ErrorEnvelope),
+    )
+)]
+async fn activity_feed(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    query: Result<Query<ActivityParams>, QueryRejection>,
+) -> Result<Json<ActivityPageResponse>, ApiError> {
+    let Query(params) = query.map_err(|rejection| AppError::Validation(rejection.body_text()))?;
+    let ctx = Ctx::from_state(&state, &tenant.scope).await?;
+    let page = crate::activity::activity(&ctx, params.into()).await?;
+    Ok(Json(page.into()))
 }

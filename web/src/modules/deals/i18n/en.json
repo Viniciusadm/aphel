@@ -428,7 +428,12 @@
       "won": "won the deal",
       "lost": "lost the deal",
       "reopened": "reopened the deal",
-      "owner_changed": "changed the owner of the deal"
+      "owner_changed": "changed the owner of the deal",
+      "updated": "changed the deal",
+      "deleted": "deleted the deal",
+      "restored": "restored the deal",
+      "archived": "archived the deal",
+      "unarchived": "unarchived the deal"
     },
     "stageChange": "{{from}} → {{to}}"
   }

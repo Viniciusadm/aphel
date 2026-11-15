@@ -68,7 +68,9 @@
   },
   "dashboard": {
     "events": {
-      "created": "adicionou uma nota em"
+      "created": "adicionou uma nota em",
+      "updated": "alterou uma nota em",
+      "deleted": "excluiu uma nota em"
     }
   },
   "keybindings": {

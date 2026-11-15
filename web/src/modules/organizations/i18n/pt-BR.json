@@ -88,7 +88,12 @@
   },
   "dashboard": {
     "events": {
-      "created": "criou a empresa"
+      "created": "criou a empresa",
+      "updated": "alterou a empresa",
+      "deleted": "excluiu a empresa",
+      "restored": "restaurou a empresa",
+      "archived": "arquivou a empresa",
+      "unarchived": "desarquivou a empresa"
     }
   }
 }

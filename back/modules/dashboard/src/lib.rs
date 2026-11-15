@@ -2,6 +2,7 @@ pub mod engine;
 pub mod engine_domain;
 pub mod repository;
 pub use aphel_sdk::dashboard::DashboardWidget;
+pub(crate) mod activity;
 pub mod dto;
 pub(crate) mod http;
 pub(crate) mod layout;

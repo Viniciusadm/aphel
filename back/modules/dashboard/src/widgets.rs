@@ -69,6 +69,9 @@ pub(crate) fn recent_events_request<P: RecordQueryPorts>(
         records,
         actor_ids: None,
         limit,
+        since: None,
+        record_types: None,
+        before: None,
     }
 }
 

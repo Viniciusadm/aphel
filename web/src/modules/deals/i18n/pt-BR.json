@@ -428,7 +428,12 @@
       "won": "ganhou a oportunidade",
       "lost": "perdeu a oportunidade",
       "reopened": "reabriu a oportunidade",
-      "owner_changed": "trocou o responsável da oportunidade"
+      "owner_changed": "trocou o responsável da oportunidade",
+      "updated": "alterou a oportunidade",
+      "deleted": "excluiu a oportunidade",
+      "restored": "restaurou a oportunidade",
+      "archived": "arquivou a oportunidade",
+      "unarchived": "desarquivou a oportunidade"
     },
     "stageChange": "{{from}} → {{to}}"
   }

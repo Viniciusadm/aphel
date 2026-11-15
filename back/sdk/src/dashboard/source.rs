@@ -52,3 +52,13 @@ pub trait DashboardReferenceCatalog: Send + Sync {
         pool: &sqlx::MySqlPool,
     ) -> Result<std::collections::HashMap<uuid::Uuid, String>, AppError>;
 }
+
+#[async_trait]
+pub trait ActivityScope: Send + Sync {
+    async fn followed(
+        &self,
+        pool: &sqlx::MySqlPool,
+        user: &aphel_kernel::domain::UserId,
+        records: &[crate::shared::RecordRef],
+    ) -> Result<std::collections::HashSet<crate::shared::RecordRef>, AppError>;
+}

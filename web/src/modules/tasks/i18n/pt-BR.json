@@ -371,7 +371,12 @@
     },
     "events": {
       "created": "criou a atividade",
-      "completed": "concluiu a atividade"
+      "completed": "concluiu a atividade",
+      "updated": "alterou a atividade",
+      "deleted": "excluiu a atividade",
+      "restored": "restaurou a atividade",
+      "archived": "arquivou a atividade",
+      "unarchived": "desarquivou a atividade"
     }
   },
   "presets": {

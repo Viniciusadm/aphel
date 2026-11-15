@@ -68,7 +68,9 @@
   },
   "dashboard": {
     "events": {
-      "created": "added a note to"
+      "created": "added a note to",
+      "updated": "changed a note on",
+      "deleted": "deleted a note on"
     }
   },
   "keybindings": {

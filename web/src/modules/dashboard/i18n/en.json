@@ -89,12 +89,34 @@
     "against": "Compared with {{range}}"
   },
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "activity": "Activity"
   },
   "placeholders": {
     "number": "0"
   },
   "categories": {
     "sales": "Sales"
+  },
+  "activity": {
+    "title": "Activity",
+    "description": "What happened on the records you follow or own. To follow a record, open it and use Actions › Follow.",
+    "period": "Period",
+    "periods": {
+      "d1": "Last day",
+      "d7": "Last 7 days",
+      "d30": "Last 30 days",
+      "d90": "Last 90 days"
+    },
+    "recordType": "Record type",
+    "allTypes": "All types",
+    "person": "Person",
+    "everyone": "Everyone",
+    "loadMore": "Load more",
+    "loading": "Loading…",
+    "emptyTitle": "No activity in this period",
+    "emptyDescription": "Changes, notes and tasks on the records you follow appear here. Try a longer period.",
+    "emptyFilteredTitle": "Nothing with these filters",
+    "emptyFilteredDescription": "Change the record type, the person or the period."
   }
 }

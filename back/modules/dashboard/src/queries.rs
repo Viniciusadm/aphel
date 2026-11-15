@@ -42,6 +42,22 @@ pub(crate) struct RecentEventsRequest {
     pub(crate) records: Vec<ReadableRecords>,
     pub(crate) actor_ids: Option<Vec<String>>,
     pub(crate) limit: u32,
+    pub(crate) since: Option<DateTime<Utc>>,
+    pub(crate) record_types: Option<Vec<String>>,
+    pub(crate) before: Option<EventCursor>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct EventCursor {
+    pub(crate) occurred_at: DateTime<Utc>,
+    pub(crate) id: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct RecentEventsPage {
+    pub(crate) events: Vec<RecentEvent>,
+    pub(crate) next: Option<EventCursor>,
+    pub(crate) exhausted: bool,
 }
 
 async fn readable_plans(
@@ -74,6 +90,17 @@ pub(crate) async fn recent_events<P: aphel_sdk::platform::application::query::Re
     query: &P,
     request: &RecentEventsRequest,
 ) -> Result<Vec<RecentEvent>, AppError> {
+    Ok(recent_events_page(pool, scope, query, request).await?.events)
+}
+
+pub(crate) async fn recent_events_page<
+    P: aphel_sdk::platform::application::query::RecordQueryPorts,
+>(
+    pool: &MySqlPool,
+    scope: &AccessScope,
+    query: &P,
+    request: &RecentEventsRequest,
+) -> Result<RecentEventsPage, AppError> {
     let plans = readable_plans(pool, scope, &request.records).await?;
     let sources = aphel_sdk::platform::modules::app()
         .contributions::<dyn aphel_sdk::dashboard::DashboardEventScope>();
@@ -121,10 +148,43 @@ pub(crate) async fn recent_events<P: aphel_sdk::platform::application::query::Re
             builder.push(")");
         }
     }
+    if let Some(since) = request.since {
+        builder
+            .push(" AND e.occurred_at >= ")
+            .push_bind(aphel_sdk::platform::infrastructure::repositories::mapper::naive(since));
+    }
+    if let Some(types) = &request.record_types {
+        builder.push(" AND e.record_type IN (");
+        let mut values = builder.separated(", ");
+        for record_type in types {
+            values.push_bind(record_type.clone());
+        }
+        builder.push(")");
+    }
+    if let Some(cursor) = &request.before {
+        let at = aphel_sdk::platform::infrastructure::repositories::mapper::naive(cursor.occurred_at);
+        builder
+            .push(" AND (e.occurred_at < ")
+            .push_bind(at)
+            .push(" OR (e.occurred_at = ")
+            .push_bind(at)
+            .push(" AND e.id < ")
+            .push_bind(cursor.id.clone())
+            .push("))");
+    }
+    let limit = request.limit.min(100);
     builder
         .push(" ORDER BY e.occurred_at DESC, e.id DESC LIMIT ")
-        .push_bind(request.limit.min(50));
+        .push_bind(limit);
     let rows = builder.build().fetch_all(pool).await?;
+    let exhausted = rows.len() < limit as usize;
+    let next = match rows.last() {
+        Some(row) => Some(EventCursor {
+            occurred_at: utc(row.try_get::<NaiveDateTime, _>("occurred_at")?),
+            id: row.try_get("id")?,
+        }),
+        None => None,
+    };
     let mut raw = Vec::new();
     for row in &rows {
         let id: String = row.try_get("id")?;
@@ -215,5 +275,9 @@ pub(crate) async fn recent_events<P: aphel_sdk::platform::application::query::Re
         }
         events.push(event);
     }
-    Ok(events)
+    Ok(RecentEventsPage {
+        events,
+        next,
+        exhausted,
+    })
 }

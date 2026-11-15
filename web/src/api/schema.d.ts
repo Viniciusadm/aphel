@@ -1599,6 +1599,22 @@ export interface paths {
         patch: operations["custom_objects_update"];
         trace?: never;
     };
+    "/api/v1/dashboard/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dashboard_activity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/layout": {
         parameters: {
             query?: never;
@@ -9183,6 +9199,10 @@ export interface components {
             record_types: string[];
             secret_fields: string[];
         };
+        ActivityActorResponse: {
+            display_name: string;
+            id: string;
+        };
         ActivityCallResponse: {
             direction: components["schemas"]["CallDirection"];
             /** Format: int32 */
@@ -9195,6 +9215,16 @@ export interface components {
             recording_url?: string | null;
             session_id?: string | null;
             updated_at: string;
+        };
+        ActivityItemResponse: {
+            actor?: null | components["schemas"]["ActivityActorResponse"];
+            /** @example deals.deal.updated */
+            event_type: string;
+            id: string;
+            /** @example 2026-10-22T13:00:00Z */
+            occurred_at: string;
+            payload: Record<string, never>;
+            record?: null | components["schemas"]["ActivityRecordResponse"];
         };
         ActivityLocationRequest: {
             /**
@@ -9235,8 +9265,21 @@ export interface components {
             /** @example https://www.openstreetmap.org/?mlat=-23.55052&mlon=-46.633308#map=17/-23.55052/-46.633308 */
             map_url: string;
         };
+        ActivityMeta: {
+            next_cursor?: string | null;
+        };
+        ActivityPageResponse: {
+            data: components["schemas"]["ActivityItemResponse"][];
+            meta: components["schemas"]["ActivityMeta"];
+        };
         /** @enum {string} */
         ActivityPriority: "low" | "normal" | "high" | "urgent";
+        ActivityRecordResponse: {
+            record_id: string;
+            /** @example deals.deal */
+            record_type: string;
+            title?: string | null;
+        };
         ActivityRecurrenceResponse: {
             by_weekday: components["schemas"]["RecurrenceWeekday"][];
             /** Format: int32 */
@@ -31760,6 +31803,62 @@ export interface operations {
                 };
             };
             /** @description Invalid properties (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    dashboard_activity: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                /** @example 25 */
+                per_page?: number;
+                /** @example 7 */
+                days?: number;
+                /** @example deals.deal */
+                record_type?: string;
+                actor_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recent actions on the records the caller follows or owns, newest first, under the caller read scope and field policy. `days` limits the period, `record_type` and `actor_id` filter. Answers `{ data, meta: { next_cursor } }`: pass `meta.next_cursor` back as `cursor` for the next page (null on the last one). Empty while no module provides the follow scope */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityPageResponse"];
+                };
+            };
+            /** @description Missing or invalid credentials (`unauthorized`, `invalid_api_token`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Invalid cursor, period or page size (`validation_error`) */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -392,3 +392,100 @@ impl From<SubjectOptions> for DashboardSubjectsResponse {
         }
     }
 }
+
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub(crate) struct ActivityParams {
+    pub(crate) cursor: Option<String>,
+    #[param(minimum = 1, maximum = 50, example = 25)]
+    pub(crate) per_page: Option<u32>,
+    #[param(minimum = 1, maximum = 365, example = 7)]
+    pub(crate) days: Option<u32>,
+    #[param(example = "deals.deal")]
+    pub(crate) record_type: Option<String>,
+    pub(crate) actor_id: Option<String>,
+}
+
+impl From<ActivityParams> for crate::activity::ActivityQuery {
+    fn from(params: ActivityParams) -> Self {
+        Self {
+            cursor: params.cursor,
+            per_page: params.per_page,
+            days: params.days,
+            record_type: params.record_type,
+            actor_id: params.actor_id,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ActivityActorResponse {
+    pub(crate) id: String,
+    pub(crate) display_name: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ActivityRecordResponse {
+    #[schema(example = "deals.deal")]
+    pub(crate) record_type: String,
+    pub(crate) record_id: String,
+    pub(crate) title: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ActivityItemResponse {
+    pub(crate) id: String,
+    #[schema(example = "deals.deal.updated")]
+    pub(crate) event_type: String,
+    #[schema(example = "2026-10-22T13:00:00Z")]
+    pub(crate) occurred_at: String,
+    pub(crate) actor: Option<ActivityActorResponse>,
+    pub(crate) record: Option<ActivityRecordResponse>,
+    #[schema(value_type = Object)]
+    pub(crate) payload: Value,
+}
+
+impl From<crate::queries::RecentEvent> for ActivityItemResponse {
+    fn from(event: crate::queries::RecentEvent) -> Self {
+        Self {
+            id: event.id.to_string(),
+            event_type: event.event_type,
+            occurred_at: crate::engine::instant_value(event.occurred_at)
+                .as_str()
+                .unwrap_or_default()
+                .to_owned(),
+            actor: event.actor.map(|actor| ActivityActorResponse {
+                id: actor.id.as_str().to_owned(),
+                display_name: actor.display_name,
+            }),
+            record: event.record.map(|record| ActivityRecordResponse {
+                record_type: record.record_type,
+                record_id: record.record_id.to_string(),
+                title: record.title,
+            }),
+            payload: event.payload,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ActivityMeta {
+    pub(crate) next_cursor: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct ActivityPageResponse {
+    pub(crate) data: Vec<ActivityItemResponse>,
+    pub(crate) meta: ActivityMeta,
+}
+
+impl From<crate::activity::ActivityPage> for ActivityPageResponse {
+    fn from(page: crate::activity::ActivityPage) -> Self {
+        Self {
+            data: page.items.into_iter().map(Into::into).collect(),
+            meta: ActivityMeta {
+                next_cursor: page.next_cursor,
+            },
+        }
+    }
+}
