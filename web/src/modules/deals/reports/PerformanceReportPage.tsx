@@ -2,9 +2,11 @@ import type { TFunction } from 'i18next'
 import { Users } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 import { ErrorState } from '@/components/ui/error-state'
 import { Delta, StatTile } from '@/kernel/widgets/shared'
 import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/sdk'
@@ -45,7 +47,7 @@ function Totals({ report }: { report: PerformanceReport }) {
   const duration = (value: number) => format.duration(value)
   const money = (value: number) => format.money(value)
   return (
-    <dl className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <dl className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 [&>*]:min-w-0">
       <StatTile
         label={t('performance.metrics.created')}
         value={format.count(totals.created)}
@@ -117,16 +119,8 @@ function PerformanceChart({ report }: { report: PerformanceReport }) {
   return (
     <div role="img" aria-label={label} style={{ height }} className="w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={points} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 4 }} barCategoryGap={8}>
-          <CartesianGrid horizontal={false} stroke="var(--border)" />
-          <XAxis
-            type="number"
-            allowDecimals={false}
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
-            tickFormatter={(value: number) => (byAmount ? new Intl.NumberFormat(activeLocale(), { notation: 'compact' }).format(value) : String(value))}
-          />
+        <BarChart data={points} layout="vertical" margin={{ top: 4, right: 96, bottom: 4, left: 4 }} barCategoryGap={8}>
+          <XAxis type="number" hide allowDecimals={false} />
           <YAxis type="category" dataKey="name" width={110} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
           <Tooltip
             cursor={{ fill: 'var(--muted)' }}
@@ -134,7 +128,9 @@ function PerformanceChart({ report }: { report: PerformanceReport }) {
             contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12 }}
           />
           {comparing && <Legend wrapperStyle={{ fontSize: 12 }} />}
-          <Bar dataKey="value" name={t('performance.chart.current')} fill="var(--primary)" radius={[0, 4, 4, 0]} maxBarSize={22} />
+          <Bar dataKey="value" name={t('performance.chart.current')} fill="var(--primary)" radius={[0, 4, 4, 0]} maxBarSize={22}>
+            <LabelList dataKey="value" position="right" fill="var(--foreground)" fontSize={12} formatter={(value: unknown) => formatValue(Number(value))} />
+          </Bar>
           {comparing && (
             <Bar
               dataKey="previous"
@@ -257,7 +253,7 @@ function PerformanceContent({ report }: { report: PerformanceReport }) {
       ) : (
         <>
           <Totals report={report} />
-          <Card className="min-w-0 gap-4 py-4">
+          {report.rows.length > 1 && <Card className="min-w-0 gap-4 py-4">
             <CardHeader className="px-4">
               <CardTitle className="text-base">
                 {report.amounts_visible ? t('performance.chart.amountTitle') : t('performance.chart.countTitle')}
@@ -269,7 +265,7 @@ function PerformanceContent({ report }: { report: PerformanceReport }) {
             <CardContent className="px-4">
               <PerformanceChart report={report} />
             </CardContent>
-          </Card>
+          </Card>}
           <Card className="min-w-0 gap-4 py-4">
             <CardHeader className="px-4">
               <CardTitle className="text-base">{t('performance.table.title')}</CardTitle>
@@ -287,10 +283,12 @@ function PerformanceContent({ report }: { report: PerformanceReport }) {
 }
 
 export function PerformanceReportPage() {
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const state = useReportFilters()
   const report = usePerformanceReport(state.filters)
   return (
-    <div className="grid min-w-0 gap-4">
+    <Page>
+      <PageHeader title={t('performance.title')} description={t('performance.description')} />
       <ReportFilters state={state} allPipelines withDimension />
       {report.isPending ? (
         <ReportSkeleton />
@@ -301,6 +299,6 @@ export function PerformanceReportPage() {
           <PerformanceContent report={report.data} />
         </div>
       )}
-    </div>
+    </Page>
   )
 }

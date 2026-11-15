@@ -17,7 +17,7 @@ export function ReportFilters({ state, allPipelines = false, withDimension = fal
   const { filters } = state
 
   return (
-    <div className="flex min-w-0 flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
+    <div className="flex min-w-0 flex-wrap items-end gap-x-4 gap-y-3">
       {withDimension && (
         <Field label={t('filters.dimension')} className="w-full min-w-0 sm:w-auto">
           {(control) => <NativeSelect

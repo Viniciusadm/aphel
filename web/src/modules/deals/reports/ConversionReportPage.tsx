@@ -1,8 +1,10 @@
 import { Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
 import { ErrorState } from '@/components/ui/error-state'
 import { Delta, StatTile } from '@/kernel/widgets/shared'
 import { formatCurrency, formatDate, formatNumber, useRecordFormatting } from '@/sdk'
@@ -47,7 +49,7 @@ function Summary({ report, current, previous }: { report: ConversionReport; curr
   const percent = (value: number) => format.percent(value)
   const duration = (value: number) => format.duration(value)
   return (
-    <dl className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
+    <dl className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-5">
       <StatTile
         label={t('conversion.summary.created')}
         value={format.count(summary.created)}
@@ -77,7 +79,6 @@ function Summary({ report, current, previous }: { report: ConversionReport; curr
         }
       />
       <StatTile
-        className="min-[420px]:col-span-2 lg:col-span-4"
         label={t('conversion.summary.averageCycle')}
         value={format.duration(summary.average_cycle_seconds)}
         hint={t('conversion.summary.averageCycleHint')}
@@ -123,13 +124,14 @@ function FunnelChart({ points, comparing }: { points: FunnelPoint[]; comparing: 
   return (
     <div role="img" aria-label={t('conversion.funnel.chartLabel')} style={{ height }} className="w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={points} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 4 }} barCategoryGap={8}>
-          <CartesianGrid horizontal={false} stroke="var(--border)" />
-          <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+        <BarChart data={points} layout="vertical" margin={{ top: 4, right: 32, bottom: 4, left: 4 }} barCategoryGap={8}>
+          <XAxis type="number" hide allowDecimals={false} />
           <YAxis type="category" dataKey="name" width={110} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
           <Tooltip cursor={{ fill: 'var(--muted)' }} content={<FunnelTooltip />} />
           {comparing && <Legend wrapperStyle={{ fontSize: 12 }} />}
-          <Bar dataKey="reached" name={t('conversion.funnel.current')} fill="var(--primary)" radius={[0, 4, 4, 0]} maxBarSize={22} />
+          <Bar dataKey="reached" name={t('conversion.funnel.current')} fill="var(--primary)" radius={[0, 4, 4, 0]} maxBarSize={22}>
+            <LabelList dataKey="reached" position="right" fill="var(--foreground)" fontSize={12} />
+          </Bar>
           {comparing && (
             <Bar
               dataKey="previous"
@@ -346,11 +348,13 @@ function ConversionContent({ report }: { report: ConversionReport }) {
 }
 
 export function ConversionReportPage() {
+  const { t } = useTranslation('deals', { keyPrefix: 'reports' })
   const state = useReportFilters()
   const { period, pipelineId, compare } = state.filters
   const report = useConversionReport({ period, pipelineId, compare })
   return (
-    <div className="grid min-w-0 gap-4">
+    <Page>
+      <PageHeader title={t('conversion.title')} description={t('conversion.description')} />
       <ReportFilters state={state} />
       {report.isPending ? (
         <ReportSkeleton />
@@ -361,6 +365,6 @@ export function ConversionReportPage() {
           <ConversionContent report={report.data} />
         </div>
       )}
-    </div>
+    </Page>
   )
 }

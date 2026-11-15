@@ -251,7 +251,7 @@
         "conversionRate": "Conversion rate",
         "winRate": "Win rate: {{value}}",
         "averageCycle": "Average sales cycle",
-        "averageCycleHint": "From creation to closing of the won deals"
+        "averageCycleHint": "From creation to win"
       },
       "funnel": {
         "title": "Conversion funnel",
@@ -297,7 +297,8 @@
         "title": "No deals in the period",
         "description": "No deal of this pipeline was created in the selected period."
       },
-      "footnote": "Stage times consider the visits that started in the period. Numbers follow what you can see."
+      "footnote": "Stage times consider the visits that started in the period. Numbers follow what you can see.",
+      "description": "See where deals move forward or get lost and how long a sale takes."
     },
     "performance": {
       "title": "Performance report",
@@ -338,7 +339,8 @@
         "title": "No results in the period",
         "description": "No deal was created or closed and no activity was completed in the period."
       },
-      "truncated": "There are more groups than the ones shown."
+      "truncated": "There are more groups than the ones shown.",
+      "description": "Compare owners, teams, sources or pipelines: what each created, won and lost."
     },
     "filters": {
       "dimension": "Group by",

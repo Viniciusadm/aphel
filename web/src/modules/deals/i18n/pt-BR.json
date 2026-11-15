@@ -251,7 +251,7 @@
         "conversionRate": "Taxa de conversão",
         "winRate": "Taxa de ganho: {{value}}",
         "averageCycle": "Ciclo médio de venda",
-        "averageCycleHint": "Da criação ao ganho das oportunidades ganhas"
+        "averageCycleHint": "Da criação ao ganho"
       },
       "funnel": {
         "title": "Funil de conversão",
@@ -297,7 +297,8 @@
         "title": "Sem oportunidades no período",
         "description": "Nenhuma oportunidade deste funil foi criada no período escolhido."
       },
-      "footnote": "Os tempos por etapa consideram as passagens que começaram no período. Os números respeitam o que você pode ver."
+      "footnote": "Os tempos por etapa consideram as passagens que começaram no período. Os números respeitam o que você pode ver.",
+      "description": "Veja em que etapas as oportunidades avançam ou se perdem e quanto tempo a venda leva."
     },
     "performance": {
       "title": "Relatório de desempenho",
@@ -338,7 +339,8 @@
         "title": "Sem resultados no período",
         "description": "Nenhuma oportunidade criada ou fechada e nenhuma atividade concluída no período."
       },
-      "truncated": "Há mais grupos do que os exibidos."
+      "truncated": "Há mais grupos do que os exibidos.",
+      "description": "Compare vendedores, equipes, origens ou funis: o que cada um criou, ganhou e perdeu."
     },
     "filters": {
       "dimension": "Agrupar por",
