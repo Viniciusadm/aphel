@@ -7,7 +7,7 @@
     "enabled": "Create renewals automatically",
     "enabledHint": "Each deal is renewed only once, with the permissions of whoever saved these settings.",
     "daysBefore": "Days before the contract ends",
-    "daysBeforeHint": "Between 0 and {{max}} days.",
+    "daysBeforeHint": "How many days before the contract ends the renewal is created.",
     "targetPipeline": "Renewal pipeline",
     "targetStage": "Renewal stage",
     "noStage": "Choose an open stage",
@@ -18,8 +18,9 @@
       "original": "Same owner as the original",
       "none": "No owner"
     },
-    "save": "Save renewal",
-    "saved": "Renewal settings saved"
+    "save": "Save",
+    "saved": "Renewal settings saved",
+    "daysInvalid": "Enter a whole number from 0 to {{max}}."
   },
   "widgets": {
     "hidden": "Hidden",

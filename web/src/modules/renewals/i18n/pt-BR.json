@@ -7,7 +7,7 @@
     "enabled": "Criar renovações automaticamente",
     "enabledHint": "A renovação é criada uma única vez por oportunidade, com as permissões de quem salvou esta configuração.",
     "daysBefore": "Dias antes do fim do contrato",
-    "daysBeforeHint": "Entre 0 e {{max}} dias.",
+    "daysBeforeHint": "Quantos dias antes do fim do contrato a renovação é criada.",
     "targetPipeline": "Funil da renovação",
     "targetStage": "Etapa da renovação",
     "noStage": "Escolha uma etapa aberta",
@@ -18,8 +18,9 @@
       "original": "Mesmo responsável da original",
       "none": "Sem responsável"
     },
-    "save": "Salvar renovação",
-    "saved": "Configuração de renovação salva"
+    "save": "Salvar",
+    "saved": "Configuração de renovação salva",
+    "daysInvalid": "Informe um número inteiro de 0 a {{max}}."
   },
   "widgets": {
     "hidden": "Oculto",
