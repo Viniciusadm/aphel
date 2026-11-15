@@ -1,8 +1,11 @@
+import { Download } from 'lucide-react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
 import { RequirePermission, SETTINGS_MANAGE } from '@/sdk'
-import { ExportPanel } from '@/modules/config_packages/ui/ExportPanel'
+import { Button } from '@/components/ui/button'
+import { EXPORT_FORM_ID, ExportPanel, type ExportState } from '@/modules/config_packages/ui/ExportPanel'
 import { HistoryPanel } from '@/modules/config_packages/ui/HistoryPanel'
 import { InstallPanel } from '@/modules/config_packages/ui/InstallPanel'
 import { VERSIONS_TAB } from '@/modules/config_packages/ui/versioning/tab'
@@ -32,6 +35,7 @@ function ConfigPackagesSection() {
   const { t: versioning } = useTranslation('config-package-versioning')
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = parseTab(searchParams.get(TAB_PARAM))
+  const [exportState, setExportState] = useState<ExportState>({ exporting: false, canExport: false })
 
   const changeTab = (next: string) =>
     setSearchParams(
@@ -45,7 +49,18 @@ function ConfigPackagesSection() {
 
   return (
     <Page>
-      <PageHeader title={t('page.title')} description={t('page.description')} />
+      <PageHeader
+        title={t('page.title')}
+        description={t('page.description')}
+        actions={
+          tab === 'export' && (
+            <Button type="submit" form={EXPORT_FORM_ID} disabled={exportState.exporting || !exportState.canExport} aria-busy={exportState.exporting}>
+              <Download aria-hidden="true" />
+              {exportState.exporting ? t('export.exporting') : t('export.submit')}
+            </Button>
+          )
+        }
+      />
       <SectionWorkspace value={tab} onValueChange={changeTab}>
         <SectionIndex aria-label={t('page.tabsLabel')} className="self-start">
           {TABS.map((value) => (
@@ -56,7 +71,7 @@ function ConfigPackagesSection() {
           <SectionLink value={VERSIONS_TAB}>{versioning('tab')}</SectionLink>
         </SectionIndex>
         <SectionContent value="export" className="min-w-0">
-          <ExportPanel />
+          <ExportPanel onStateChange={setExportState} />
         </SectionContent>
         <SectionContent value="install" className="min-w-0">
           <InstallPanel onInstalled={() => changeTab('history')} />

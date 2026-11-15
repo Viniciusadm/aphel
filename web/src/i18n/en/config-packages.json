@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Configuration packages",
-    "description": "Export this organization's configuration, install packages or ready-made templates and review the installation history. Packages never carry business data.",
+    "description": "Export this organization's configuration or install ready-made packages and templates. No business data is included.",
     "tabsLabel": "Configuration package actions"
   },
   "tabs": {
@@ -19,7 +19,24 @@
     "tags": "Tags",
     "layouts": "Form layouts",
     "views": "Views",
-    "dashboard": "Default dashboard"
+    "dashboard": "Default dashboard",
+    "custom_objects": "Custom objects",
+    "line_items": "Line items",
+    "price_lists": "Price lists",
+    "discount_limits": "Discount limits",
+    "pipeline_renewals": "Pipeline renewals",
+    "call_outcomes": "Call outcomes",
+    "assignment_rules": "Assignment rules",
+    "email_templates": "Email templates",
+    "sequences": "Sequences",
+    "automations": "Automations",
+    "lifecycle": "Lifecycle",
+    "validation_rules": "Validation rules",
+    "stage_guidance": "Stage guidance",
+    "approval_policies": "Approval policies",
+    "scoring_models": "Scoring models",
+    "forecast": "Revenue forecast",
+    "proposals_templates": "Proposal templates"
   },
   "kinds": {
     "field": "Field",
@@ -89,12 +106,24 @@
     "namePlaceholder": "Default: organization name",
     "author": "Author",
     "packageDescription": "Description",
-    "hint": "Only portable settings are included: active fields and options, workflow, reasons, activity types, tags, layouts, organization views and the default dashboard. No contact, company or deal is exported.",
+    "hint": "Only portable settings are included. No contacts, companies or deals are exported.",
     "submit": "Export and download",
     "exporting": "Exporting…",
     "done": "File {{file}} downloaded.",
     "authorPlaceholder": "E.g.: Operations team",
-    "packageDescriptionPlaceholder": "Describe what this package configures"
+    "packageDescriptionPlaceholder": "Describe what this package configures",
+    "groups": {
+      "data": "Data and fields",
+      "sales": "Sales",
+      "catalog": "Catalog and proposals",
+      "automation": "Communication and automation",
+      "dashboard": "Dashboard",
+      "other": "Other"
+    },
+    "sectionsTitle": "What to include",
+    "sectionsDescription": "Choose which areas of the configuration go into the file.",
+    "identityTitle": "Package identification",
+    "identityDescription": "Optional. Helps recognize the file when it is installed in another organization."
   },
   "install": {
     "planning": "Analyzing the package…",
@@ -190,6 +219,13 @@
     "detailsLabel": "Details of installation {{name}}",
     "close": "Close",
     "download": "Download package",
-    "noOp": "No changes"
+    "noOp": "No changes",
+    "columns": {
+      "name": "Package",
+      "by": "Installed by",
+      "when": "When",
+      "result": "Result",
+      "actions": "Actions"
+    }
   }
 }

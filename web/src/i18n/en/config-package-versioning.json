@@ -72,19 +72,20 @@
   },
   "upload": {
     "title": "Install or update a versioned package",
-    "description": "Upload an aphel-config file with id and version. Aphel compares it with the installed version and shows the conflicts with what was changed here.",
+    "description": "Upload a package with an identifier and a version. Aphel compares it with the installed version and shows what changed and what you changed here.",
     "choose": "Choose file",
     "comparing": "Comparing…",
     "errors": {
       "tooLarge": "The file is larger than 2 MB.",
       "invalidJson": "The file is not valid JSON.",
-      "notObject": "The file is not an aphel-config package."
-    }
+      "notObject": "The file is not an Aphel configuration package."
+    },
+    "dropHint": "Drag the file here or choose it on your computer."
   },
   "installed": {
     "title": "Installed versioned packages",
     "emptyTitle": "No versioned package installed",
-    "emptyDescription": "Packages installed here or from the catalog show up in this list with their version and history.",
+    "emptyDescription": "Versioned packages you install appear here, with their version and history. To start, upload a file above.",
     "installedAt": "Installed on {{date}} by {{name}}",
     "unknownUser": "removed user",
     "origin": "Origin: {{origin}}",

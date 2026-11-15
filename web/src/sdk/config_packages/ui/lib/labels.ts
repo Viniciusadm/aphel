@@ -13,6 +13,23 @@ const SECTIONS = [
   'layouts',
   'views',
   'dashboard',
+  'custom_objects',
+  'line_items',
+  'price_lists',
+  'discount_limits',
+  'pipeline_renewals',
+  'call_outcomes',
+  'assignment_rules',
+  'email_templates',
+  'sequences',
+  'automations',
+  'lifecycle',
+  'validation_rules',
+  'stage_guidance',
+  'approval_policies',
+  'scoring_models',
+  'forecast',
+  'proposals_templates',
 ] as const
 const KINDS = [
   'field',
@@ -79,8 +96,10 @@ export function usePackageLabels() {
   const contributed = useModuleConfigPackageLabels()
   return useMemo(
     () => ({
-      section: (key: string) =>
-        includes<Section>(SECTIONS, key) ? t(`sections.${key}`) : (contributed.sections[key] ?? humanizeKey(key)),
+      section: (key: string) => {
+        const normalized = key.replace(/\./g, '_')
+        return includes<Section>(SECTIONS, normalized) ? t(`sections.${normalized}`) : (contributed.sections[key] ?? humanizeKey(key))
+      },
       kind: (kind: string) =>
         includes<Kind>(KINDS, kind) ? t(`kinds.${kind}`) : (contributed.kinds[kind] ?? humanizeKey(kind)),
       property: (property: string) => {

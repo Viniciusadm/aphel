@@ -72,19 +72,20 @@
   },
   "upload": {
     "title": "Instalar ou atualizar um pacote versionado",
-    "description": "Envie um arquivo aphel-config com id e version. O Aphel compara com a versão instalada e mostra os conflitos com o que foi alterado aqui.",
+    "description": "Envie um pacote com identificador e versão. O Aphel compara com a versão instalada e mostra o que mudou e o que você alterou por aqui.",
     "choose": "Escolher arquivo",
     "comparing": "Comparando…",
     "errors": {
       "tooLarge": "O arquivo passa de 2 MB.",
       "invalidJson": "O arquivo não é um JSON válido.",
-      "notObject": "O arquivo não é um pacote aphel-config."
-    }
+      "notObject": "O arquivo não é um pacote de configuração do Aphel."
+    },
+    "dropHint": "Arraste o arquivo para cá ou escolha no computador."
   },
   "installed": {
     "title": "Pacotes versionados instalados",
     "emptyTitle": "Nenhum pacote versionado instalado",
-    "emptyDescription": "Pacotes instalados por aqui ou pelo catálogo aparecem nesta lista com a versão e o histórico.",
+    "emptyDescription": "Pacotes versionados que você instalar aparecem aqui, com a versão e o histórico. Para começar, envie um arquivo acima.",
     "installedAt": "Instalado em {{date}} por {{name}}",
     "unknownUser": "usuário removido",
     "origin": "Origem: {{origin}}",

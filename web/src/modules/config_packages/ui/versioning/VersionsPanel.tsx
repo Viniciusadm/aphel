@@ -1,16 +1,14 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { FileJson, Upload } from 'lucide-react'
-import { useId, useRef, useState } from 'react'
+import { FileJson } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { ListSkeleton } from '@/sdk'
 import type {PackageJson} from '@/sdk'
-import { readPackageFile, type PackageFileError } from '@/modules/config_packages/ui/lib/package-file'
+import { PackageFileDrop } from '@/modules/config_packages/ui/PackageFileDrop'
 import {groupByPackage, useInstalledVersions, useInvalidateVersions, versioningApi} from '@/sdk'
 import {ComparisonView} from '@/sdk'
 import {useDateFormatter} from '@/sdk'
@@ -74,49 +72,21 @@ export function VersionsPanel() {
 
 function UploadCard({ disabled, onChoose }: { disabled: boolean; onChoose: (pkg: PackageJson) => void }) {
   const { t } = useTranslation('config-package-versioning')
-  const inputId = useId()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [error, setError] = useState<PackageFileError | null>(null)
-
-  const handleFile = async (file: File | undefined) => {
-    if (!file) return
-    setError(null)
-    const result = await readPackageFile(file)
-    if (!result.ok) {
-      setError(result.error)
-      return
-    }
-    onChoose(result.package)
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t('upload.title')}</CardTitle>
         <CardDescription>{t('upload.description')}</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input
-          ref={inputRef}
-          id={inputId}
-          type="file"
-          accept="application/json,.json"
-          className="sr-only"
+      <CardContent>
+        <PackageFileDrop
           disabled={disabled}
-          onChange={(event) => {
-            void handleFile(event.target.files?.[0])
-            event.target.value = ''
-          }}
+          hint={t('upload.dropHint')}
+          chooseLabel={disabled ? t('upload.comparing') : t('upload.choose')}
+          fileLabel={t('upload.choose')}
+          errorText={(error) => t(`upload.errors.${error}`)}
+          onChoose={onChoose}
         />
-        <Button variant="outline" disabled={disabled} onClick={() => inputRef.current?.click()}>
-          <Upload aria-hidden="true" />
-          {disabled ? t('upload.comparing') : t('upload.choose')}
-        </Button>
-        {error && (
-          <SharedFieldError>
-            {t(`upload.errors.${error}`)}
-          </SharedFieldError>
-        )}
       </CardContent>
     </Card>
   )
@@ -143,9 +113,10 @@ function InstalledList() {
         {packages.map(({ latest, history }) => (
           <li key={latest.package_id} className="grid min-w-0 gap-1 rounded-lg border bg-card p-3 sm:p-4">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <span className="min-w-0 font-medium break-words">{latest.name}</span>
+              <span className="min-w-0 font-medium break-words" title={latest.package_id}>
+                {latest.name}
+              </span>
               <Badge>{latest.version}</Badge>
-              <code className="min-w-0 text-xs break-all text-muted-foreground">{latest.package_id}</code>
             </div>
             <p className="text-xs text-muted-foreground">
               {t('installed.installedAt', {

@@ -15,6 +15,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ListSkeleton } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
 import {INSTALLS_PER_PAGE, usePackageInstall, usePackageInstalls, type PackageInstall} from '@/sdk'
@@ -45,43 +46,53 @@ export function HistoryPanel() {
   return (
     <div className="grid gap-3">
       <PaginationSummary page={page} perPage={INSTALLS_PER_PAGE} total={installs.data.meta.total} />
-      <ul className="grid gap-2" aria-label={t('history.listLabel')}>
-        {installs.data.data.map((install) => (
-          <li key={install.id} className="flex min-w-0 flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2">
-            <div className="grid min-w-0 flex-1 gap-1">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <span className="min-w-0 font-medium break-words">{install.name}</span>
-                {install.template_key && (
-                  <Badge variant="secondary">{t('history.template', { key: install.template_key })}</Badge>
-                )}
-                {install.summary.no_op && <Badge variant="outline">{t('history.noOp')}</Badge>}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t('history.installedBy', {
-                  name: install.installed_by?.name || t('history.unknownUser'),
-                  date: formatter.format(new Date(install.installed_at)),
-                })}
-              </p>
-              <p className="text-xs text-muted-foreground">
+      <Table>
+        <caption className="sr-only">{t('history.listLabel')}</caption>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">{t('history.columns.name')}</TableHead>
+            <TableHead scope="col" className="hidden md:table-cell">{t('history.columns.by')}</TableHead>
+            <TableHead scope="col">{t('history.columns.when')}</TableHead>
+            <TableHead scope="col" className="hidden lg:table-cell">{t('history.columns.result')}</TableHead>
+            <TableHead scope="col" className="text-right">
+              <span className="sr-only">{t('history.columns.actions')}</span>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {installs.data.data.map((install) => (
+            <TableRow key={install.id}>
+              <TableCell className="max-w-64">
+                <span className="block truncate font-medium">{install.name}</span>
+                <span className="flex flex-wrap gap-1">
+                  {install.template_key && <Badge variant="secondary">{t('history.template', { key: install.template_key })}</Badge>}
+                  {install.summary.no_op && <Badge variant="outline">{t('history.noOp')}</Badge>}
+                </span>
+              </TableCell>
+              <TableCell className="hidden md:table-cell">{install.installed_by?.name || t('history.unknownUser')}</TableCell>
+              <TableCell className="tabular-nums">{formatter.format(new Date(install.installed_at))}</TableCell>
+              <TableCell className="hidden text-muted-foreground lg:table-cell">
                 {t('history.summary', {
                   create: install.summary.create,
                   update: install.summary.update,
                   unchanged: install.summary.unchanged,
                   skipped: install.summary.skip_conflict,
                 })}
-              </p>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              aria-label={t('history.detailsLabel', { name: install.name })}
-              onClick={() => setSelected(install)}
-            >
-              {t('history.details')}
-            </Button>
-          </li>
-        ))}
-      </ul>
+              </TableCell>
+              <TableCell className="text-right">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  aria-label={t('history.detailsLabel', { name: install.name })}
+                  onClick={() => setSelected(install)}
+                >
+                  {t('history.details')}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <Pagination page={page} perPage={INSTALLS_PER_PAGE} total={installs.data.meta.total} onPageChange={setPage} />
       <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent>

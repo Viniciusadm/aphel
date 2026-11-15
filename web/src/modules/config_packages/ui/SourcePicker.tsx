@@ -1,6 +1,4 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { FileJson, LayoutTemplate, Upload } from 'lucide-react'
-import { useId, useRef, useState, type DragEvent } from 'react'
+import { LayoutTemplate } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,10 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
 import {usePackageTemplates, type PackageSource} from '@/sdk'
 import {usePackageLabels} from '@/sdk'
-import { readPackageFile, type PackageFileError } from '@/modules/config_packages/ui/lib/package-file'
+import { PackageFileDrop } from '@/modules/config_packages/ui/PackageFileDrop'
 
 interface SourcePickerProps {
   planning: boolean
@@ -38,81 +35,21 @@ interface SourceProps {
 
 function UploadSource({ disabled, onChoose }: SourceProps) {
   const { t } = useTranslation('config-packages')
-  const inputId = useId()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [dragging, setDragging] = useState(false)
-  const [error, setError] = useState<PackageFileError | null>(null)
-  const [fileName, setFileName] = useState<string | null>(null)
-
-  const handleFile = async (file: File | undefined) => {
-    if (!file) return
-    setFileName(file.name)
-    setError(null)
-    const result = await readPackageFile(file)
-    if (!result.ok) {
-      setError(result.error)
-      return
-    }
-    onChoose({ package: result.package })
-  }
-
-  const drop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    setDragging(false)
-    if (!disabled) void handleFile(event.dataTransfer.files[0])
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t('install.uploadTitle')}</CardTitle>
         <CardDescription>{t('install.uploadDescription')}</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-3">
-        <div
-          className={cn(
-            'flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center transition-colors',
-            dragging && 'border-primary bg-accent',
-          )}
-          onDragOver={(event) => {
-            event.preventDefault()
-            setDragging(true)
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={drop}
-        >
-          <FileJson className="size-8 text-muted-foreground" aria-hidden="true" />
-          <p className="text-sm text-muted-foreground">{t('install.dropHint')}</p>
-          <input
-            ref={inputRef}
-            id={inputId}
-            type="file"
-            accept=".json,application/json"
-            className="sr-only"
-            disabled={disabled}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? `${inputId}-error` : undefined}
-            onChange={(event) => {
-              void handleFile(event.target.files?.[0])
-              event.target.value = ''
-            }}
-          />
-          <Button type="button" variant="outline" disabled={disabled} onClick={() => inputRef.current?.click()}>
-            <Upload aria-hidden="true" />
-            {t('install.chooseFile')}
-          </Button>
-          <label htmlFor={inputId} className="sr-only">
-            {t('install.fileLabel')}
-          </label>
-          {fileName && <p className="max-w-full truncate text-xs text-muted-foreground">{fileName}</p>}
-        </div>
-        <div aria-live="assertive">
-          {error && (
-            <SharedFieldError id={`${inputId}-error`}>
-              {t(`install.fileErrors.${error}`)}
-            </SharedFieldError>
-          )}
-        </div>
+      <CardContent>
+        <PackageFileDrop
+          disabled={disabled}
+          hint={t('install.dropHint')}
+          chooseLabel={t('install.chooseFile')}
+          fileLabel={t('install.fileLabel')}
+          errorText={(error) => t(`install.fileErrors.${error}`)}
+          onChoose={(pkg) => onChoose({ package: pkg })}
+        />
       </CardContent>
     </Card>
   )

@@ -34,10 +34,11 @@ export function PlanItemCard({ item, decision, onDecisionChange }: PlanItemCardP
   return (
     <article className="grid min-w-0 gap-3 rounded-lg border bg-card p-3 sm:p-4" aria-label={title}>
       <header className="flex min-w-0 flex-wrap items-center gap-2">
-        <h4 className="min-w-0 font-medium break-words">{title}</h4>
+        <h4 className="min-w-0 font-medium break-words" title={item.key}>
+          {title}
+        </h4>
         <Badge variant="secondary">{labels.kind(item.kind)}</Badge>
         <ActionBadge action={item.action} />
-        <code className="min-w-0 text-xs break-all text-muted-foreground">{item.key}</code>
       </header>
       {changes.length > 0 && (
         <ul className="grid min-w-0 gap-2" aria-label={t('plan.changesLabel', { name: title })}>

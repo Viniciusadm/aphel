@@ -41,12 +41,20 @@ function groupBySection(plan: PackagePlan): SectionGroup[] {
     .filter((group) => group.changed.length + group.unchanged.length > 0)
 }
 
+function localeName(code: string, language: string): string {
+  try {
+    return new Intl.DisplayNames([language], { type: 'language' }).of(code) ?? code
+  } catch {
+    return code
+  }
+}
+
 function isResolvableConflict(item: PlanItem): boolean {
   return item.action === 'skip_conflict' && item.conflict?.resolvable === true
 }
 
 export function PlanView({ plan, source, notice, replanning, onBack, onOutdated, onApplied }: PlanViewProps) {
-  const { t } = useTranslation('config-packages')
+  const { t, i18n } = useTranslation('config-packages')
   const labels = usePackageLabels()
   const apply = useApplyPackage()
   const [choices, setChoices] = useState<Decisions>({})
@@ -106,8 +114,7 @@ export function PlanView({ plan, source, notice, replanning, onBack, onOutdated,
         <CardContent className="grid gap-3">
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {plan.package?.author && <span>{t('install.author', { author: plan.package.author })}</span>}
-            {plan.template_key && <span>{t('plan.template', { key: plan.template_key })}</span>}
-            {plan.package?.locale && <span>{t('plan.locale', { locale: plan.package.locale })}</span>}
+            {plan.package?.locale && <span>{t('plan.locale', { locale: localeName(plan.package.locale, i18n.language) })}</span>}
           </div>
           <SummaryList summary={plan.summary} label={t('plan.summaryLabel')} />
         </CardContent>
@@ -178,7 +185,7 @@ export function PlanView({ plan, source, notice, replanning, onBack, onOutdated,
         </section>
       ))}
 
-      <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky bottom-0 z-10 -mx-1 flex flex-col gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           {!plan.valid
             ? t('plan.cannotApplyInvalid')

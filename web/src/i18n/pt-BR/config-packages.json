@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Pacotes de configuração",
-    "description": "Exporte a configuração desta organização, instale pacotes ou modelos prontos e acompanhe o histórico de instalações. Pacotes não carregam dados de negócio.",
+    "description": "Exporte a configuração desta organização ou instale pacotes e modelos prontos. Nenhum dado de negócio é incluído.",
     "tabsLabel": "Ações de pacotes de configuração"
   },
   "tabs": {
@@ -19,7 +19,24 @@
     "tags": "Etiquetas",
     "layouts": "Layouts de formulário",
     "views": "Visualizações",
-    "dashboard": "Dashboard padrão"
+    "dashboard": "Dashboard padrão",
+    "custom_objects": "Objetos personalizados",
+    "line_items": "Itens de linha",
+    "price_lists": "Tabelas de preço",
+    "discount_limits": "Limites de desconto",
+    "pipeline_renewals": "Renovações no funil",
+    "call_outcomes": "Resultados de ligação",
+    "assignment_rules": "Regras de atribuição",
+    "email_templates": "Modelos de e-mail",
+    "sequences": "Sequências",
+    "automations": "Automações",
+    "lifecycle": "Ciclo de vida",
+    "validation_rules": "Regras de validação",
+    "stage_guidance": "Orientação por etapa",
+    "approval_policies": "Políticas de aprovação",
+    "scoring_models": "Modelos de pontuação",
+    "forecast": "Previsão de receita",
+    "proposals_templates": "Modelos de proposta"
   },
   "kinds": {
     "field": "Campo",
@@ -89,12 +106,24 @@
     "namePlaceholder": "Padrão: nome da organização",
     "author": "Autor",
     "packageDescription": "Descrição",
-    "hint": "Só entra o que é portável: campos e opções ativos, funis, motivos, tipos de atividade, etiquetas, layouts, visualizações da organização e o dashboard padrão. Nenhum contato, empresa ou oportunidade é exportado.",
+    "hint": "Só entra o que é portável. Nenhum contato, empresa ou oportunidade é exportado.",
     "submit": "Exportar e baixar",
     "exporting": "Exportando…",
     "done": "Arquivo {{file}} baixado.",
     "authorPlaceholder": "Ex.: Time de Operações",
-    "packageDescriptionPlaceholder": "Descreva o que este pacote configura"
+    "packageDescriptionPlaceholder": "Descreva o que este pacote configura",
+    "groups": {
+      "data": "Dados e campos",
+      "sales": "Vendas",
+      "catalog": "Catálogo e propostas",
+      "automation": "Comunicação e automação",
+      "dashboard": "Painel",
+      "other": "Outros"
+    },
+    "sectionsTitle": "O que incluir",
+    "sectionsDescription": "Escolha as áreas da configuração que vão para o arquivo.",
+    "identityTitle": "Identificação do pacote",
+    "identityDescription": "Opcional. Ajuda a reconhecer o arquivo quando for instalado em outra organização."
   },
   "install": {
     "planning": "Analisando o pacote…",
@@ -190,6 +219,13 @@
     "detailsLabel": "Detalhes da instalação {{name}}",
     "close": "Fechar",
     "download": "Baixar pacote",
-    "noOp": "Sem mudanças"
+    "noOp": "Sem mudanças",
+    "columns": {
+      "name": "Pacote",
+      "by": "Instalado por",
+      "when": "Quando",
+      "result": "Resultado",
+      "actions": "Ações"
+    }
   }
 }
