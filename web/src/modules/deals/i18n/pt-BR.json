@@ -11,7 +11,8 @@
     "noPipelines": "Nenhum funil disponível",
     "noPipelinesManage": "As oportunidades andam pelas etapas de um funil. Crie o primeiro funil para começar a registrar oportunidades.",
     "noPipelinesAsk": "As oportunidades andam pelas etapas de um funil. Peça a um administrador para criar um funil ou liberar um para a sua equipe.",
-    "configurePipelines": "Configurar funis"
+    "configurePipelines": "Configurar funis",
+    "display": "Exibição"
   },
   "dialog": {
     "title": "Nova oportunidade",
@@ -27,7 +28,7 @@
     "count_one": "{{count}} oportunidade",
     "count_other": "{{count}} oportunidades",
     "totalLabel": "Valor total da etapa",
-    "emptyColumn": "Nenhuma oportunidade nesta etapa",
+    "emptyColumn": "Nenhuma oportunidade aqui. Arraste um cartão para esta etapa.",
     "loadMore": "Carregar mais ({{count}})",
     "stageSelect": "Etapa do funil",
     "groupedList": "Lista por etapa"
@@ -75,7 +76,11 @@
       "archive": "Oportunidade arquivada",
       "unarchive": "Oportunidade desarquivada",
       "delete": "Oportunidade excluída"
-    }
+    },
+    "statusWon": "Ganha",
+    "statusLost": "Perdida",
+    "stages": "Etapas do funil",
+    "moveToStage": "Mover para {{stage}}"
   },
   "related": {
     "title": "Oportunidades do registro",
@@ -190,28 +195,29 @@
       "someUser": "um usuário"
     },
     "roles": {
-      "title": "Papéis na equipe da oportunidade",
-      "description": "Papéis que os membros podem ter na equipe de uma oportunidade, como pré-vendas ou especialista.",
-      "new": "Novo papel",
-      "newTitle": "Novo papel",
-      "editTitle": "Editar papel",
-      "dialogDescription": "O nome aparece na equipe das oportunidades. A chave é usada nos pacotes de configuração e não muda.",
+      "title": "Funções na equipe de vendas",
+      "description": "Funções que as pessoas podem ter na equipe de uma oportunidade, como pré-vendas ou especialista. Não mudam o que cada pessoa pode fazer no sistema.",
+      "new": "Nova função",
+      "newTitle": "Nova função",
+      "editTitle": "Editar função",
+      "dialogDescription": "O nome aparece na equipe das oportunidades.",
       "name": "Nome",
       "nameRequired": "Informe o nome.",
       "save": "Salvar",
       "cancel": "Cancelar",
-      "saved": "Papel {{name}} salvo",
-      "listLabel": "Papéis na equipe",
+      "saved": "Função {{name}} salva",
+      "listLabel": "Funções na equipe",
       "editLabel": "Editar {{name}}",
       "deleteLabel": "Excluir {{name}}",
-      "deleteTitle": "Excluir papel",
-      "deleteDescription": "Os membros com o papel {{name}} continuam na equipe, sem papel.",
+      "deleteTitle": "Excluir função",
+      "deleteDescription": "As pessoas com a função {{name}} continuam na equipe, sem função.",
       "deleteConfirm": "Excluir",
-      "deleted": "Papel {{name}} excluído",
+      "deleted": "Função {{name}} excluída",
       "inactive": "Inativo",
       "activate": "Ativar",
       "deactivate": "Desativar",
-      "empty": "Nenhum papel cadastrado"
+      "empty": "Nenhuma função cadastrada",
+      "emptyDescription": "Crie funções como \"Pré-vendas\" ou \"Especialista\" para indicar o que cada pessoa faz na oportunidade."
     },
     "placeholders": {
       "credit": "0",

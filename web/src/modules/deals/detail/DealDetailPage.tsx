@@ -4,9 +4,9 @@ import { useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { RecordDetailPage, type RecordTabsConfig } from '@/sdk'
 import { Slot } from '@/kernel/modules/Slot'
-import { DealCurrencyControl } from '../DealCurrencyControl'
 import { DEAL_READ_ONLY_KEYS, DEAL_RECORD_TYPE, DEALS_PATH } from '../resource'
-import { DealActions } from './DealActions'
+import { DealActions, DealPrimaryAction } from './DealActions'
+import { DealAmountLockContext } from './DealStageStepper'
 import { useDealTimeline } from './timeline'
 
 export interface DealDetailPageProps {
@@ -38,6 +38,7 @@ function DealDetail({ id, tabs }: DealDetailPageProps & { id: string }) {
   return (
     <>
       <Slot name="deals.detail.fieldLocks" props={{ dealId: id, lockFields }} />
+      <DealAmountLockContext.Provider value={amountLocked}>
       <RecordDetailPage
         recordType={DEAL_RECORD_TYPE}
         recordId={id}
@@ -46,13 +47,10 @@ function DealDetail({ id, tabs }: DealDetailPageProps & { id: string }) {
         readOnlyFieldKeys={readOnlyFieldKeys}
         timeline={timeline}
         tabs={tabs}
-        actions={(record) => (
-          <>
-            <DealCurrencyControl record={record} readOnly={readOnly || amountLocked} />
-            <DealActions record={record} />
-          </>
-        )}
+        primaryAction={(record) => <DealPrimaryAction record={record} />}
+        actions={(record) => <DealActions record={record} />}
       />
+      </DealAmountLockContext.Provider>
     </>
   )
 }

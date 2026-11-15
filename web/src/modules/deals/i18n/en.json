@@ -11,7 +11,8 @@
     "noPipelines": "No pipeline available",
     "noPipelinesManage": "Deals move through the stages of a pipeline. Create the first pipeline to start recording deals.",
     "noPipelinesAsk": "Deals move through the stages of a pipeline. Ask an administrator to create a pipeline or share one with your team.",
-    "configurePipelines": "Set up pipelines"
+    "configurePipelines": "Set up pipelines",
+    "display": "Display"
   },
   "dialog": {
     "title": "New deal",
@@ -27,7 +28,7 @@
     "count_one": "{{count}} deal",
     "count_other": "{{count}} deals",
     "totalLabel": "Total amount of the stage",
-    "emptyColumn": "No deals in this stage",
+    "emptyColumn": "No deals here. Drag a card into this stage.",
     "loadMore": "Load more ({{count}})",
     "stageSelect": "Pipeline stage",
     "groupedList": "Grouped list"
@@ -75,7 +76,11 @@
       "archive": "Deal archived",
       "unarchive": "Deal unarchived",
       "delete": "Deal deleted"
-    }
+    },
+    "statusWon": "Won",
+    "statusLost": "Lost",
+    "stages": "Pipeline stages",
+    "moveToStage": "Move to {{stage}}"
   },
   "related": {
     "title": "Deals of the record",
@@ -211,7 +216,8 @@
       "inactive": "Inactive",
       "activate": "Activate",
       "deactivate": "Deactivate",
-      "empty": "No roles yet"
+      "empty": "No roles yet",
+      "emptyDescription": "Create functions such as \"Pre-sales\" or \"Specialist\" to show what each person does on a deal."
     },
     "placeholders": {
       "credit": "0",

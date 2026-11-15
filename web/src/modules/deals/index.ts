@@ -1,6 +1,7 @@
 import { DealsDashboardEventLabel } from './dashboard/EventLabel'
 import { DealPendingSections, type DealPendingData } from './dashboard/PendingSections'
 import { SalesIndicatorsWidget } from './dashboard/SalesIndicatorsWidget'
+import { DealStageStepper } from './detail/DealStageStepper'
 import { DealsByStageWidget } from './dashboard/DealsByStageWidget'
 import type { SalesIndicatorsData, DealsByStageData } from './dashboard/types'
 import { createElement } from 'react'
@@ -55,6 +56,7 @@ const dealsModule = defineModule({
     app.slot('deals.detail.fieldLocks', { key: 'line-item-amount', render: LineItemAmountLock })
     app.slot('deals.badges', { key: 'rotting', render: RottingDealBadge })
     app.filter('deals.tone', (tone, { deal }) => (rottingOf(deal).isRotting ? 'warning' : tone))
+    app.slot('record.detail.header', { key: 'deal-stages', recordTypes: ['deals.deal'], render: ({ record }) => createElement(DealStageStepper, { record }) })
     app.routes(dealReportRoutes)
     app.slot('reports.library', { key: 'sales', permission: 'deals.read', render: DealReportLibraryCards })
     app.routes(dealsRoutes)

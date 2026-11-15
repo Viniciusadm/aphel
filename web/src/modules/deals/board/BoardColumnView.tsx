@@ -55,7 +55,7 @@ export const BoardColumnView = memo(function BoardColumnView({
       <header className="grid gap-1 border-b px-3 py-2">
         <div className="flex items-center gap-2">
           <span className={cn('size-2 rounded-full', KIND_ACCENT[column.stage.kind])} aria-hidden="true" />
-          <h2 id={headingId} className="min-w-0 flex-1 truncate text-sm font-semibold">
+          <h2 id={headingId} title={column.stage.name} className="min-w-0 flex-1 truncate text-sm font-semibold">
             {column.stage.name}
           </h2>
           <Badge variant="secondary" aria-label={t('board.count', { count: column.count })}>

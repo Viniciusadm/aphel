@@ -30,7 +30,7 @@
     "privacy": "Privacidade",
     "leadDistribution": "Distribuição de leads",
     "forecast": "Previsão de receita",
-    "dealTeamRoles": "Papéis na equipe",
+    "dealTeamRoles": "Funções na equipe de vendas",
     "products": "Produtos e itens",
     "quotes": "Cotações",
     "currencies": "Moedas e câmbio",
@@ -355,7 +355,7 @@
       "description": "Como a previsão de receita é calculada."
     },
     "dealTeamRoles": {
-      "description": "Papéis dos membros da equipe das oportunidades."
+      "description": "Funções que cada pessoa pode ter numa oportunidade, como pré-vendas ou especialista."
     },
     "products": {
       "description": "Catálogo de produtos e itens usados nos negócios."

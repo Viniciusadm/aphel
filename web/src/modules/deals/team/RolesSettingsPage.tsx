@@ -111,7 +111,16 @@ function RolesSection() {
       ) : roles.isError ? (
         <ErrorState onRetry={() => void roles.refetch()} />
       ) : items.length === 0 ? (
-        <EmptyState title={t('roles.empty')} />
+        <EmptyState
+          title={t('roles.empty')}
+          description={t('roles.emptyDescription')}
+          action={
+            <Button size="sm" onClick={() => setEditor({ role: null })}>
+              <Plus aria-hidden="true" />
+              {t('roles.new')}
+            </Button>
+          }
+        />
       ) : (
         <SortableList
           items={items}
@@ -129,7 +138,6 @@ function RolesSection() {
               {handle}
               <div className="grid min-w-32 flex-1 gap-0.5">
                 <span className="truncate text-sm font-medium">{role.name}</span>
-                <code className="truncate text-xs text-muted-foreground">{role.key}</code>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {!role.is_active && <Badge variant="outline">{t('roles.inactive')}</Badge>}

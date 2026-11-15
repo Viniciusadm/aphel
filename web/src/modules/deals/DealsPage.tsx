@@ -182,22 +182,7 @@ function BoardMode({ canMove, presentation }: { canMove: boolean; presentation: 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
       <BoardToolbar filter={filter}>
-        <WorkspaceOptions label={activeView?.name ?? pipeline?.name ?? t('list.mode')}>
         {presentation}
-        <ViewSwitcher
-          recordType={DEAL_RECORD_TYPE}
-          views={views}
-          activeView={activeView}
-          config={config}
-          isModified={isModified}
-          onSelect={(viewId) => openView(viewId, false)}
-          onSaved={(view) => openView(view.id, true)}
-          onDiscard={() => openView(urlState.view ?? ALL_RECORDS_VIEW, true)}
-          layout={{
-            viewType: KANBAN_VIEW_TYPE,
-            settings: pipeline ? { [PIPELINE_VIEW_SETTING]: pipeline.id } : {},
-          }}
-        />
         {options.length > 1 && (
           <NativeSelect
             aria-label={t('board.pipeline')}
@@ -218,6 +203,21 @@ function BoardMode({ canMove, presentation }: { canMove: boolean; presentation: 
             ))}
           </NativeSelect>
         )}
+        <WorkspaceOptions label={t('list.display')}>
+        <ViewSwitcher
+          recordType={DEAL_RECORD_TYPE}
+          views={views}
+          activeView={activeView}
+          config={config}
+          isModified={isModified}
+          onSelect={(viewId) => openView(viewId, false)}
+          onSaved={(view) => openView(view.id, true)}
+          onDiscard={() => openView(urlState.view ?? ALL_RECORDS_VIEW, true)}
+          layout={{
+            viewType: KANBAN_VIEW_TYPE,
+            settings: pipeline ? { [PIPELINE_VIEW_SETTING]: pipeline.id } : {},
+          }}
+        />
         </WorkspaceOptions>
       </BoardToolbar>
       <DealsBoard
@@ -305,7 +305,7 @@ export function DealsPage() {
 
   return (
     <Page className={cn(mode === 'board' && 'h-full')}>
-<PageHeader title={t('list.title')} actions={<>
+<PageHeader title={t('list.title')} description={t('list.description')} actions={<>
         <div className="flex flex-wrap items-center gap-2">
           {newButton}
         </div>

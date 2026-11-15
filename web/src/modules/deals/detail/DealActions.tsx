@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Archive, ArchiveRestore, ChevronDown, RotateCcw, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, MoveRight, RotateCcw, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -8,14 +8,6 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog } from '@/components/feedback'
 import { notifyError, notifySuccess } from '@/components/feedback/notify'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {notifyApprovalGate, useNotifyDeleted} from '@/sdk'
 import {isApprovalGateError} from '@/sdk'
 import { type PipelineStage, type RecordItem, type StageKind, activePipelines, recordsKeys, usePipelines } from '@/sdk'
@@ -31,7 +23,7 @@ export interface DealActionsProps {
   record: RecordItem
 }
 
-type DealAction =
+export type DealAction =
   | { type: 'win' }
   | { type: 'lose'; choice: LostReasonChoice }
   | { type: 'reopen' }
@@ -83,20 +75,14 @@ function runAction(id: string, action: DealAction): Promise<Deal> {
   }
 }
 
-export function DealActions({ record }: DealActionsProps) {
+export function useDealRunner(record: RecordItem) {
   const { t } = useTranslation('deals')
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { hasPermission } = useSession()
   const deal = record as unknown as Deal
   const workflow = usePipelines()
   const [losing, setLosing] = useState(false)
-  const [movingPipeline, setMovingPipeline] = useState(false)
-  const { t: tp } = useTranslation('deals', { keyPrefix: 'pipeline' })
-  const [deleting, setDeleting] = useState(false)
   const canUpdate = hasPermission('deals.update')
-  const canDelete = hasPermission('deals.delete')
-  const canArchive = hasPermission('deals.archive')
 
   const refresh = (updated?: Deal) => {
     if (updated) queryClient.setQueryData(recordsKeys.detail(DEAL_RECORD_TYPE, deal.id), updated)
@@ -121,22 +107,9 @@ export function DealActions({ record }: DealActionsProps) {
   })
   const flow = useDealMoveFlow((request) => action.mutateAsync({ type: 'move', request }), action.isPending)
 
-  const notifyDeleted = useNotifyDeleted()
-  const remove = useMutation({
-    mutationFn: () => api.delete<void>(`/v1/deals/${encodeURIComponent(deal.id)}`),
-    onSuccess: () => {
-      refresh()
-      notifyDeleted({ recordType: 'deals.deal', recordId: deal.id, message: t('detail.done.delete') })
-      navigate(DEALS_PATH)
-    },
-  })
-
   const pipeline = workflow.data?.find((item) => item.id === deal.pipeline_id)
   const allStages = pipeline?.stages ?? []
-  const stages = allStages.filter((stage) => stage.is_active && stage.id !== deal.stage_id)
   const currentStage = allStages.find((stage) => stage.id === deal.stage_id)
-  const canMovePipeline = activePipelines(workflow.data).some((item) => item.id !== deal.pipeline_id)
-  const busy = action.isPending
   const wonStage = closingStage(allStages, 'won')
   const lostStage = closingStage(allStages, 'lost')
 
@@ -156,63 +129,105 @@ export function DealActions({ record }: DealActionsProps) {
     flow.start(deal, { id: lostStage.id, name: lostStage.name, kind: 'lost' }, { from: currentStage, target: lostStage })
   }
 
+  const moveTo = (stage: PipelineStage) =>
+    flow.start(deal, { id: stage.id, name: stage.name, kind: stage.kind }, { from: currentStage, target: stage })
+
+  const dialogs = (
+    <>
+      <LostReasonDialog
+        open={losing}
+        dealTitle={deal.title}
+        pending={action.isPending}
+        onOpenChange={setLosing}
+        onConfirm={(choice) => {
+          setLosing(false)
+          action.mutate({ type: 'lose', choice })
+        }}
+      />
+      {flow.dialogs}
+    </>
+  )
+
+  return {
+    deal,
+    workflow,
+    allStages,
+    currentStage,
+    canUpdate,
+    busy: action.isPending,
+    action,
+    flow,
+    win,
+    lose,
+    moveTo,
+    refresh,
+    dialogs,
+  }
+}
+
+export function DealPrimaryAction({ record }: DealActionsProps) {
+  const { t } = useTranslation('deals')
+  const runner = useDealRunner(record)
+  if (!runner.canUpdate) return null
+  const closed = runner.deal.status !== 'open'
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {canUpdate && deal.status === 'open' && (
-        <>
-          <Button size="sm" variant="outline" disabled={busy} onClick={win}>
-            <ThumbsUp aria-hidden="true" />
-            {t('detail.win')}
-          </Button>
-          <Button size="sm" variant="outline" disabled={busy} onClick={lose}>
-            <ThumbsDown aria-hidden="true" />
-            {t('detail.lose')}
-          </Button>
-        </>
-      )}
-      {canUpdate && deal.status !== 'open' && (
-        <Button size="sm" variant="outline" disabled={busy} onClick={() => action.mutate({ type: 'reopen' })}>
+    <>
+      {closed ? (
+        <Button size="sm" disabled={runner.busy} onClick={() => runner.action.mutate({ type: 'reopen' })}>
           <RotateCcw aria-hidden="true" />
           {t('detail.reopen')}
         </Button>
+      ) : (
+        <Button size="sm" disabled={runner.busy} onClick={runner.win}>
+          <ThumbsUp aria-hidden="true" />
+          {t('detail.win')}
+        </Button>
       )}
-      {canUpdate && (stages.length > 0 || canMovePipeline) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline" disabled={busy}>
-              {t('detail.moveTo')}
-              <ChevronDown aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{t('card.moveTo')}</DropdownMenuLabel>
-            {stages.map((stage) => (
-              <DropdownMenuItem
-                key={stage.id}
-                onSelect={() =>
-                  flow.start(
-                    deal,
-                    { id: stage.id, name: stage.name, kind: stage.kind },
-                    { from: currentStage, target: stage },
-                  )
-                }
-              >
-                {stage.name}
-              </DropdownMenuItem>
-            ))}
-            {canMovePipeline && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setMovingPipeline(true)}>{tp('move.menu')}</DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      {runner.dialogs}
+    </>
+  )
+}
+
+export function DealActions({ record }: DealActionsProps) {
+  const { t } = useTranslation('deals')
+  const { t: tp } = useTranslation('deals', { keyPrefix: 'pipeline' })
+  const navigate = useNavigate()
+  const { hasPermission } = useSession()
+  const runner = useDealRunner(record)
+  const { deal, workflow, currentStage, busy, action, flow } = runner
+  const [movingPipeline, setMovingPipeline] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const canDelete = hasPermission('deals.delete')
+  const canArchive = hasPermission('deals.archive')
+  const canMovePipeline = activePipelines(workflow.data).some((item) => item.id !== deal.pipeline_id)
+  const notifyDeleted = useNotifyDeleted()
+  const remove = useMutation({
+    mutationFn: () => api.delete<void>(`/v1/deals/${encodeURIComponent(deal.id)}`),
+    onSuccess: () => {
+      runner.refresh()
+      notifyDeleted({ recordType: 'deals.deal', recordId: deal.id, message: t('detail.done.delete') })
+      navigate(DEALS_PATH)
+    },
+  })
+
+  return (
+    <>
+      {runner.canUpdate && deal.status === 'open' && (
+        <Button size="sm" variant="outline" disabled={busy} onClick={runner.lose}>
+          <ThumbsDown aria-hidden="true" />
+          {t('detail.lose')}
+        </Button>
+      )}
+      {runner.canUpdate && canMovePipeline && (
+        <Button size="sm" variant="outline" disabled={busy} onClick={() => setMovingPipeline(true)}>
+          <MoveRight aria-hidden="true" />
+          {tp('move.menu')}
+        </Button>
       )}
       {canArchive && (
         <Button
           size="sm"
-          variant="ghost"
+          variant="outline"
           disabled={busy}
           onClick={() => action.mutate({ type: deal.archived_at ? 'unarchive' : 'archive' })}
         >
@@ -221,22 +236,12 @@ export function DealActions({ record }: DealActionsProps) {
         </Button>
       )}
       {canDelete && (
-        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setDeleting(true)}>
+        <Button size="sm" variant="outline" data-destructive onClick={() => setDeleting(true)}>
           <Trash2 aria-hidden="true" />
           {t('detail.delete')}
         </Button>
       )}
-      <LostReasonDialog
-        open={losing}
-        dealTitle={deal.title}
-        pending={busy}
-        onOpenChange={setLosing}
-        onConfirm={(choice) => {
-          setLosing(false)
-          action.mutate({ type: 'lose', choice })
-        }}
-      />
-      {flow.dialogs}
+      {runner.dialogs}
       <MovePipelineDialog
         open={movingPipeline}
         deal={deal}
@@ -264,6 +269,6 @@ export function DealActions({ record }: DealActionsProps) {
         pending={remove.isPending}
         onConfirm={() => remove.mutateAsync()}
       />
-    </div>
+    </>
   )
 }
