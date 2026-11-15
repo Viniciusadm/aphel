@@ -16,6 +16,13 @@ export function safeHref(raw: string): string | null {
 }
 
 function link(href: string, children: ReactNode, key: string): ReactNode {
+  if (href.startsWith('mention:')) {
+    return (
+      <span key={key} className="rounded bg-primary/10 px-1 font-medium text-primary">
+        {children}
+      </span>
+    )
+  }
   const safe = safeHref(href)
   if (!safe) return <Fragment key={key}>{children}</Fragment>
   return (

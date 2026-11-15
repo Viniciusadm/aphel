@@ -4,11 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { formatDateTime, useRecordFormatting } from '@/sdk'
+import { formatDateTime, useOrganizationUsers, useRecordFormatting } from '@/sdk'
 import type { Note, NoteVisibility } from '../api'
 import { Markdown } from '@/components/markdown'
 import { useNotePermissions } from '../lib/permissions'
 import { NoteEditor } from './NoteEditor'
+
+function highlightMentions(body: string, names: string[]): string {
+  const sorted = [...new Set(names)].filter(Boolean).sort((left, right) => right.length - left.length)
+  if (sorted.length === 0) return body
+  const escaped = sorted.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  const pattern = new RegExp(`@(${escaped.join('|')})(?![\\p{L}\\p{N}])`, 'gu')
+  return body.replace(pattern, (_, name: string) => `[@${name}](mention:${encodeURIComponent(name)})`)
+}
 
 export interface NoteCardProps {
   note: Note
@@ -25,6 +33,8 @@ export function NoteCard({ note, pending = false, onSave, onTogglePin, onDelete 
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const edited = note.updated_at !== note.created_at
+  const users = useOrganizationUsers()
+  const source = highlightMentions(note.body, (users.data ?? []).map((user) => user.display_name))
 
   return (
     <li
@@ -45,7 +55,7 @@ export function NoteCard({ note, pending = false, onSave, onTogglePin, onDelete 
           {note.visibility === 'private' && (
             <Badge variant="outline" title={t('card.privateHint')}>
               <Lock className="size-3" aria-hidden="true" />
-              {t('visibility.private')}
+              {t('card.private')}
             </Badge>
           )}
         </div>
@@ -101,7 +111,7 @@ export function NoteCard({ note, pending = false, onSave, onTogglePin, onDelete 
           }}
         />
       ) : (
-        <Markdown source={note.body} />
+        <Markdown source={source} />
       )}
       <ConfirmDialog
         open={confirming}

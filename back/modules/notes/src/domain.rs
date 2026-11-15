@@ -14,6 +14,7 @@ pub(crate) const NOTE_UPDATED: &str = "note.updated";
 pub(crate) const NOTE_DELETED: &str = "note.deleted";
 pub(crate) const NOTE_PINNED: &str = "note.pinned";
 pub(crate) const NOTE_UNPINNED: &str = "note.unpinned";
+pub(crate) const NOTE_RESTORED: &str = "note.restored";
 
 pub(crate) fn note_not_found() -> AppError {
     AppError::not_found_code(NOTE_NOT_FOUND, "note was not found")

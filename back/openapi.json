@@ -33866,6 +33866,116 @@
         "x-aphel-module": "notes"
       }
     },
+    "/api/v1/notes/{note_id}/restore": {
+      "post": {
+        "tags": [
+          "notes"
+        ],
+        "operationId": "notes_restore",
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "description": "Note id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Note deleted in the last 24 hours restored with its original date; only who may delete it can restore it",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_NoteResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed to delete this note (`permission_denied`, `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Note not deleted, deleted too long ago or not visible (`note_not_found`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session_cookie": []
+          },
+          {
+            "api_token": []
+          }
+        ],
+        "x-aphel-module": "notes"
+      }
+    },
     "/api/v1/notes/{note_id}/unpin": {
       "post": {
         "tags": [
@@ -126235,11 +126345,6 @@
       "x-aphel-module": "money"
     },
     {
-      "name": "notes",
-      "description": "Notes attached to records",
-      "x-aphel-module": "notes"
-    },
-    {
       "name": "notifications",
       "description": "Notifications and delivery preferences",
       "x-aphel-module": "notifications"
@@ -126383,6 +126488,11 @@
       "name": "duplicates",
       "description": "Duplicate detection rules, the duplicate queue and record merging",
       "x-aphel-module": "duplicates"
+    },
+    {
+      "name": "notes",
+      "description": "Notes attached to records",
+      "x-aphel-module": "notes"
     },
     {
       "name": "validation-rules",

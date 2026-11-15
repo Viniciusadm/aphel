@@ -12,6 +12,7 @@ import {
   useDeleteNote,
   usePinNote,
   useRecordNotes,
+  useRestoreNote,
   useUpdateNote,
   type Note,
   type NoteTarget,
@@ -38,6 +39,7 @@ export function NotesTab({ recordType, recordId, readOnly = false, className }: 
   const update = useUpdateNote(target)
   const pin = usePinNote(target)
   const remove = useDeleteNote(target)
+  const restore = useRestoreNote(target)
   const canCreate = !readOnly && hasPermission('notes.create')
 
   const fail = (error: unknown) => toast({ title: t(noteErrorKey(error)), variant: 'destructive' })
@@ -71,7 +73,19 @@ export function NotesTab({ recordType, recordId, readOnly = false, className }: 
   const onDelete = async (note: Note) => {
     try {
       await remove.mutateAsync(note.id)
-      toast({ title: t('tab.deleted'), variant: 'success' })
+      toast({
+        title: t('tab.deleted'),
+        variant: 'success',
+        duration: 10_000,
+        action: {
+          label: t('tab.undo'),
+          onClick: () =>
+            restore.mutate(note.id, {
+              onSuccess: () => toast({ title: t('tab.restored'), variant: 'success' }),
+              onError: fail,
+            }),
+        },
+      })
     } catch (error) {
       fail(error)
     }

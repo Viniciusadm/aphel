@@ -4,7 +4,8 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::domain::{
-    CreateNoteCommand, ListNotesQuery, NOTE_CREATED, NOTE_DELETED, NOTE_PINNED, NOTE_UNPINNED,
+    CreateNoteCommand, ListNotesQuery, NOTE_CREATED, NOTE_DELETED, NOTE_PINNED, NOTE_RESTORED,
+    NOTE_UNPINNED,
     NOTE_UPDATED, NoteData, NoteView, NoteVisibility, UpdateNoteCommand, normalize_note_body,
     note_not_found,
 };
@@ -216,6 +217,45 @@ pub(crate) async fn set_pinned(
     write_update(ctx, &current, data, ip).await
 }
 
+const RESTORE_WINDOW_HOURS: i64 = 24;
+
+pub(crate) async fn restore(
+    ctx: &Ctx<'_>,
+    id: &str,
+    ip: Option<String>,
+) -> Result<NoteView, AppError> {
+    let uuid = Uuid::parse_str(id).map_err(|_| note_not_found())?;
+    let since = ctx.now() - chrono::Duration::hours(RESTORE_WINDOW_HOURS);
+    let current = NoteStore::of(ctx)
+        .find_deleted(uuid, since)
+        .await?
+        .filter(|note| note.is_visible_to(ctx.scope.user_id()))
+        .ok_or_else(note_not_found)?;
+    if !record_access(ctx).can_read(ctx.scope, &current.record).await? {
+        return Err(note_not_found());
+    }
+    require_manage(ctx, &current, &Permission::NOTES_DELETE, "restore").await?;
+    let data = current.data();
+    let mut tx = ctx.begin().await?;
+    if !NoteStore::of(ctx).restore(&mut tx, current.id).await? {
+        return Err(note_not_found());
+    }
+    publish(
+        ctx,
+        &mut tx,
+        current.id,
+        &current.record,
+        &data,
+        &[NOTE_RESTORED],
+        &[],
+        Vec::new(),
+        ip,
+    )
+    .await?;
+    tx.commit().await?;
+    require_note(ctx, current.id).await
+}
+
 pub(crate) async fn delete(ctx: &Ctx<'_>, id: &str, ip: Option<String>) -> Result<(), AppError> {
     let current = visible(ctx, id).await?;
     require_manage(ctx, &current, &Permission::NOTES_DELETE, "delete").await?;
@@ -278,9 +318,10 @@ async fn write_update(
         });
     }
     let now = ctx.now();
+    let touched = old.body != data.body || old.visibility != data.visibility;
     let mut tx = ctx.begin().await?;
     NoteStore::of(ctx)
-        .update(&mut tx, current.id, &data, now)
+        .update(&mut tx, current.id, &data, if touched { now } else { current.updated_at })
         .await?;
     publish(
         ctx,

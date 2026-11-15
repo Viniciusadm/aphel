@@ -87,7 +87,7 @@ impl NoteStore {
         tx: &mut MySqlTx,
         id: Uuid,
         data: &NoteData,
-        now: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
     ) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE notes SET body = ?, visibility = ?, pinned = ?, updated_at = ? \
@@ -96,7 +96,7 @@ impl NoteStore {
         .bind(&data.body)
         .bind(data.visibility.as_str())
         .bind(data.pinned)
-        .bind(mapper::naive(now))
+        .bind(mapper::naive(updated_at))
         .bind(id.to_string())
         .execute(&mut **tx)
         .await?;
@@ -110,11 +110,36 @@ impl NoteStore {
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
         let result = sqlx::query(
-            "UPDATE notes SET deleted_at = ?, updated_at = ? \
+            "UPDATE notes SET deleted_at = ?, updated_at = updated_at \
              WHERE id = ? AND deleted_at IS NULL",
         )
         .bind(mapper::naive(now))
-        .bind(mapper::naive(now))
+        .bind(id.to_string())
+        .execute(&mut **tx)
+        .await?;
+        Ok(result.rows_affected() == 1)
+    }
+
+    pub(crate) async fn find_deleted(
+        &self,
+        id: Uuid,
+        since: DateTime<Utc>,
+    ) -> Result<Option<NoteView>, AppError> {
+        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
+            "{NOTE_SELECT} WHERE n.id = ? AND n.deleted_at IS NOT NULL AND n.deleted_at >= ?"
+        )))
+        .bind(id.to_string())
+        .bind(mapper::naive(since))
+        .fetch_optional(&self.pool)
+        .await?;
+        row.as_ref().map(note_from_row).transpose()
+    }
+
+    pub(crate) async fn restore(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+        let result = sqlx::query(
+            "UPDATE notes SET deleted_at = NULL, updated_at = updated_at \
+             WHERE id = ? AND deleted_at IS NOT NULL",
+        )
         .bind(id.to_string())
         .execute(&mut **tx)
         .await?;

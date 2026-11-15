@@ -33,6 +33,7 @@ export const notesApi = {
   update: (id: string, request: UpdateNoteRequest) => api.patch<Note>(notePath(id), request),
   setPinned: (id: string, pinned: boolean) => api.post<Note>(notePath(id, pinned ? '/pin' : '/unpin')),
   remove: (id: string) => api.delete<void>(notePath(id)),
+  restore: (id: string) => api.post<Note>(notePath(id, '/restore')),
 }
 
 export function useRecordNotes(target: NoteTarget) {
@@ -76,4 +77,9 @@ export function usePinNote(target: NoteTarget) {
 export function useDeleteNote(target: NoteTarget) {
   const invalidate = useInvalidateNotes(target)
   return useMutation({ mutationFn: notesApi.remove, onSuccess: () => invalidate() })
+}
+
+export function useRestoreNote(target: NoteTarget) {
+  const invalidate = useInvalidateNotes(target)
+  return useMutation({ mutationFn: notesApi.restore, onSuccess: () => invalidate() })
 }

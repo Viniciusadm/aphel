@@ -11,12 +11,14 @@
     "emptyDescription": "Registre combinados, contexto e próximos passos. Notas privadas só você vê.",
     "created": "Nota adicionada",
     "updated": "Nota atualizada",
-    "deleted": "Nota excluída"
+    "deleted": "Nota excluída",
+    "undo": "Desfazer",
+    "restored": "Nota restaurada."
   },
   "editor": {
     "label": "Nota",
-    "placeholder": "Escreva em Markdown: **negrito**, *itálico*, listas e links.",
-    "hint": "Aceita Markdown.",
+    "placeholder": "Escreva a nota. Digite @ para mencionar alguém.",
+    "hint": "Selecione um trecho e use os botões para formatar.",
     "tooLong": "A nota pode ter no máximo 50.000 caracteres.",
     "preview": "Visualizar",
     "write": "Escrever",
@@ -24,11 +26,19 @@
     "previewEmpty": "Nada para visualizar.",
     "visibility": "Visibilidade",
     "cancel": "Cancelar",
-    "hintKeys": "Aceita Markdown. {{keys}} salva."
+    "hintKeys": "Selecione um trecho e use os botões para formatar. {{keys}} salva.",
+    "format": "Formatação",
+    "formats": {
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "list": "Lista",
+      "link": "Link"
+    },
+    "visibilityLabel": "Quem vê"
   },
   "visibility": {
     "team": "Equipe",
-    "private": "Privada"
+    "private": "Só eu"
   },
   "card": {
     "unknownAuthor": "Usuário removido",
@@ -41,7 +51,8 @@
     "delete": "Excluir nota",
     "save": "Salvar",
     "deleteTitle": "Excluir nota",
-    "deleteDescription": "A nota será excluída. Esta ação não pode ser desfeita."
+    "deleteDescription": "A nota será excluída. Você poderá desfazer logo em seguida.",
+    "private": "Privada"
   },
   "errors": {
     "generic": "Não foi possível concluir a operação. Tente novamente.",

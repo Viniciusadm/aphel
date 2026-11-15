@@ -184,7 +184,7 @@ The table lists every tag of the OpenAPI document, the module that contributes i
 | `messaging` | `messaging` | 16 | Shared inbox for WhatsApp Cloud API and email (IMAP/SMTP) |
 | `microsoft` | `microsoft` | 7 | Login with a Microsoft account (Entra ID), Outlook calendar meeting sync and Outlook mailboxes |
 | `currencies` | `money` | 9 | Enabled currencies of the organization and dated exchange rates to the base currency |
-| `notes` | `notes` | 7 | Notes attached to records |
+| `notes` | `notes` | 8 | Notes attached to records |
 | `notifications` | `notifications` | 9 | Notifications and delivery preferences |
 | `custom-objects` | `objects` | 6 | Object administration |
 | `relationships` | `objects` | 8 | Object relationships |

@@ -11,12 +11,14 @@
     "emptyDescription": "Write down agreements, context and next steps. Private notes are visible only to you.",
     "created": "Note added",
     "updated": "Note updated",
-    "deleted": "Note deleted"
+    "deleted": "Note deleted",
+    "undo": "Undo",
+    "restored": "Note restored."
   },
   "editor": {
     "label": "Note",
-    "placeholder": "Write in Markdown: **bold**, *italic*, lists and links.",
-    "hint": "Markdown supported.",
+    "placeholder": "Write the note. Type @ to mention someone.",
+    "hint": "Select some text and use the buttons to format it.",
     "tooLong": "A note can have at most 50,000 characters.",
     "preview": "Preview",
     "write": "Write",
@@ -24,11 +26,19 @@
     "previewEmpty": "Nothing to preview.",
     "visibility": "Visibility",
     "cancel": "Cancel",
-    "hintKeys": "Markdown supported. {{keys}} saves."
+    "hintKeys": "Select some text and use the buttons to format it. {{keys}} saves.",
+    "format": "Formatting",
+    "formats": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "list": "List",
+      "link": "Link"
+    },
+    "visibilityLabel": "Visible to"
   },
   "visibility": {
     "team": "Team",
-    "private": "Private"
+    "private": "Only me"
   },
   "card": {
     "unknownAuthor": "Removed user",
@@ -41,7 +51,8 @@
     "delete": "Delete note",
     "save": "Save",
     "deleteTitle": "Delete note",
-    "deleteDescription": "The note will be deleted. This cannot be undone."
+    "deleteDescription": "The note will be deleted. You can undo it right after.",
+    "private": "Private"
   },
   "errors": {
     "generic": "The operation could not be completed. Try again.",

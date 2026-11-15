@@ -31,6 +31,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(get_note, update_note, delete_note))
         .routes(routes!(pin_note))
         .routes(routes!(unpin_note))
+        .routes(routes!(restore_note))
 }
 
 #[utoipa::path(
@@ -368,4 +369,33 @@ impl UpdateNoteRequest {
             ip,
         }
     }
+}
+
+#[utoipa::path(
+    post,
+    path = "/notes/{note_id}/restore",
+    tag = TAG,
+    operation_id = "notes_restore",
+    security(("session_cookie" = [])),
+    params(("note_id" = String, Path, description = "Note id")),
+    responses(
+        (status = 200, description = "Note deleted in the last 24 hours restored with its original date; only who may delete it can restore it", body = Data<NoteResponse>),
+        (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
+        (status = 403, description = "Not allowed to delete this note (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 404, description = "Note not deleted, deleted too long ago or not visible (`note_not_found`)", body = ErrorEnvelope),
+    )
+)]
+async fn restore_note(
+    State(state): State<AppState>,
+    tenant: AuthContext,
+    client: ClientInfo,
+    Path(note_id): Path<String>,
+) -> Result<Json<Data<NoteResponse>>, ApiError> {
+    let note = service::restore(
+        &Ctx::from_state(&state, &tenant.scope).await?,
+        &note_id,
+        client.0.ip,
+    )
+    .await?;
+    Ok(Json(Data::new(note.into())))
 }

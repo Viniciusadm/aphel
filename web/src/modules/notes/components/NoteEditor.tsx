@@ -1,4 +1,4 @@
-import { Lock, Users } from 'lucide-react'
+import { Bold, Italic, Link2, List, Lock, Users } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -8,10 +8,18 @@ import { type ComposerSubject } from '@/kernel/modules/slots'
 import { ContractComponent, NativeSelect, type ContractComponentProps } from '@/sdk'
 import { Textarea } from '@/components/ui/textarea'
 import type { NoteVisibility } from '../api'
+import { applyFormat, type NoteFormat } from '../lib/format'
 import { Markdown } from '@/components/markdown'
 import { Field } from '@/components/ui/field'
 
 export const MAX_NOTE_LENGTH = 50_000
+
+const FORMATS: { kind: NoteFormat; icon: typeof Bold }[] = [
+  { kind: 'bold', icon: Bold },
+  { kind: 'italic', icon: Italic },
+  { kind: 'list', icon: List },
+  { kind: 'link', icon: Link2 },
+]
 
 function PlainBody({ onValueChange, ...props }: ContractComponentProps<'notifications.MentionInput'>) {
   void onValueChange
@@ -62,6 +70,16 @@ export function NoteEditor({
       setPreview(false)
     }
   }
+  const format = (kind: NoteFormat) => {
+    const field = document.getElementById(`${id}-body`) as HTMLTextAreaElement | null
+    if (!field) return
+    const next = applyFormat(body, field.selectionStart, field.selectionEnd, kind)
+    setBody(next.text)
+    requestAnimationFrame(() => {
+      field.focus()
+      field.setSelectionRange(next.start, next.end)
+    })
+  }
   const submitKeys = useKeybindingProps<HTMLTextAreaElement>({ 'notes.save': () => void submit() })
   const submitChord = useActionKeys('notes.save')[0]
 
@@ -79,6 +97,24 @@ export function NoteEditor({
         labelAction={
           <div className="flex flex-wrap items-center justify-end gap-1">
           {!preview && <Slot name="composer.tools" props={{ context: 'note', subject, value: body, onChange: setBody }} />}
+          {!preview && (
+            <div className="flex items-center" role="group" aria-label={t('editor.format')}>
+              {FORMATS.map(({ kind, icon: Icon }) => (
+                <Button
+                  key={kind}
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  title={t(`editor.formats.${kind}`)}
+                  aria-label={t(`editor.formats.${kind}`)}
+                  onClick={() => format(kind)}
+                >
+                  <Icon aria-hidden="true" />
+                </Button>
+              ))}
+            </div>
+          )}
           <Button
           type="button"
           variant="ghost"
@@ -120,6 +156,7 @@ export function NoteEditor({
       <div className="flex flex-wrap items-center justify-between gap-2">
         {allowVisibility ? (
           <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">{t('editor.visibilityLabel')}</span>
             {visibility === 'private' ? (
               <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
             ) : (
