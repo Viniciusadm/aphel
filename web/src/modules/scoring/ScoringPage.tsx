@@ -1,6 +1,7 @@
-import { Gauge, Pencil, Plus, RefreshCw, Star, Trash2 } from 'lucide-react'
+import { Gauge, MoreHorizontal, Pencil, Plus, Power, RefreshCw, Star, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router'
 import { ConfirmDialog, PageLoader } from '@/components/feedback'
 import { notifyError, notifySuccess } from '@/components/feedback/notify'
 import { Badge } from '@/components/ui/badge'
@@ -10,8 +11,11 @@ import { ErrorState } from '@/components/ui/error-state'
 import { RequirePermission } from '@/sdk'
 import { scoringApi, useInvalidateScoring, useScoringModels } from './api'
 import { useScoringRecordTypeLabel } from './labels'
-import { ScoringModelDialog } from './ScoringModelDialog'
+import { SCORING_PATH } from './routes'
+import { ScoringCreateDialog } from './ScoringCreateDialog'
 import { SCORING_MANAGE, type ScoringModel } from './types'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -23,16 +27,13 @@ export function ScoringPage() {
   )
 }
 
-interface EditorState {
-  model: ScoringModel | null
-}
-
 function ScoringSettings() {
   const { t, i18n } = useTranslation('scoring')
   const models = useScoringModels()
   const invalidate = useInvalidateScoring()
   const recordTypeLabel = useScoringRecordTypeLabel()
-  const [editor, setEditor] = useState<EditorState | null>(null)
+  const [creating, setCreating] = useState(false)
+  const navigate = useNavigate()
   const [removing, setRemoving] = useState<ScoringModel | null>(null)
   const [busy, setBusy] = useState(false)
   const dateFormat = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' })
@@ -50,123 +51,148 @@ function ScoringSettings() {
     }
   }
 
+  const hasPrimary = (recordType: string) =>
+    (models.data ?? []).some((model) => model.record_type === recordType && model.is_primary)
+
   return (
     <Page>
       <PageHeader
         title={t('title')}
         description={t('description')}
         actions={
-          <Button onClick={() => setEditor({ model: null })}>
+          <Button onClick={() => setCreating(true)}>
             <Plus aria-hidden="true" />
             {t('new')}
           </Button>
         }
       />
-      <p className="text-sm text-muted-foreground">{t('help')}</p>
       {models.isPending ? (
         <PageLoader />
       ) : models.isError ? (
         <ErrorState onRetry={() => void models.refetch()} />
       ) : models.data.length === 0 ? (
-        <EmptyState icon={Gauge} title={t('empty.title')} description={t('empty.description')} />
+        <EmptyState
+          icon={Gauge}
+          title={t('empty.title')}
+          description={t('empty.description')}
+          action={
+            <Button onClick={() => setCreating(true)}>
+              <Plus aria-hidden="true" />
+              {t('new')}
+            </Button>
+          }
+        />
       ) : (
-        <ul className="grid gap-2" aria-label={t('list.label')}>
-          {models.data.map((model) => (
-            <li key={model.id} className="grid min-w-0 gap-2 rounded-md border bg-card p-3">
-              <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
-                <div className="grid min-w-0 gap-1">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <span className="font-medium break-words">{model.name}</span>
-                    <Badge variant="secondary">{recordTypeLabel(model.record_type)}</Badge>
-                    {model.is_primary && <Badge variant="default">{t('list.primary')}</Badge>}
-                    {!model.is_active && <Badge variant="outline">{t('list.inactive')}</Badge>}
-                  </div>
-                  {model.description && (
-                    <p className="text-sm break-words text-muted-foreground">{model.description}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    {t('list.criteria', { count: model.criteria.length })} ·{' '}
-                    {t('list.bands', { warm: model.warm_from, hot: model.hot_from })} ·{' '}
+        <div className="grid gap-3">
+          <Table>
+            <caption className="sr-only">{t('list.label')}</caption>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{t('list.columns.name')}</TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">{t('list.columns.type')}</TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">{t('list.columns.criteria')}</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">{t('list.columns.bands')}</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">{t('list.columns.recalculated')}</TableHead>
+                <TableHead scope="col" className="text-right">
+                  <span className="sr-only">{t('list.columns.actions')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {models.data.map((model) => (
+                <TableRow key={model.id}>
+                  <TableCell className="max-w-72">
+                    <Link to={`${SCORING_PATH}/${model.id}`} className="block truncate font-medium underline-offset-4 hover:underline">
+                      {model.name}
+                    </Link>
+                    <span className="flex flex-wrap gap-1">
+                      {model.is_primary && <Badge variant="default">{t('list.primary')}</Badge>}
+                      {!model.is_active && <Badge variant="outline">{t('list.inactive')}</Badge>}
+                    </span>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">{recordTypeLabel(model.record_type)}</TableCell>
+                  <TableCell className="hidden tabular-nums md:table-cell">{model.criteria.length}</TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    {t('list.bands', { warm: model.warm_from, hot: model.hot_from })}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
                     {model.recalculated_at
-                      ? t('list.recalculatedAt', { date: dateFormat.format(new Date(model.recalculated_at)) })
+                      ? dateFormat.format(new Date(model.recalculated_at))
                       : t('list.neverRecalculated')}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-1">
-                  {!model.is_primary && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={busy}
-                      onClick={() =>
-                        void run(
-                          () => scoringApi.update(model.id, { is_primary: true }, model.updated_at),
-                          t('toasts.primary'),
-                        )
-                      }
-                    >
-                      <Star aria-hidden="true" />
-                      {t('list.makePrimary')}
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() =>
-                      void run(
-                        () => scoringApi.update(model.id, { is_active: !model.is_active }, model.updated_at),
-                        model.is_active ? t('toasts.deactivated') : t('toasts.activated'),
-                      )
-                    }
-                  >
-                    {model.is_active ? t('list.deactivate') : t('list.activate')}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={busy || !model.is_active}
-                    onClick={() => void run(() => scoringApi.recalculate(model.id), t('toasts.recalculating'))}
-                  >
-                    <RefreshCw aria-hidden="true" />
-                    {t('list.recalculate')}
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={t('list.edit', { name: model.name })}
-                    onClick={() => setEditor({ model })}
-                  >
-                    <Pencil aria-hidden="true" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="text-destructive"
-                    aria-label={t('list.remove', { name: model.name })}
-                    onClick={() => setRemoving(model)}
-                  >
-                    <Trash2 aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button asChild size="sm" variant="outline">
+                        <Link to={`${SCORING_PATH}/${model.id}`} aria-label={t('list.edit', { name: model.name })}>
+                          <Pencil aria-hidden="true" />
+                          {t('list.editShort')}
+                        </Link>
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="icon" variant="ghost" aria-label={t('list.actions', { name: model.name })}>
+                            <MoreHorizontal aria-hidden="true" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {!model.is_primary && (
+                            <DropdownMenuItem
+                              disabled={busy}
+                              onSelect={() =>
+                                void run(
+                                  () => scoringApi.update(model.id, { is_primary: true }, model.updated_at),
+                                  t('toasts.primary'),
+                                )
+                              }
+                            >
+                              <Star aria-hidden="true" />
+                              {t('list.makePrimary')}
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            disabled={busy || !model.is_active}
+                            onSelect={() => void run(() => scoringApi.recalculate(model.id), t('toasts.recalculating'))}
+                          >
+                            <RefreshCw aria-hidden="true" />
+                            {t('list.recalculate')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            disabled={busy}
+                            onSelect={() =>
+                              void run(
+                                () => scoringApi.update(model.id, { is_active: !model.is_active }, model.updated_at),
+                                model.is_active ? t('toasts.deactivated') : t('toasts.activated'),
+                              )
+                            }
+                          >
+                            <Power aria-hidden="true" />
+                            {model.is_active ? t('list.deactivate') : t('list.activate')}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem variant="destructive" onSelect={() => setRemoving(model)}>
+                            <Trash2 aria-hidden="true" />
+                            {t('list.removeShort')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <p className="text-xs text-muted-foreground">{t('help')}</p>
+        </div>
       )}
-      <ScoringModelDialog
-        open={editor !== null}
-        model={editor?.model ?? null}
-        hasPrimary={(recordType) =>
-          (models.data ?? []).some((model) => model.record_type === recordType && model.is_primary)
-        }
-        onOpenChange={(open) => {
-          if (!open) setEditor(null)
-        }}
-        onSaved={(created) => {
-          setEditor(null)
+      <ScoringCreateDialog
+        open={creating}
+        hasPrimary={hasPrimary}
+        onOpenChange={setCreating}
+        onCreated={(model) => {
+          setCreating(false)
           void invalidate()
-          notifySuccess(created ? t('toasts.created') : t('toasts.updated'))
+          notifySuccess(t('toasts.created'))
+          void navigate(`${SCORING_PATH}/${model.id}`)
         }}
       />
       <ConfirmDialog

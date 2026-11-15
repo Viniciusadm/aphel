@@ -1,8 +1,8 @@
 {
   "name": "Pontuação de leads",
   "title": "Pontuação de leads",
-  "description": "Modelos que somam pontos pelo perfil e pelo comportamento dos registros e classificam em frio, morno e quente.",
-  "help": "O modelo principal de cada tipo aparece no campo Pontuação das listas e do detalhe. As notas são recalculadas a cada evento, ao salvar o modelo e uma vez por dia para aplicar o decaimento.",
+  "description": "Modelos que classificam os registros em frio, morno e quente somando pontos de perfil e de comportamento.",
+  "help": "O modelo principal de cada tipo aparece no campo Pontuação das listas e do registro. As notas são recalculadas a cada mudança no registro e uma vez por dia.",
   "new": "Novo modelo",
   "recordTypes": {
     "contact": "Contatos",
@@ -43,9 +43,7 @@
     "label": "Modelos de pontuação",
     "primary": "Principal",
     "inactive": "Inativo",
-    "criteria_one": "{{count}} critério",
-    "criteria_other": "{{count}} critérios",
-    "bands": "Frio < {{warm}} ≤ Morno < {{hot}} ≤ Quente",
+    "bands": "Morno a partir de {{warm}} · Quente a partir de {{hot}}",
     "recalculatedAt": "Recalculado em {{date}}",
     "neverRecalculated": "Ainda não recalculado",
     "activate": "Ativar",
@@ -53,31 +51,35 @@
     "makePrimary": "Tornar principal",
     "recalculate": "Recalcular",
     "edit": "Editar {{name}}",
-    "remove": "Excluir {{name}}"
+    "remove": "Excluir {{name}}",
+    "columns": {
+      "name": "Modelo",
+      "type": "Tipo",
+      "criteria": "Critérios",
+      "bands": "Faixas",
+      "recalculated": "Último cálculo",
+      "actions": "Ações"
+    },
+    "editShort": "Editar",
+    "actions": "Ações de {{name}}",
+    "removeShort": "Excluir"
   },
   "dialog": {
-    "newTitle": "Novo modelo de pontuação",
-    "editTitle": "Editar modelo de pontuação",
-    "description": "Defina os critérios que somam ou tiram pontos e as faixas de classificação.",
     "name": "Nome",
-    "key": "Chave",
-    "keyHint": "Identificador estável usado nos pacotes de configuração e nas automações. Gerado a partir do nome se ficar vazio.",
     "descriptionLabel": "Descrição",
     "recordType": "Tipo de registro",
-    "primary": "Modelo principal do tipo (aparece no campo Pontuação)",
+    "primary": "Modelo principal do tipo",
     "active": "Ativo",
     "bandsTitle": "Faixas",
     "warmFrom": "Morno a partir de",
     "hotFrom": "Quente a partir de",
     "bandsHint": "Abaixo de Morno a nota é Fria.",
     "criteriaTitle": "Critérios",
-    "criteriaHint": "Perfil soma os pontos enquanto o registro atender ao filtro. Comportamento soma os pontos a cada ocorrência, até o limite, e cada ocorrência perde os pontos de forma linear até zerar no número de dias do decaimento.",
+    "criteriaHint": "Os critérios somam ou tiram pontos da nota do registro.",
     "addProfile": "Adicionar critério de perfil",
     "addBehavior": "Adicionar critério de comportamento",
-    "noCriteria": "Nenhum critério. Adicione pelo menos um para o modelo pontuar.",
+    "noCriteria": "Adicione pelo menos um critério para o modelo pontuar.",
     "criterionLabel": "Rótulo",
-    "criterionKey": "Chave",
-    "kind": "Tipo",
     "points": "Pontos",
     "pointsHint": "Use valores negativos para tirar pontos.",
     "signal": "Sinal",
@@ -101,7 +103,16 @@
       "bands": "Precisa ser maior que o início da faixa morna.",
       "filter": "Adicione pelo menos uma condição ao filtro.",
       "integer": "Informe um número inteiro."
-    }
+    },
+    "kindHints": {
+      "profile": "Soma os pontos enquanto o registro atender ao filtro.",
+      "behavior": "Soma os pontos a cada ocorrência, até o limite. Cada ocorrência perde valor até zerar no número de dias do decaimento."
+    },
+    "primaryHint": "Aparece no campo Pontuação das listas e do registro.",
+    "activeHint": "Modelos inativos não calculam notas.",
+    "bandsPreview": "Frio: abaixo de {{warm}} · Morno: de {{warm}} a {{warmEnd}} · Quente: {{hot}} ou mais",
+    "noCriteriaTitle": "Nenhum critério",
+    "unnamedCriterion": "Critério sem nome"
   },
   "removeDialog": {
     "title": "Excluir modelo de pontuação",
@@ -134,14 +145,26 @@
   },
   "placeholders": {
     "name": "Ex.: Qualificação de leads",
-    "key": "Ex.: qualificacao_de_leads",
     "description": "Descreva como este modelo pontua",
     "warm": "Ex.: 40",
     "hot": "Ex.: 70",
     "criterionLabel": "Ex.: Cargo de decisão",
-    "criterionKey": "Ex.: cargo_decisao",
     "points": "Ex.: 10",
     "maxPoints": "Ex.: 30",
     "decayDays": "Ex.: 30"
+  },
+  "create": {
+    "title": "Novo modelo de pontuação",
+    "description": "Dê um nome e escolha o tipo de registro. Os critérios e as faixas você define na próxima tela.",
+    "submit": "Criar e configurar",
+    "saving": "Criando…"
+  },
+  "edit": {
+    "back": "Modelos de pontuação",
+    "description": "Modelo de pontuação de {{type}}.",
+    "modelTitle": "Modelo",
+    "modelDescription": "Nome, descrição e situação do modelo.",
+    "notFoundTitle": "Modelo não encontrado",
+    "notFoundDescription": "Ele pode ter sido excluído. Volte para a lista de modelos."
   }
 }

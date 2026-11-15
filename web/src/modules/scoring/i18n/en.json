@@ -1,8 +1,8 @@
 {
   "name": "Scoring",
   "title": "Lead scoring",
-  "description": "Models that add points for the profile and the behavior of records and rank them as cold, warm or hot.",
-  "help": "The primary model of each type shows in the Score field of lists and details. Scores are recalculated on every event, when the model is saved and once a day to apply decay.",
+  "description": "Models that rate records as cold, warm or hot by adding up profile and behavior points.",
+  "help": "The primary model of each type shows in the Score field of lists and records. Scores are recalculated whenever a record changes and once a day.",
   "new": "New model",
   "recordTypes": {
     "contact": "Contacts",
@@ -43,9 +43,7 @@
     "label": "Scoring models",
     "primary": "Primary",
     "inactive": "Inactive",
-    "criteria_one": "{{count}} criterion",
-    "criteria_other": "{{count}} criteria",
-    "bands": "Cold < {{warm}} ≤ Warm < {{hot}} ≤ Hot",
+    "bands": "Warm from {{warm}} · Hot from {{hot}}",
     "recalculatedAt": "Recalculated on {{date}}",
     "neverRecalculated": "Not recalculated yet",
     "activate": "Activate",
@@ -53,31 +51,35 @@
     "makePrimary": "Make primary",
     "recalculate": "Recalculate",
     "edit": "Edit {{name}}",
-    "remove": "Delete {{name}}"
+    "remove": "Delete {{name}}",
+    "columns": {
+      "name": "Model",
+      "type": "Type",
+      "criteria": "Criteria",
+      "bands": "Bands",
+      "recalculated": "Last calculation",
+      "actions": "Actions"
+    },
+    "editShort": "Edit",
+    "actions": "Actions for {{name}}",
+    "removeShort": "Delete"
   },
   "dialog": {
-    "newTitle": "New scoring model",
-    "editTitle": "Edit scoring model",
-    "description": "Define the criteria that add or remove points and the bands.",
     "name": "Name",
-    "key": "Key",
-    "keyHint": "Stable identifier used by configuration packages and automations. Generated from the name when left empty.",
     "descriptionLabel": "Description",
     "recordType": "Record type",
-    "primary": "Primary model of the type (shown in the Score field)",
+    "primary": "Primary model of the type",
     "active": "Active",
     "bandsTitle": "Bands",
     "warmFrom": "Warm from",
     "hotFrom": "Hot from",
     "bandsHint": "Below Warm the score is Cold.",
     "criteriaTitle": "Criteria",
-    "criteriaHint": "Profile adds its points while the record matches the filter. Behavior adds its points on every occurrence, up to the cap, and each occurrence loses its points linearly until zero after the decay days.",
+    "criteriaHint": "Criteria add or remove points from the record's score.",
     "addProfile": "Add profile criterion",
     "addBehavior": "Add behavior criterion",
-    "noCriteria": "No criteria. Add at least one for the model to score.",
+    "noCriteria": "Add at least one criterion for the model to score.",
     "criterionLabel": "Label",
-    "criterionKey": "Key",
-    "kind": "Type",
     "points": "Points",
     "pointsHint": "Use negative values to remove points.",
     "signal": "Signal",
@@ -101,7 +103,16 @@
       "bands": "Must be greater than the start of the warm band.",
       "filter": "Add at least one condition to the filter.",
       "integer": "Enter an integer."
-    }
+    },
+    "kindHints": {
+      "profile": "Adds the points while the record matches the filter.",
+      "behavior": "Adds the points on each occurrence, up to the limit. Each occurrence loses value until it reaches zero after the decay days."
+    },
+    "primaryHint": "Shows in the Score field of lists and records.",
+    "activeHint": "Inactive models do not calculate scores.",
+    "bandsPreview": "Cold: below {{warm}} · Warm: {{warm}} to {{warmEnd}} · Hot: {{hot}} or more",
+    "noCriteriaTitle": "No criteria",
+    "unnamedCriterion": "Unnamed criterion"
   },
   "removeDialog": {
     "title": "Delete scoring model",
@@ -134,14 +145,26 @@
   },
   "placeholders": {
     "name": "E.g.: Lead qualification",
-    "key": "E.g.: lead_qualification",
     "description": "Describe how this model scores",
     "warm": "E.g.: 40",
     "hot": "E.g.: 70",
     "criterionLabel": "E.g.: Decision-maker role",
-    "criterionKey": "E.g.: decision_maker_role",
     "points": "E.g.: 10",
     "maxPoints": "E.g.: 30",
     "decayDays": "E.g.: 30"
+  },
+  "create": {
+    "title": "New scoring model",
+    "description": "Give it a name and choose the record type. You set the criteria and bands on the next screen.",
+    "submit": "Create and configure",
+    "saving": "Creating…"
+  },
+  "edit": {
+    "back": "Scoring models",
+    "description": "Scoring model for {{type}}.",
+    "modelTitle": "Model",
+    "modelDescription": "Name, description and status of the model.",
+    "notFoundTitle": "Model not found",
+    "notFoundDescription": "It may have been deleted. Go back to the list of models."
   }
 }

@@ -1,7 +1,5 @@
 import { type DraftGroup, emptyGroup, type FieldSchema, fieldViolations, serializeFilter, toDraft } from '@/sdk'
 import {
-  DEFAULT_HOT_FROM,
-  DEFAULT_WARM_FROM,
   type CreateScoringModelRequest,
   type ScoringCriterion,
   type ScoringCriterionKind,
@@ -81,20 +79,6 @@ function criterionDraft(criterion: ScoringCriterion): CriterionDraft {
     points: String(criterion.points),
     maxPoints: criterion.max_points == null ? '' : String(criterion.max_points),
     decayDays: criterion.decay_days == null ? '' : String(criterion.decay_days),
-  }
-}
-
-export function emptyModelDraft(recordType: string): ModelDraft {
-  return {
-    key: '',
-    name: '',
-    description: '',
-    recordType,
-    isPrimary: true,
-    isActive: true,
-    warmFrom: String(DEFAULT_WARM_FROM),
-    hotFrom: String(DEFAULT_HOT_FROM),
-    criteria: [newCriterion('behavior')],
   }
 }
 
