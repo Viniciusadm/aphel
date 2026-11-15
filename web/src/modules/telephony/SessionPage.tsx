@@ -1,6 +1,6 @@
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle2, ChevronLeft, Circle, Phone, PhoneCall, SkipForward } from 'lucide-react'
+import { CheckCircle2, ChevronLeft, Circle, Phone, PhoneCall, SkipForward } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -41,22 +41,24 @@ export function SessionPage() {
 
   if (session.isPending) {
     return (
-      <div className="grid gap-3" aria-busy="true">
-        <Skeleton className="h-10 w-1/2" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <Page>
+        <PageHeader title={t('page.title')} back={{ to: CALLS_PATH, label: t('session.back') }} />
+        <div className="grid gap-3" aria-busy="true">
+          <Skeleton className="h-10 w-1/2" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </Page>
     )
   }
-  if (session.isError) return <ErrorState onRetry={() => void session.refetch()} />
-  return (
-    <div className="flex w-full flex-col gap-4">
-      <Link to={CALLS_PATH} className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {t('session.back')}
-      </Link>
-      <SessionWorkspace session={session.data} />
-    </div>
-  )
+  if (session.isError) {
+    return (
+      <Page>
+        <PageHeader title={t('page.title')} back={{ to: CALLS_PATH, label: t('session.back') }} />
+        <ErrorState onRetry={() => void session.refetch()} />
+      </Page>
+    )
+  }
+  return <SessionWorkspace session={session.data} />
 }
 
 function SessionWorkspace({ session }: { session: CallSession }) {
@@ -87,6 +89,7 @@ function SessionWorkspace({ session }: { session: CallSession }) {
     <Page>
       <PageHeader
         title={session.name}
+        back={{ to: CALLS_PATH, label: t('session.back') }}
         description={
           <>
             <p className="tabular-nums">
@@ -104,7 +107,7 @@ function SessionWorkspace({ session }: { session: CallSession }) {
         }
         actions={
           !completed && (
-            <Button variant="outline" size="sm" disabled={busy} onClick={() => setConfirmFinish(true)}>
+            <Button variant="outline" disabled={busy} onClick={() => setConfirmFinish(true)}>
               {t('session.finish')}
             </Button>
           )

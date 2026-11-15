@@ -3,7 +3,7 @@
   "description": "Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report",
   "page": {
     "title": "Calls",
-    "description": "Call sessions from saved views, call outcomes and the team report.",
+    "description": "Sessions to call the contacts of a saved view, one by one.",
     "sections": "Call sections",
     "sessions": "Sessions",
     "report": "Report",
@@ -81,7 +81,17 @@
       "completed": "Finished"
     },
     "people_one": "{{count}} contact",
-    "people_other": "{{count}} people"
+    "people_other": "{{count}} people",
+    "new": "New session",
+    "columns": {
+      "name": "Session",
+      "startedAt": "Started",
+      "people": "Contacts",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "view": "View",
+    "continue": "Continue"
   },
   "session": {
     "back": "Back to calls",
@@ -125,7 +135,9 @@
     "emptyDescription": "Logged calls show up here by user and outcome.",
     "caption": "Calls by user and outcome",
     "user": "User",
-    "noOwner": "No owner"
+    "noOwner": "No owner",
+    "title": "Call report",
+    "description": "Calls logged by person and outcome in the period."
   },
   "outcomes": {
     "title": "Call outcomes",
@@ -143,21 +155,25 @@
     "dialogDescription": "Connected outcomes count as answered calls in the report.",
     "name": "Name",
     "nameRequired": "Enter the name.",
-    "keyHint": "Key: {{key}}",
     "isConnected": "Counts as connected",
     "isConnectedHint": "Check when the person was reached.",
     "save": "Save",
-    "saved": "Outcome {{name}} saved"
+    "saved": "Outcome {{name}} saved",
+    "edit": "Edit",
+    "actions": "Actions for {{name}}",
+    "emptyTitle": "No call outcomes",
+    "emptyDescription": "Create the outcomes the team uses to record how each call ended."
   },
   "nav": {
-    "calls": "Calls"
+    "calls": "Calls",
+    "report": "Call report"
   },
   "quickAdd": {
     "options": {
       "call": "Call"
     },
     "titles": {
-      "call": "Completed call"
+      "call": "Log a call"
     },
     "call": {
       "direction": "Direction",

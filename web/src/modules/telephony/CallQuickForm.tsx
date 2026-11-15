@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifyError } from '@/components/feedback/notify'
-import { Input } from '@/components/ui/input'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import {activitiesKeys} from '@/sdk'
 import { callsKeys, useCallOutcomes } from './api'
 import type { CallActivity, LogCallRequest } from './types'
@@ -93,21 +93,20 @@ export function CallQuickForm({ onDone, initialRecord }: CallQuickFormProps) {
         {touched && !outcomeKey && <SharedFieldError>{t('call.outcomeRequired')}</SharedFieldError>}
       </fieldset>
       <Field label={t('call.minutes')}>
-        {(control) => <>
-          <Input placeholder={t('placeholders.minutes')}
-          {...control}
-          type="number"
-          inputMode="decimal"
-          min={0}
-          max={MAX_CALL_MINUTES}
-          step="any"
-          value={minutes}
-          onChange={(event) => setMinutes(event.target.value)}
-          className="h-11 text-base"
-          aria-invalid={minutesInvalid}
-        />
-        {minutesInvalid && <SharedFieldError>{t('call.minutesInvalid')}</SharedFieldError>}
-        </>}
+        {(control) => (
+          <>
+            <NumberMaskInput
+              {...control}
+              kind="quantity"
+              maxLength={7}
+              placeholder={t('placeholders.minutes')}
+              value={minutes}
+              onValueChange={setMinutes}
+              className="h-11 text-base"
+            />
+            {minutesInvalid && <SharedFieldError>{t('call.minutesInvalid')}</SharedFieldError>}
+          </>
+        )}
       </Field>
       <DictationField id={ids.notes} label={t('call.notes')} value={notes} onChange={setNotes} maxLength={20_000} />
       <FormActions pending={pending} label={t('call.submit')} />

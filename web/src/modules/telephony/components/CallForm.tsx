@@ -5,7 +5,7 @@ import { PhoneIncoming, PhoneOutgoing, Play, Square } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { formatCallDuration, splitDuration } from '../lib/format'
@@ -77,25 +77,27 @@ export function CallForm({ values, onChange, outcomes, outcomeError, disabled, a
       </fieldset>
       <Field id={`${formId}-minutes`} label={t('form.duration')}>
         <div className="flex flex-wrap items-center gap-2">
-          <Input
+          <NumberMaskInput
             id={`${formId}-minutes`}
+            kind="integer"
+            maxLength={4}
             className="w-20"
-            inputMode="numeric"
             aria-label={t('form.minutes')}
             placeholder={t('form.minutesShort')}
             value={values.minutes}
             disabled={disabled || timerStart !== null}
-            onChange={(event) => set({ minutes: event.target.value.replace(/\D/g, '') })}
+            onValueChange={(minutes) => set({ minutes })}
           />
           <span aria-hidden="true">:</span>
-          <Input
+          <NumberMaskInput
+            kind="integer"
+            maxLength={2}
             className="w-20"
-            inputMode="numeric"
             aria-label={t('form.seconds')}
             placeholder={t('form.secondsShort')}
             value={values.seconds}
             disabled={disabled || timerStart !== null}
-            onChange={(event) => set({ seconds: event.target.value.replace(/\D/g, '').slice(0, 2) })}
+            onValueChange={(seconds) => set({ seconds })}
           />
           <Button
             type="button"

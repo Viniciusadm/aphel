@@ -13,9 +13,9 @@ export default defineModule({
   register(app) {
     app.routes(callsRoutes)
     app.slot('reports.library', { key: 'calls', permission: 'tasks.read', render: CallsReportLibraryCard })
-    app.nav({ section: 'analysis', to: '/telephony/report', label: 'page.report', icon: BarChart3, permission: 'tasks.read', order: 185 })
+    app.nav({ section: 'analysis', to: '/telephony/report', label: 'nav.report', icon: BarChart3, permission: 'tasks.read', order: 185 })
     app.settings('organization', {
-      group: 'records', path: 'call-outcomes', label: 'page.outcomes', description: 'page.description', icon: PhoneCall,
+      group: 'records', path: 'call-outcomes', label: 'page.outcomes', description: 'outcomes.description', icon: PhoneCall,
       permission: 'settings.manage',
       lazy: async () => ({ Component: (await import('./CallOutcomesSettingsPage')).CallOutcomesSettingsPage }),
     })

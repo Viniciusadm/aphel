@@ -1,17 +1,12 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { Pencil, Plus } from 'lucide-react'
-import { useId, useState } from 'react'
+import { MoreHorizontal, Pencil, Phone, Plus, Power } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { DialogForm } from '@/components/ui/dialog-form'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -82,7 +77,7 @@ function OutcomesSection() {
         title={t('outcomes.title')}
         description={t('outcomes.description')}
         actions={
-          <Button size="sm" onClick={() => setEditor({ outcome: null })}>
+          <Button onClick={() => setEditor({ outcome: null })}>
             <Plus aria-hidden="true" />
             {t('outcomes.new')}
           </Button>
@@ -95,6 +90,18 @@ function OutcomesSection() {
         </div>
       ) : outcomes.isError ? (
         <ErrorState onRetry={() => void outcomes.refetch()} />
+      ) : items.length === 0 ? (
+        <EmptyState
+          icon={Phone}
+          title={t('outcomes.emptyTitle')}
+          description={t('outcomes.emptyDescription')}
+          action={
+            <Button onClick={() => setEditor({ outcome: null })}>
+              <Plus aria-hidden="true" />
+              {t('outcomes.new')}
+            </Button>
+          }
+        />
       ) : (
         <SortableList
           items={items}
@@ -110,30 +117,33 @@ function OutcomesSection() {
               )}
             >
               {handle}
-              <div className="grid min-w-32 flex-1 gap-0.5">
-                <span className="truncate text-sm font-medium">{outcome.name}</span>
-                <code className="truncate text-xs text-muted-foreground">{outcome.key}</code>
-              </div>
+              <span className="min-w-32 flex-1 truncate text-sm font-medium">{outcome.name}</span>
               <div className="flex flex-wrap items-center gap-2">
                 {outcome.is_connected && <Badge variant="success">{t('outcomes.connected')}</Badge>}
                 {outcome.is_system && <Badge variant="secondary">{t('outcomes.system')}</Badge>}
                 {!outcome.is_active && <Badge variant="outline">{t('outcomes.inactive')}</Badge>}
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   onClick={() => setEditor({ outcome })}
                   aria-label={t('outcomes.editLabel', { name: outcome.name })}
                 >
                   <Pencil aria-hidden="true" />
+                  {t('outcomes.edit')}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={busyId === outcome.id}
-                  onClick={() => void toggleActive(outcome)}
-                >
-                  {t(outcome.is_active ? 'outcomes.deactivate' : 'outcomes.activate')}
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="ghost" aria-label={t('outcomes.actions', { name: outcome.name })}>
+                      <MoreHorizontal aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem disabled={busyId === outcome.id} onSelect={() => void toggleActive(outcome)}>
+                      <Power aria-hidden="true" />
+                      {t(outcome.is_active ? 'outcomes.deactivate' : 'outcomes.activate')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           )}
@@ -141,10 +151,6 @@ function OutcomesSection() {
       )}
       <Dialog open={editor !== null} onOpenChange={(open) => !open && setEditor(null)}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t(editor?.outcome ? 'outcomes.editTitle' : 'outcomes.newTitle')}</DialogTitle>
-            <DialogDescription>{t('outcomes.dialogDescription')}</DialogDescription>
-          </DialogHeader>
           {editor && (
             <OutcomeForm
               key={editor.outcome?.id ?? 'new'}
@@ -169,7 +175,6 @@ function OutcomeForm({
   onSaved: () => void
 }) {
   const { t } = useTranslation('telephony')
-  const formId = useId()
   const [name, setName] = useState(editing?.name ?? '')
   const [connected, setConnected] = useState(editing?.is_connected ?? false)
   const [nameError, setNameError] = useState(false)
@@ -198,42 +203,41 @@ function OutcomeForm({
   }
 
   return (
-    <>
-      <form
-        id={formId}
-        className="grid gap-4"
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault()
-          void submit()
-        }}
-      >
-        <Field label={t('outcomes.name')}>
-          {(control) => <>
-            <Input placeholder={t('placeholders.outcomeName')}
+    <DialogForm
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault()
+        void submit()
+      }}
+      title={t(editing ? 'outcomes.editTitle' : 'outcomes.newTitle')}
+      description={t('outcomes.dialogDescription')}
+      cancelLabel={t('form.cancel')}
+      submitLabel={t('outcomes.save')}
+      onCancel={onClose}
+      pending={saving}
+      submitDisabled={saving}
+    >
+      <Field label={t('outcomes.name')} error={nameError ? t('outcomes.nameRequired') : undefined}>
+        {(control) => (
+          <Input
             {...control}
-            value={name}
             autoFocus
-            aria-invalid={nameError ? true : undefined}
+            value={name}
+            placeholder={t('placeholders.outcomeName')}
             onChange={(event) => {
               setName(event.target.value)
               setNameError(false)
             }}
           />
-          {nameError && <SharedFieldError>{t('outcomes.nameRequired')}</SharedFieldError>}
-          {editing && <p className="text-xs text-muted-foreground">{t('outcomes.keyHint', { key: editing.key })}</p>}
-          </>}
-        </Field>
-        <ToggleField label={t('outcomes.isConnected')} description={t('outcomes.isConnectedHint')} checked={connected} onCheckedChange={(value) => setConnected(value === true)} />
-      </form>
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose} disabled={saving}>
-          {t('form.cancel')}
-        </Button>
-        <Button type="submit" form={formId} disabled={saving}>
-          {t('outcomes.save')}
-        </Button>
-      </DialogFooter>
-    </>
+        )}
+      </Field>
+      <ToggleField
+        type="switch"
+        label={t('outcomes.isConnected')}
+        description={t('outcomes.isConnectedHint')}
+        checked={connected}
+        onCheckedChange={setConnected}
+      />
+    </DialogForm>
   )
 }

@@ -1,15 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { DialogForm } from '@/components/ui/dialog-form'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast-store'
@@ -31,18 +24,9 @@ export interface LogCallDialogProps {
 }
 
 export function LogCallDialog({ open, onOpenChange, record, phoneNumber, started, onLogged }: LogCallDialogProps) {
-  const { t } = useTranslation('telephony')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('log.title')}</DialogTitle>
-          <DialogDescription>
-            {record?.title
-              ? t('log.descriptionWith', { name: record.title, phone: phoneNumber ?? '' })
-              : t('log.description')}
-          </DialogDescription>
-        </DialogHeader>
         {open && (
           <LogCallForm
             record={record}
@@ -67,7 +51,6 @@ interface LogCallFormProps {
 
 function LogCallForm({ record, phoneNumber, started, onClose, onLogged }: LogCallFormProps) {
   const { t } = useTranslation('telephony')
-  const formId = useId()
   const client = useQueryClient()
   const invalidate = useInvalidateCalls()
   const outcomes = useCallOutcomes()
@@ -106,44 +89,42 @@ function LogCallForm({ record, phoneNumber, started, onClose, onLogged }: LogCal
   }
 
   return (
-    <>
-      <form
-        id={formId}
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault()
-          void submit()
-        }}
-      >
-        {outcomes.isPending ? (
-          <div className="grid gap-2" aria-busy="true">
-            <Skeleton className="h-9 w-full" />
-            <Skeleton className="h-9 w-full" />
-          </div>
-        ) : outcomes.isError ? (
-          <ErrorState onRetry={() => void outcomes.refetch()} />
-        ) : (
-          <CallForm
-            values={values}
-            onChange={(next) => {
-              setValues(next)
-              if (next.outcomeKey) setOutcomeError(false)
-            }}
-            outcomes={outcomes.data}
-            outcomeError={outcomeError}
-            disabled={saving}
-            autoStartTimer
-          />
-        )}
-      </form>
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose} disabled={saving}>
-          {t('form.cancel')}
-        </Button>
-        <Button type="submit" form={formId} disabled={saving || !outcomes.data}>
-          {t('log.submit')}
-        </Button>
-      </DialogFooter>
-    </>
+    <DialogForm
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault()
+        void submit()
+      }}
+      title={t('log.title')}
+      description={
+        record?.title ? t('log.descriptionWith', { name: record.title, phone: phoneNumber ?? '' }) : t('log.description')
+      }
+      cancelLabel={t('form.cancel')}
+      submitLabel={t('log.submit')}
+      onCancel={onClose}
+      pending={saving}
+      submitDisabled={saving || !outcomes.data}
+    >
+      {outcomes.isPending ? (
+        <div className="grid gap-2" aria-busy="true">
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+        </div>
+      ) : outcomes.isError ? (
+        <ErrorState onRetry={() => void outcomes.refetch()} />
+      ) : (
+        <CallForm
+          values={values}
+          onChange={(next) => {
+            setValues(next)
+            if (next.outcomeKey) setOutcomeError(false)
+          }}
+          outcomes={outcomes.data}
+          outcomeError={outcomeError}
+          disabled={saving}
+          autoStartTimer
+        />
+      )}
+    </DialogForm>
   )
 }

@@ -2,12 +2,14 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { BarChart3 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Page } from '@/components/ui/page'
+import { PageHeader } from '@/components/ui/page-header'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { StatTile } from '@/kernel/widgets/shared'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { NativeSelect } from '@/sdk'
 import { callsApi, callsKeys } from './api'
 import { formatCallDuration } from './lib/format'
 import type { CallReport, CallReportQuery } from './types'
@@ -48,34 +50,38 @@ export function ReportPage() {
   })
 
   return (
-    <div className="grid gap-4">
+    <Page>
+      <PageHeader title={t('report.title')} description={t('report.description')} />
       <div className="flex flex-wrap items-end gap-3">
         <Field label={t('report.from')}>
-          {(control) => <Input
-            {...control}
-            type="date"
-            value={range.from}
-            onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))}
-          />}
+          {(control) => (
+            <Input
+              {...control}
+              type="date"
+              value={range.from}
+              onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))}
+            />
+          )}
         </Field>
         <Field label={t('report.to')}>
-          {(control) => <Input
-            {...control}
-            type="date"
-            value={range.to}
-            onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))}
-          />}
+          {(control) => (
+            <Input
+              {...control}
+              type="date"
+              value={range.to}
+              onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))}
+            />
+          )}
         </Field>
-        <Field label={t('report.owner')}>
-          {(control) => <NativeSelect
-            {...control}
-            value={owner}
-            onChange={(event) => setOwner(event.target.value === 'me' ? 'me' : 'all')}
-          >
-            <option value="all">{t('report.everyone')}</option>
-            <option value="me">{t('report.mine')}</option>
-          </NativeSelect>}
-        </Field>
+        <SegmentedControl
+          aria-label={t('report.owner')}
+          value={owner}
+          onValueChange={setOwner}
+          options={[
+            { value: 'all', label: t('report.everyone') },
+            { value: 'me', label: t('report.mine') },
+          ]}
+        />
       </div>
       {report.isPending ? (
         <div className="grid gap-2" aria-busy="true">
@@ -87,7 +93,7 @@ export function ReportPage() {
       ) : (
         <ReportContent report={report.data} />
       )}
-    </div>
+    </Page>
   )
 }
 
@@ -103,21 +109,15 @@ function ReportContent({ report }: { report: CallReport }) {
   ]
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.key}>
-            <CardHeader className="pb-2">
-              <CardDescription>{stat.label}</CardDescription>
-              <CardTitle className="text-2xl tabular-nums">{stat.value}</CardTitle>
-            </CardHeader>
-          </Card>
+          <StatTile key={stat.key} label={stat.label} value={stat.value} />
         ))}
-      </div>
+      </dl>
       {report.users.length === 0 ? (
         <EmptyState icon={BarChart3} title={t('report.emptyTitle')} description={t('report.emptyDescription')} />
       ) : (
-        <Card>
-          <CardContent className="p-0">
+        <>
             <Table>
               <TableCaption className="sr-only">{t('report.caption')}</TableCaption>
               <TableHeader>
@@ -162,8 +162,7 @@ function ReportContent({ report }: { report: CallReport }) {
                 })}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </>
       )}
     </>
   )

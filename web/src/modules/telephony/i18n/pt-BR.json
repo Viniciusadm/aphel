@@ -3,7 +3,7 @@
   "description": "Registro de ligações como tarefas, resultados de ligação, sessões de chamada, provedores de telefonia e o relatório de ligações.",
   "page": {
     "title": "Ligações",
-    "description": "Sessões de ligações a partir de visões salvas, registro de resultados e relatório da equipe.",
+    "description": "Sessões para ligar, um a um, para os contatos de uma visão salva.",
     "sections": "Seções de ligações",
     "sessions": "Sessões",
     "report": "Relatório",
@@ -81,7 +81,17 @@
       "completed": "Encerrada"
     },
     "people_one": "{{count}} contato",
-    "people_other": "{{count}} contatos"
+    "people_other": "{{count}} contatos",
+    "new": "Nova sessão",
+    "columns": {
+      "name": "Sessão",
+      "startedAt": "Iniciada em",
+      "people": "Contatos",
+      "status": "Situação",
+      "actions": "Ações"
+    },
+    "view": "Ver",
+    "continue": "Continuar"
   },
   "session": {
     "back": "Voltar para ligações",
@@ -125,7 +135,9 @@
     "emptyDescription": "As ligações registradas aparecem aqui por usuário e resultado.",
     "caption": "Ligações por usuário e resultado",
     "user": "Usuário",
-    "noOwner": "Sem responsável"
+    "noOwner": "Sem responsável",
+    "title": "Relatório de ligações",
+    "description": "Ligações registradas por pessoa e resultado no período."
   },
   "outcomes": {
     "title": "Resultados de ligação",
@@ -143,26 +155,30 @@
     "dialogDescription": "Resultados conectados contam como ligação atendida no relatório.",
     "name": "Nome",
     "nameRequired": "Informe o nome.",
-    "keyHint": "Chave: {{key}}",
     "isConnected": "Conta como conectada",
     "isConnectedHint": "Marque quando a pessoa foi alcançada.",
     "save": "Salvar",
-    "saved": "Resultado {{name}} salvo"
+    "saved": "Resultado {{name}} salvo",
+    "edit": "Editar",
+    "actions": "Ações de {{name}}",
+    "emptyTitle": "Nenhum resultado de ligação",
+    "emptyDescription": "Crie os resultados que a equipe usa para registrar como terminou cada ligação."
   },
   "nav": {
-    "calls": "Ligações"
+    "calls": "Ligações",
+    "report": "Relatório de ligações"
   },
   "quickAdd": {
     "options": {
       "call": "Ligação"
     },
     "titles": {
-      "call": "Ligação concluída"
+      "call": "Registrar ligação"
     },
     "call": {
       "direction": "Direção",
       "directions": {
-        "outbound": "Feita",
+        "outbound": "Realizada",
         "inbound": "Recebida"
       },
       "outcome": "Resultado",
