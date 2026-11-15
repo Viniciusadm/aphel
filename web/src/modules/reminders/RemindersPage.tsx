@@ -64,7 +64,7 @@ export function RemindersPage() {
               onDismiss={() =>
                 dismiss.mutate(
                   { id: reminder.id, body: { status: 'dismissed' } },
-                  { onSuccess: () => notifySuccess(t('toast.dismissed')), onError: notifyError },
+                  { onSuccess: () => notifySuccess(t('toast.dismissed')), onError: (error) => notifyError(error) },
                 )
               }
               onRemove={() => setRemoving(reminder)}
@@ -111,7 +111,7 @@ export function RemindersPage() {
         variant="destructive"
         pending={remove.isPending}
         onConfirm={() => {
-          if (removing) remove.mutate(removing.id, { onSuccess: () => notifySuccess(t('toast.removed')), onError: notifyError })
+          if (removing) remove.mutate(removing.id, { onSuccess: () => notifySuccess(t('toast.removed')), onError: (error) => notifyError(error) })
         }}
       />
     </Page>

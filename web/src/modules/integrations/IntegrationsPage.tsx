@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { Plug } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -27,7 +28,9 @@ export function IntegrationsPage() {
       ) : (
         <ul className="grid gap-3 md:grid-cols-2" aria-label={t('listLabel')}>
           {cards.map(({ key, Component }) => (
-            <Component key={key} />
+            <Fragment key={key}>
+              <Component />
+            </Fragment>
           ))}
           {configurable.map((integration) => (
             <IntegrationCard key={integration.provider_key} integration={integration} onChanged={invalidate} />

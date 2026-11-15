@@ -103,7 +103,7 @@ export function ActivityPage() {
             <h2 className="text-sm font-semibold capitalize text-muted-foreground">{group.label}</h2>
             <ol className="grid gap-4 rounded-lg border bg-card p-4">
               {group.events.map((event) => (
-                <ActivityEventRow key={event.id} event={event} timeOnly />
+                <ActivityEventRow key={event.id} event={{ ...event, actor: event.actor ?? null, record: event.record ? { ...event.record, title: event.record.title ?? null } : null, payload: event.payload ?? null }} timeOnly />
               ))}
             </ol>
           </section>

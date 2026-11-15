@@ -59,7 +59,7 @@ function ReminderForm({ reminder, target, onClose }: { reminder?: Reminder; targ
       onClose()
     }
     if (reminder) {
-      update.mutate({ id: reminder.id, body: { remind_at: when, note: trimmed === '' ? null : trimmed } }, { onSuccess: done, onError: notifyError })
+      update.mutate({ id: reminder.id, body: { remind_at: when, note: trimmed === '' ? null : trimmed } }, { onSuccess: done, onError: (error) => notifyError(error) })
       return
     }
     create.mutate(
@@ -69,7 +69,7 @@ function ReminderForm({ reminder, target, onClose }: { reminder?: Reminder; targ
         record_type: linked?.record_type,
         record_id: linked?.record_id,
       },
-      { onSuccess: done, onError: notifyError },
+      { onSuccess: done, onError: (error) => notifyError(error) },
     )
   }
 
