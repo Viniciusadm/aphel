@@ -283,7 +283,6 @@
     "title": "O que adiciona",
     "menu": "no menu: {{items}}",
     "settings": "em Configurações: {{items}}",
-    "nothing": "nenhum item próprio no menu nem em Configurações; aparece dentro das telas de outros módulos.",
     "more": "{{items}} e mais {{count}}",
     "appears": "aparece {{items}}"
   },
@@ -312,15 +311,18 @@
     },
     "formulas": {
       "name": "Fórmulas",
-      "description": "Campos calculados por fórmula, com validação, pré-visualização do resultado e recálculo quando os campos usados mudam."
+      "description": "Campos calculados por fórmula, com validação, pré-visualização do resultado e recálculo quando os campos usados mudam.",
+      "appears": "como tipo de campo Fórmula ao criar campos"
     },
     "marketplace": {
       "name": "Marketplace",
-      "description": "Catálogo para encontrar e instalar plugins e pacotes de configuração."
+      "description": "Catálogo para encontrar e instalar plugins e pacotes de configuração.",
+      "appears": "em Módulos, com a fonte do catálogo"
     },
     "notifications": {
       "name": "Notificações",
-      "description": "Avisos dentro do sistema e por push, com preferências de entrega por pessoa."
+      "description": "Avisos dentro do sistema e por push, com preferências de entrega por pessoa.",
+      "appears": "como sino no topo da tela e avisos no navegador"
     },
     "objects": {
       "name": "Objetos personalizados",
@@ -328,7 +330,8 @@
     },
     "publication": {
       "name": "Publicação",
-      "description": "Revisões imutáveis de registros publicáveis, publicação imediata ou agendada com políticas de aprovação, retirada e retenção."
+      "description": "Revisões imutáveis de registros publicáveis, publicação imediata ou agendada com políticas de aprovação, retirada e retenção.",
+      "appears": "em registros publicáveis do Site, com revisões e publicação agendada"
     },
     "record_layouts": {
       "name": "Layouts de registro",
@@ -336,22 +339,26 @@
     },
     "saved_views": {
       "name": "Visualizações salvas",
-      "description": "Filtros, colunas e ordenações salvos para cada lista, pessoais ou compartilhados."
+      "description": "Filtros, colunas e ordenações salvos para cada lista, pessoais ou compartilhados.",
+      "appears": "como visualizações salvas nas listas de registros"
     },
     "search": {
       "name": "Busca",
-      "description": "Busca global em registros, com índice mantido em segundo plano."
+      "description": "Busca global em registros, com índice mantido em segundo plano.",
+      "appears": "como página de resultados da busca"
     },
     "reminders": {
       "name": "Lembretes",
-      "description": "Lembretes antes do vencimento de uma tarefa, o aviso da manhã com as tarefas do dia e lembretes avulsos ligados a um registro."
+      "description": "Lembretes antes do vencimento de uma tarefa, o aviso da manhã com as tarefas do dia e lembretes avulsos ligados a um registro.",
+      "appears": "como lembretes de vencimento nas tarefas e aviso da manhã"
     },
     "validation_rules": {
       "name": "Regras de validação",
       "description": "Regras que impedem salvar um registro quando uma condição definida pela organização não é atendida."
     },
     "exports": {
-      "description": "Exporta listas de registros em CSV e XLSX, respeitando o filtro, a busca e o que cada pessoa pode ver."
+      "description": "Exporta listas de registros em CSV e XLSX, respeitando o filtro, a busca e o que cada pessoa pode ver.",
+      "appears": "como ação de exportar nas listas de registros"
     },
     "dashboard": {
       "description": "Tela inicial com painéis (widgets) de cada módulo, que cada pessoa pode organizar do seu jeito."
@@ -366,13 +373,111 @@
       "description": "Envia eventos do Aphel para outros sistemas (webhooks de saída, assinados) e recebe dados que criam ou atualizam registros (webhooks de entrada)."
     },
     "reports": {
-      "description": "Relatórios salvos sobre registros, com exportação e envio por e-mail agendado."
+      "description": "Relatórios salvos sobre registros, com exportação e envio por e-mail agendado.",
+      "appears": "como indicador de relatório salvo no Início"
     },
     "money": {
       "description": "Moedas da organização, taxas de câmbio por data e conversão dos valores para a moeda base."
     },
     "scoring": {
-      "description": "Modelos de pontuação de leads por perfil e comportamento, com classificação em frio, morno e quente e a explicação de cada nota."
+      "description": "Modelos de pontuação de leads por perfil e comportamento, com classificação em frio, morno e quente e a explicação de cada nota.",
+      "appears": "como aba de pontuação nas fichas"
+    },
+    "ai": {
+      "appears": "como aba de assistente nas fichas, ferramenta de escrita no editor de e-mail e consulta em linguagem natural nas listas"
+    },
+    "approvals": {
+      "appears": "como aba em Oportunidades e na lateral do editor de cotações"
+    },
+    "assignment": {
+      "appears": "como seletor da regra de distribuição nas telas que distribuem registros"
+    },
+    "bulk_actions": {
+      "appears": "como ações em massa nas listas de registros"
+    },
+    "catalog_items": {
+      "appears": "como seletor de produtos ao adicionar itens a um registro"
+    },
+    "deals": {
+      "appears": "no botão Criar (Oportunidade), com indicadores e pendências no Início e selo de oportunidade parada nas listas"
+    },
+    "deals_revenue": {
+      "appears": "como aba de receita recorrente em Oportunidades e indicador no Início"
+    },
+    "duplicates": {
+      "appears": "como ação de mesclar nas fichas dos registros"
+    },
+    "email": {
+      "appears": "como aba de e-mails nas fichas e na linha do tempo"
+    },
+    "enrichment": {
+      "appears": "como aba de dados públicos em Empresas e na linha do tempo"
+    },
+    "esign": {
+      "appears": "como aba de assinaturas em Oportunidades e na linha do tempo"
+    },
+    "followers": {
+      "appears": "como botão de seguir nas fichas dos registros"
+    },
+    "goals": {
+      "appears": "como indicador de progresso das metas no Início"
+    },
+    "imports": {
+      "appears": "como ação de importar nas listas de registros e quando a lista está vazia"
+    },
+    "insights": {
+      "appears": "como indicadores no Início: oportunidades por origem, ranking de atividades da equipe e aniversários"
+    },
+    "leads": {
+      "appears": "como aba de ciclo de vida nas fichas, ações de lead e filtro nas listas"
+    },
+    "line_items": {
+      "appears": "como aba Itens nas oportunidades e na linha do tempo"
+    },
+    "messaging": {
+      "appears": "como aba de conversas nas fichas de contatos e oportunidades"
+    },
+    "notes": {
+      "appears": "como aba de notas nas fichas, no cadastro rápido do botão + e na linha do tempo"
+    },
+    "organizations": {
+      "appears": "no botão Criar (Empresa)"
+    },
+    "people": {
+      "appears": "no botão Criar (Contato) e no cadastro rápido"
+    },
+    "pricing": {
+      "appears": "como link Listas de preço em Produtos e aba de pacotes nas fichas de produto"
+    },
+    "proposals": {
+      "appears": "como aba de propostas em Oportunidades"
+    },
+    "quotes": {
+      "appears": "como aba de cotações em Oportunidades"
+    },
+    "renewals": {
+      "appears": "como seção de renovação nas configurações dos funis e indicador de renovações no Início"
+    },
+    "sequences": {
+      "appears": "como aba de sequências em Contatos"
+    },
+    "tagging": {
+      "appears": "como ação de etiquetas nas fichas e filtro nas listas"
+    },
+    "tasks": {
+      "appears": "no botão Criar (Tarefa), no cadastro rápido (atividade e check-in) e no calendário"
+    },
+    "telephony": {
+      "appears": "no cadastro rápido (ligação), no telefone clicável e no painel de ligação das atividades"
+    },
+    "timeline": {
+      "appears": "como linha do tempo nas fichas dos registros"
+    },
+    "workflow": {
+      "appears": "como aba de orientação por etapa nas fichas e filtro de oportunidades paradas nas listas"
+    },
+    "media": {
+      "appears": "como seletor de arquivos da biblioteca nos editores de conteúdo"
     }
   }
 }

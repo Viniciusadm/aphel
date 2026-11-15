@@ -67,6 +67,12 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
   const shortList = (items: string[]) =>
     items.length > MAX_LISTED ? t('adds.more', { items: items.slice(0, MAX_LISTED).join(', '), count: items.length - MAX_LISTED }) : items.join(', ')
   const date = (value: string) => formatDateTime(value, formatting)
+  const appearsText = text.appears || (surface.appears.length > 0 ? shortList(surface.appears) : '')
+  const addsParts = [
+    surface.menu.length > 0 ? t('adds.menu', { items: shortList(surface.menu) }) : null,
+    surface.settings.length > 0 ? t('adds.settings', { items: shortList(surface.settings) }) : null,
+    appearsText ? t('adds.appears', { items: appearsText }) : null,
+  ].filter((part): part is string => part !== null)
   const needsSetup = module.settings_schema.some((field) => field.required)
   const hasSettings = module.settings_schema.length > 0 || Boolean(moduleDefinition(module.key)?.settingsPanel)
 
@@ -186,19 +192,11 @@ export function ModuleCard({ module, modules, nameOf, onChanged, showSurface = t
               </Button>
             </p>
           )}
-          {showSurface && (
-          <p className="text-xs text-muted-foreground">
-            <span className="font-medium">{t('adds.title')}: </span>
-            {surface.menu.length === 0 && surface.settings.length === 0 && surface.appears.length === 0
-              ? t('adds.nothing')
-              : [
-                  surface.menu.length > 0 ? t('adds.menu', { items: shortList(surface.menu) }) : null,
-                  surface.settings.length > 0 ? t('adds.settings', { items: shortList(surface.settings) }) : null,
-                  surface.appears.length > 0 ? t('adds.appears', { items: shortList(surface.appears) }) : null,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-          </p>
+          {showSurface && addsParts.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              <span className="font-medium">{t('adds.title')}: </span>
+              {addsParts.join(' · ')}
+            </p>
           )}
           <ModuleRelations module={module} nameOf={nameOf} exists={exists} />
           <details className="text-xs">

@@ -33,6 +33,7 @@ export function useModuleText(module: ModuleInfo) {
   return {
     name: lookup('name', module.name, `catalog.${module.key}.name`),
     description: lookup('description', module.description, `catalog.${module.key}.description`),
+    appears: lookup('appears', '', `catalog.${module.key}.appears`),
     permissionLabel: (permission: string, fallback: string) => lookup(`permissions.${permission}`, fallback),
     eventDescription: (eventType: string, fallback: string) => lookup(`events.${eventType}`, fallback),
     fieldLabel: (field: ModuleSettingField) => lookup(`settings.${field.key}.label`, field.label),

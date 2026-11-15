@@ -283,7 +283,6 @@
     "title": "What it adds",
     "menu": "in the menu: {{items}}",
     "settings": "in Settings: {{items}}",
-    "nothing": "no menu item or settings of its own; it appears inside the screens of other modules.",
     "more": "{{items}} and {{count}} more",
     "appears": "appears {{items}}"
   },
@@ -312,15 +311,18 @@
     },
     "formulas": {
       "name": "Formulas",
-      "description": "Formula fields with validation, a result preview and recalculation when the fields they use change."
+      "description": "Formula fields with validation, a result preview and recalculation when the fields they use change.",
+      "appears": "as the Formula field type when creating fields"
     },
     "marketplace": {
       "name": "Marketplace",
-      "description": "Catalog to find and install plugins and configuration packages."
+      "description": "Catalog to find and install plugins and configuration packages.",
+      "appears": "in Modules, with the catalog source"
     },
     "notifications": {
       "name": "Notifications",
-      "description": "In-app and push notices, with delivery preferences per person."
+      "description": "In-app and push notices, with delivery preferences per person.",
+      "appears": "as a bell at the top of the screen and browser notices"
     },
     "objects": {
       "name": "Custom objects",
@@ -328,7 +330,8 @@
     },
     "publication": {
       "name": "Publication",
-      "description": "Immutable revisions of publishable records, immediate and scheduled publication with approval policies, withdrawal and retention."
+      "description": "Immutable revisions of publishable records, immediate and scheduled publication with approval policies, withdrawal and retention.",
+      "appears": "on publishable Site records, with revisions and scheduled publication"
     },
     "record_layouts": {
       "name": "Record layouts",
@@ -336,22 +339,26 @@
     },
     "saved_views": {
       "name": "Saved views",
-      "description": "Saved filters, columns and sorting for each list, personal or shared."
+      "description": "Saved filters, columns and sorting for each list, personal or shared.",
+      "appears": "as saved views in record lists"
     },
     "search": {
       "name": "Search",
-      "description": "Global search over records, with an index kept up to date in the background."
+      "description": "Global search over records, with an index kept up to date in the background.",
+      "appears": "as the search results page"
     },
     "reminders": {
       "name": "Reminders",
-      "description": "Reminders before a task is due, the morning notice of tasks due today and standalone reminders linked to a record."
+      "description": "Reminders before a task is due, the morning notice of tasks due today and standalone reminders linked to a record.",
+      "appears": "as due reminders on tasks and the morning notice"
     },
     "validation_rules": {
       "name": "Validation rules",
       "description": "Rules that block saving a record when a condition set by the organization is not met."
     },
     "exports": {
-      "description": "Exports record lists to CSV and XLSX, respecting the filter, the search and what each person can see."
+      "description": "Exports record lists to CSV and XLSX, respecting the filter, the search and what each person can see.",
+      "appears": "as an export action in record lists"
     },
     "dashboard": {
       "description": "Home screen with panels (widgets) from each module, which each person can arrange their own way."
@@ -366,13 +373,111 @@
       "description": "Sends Aphel events to other systems (signed outgoing webhooks) and receives data that creates or updates records (incoming webhooks)."
     },
     "reports": {
-      "description": "Saved reports over records, with export and scheduled e-mail delivery."
+      "description": "Saved reports over records, with export and scheduled e-mail delivery.",
+      "appears": "as a saved report indicator on Home"
     },
     "money": {
       "description": "The organization's currencies, dated exchange rates and conversion of amounts to the base currency."
     },
     "scoring": {
-      "description": "Lead scoring models by profile and behavior, with cold, warm and hot bands and an explanation of each score."
+      "description": "Lead scoring models by profile and behavior, with cold, warm and hot bands and an explanation of each score.",
+      "appears": "as a score tab on records"
+    },
+    "ai": {
+      "appears": "as an assistant tab on records, a writing tool in the e-mail editor and natural-language queries in lists"
+    },
+    "approvals": {
+      "appears": "as a tab on Deals and in the quote editor sidebar"
+    },
+    "assignment": {
+      "appears": "as the distribution rule picker where records are distributed"
+    },
+    "bulk_actions": {
+      "appears": "as bulk actions in record lists"
+    },
+    "catalog_items": {
+      "appears": "as a product picker when adding items to a record"
+    },
+    "deals": {
+      "appears": "in the Create button (Deal), with indicators and pending items on Home and a stalled-deal badge in lists"
+    },
+    "deals_revenue": {
+      "appears": "as a recurring revenue tab on Deals and an indicator on Home"
+    },
+    "duplicates": {
+      "appears": "as a merge action on record pages"
+    },
+    "email": {
+      "appears": "as an e-mails tab on records and in the timeline"
+    },
+    "enrichment": {
+      "appears": "as a public data tab on Companies and in the timeline"
+    },
+    "esign": {
+      "appears": "as a signatures tab on Deals and in the timeline"
+    },
+    "followers": {
+      "appears": "as a follow button on record pages"
+    },
+    "goals": {
+      "appears": "as a goal progress indicator on Home"
+    },
+    "imports": {
+      "appears": "as an import action in record lists and when a list is empty"
+    },
+    "insights": {
+      "appears": "as indicators on Home: deals by source, team activity ranking and birthdays"
+    },
+    "leads": {
+      "appears": "as a lifecycle tab on records, lead actions and a filter in lists"
+    },
+    "line_items": {
+      "appears": "as an Items tab on deals and in the timeline"
+    },
+    "messaging": {
+      "appears": "as a conversations tab on contacts and deals"
+    },
+    "notes": {
+      "appears": "as a notes tab on records, in the quick add of the + button and in the timeline"
+    },
+    "organizations": {
+      "appears": "in the Create button (Company)"
+    },
+    "people": {
+      "appears": "in the Create button (Contact) and quick add"
+    },
+    "pricing": {
+      "appears": "as a Price lists link in Products and a bundles tab on product pages"
+    },
+    "proposals": {
+      "appears": "as a proposals tab on Deals"
+    },
+    "quotes": {
+      "appears": "as a quotes tab on Deals"
+    },
+    "renewals": {
+      "appears": "as a renewal section in pipeline settings and a renewals indicator on Home"
+    },
+    "sequences": {
+      "appears": "as a sequences tab on Contacts"
+    },
+    "tagging": {
+      "appears": "as a tags action on records and a filter in lists"
+    },
+    "tasks": {
+      "appears": "in the Create button (Task), in quick add (activity and check-in) and in the calendar"
+    },
+    "telephony": {
+      "appears": "in quick add (call), as a clickable phone and as a call panel on activities"
+    },
+    "timeline": {
+      "appears": "as the timeline on record pages"
+    },
+    "workflow": {
+      "appears": "as a stage guidance tab on records and a stalled-deals filter in lists"
+    },
+    "media": {
+      "appears": "as a library file picker in content editors"
     }
   }
 }
