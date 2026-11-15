@@ -90,7 +90,10 @@ impl FieldSet {
                 } else {
                     FieldAccess::Editable
                 };
-                let labels = if system.label == definition.label {
+                let untouched = system.label == definition.label
+                    || system.labels.0.values().any(|label| *label == definition.label);
+                let labels = if untouched {
+                    definition.label = system.label.clone();
                     system.labels.clone()
                 } else {
                     definition.label.clone().into()
