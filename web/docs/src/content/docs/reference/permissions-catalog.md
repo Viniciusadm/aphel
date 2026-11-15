@@ -32,7 +32,7 @@ A module can override this default for a permission by naming the roles that rec
 
 | Permission | Module | Kind | What it allows | Admin | Manager | Member |
 | --- | --- | --- | --- | --- | --- | --- |
-| `settings.manage` | Platform | administrative | Change organization settings, fields, custom objects, pipelines-level configuration, integrations, webhooks and other administration screens. Also required by the trash restore and purge routes. | organization | - | - |
+| `settings.manage` | Platform | administrative | Change organization settings, fields, custom objects, pipelines-level configuration, integrations, webhooks and other administration screens. Also required by the trash purge and settings routes; restoring needs only the delete permission on the record. | organization | - | - |
 | `users.manage` | Platform | administrative | Invite, change and deactivate members, manage teams and roles, and see or revoke any API token. | organization | - | - |
 | `audit.read` | Platform | administrative | Read the audit log of the organization. | organization | - | - |
 | `system.manage` | Platform | administrative | Operations routes: system health, background jobs, failures, platform catalog and updates. | organization | - | - |

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { api } from '@/api'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
+import { useNotifyDeleted } from '@/features/records/useNotifyDeleted'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { recordsKeys } from '@/features/records/api'
@@ -25,6 +26,7 @@ export function CustomRecordActions({ object, record }: CustomRecordActionsProps
   const { hasPermission } = useSession()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const notifyDeleted = useNotifyDeleted()
   const recordType = object.record_type
   const resource = requireRecordResource(recordType)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
@@ -51,7 +53,7 @@ export function CustomRecordActions({ object, record }: CustomRecordActionsProps
     }
     void queryClient.invalidateQueries({ queryKey: recordsKeys.list(recordType) })
     void queryClient.invalidateQueries({ queryKey: recordsKeys.lookup(recordType) })
-    notifySuccess(t('detail.deleted'))
+    notifyDeleted({ recordType, recordId: record.id, message: t('detail.deleted') })
     navigate(customObjectPath(object.key))
   }
 

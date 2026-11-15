@@ -364,7 +364,8 @@
       "description": "Home screen with panels (widgets) from each module, which each person can arrange their own way."
     },
     "trash": {
-      "description": "Deleted records stay in the trash until permanent cleanup and can be restored with their links."
+      "description": "Deleted records stay in the trash until permanent cleanup and can be restored with their links.",
+      "appears": "as the place where records deleted from every module go"
     },
     "integrations": {
       "description": "Integration center: connect Aphel to other services, with a single setup for the whole organization."

@@ -8,7 +8,7 @@ import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { type RecordItem, recordPath, recordsKeys, recordTitle } from '@/sdk'
+import { type RecordItem, recordPath, recordsKeys, recordTitle, useNotifyDeleted } from '@/sdk'
 import { PRODUCT_RECORD_TYPE, PRODUCTS_PATH, productResource } from './resource'
 
 export interface ProductActionsProps {
@@ -20,6 +20,7 @@ export function ProductActions({ record }: ProductActionsProps) {
   const { hasPermission } = useSession()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const notifyDeleted = useNotifyDeleted()
   const [confirming, setConfirming] = useState(false)
   const inactive = record.is_active === false
 
@@ -27,7 +28,7 @@ export function ProductActions({ record }: ProductActionsProps) {
     await api.delete<void>(recordPath(productResource, record.id))
     void queryClient.invalidateQueries({ queryKey: recordsKeys.list(PRODUCT_RECORD_TYPE) })
     void queryClient.invalidateQueries({ queryKey: recordsKeys.lookup(PRODUCT_RECORD_TYPE) })
-    notifySuccess(t('detail.deleted'))
+    notifyDeleted({ recordType: PRODUCT_RECORD_TYPE, recordId: record.id, message: t('detail.deleted') })
     navigate(PRODUCTS_PATH)
   }
 

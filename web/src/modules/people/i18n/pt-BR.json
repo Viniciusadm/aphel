@@ -55,7 +55,7 @@
       "deleted": "Registro excluído.",
       "archivedBadge": "Arquivado",
       "deleteTitle": "Excluir {{name}}?",
-      "deleteDescription": "O registro deixará de aparecer nas listas. Essa ação não pode ser desfeita pela interface."
+      "deleteDescription": "O registro deixará de aparecer nas listas. Com a lixeira ligada, dá para restaurá-lo depois."
     }
   },
   "nav": {

@@ -1,7 +1,7 @@
 import { Trash2 } from 'lucide-react'
 import { SETTINGS_MANAGE } from '@/sdk'
 import { defineModule } from '@/kernel/modules/define'
-import { trashSettingsRoute } from './routes'
+import { trashRoutes, trashSettingsRoute } from './routes'
 
 const trashModule = defineModule({
   key: 'trash',
@@ -17,6 +17,8 @@ const trashModule = defineModule({
       order: 110,
       routes: [trashSettingsRoute],
     })
+    app.routes(trashRoutes)
+    app.nav({ section: 'operations', to: '/trash', label: 'trash:nav.trash', icon: Trash2, order: 900 })
   },
 })
 

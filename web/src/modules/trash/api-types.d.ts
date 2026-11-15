@@ -194,7 +194,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, tasks, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed */
+            /** @description Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, tasks, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed, and without `settings.manage` only those the user may also delete; types the user cannot read are left out. Records merged into another one are not listed */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -212,7 +212,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing permission (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -268,7 +268,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing permission (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -319,7 +319,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing permission (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -375,7 +375,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `settings.manage` (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing permission (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -498,7 +498,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Missing `settings.manage`, the read permission of the type or the delete permission on this record (`permission_denied`, `insufficient_scope`) */
+            /** @description Missing the read permission of the type or the delete permission on this record (`permission_denied`, `insufficient_scope`) */
             403: {
                 headers: {
                     [name: string]: unknown;

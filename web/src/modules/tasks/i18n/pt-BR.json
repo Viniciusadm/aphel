@@ -104,7 +104,7 @@
     "reopen": "Reabrir",
     "delete": "Excluir",
     "deleteTitle": "Excluir atividade",
-    "deleteDescription": "A atividade “{{title}}” será excluída. Esta ação não pode ser desfeita.",
+    "deleteDescription": "A atividade “{{title}}” deixará de aparecer nas listas. Com a lixeira ligada, dá para restaurá-la depois.",
     "deleted": "Atividade excluída",
     "notesTab": "Notas",
     "filesTab": "Arquivos"

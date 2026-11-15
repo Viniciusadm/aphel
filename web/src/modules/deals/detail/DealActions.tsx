@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {notifyApprovalGate} from '@/sdk'
+import {notifyApprovalGate, useNotifyDeleted} from '@/sdk'
 import {isApprovalGateError} from '@/sdk'
 import { type PipelineStage, type RecordItem, type StageKind, activePipelines, recordsKeys, usePipelines } from '@/sdk'
 import { dealsApi, dealsKeys } from '../api'
@@ -121,11 +121,12 @@ export function DealActions({ record }: DealActionsProps) {
   })
   const flow = useDealMoveFlow((request) => action.mutateAsync({ type: 'move', request }), action.isPending)
 
+  const notifyDeleted = useNotifyDeleted()
   const remove = useMutation({
     mutationFn: () => api.delete<void>(`/v1/deals/${encodeURIComponent(deal.id)}`),
     onSuccess: () => {
       refresh()
-      notifySuccess(t('detail.done.delete'))
+      notifyDeleted({ recordType: 'deals.deal', recordId: deal.id, message: t('detail.done.delete') })
       navigate(DEALS_PATH)
     },
   })

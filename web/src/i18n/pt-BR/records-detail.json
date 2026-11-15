@@ -128,5 +128,10 @@
     "nextActions": "Próximas ações",
     "recentActivity": "Atividade recente",
     "viewAll": "Ver tudo"
+  },
+  "undo": {
+    "label": "Desfazer",
+    "description": "Fica na lixeira e dá para restaurar depois.",
+    "restored": "Registro restaurado."
   }
 }

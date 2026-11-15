@@ -129,18 +129,27 @@ fn delete_permission(definition: &EntityDefinition) -> Permission {
         .unwrap_or_else(|| definition.read_permission.clone())
 }
 
+fn trash_visibility(ctx: &Ctx<'_>, definition: &EntityDefinition) -> Option<RecordScopeFilter> {
+    let read = ctx.scope.record_filter(&definition.read_permission).ok()?;
+    if ctx.scope.require(&Permission::SETTINGS_MANAGE).is_ok() {
+        return Some(read);
+    }
+    ctx.scope
+        .record_filter(&delete_permission(definition))
+        .ok()
+}
+
 fn readable_types(ctx: &Ctx<'_>) -> Vec<(EntityDefinition, RecordScopeFilter)> {
     trashable_types(ctx.registry())
         .into_iter()
         .filter_map(|definition| {
-            let visibility = ctx.scope.record_filter(&definition.read_permission).ok()?;
+            let visibility = trash_visibility(ctx, &definition)?;
             Some((definition, visibility))
         })
         .collect()
 }
 
 pub(crate) fn types(ctx: &Ctx<'_>) -> Result<Vec<EntityDefinition>, AppError> {
-    ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     Ok(readable_types(ctx)
         .into_iter()
         .map(|(definition, _)| definition)
@@ -152,12 +161,12 @@ pub(crate) async fn list(
     query: TrashQuery,
     window: ListWindow,
 ) -> Result<Listing<TrashEntry>, AppError> {
-    ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     let definitions = match query.record_type.as_deref().map(str::trim) {
         None | Some("") => readable_types(ctx),
         Some(value) => {
             let definition = parse_type(ctx, value)?;
-            let visibility = ctx.scope.record_filter(&definition.read_permission)?;
+            let visibility =
+                trash_visibility(ctx, &definition).ok_or_else(permission_denied)?;
             vec![(definition, visibility)]
         }
     };
@@ -194,7 +203,6 @@ async fn item(
     record_id: &str,
 ) -> Result<(EntityDefinition, TrashItem), AppError> {
     let scope = ctx.scope;
-    scope.require(&Permission::SETTINGS_MANAGE)?;
     let definition = parse_type(ctx, record_type)?;
     let id = Uuid::parse_str(record_id.trim()).map_err(|_| trash_item_not_found())?;
     let readable = scope.record_filter(&definition.read_permission)?;
@@ -282,6 +290,7 @@ pub(crate) async fn purge(
     record_id: &str,
     ip: Option<String>,
 ) -> Result<(), AppError> {
+    ctx.scope.require(&Permission::SETTINGS_MANAGE)?;
     let (definition, item) = item(ctx, record_type, record_id).await?;
     if purge_item(ctx, Actor::from_scope(ctx.scope), &definition, &item, ip).await? {
         Ok(())

@@ -104,7 +104,7 @@
     "reopen": "Reopen",
     "delete": "Delete",
     "deleteTitle": "Delete activity",
-    "deleteDescription": "The activity “{{title}}” will be deleted. This cannot be undone.",
+    "deleteDescription": "The activity “{{title}}” will stop appearing in lists. With the trash enabled, you can restore it later.",
     "deleted": "Activity deleted",
     "notesTab": "Notes",
     "filesTab": "Files"

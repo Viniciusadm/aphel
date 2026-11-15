@@ -364,7 +364,8 @@
       "description": "Tela inicial com painéis (widgets) de cada módulo, que cada pessoa pode organizar do seu jeito."
     },
     "trash": {
-      "description": "Registros excluídos ficam na lixeira até a limpeza definitiva e podem ser restaurados com seus vínculos."
+      "description": "Registros excluídos ficam na lixeira até a limpeza definitiva e podem ser restaurados com seus vínculos.",
+      "appears": "como destino dos registros excluídos de todos os módulos"
     },
     "integrations": {
       "description": "Central de integrações: conecte o Aphel a outros serviços, com configuração única para toda a organização."

@@ -9,6 +9,7 @@ import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { type RecordItem, recordPath, recordsKeys, recordTitle, requireRecordResource } from '@/sdk'
+import { useNotifyDeleted } from '@/features/records/useNotifyDeleted'
 export interface RecordLifecycleActionsProps {
   recordType: string
   record: RecordItem
@@ -28,6 +29,7 @@ export function RecordLifecycleActions({
   const { hasPermission } = useSession()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const notifyDeleted = useNotifyDeleted()
   const resource = requireRecordResource(recordType)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const archived = Boolean(record.archived_at)
@@ -48,7 +50,7 @@ export function RecordLifecycleActions({
     await api.delete<void>(recordPath(resource, record.id))
     void queryClient.invalidateQueries({ queryKey: recordsKeys.list(recordType) })
     void queryClient.invalidateQueries({ queryKey: recordsKeys.lookup(recordType) })
-    notifySuccess(t('profile.actions.deleted'))
+    notifyDeleted({ recordType, recordId: record.id, message: t('profile.actions.deleted') })
     navigate(listPath)
   }
 

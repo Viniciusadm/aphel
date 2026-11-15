@@ -16,7 +16,8 @@ import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Pagination } from '@/components/ui/pagination'
 import { SearchInput } from '@/components/ui/search-input'
-import { formatDateTime, ListSkeleton, NativeSelect, recordTypeIcon, RequirePermission, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
+import { useSession } from '@/app/session/session-context'
+import { formatDateTime, ListSkeleton, NativeSelect, recordTypeIcon, SETTINGS_MANAGE, useRecordFormatting } from '@/sdk'
 import {
   MAX_RETENTION_DAYS,
   MIN_RETENTION_DAYS,
@@ -40,11 +41,7 @@ function daysLeft(expiresAt: string | null | undefined): number | null {
 }
 
 export function TrashPage() {
-  return (
-    <RequirePermission permission={SETTINGS_MANAGE}>
-      <TrashSection />
-    </RequirePermission>
-  )
+  return <TrashSection />
 }
 
 function TrashSection() {
@@ -54,7 +51,9 @@ function TrashSection() {
   const search = searchParams.get('search') ?? ''
   const types = useTrashTypes()
   const typeLabel = useTrashTypeLabel()
-  const settings = useTrashSettings()
+  const { hasPermission } = useSession()
+  const canManage = hasPermission(SETTINGS_MANAGE)
+  const settings = useTrashSettings(canManage)
   const typeKeys = (types.data ?? []).map((type) => type.record_type)
   const isTrashType = (value: string | null): value is string => value !== null && typeKeys.includes(value)
   const filters: TrashFilters = {
@@ -93,12 +92,14 @@ function TrashSection() {
     <Page>
       <PageHeader
         title={t('title')}
-        description={t('description')}
+        description={t(canManage ? 'description' : 'descriptionMember')}
         actions={
-          <Button variant="outline" onClick={() => setConfiguring(true)} disabled={!settings.data}>
-            <Settings2 aria-hidden="true" />
-            {settings.data ? t('retention.button', { count: settings.data.retention_days }) : t('retention.title')}
-          </Button>
+          canManage && (
+            <Button variant="outline" onClick={() => setConfiguring(true)} disabled={!settings.data}>
+              <Settings2 aria-hidden="true" />
+              {settings.data ? t('retention.button', { count: settings.data.retention_days }) : t('retention.title')}
+            </Button>
+          )
         }
       />
       <div className="flex flex-wrap items-center gap-3">
@@ -154,7 +155,7 @@ function TrashSection() {
                 item={item}
                 busy={restore.isPending || purge.isPending}
                 onRestore={restoreItem}
-                onPurge={setPurging}
+                onPurge={canManage ? setPurging : undefined}
               />
             ))}
           </ul>
@@ -185,7 +186,7 @@ interface TrashRowProps {
   item: TrashItem
   busy: boolean
   onRestore: (item: TrashItem) => void
-  onPurge: (item: TrashItem) => void
+  onPurge?: (item: TrashItem) => void
 }
 
 function TrashRow({ item, busy, onRestore, onPurge }: TrashRowProps) {
@@ -221,6 +222,7 @@ function TrashRow({ item, busy, onRestore, onPurge }: TrashRowProps) {
           <ArchiveRestore aria-hidden="true" />
           {t('restore')}
         </Button>
+        {onPurge && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="icon" variant="ghost" className="size-8" aria-label={t('moreActions', { name: item.title })}>
@@ -234,6 +236,7 @@ function TrashRow({ item, busy, onRestore, onPurge }: TrashRowProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        )}
       </div>
     </li>
   )

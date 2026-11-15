@@ -222,7 +222,7 @@ Aphel keeps three states apart.
 
 **Delete.** On the record page choose **Delete** (needs `<type>.delete`) and confirm. For contacts and companies you must type the record's name to confirm. Deleted records leave your lists and go to the Trash. A delete can be blocked when other records are linked to the record in a way that forbids deletion, for example a required relationship of a custom object. Remove the links first.
 
-**Trash.** The Trash lives under **Data > Trash** in Settings and needs `settings.manage`. Deleted records of contacts, companies, deals, products, tasks, quotes and custom objects stay there for a set number of days. The page lists:
+**Trash.** The Trash is in the side menu (**Trash**) and under **Data > Trash** in Settings. Everyone sees the deleted records they could delete and can restore them; permanent deletion and the retention period need `settings.manage`. Deleted records of contacts, companies, deals, products, tasks, quotes and custom objects stay there for a set number of days. The page lists:
 
 | Column | Meaning |
 | --- | --- |
@@ -239,7 +239,7 @@ Use the type filter or **Search the trash** to find a record, then:
 You only see trashed records you could read, and restoring or purging a record also needs delete permission on it. The retention period is set in the same page under **Time in the trash**: between 1 and 365 days, 30 by default.
 
 :::caution
-The confirmation text when deleting a contact says the record can no longer be undone from the interface. If the Trash module is enabled, an administrator with `settings.manage` can still restore it from **Data > Trash** until the retention period ends.
+After deleting a record, a notice offers **Undo** for a few seconds when the Trash module is enabled. Later, the record can be restored from the **Trash** screen until the retention period ends.
 :::
 
 ## Tips

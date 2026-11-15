@@ -128,5 +128,10 @@
     "nextActions": "Next actions",
     "recentActivity": "Recent activity",
     "viewAll": "View all"
+  },
+  "undo": {
+    "label": "Undo",
+    "description": "It stays in the trash and can be restored later.",
+    "restored": "Record restored."
   }
 }

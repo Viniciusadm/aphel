@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast-store'
 import { RecordActionItem, RecordActionsDivider, RecordDetailPage, type RecordItem } from '@/sdk'
 import { TASK_DETAIL_FIELDS } from './resource'
-import { useDeleteActivity, type Activity } from '@/sdk'
+import { useDeleteActivity, useNotifyDeleted, type Activity } from '@/sdk'
 import { ActivityScheduleDialog, type ScheduledActivity } from './components/ActivityScheduleDialog'
 import { ReassignDialog } from './components/ReassignDialog'
 import { useActivityActions } from './lib/useActivityActions'
@@ -28,6 +28,7 @@ function TaskHeaderAction({ record, dialog, onDialog }: { record: RecordItem } &
   const activity = record as unknown as Activity
   const actions = useActivityActions(activity)
   const remove = useDeleteActivity()
+  const notifyDeleted = useNotifyDeleted()
   const done = activity.status === 'done'
   const title = activity.title
 
@@ -67,7 +68,7 @@ function TaskHeaderAction({ record, dialog, onDialog }: { record: RecordItem } &
         pending={remove.isPending}
         onConfirm={async () => {
           await remove.mutateAsync(activity.id)
-          toast({ title: t('detail.deleted'), variant: 'success' })
+          notifyDeleted({ recordType: 'tasks.task', recordId: activity.id, message: t('detail.deleted') })
           navigate(TASKS_PATH)
         }}
       />

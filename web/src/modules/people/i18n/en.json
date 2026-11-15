@@ -55,7 +55,7 @@
       "deleted": "Record deleted.",
       "archivedBadge": "Archived",
       "deleteTitle": "Delete {{name}}?",
-      "deleteDescription": "The record will no longer show up in lists. This cannot be undone from the interface."
+      "deleteDescription": "The record will stop appearing in lists. With the trash enabled, you can restore it later."
     }
   },
   "nav": {

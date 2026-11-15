@@ -69,5 +69,9 @@
   "expiresToday": "será apagado hoje",
   "moreActions": "Mais ações para {{name}}",
   "clearFilters": "Limpar filtros",
-  "emptyFilteredDescription": "Troque o tipo de registro ou a busca."
+  "emptyFilteredDescription": "Troque o tipo de registro ou a busca.",
+  "descriptionMember": "O que você excluiu e pode restaurar fica aqui por um tempo. Restaure para devolver o registro com seus vínculos.",
+  "nav": {
+    "trash": "Lixeira"
+  }
 }

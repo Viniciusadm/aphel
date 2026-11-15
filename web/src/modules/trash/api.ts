@@ -76,8 +76,8 @@ export function useTrashTypes() {
   return useQuery({ queryKey: trashKeys.types(), queryFn: trashApi.types, staleTime: 60_000 })
 }
 
-export function useTrashSettings() {
-  return useQuery({ queryKey: trashKeys.settings(), queryFn: trashApi.settings })
+export function useTrashSettings(enabled = true) {
+  return useQuery({ queryKey: trashKeys.settings(), queryFn: trashApi.settings, enabled })
 }
 
 export function useUpdateTrashSettings() {

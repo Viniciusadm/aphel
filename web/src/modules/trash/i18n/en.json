@@ -69,5 +69,9 @@
   "expiresToday": "will be erased today",
   "moreActions": "More actions for {{name}}",
   "clearFilters": "Clear filters",
-  "emptyFilteredDescription": "Change the record type or the search."
+  "emptyFilteredDescription": "Change the record type or the search.",
+  "descriptionMember": "What you deleted and can restore stays here for a while. Restore to bring the record back with its links.",
+  "nav": {
+    "trash": "Trash"
+  }
 }

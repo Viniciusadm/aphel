@@ -34,9 +34,9 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
     security(("session_cookie" = [])),
     params(TrashListParams, PaginationQuery),
     responses(
-        (status = 200, description = "Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, tasks, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed; types the user cannot read are left out. Records merged into another one are not listed", body = Page<TrashItemResponse>),
+        (status = 200, description = "Deleted records of every type with a trash (soft-deleted types with a title: people, organizations, deals, products, tasks, quotes, custom objects…), most recently deleted first, with the date they will be purged. Only records the user could read (read scope of each type: own, team or organization, plus shares) are listed, and without `settings.manage` only those the user may also delete; types the user cannot read are left out. Records merged into another one are not listed", body = Page<TrashItemResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing permission (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid record type or pagination (`validation_error`)", body = ErrorEnvelope),
     )
 )]
@@ -64,7 +64,7 @@ async fn list_trash(
     responses(
         (status = 200, description = "Record types that have a trash and the user can read: every registered type with soft deletion and a title (custom objects included)", body = Data<Vec<TrashTypeResponse>>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing permission (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
 )]
 async fn list_trash_types(
@@ -85,7 +85,7 @@ async fn list_trash_types(
     responses(
         (status = 200, description = "Days a deleted record stays in the trash before the `trash.purge` job deletes it for good (default 30)", body = Data<TrashSettingsBody>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing permission (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
     )
 )]
 async fn get_trash_settings(
@@ -107,7 +107,7 @@ async fn get_trash_settings(
     responses(
         (status = 200, description = "Retention replaced (`trash.settings_updated`)", body = Data<TrashSettingsBody>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage` (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing permission (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 422, description = "Retention outside 1–365 days (`validation_error` on `retention_days`)", body = ErrorEnvelope),
     )
 )]
@@ -135,7 +135,7 @@ async fn update_trash_settings(
     responses(
         (status = 200, description = "Record restored with its links and custom fields through the record pipeline (validation hooks such as validation rules and approvals, `RecordRestored`, `RecordSaved`, `RecordCommitted`) and `<type>.restored`", body = Data<TrashItemResponse>),
         (status = 401, description = "Missing or invalid credentials (`unauthorized`, `invalid_api_token`)", body = ErrorEnvelope),
-        (status = 403, description = "Missing `settings.manage`, the read permission of the type or the delete permission on this record (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
+        (status = 403, description = "Missing the read permission of the type or the delete permission on this record (`permission_denied`, `insufficient_scope`)", body = ErrorEnvelope),
         (status = 404, description = "The record is not in the trash or not visible (`trash_item_not_found`)", body = ErrorEnvelope),
         (status = 409, description = "An approval blocks the write (`approval_required`, `approval_pending`)", body = ErrorEnvelope),
         (status = 422, description = "Invalid record type (`validation_error`) or a validation rule blocks the record (`validation_rule_failed`)", body = ErrorEnvelope),
