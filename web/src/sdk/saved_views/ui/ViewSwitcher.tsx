@@ -1,18 +1,11 @@
 import { useIsModuleActive } from '@/kernel/modules/registry'
-import { Building2, Check, ChevronDown, Copy, Pencil, RotateCcw, Save, Star, StarOff, Trash2, Users } from 'lucide-react'
+import { Building2, Check, ChevronDown, Pencil, Plus, RotateCcw, Save, Star, StarOff, Trash2, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/feedback'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +50,6 @@ function ActiveViewSwitcher({
   className,
 }: ViewSwitcherProps) {
   const { t } = useTranslation('records-table')
-  const { t: tCommon } = useTranslation()
   const mutations = useViewMutations(recordType)
   const [dialog, setDialog] = useState<DialogState>(null)
 
@@ -181,7 +173,7 @@ function ActiveViewSwitcher({
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onSelect={() => setDialog({ kind: 'create' })}>
-            <Copy aria-hidden />
+            <Plus aria-hidden />
             {t('views.saveAsNew')}
           </DropdownMenuItem>
           {isModified && (
@@ -225,28 +217,19 @@ function ActiveViewSwitcher({
         onSubmit={submitForm}
       />
 
-      <Dialog open={dialog?.kind === 'delete'} onOpenChange={(open) => !open && setDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('views.deleteDialog.title')}</DialogTitle>
-            <DialogDescription>
-              {t('views.deleteDialog.description', { name: dialog?.kind === 'delete' ? dialog.view.name : '' })}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(null)}>
-              {tCommon('actions.cancel')}
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={mutations.remove.isPending}
-              onClick={() => dialog?.kind === 'delete' && confirmDelete(dialog.view)}
-            >
-              {t('views.deleteDialog.confirm')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={dialog?.kind === 'delete'}
+        onOpenChange={(open) => !open && setDialog(null)}
+        title={t('views.deleteDialog.title')}
+        description={t('views.deleteDialog.description', { name: dialog?.kind === 'delete' ? dialog.view.name : '' })}
+        confirmLabel={t('views.deleteDialog.confirm')}
+        variant="destructive"
+        pending={mutations.remove.isPending}
+        notifyOnError={false}
+        onConfirm={async () => {
+          if (dialog?.kind === 'delete') confirmDelete(dialog.view)
+        }}
+      />
     </>
   )
 }

@@ -1,17 +1,9 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/app/session/session-context'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { DialogForm } from '@/components/ui/dialog-form'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, type SavedView, type ViewVisibility } from '@/sdk'
 import { MAX_VIEW_NAME_LENGTH, SETTINGS_MANAGE, useViewTeams } from './viewsApi'
@@ -34,18 +26,12 @@ export interface ViewFormDialogProps {
 }
 
 export function ViewFormDialog({ open, onOpenChange, mode, view, pending = false, onSubmit }: ViewFormDialogProps) {
-  const { t } = useTranslation('records-table')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{mode === 'create' ? t('views.form.createTitle') : t('views.form.editTitle')}</DialogTitle>
-          <DialogDescription>
-            {mode === 'create' ? t('views.form.createDescription') : t('views.form.editDescription')}
-          </DialogDescription>
-        </DialogHeader>
         {open && (
           <ViewForm
+            mode={mode}
             view={mode === 'edit' ? view : undefined}
             pending={pending}
             onCancel={() => onOpenChange(false)}
@@ -58,18 +44,18 @@ export function ViewFormDialog({ open, onOpenChange, mode, view, pending = false
 }
 
 interface ViewFormProps {
+  mode: 'create' | 'edit'
   view?: SavedView
   pending: boolean
   onCancel: () => void
   onSubmit: (values: ViewFormValues, canManage: boolean) => void
 }
 
-function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
+function ViewForm({ mode, view, pending, onCancel, onSubmit }: ViewFormProps) {
   const { t } = useTranslation('records-table')
   const { t: tCommon } = useTranslation()
   const { hasPermission } = useSession()
   const canManage = hasPermission(SETTINGS_MANAGE)
-  const ids = { name: useId(), visibility: useId(), team: useId(), isDefault: useId(), error: useId() }
   const [name, setName] = useState(view?.name ?? '')
   const [visibility, setVisibility] = useState<ViewVisibility>(view?.visibility ?? 'private')
   const [teamId, setTeamId] = useState(view?.team_id ?? '')
@@ -110,83 +96,71 @@ function ViewForm({ view, pending, onCancel, onSubmit }: ViewFormProps) {
   }
 
   return (
-    <form className="grid gap-4" onSubmit={handleSubmit} noValidate>
-      <Field label={t('views.form.name')}>
-        {(control) => <>
+    <DialogForm
+      noValidate
+      onSubmit={handleSubmit}
+      title={mode === 'create' ? t('views.form.createTitle') : t('views.form.editTitle')}
+      description={mode === 'create' ? t('views.form.createDescription') : t('views.form.editDescription')}
+      cancelLabel={tCommon('actions.cancel')}
+      submitLabel={pending ? t('views.form.saving') : t('views.form.save')}
+      onCancel={onCancel}
+      pending={pending}
+      submitDisabled={pending}
+    >
+      <Field label={t('views.form.name')} error={submitted ? nameError : null}>
+        {(control) => (
           <Input
-          {...control}
-          autoFocus
-          value={name}
-          maxLength={MAX_VIEW_NAME_LENGTH + 10}
-          placeholder={t('views.form.namePlaceholder')}
-          aria-invalid={submitted && Boolean(nameError)}
-          aria-describedby={submitted && nameError ? ids.error : undefined}
-          onChange={(event) => setName(event.target.value)}
-        />
-        {submitted && nameError && (
-          <SharedFieldError id={ids.error}>
-            {nameError}
-          </SharedFieldError>
+            {...control}
+            autoFocus
+            value={name}
+            maxLength={MAX_VIEW_NAME_LENGTH + 10}
+            placeholder={t('views.form.namePlaceholder')}
+            onChange={(event) => setName(event.target.value)}
+          />
         )}
-        </>}
       </Field>
       <Field label={t('views.visibility.label')}>
-        {(control) => <NativeSelect
-          {...control}
-          value={visibility}
-          onChange={(event) => setVisibility(event.target.value as ViewVisibility)}
-        >
-          {visibilities.map((option) => (
-            <option key={option} value={option}>
-              {t(`views.visibility.${option}`)}
-            </option>
-          ))}
-        </NativeSelect>}
-      </Field>
-      {visibility === 'team' && (
-        <Field label={t('views.form.team')}>
-          {(control) => <>
-            <NativeSelect
+        {(control) => (
+          <NativeSelect
             {...control}
-            value={teamId}
-            aria-invalid={submitted && Boolean(teamError)}
-            onChange={(event) => setTeamId(event.target.value)}
+            value={visibility}
+            onChange={(event) => setVisibility(event.target.value as ViewVisibility)}
           >
-            <option value="">{t('filters.choose')}</option>
-            {teamOptions.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
+            {visibilities.map((option) => (
+              <option key={option} value={option}>
+                {t(`views.visibility.${option}`)}
               </option>
             ))}
           </NativeSelect>
-          {teams.isSuccess && teamOptions.length === 0 && (
-            <p className="text-sm text-muted-foreground">{t('views.form.noTeams')}</p>
+        )}
+      </Field>
+      {visibility === 'team' && (
+        <Field
+          label={t('views.form.team')}
+          description={teams.isSuccess && teamOptions.length === 0 ? t('views.form.noTeams') : undefined}
+          error={submitted ? teamError : null}
+        >
+          {(control) => (
+            <NativeSelect {...control} value={teamId} onChange={(event) => setTeamId(event.target.value)}>
+              <option value="">{t('filters.choose')}</option>
+              {teamOptions.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </NativeSelect>
           )}
-          {submitted && teamError && <SharedFieldError>{teamError}</SharedFieldError>}
-          </>}
         </Field>
       )}
       {visibility === 'organization' && canManage && (
-        <div className="flex items-start gap-2">
-          <Checkbox
-            id={ids.isDefault}
-            className="mt-0.5"
-            checked={isDefault}
-            onCheckedChange={(checked) => setIsDefault(checked === true)}
-          />
-          <Field id={ids.isDefault} label={t('views.form.organizationDefault')}>
-            <p className="text-xs text-muted-foreground">{t('views.form.organizationDefaultHint')}</p>
-          </Field>
-        </div>
+        <ToggleField
+          type="switch"
+          label={t('views.form.organizationDefault')}
+          description={t('views.form.organizationDefaultHint')}
+          checked={isDefault}
+          onCheckedChange={setIsDefault}
+        />
       )}
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          {tCommon('actions.cancel')}
-        </Button>
-        <Button type="submit" disabled={pending}>
-          {pending ? t('views.form.saving') : t('views.form.save')}
-        </Button>
-      </DialogFooter>
-    </form>
+    </DialogForm>
   )
 }
