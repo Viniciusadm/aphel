@@ -4,7 +4,9 @@ import {
   NativeDateInput,
   NativeDateTimeInput,
   NativeEmailInput,
+  NativeFileInput,
   NativeFormulaInput,
+  NativeImageInput,
   NativeLongTextInput,
   NativeMultiSelectInput,
   NativeNumberInput,
@@ -19,6 +21,7 @@ import { TextValue } from '@/features/records/display/FieldValueDisplay'
 import {
   CheckboxValue,
   EmailValue,
+  FileValue,
   LongTextValue,
   MultiSelectValue,
   NumericValue,
@@ -46,6 +49,8 @@ export function installNativeFieldTypes() {
     phone: { Input: NativePhoneInput, Display: PhoneValue },
     user: { Input: NativeUserInput, Display: UserFieldValue },
     record: { Input: NativeRecordInput, Display: RecordFieldValue },
+    file: { Input: NativeFileInput, Display: FileValue },
+    image: { Input: NativeImageInput, Display: FileValue },
     formula: { Input: NativeFormulaInput },
   })
 }

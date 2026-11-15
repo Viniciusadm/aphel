@@ -6,5 +6,53 @@
   "Folders": {
     "pt-BR": "Pastas da mídia",
     "en": "Media folders"
+  },
+  "Name": {
+    "pt-BR": "Nome",
+    "en": "Name"
+  },
+  "File": {
+    "pt-BR": "Arquivo",
+    "en": "File"
+  },
+  "Type": {
+    "pt-BR": "Tipo",
+    "en": "Type"
+  },
+  "Alternative text": {
+    "pt-BR": "Texto alternativo",
+    "en": "Alternative text"
+  },
+  "Caption": {
+    "pt-BR": "Legenda",
+    "en": "Caption"
+  },
+  "Credit": {
+    "pt-BR": "Crédito",
+    "en": "Credit"
+  },
+  "Horizontal focal point": {
+    "pt-BR": "Ponto focal horizontal",
+    "en": "Horizontal focal point"
+  },
+  "Vertical focal point": {
+    "pt-BR": "Ponto focal vertical",
+    "en": "Vertical focal point"
+  },
+  "Folder": {
+    "pt-BR": "Pasta",
+    "en": "Folder"
+  },
+  "Parent folder": {
+    "pt-BR": "Pasta pai",
+    "en": "Parent folder"
+  },
+  "Created at": {
+    "pt-BR": "Criado em",
+    "en": "Created at"
+  },
+  "Updated at": {
+    "pt-BR": "Atualizado em",
+    "en": "Updated at"
   }
 }

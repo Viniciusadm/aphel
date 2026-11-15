@@ -7,6 +7,7 @@ import { CheckboxFieldInput } from './CheckboxFieldInput'
 import { CurrencyFieldInput } from './CurrencyFieldInput'
 import { DateFieldInput } from './DateFieldInput'
 import { DateTimeFieldInput } from './DateTimeFieldInput'
+import { FileFieldInput } from './FileFieldInput'
 import type { FieldInputProps } from './FieldInput'
 import { LongTextFieldInput } from './LongTextFieldInput'
 import { MultiSelectFieldInput } from './MultiSelectFieldInput'
@@ -160,4 +161,14 @@ export function NativeFormulaInput({ field, value, ...rest }: FieldInputProps) {
       <FieldValueDisplay field={field} value={value} />
     </div>
   )
+}
+
+export function NativeFileInput(props: FieldInputProps) {
+  const { value, base, clearable } = split(props)
+  return <FileFieldInput {...base} value={normalizeText(value)} clearable={clearable} />
+}
+
+export function NativeImageInput(props: FieldInputProps) {
+  const { value, base, clearable } = split(props)
+  return <FileFieldInput {...base} accept="image/*" value={normalizeText(value)} clearable={clearable} />
 }

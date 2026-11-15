@@ -3,7 +3,8 @@
     "empty": "—",
     "yes": "Yes",
     "no": "No",
-    "unknownUser": "Removed user"
+    "unknownUser": "Removed user",
+    "openFile": "Open file"
   },
   "dev": {
     "title": "Demo records",

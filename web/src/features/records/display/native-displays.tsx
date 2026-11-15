@@ -2,6 +2,7 @@ import { Check, Minus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { FieldDisplayProps } from '@/kernel/modules/field-types'
+import { fileDownloadUrl } from '@/features/files'
 import { fieldConfig } from '../fields'
 import { useRecordFormatting } from '../formatting'
 import { OptionChip, RecordValue, UserValue } from './FieldValueDisplay'
@@ -105,4 +106,13 @@ export function LongTextValue({ value }: FieldDisplayProps) {
 export function NumericValue({ field, value }: FieldDisplayProps) {
   const formatting = useRecordFormatting()
   return <span className="tabular-nums">{formatFieldText(field, value, formatting)}</span>
+}
+
+export function FileValue({ value }: FieldDisplayProps) {
+  const { t } = useTranslation('records')
+  return (
+    <a href={fileDownloadUrl(String(value))} target="_blank" rel="noreferrer noopener" className="truncate text-primary underline-offset-4 hover:underline">
+      {t('values.openFile')}
+    </a>
+  )
 }

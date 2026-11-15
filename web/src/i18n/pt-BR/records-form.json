@@ -48,7 +48,12 @@
     "longTextPlaceholder": "Escreva aqui…",
     "numberPlaceholder": "0",
     "currencyPlaceholder": "0,00",
-    "phonePlaceholder": "(00) 00000-0000"
+    "phonePlaceholder": "(00) 00000-0000",
+    "fileChoose": "Escolher arquivo",
+    "fileReplace": "Trocar arquivo",
+    "fileRemove": "Remover arquivo",
+    "fileUploading": "Enviando…",
+    "fileCurrent": "Arquivo anexado"
   },
   "validation": {
     "required": "Campo obrigatório.",

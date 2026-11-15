@@ -3,7 +3,8 @@
     "empty": "—",
     "yes": "Sim",
     "no": "Não",
-    "unknownUser": "Usuário removido"
+    "unknownUser": "Usuário removido",
+    "openFile": "Abrir arquivo"
   },
   "dev": {
     "title": "Registros de demonstração",

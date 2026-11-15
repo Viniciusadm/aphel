@@ -6,6 +6,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::AppError;
 use aphel_sdk::module::HookCtx;
+use aphel_sdk::platform::application::fields::builtin::record_field;
 use aphel_sdk::platform::application::fields::{EntityDefinition, EntityTraits, SystemField};
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
@@ -26,7 +27,7 @@ pub struct MediaModule;
 
 fn text(key: &str, label: &str, max_length: u32) -> Result<SystemField, AppError> {
     Ok(
-        SystemField::new(key, label, FieldType::Text, key)?.with_config(FieldConfig {
+        SystemField::new(key, labels(label), FieldType::Text, key)?.with_config(FieldConfig {
             max_length: Some(max_length),
             ..Default::default()
         }),
@@ -35,7 +36,7 @@ fn text(key: &str, label: &str, max_length: u32) -> Result<SystemField, AppError
 
 fn focal(key: &str, label: &str) -> Result<SystemField, AppError> {
     Ok(
-        SystemField::new(key, label, FieldType::Number, key)?.with_config(FieldConfig {
+        SystemField::new(key, labels(label), FieldType::Number, key)?.with_config(FieldConfig {
             min: Some(Decimal::ZERO),
             max: Some(Decimal::ONE_HUNDRED),
             decimals: Some(0),
@@ -62,14 +63,14 @@ fn definition() -> Result<EntityDefinition, AppError> {
         .update_permission(manage)
         .title_field("name")
         .system_field(text("name", "Name", 160)?.required())
-        .system_field(SystemField::new("file", "File", FieldType::File, "file")?)
+        .system_field(SystemField::new("file", labels("File"), FieldType::File, "file")?)
         .system_field(text("content_type", "Type", 127)?)
         .system_field(text("alt", "Alternative text", 300)?)
         .system_field(text("caption", "Caption", 300)?)
         .system_field(text("credit", "Credit", 160)?)
         .system_field(focal("focal_x", "Horizontal focal point")?)
         .system_field(focal("focal_y", "Vertical focal point")?)
-        .system_field(text("folder_id", "Folder", 36)?)
+        .system_field(record_field("folder_id", labels("Folder"), FOLDER)?)
         .reference(aphel_sdk::fields::SoftReference {
             field: "folder_id".to_owned(),
             target: aphel_sdk::fields::ReferenceTarget::Entity {
@@ -84,7 +85,7 @@ fn definition() -> Result<EntityDefinition, AppError> {
     }
     for key in ["created_at", "updated_at"] {
         definition = definition
-            .system_field(SystemField::new(key, key, FieldType::DateTime, key)?.read_only());
+            .system_field(SystemField::new(key, labels(if key == "created_at" { "Created at" } else { "Updated at" }), FieldType::DateTime, key)?.read_only());
     }
     Ok(definition.handler(Arc::new(GenericRecordHandler::new(record_type))))
 }
@@ -100,7 +101,7 @@ fn folder_definition() -> Result<EntityDefinition, AppError> {
         .update_permission(manage)
         .title_field("name")
         .system_field(text("name", "Name", 80)?.required())
-        .system_field(text("parent_id", "Parent folder", 36)?)
+        .system_field(record_field("parent_id", labels("Parent folder"), FOLDER)?)
         .reference(aphel_sdk::fields::SoftReference {
             field: "parent_id".to_owned(),
             target: aphel_sdk::fields::ReferenceTarget::Entity {
@@ -115,7 +116,7 @@ fn folder_definition() -> Result<EntityDefinition, AppError> {
     }
     for key in ["created_at", "updated_at"] {
         definition = definition
-            .system_field(SystemField::new(key, key, FieldType::DateTime, key)?.read_only());
+            .system_field(SystemField::new(key, labels(if key == "created_at" { "Created at" } else { "Updated at" }), FieldType::DateTime, key)?.read_only());
     }
     Ok(definition.handler(Arc::new(GenericRecordHandler::new(record_type))))
 }

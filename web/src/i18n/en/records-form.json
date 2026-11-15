@@ -48,7 +48,12 @@
     "longTextPlaceholder": "Write here…",
     "numberPlaceholder": "0",
     "currencyPlaceholder": "0.00",
-    "phonePlaceholder": "(000) 000-0000"
+    "phonePlaceholder": "(000) 000-0000",
+    "fileChoose": "Choose file",
+    "fileReplace": "Replace file",
+    "fileRemove": "Remove file",
+    "fileUploading": "Uploading…",
+    "fileCurrent": "Attached file"
   },
   "validation": {
     "required": "This field is required.",
