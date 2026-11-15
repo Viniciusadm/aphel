@@ -70,6 +70,7 @@ import type recordsCalendarNamespace from './pt-BR/records-calendar.json'
 import type recordsDetailNamespace from './pt-BR/records-detail.json'
 import type recordsFormNamespace from './pt-BR/records-form.json'
 import type recordsTableNamespace from './pt-BR/records-table.json'
+import type remindersNamespace from '../modules/reminders/i18n/pt-BR.json'
 import type renewalsNamespace from '../modules/renewals/i18n/pt-BR.json'
 import type reportsNamespace from '../modules/reports/i18n/pt-BR.json'
 import type scoringNamespace from '../modules/scoring/i18n/pt-BR.json'
@@ -169,6 +170,7 @@ declare module 'i18next' {
       'records-detail': typeof recordsDetailNamespace
       'records-form': typeof recordsFormNamespace
       'records-table': typeof recordsTableNamespace
+      reminders: typeof remindersNamespace
       renewals: typeof renewalsNamespace
       reports: typeof reportsNamespace
       scoring: typeof scoringNamespace

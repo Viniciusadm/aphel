@@ -23,6 +23,7 @@ import goalsModule from '@modules/goals'
 import forecastModule from '@modules/forecast'
 import tasksModule from '@modules/tasks'
 import notesModule from '@modules/notes'
+import remindersModule from '@modules/reminders'
 import timelineModule from '@modules/timeline'
 import favoritesModule from '@modules/favorites'
 import followersModule from '@modules/followers'
@@ -89,6 +90,7 @@ export const MODULES: WebModule[] = [
   forecastModule,
   tasksModule,
   notesModule,
+  remindersModule,
   timelineModule,
   favoritesModule,
   followersModule,

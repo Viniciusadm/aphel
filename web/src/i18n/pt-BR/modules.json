@@ -350,7 +350,7 @@
     "reminders": {
       "name": "Lembretes",
       "description": "Lembretes antes do vencimento de uma tarefa, o aviso da manhã com as tarefas do dia e lembretes avulsos ligados a um registro.",
-      "appears": "como lembretes de vencimento nas tarefas e aviso da manhã"
+      "appears": "como botão Lembrar-me no menu Ações das fichas; as notificações de vencimento de tarefas também saem por ele"
     },
     "validation_rules": {
       "name": "Regras de validação",

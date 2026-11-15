@@ -1,0 +1,73 @@
+{
+  "name": "Lembretes",
+  "description": "Avisos pessoais na hora que você escolher, avulsos ou ligados a um registro, e o aviso das 8h com as tarefas do dia.",
+  "nav": {
+    "reminders": "Lembretes"
+  },
+  "page": {
+    "title": "Meus lembretes",
+    "description": "Lembretes são pessoais: só você os vê. Na hora marcada, você recebe um aviso no Aphel, por e-mail e no navegador, conforme as suas preferências de notificação.",
+    "new": "Novo lembrete",
+    "statusFilter": "Situação",
+    "untitled": "Sem título",
+    "noNote": "Lembrete sem anotação"
+  },
+  "status": {
+    "pending": "Pendentes",
+    "sent": "Enviados",
+    "dismissed": "Dispensados"
+  },
+  "empty": {
+    "pending": {
+      "title": "Nenhum lembrete pendente",
+      "description": "Crie um lembrete para ser avisado em um dia e hora, ou use Lembrar-me na ficha de um registro."
+    },
+    "sent": {
+      "title": "Nenhum lembrete enviado",
+      "description": "Os lembretes que já avisaram você aparecem aqui."
+    },
+    "dismissed": {
+      "title": "Nenhum lembrete dispensado",
+      "description": "Os lembretes que você dispensou antes da hora aparecem aqui."
+    }
+  },
+  "actions": {
+    "dismiss": "Dispensar",
+    "edit": "Editar lembrete",
+    "remove": "Excluir lembrete"
+  },
+  "presets": {
+    "hour": "Daqui a 1 hora",
+    "tomorrow": "Amanhã às 9h",
+    "week": "Em 1 semana às 9h"
+  },
+  "dialog": {
+    "newTitle": "Novo lembrete",
+    "editTitle": "Editar lembrete",
+    "description": "Escolha quando quer ser avisado.",
+    "linkedDescription": "Você será avisado sobre: {{title}}.",
+    "when": "Quando",
+    "whenRequired": "Escolha o dia e a hora do aviso.",
+    "note": "Anotação",
+    "noteHint": "Opcional. Até {{max}} caracteres.",
+    "create": "Criar lembrete",
+    "save": "Salvar",
+    "cancel": "Cancelar"
+  },
+  "remove": {
+    "title": "Excluir este lembrete?",
+    "description": "Ele deixa de existir e você não será mais avisado.",
+    "confirm": "Excluir"
+  },
+  "toast": {
+    "created": "Lembrete criado.",
+    "updated": "Lembrete atualizado.",
+    "dismissed": "Lembrete dispensado.",
+    "removed": "Lembrete excluído."
+  },
+  "button": {
+    "remind": "Lembrar-me",
+    "withCount_one": "{{count}} lembrete",
+    "withCount_other": "{{count}} lembretes"
+  }
+}

@@ -118,8 +118,6 @@ export interface components {
         Recurrence: "none" | "monthly" | "quarterly" | "yearly";
         /** @enum {string} */
         DiscountType: "none" | "percent" | "amount";
-        /** @enum {string} */
-        AmountMode: "manual" | "items";
         ReorderLineItemsRequest: {
             item_ids: string[];
         };
@@ -214,6 +212,8 @@ export interface components {
                 total: string;
             };
         };
+        /** @enum {string} */
+        AmountMode: "manual" | "items";
         LineItemsResponse: {
             amount_managed: boolean;
             amount_mode: components["schemas"]["AmountMode"];

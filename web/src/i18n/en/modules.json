@@ -350,7 +350,7 @@
     "reminders": {
       "name": "Reminders",
       "description": "Reminders before a task is due, the morning notice of tasks due today and standalone reminders linked to a record.",
-      "appears": "as due reminders on tasks and the morning notice"
+      "appears": "as a Remind me button in the Actions menu of record pages; task due notices are also delivered by it"
     },
     "validation_rules": {
       "name": "Validation rules",

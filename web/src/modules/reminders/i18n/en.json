@@ -1,0 +1,73 @@
+{
+  "name": "Reminders",
+  "description": "Personal notices at the time you choose, standalone or linked to a record, and the 8 a.m. notice with the tasks of the day.",
+  "nav": {
+    "reminders": "Reminders"
+  },
+  "page": {
+    "title": "My reminders",
+    "description": "Reminders are personal: only you see them. At the set time you get a notice in Aphel, by e-mail and in the browser, following your notification preferences.",
+    "new": "New reminder",
+    "statusFilter": "Status",
+    "untitled": "Untitled",
+    "noNote": "Reminder without a note"
+  },
+  "status": {
+    "pending": "Pending",
+    "sent": "Sent",
+    "dismissed": "Dismissed"
+  },
+  "empty": {
+    "pending": {
+      "title": "No pending reminders",
+      "description": "Create a reminder to be notified on a day and time, or use Remind me on a record page."
+    },
+    "sent": {
+      "title": "No sent reminders",
+      "description": "Reminders that already notified you appear here."
+    },
+    "dismissed": {
+      "title": "No dismissed reminders",
+      "description": "Reminders you dismissed before their time appear here."
+    }
+  },
+  "actions": {
+    "dismiss": "Dismiss",
+    "edit": "Edit reminder",
+    "remove": "Delete reminder"
+  },
+  "presets": {
+    "hour": "In 1 hour",
+    "tomorrow": "Tomorrow at 9 a.m.",
+    "week": "In 1 week at 9 a.m."
+  },
+  "dialog": {
+    "newTitle": "New reminder",
+    "editTitle": "Edit reminder",
+    "description": "Choose when you want to be notified.",
+    "linkedDescription": "You will be notified about: {{title}}.",
+    "when": "When",
+    "whenRequired": "Choose the day and time of the notice.",
+    "note": "Note",
+    "noteHint": "Optional. Up to {{max}} characters.",
+    "create": "Create reminder",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "remove": {
+    "title": "Delete this reminder?",
+    "description": "It will be removed and you will no longer be notified.",
+    "confirm": "Delete"
+  },
+  "toast": {
+    "created": "Reminder created.",
+    "updated": "Reminder updated.",
+    "dismissed": "Reminder dismissed.",
+    "removed": "Reminder deleted."
+  },
+  "button": {
+    "remind": "Remind me",
+    "withCount_one": "{{count}} reminder",
+    "withCount_other": "{{count}} reminders"
+  }
+}
