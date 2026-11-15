@@ -1,16 +1,9 @@
 {
   "name": "Lixeira",
   "title": "Lixeira",
-  "description": "Registros excluídos (contatos, empresas, oportunidades, produtos, atividades, cotações e objetos personalizados) ficam aqui até a limpeza definitiva. Restaure para devolver o registro com seus vínculos.",
+  "description": "O que foi excluído fica aqui por um tempo. Restaure para devolver o registro com seus vínculos, ou exclua definitivamente.",
   "search": "Buscar na lixeira",
   "allTypes": "Todos os tipos",
-  "columns": {
-    "record": "Registro",
-    "type": "Tipo",
-    "deletedAt": "Excluído em",
-    "expiresAt": "Exclusão definitiva",
-    "actions": "Ações"
-  },
   "restore": "Restaurar",
   "restored": "{{name}} foi restaurado.",
   "purge": "Excluir definitivamente",
@@ -18,16 +11,19 @@
   "purgeDescription": "Os valores, notas, anexos e etiquetas do registro serão apagados. Esta ação não pode ser desfeita.",
   "purged": "{{name}} foi excluído definitivamente.",
   "emptyTitle": "A lixeira está vazia",
-  "emptyDescription": "Registros excluídos aparecem aqui até a limpeza definitiva.",
+  "emptyDescription": "Quando alguém excluir um contato, empresa, oportunidade ou outro registro, ele aparece aqui até a limpeza definitiva.",
   "emptyFiltered": "Nenhum registro excluído corresponde à busca.",
   "retention": {
     "title": "Tempo na lixeira",
-    "description": "Depois desse prazo, os registros excluídos são apagados definitivamente por uma rotina diária.",
+    "description": "Quanto tempo um registro excluído fica na lixeira. Passado o prazo, uma rotina diária apaga o registro de vez.",
     "label": "Dias na lixeira",
     "hint": "Entre 1 e 365 dias.",
     "save": "Salvar",
     "saved": "Prazo da lixeira atualizado.",
-    "invalid": "Informe um número entre 1 e 365."
+    "invalid": "Informe um número entre 1 e 365.",
+    "button_one": "Prazo: {{count}} dia",
+    "button_other": "Prazo: {{count}} dias",
+    "cancel": "Cancelar"
   },
   "typeLabel": "Tipo de registro",
   "recordType": {
@@ -66,5 +62,12 @@
   },
   "placeholders": {
     "retention": "Ex.: 30"
-  }
+  },
+  "deletedAt": "Excluído em {{date}}",
+  "expiresIn_one": "será apagado em {{count}} dia",
+  "expiresIn_other": "será apagado em {{count}} dias",
+  "expiresToday": "será apagado hoje",
+  "moreActions": "Mais ações para {{name}}",
+  "clearFilters": "Limpar filtros",
+  "emptyFilteredDescription": "Troque o tipo de registro ou a busca."
 }

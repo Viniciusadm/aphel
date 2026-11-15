@@ -1,16 +1,9 @@
 {
   "name": "Trash",
   "title": "Trash",
-  "description": "Deleted records (people, organizations, deals, products, tasks, quotes and custom objects) stay here until they are purged. Restore one to bring it back with its links.",
+  "description": "Deleted items stay here for a while. Restore to bring the record back with its links, or delete it permanently.",
   "search": "Search the trash",
   "allTypes": "All types",
-  "columns": {
-    "record": "Record",
-    "type": "Type",
-    "deletedAt": "Deleted on",
-    "expiresAt": "Permanent deletion",
-    "actions": "Actions"
-  },
   "restore": "Restore",
   "restored": "{{name}} was restored.",
   "purge": "Delete permanently",
@@ -18,16 +11,19 @@
   "purgeDescription": "The record's values, notes, attachments and tags will be erased. This cannot be undone.",
   "purged": "{{name}} was deleted permanently.",
   "emptyTitle": "The trash is empty",
-  "emptyDescription": "Deleted records show up here until they are purged.",
+  "emptyDescription": "When someone deletes a contact, company, deal or other record, it appears here until it is permanently erased.",
   "emptyFiltered": "No deleted record matches the search.",
   "retention": {
     "title": "Time in the trash",
-    "description": "After this period, deleted records are erased by a daily routine.",
+    "description": "How long a deleted record stays in the trash. After that, a daily job erases it for good.",
     "label": "Days in the trash",
     "hint": "Between 1 and 365 days.",
     "save": "Save",
     "saved": "Trash period updated.",
-    "invalid": "Enter a number between 1 and 365."
+    "invalid": "Enter a number between 1 and 365.",
+    "button_one": "Period: {{count}} day",
+    "button_other": "Period: {{count}} days",
+    "cancel": "Cancel"
   },
   "typeLabel": "Record type",
   "recordType": {
@@ -66,5 +62,12 @@
   },
   "placeholders": {
     "retention": "E.g.: 30"
-  }
+  },
+  "deletedAt": "Deleted on {{date}}",
+  "expiresIn_one": "will be erased in {{count}} day",
+  "expiresIn_other": "will be erased in {{count}} days",
+  "expiresToday": "will be erased today",
+  "moreActions": "More actions for {{name}}",
+  "clearFilters": "Clear filters",
+  "emptyFilteredDescription": "Change the record type or the search."
 }
