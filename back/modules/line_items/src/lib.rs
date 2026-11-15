@@ -61,6 +61,11 @@ impl Module for LineItemsModule {
                 "create line items",
                 include_str!("../migrations/0001_create_line_items.sql"),
             ))
+            .migration(Migration::new(
+                2,
+                "move amount mode to module settings",
+                include_str!("../migrations/0002_amount_mode_to_module_settings.sql"),
+            ))
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {

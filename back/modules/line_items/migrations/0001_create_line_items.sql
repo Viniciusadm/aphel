@@ -25,3 +25,17 @@ CREATE TABLE line_items (
   KEY line_items_created_by_fk_index (created_by),
   CONSTRAINT line_items_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE line_item_settings (
+  id TINYINT UNSIGNED NOT NULL,
+  amount_mode VARCHAR(16) NOT NULL DEFAULT 'manual',
+  updated_by CHAR(36) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id),
+  CONSTRAINT line_item_settings_single_row CHECK (id = 1),
+  KEY line_item_settings_updated_by_fk_index (updated_by),
+  CONSTRAINT line_item_settings_updated_by_fk FOREIGN KEY (updated_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO line_item_settings (id, amount_mode) VALUES (1, 'manual');
