@@ -18,7 +18,7 @@
   },
   "rates": {
     "title": "Exchange rates",
-    "description": "Value of one unit of the currency in {{base}}. The latest effective rate applies. Each record owner defines when amounts are recalculated or retain a closing rate.",
+    "description": "How much 1 unit of the currency is worth in {{base}}. The most recent current rate applies.",
     "filter": "Filter by currency",
     "allCurrencies": "All currencies",
     "new": "New rate",
@@ -51,7 +51,8 @@
       "manual": "Manual",
       "integration": "Integration"
     },
-    "current": "Current"
+    "current": "Current",
+    "note": "The owner of each record type decides when to recalculate values or keep the closing rate."
   },
   "errors": {
     "currency_not_enabled": "The currency is not enabled for the organization.",

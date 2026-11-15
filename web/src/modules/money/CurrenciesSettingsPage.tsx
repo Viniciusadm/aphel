@@ -212,12 +212,11 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="grid gap-1.5">
-            <CardTitle>{t('rates.title')}</CardTitle>
-            <CardDescription>{t('rates.description', { base: settings.base })}</CardDescription>
-          </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <CardTitle>{t('rates.title')}</CardTitle>
+        <CardDescription>{t('rates.description', { base: settings.base })}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <NativeSelect
             aria-label={t('rates.filter')}
             value={currency}
@@ -240,9 +239,6 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
             </Button>
           )}
         </div>
-        </div>
-      </CardHeader>
-      <CardContent className="grid gap-4">
       {rates.isPending ? (
         <PageLoader />
       ) : rates.isError ? (
@@ -318,6 +314,7 @@ function ExchangeRates({ settings }: { settings: CurrencySettings }) {
           <Pagination page={page} perPage={RATES_PER_PAGE} total={rates.data.meta.total} onPageChange={setPage} />
         </>
       )}
+      <p className="text-xs text-muted-foreground">{t('rates.note')}</p>
       <RateDialog
         editor={editor}
         currencies={foreign}
