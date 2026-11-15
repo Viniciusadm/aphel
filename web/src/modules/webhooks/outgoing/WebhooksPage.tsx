@@ -1,9 +1,9 @@
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { Check, Copy, MoreHorizontal, Plus, Webhook } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog, notifyError, notifySuccess } from '@/components/feedback'
 import { Badge } from '@/components/ui/badge'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ListSkeleton } from '@/sdk'
 import { toast } from '@/components/ui/toast-store'
 import { formatDateTime, useRecordFormatting } from '@/sdk'
 import {
@@ -49,11 +49,11 @@ export function WebhooksPage() {
   const [secret, setSecret] = useState<WebhookEndpointWithSecret | null>(null)
   const [deleting, setDeleting] = useState<WebhookEndpoint | null>(null)
   const [rotating, setRotating] = useState<WebhookEndpoint | null>(null)
-  const [expanded, setExpanded] = useState<string | null>(null)
+  const [viewing, setViewing] = useState<WebhookEndpoint | null>(null)
 
   const remove = async (endpoint: WebhookEndpoint) => {
     await webhooksApi.remove(endpoint.id)
-    if (expanded === endpoint.id) setExpanded(null)
+    if (viewing?.id === endpoint.id) setViewing(null)
     await invalidate()
     notifySuccess(t('toast.deleted'))
   }
@@ -68,20 +68,23 @@ export function WebhooksPage() {
     <Page>
       <PageHeader
         title={t('title')}
-        description={t('description')}
+        description={
+          <>
+            {t('description')}{' '}
+            <a className="underline underline-offset-4" href="/_aphel/docs/reference/webhooks-and-events/" target="_blank" rel="noreferrer">
+              {t('docsLink')}
+            </a>
+          </>
+        }
         actions={
-          <Button size="sm" onClick={() => setEditing({ endpoint: null })}>
+          <Button onClick={() => setEditing({ endpoint: null })}>
             <Plus aria-hidden="true" />
             {t('new')}
           </Button>
         }
       />
-      <p className="text-xs text-muted-foreground">{t('docsHint')}</p>
       {endpoints.isPending ? (
-        <div className="grid gap-2" aria-busy="true">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
+        <ListSkeleton rows={3} />
       ) : endpoints.isError ? (
         <ErrorState onRetry={() => void endpoints.refetch()} />
       ) : endpoints.data.length === 0 ? (
@@ -90,27 +93,40 @@ export function WebhooksPage() {
           title={t('emptyTitle')}
           description={t('emptyDescription')}
           action={
-            <Button size="sm" onClick={() => setEditing({ endpoint: null })}>
+            <Button onClick={() => setEditing({ endpoint: null })}>
               <Plus aria-hidden="true" />
               {t('new')}
             </Button>
           }
         />
       ) : (
-        <ul className="grid gap-2" aria-label={t('listLabel')}>
-          {endpoints.data.map((endpoint) => (
-            <EndpointRow
-              key={endpoint.id}
-              endpoint={endpoint}
-              expanded={expanded === endpoint.id}
-              onToggleDeliveries={() => setExpanded(expanded === endpoint.id ? null : endpoint.id)}
-              onShowDeliveries={() => setExpanded(endpoint.id)}
-              onEdit={() => setEditing({ endpoint })}
-              onRotate={() => setRotating(endpoint)}
-              onDelete={() => setDeleting(endpoint)}
-            />
-          ))}
-        </ul>
+        <Table>
+          <caption className="sr-only">{t('listLabel')}</caption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{t('columns.destination')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('columns.events')}</TableHead>
+              <TableHead scope="col">{t('columns.status')}</TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">{t('columns.failures')}</TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">{t('columns.lastSuccess')}</TableHead>
+              <TableHead scope="col" className="text-right">
+                <span className="sr-only">{t('columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {endpoints.data.map((endpoint) => (
+              <EndpointRow
+                key={endpoint.id}
+                endpoint={endpoint}
+                onShowDeliveries={() => setViewing(endpoint)}
+                onEdit={() => setEditing({ endpoint })}
+                onRotate={() => setRotating(endpoint)}
+                onDelete={() => setDeleting(endpoint)}
+              />
+            ))}
+          </TableBody>
+        </Table>
       )}
       {editing && (
         <EndpointFormDialog
@@ -129,6 +145,15 @@ export function WebhooksPage() {
           }}
         />
       )}
+      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}>
+        <DialogContent size="3xl">
+          <DialogHeader>
+            <DialogTitle>{t('deliveries.dialogTitle')}</DialogTitle>
+            <DialogDescription className="break-all">{viewing?.url}</DialogDescription>
+          </DialogHeader>
+          {viewing && <DeliveryLog endpoint={viewing} />}
+        </DialogContent>
+      </Dialog>
       <SecretDialog endpoint={secret} onClose={() => setSecret(null)} />
       <ConfirmDialog
         open={deleting !== null}
@@ -154,23 +179,13 @@ export function WebhooksPage() {
 
 interface EndpointRowProps {
   endpoint: WebhookEndpoint
-  expanded: boolean
-  onToggleDeliveries: () => void
   onShowDeliveries: () => void
   onEdit: () => void
   onRotate: () => void
   onDelete: () => void
 }
 
-function EndpointRow({
-  endpoint,
-  expanded,
-  onToggleDeliveries,
-  onShowDeliveries,
-  onEdit,
-  onRotate,
-  onDelete,
-}: EndpointRowProps) {
+function EndpointRow({ endpoint, onShowDeliveries, onEdit, onRotate, onDelete }: EndpointRowProps) {
   const { t } = useTranslation('webhooks')
   const formatting = useRecordFormatting()
   const invalidate = useInvalidateWebhooks()
@@ -225,49 +240,50 @@ function EndpointRow({
     )
 
   return (
-    <li className="grid gap-3 rounded-md border bg-card px-3 py-2">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div className="grid min-w-0 gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm break-all">{endpoint.url}</span>
-            <Badge
-              variant={endpoint.is_active ? 'success' : endpoint.disabled_reason === 'failures' ? 'destructive' : 'outline'}
-            >
-              {t(statusKey)}
-            </Badge>
-          </div>
-          {endpoint.description && <p className="text-sm text-muted-foreground break-words">{endpoint.description}</p>}
-          <div className="flex flex-wrap gap-1">
-            {subscribesToAll(endpoint) ? (
-              <Badge variant="secondary">{t('allEvents')}</Badge>
-            ) : (
-              <Badge variant="secondary" title={endpoint.events.join(', ')}>
-                {t('eventCount', { count: endpoint.events.length })}
-              </Badge>
-            )}
-            {endpoint.consecutive_failures > 0 && (
-              <Badge variant="warning">{t('failures', { count: endpoint.consecutive_failures })}</Badge>
-            )}
-            {!endpoint.secret_configured && <Badge variant="outline">{t('noSecret')}</Badge>}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {endpoint.last_success_at
-              ? t('lastSuccess', { date: formatDateTime(endpoint.last_success_at, formatting) })
-              : t('neverDelivered')}
-          </p>
-          {!endpoint.is_active && endpoint.disabled_reason === 'failures' && endpoint.disabled_at && (
-            <SharedFieldError>
-              {t('disabledByFailures', { date: formatDateTime(endpoint.disabled_at, formatting) })}
-            </SharedFieldError>
-          )}
-        </div>
-        <div className="flex gap-2 self-start">
-          <Button size="sm" variant="outline" onClick={onToggleDeliveries} aria-expanded={expanded}>
-            {t(expanded ? 'actions.hideDeliveries' : 'actions.deliveries')}
+    <TableRow>
+      <TableCell className="max-w-72">
+        <span className="block truncate font-mono text-sm" title={endpoint.url}>
+          {endpoint.url}
+        </span>
+        {endpoint.description && (
+          <span className="block truncate text-xs text-muted-foreground">{endpoint.description}</span>
+        )}
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        {subscribesToAll(endpoint) ? (
+          <Badge variant="secondary">{t('allEvents')}</Badge>
+        ) : (
+          <Badge variant="secondary" title={endpoint.events.join(', ')}>
+            {t('eventCount', { count: endpoint.events.length })}
+          </Badge>
+        )}
+      </TableCell>
+      <TableCell>
+        <Badge
+          variant={endpoint.is_active ? 'success' : endpoint.disabled_reason === 'failures' ? 'destructive' : 'outline'}
+          title={
+            !endpoint.is_active && endpoint.disabled_reason === 'failures' && endpoint.disabled_at
+              ? t('disabledByFailures', { date: formatDateTime(endpoint.disabled_at, formatting) })
+              : undefined
+          }
+        >
+          {t(statusKey)}
+        </Badge>
+      </TableCell>
+      <TableCell className="hidden tabular-nums lg:table-cell">
+        {endpoint.consecutive_failures > 0 ? endpoint.consecutive_failures : '—'}
+      </TableCell>
+      <TableCell className="hidden text-muted-foreground sm:table-cell">
+        {endpoint.last_success_at ? formatDateTime(endpoint.last_success_at, formatting) : t('neverDelivered')}
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex items-center justify-end gap-1">
+          <Button size="sm" variant="outline" onClick={onShowDeliveries}>
+            {t('actions.deliveries')}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" className="size-8" disabled={busy} aria-label={t('actions.menu', { url: endpoint.url })}>
+              <Button size="icon" variant="ghost" disabled={busy} aria-label={t('actions.menu', { url: endpoint.url })}>
                 <MoreHorizontal aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
@@ -287,9 +303,8 @@ function EndpointRow({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
-      {expanded && <DeliveryLog endpoint={endpoint} />}
-    </li>
+      </TableCell>
+    </TableRow>
   )
 }
 

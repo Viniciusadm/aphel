@@ -7,14 +7,10 @@ import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/api'
 import { notifyError } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { DialogForm } from '@/components/ui/dialog-form'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -33,7 +29,6 @@ import {
   MAX_DESCRIPTION_LENGTH,
   MAX_NAME_LENGTH,
   MAX_TOLERANCE_SECONDS,
-  MIN_TOLERANCE_SECONDS,
   emptyAction,
   toFormValues,
   toRequestBody,
@@ -42,7 +37,6 @@ import {
 } from './form'
 import { Alert } from '@/components/ui/alert'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Field } from '@/components/ui/field'
 
 interface WebhookEditorDialogProps {
@@ -119,13 +113,18 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
   const errorMessage = (message?: string) => (message ? t(message, { defaultValue: message }) : null)
 
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>{webhook ? t('form.editTitle', { name: webhook.name }) : t('form.createTitle')}</DialogTitle>
-        <DialogDescription>{t('form.description')}</DialogDescription>
-      </DialogHeader>
-      <FormProvider {...form}>
-        <form id={formId} className="grid gap-4" noValidate onSubmit={(event) => void submit(event)}>
+    <FormProvider {...form}>
+      <DialogForm
+        noValidate
+        onSubmit={(event) => void submit(event)}
+        title={webhook ? t('form.editTitle', { name: webhook.name }) : t('form.createTitle')}
+        description={t('form.description')}
+        cancelLabel={t('form.cancel')}
+        submitLabel={webhook ? t('form.save') : t('form.create')}
+        onCancel={onCancel}
+        pending={formState.isSubmitting}
+        submitDisabled={formState.isSubmitting}
+      >
           <Field label={t('form.name')}>
             {(control) => <>
               <Input
@@ -148,47 +147,55 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               {...register('description')}
             />}
           </Field>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <label className="flex items-center gap-2 text-sm">
-              <Controller
-          control={control}
-          name="is_active"
-          render={({ field }) => (
-            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
-          )}
-        />
-              {t('form.isActive')}
-            </label>
-            {!webhook && (
-              <label className="flex items-center gap-2 text-sm">
-                <Controller
-          control={control}
-          name="generate_signing_secret"
-          render={({ field }) => (
-            <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked === true)} />
-          )}
-        />
-                {t('form.generateSecret')}
-              </label>
+          <Controller
+            control={control}
+            name="is_active"
+            render={({ field }) => (
+              <ToggleField type="switch" label={t('form.isActive')} checked={field.value === true} onCheckedChange={field.onChange} />
             )}
-          </div>
-          {signed && (
-            <Field label={t('form.tolerance')} className="sm:max-w-xs">
-              {(control) => <>
-                <Input placeholder={t('placeholders.tolerance')}
-                {...control}
-                type="number"
-                min={MIN_TOLERANCE_SECONDS}
-                max={MAX_TOLERANCE_SECONDS}
-                {...register('signature_tolerance_seconds', { valueAsNumber: true })}
-              />
-              {formState.errors.signature_tolerance_seconds && (
-                <SharedFieldError>
-                  {errorMessage(formState.errors.signature_tolerance_seconds.message)}
-                </SharedFieldError>
+          />
+          {!webhook && (
+            <Controller
+              control={control}
+              name="generate_signing_secret"
+              render={({ field }) => (
+                <ToggleField
+                  type="switch"
+                  label={t('form.generateSecret')}
+                  checked={field.value === true}
+                  onCheckedChange={field.onChange}
+                />
               )}
-              </>}
-            </Field>
+            />
+          )}
+          {signed && (
+            <Controller
+              control={control}
+              name="signature_tolerance_seconds"
+              render={({ field }) => (
+                <Field
+                  label={t('form.tolerance')}
+                  className="sm:max-w-xs"
+                  error={
+                    formState.errors.signature_tolerance_seconds
+                      ? errorMessage(formState.errors.signature_tolerance_seconds.message)
+                      : undefined
+                  }
+                >
+                  {(control) => (
+                    <NumberMaskInput
+                      {...control}
+                      kind="integer"
+                      maxLength={String(MAX_TOLERANCE_SECONDS).length}
+                      className="w-32"
+                      placeholder={t('placeholders.tolerance')}
+                      value={Number.isFinite(field.value) ? String(field.value) : ''}
+                      onValueChange={(value) => field.onChange(value === '' ? Number.NaN : Number(value))}
+                    />
+                  )}
+                </Field>
+              )}
+            />
           )}
 
           <section className="grid gap-3" aria-labelledby={`${formId}-actions`}>
@@ -252,16 +259,7 @@ function EditorBody({ webhook, onCancel, onSaved }: EditorBodyProps) {
               ))}
             </Alert>
           )}
-        </form>
-      </FormProvider>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          {t('form.cancel')}
-        </Button>
-        <Button type="submit" form={formId} disabled={formState.isSubmitting}>
-          {webhook ? t('form.save') : t('form.create')}
-        </Button>
-      </DialogFooter>
-    </>
+      </DialogForm>
+    </FormProvider>
   )
 }

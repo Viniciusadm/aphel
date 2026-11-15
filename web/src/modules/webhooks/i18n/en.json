@@ -1,12 +1,11 @@
 {
   "name": "Webhooks",
   "title": "Outgoing webhooks",
-  "description": "Send Aphel events to other systems. Each delivery is a JSON POST signed with the endpoint's secret.",
-  "new": "New endpoint",
-  "listLabel": "Webhook endpoints",
-  "emptyTitle": "No endpoints configured",
+  "description": "Send Aphel events to other systems. Each delivery is a JSON POST signed with the destination secret.",
+  "new": "New destination",
+  "listLabel": "Webhook destinations",
+  "emptyTitle": "No destination configured",
   "emptyDescription": "Add a URL to receive events such as deal won or contact created.",
-  "docsHint": "See the body format and how to verify the signature in docs/api/webhooks.md.",
   "status": {
     "active": "Active",
     "manual": "Disabled",
@@ -43,15 +42,15 @@
     "testFailed": "The endpoint did not accept the test event",
     "testStatus": "The endpoint answered HTTP {{status}}"
   },
-  "deleteTitle": "Delete endpoint?",
+  "deleteTitle": "Delete destination?",
   "deleteDescription": "{{url}} will stop receiving events and its delivery history will be erased.",
   "deleteConfirm": "Delete",
   "rotateTitle": "Generate new secret?",
   "rotateDescription": "The current secret stops working immediately, including for pending retries. Update the destination system right away.",
   "rotateConfirm": "Generate new secret",
   "form": {
-    "createTitle": "New webhook endpoint",
-    "editTitle": "Edit endpoint",
+    "createTitle": "New webhook destination",
+    "editTitle": "Edit destination",
     "description": "Aphel sends a POST with the event as JSON to this URL.",
     "url": "URL",
     "urlPlaceholder": "https://example.com/webhooks/aphel",
@@ -64,7 +63,7 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving…",
-    "create": "Create endpoint",
+    "create": "Create destination",
     "errors": {
       "urlRequired": "Enter the URL.",
       "urlInvalid": "Enter a valid http(s) URL.",
@@ -83,7 +82,40 @@
     "company": "Companies",
     "deal": "Deals",
     "activity": "Activities",
-    "note": "Notes"
+    "note": "Notes",
+    "organization": "Organization",
+    "deals": {
+      "deal": "Deals"
+    },
+    "catalog_items": {
+      "item": "Products"
+    },
+    "money": {
+      "exchange_rate": "Exchange rates"
+    },
+    "currency": "Currencies",
+    "currency_base": "Base currency",
+    "organizations": {
+      "organization": "Companies"
+    },
+    "people": {
+      "person": "Contacts"
+    },
+    "pricing": {
+      "price_list": "Price lists"
+    },
+    "tasks": {
+      "task": "Tasks"
+    },
+    "notes": {
+      "note": "Notes"
+    },
+    "workflow": {
+      "record": "Pipelines and stages"
+    },
+    "quotes": {
+      "quote": "Quotes"
+    }
   },
   "secret": {
     "title": "Signing secret",
@@ -99,7 +131,7 @@
     "filter": "Status",
     "allStatuses": "All",
     "empty": "No deliveries match this filter.",
-    "listLabel": "Endpoint deliveries",
+    "listLabel": "Destination deliveries",
     "status": {
       "pending": "Pending",
       "succeeded": "Success",
@@ -119,7 +151,18 @@
     "redeliverLabel": "Redeliver the {{event}} delivery",
     "page": "Page {{page}} of {{pages}}",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "dialogTitle": "Destination deliveries",
+    "columns": {
+      "event": "Event",
+      "status": "Status",
+      "origin": "Origin",
+      "response": "Response",
+      "attempts": "Attempts",
+      "when": "When",
+      "actions": "Actions"
+    },
+    "emptyAll": "No deliveries yet. They appear here when an event is sent or you send a test."
   },
   "detail": {
     "title": "Delivery {{event}}",
@@ -147,7 +190,7 @@
     "createdBy": "Created by {{name}}",
     "lastReceived": "last received {{date}}",
     "neverReceived": "no requests received",
-    "viewLog": "Log",
+    "viewLog": "View log",
     "edit": "Edit",
     "moreActions": "More actions for {{name}}",
     "saved": "Webhook \"{{name}}\" saved.",
@@ -316,7 +359,19 @@
       "none": "No webhook yet.",
       "active_one": "1 active webhook.",
       "active_other": "{{count}} active webhooks."
-    }
+    },
+    "columns": {
+      "name": "Webhook",
+      "actions": "Actions",
+      "status": "Status",
+      "lastReceived": "Last received",
+      "createdBy": "Created by",
+      "signed": "Signature"
+    },
+    "signedYes": "Signed",
+    "unsigned": "No",
+    "noneReceived": "None",
+    "noActionsShort": "Log only"
   },
   "placeholders": {
     "description": "Describe what this webhook is for",
@@ -335,5 +390,14 @@
     "active_other": "{{count}} active endpoints.",
     "problems_one": "1 endpoint failing or disabled.",
     "problems_other": "{{count}} endpoints failing or disabled."
+  },
+  "docsLink": "See the format and how to verify the signature.",
+  "columns": {
+    "destination": "Destination",
+    "events": "Events",
+    "status": "Status",
+    "failures": "Consecutive failures",
+    "lastSuccess": "Last success",
+    "actions": "Actions"
   }
 }

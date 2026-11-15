@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/sdk'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
 import {
   incomingWebhooksApi,
   useIncomingWebhooks,
@@ -76,34 +76,56 @@ export function IncomingWebhooksPage() {
         title={t('title')}
         description={t('description')}
         actions={
-          <Button size="sm" onClick={() => setCreating(true)}>
+          <Button onClick={() => setCreating(true)}>
             <Plus aria-hidden="true" />
             {t('new')}
           </Button>
         }
       />
       {webhooks.isPending ? (
-        <div className="grid gap-2" aria-busy="true">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
+        <ListSkeleton rows={3} />
       ) : webhooks.isError ? (
         <ErrorState onRetry={() => void webhooks.refetch()} />
       ) : webhooks.data.length === 0 ? (
-        <EmptyState icon={Webhook} title={t('emptyTitle')} description={t('emptyDescription')} />
+        <EmptyState
+          icon={Webhook}
+          title={t('emptyTitle')}
+          description={t('emptyDescription')}
+          action={
+            <Button onClick={() => setCreating(true)}>
+              <Plus aria-hidden="true" />
+              {t('new')}
+            </Button>
+          }
+        />
       ) : (
-        <ul className="grid gap-2" aria-label={t('listLabel')}>
-          {webhooks.data.map((webhook) => (
-            <WebhookRow
-              key={webhook.id}
-              webhook={webhook}
-              onEdit={() => setEditing(webhook)}
-              onLog={() => setLogOf(webhook)}
-              onExample={() => setIssued(exampleOnly(webhook))}
-              onConfirm={(kind) => setPending({ kind, webhook })}
-            />
-          ))}
-        </ul>
+        <Table>
+          <caption className="sr-only">{t('listLabel')}</caption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{t('columns.name')}</TableHead>
+              <TableHead scope="col">{t('columns.status')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('columns.signed')}</TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">{t('columns.createdBy')}</TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">{t('columns.lastReceived')}</TableHead>
+              <TableHead scope="col" className="text-right">
+                <span className="sr-only">{t('columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {webhooks.data.map((webhook) => (
+              <WebhookRow
+                key={webhook.id}
+                webhook={webhook}
+                onEdit={() => setEditing(webhook)}
+                onLog={() => setLogOf(webhook)}
+                onExample={() => setIssued(exampleOnly(webhook))}
+                onConfirm={(kind) => setPending({ kind, webhook })}
+              />
+            ))}
+          </TableBody>
+        </Table>
       )}
 
       <WebhookEditorDialog
@@ -152,66 +174,55 @@ function WebhookRow({ webhook, onEdit, onLog, onExample, onConfirm }: WebhookRow
   const actions = webhookActions(webhook)
 
   return (
-    <li className="flex flex-col gap-2 rounded-md border bg-card px-3 py-2 sm:flex-row sm:items-start sm:justify-between">
-      <div className="grid min-w-0 gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium break-words">{webhook.name}</span>
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{webhook.token_prefix}…</code>
-          <Badge variant={webhook.is_active ? 'success' : 'outline'}>
-            {webhook.is_active ? t('active') : t('inactive')}
-          </Badge>
-          {webhook.secret_configured && <Badge variant="secondary">{t('signed')}</Badge>}
+    <TableRow>
+      <TableCell className="max-w-64">
+        <span className="block truncate font-medium">{webhook.name}</span>
+        <span className="block truncate text-xs text-muted-foreground">
+          {webhook.description ||
+            (actions.length === 0
+              ? t('noActionsShort')
+              : actions.map((action) => t(`actionTypes.${action.type}`)).join(' · '))}
+        </span>
+      </TableCell>
+      <TableCell>
+        <Badge variant={webhook.is_active ? 'success' : 'outline'}>{webhook.is_active ? t('active') : t('inactive')}</Badge>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">{webhook.secret_configured ? t('signedYes') : t('unsigned')}</TableCell>
+      <TableCell className="hidden text-muted-foreground lg:table-cell">{webhook.created_by_name ?? '—'}</TableCell>
+      <TableCell className="hidden text-muted-foreground tabular-nums sm:table-cell">
+        {webhook.last_received_at ? formatDateTime(webhook.last_received_at, formatting) : t('noneReceived')}
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex items-center justify-end gap-1">
+          <Button size="sm" variant="outline" onClick={onEdit}>
+            {t('edit')}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" aria-label={t('moreActions', { name: webhook.name })}>
+                <MoreHorizontal aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onLog}>{t('viewLog')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onExample}>{t('menu.example')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onConfirm('regenerateToken')}>
+                {t('menu.regenerateToken')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onConfirm('rotateSecret')}>
+                {webhook.secret_configured ? t('menu.rotateSecret') : t('menu.createSecret')}
+              </DropdownMenuItem>
+              {webhook.secret_configured && (
+                <DropdownMenuItem onSelect={() => onConfirm('removeSecret')}>{t('menu.removeSecret')}</DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onSelect={() => onConfirm('delete')}>
+                {t('menu.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {webhook.description && <p className="text-sm text-muted-foreground break-words">{webhook.description}</p>}
-        <div className="flex flex-wrap gap-1">
-          {actions.length === 0 ? (
-            <span className="text-xs text-muted-foreground">{t('noActions')}</span>
-          ) : (
-            actions.map((action, index) => (
-              <Badge key={`${action.type}-${index}`} variant="outline" className="text-[11px]">
-                {index + 1}. {t(`actionTypes.${action.type}`)}
-              </Badge>
-            ))
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {webhook.created_by_name ? `${t('createdBy', { name: webhook.created_by_name })} · ` : ''}
-          {webhook.last_received_at
-            ? t('lastReceived', { date: formatDateTime(webhook.last_received_at, formatting) })
-            : t('neverReceived')}
-        </p>
-      </div>
-      <div className="flex gap-2 self-start">
-        <Button size="sm" variant="outline" onClick={onLog}>
-          {t('viewLog')}
-        </Button>
-        <Button size="sm" variant="outline" onClick={onEdit}>
-          {t('edit')}
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" aria-label={t('moreActions', { name: webhook.name })}>
-              <MoreHorizontal aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={onExample}>{t('menu.example')}</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onConfirm('regenerateToken')}>
-              {t('menu.regenerateToken')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onConfirm('rotateSecret')}>
-              {webhook.secret_configured ? t('menu.rotateSecret') : t('menu.createSecret')}
-            </DropdownMenuItem>
-            {webhook.secret_configured && (
-              <DropdownMenuItem onSelect={() => onConfirm('removeSecret')}>{t('menu.removeSecret')}</DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={() => onConfirm('delete')}>
-              {t('menu.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </li>
+      </TableCell>
+    </TableRow>
   )
 }

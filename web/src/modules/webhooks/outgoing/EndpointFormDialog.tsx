@@ -6,16 +6,10 @@ import { Controller, useForm, useWatch, type UseFormSetError } from 'react-hook-
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { isApiError } from '@/api'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { DialogForm } from '@/components/ui/dialog-form'
+import { ToggleField } from '@/components/ui/toggle-field'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -168,11 +162,17 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="xl">
-        <DialogHeader>
-          <DialogTitle>{t(endpoint ? 'form.editTitle' : 'form.createTitle')}</DialogTitle>
-          <DialogDescription>{t('form.description')}</DialogDescription>
-        </DialogHeader>
-        <form id={formId} className="grid gap-4" noValidate onSubmit={(event) => void onSubmit(event)}>
+        <DialogForm
+          noValidate
+          onSubmit={(event) => void onSubmit(event)}
+          title={t(endpoint ? 'form.editTitle' : 'form.createTitle')}
+          description={t('form.description')}
+          cancelLabel={t('form.cancel')}
+          submitLabel={isSubmitting ? t('form.saving') : t(endpoint ? 'form.save' : 'form.create')}
+          onCancel={onClose}
+          pending={isSubmitting}
+          submitDisabled={isSubmitting}
+        >
           {serverError && (
             <Alert className="text-destructive"
             >
@@ -221,10 +221,7 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
               control={control}
               name="allEvents"
               render={({ field }) => (
-                <label className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                  {t('form.allEvents')}
-                </label>
+                <ToggleField label={t('form.allEvents')} checked={field.value} onCheckedChange={field.onChange} />
               )}
             />
             {!allEvents &&
@@ -277,21 +274,10 @@ export function EndpointFormDialog({ endpoint, onClose, onCreated, onUpdated }: 
             control={control}
             name="isActive"
             render={({ field }) => (
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                {t('form.active')}
-              </label>
+              <ToggleField type="switch" label={t('form.active')} checked={field.value} onCheckedChange={field.onChange} />
             )}
           />
-        </form>
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-            {t('form.cancel')}
-          </Button>
-          <Button type="submit" form={formId} disabled={isSubmitting}>
-            {isSubmitting ? t('form.saving') : t(endpoint ? 'form.save' : 'form.create')}
-          </Button>
-        </DialogFooter>
+        </DialogForm>
       </DialogContent>
     </Dialog>
   )

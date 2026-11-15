@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo } from 'react'
+import { useId, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { notifyError, notifySuccess } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { FormRow } from '../organization/components/FormRow'
+import { Field } from '@/components/ui/field'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import { positiveInteger } from './api'
 import { serverFieldErrors } from './violations'
 import { ToggleField } from '@/components/ui/toggle-field'
@@ -76,7 +76,6 @@ export function NumericSettingsPanel({
     [numbers, t],
   )
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -100,48 +99,67 @@ export function NumericSettingsPanel({
     }
   })
 
+  const formId = useId()
+
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+    <Card>
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="grid gap-1.5">
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </div>
+        <Button type="submit" form={formId} size="sm" disabled={isSubmitting || !isDirty}>
+          {isSubmitting ? t('configuration.saving') : t('configuration.save')}
+        </Button>
       </CardHeader>
       <CardContent>
-        <form className="grid gap-4" onSubmit={onSubmit} noValidate>
-          <fieldset className="grid gap-4 sm:grid-cols-2" disabled={isSubmitting}>
-            {numbers.map((setting) => {
-              const fieldId = `${id}-${setting.key}`
-              const error = errors.numbers?.[setting.key]?.message
-              return (
-                <FormRow key={setting.key} id={fieldId} label={setting.label} error={error} hint={setting.hint}>
-                  {(describedBy) => (
-                    <Input placeholder={t('configuration.numeric.valuePlaceholder')}
-                      id={fieldId}
-                      inputMode="numeric"
-                      aria-invalid={error ? true : undefined}
-                      aria-describedby={describedBy}
-                      {...register(`numbers.${setting.key}`)}
+        <form id={formId} className="grid gap-4 sm:grid-cols-2" onSubmit={onSubmit} noValidate>
+          {numbers.map((setting) => (
+            <Controller
+              key={setting.key}
+              control={control}
+              name={`numbers.${setting.key}`}
+              render={({ field }) => (
+                <Field
+                  id={`${id}-${setting.key}`}
+                  label={setting.label}
+                  description={setting.hint}
+                  error={errors.numbers?.[setting.key]?.message}
+                >
+                  {(fieldControl) => (
+                    <NumberMaskInput
+                      {...fieldControl}
+                      kind="integer"
+                      maxLength={String(setting.max).length}
+                      className="w-32"
+                      placeholder={t('configuration.numeric.valuePlaceholder')}
+                      value={field.value ?? ''}
+                      onValueChange={field.onChange}
+                      onBlur={field.onBlur}
+                      disabled={isSubmitting}
                     />
                   )}
-                </FormRow>
-              )
-            })}
-          </fieldset>
+                </Field>
+              )}
+            />
+          ))}
           {toggles.map((setting) => (
             <Controller
               key={setting.key}
               control={control}
               name={`toggles.${setting.key}`}
               render={({ field }) => (
-                <ToggleField label={setting.label} checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} disabled={isSubmitting} />
+                <ToggleField
+                  className="sm:col-span-2"
+                  type="switch"
+                  label={setting.label}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isSubmitting}
+                />
               )}
             />
           ))}
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting || !isDirty}>
-              {isSubmitting ? t('configuration.saving') : t('configuration.save')}
-            </Button>
-          </div>
         </form>
       </CardContent>
     </Card>

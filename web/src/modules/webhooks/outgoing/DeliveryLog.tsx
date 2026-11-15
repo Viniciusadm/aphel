@@ -12,7 +12,10 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTime, useRecordFormatting } from '@/sdk'
+import { Pagination } from '@/components/ui/pagination'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
 import {
   DELIVERIES_PER_PAGE,
   DELIVERY_STATUSES,
@@ -25,7 +28,6 @@ import {
   type WebhookDelivery,
   type WebhookEndpoint,
 } from './api'
-import { NativeSelect } from '@/components/ui/native-select'
 
 const STATUS_VARIANTS: Record<DeliveryStatus, BadgeProps['variant']> = {
   pending: 'secondary',
@@ -56,90 +58,16 @@ interface DeliveryLogProps {
 
 export function DeliveryLog({ endpoint }: DeliveryLogProps) {
   const { t } = useTranslation('webhooks')
+  const formatting = useRecordFormatting()
+  const invalidate = useInvalidateWebhooks()
   const [status, setStatus] = useState<DeliveryStatus | null>(null)
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string | null>(null)
+  const [sending, setSending] = useState<string | null>(null)
   const deliveries = useWebhookDeliveries(endpoint.id, status, page)
-  const pages = Math.max(1, Math.ceil((deliveries.data?.meta.total ?? 0) / DELIVERIES_PER_PAGE))
 
-  return (
-    <section className="grid gap-3 rounded-md border bg-muted/20 p-3" aria-label={t('deliveries.title')}>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div className="grid gap-0.5">
-          <h3 className="text-sm font-semibold">{t('deliveries.title')}</h3>
-          <p className="text-xs text-muted-foreground">{t('deliveries.description')}</p>
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          {t('deliveries.filter')}
-          <NativeSelect
-            value={status ?? ''}
-            onChange={(event) => {
-              setStatus(isDeliveryStatus(event.target.value) ? event.target.value : null)
-              setPage(1)
-            }}
-          >
-            <option value="">{t('deliveries.allStatuses')}</option>
-            {DELIVERY_STATUSES.map((option) => (
-              <option key={option} value={option}>
-                {t(`deliveries.status.${option}`)}
-              </option>
-            ))}
-          </NativeSelect>
-        </label>
-      </div>
-      {deliveries.isPending ? (
-        <div className="grid gap-2" aria-busy="true">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      ) : deliveries.isError ? (
-        <ErrorState onRetry={() => void deliveries.refetch()} />
-      ) : deliveries.data.data.length === 0 ? (
-        <p className="py-4 text-center text-sm text-muted-foreground">{t('deliveries.empty')}</p>
-      ) : (
-        <ul className="grid gap-1.5" aria-label={t('deliveries.listLabel')}>
-          {deliveries.data.data.map((delivery) => (
-            <DeliveryRow
-              key={delivery.id}
-              endpoint={endpoint}
-              delivery={delivery}
-              onOpen={() => setSelected(delivery.id)}
-            />
-          ))}
-        </ul>
-      )}
-      {pages > 1 && (
-        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>{t('deliveries.page', { page, pages })}</span>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-              {t('deliveries.previous')}
-            </Button>
-            <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}>
-              {t('deliveries.next')}
-            </Button>
-          </div>
-        </div>
-      )}
-      <DeliveryDetailDialog endpointId={endpoint.id} deliveryId={selected} onClose={() => setSelected(null)} />
-    </section>
-  )
-}
-
-interface DeliveryRowProps {
-  endpoint: WebhookEndpoint
-  delivery: WebhookDelivery
-  onOpen: () => void
-}
-
-function DeliveryRow({ endpoint, delivery, onOpen }: DeliveryRowProps) {
-  const { t } = useTranslation('webhooks')
-  const formatting = useRecordFormatting()
-  const invalidate = useInvalidateWebhooks()
-  const [sending, setSending] = useState(false)
-
-  const redeliver = async () => {
-    setSending(true)
+  const redeliver = async (delivery: WebhookDelivery) => {
+    setSending(delivery.id)
     try {
       await webhooksApi.redeliver(endpoint.id, delivery.id)
       notifySuccess(t('toast.redelivered'))
@@ -147,47 +75,96 @@ function DeliveryRow({ endpoint, delivery, onOpen }: DeliveryRowProps) {
     } catch (error) {
       notifyError(error)
     } finally {
-      setSending(false)
+      setSending(null)
     }
   }
 
   return (
-    <li className="flex flex-col gap-2 rounded-md border bg-card px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="grid min-w-0 gap-0.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <DeliveryStatusBadge status={delivery.status} />
-          <code className="font-mono text-xs break-all">{delivery.event_type}</code>
-          <Badge variant="outline">{t(triggerLabelKey(delivery.trigger))}</Badge>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {formatDateTime(delivery.created_at, formatting)}
-          {' · '}
-          {delivery.response_status ? `HTTP ${delivery.response_status}` : (delivery.error ?? t('deliveries.noResponse'))}
-          {delivery.duration_ms != null ? ` · ${t('deliveries.duration', { ms: delivery.duration_ms })}` : ''}
-          {' · '}
-          {t('deliveries.attempts', { attempts: delivery.attempts, max: delivery.max_attempts })}
-          {delivery.status === 'pending' && delivery.next_attempt_at && delivery.attempts > 0
-            ? ` · ${t('deliveries.nextAttempt', { date: formatDateTime(delivery.next_attempt_at, formatting) })}`
-            : ''}
-        </p>
-      </div>
-      <div className="flex gap-2 self-start sm:self-center">
-        <Button size="sm" variant="ghost" onClick={onOpen}>
-          {t('deliveries.details')}
-        </Button>
-        {endpoint.is_active && delivery.status !== 'pending' && (
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={sending}
-            aria-label={t('deliveries.redeliverLabel', { event: delivery.event_type })}
-            onClick={() => void redeliver()}
-          >
-            {t('deliveries.redeliver')}
-          </Button>
-        )}
-      </div>
-    </li>
+    <section className="grid gap-3" aria-label={t('deliveries.title')}>
+      <p className="text-sm text-muted-foreground">{t('deliveries.description')}</p>
+      <SegmentedControl
+        aria-label={t('deliveries.filter')}
+        className="self-start"
+        value={status ?? 'all'}
+        onValueChange={(value) => {
+          setStatus(isDeliveryStatus(value) ? value : null)
+          setPage(1)
+        }}
+        options={[
+          { value: 'all', label: t('deliveries.allStatuses') },
+          ...DELIVERY_STATUSES.map((option) => ({ value: option, label: t(`deliveries.status.${option}`) })),
+        ]}
+      />
+      {deliveries.isPending ? (
+        <ListSkeleton rows={3} />
+      ) : deliveries.isError ? (
+        <ErrorState onRetry={() => void deliveries.refetch()} />
+      ) : deliveries.data.data.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">{t(status ? 'deliveries.empty' : 'deliveries.emptyAll')}</p>
+      ) : (
+        <Table>
+          <caption className="sr-only">{t('deliveries.listLabel')}</caption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{t('deliveries.columns.event')}</TableHead>
+              <TableHead scope="col">{t('deliveries.columns.status')}</TableHead>
+              <TableHead scope="col" className="hidden sm:table-cell">{t('deliveries.columns.origin')}</TableHead>
+              <TableHead scope="col" className="hidden md:table-cell">{t('deliveries.columns.response')}</TableHead>
+              <TableHead scope="col" className="hidden lg:table-cell">{t('deliveries.columns.attempts')}</TableHead>
+              <TableHead scope="col">{t('deliveries.columns.when')}</TableHead>
+              <TableHead scope="col" className="text-right">
+                <span className="sr-only">{t('deliveries.columns.actions')}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {deliveries.data.data.map((delivery) => (
+              <TableRow key={delivery.id}>
+                <TableCell className="max-w-48 truncate font-mono text-xs">{delivery.event_type}</TableCell>
+                <TableCell>
+                  <DeliveryStatusBadge status={delivery.status} />
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <Badge variant="outline">{t(triggerLabelKey(delivery.trigger))}</Badge>
+                </TableCell>
+                <TableCell className="hidden text-muted-foreground md:table-cell">
+                  {delivery.response_status ? `HTTP ${delivery.response_status}` : (delivery.error ?? t('deliveries.noResponse'))}
+                  {delivery.duration_ms != null && (
+                    <span className="block text-xs">{t('deliveries.duration', { ms: delivery.duration_ms })}</span>
+                  )}
+                </TableCell>
+                <TableCell className="hidden tabular-nums lg:table-cell">
+                  {t('deliveries.attempts', { attempts: delivery.attempts, max: delivery.max_attempts })}
+                </TableCell>
+                <TableCell className="tabular-nums">{formatDateTime(delivery.created_at, formatting)}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    {endpoint.is_active && delivery.status !== 'pending' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={sending === delivery.id}
+                        aria-label={t('deliveries.redeliverLabel', { event: delivery.event_type })}
+                        onClick={() => void redeliver(delivery)}
+                      >
+                        {t('deliveries.redeliver')}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => setSelected(delivery.id)}>
+                      {t('deliveries.details')}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+      {deliveries.data && (
+        <Pagination page={page} perPage={DELIVERIES_PER_PAGE} total={deliveries.data.meta.total} onPageChange={setPage} />
+      )}
+      <DeliveryDetailDialog endpointId={endpoint.id} deliveryId={selected} onClose={() => setSelected(null)} />
+    </section>
   )
 }
 

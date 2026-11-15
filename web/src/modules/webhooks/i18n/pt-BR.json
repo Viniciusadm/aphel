@@ -1,12 +1,11 @@
 {
   "name": "Webhooks",
   "title": "Webhooks de saída",
-  "description": "Envie os eventos do Aphel para outros sistemas. Cada entrega é um POST JSON assinado com o segredo do endpoint.",
-  "new": "Novo endpoint",
-  "listLabel": "Endpoints de webhook",
-  "emptyTitle": "Nenhum endpoint configurado",
+  "description": "Envie os eventos do Aphel para outros sistemas. Cada entrega é um POST JSON assinado com o segredo do destino.",
+  "new": "Novo destino",
+  "listLabel": "Destinos de webhook",
+  "emptyTitle": "Nenhum destino configurado",
   "emptyDescription": "Cadastre uma URL para receber eventos como oportunidade ganha ou contato criado.",
-  "docsHint": "Veja o formato do corpo e como verificar a assinatura em docs/api/webhooks.md.",
   "status": {
     "active": "Ativo",
     "manual": "Desativado",
@@ -43,15 +42,15 @@
     "testFailed": "O endpoint não aceitou o evento de teste",
     "testStatus": "O endpoint respondeu HTTP {{status}}"
   },
-  "deleteTitle": "Excluir endpoint?",
+  "deleteTitle": "Excluir destino?",
   "deleteDescription": "{{url}} deixará de receber eventos e o histórico de entregas será apagado.",
   "deleteConfirm": "Excluir",
   "rotateTitle": "Gerar novo segredo?",
   "rotateDescription": "O segredo atual deixa de valer imediatamente, inclusive para as tentativas pendentes. Atualize o sistema de destino logo em seguida.",
   "rotateConfirm": "Gerar novo segredo",
   "form": {
-    "createTitle": "Novo endpoint de webhook",
-    "editTitle": "Editar endpoint",
+    "createTitle": "Novo destino de webhook",
+    "editTitle": "Editar destino",
     "description": "O Aphel envia um POST com o evento em JSON para esta URL.",
     "url": "URL",
     "urlPlaceholder": "https://exemplo.com/webhooks/aphel",
@@ -64,7 +63,7 @@
     "cancel": "Cancelar",
     "save": "Salvar",
     "saving": "Salvando…",
-    "create": "Criar endpoint",
+    "create": "Criar destino",
     "errors": {
       "urlRequired": "Informe a URL.",
       "urlInvalid": "Informe uma URL http(s) válida.",
@@ -83,7 +82,40 @@
     "company": "Empresas",
     "deal": "Oportunidades",
     "activity": "Atividades",
-    "note": "Notas"
+    "note": "Notas",
+    "organization": "Organização",
+    "deals": {
+      "deal": "Oportunidades"
+    },
+    "catalog_items": {
+      "item": "Produtos"
+    },
+    "money": {
+      "exchange_rate": "Taxas de câmbio"
+    },
+    "currency": "Moedas",
+    "currency_base": "Moeda base",
+    "organizations": {
+      "organization": "Empresas"
+    },
+    "people": {
+      "person": "Contatos"
+    },
+    "pricing": {
+      "price_list": "Tabelas de preço"
+    },
+    "tasks": {
+      "task": "Tarefas"
+    },
+    "notes": {
+      "note": "Notas"
+    },
+    "workflow": {
+      "record": "Funis e etapas"
+    },
+    "quotes": {
+      "quote": "Cotações"
+    }
   },
   "secret": {
     "title": "Segredo de assinatura",
@@ -99,7 +131,7 @@
     "filter": "Situação",
     "allStatuses": "Todas",
     "empty": "Nenhuma entrega com este filtro.",
-    "listLabel": "Entregas do endpoint",
+    "listLabel": "Entregas do destino",
     "status": {
       "pending": "Pendente",
       "succeeded": "Sucesso",
@@ -119,7 +151,18 @@
     "redeliverLabel": "Reenviar a entrega de {{event}}",
     "page": "Página {{page}} de {{pages}}",
     "previous": "Anterior",
-    "next": "Próxima"
+    "next": "Próxima",
+    "dialogTitle": "Entregas do destino",
+    "columns": {
+      "event": "Evento",
+      "status": "Situação",
+      "origin": "Origem",
+      "response": "Resposta",
+      "attempts": "Tentativas",
+      "when": "Quando",
+      "actions": "Ações"
+    },
+    "emptyAll": "Nenhuma entrega ainda. Elas aparecem aqui quando um evento for enviado ou você mandar um teste."
   },
   "detail": {
     "title": "Entrega {{event}}",
@@ -147,7 +190,7 @@
     "createdBy": "Criado por {{name}}",
     "lastReceived": "último recebimento em {{date}}",
     "neverReceived": "nenhuma requisição recebida",
-    "viewLog": "Log",
+    "viewLog": "Ver registro",
     "edit": "Editar",
     "moreActions": "Mais ações para {{name}}",
     "saved": "Webhook \"{{name}}\" salvo.",
@@ -316,7 +359,19 @@
       "none": "Nenhum webhook criado.",
       "active_one": "1 webhook ativo.",
       "active_other": "{{count}} webhooks ativos."
-    }
+    },
+    "columns": {
+      "name": "Webhook",
+      "actions": "Ações",
+      "status": "Situação",
+      "lastReceived": "Último recebimento",
+      "createdBy": "Criado por",
+      "signed": "Assinatura"
+    },
+    "signedYes": "Assinado",
+    "unsigned": "Não",
+    "noneReceived": "Nenhum",
+    "noActionsShort": "Só registro"
   },
   "placeholders": {
     "description": "Descreva para que serve este webhook",
@@ -335,5 +390,14 @@
     "active_other": "{{count}} endereços ativos.",
     "problems_one": "1 endereço com falhas ou desativado.",
     "problems_other": "{{count}} endereços com falhas ou desativados."
+  },
+  "docsLink": "Ver o formato e a verificação da assinatura.",
+  "columns": {
+    "destination": "Destino",
+    "events": "Eventos",
+    "status": "Situação",
+    "failures": "Falhas seguidas",
+    "lastSuccess": "Último sucesso",
+    "actions": "Ações"
   }
 }

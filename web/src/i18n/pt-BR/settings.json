@@ -562,7 +562,7 @@
       "timeout": "Tempo máximo por entrega (s)",
       "disableAfterFailures": "Falhas seguidas até desativar",
       "retentionDays": "Dias de histórico de entregas",
-      "requireHttps": "Exigir https nas URLs dos endpoints"
+      "requireHttps": "Exigir https nas URLs dos destinos"
     },
     "apiTokens": {
       "title": "Limites dos tokens de API",
