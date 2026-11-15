@@ -13,6 +13,7 @@ import type { QuoteSettings } from './types'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 import { Field } from '@/components/ui/field'
+import { SettingsCard, WIDE_FIELD } from '@/sdk/settings'
 
 const NO_MOVE = '__none__'
 
@@ -72,66 +73,70 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
           )
         }
       />
-    <div className="grid max-w-2xl gap-6">
+      <div className="grid gap-6">
       <UnsavedChangesGuard when={dirty} />
-      <Field label={t('settings.validDays')}>
-        {(control) => <>
-          <Input placeholder={t('placeholders.days')}
-          {...control}
-          className="w-32"
-          inputMode="numeric"
-          maxLength={4}
-          value={days}
-          disabled={!canEdit}
-          onChange={(event) => {
-            setDays(String(Math.min(3650, Number(event.target.value.replace(/\D/g, '')) || 0) || ''))
-            setDirty(true)
-          }}
-        />
-        <p className="text-xs text-muted-foreground">{t('settings.validDaysHint')}</p>
-        </>}
-      </Field>
-      <Field label={t('settings.terms')}>
-        {(control) => <Textarea placeholder={t('placeholders.terms')}
-          {...control}
-          rows={4}
-          value={terms}
-          disabled={!canEdit}
-          onChange={(event) => {
-            setTerms(event.target.value)
-            setDirty(true)
-          }}
-        />}
-      </Field>
-      <div className="grid gap-3">
-        <div className="grid gap-1">
-          <h3 className="text-sm font-medium">{t('settings.acceptStages')}</h3>
-          <p className="text-xs text-muted-foreground">{t('settings.acceptStagesHint')}</p>
-        </div>
-        {(workflow.data ?? []).map((pipeline) => (
-          <div key={pipeline.id} className="grid gap-2 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
-            <p className="text-sm font-medium">{pipeline.name}</p>
-            <NativeSelect value={stages[pipeline.id] ?? NO_MOVE}
-              disabled={!canEdit}
-              onValueChange={(value) => {
-                setStages((current) => {
-                  const next = { ...current }
-                  if (value === NO_MOVE) delete next[pipeline.id]
-                  else next[pipeline.id] = value
-                  return next
-                })
+      <SettingsCard title={t('settings.sections.defaults')} description={t('settings.sections.defaultsHint')} disabled={!canEdit}>
+        <Field label={t('settings.validDays')} description={t('settings.validDaysHint')}>
+          {(control) => (
+            <Input
+              placeholder={t('placeholders.days')}
+              {...control}
+              className="w-32"
+              inputMode="numeric"
+              maxLength={4}
+              value={days}
+              onChange={(event) => {
+                setDays(String(Math.min(3650, Number(event.target.value.replace(/\D/g, '')) || 0) || ''))
                 setDirty(true)
-              }} aria-label={pipeline.name}>
+              }}
+            />
+          )}
+        </Field>
+        <Field label={t('settings.terms')} className={WIDE_FIELD}>
+          {(control) => (
+            <Textarea
+              placeholder={t('placeholders.terms')}
+              {...control}
+              rows={4}
+              value={terms}
+              onChange={(event) => {
+                setTerms(event.target.value)
+                setDirty(true)
+              }}
+            />
+          )}
+        </Field>
+      </SettingsCard>
+      <SettingsCard title={t('settings.acceptStages')} description={t('settings.acceptStagesHint')} disabled={!canEdit}>
+        {(workflow.data ?? []).map((pipeline) => (
+          <Field key={pipeline.id} label={pipeline.name}>
+            {(control) => (
+              <NativeSelect
+                id={control.id}
+                value={stages[pipeline.id] ?? NO_MOVE}
+                onValueChange={(value) => {
+                  setStages((current) => {
+                    const next = { ...current }
+                    if (value === NO_MOVE) delete next[pipeline.id]
+                    else next[pipeline.id] = value
+                    return next
+                  })
+                  setDirty(true)
+                }}
+              >
                 <option value={NO_MOVE}>{t('settings.noMove')}</option>
-                {pipeline.stages.filter((stage) => stage.kind === 'open').map((stage) => (
-                  <option key={stage.id} value={stage.id}>
-                    {stage.name}
-                  </option>
-                ))}
+                {pipeline.stages
+                  .filter((stage) => stage.kind === 'open')
+                  .map((stage) => (
+                    <option key={stage.id} value={stage.id}>
+                      {stage.name}
+                    </option>
+                  ))}
               </NativeSelect>
-          </div>
+            )}
+          </Field>
         ))}
-      </div>
+      </SettingsCard>
     </div>
     </Page>
   )

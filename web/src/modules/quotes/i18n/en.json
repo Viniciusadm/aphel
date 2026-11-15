@@ -191,7 +191,11 @@
     "acceptStagesHint": "When a quote is accepted, the deal receives the items and amount of the accepted version and, when configured, moves to the chosen stage of its pipeline.",
     "noMove": "Do not move",
     "save": "Save",
-    "saved": "Settings saved."
+    "saved": "Settings saved.",
+    "sections": {
+      "defaults": "New quotes",
+      "defaultsHint": "Values prefilled on every new quote."
+    }
   },
   "public": {
     "loading": "Loading quote…",
