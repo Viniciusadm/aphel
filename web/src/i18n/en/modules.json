@@ -291,7 +291,6 @@
     "requires": "Needs",
     "prefers": "Works better with",
     "usedBy": "Used by",
-    "standalone": "It does not depend on other modules and no module uses it.",
     "state": {
       "enabled": "enabled",
       "disabled": "disabled"

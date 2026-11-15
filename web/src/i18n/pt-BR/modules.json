@@ -291,7 +291,6 @@
     "requires": "Precisa de",
     "prefers": "Funciona melhor com",
     "usedBy": "Usado por",
-    "standalone": "Não depende de outros módulos nem é usado por eles.",
     "state": {
       "enabled": "habilitado",
       "disabled": "desabilitado"
