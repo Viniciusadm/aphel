@@ -6,9 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { formatDate, ListSkeleton, NativeSelect, useRecordFormatting } from '@/sdk'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ListSkeleton, useRecordFormatting } from '@/sdk'
+import { formatDueAt } from './lib/shared'
 import { Pagination } from '@/components/ui/pagination'
-import { REQUEST_STATUSES, REQUESTS_PER_PAGE, isRequestStatus, usePrivacyRequests, type PrivacyRequest } from './api'
+import { REQUEST_STATUSES, REQUESTS_PER_PAGE, isRequestStatus, usePrivacyRequests } from './api'
 import { RequestDetailDialog } from './RequestDetailDialog'
 import { StatusBadge } from './StatusBadge'
 
@@ -38,22 +41,16 @@ export function RequestsPanel() {
 
   return (
     <div className="grid min-w-0 gap-4">
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="grid gap-1 text-sm">
-          <span className="text-muted-foreground">{t('requests.filterLabel')}</span>
-          <NativeSelect
-            value={status ?? ''}
-            onChange={(event) => update({ [STATUS_PARAM]: event.target.value || undefined, [PAGE_PARAM]: undefined })}
-          >
-            <option value="">{t('requests.allStatuses')}</option>
-            {REQUEST_STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {t(`status.${value}`)}
-              </option>
-            ))}
-          </NativeSelect>
-        </label>
-      </div>
+      <SegmentedControl
+        aria-label={t('requests.filterLabel')}
+        className="self-start"
+        value={status ?? 'all'}
+        onValueChange={(value) => update({ [STATUS_PARAM]: value === 'all' ? undefined : value, [PAGE_PARAM]: undefined })}
+        options={[
+          { value: 'all', label: t('requests.allStatuses') },
+          ...REQUEST_STATUSES.map((value) => ({ value, label: t(`status.${value}`) })),
+        ]}
+      />
       {requests.isPending ? (
         <ListSkeleton />
       ) : requests.isError ? (
@@ -67,16 +64,45 @@ export function RequestsPanel() {
       ) : (
         <>
           <PaginationSummary page={page} perPage={REQUESTS_PER_PAGE} total={requests.data.meta.total} />
-          <ul className="grid gap-2">
-            {requests.data.data.map((request) => (
-              <RequestRow
-                key={request.id}
-                request={request}
-                dueLabel={formatDate(request.due_at, formatting)}
-                onOpen={() => update({ [REQUEST_PARAM]: request.id })}
-              />
-            ))}
-          </ul>
+          <Table>
+            <caption className="sr-only">{t('requests.listLabel')}</caption>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{t('requests.columns.kind')}</TableHead>
+                <TableHead scope="col">{t('requests.columns.subject')}</TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">{t('requests.columns.items')}</TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">{t('requests.columns.due')}</TableHead>
+                <TableHead scope="col">{t('requests.columns.status')}</TableHead>
+                <TableHead scope="col" className="text-right">
+                  <span className="sr-only">{t('requests.columns.actions')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {requests.data.data.map((request) => {
+                const items = request.targets.records + request.targets.items
+                return (
+                  <TableRow key={request.id}>
+                    <TableCell className="font-medium">{t(`kinds.${request.kind as 'export'}`)}</TableCell>
+                    <TableCell className="max-w-56 truncate">{request.subject_label}</TableCell>
+                    <TableCell className="hidden tabular-nums md:table-cell">{t('requests.items', { count: items })}</TableCell>
+                    <TableCell className="hidden tabular-nums sm:table-cell">{formatDueAt(request.due_at, formatting.locale)}</TableCell>
+                    <TableCell>
+                      <span className="flex flex-wrap gap-1">
+                        <StatusBadge status={request.status} />
+                        {request.overdue && <Badge variant="destructive">{t('requests.overdue')}</Badge>}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" onClick={() => update({ [REQUEST_PARAM]: request.id })}>
+                        {t('actions.details')}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
           <Pagination
             page={page}
             perPage={REQUESTS_PER_PAGE}
@@ -87,34 +113,5 @@ export function RequestsPanel() {
       )}
       {openId && <RequestDetailDialog id={openId} onClose={() => update({ [REQUEST_PARAM]: undefined })} />}
     </div>
-  )
-}
-
-interface RequestRowProps {
-  request: PrivacyRequest
-  dueLabel: string
-  onOpen: () => void
-}
-
-function RequestRow({ request, dueLabel, onOpen }: RequestRowProps) {
-  const { t } = useTranslation('privacy')
-  const items = request.targets.records + request.targets.items
-  return (
-    <li className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="grid min-w-0 gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium">{t(`kinds.${request.kind as 'export'}`)}</span>
-          <StatusBadge status={request.status} />
-          {request.overdue && <Badge variant="destructive">{t('requests.overdue')}</Badge>}
-        </div>
-        <p className="text-sm break-all text-muted-foreground">
-          {t('requests.subject', { label: request.subject_label })} · {t('requests.items', { count: items })}
-        </p>
-        <p className="text-xs text-muted-foreground">{t('requests.due', { date: dueLabel })}</p>
-      </div>
-      <Button variant="outline" size="sm" className="self-start sm:self-center" onClick={onOpen}>
-        {t('actions.details')}
-      </Button>
-    </li>
   )
 }

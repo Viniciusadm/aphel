@@ -14,15 +14,16 @@ import {
 } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDate, formatDateTime, useRecordFormatting } from '@/sdk'
+import { formatDateTime, useRecordFormatting } from '@/sdk'
 import {
   requestDownloadUrl,
+  usePrivacyCatalog,
   usePrivacyRequest,
   useRequestMutations,
   type PrivacyRequest,
   type PrivacyRequestDetail,
 } from './api'
-import { localizedLabel, usePrivacyErrors } from './lib/shared'
+import { formatDueAt, localizedLabel, usePrivacyErrors } from './lib/shared'
 import { RecordLink } from './RecordLink'
 import { StatusBadge } from './StatusBadge'
 import { Alert } from '@/components/ui/alert'
@@ -69,7 +70,8 @@ export function RequestDetailDialog({ id, onClose }: RequestDetailDialogProps) {
 }
 
 function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; onClose: () => void }) {
-  const { t } = useTranslation('privacy')
+  const { t, i18n } = useTranslation('privacy')
+  const catalog = usePrivacyCatalog()
   const formatting = useRecordFormatting()
   const { request } = detail
   const { execute, cancel } = useRequestMutations()
@@ -111,7 +113,7 @@ function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; 
             {request.subject_label} ({t(`subjectKinds.${request.subject_kind as 'email'}`)})
           </span>
         </Info>
-        <Info label={t('detail.dueAt')}>{formatDate(request.due_at, formatting)}</Info>
+        <Info label={t('detail.dueAt')}>{formatDueAt(request.due_at, formatting.locale)}</Info>
         <Info label={t('detail.requestedBy')}>
           {request.requested_by?.display_name || t('detail.unknownUser')} ·{' '}
           {formatDateTime(request.created_at, formatting)}
@@ -143,7 +145,7 @@ function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; 
           <ul className="grid gap-1 text-sm">
             {detail.records.map((record) => (
               <li key={`${record.record_type}:${record.id}`} className="flex min-w-0 flex-wrap items-center gap-2">
-                <Badge variant="outline">{record.record_type}</Badge>
+                <Badge variant="outline">{localizedLabel(catalog.data?.entities.find((entity) => entity.record_type === record.record_type)?.labels ?? {}, i18n.language, record.record_type)}</Badge>
                 {record.exists ? (
                   <RecordLink recordType={record.record_type} id={record.id} title={record.title || record.id} />
                 ) : (
@@ -152,7 +154,7 @@ function RequestDetailBody({ detail, onClose }: { detail: PrivacyRequestDetail; 
               </li>
             ))}
             {detail.items.map((item) => <li key={JSON.stringify([item.source, item.id])} className="text-muted-foreground">
-              {item.source}: {item.id}
+              {localizedLabel(detail.sources.find((source) => source.key === item.source)?.labels ?? {}, i18n.language, item.source)}
             </li>)}
           </ul>
         )}

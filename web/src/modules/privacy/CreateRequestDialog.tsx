@@ -1,5 +1,5 @@
 import { DialogForm } from '@/components/ui/dialog-form'
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
 import {
@@ -7,6 +7,7 @@ import {
   DialogContent,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/sdk'
 import { DEFAULT_DUE_DAYS, REQUEST_KINDS, useRequestMutations, type RequestKind } from './api'
 import { addDays, endOfDayIso, usePrivacyErrors } from './lib/shared'
 import { Field } from '@/components/ui/field'
@@ -27,7 +28,6 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
   const { t } = useTranslation('privacy')
   const { create } = useRequestMutations()
   const notifyFailure = usePrivacyErrors()
-  const dueHintId = useId()
   const [kind, setKind] = useState<RequestKind>('export')
   const [dueDate, setDueDate] = useState(addDays(DEFAULT_DUE_DAYS))
   const count = selection.records.length + selection.items.length
@@ -59,42 +59,19 @@ export function CreateRequestDialog({ term, selection, onClose, onCreated }: Cre
           pending={create.isPending}
           submitDisabled={create.isPending || count === 0}
         >
-          <fieldset className="grid gap-2">
-            <legend className="mb-2 text-sm font-medium">{t('create.kind')}</legend>
-            {REQUEST_KINDS.map((value) => (
-              <label
-                key={value}
-                className="flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2 has-[:checked]:border-primary"
-              >
-                <input
-                  type="radio"
-                  name="privacy-request-kind"
-                  value={value}
-                  className="mt-1 size-4 shrink-0 accent-primary"
-                  checked={kind === value}
-                  onChange={() => setKind(value)}
-                />
-                <span className="grid gap-0.5">
-                  <span className="text-sm font-medium">{t(`kinds.${value}`)}</span>
-                  <span className="text-xs text-muted-foreground">{t(`kindDescriptions.${value}`)}</span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
-          <Field label={t('create.dueAt')}>
-            {(control) => <>
-              <Input
-              {...control}
-              type="date"
-              value={dueDate}
-              required
-              aria-describedby={dueHintId}
-              onChange={(event) => setDueDate(event.target.value)}
-            />
-            <p id={dueHintId} className="text-xs text-muted-foreground">
-              {t('create.dueHint')}
-            </p>
-            </>}
+          <Field label={t('create.kind')} description={t(`kindDescriptions.${kind}`)}>
+            {(control) => (
+              <NativeSelect {...control} value={kind} onChange={(event) => setKind(event.target.value as RequestKind)}>
+                {REQUEST_KINDS.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`kinds.${value}`)}
+                  </option>
+                ))}
+              </NativeSelect>
+            )}
+          </Field>
+          <Field label={t('create.dueAt')} description={t('create.dueHint')}>
+            {(control) => <Input {...control} type="date" value={dueDate} required onChange={(event) => setDueDate(event.target.value)} />}
           </Field>
           <p className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{t('create.notice')}</p>
         </DialogForm>

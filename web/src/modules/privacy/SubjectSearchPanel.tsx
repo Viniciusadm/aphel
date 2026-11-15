@@ -1,5 +1,5 @@
 import { Paperclip, Search, UserSearch } from 'lucide-react'
-import { useId, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,9 @@ import { RecordLink } from './RecordLink'
 import { Field } from '@/components/ui/field'
 
 interface SubjectSearchPanelProps {
+  creating: boolean
+  onCreatingChange: (creating: boolean) => void
+  onSelectionCount: (count: number) => void
   onRequestCreated: () => void
 }
 
@@ -42,7 +45,7 @@ function selectionFrom(keys: Set<string>): RequestSelection {
   return selection
 }
 
-export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps) {
+export function SubjectSearchPanel({ creating, onCreatingChange, onSelectionCount, onRequestCreated }: SubjectSearchPanelProps) {
   const { t, i18n } = useTranslation('privacy')
   const catalog = usePrivacyCatalog()
   const inputId = useId()
@@ -52,8 +55,9 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
   const [term, setTerm] = useState('')
   const [searchedTerm, setSearchedTerm] = useState('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [creating, setCreating] = useState(false)
   const result = search.data
+  useEffect(() => onSelectionCount(selected.size), [selected.size, onSelectionCount])
+  useEffect(() => () => onSelectionCount(0), [onSelectionCount])
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -113,7 +117,7 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
         <div className="grid min-w-0 gap-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm" aria-live="polite">
-              {t('search.summary', { label: result.label, kind: t(`subjectKinds.${result.kind as 'email'}`) })}
+              {t('search.summary', { label: result.label, kind: t(`subjectKinds.${result.kind as 'email'}`) })} · {t('search.selected', { count: selected.size })}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={() => setSelected(new Set(allKeys(result)))}>
@@ -179,14 +183,6 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
             </ResultGroup>
           )}
 
-          <div className="sticky bottom-0 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-background p-3">
-            <span className="text-sm text-muted-foreground" aria-live="polite">
-              {t('search.selected', { count: selected.size })}
-            </span>
-            <Button disabled={selected.size === 0} onClick={() => setCreating(true)}>
-              {t('search.createRequest')}
-            </Button>
-          </div>
         </div>
       )}
 
@@ -194,9 +190,9 @@ export function SubjectSearchPanel({ onRequestCreated }: SubjectSearchPanelProps
         <CreateRequestDialog
           term={searchedTerm}
           selection={selectionFrom(selected)}
-          onClose={() => setCreating(false)}
+          onClose={() => onCreatingChange(false)}
           onCreated={() => {
-            setCreating(false)
+            onCreatingChange(false)
             onRequestCreated()
           }}
         />

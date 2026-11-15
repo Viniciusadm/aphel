@@ -3,7 +3,7 @@
   "description": "Privacy (LGPD): personal data subjects, data subject requests and retention policies",
   "page": {
     "title": "Privacy and LGPD",
-    "description": "Find a data subject's data, handle requests (export, anonymize, delete) and define how long data is kept. LGPD compliance also depends on your company's processes.",
+    "description": "Find a data subject's data, handle requests and set how long data is kept.",
     "tabsLabel": "Privacy sections"
   },
   "tabs": {
@@ -52,7 +52,7 @@
   "search": {
     "label": "Data subject's email, phone or document",
     "placeholder": "maria@example.com or +55 11 98765-4321",
-    "hint": "The search covers fields marked as personal data, notes, attachments, tasks and import rows. The searched term is not stored; the search is recorded in the audit log.",
+    "hint": "The search covers personal data, notes, attachments, activities and import rows. The term is not saved; the search is recorded in the audit log.",
     "submit": "Search",
     "searching": "Searching…",
     "introTitle": "Find a data subject's data",
@@ -80,7 +80,7 @@
     "row": "Row {{row}}",
     "selected_one": "{{count}} item selected",
     "selected_other": "{{count}} items selected",
-    "createRequest": "Create request"
+    "createRequest": "Create request ({{count}})"
   },
   "create": {
     "title": "New data subject request",
@@ -122,7 +122,16 @@
     "subject": "Data subject: {{label}}",
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
-    "due": "Due: {{date}}"
+    "due": "Due: {{date}}",
+    "columns": {
+      "kind": "Request",
+      "subject": "Subject",
+      "items": "Items",
+      "due": "Due",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "listLabel": "Data subject requests"
   },
   "detail": {
     "title": "Data subject request",
@@ -176,7 +185,7 @@
   },
   "retention": {
     "title": "Retention policies",
-    "description": "Archive or delete old data automatically. Policies run every day at 04:00 (UTC) and start disabled: check the preview before enabling. The trash has its own retention in Data › Trash.",
+    "description": "Archive or delete old data automatically. Policies run every day at 04:00 (Brasília time) and start disabled: check the preview before enabling.",
     "create": "New policy",
     "empty": "No retention policies",
     "emptyDescription": "Create a policy to archive records without activity or clean old history.",
@@ -210,7 +219,14 @@
     "runQueued": "Run of {{name}} started",
     "deleted": "Policy {{name}} deleted",
     "deleteTitle": "Delete policy",
-    "deleteDescription": "Policy {{name}} stops running. The run history is kept."
+    "deleteDescription": "Policy {{name}} stops running. The run history is kept.",
+    "columns": {
+      "name": "Policy",
+      "rule": "Rule",
+      "lastRun": "Last run",
+      "actions": "Actions"
+    },
+    "listLabel": "Retention policies"
   },
   "actionSummaries": {
     "archive_inactive": "Archive {{target}} without activity for {{days}} days",
@@ -261,7 +277,13 @@
     },
     "summary": "{{affected}} items affected · {{files}} files removed · {{errors}} errors",
     "failed": "The run failed. Try again later.",
-    "partial": "Some items could not be processed."
+    "partial": "Some items could not be processed.",
+    "columns": {
+      "policy": "Policy",
+      "status": "Status",
+      "result": "Result",
+      "when": "When"
+    }
   },
   "actions": {
     "details": "Details",

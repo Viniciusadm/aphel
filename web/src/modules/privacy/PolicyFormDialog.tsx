@@ -1,6 +1,5 @@
 import { DialogForm } from '@/components/ui/dialog-form'
-import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifySuccess } from '@/components/feedback'
 import {
@@ -8,6 +7,7 @@ import {
   DialogContent,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { NumberMaskInput } from '@/components/ui/number-mask-input'
 import { NativeSelect } from '@/sdk'
 import {
   MAX_THRESHOLD_DAYS,
@@ -34,7 +34,6 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
   const { t, i18n } = useTranslation('privacy')
   const { create, update } = usePolicyMutations()
   const notifyFailure = usePrivacyErrors()
-  const ids = { name: useId(), action: useId(), recordType: useId(), days: useId(), daysHint: useId(), error: useId() }
   const [name, setName] = useState(policy?.name ?? '')
   const [action, setAction] = useState<RetentionAction>(
     policy && isRetentionAction(policy.action) ? policy.action : 'archive_inactive',
@@ -48,21 +47,18 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
     recordTypeOptions.push({ value: recordType, label: recordType })
   }
   const [days, setDays] = useState(String(policy?.threshold_days ?? 1095))
-  const [error, setError] = useState<string | null>(null)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [daysError, setDaysError] = useState<string | null>(null)
   const pending = create.isPending || update.isPending
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
     const threshold = Number(days)
-    if (!name.trim() || name.trim().length > NAME_MAX_LENGTH) {
-      setError(t('policyForm.nameInvalid'))
-      return
-    }
-    if (!Number.isInteger(threshold) || threshold < MIN_THRESHOLD_DAYS || threshold > MAX_THRESHOLD_DAYS) {
-      setError(t('policyForm.daysInvalid', { min: MIN_THRESHOLD_DAYS, max: MAX_THRESHOLD_DAYS }))
-      return
-    }
-    setError(null)
+    const invalidName = !name.trim() || name.trim().length > NAME_MAX_LENGTH
+    const invalidDays = !Number.isInteger(threshold) || threshold < MIN_THRESHOLD_DAYS || threshold > MAX_THRESHOLD_DAYS
+    setNameError(invalidName ? t('policyForm.nameInvalid') : null)
+    setDaysError(invalidDays ? t('policyForm.daysInvalid', { min: MIN_THRESHOLD_DAYS, max: MAX_THRESHOLD_DAYS }) : null)
+    if (invalidName || invalidDays) return
     const done = () => {
       notifySuccess(t(policy ? 'policyForm.updated' : 'policyForm.created'))
       onClose()
@@ -99,22 +95,16 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
           pending={pending}
           submitDisabled={pending || (needsRecordType(action) && !recordType)}
         >
-          {error && (
-            <SharedFieldError id={ids.error}>
-              {error}
-            </SharedFieldError>
-          )}
-          <Field label={t('policyForm.name')}>
+          <Field label={t('policyForm.name')} error={nameError}>
             {(control) => <Input placeholder={t('placeholders.name')}
               {...control}
               value={name}
               maxLength={NAME_MAX_LENGTH}
-              required
               onChange={(event) => setName(event.target.value)}
             />}
           </Field>
-          <Field label={t('policyForm.action')}>
-            {(control) => <>
+          <Field label={t('policyForm.action')} description={t(`actionHints.${action}`)}>
+            {(control) => (
               <NativeSelect
               {...control}
               value={action}
@@ -127,8 +117,7 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
                 </option>
               ))}
             </NativeSelect>
-            <p className="text-xs text-muted-foreground">{t(`actionHints.${action}`)}</p>
-            </>}
+            )}
           </Field>
           {needsRecordType(action) && (
             <Field label={t('policyForm.recordType')}>
@@ -146,23 +135,18 @@ export function PolicyFormDialog({ policy, onClose }: PolicyFormDialogProps) {
               </NativeSelect>}
             </Field>
           )}
-          <Field label={t('policyForm.days')}>
-            {(control) => <>
-              <Input placeholder={t('placeholders.days')}
-              {...control}
-              type="number"
-              inputMode="numeric"
-              min={MIN_THRESHOLD_DAYS}
-              max={MAX_THRESHOLD_DAYS}
-              value={days}
-              required
-              aria-describedby={ids.daysHint}
-              onChange={(event) => setDays(event.target.value)}
-            />
-            <p id={ids.daysHint} className="text-xs text-muted-foreground">
-              {t(policy ? 'policyForm.daysHintEdit' : 'policyForm.daysHint')}
-            </p>
-            </>}
+          <Field label={t('policyForm.days')} description={t(policy ? 'policyForm.daysHintEdit' : 'policyForm.daysHint')} error={daysError}>
+            {(control) => (
+              <NumberMaskInput
+                {...control}
+                kind="integer"
+                maxLength={5}
+                className="w-32"
+                placeholder={t('placeholders.days')}
+                value={days}
+                onValueChange={setDays}
+              />
+            )}
           </Field>
         </DialogForm>
       </DialogContent>

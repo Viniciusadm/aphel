@@ -1,6 +1,6 @@
 import { PaginationSummary } from '@/components/ui/pagination-summary'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
-import { History, MoreHorizontal, Plus, Timer } from 'lucide-react'
+import { History, MoreHorizontal, Timer } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog, notifySuccess } from '@/components/feedback'
@@ -15,8 +15,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { formatDate, formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
+import { formatDateTime, ListSkeleton, useRecordFormatting } from '@/sdk'
 import { Pagination } from '@/components/ui/pagination'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import {
   RUNS_PER_PAGE,
   usePolicyMutations,
@@ -36,12 +37,17 @@ function isDestructive(policy: RetentionPolicy): boolean {
   return policy.action !== 'archive_inactive'
 }
 
-export function RetentionPanel() {
+interface RetentionPanelProps {
+  creating: boolean
+  onCreatingChange: (creating: boolean) => void
+}
+
+export function RetentionPanel({ creating, onCreatingChange }: RetentionPanelProps) {
   const { t } = useTranslation('privacy')
   const policies = useRetentionPolicies()
   const mutations = usePolicyMutations()
   const notifyFailure = usePrivacyErrors()
-  const [editing, setEditing] = useState<RetentionPolicy | 'new' | null>(null)
+  const [editing, setEditing] = useState<RetentionPolicy | null>(null)
   const [deleting, setDeleting] = useState<RetentionPolicy | null>(null)
   const [previewed, setPreviewed] = useState<{ policy: RetentionPolicy; preview: RetentionPreview } | null>(null)
   const [pending, setPending] = useState<PendingAction | null>(null)
@@ -89,15 +95,9 @@ export function RetentionPanel() {
   return (
     <div className="grid min-w-0 gap-6">
       <section className="grid min-w-0 gap-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="grid gap-1">
-            <h3 className="font-medium">{t('retention.title')}</h3>
-            <p className="text-sm text-muted-foreground">{t('retention.description')}</p>
-          </div>
-          <Button onClick={() => setEditing('new')}>
-            <Plus aria-hidden="true" />
-            {t('retention.create')}
-          </Button>
+        <div className="grid gap-1">
+          <h3 className="font-medium">{t('retention.title')}</h3>
+          <p className="text-sm text-muted-foreground">{t('retention.description')}</p>
         </div>
         {policies.isPending ? (
           <ListSkeleton rows={3} />
@@ -106,28 +106,47 @@ export function RetentionPanel() {
         ) : policies.data.length === 0 ? (
           <EmptyState icon={Timer} title={t('retention.empty')} description={t('retention.emptyDescription')} />
         ) : (
-          <ul className="grid gap-2">
-            {policies.data.map((policy) => (
-              <PolicyRow
-                key={policy.id}
-                policy={policy}
-                busy={mutations.preview.isPending}
-                onPreview={() => preview(policy)}
-                onEnable={() => preview(policy, 'enable')}
-                onDisable={() => disable(policy)}
-                onRun={() => preview(policy, 'run')}
-                onEdit={() => setEditing(policy)}
-                onDelete={() => setDeleting(policy)}
-              />
-            ))}
-          </ul>
+          <Table>
+            <caption className="sr-only">{t('retention.listLabel')}</caption>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{t('retention.columns.name')}</TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">{t('retention.columns.rule')}</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">{t('retention.columns.lastRun')}</TableHead>
+                <TableHead scope="col" className="text-right">
+                  <span className="sr-only">{t('retention.columns.actions')}</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {policies.data.map((policy) => (
+                <PolicyRow
+                  key={policy.id}
+                  policy={policy}
+                  busy={mutations.preview.isPending}
+                  onPreview={() => preview(policy)}
+                  onEnable={() => preview(policy, 'enable')}
+                  onDisable={() => disable(policy)}
+                  onRun={() => preview(policy, 'run')}
+                  onEdit={() => setEditing(policy)}
+                  onDelete={() => setDeleting(policy)}
+                />
+              ))}
+            </TableBody>
+          </Table>
         )}
       </section>
 
       <RunsHistory />
 
-      {editing && (
-        <PolicyFormDialog policy={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />
+      {(creating || editing) && (
+        <PolicyFormDialog
+          policy={editing}
+          onClose={() => {
+            setEditing(null)
+            onCreatingChange(false)
+          }}
+        />
       )}
 
       <ConfirmDialog
@@ -188,64 +207,69 @@ interface PolicyRowProps {
 }
 
 function PolicyRow({ policy, busy, onPreview, onEnable, onDisable, onRun, onEdit, onDelete }: PolicyRowProps) {
-  const { t } = useTranslation('privacy')
+  const { t, i18n } = useTranslation('privacy')
   const formatting = useRecordFormatting()
   const catalog = usePrivacyCatalog()
-  const { i18n } = useTranslation()
-  const target = policy.record_type ? localizedLabel(catalog.data?.entities.find((entity) => entity.record_type === policy.record_type)?.labels ?? {}, i18n.language, policy.record_type) : null
+  const target = policy.record_type
+    ? localizedLabel(
+        catalog.data?.entities.find((entity) => entity.record_type === policy.record_type)?.labels ?? {},
+        i18n.language,
+        policy.record_type,
+      ).toLocaleLowerCase(i18n.language)
+    : null
   return (
-    <li className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="grid min-w-0 gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium break-words">{policy.name}</span>
-          <Badge variant={policy.is_enabled ? 'success' : 'outline'}>
-            {policy.is_enabled ? t('retention.active') : t('retention.inactive')}
-          </Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {t(`actionSummaries.${policy.action as 'archive_inactive'}`, { target, days: policy.threshold_days })}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {policy.last_run_at
-            ? t('retention.lastRun', { date: formatDateTime(policy.last_run_at, formatting) })
-            : t('retention.neverRun')}
-          {policy.previewed_count !== null && policy.previewed_count !== undefined && policy.previewed_at
-            ? ` · ${t('retention.lastPreview', { count: policy.previewed_count, date: formatDate(policy.previewed_at, formatting) })}`
-            : ''}
-        </p>
-      </div>
-      <div className="flex shrink-0 flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm" disabled={busy} onClick={onPreview}>
-          {t('actions.preview')}
-        </Button>
-        {policy.is_enabled ? (
-          <Button variant="outline" size="sm" onClick={onDisable}>
-            {t('actions.disable')}
-          </Button>
-        ) : (
-          <Button size="sm" disabled={busy} onClick={onEnable}>
-            {t('actions.enable')}
-          </Button>
+    <TableRow>
+      <TableCell className="max-w-64">
+        <span className="block truncate font-medium">{policy.name}</span>
+        <Badge variant={policy.is_enabled ? 'success' : 'outline'}>
+          {policy.is_enabled ? t('retention.active') : t('retention.inactive')}
+        </Badge>
+      </TableCell>
+      <TableCell className="hidden text-muted-foreground md:table-cell">
+        {t(`actionSummaries.${policy.action as 'archive_inactive'}`, { target, days: policy.threshold_days })}
+      </TableCell>
+      <TableCell className="hidden text-muted-foreground lg:table-cell">
+        {policy.last_run_at ? formatDateTime(policy.last_run_at, formatting) : t('retention.neverRun')}
+        {policy.previewed_count !== null && policy.previewed_count !== undefined && policy.previewed_at && (
+          <span className="block text-xs">
+            {t('retention.lastPreview', { count: policy.previewed_count, date: formatDateTime(policy.previewed_at, formatting) })}
+          </span>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={t('actions.moreFor', { name: policy.name })}>
-              <MoreHorizontal />
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex items-center justify-end gap-1">
+          {policy.is_enabled ? (
+            <Button variant="outline" size="sm" onClick={onDisable}>
+              {t('actions.disable')}
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem disabled={busy} onSelect={onRun}>
-              {t('actions.runNow')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onEdit}>{t('actions.edit')}</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-              {t('actions.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </li>
+          ) : (
+            <Button size="sm" disabled={busy} onClick={onEnable}>
+              {t('actions.enable')}
+            </Button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={t('actions.moreFor', { name: policy.name })}>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem disabled={busy} onSelect={onPreview}>
+                {t('actions.preview')}
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={busy} onSelect={onRun}>
+                {t('actions.runNow')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onEdit}>{t('actions.edit')}</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+                {t('actions.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </TableCell>
+    </TableRow>
   )
 }
 
@@ -270,29 +294,40 @@ function RunsHistory() {
       ) : (
         <>
           <PaginationSummary page={page} perPage={RUNS_PER_PAGE} total={runs.data.meta.total} />
-          <ul className="grid gap-2">
-            {runs.data.data.map((run) => (
-              <li key={run.id} className="grid min-w-0 gap-1 rounded-lg border p-3 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium break-words">{run.policy_name}</span>
-                  <StatusBadge status={run.status} />
-                  <Badge variant="outline">{t(`runs.triggers.${run.trigger as 'schedule'}`)}</Badge>
-                </div>
-                <p className="text-muted-foreground">
-                  {t('runs.summary', { affected: run.affected, files: run.files_removed, errors: run.errors })}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDateTime(run.started_at ?? run.created_at, formatting)}
-                  {run.requested_by ? ` · ${run.requested_by.display_name}` : ''}
-                </p>
-                {run.error_message && (
-                  <SharedFieldError>
-                    {run.status === 'failed' ? t('runs.failed') : t('runs.partial')}
-                  </SharedFieldError>
-                )}
-              </li>
-            ))}
-          </ul>
+          <Table>
+            <caption className="sr-only">{t('runs.title')}</caption>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{t('runs.columns.policy')}</TableHead>
+                <TableHead scope="col">{t('runs.columns.status')}</TableHead>
+                <TableHead scope="col" className="hidden md:table-cell">{t('runs.columns.result')}</TableHead>
+                <TableHead scope="col" className="hidden sm:table-cell">{t('runs.columns.when')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {runs.data.data.map((run) => (
+                <TableRow key={run.id}>
+                  <TableCell className="max-w-56">
+                    <span className="block truncate font-medium">{run.policy_name}</span>
+                    <Badge variant="outline">{t(`runs.triggers.${run.trigger as 'schedule'}`)}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={run.status} />
+                    {run.error_message && (
+                      <SharedFieldError>{run.status === 'failed' ? t('runs.failed') : t('runs.partial')}</SharedFieldError>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {t('runs.summary', { affected: run.affected, files: run.files_removed, errors: run.errors })}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground sm:table-cell">
+                    {formatDateTime(run.started_at ?? run.created_at, formatting)}
+                    {run.requested_by && <span className="block text-xs">{run.requested_by.display_name}</span>}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <Pagination page={page} perPage={RUNS_PER_PAGE} total={runs.data.meta.total} onPageChange={setPage} />
         </>
       )}

@@ -3,7 +3,7 @@
   "description": "Privacidade (LGPD): titulares de dados pessoais, solicitações dos titulares e políticas de retenção.",
   "page": {
     "title": "Privacidade e LGPD",
-    "description": "Localize os dados de um titular, atenda solicitações (exportar, anonimizar, excluir) e defina por quanto tempo os dados ficam guardados. A conformidade com a LGPD depende também dos processos da sua empresa.",
+    "description": "Localize os dados de um titular, atenda solicitações e defina por quanto tempo os dados ficam guardados.",
     "tabsLabel": "Seções de privacidade"
   },
   "tabs": {
@@ -52,7 +52,7 @@
   "search": {
     "label": "E-mail, telefone ou documento do titular",
     "placeholder": "maria@exemplo.com ou (11) 98765-4321",
-    "hint": "A busca considera os campos marcados como dados pessoais, notas, anexos, atividades e linhas de importação. O termo pesquisado não fica salvo; a busca é registrada na auditoria.",
+    "hint": "A busca considera dados pessoais, notas, anexos, atividades e linhas de importação. O termo não fica salvo; a busca é registrada na auditoria.",
     "submit": "Buscar",
     "searching": "Buscando…",
     "introTitle": "Localize os dados de um titular",
@@ -80,7 +80,7 @@
     "row": "Linha {{row}}",
     "selected_one": "{{count}} item selecionado",
     "selected_other": "{{count}} itens selecionados",
-    "createRequest": "Criar solicitação"
+    "createRequest": "Criar solicitação ({{count}})"
   },
   "create": {
     "title": "Nova solicitação do titular",
@@ -122,7 +122,16 @@
     "subject": "Titular: {{label}}",
     "items_one": "{{count}} item",
     "items_other": "{{count}} itens",
-    "due": "Prazo: {{date}}"
+    "due": "Prazo: {{date}}",
+    "columns": {
+      "kind": "Solicitação",
+      "subject": "Titular",
+      "items": "Itens",
+      "due": "Prazo",
+      "status": "Situação",
+      "actions": "Ações"
+    },
+    "listLabel": "Solicitações de titulares"
   },
   "detail": {
     "title": "Solicitação do titular",
@@ -176,7 +185,7 @@
   },
   "retention": {
     "title": "Políticas de retenção",
-    "description": "Arquive ou apague dados antigos automaticamente. As políticas rodam todo dia às 04:00 (UTC) e nascem desativadas: confira a pré-visualização antes de ativar. A lixeira tem retenção própria em Dados › Lixeira.",
+    "description": "Arquive ou apague dados antigos automaticamente. As políticas rodam todo dia às 04:00 (horário de Brasília) e nascem desativadas: confira a pré-visualização antes de ativar.",
     "create": "Nova política",
     "empty": "Nenhuma política de retenção",
     "emptyDescription": "Crie uma política para arquivar registros sem atividade ou limpar históricos antigos.",
@@ -210,7 +219,14 @@
     "runQueued": "Execução de {{name}} iniciada",
     "deleted": "Política {{name}} excluída",
     "deleteTitle": "Excluir política",
-    "deleteDescription": "A política {{name}} deixa de rodar. O histórico de execuções é mantido."
+    "deleteDescription": "A política {{name}} deixa de rodar. O histórico de execuções é mantido.",
+    "columns": {
+      "name": "Política",
+      "rule": "Regra",
+      "lastRun": "Última execução",
+      "actions": "Ações"
+    },
+    "listLabel": "Políticas de retenção"
   },
   "actionSummaries": {
     "archive_inactive": "Arquivar {{target}} sem atividade há {{days}} dias",
@@ -261,7 +277,13 @@
     },
     "summary": "{{affected}} itens afetados · {{files}} arquivos removidos · {{errors}} erros",
     "failed": "A execução falhou. Tente novamente mais tarde.",
-    "partial": "Alguns itens não puderam ser processados."
+    "partial": "Alguns itens não puderam ser processados.",
+    "columns": {
+      "policy": "Política",
+      "status": "Situação",
+      "result": "Resultado",
+      "when": "Quando"
+    }
   },
   "actions": {
     "details": "Detalhes",

@@ -1,3 +1,5 @@
+import { Plus } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
@@ -5,6 +7,7 @@ import { PRIVACY_MANAGE, RequirePermission } from '@/sdk'
 import { RequestsPanel } from './RequestsPanel'
 import { RetentionPanel } from './RetentionPanel'
 import { SubjectSearchPanel } from './SubjectSearchPanel'
+import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -28,6 +31,9 @@ function PrivacySection() {
   const { t } = useTranslation('privacy')
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = parseTab(searchParams.get(TAB_PARAM))
+  const [selectedCount, setSelectedCount] = useState(0)
+  const [requestOpen, setRequestOpen] = useState(false)
+  const [policyOpen, setPolicyOpen] = useState(false)
 
   const changeTab = (next: string) =>
     setSearchParams(
@@ -43,7 +49,26 @@ function PrivacySection() {
 
   return (
     <Page>
-      <PageHeader title={t('page.title')} description={t('page.description')} />
+      <PageHeader
+        title={t('page.title')}
+        description={t('page.description')}
+        actions={
+          <>
+            {tab === 'subjects' && selectedCount > 0 && (
+              <Button onClick={() => setRequestOpen(true)}>
+                <Plus aria-hidden="true" />
+                {t('search.createRequest', { count: selectedCount })}
+              </Button>
+            )}
+            {tab === 'retention' && (
+              <Button onClick={() => setPolicyOpen(true)}>
+                <Plus aria-hidden="true" />
+                {t('retention.create')}
+              </Button>
+            )}
+          </>
+        }
+      />
       <SectionWorkspace value={tab} onValueChange={changeTab}>
         <SectionIndex aria-label={t('page.tabsLabel')}>
           {TABS.map((value) => (
@@ -53,13 +78,18 @@ function PrivacySection() {
           ))}
         </SectionIndex>
         <SectionContent value="subjects" className="min-w-0">
-          <SubjectSearchPanel onRequestCreated={() => changeTab('requests')} />
+          <SubjectSearchPanel
+            creating={requestOpen}
+            onCreatingChange={setRequestOpen}
+            onSelectionCount={setSelectedCount}
+            onRequestCreated={() => changeTab('requests')}
+          />
         </SectionContent>
         <SectionContent value="requests" className="min-w-0">
           <RequestsPanel />
         </SectionContent>
         <SectionContent value="retention" className="min-w-0">
-          <RetentionPanel />
+          <RetentionPanel creating={policyOpen} onCreatingChange={setPolicyOpen} />
         </SectionContent>
       </SectionWorkspace>
     </Page>

@@ -50,3 +50,9 @@ export function endOfDayIso(date: string): string | undefined {
 export function localizedLabel(labels: Record<string, string>, locale: string, fallback: string): string {
   return labels[locale] ?? labels[locale.split('-')[0]] ?? labels.en ?? Object.values(labels)[0] ?? fallback
 }
+
+export function formatDueAt(value: string | null | undefined, locale: string): string {
+  if (!value) return ''
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat(locale, { dateStyle: 'short' }).format(date)
+}
