@@ -6,7 +6,6 @@ use aphel_kernel::Ctx;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 use aphel_sdk::AppError;
 use aphel_sdk::module::HookCtx;
-use aphel_sdk::platform::application::fields::builtin::record_field;
 use aphel_sdk::platform::application::fields::{EntityDefinition, EntityTraits, SystemField};
 use aphel_sdk::platform::application::shared::RecordType;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
@@ -70,7 +69,7 @@ fn definition() -> Result<EntityDefinition, AppError> {
         .system_field(text("credit", "Credit", 160)?)
         .system_field(focal("focal_x", "Horizontal focal point")?)
         .system_field(focal("focal_y", "Vertical focal point")?)
-        .system_field(record_field("folder_id", labels("Folder"), FOLDER)?)
+        .system_field(text("folder_id", "Folder", 36)?)
         .reference(aphel_sdk::fields::SoftReference {
             field: "folder_id".to_owned(),
             target: aphel_sdk::fields::ReferenceTarget::Entity {
@@ -101,7 +100,7 @@ fn folder_definition() -> Result<EntityDefinition, AppError> {
         .update_permission(manage)
         .title_field("name")
         .system_field(text("name", "Name", 80)?.required())
-        .system_field(record_field("parent_id", labels("Parent folder"), FOLDER)?)
+        .system_field(text("parent_id", "Parent folder", 36)?)
         .reference(aphel_sdk::fields::SoftReference {
             field: "parent_id".to_owned(),
             target: aphel_sdk::fields::ReferenceTarget::Entity {
