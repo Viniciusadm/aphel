@@ -1,32 +1,24 @@
 {
-  "name": "Listas de preço",
-  "description": "Listas de preço por moeda, segmento ou empresa, com períodos de validade e faixas de quantidade, pacotes de produtos e o desconto máximo por papel.",
+  "name": "Tabelas de preço",
+  "description": "Tabelas de preço por moeda, segmento ou empresa, com períodos de validade e faixas de quantidade, kits de produtos e o desconto máximo por papel.",
   "priceLists": "Tabelas de preço",
-  "tabs": {
-    "lists": "Tabelas",
-    "limits": "Limites de desconto"
-  },
   "list": {
     "back": "Produtos",
     "title": "Tabelas de preço",
     "description": "Preços por moeda, segmento ou empresa, com vigência. A cotação usa a tabela da empresa, depois a do segmento e por último a padrão da moeda.",
     "new": "Nova tabela",
-    "search": "Buscar por nome ou chave",
+    "search": "Buscar por nome",
     "currencyFilter": "Filtrar por moeda",
     "allCurrencies": "Todas as moedas",
     "empty": "Nenhuma tabela de preço",
-    "emptyHint": "Crie uma tabela para ter preços diferentes do catálogo por moeda, segmento ou cliente.",
-    "previous": "Anterior",
-    "next": "Próxima",
-    "page": "Página {{page}} de {{total}}"
+    "emptyHint": "Crie uma tabela para ter preços diferentes do catálogo por moeda, segmento ou cliente."
   },
   "columns": {
     "name": "Nome",
     "currency": "Moeda",
     "appliesTo": "Aplica-se a",
     "validity": "Vigência",
-    "items": "Preços",
-    "key": "Chave"
+    "items": "Preços"
   },
   "appliesTo": {
     "all": "Todas as empresas",
@@ -50,9 +42,6 @@
     "description": "Defina a moeda, a quem a tabela se aplica e quando ela vale. Os preços dos produtos são cadastrados na página da tabela.",
     "required": "Informe o nome.",
     "name": "Nome",
-    "key": "Chave",
-    "keyPlaceholder": "gerada a partir do nome",
-    "keyHint": "Identificador estável usado nos pacotes de configuração.",
     "descriptionLabel": "Descrição",
     "currency": "Moeda",
     "appliesTo": "Aplica-se a",
@@ -102,10 +91,18 @@
     "minQuantityOf": "Quantidade mínima da linha {{position}}",
     "unitPriceOf": "Preço da linha {{position}}",
     "remove": "Remover linha {{position}}",
-    "tiersHint": "Faixas: repita o produto com quantidades mínimas diferentes. Vale a faixa com a maior quantidade mínima que não passa da quantidade cotada.",
+    "tiersHint": "Cada produto tem um preço por faixa de quantidade. Vale o preço da maior faixa que não passa da quantidade cotada; a primeira faixa, de 1 unidade, é o preço normal.",
     "productRequired": "Escolha o produto.",
     "invalidPrice": "Use um valor com até 2 casas decimais.",
-    "invalidQuantity": "Use um número maior que zero com até 4 casas decimais."
+    "invalidQuantity": "Use um número maior que zero com até 4 casas decimais.",
+    "addProduct": "Adicionar produto",
+    "addTier": "Adicionar faixa de quantidade",
+    "removeProduct": "Remover produto",
+    "removeTier": "Remover faixa",
+    "fromQuantity": "A partir de (unidades)",
+    "catalogPriceOf": "Preço no catálogo: {{price}}",
+    "productRepeated": "Este produto já está na tabela. Use outra faixa de quantidade nele.",
+    "quantityRepeated": "Já existe uma faixa com esta quantidade."
   },
   "limits": {
     "title": "Desconto máximo por papel",
@@ -186,5 +183,10 @@
     "name": "Ex.: Tabela atacado",
     "description": "Descreva quando usar esta tabela",
     "quantity": "1"
+  },
+  "nav": {
+    "priceLists": "Tabelas de preço",
+    "discountLimits": "Limites de desconto",
+    "discountLimitsDescription": "Desconto máximo que cada papel pode dar em uma cotação sem aprovação."
   }
 }

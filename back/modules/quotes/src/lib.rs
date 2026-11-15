@@ -277,6 +277,7 @@ impl Module for QuotesModule {
             .depends_on(aphel_sdk::documents::KEY, "*")
             .depends_on(aphel_sdk::workflow::KEY, "*")
             .depends_on(aphel_sdk::deals::KEY, "*")
+            .optional("pricing")
             .description(
                 "Quotes of deals: versions, items, discounts and taxes, approval, sending, the signed public page and acceptance",
             )

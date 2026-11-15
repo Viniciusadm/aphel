@@ -7,11 +7,10 @@ import { PageLoader } from '@/components/feedback'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
-import { SectionWorkspace, SectionContent, SectionIndex, SectionLink } from '@/components/ui/section-workspace'
-import { NativeSelect, SETTINGS_MANAGE } from '@/sdk'
+import { Pagination } from '@/components/ui/pagination'
+import { NativeSelect } from '@/sdk'
 import {useCurrencySettings} from '@/sdk'
 import {PRICE_LISTS_PER_PAGE, priceListPath, usePriceLists} from '@/sdk'
-import { DiscountLimitsPanel } from './DiscountLimitsPanel'
 import { PriceListBadges, PriceListValidity } from './PriceListBadges'
 import { PriceListDialog } from './PriceListDialog'
 import { PageHeader } from '@/components/ui/page-header'
@@ -23,9 +22,6 @@ const PRODUCTS_PATH = '/catalog-items'
 
 export function PriceListsPage() {
   const { t } = useTranslation('pricing')
-  const { hasPermission } = useSession()
-  const canManageLimits = hasPermission(SETTINGS_MANAGE)
-
   return (
     <Page>
       <PageHeader
@@ -33,22 +29,7 @@ export function PriceListsPage() {
         title={t('list.title')}
         description={t('list.description')}
       />
-      {canManageLimits ? (
-        <SectionWorkspace defaultValue="lists">
-          <SectionIndex>
-            <SectionLink value="lists">{t('tabs.lists')}</SectionLink>
-            <SectionLink value="limits">{t('tabs.limits')}</SectionLink>
-          </SectionIndex>
-          <SectionContent value="lists">
-            <PriceListsTable />
-          </SectionContent>
-          <SectionContent value="limits">
-            <DiscountLimitsPanel />
-          </SectionContent>
-        </SectionWorkspace>
-      ) : (
-        <PriceListsTable />
-      )}
+      <PriceListsTable />
     </Page>
   )
 }
@@ -64,7 +45,6 @@ function PriceListsTable() {
   const [creating, setCreating] = useState(false)
   const currencies = useCurrencySettings()
   const lists = usePriceLists({ page, search, currency })
-  const lastPage = lists.data ? Math.max(1, Math.ceil(lists.data.meta.total / PRICE_LISTS_PER_PAGE)) : 1
   const codes = currencies.data?.currencies.map((item) => item.code) ?? []
   const newButton = canEdit ? (
     <Button size="sm" onClick={() => setCreating(true)}>
@@ -160,17 +140,7 @@ function PriceListsTable() {
               ))}
             </TableBody>
           </Table>
-          {lastPage > 1 && (
-            <div className="flex items-center justify-end gap-2 text-sm">
-              <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                {t('list.previous')}
-              </Button>
-              <span className="tabular-nums text-muted-foreground">{t('list.page', { page, total: lastPage })}</span>
-              <Button size="sm" variant="outline" disabled={page >= lastPage} onClick={() => setPage(page + 1)}>
-                {t('list.next')}
-              </Button>
-            </div>
-          )}
+          <Pagination page={page} perPage={PRICE_LISTS_PER_PAGE} total={lists.data.meta.total} onPageChange={setPage} />
         </>
       )}
       {canEdit && (

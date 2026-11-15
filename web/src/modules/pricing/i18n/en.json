@@ -2,31 +2,23 @@
   "name": "Price lists",
   "description": "Price lists by currency, segment or company with validity periods and quantity tiers, product bundles and the maximum discount per role",
   "priceLists": "Price lists",
-  "tabs": {
-    "lists": "Lists",
-    "limits": "Discount limits"
-  },
   "list": {
     "back": "Products",
     "title": "Price lists",
     "description": "Prices by currency, segment or company, with validity periods. A quote uses the company list, then the segment list and finally the default of the currency.",
     "new": "New list",
-    "search": "Search by name or key",
+    "search": "Search by name",
     "currencyFilter": "Filter by currency",
     "allCurrencies": "All currencies",
     "empty": "No price lists",
-    "emptyHint": "Create a list to have prices other than the catalog's by currency, segment or customer.",
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{page}} of {{total}}"
+    "emptyHint": "Create a list to have prices other than the catalog's by currency, segment or customer."
   },
   "columns": {
     "name": "Name",
     "currency": "Currency",
     "appliesTo": "Applies to",
     "validity": "Validity",
-    "items": "Prices",
-    "key": "Key"
+    "items": "Prices"
   },
   "appliesTo": {
     "all": "All organizations",
@@ -50,9 +42,6 @@
     "description": "Set the currency, who the list applies to and when it is in effect. Product prices are entered on the list page.",
     "required": "Enter the name.",
     "name": "Name",
-    "key": "Key",
-    "keyPlaceholder": "generated from the name",
-    "keyHint": "Stable identifier used by configuration packages.",
     "descriptionLabel": "Description",
     "currency": "Currency",
     "appliesTo": "Applies to",
@@ -102,10 +91,18 @@
     "minQuantityOf": "Minimum quantity of row {{position}}",
     "unitPriceOf": "Price of row {{position}}",
     "remove": "Remove row {{position}}",
-    "tiersHint": "Tiers: repeat the product with different minimum quantities. The tier with the largest minimum quantity not above the quoted quantity applies.",
+    "tiersHint": "Each product has one price per quantity tier. The price of the largest tier that does not exceed the quoted quantity applies; the first tier, of 1 unit, is the regular price.",
     "productRequired": "Choose the product.",
     "invalidPrice": "Use a value with up to 2 decimal places.",
-    "invalidQuantity": "Use a number greater than zero with up to 4 decimal places."
+    "invalidQuantity": "Use a number greater than zero with up to 4 decimal places.",
+    "addProduct": "Add product",
+    "addTier": "Add quantity tier",
+    "removeProduct": "Remove product",
+    "removeTier": "Remove tier",
+    "fromQuantity": "From (units)",
+    "catalogPriceOf": "Catalog price: {{price}}",
+    "productRepeated": "This product is already in the table. Use another quantity tier on it.",
+    "quantityRepeated": "A tier with this quantity already exists."
   },
   "limits": {
     "title": "Maximum discount per role",
@@ -186,5 +183,10 @@
     "name": "E.g.: Wholesale list",
     "description": "Describe when to use this list",
     "quantity": "1"
+  },
+  "nav": {
+    "priceLists": "Price lists",
+    "discountLimits": "Discount limits",
+    "discountLimitsDescription": "Maximum discount each role can give on a quote without approval."
   }
 }

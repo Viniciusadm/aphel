@@ -69,7 +69,6 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
   const currencies = useCurrencySettings()
   const segments = useSegments(COMPANY_RECORD_TYPE)
   const [name, setName] = useState(list?.name ?? '')
-  const [key, setKey] = useState(list?.key ?? '')
   const [description, setDescription] = useState(list?.description ?? '')
   const [currency, setCurrency] = useState(list?.currency ?? '')
   const [appliesTo, setAppliesTo] = useState<PriceListAppliesTo>(list?.applies_to ?? 'all')
@@ -101,7 +100,6 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
       is_active: isActive,
       is_default: appliesTo === 'all' && isDefault,
     }
-    if (key.trim() && key.trim() !== list?.key) body.key = key.trim()
     setSaving(true)
     try {
       const saved = list
@@ -149,20 +147,6 @@ function PriceListForm({ list, onClose, onSaved }: PriceListFormProps) {
             onChange={(event) => setName(event.target.value)}
           />
           {errorFor('name')}
-          </>}
-        </Field>
-        <Field label={t('form.key')}>
-          {(control) => <>
-            <Input
-            {...control}
-            className="font-mono"
-            value={key}
-            maxLength={64}
-            placeholder={t('form.keyPlaceholder')}
-            aria-invalid={errors.key ? true : undefined}
-            onChange={(event) => setKey(event.target.value)}
-          />
-          {errorFor('key') ?? <p className="text-xs text-muted-foreground">{t('form.keyHint')}</p>}
           </>}
         </Field>
         <Field label={t('form.descriptionLabel')}>
