@@ -8,7 +8,11 @@ export type QuoteStatus = Schemas['QuoteStatus']
 export type QuoteDiscountType = Schemas['QuoteDiscountType']
 export type QuoteItemComponent = Schemas['QuoteItemComponentResponse']
 export type QuoteItem = Schemas['QuoteItemResponse']
-export type QuoteSummary = Omit<Schemas['QuoteResponse'], 'custom_fields'> & { custom_fields: Record<string, unknown> }
+export type QuoteSummary = Omit<Schemas['QuoteResponse'], 'custom_fields'> & {
+  custom_fields: Record<string, unknown>
+  deal_title?: string | null
+  company_name?: string | null
+}
 export type QuoteVersion = Schemas['QuoteVersionResponse']
 export type QuoteAcceptance = Schemas['QuoteAcceptanceResponse'] & { recorded_by?: string | null }
 export type QuoteDetail = Omit<Schemas['QuoteDetailResponse'], 'custom_fields' | 'acceptance'> & {

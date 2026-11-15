@@ -16,9 +16,10 @@ import { ApprovalStatusBadge, OverdueBadge } from './StatusBadge'
 export interface ApprovalRequestsPanelProps {
   recordType: string
   recordId: string
+  canRequest?: boolean
 }
 
-export function ApprovalRequestsPanel({ recordType, recordId }: ApprovalRequestsPanelProps) {
+export function ApprovalRequestsPanel({ recordType, recordId, canRequest = true }: ApprovalRequestsPanelProps) {
   const { t } = useTranslation('approvals')
   const requests = useRecordApprovalRequests(recordType, recordId)
   const [requesting, setRequesting] = useState(false)
@@ -61,10 +62,12 @@ export function ApprovalRequestsPanel({ recordType, recordId }: ApprovalRequests
     <section className="grid gap-3" aria-label={t('panel.title')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold">{t('panel.title')}</h3>
-        <Button size="sm" variant="outline" onClick={() => setRequesting(true)}>
-          <Plus aria-hidden="true" />
-          {t('panel.request')}
-        </Button>
+        {canRequest && (
+          <Button size="sm" variant="outline" onClick={() => setRequesting(true)}>
+            <Plus aria-hidden="true" />
+            {t('panel.request')}
+          </Button>
+        )}
       </div>
       {body}
       <RequestApprovalDialog

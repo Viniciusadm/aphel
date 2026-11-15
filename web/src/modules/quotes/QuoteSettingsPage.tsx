@@ -19,18 +19,15 @@ const NO_MOVE = '__none__'
 export function QuoteSettingsPage() {
   const { t } = useTranslation('quotes')
   const query = useQuoteSettings()
-  return (
-    <Page>
-      <PageHeader title={t('settings.title')} description={t('settings.description')} />
-      {query.isPending ? (
-        <PageLoader />
-      ) : query.isError ? (
-        <ErrorState onRetry={() => void query.refetch()} />
-      ) : (
-        <SettingsForm key={query.data.updated_at ?? 'default'} settings={query.data} />
-      )}
-    </Page>
-  )
+  if (query.isPending || query.isError) {
+    return (
+      <Page>
+        <PageHeader title={t('settings.title')} description={t('settings.description')} />
+        {query.isPending ? <PageLoader /> : <ErrorState onRetry={() => void query.refetch()} />}
+      </Page>
+    )
+  }
+  return <SettingsForm key={query.data.updated_at ?? 'default'} settings={query.data} />
 }
 
 function SettingsForm({ settings }: { settings: QuoteSettings }) {
@@ -63,6 +60,18 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
   }
 
   return (
+    <Page>
+      <PageHeader
+        title={t('settings.title')}
+        description={t('settings.description')}
+        actions={
+          canEdit && (
+            <Button onClick={() => void save()} disabled={!dirty || mutations.updateSettings.isPending}>
+              {t('settings.save')}
+            </Button>
+          )
+        }
+      />
     <div className="grid max-w-2xl gap-6">
       <UnsavedChangesGuard when={dirty} />
       <Field label={t('settings.validDays')}>
@@ -71,10 +80,11 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
           {...control}
           className="w-32"
           inputMode="numeric"
+          maxLength={4}
           value={days}
           disabled={!canEdit}
           onChange={(event) => {
-            setDays(event.target.value)
+            setDays(String(Math.min(3650, Number(event.target.value.replace(/\D/g, '')) || 0) || ''))
             setDirty(true)
           }}
         />
@@ -113,7 +123,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
                 setDirty(true)
               }} aria-label={pipeline.name}>
                 <option value={NO_MOVE}>{t('settings.noMove')}</option>
-                {pipeline.stages.map((stage) => (
+                {pipeline.stages.filter((stage) => stage.kind === 'open').map((stage) => (
                   <option key={stage.id} value={stage.id}>
                     {stage.name}
                   </option>
@@ -122,11 +132,7 @@ function SettingsForm({ settings }: { settings: QuoteSettings }) {
           </div>
         ))}
       </div>
-      {canEdit && (
-        <Button className="w-fit" onClick={() => void save()} disabled={!dirty || mutations.updateSettings.isPending}>
-          {t('settings.save')}
-        </Button>
-      )}
     </div>
+    </Page>
   )
 }

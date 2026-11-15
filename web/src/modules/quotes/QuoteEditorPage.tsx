@@ -1,16 +1,19 @@
 import { NativeSelect } from '@/components/ui/native-select'
 import { FieldError as SharedFieldError } from '@/components/ui/field-error'
 import { CircleCheck, MoreHorizontal, Copy, Download, ExternalLink, FilePlus2, FileText, PenLine, Save, Send, ShieldCheck, Trash2 } from 'lucide-react'
-import { isValidElement, useId, useState, type ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import { Fragment, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useSession } from '@/app/session/session-context'
 import { ConfirmDialog, PageLoader, notifySuccess, UnsavedChangesGuard } from '@/components/feedback'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ErrorState } from '@/components/ui/error-state'
 import { Input } from '@/components/ui/input'
+import { MoneyInput } from '@/components/ui/money-input'
+import { numberSeparators } from '@/components/fields/lib/number'
 import { Textarea } from '@/components/ui/textarea'
 import { useIsModuleActive } from '@/kernel/modules/registry'
 import { Slot } from '@/kernel/modules/Slot'
@@ -27,6 +30,7 @@ import { SendQuoteDialog } from './SendQuoteDialog'
 import { SignatureDialog } from './SignatureDialog'
 import { SubmitQuoteDialog } from './SubmitQuoteDialog'
 import type { QuoteDetail, QuoteDiscountType, QuoteRequest } from './types'
+import { Notice } from '@/components/ui/notice'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
 import { Field } from '@/components/ui/field'
@@ -69,6 +73,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
   const { t } = useTranslation('quotes')
   const ids = { title: useId(), validUntil: useId(), priceList: useId(), terms: useId(), notes: useId(), discount: useId() }
   const formatting = useRecordFormatting()
+  const separators = numberSeparators(formatting.locale)
   const navigate = useNavigate()
   const { hasPermission } = useSession()
   const proposalsActive = useIsModuleActive(PROPOSALS_MODULE)
@@ -160,98 +165,49 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
     }
   }
 
-  const actions: ReactNode[] = []
-  if (editable && dirty) {
-    actions.push(
-      <Button key="save" onClick={() => void save()} disabled={mutations.update.isPending}>
-        <Save aria-hidden="true" />
-        {t('editor.save')}
-      </Button>,
-    )
+  interface QuoteAction {
+    key: string
+    label: string
+    icon: LucideIcon
+    onSelect?: () => void
+    href?: string
+    download?: boolean
+    external?: boolean
+    destructive?: boolean
+    primary?: boolean
+    outline?: boolean
+    disabled?: boolean
   }
-  if (quote.is_current && !dirty) {
-    if (quote.status === 'draft' && hasPermission('quotes.update')) {
-      actions.push(
-        <Button key="submit" variant="outline" onClick={() => setDialog('submit')}>
-          <ShieldCheck aria-hidden="true" />
-          {t('actions.submit')}
-        </Button>,
-      )
-    }
-    if (['draft', 'approved', 'sent'].includes(quote.status) && hasPermission('quotes.send')) {
-      actions.push(
-        <Button key="send" onClick={() => setDialog('send')}>
-          <Send aria-hidden="true" />
-          {quote.status === 'sent' ? t('actions.resend') : t('actions.send')}
-        </Button>,
-      )
-    }
-    if (['draft', 'approved', 'sent'].includes(quote.status) && hasPermission('quotes.update')) {
-      actions.push(
-        <Button key="accept" variant="outline" onClick={() => setDialog('accept')}>
-          <CircleCheck aria-hidden="true" />
-          {t('actions.accept')}
-        </Button>,
-      )
-    }
-    if (quote.public_url) {
-      actions.push(
-        <Button key="copy" variant="outline" onClick={() => void copyLink()}>
-          <Copy aria-hidden="true" />
-          {t('actions.copyLink')}
-        </Button>,
-        <Button key="open" variant="ghost" asChild>
-          <a href={quote.public_url} target="_blank" rel="noreferrer">
-            <ExternalLink aria-hidden="true" />
-            {t('actions.openPublic')}
-          </a>
-        </Button>,
-      )
-    }
-    actions.push(
-      <Button key="download" variant="outline" asChild>
-        <a href={quotePdfUrl(quote.id)} download>
-          <Download aria-hidden="true" />
-          {t('actions.downloadPdf')}
-        </a>
-      </Button>,
-    )
-    if (proposalsEnabled) {
-      actions.push(
-        <Button key="pdf" variant="outline" onClick={() => void generatePdf()}>
-          <FileText aria-hidden="true" />
-          {t('actions.pdf')}
-        </Button>,
-      )
-    }
-    if (esignEnabled && ['approved', 'sent', 'accepted'].includes(quote.status)) {
-      actions.push(
-        <Button key="sign" variant="outline" onClick={() => setDialog('signature')}>
-          <PenLine aria-hidden="true" />
-          {t('actions.signature')}
-        </Button>,
-      )
-    }
-    if (quote.status !== 'accepted' && quote.status !== 'draft' && hasPermission('quotes.create')) {
-      actions.push(
-        <Button key="version" variant="outline" onClick={() => setDialog('version')}>
-          <FilePlus2 aria-hidden="true" />
-          {t('actions.newVersion')}
-        </Button>,
-      )
-    }
+  const actions: QuoteAction[] = []
+  const when = (condition: boolean, action: QuoteAction) => {
+    if (condition) actions.push(action)
   }
-  if (hasPermission('quotes.delete') && quote.status !== 'accepted') {
-    actions.push(
-      <Button key="delete" variant="ghost" onClick={() => setDialog('delete')} aria-label={t('actions.delete')}>
-        <Trash2 aria-hidden="true" />
-        {t('actions.delete')}
-      </Button>,
-    )
-  }
+  const idle = quote.is_current && !dirty
+  when(Boolean(editable && dirty), { key: 'save', label: t('editor.save'), icon: Save, onSelect: () => void save(), primary: true, disabled: mutations.update.isPending })
+  when(idle && quote.status === 'draft' && hasPermission('quotes.update'), { key: 'submit', label: t('actions.submit'), icon: ShieldCheck, onSelect: () => setDialog('submit') })
+  when(idle && ['draft', 'approved', 'sent'].includes(quote.status) && hasPermission('quotes.send'), {
+    key: 'send',
+    label: quote.status === 'sent' ? t('actions.resend') : t('actions.send'),
+    icon: Send,
+    onSelect: () => setDialog('send'),
+  })
+  when(idle && ['draft', 'approved', 'sent'].includes(quote.status) && hasPermission('quotes.update'), { key: 'accept', label: t('actions.accept'), icon: CircleCheck, onSelect: () => setDialog('accept') })
+  when(idle && Boolean(quote.public_url), { key: 'copy', label: t('actions.copyLink'), icon: Copy, onSelect: () => void copyLink() })
+  when(idle && Boolean(quote.public_url), { key: 'open', label: t('actions.openPublic'), icon: ExternalLink, href: quote.public_url ?? undefined, external: true })
+  when(idle, { key: 'download', label: t('actions.downloadPdf'), icon: Download, href: quotePdfUrl(quote.id), download: true })
+  when(idle && proposalsEnabled, { key: 'pdf', label: t('actions.pdf'), icon: FileText, onSelect: () => void generatePdf() })
+  when(idle && esignEnabled && ['approved', 'sent', 'accepted'].includes(quote.status), { key: 'sign', label: t('actions.signature'), icon: PenLine, onSelect: () => setDialog('signature') })
+  when(idle && quote.status !== 'accepted' && quote.status !== 'draft' && hasPermission('quotes.create'), { key: 'version', label: t('actions.newVersion'), icon: FilePlus2, onSelect: () => setDialog('version') })
+  when(hasPermission('quotes.delete') && quote.status !== 'accepted', { key: 'delete', label: t('actions.delete'), icon: Trash2, onSelect: () => setDialog('delete'), destructive: true })
 
-  const primary = ['save', 'send', 'submit', 'accept'].map((key) => actions.find((action) => isValidElement(action) && action.key === key)).find(Boolean)
+  const primary = ['save', 'send', 'submit', 'accept'].map((key) => actions.find((action) => action.key === key)).find(Boolean)
   const secondary = actions.filter((action) => action !== primary)
+  const menuContent = (action: QuoteAction) => (
+    <>
+      <action.icon aria-hidden="true" />
+      {action.label}
+    </>
+  )
 
   return (
     <Page>
@@ -262,11 +218,39 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
         badges={<QuoteStatusBadge status={quote.status} />}
         description={<p>{t('numberVersion', { number: quote.number, version: quote.version })}</p>}
         actions={<>
-          {primary}
-          {secondary.length > 0 && <DropdownMenu>
-            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={t('actions.more')}><MoreHorizontal aria-hidden /></Button></DropdownMenuTrigger>
-            <DropdownMenuContent align="end">{secondary.map((action, index) => isValidElement(action) ? <DropdownMenuItem key={action.key ?? index} asChild>{action}</DropdownMenuItem> : null)}</DropdownMenuContent>
-          </DropdownMenu>}
+          {primary && (
+            <Button onClick={primary.onSelect} disabled={primary.disabled}>
+              <primary.icon aria-hidden="true" />
+              {primary.label}
+            </Button>
+          )}
+          {secondary.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label={t('actions.more')}>
+                  <MoreHorizontal aria-hidden />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {secondary.map((action) => (
+                  <Fragment key={action.key}>
+                    {action.destructive && <DropdownMenuSeparator />}
+                    {action.href ? (
+                      <DropdownMenuItem asChild>
+                        <a href={action.href} {...(action.download ? { download: true } : {})} {...(action.external ? { target: '_blank', rel: 'noreferrer' } : {})}>
+                          {menuContent(action)}
+                        </a>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem variant={action.destructive ? 'destructive' : undefined} disabled={action.disabled} onSelect={action.onSelect}>
+                        {menuContent(action)}
+                      </DropdownMenuItem>
+                    )}
+                  </Fragment>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </>}
       />
 
@@ -278,6 +262,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
           </Button>
         </div>
       )}
+      {editable && items.length === 0 && <Notice>{t('editor.noItemsWarning')}</Notice>}
       {quote.is_current && !editable && quote.status !== 'pending_approval' && (
         <p className="text-sm text-muted-foreground">{t('editor.readOnly')}</p>
       )}
@@ -317,24 +302,21 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                 <div className="flex gap-2">
                   <NativeSelect value={header.discount_type}
                     disabled={!editable}
-                    onValueChange={(value) => patchHeader({ discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-40">
+                    onValueChange={(value) => patchHeader({ discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-52 shrink-0">
                       {DISCOUNT_TYPES.map((type) => (
                         <option key={type} value={type}>
                           {t(`editor.discountTypes.${type}`)}
                         </option>
                       ))}
                     </NativeSelect>
-                  <Input placeholder={t('placeholders.discount')}
+                  <MoneyInput placeholder="0,00"
                     id={ids.discount}
-                    inputMode="decimal"
+                    separators={separators}
                     value={header.discount_value}
                     disabled={!editable || header.discount_type === 'none'}
-                    onChange={(event) => patchHeader({ discount_value: event.target.value })}
+                    onValueChange={(value) => patchHeader({ discount_value: value })}
                   />
                 </div>
-              </Field>
-              <Field label={t('editor.fields.currency')}>
-                {(control) => <Input placeholder={t('placeholders.currency')} {...control} value={quote.currency} disabled readOnly />}
               </Field>
               <Field label={t('editor.fields.terms')} className="sm:col-span-2">
                 {(control) => <Textarea placeholder={t('placeholders.terms')} {...control} rows={3} value={header.terms} disabled={!editable} onChange={(event) => patchHeader({ terms: event.target.value })} />}
@@ -377,6 +359,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
                 {t('editor.totals.maxDiscount', { percent: quote.max_discount_percent })}
                 {quote.discount_limit != null && ` · ${t('editor.totals.limit', { percent: quote.discount_limit })}`}
               </p>
+              <p className="text-xs text-muted-foreground">{t('editor.totals.currency', { currency: quote.currency })}</p>
               {quote.exceeds_discount_limit && <p className="text-xs text-warning-foreground">{t('editor.totals.exceeds')}</p>}
               {dirty && <p className="text-xs text-muted-foreground">{t('editor.totals.serverNote')}</p>}
             </CardContent>
@@ -455,7 +438,7 @@ function QuoteEditor({ quote }: { quote: QuoteDetail }) {
             </CardContent>
           </Card>
 
-          <Slot name="quotes.editor.sidebar" props={{ recordType: QUOTE_RECORD_TYPE, recordId: quote.id }} />
+          <Slot name="quotes.editor.sidebar" props={{ recordType: QUOTE_RECORD_TYPE, recordId: quote.id, canRequest: quote.is_current && ['draft', 'approved', 'sent'].includes(quote.status) }} />
         </div>
       </div>
 

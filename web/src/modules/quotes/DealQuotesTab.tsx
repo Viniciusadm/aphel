@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrency, formatDate, useRecordFormatting } from '@/sdk'
+import { formatCurrency, formatDate, useRecord, useRecordFormatting } from '@/sdk'
 import { quotePath, useDealQuotes, useQuoteMutations } from './api'
 import { notifyQuoteError } from './errors'
 import { QuoteStatusBadge } from './QuoteStatusBadge'
@@ -25,7 +25,9 @@ export function DealQuotesTab({ dealId }: DealQuotesTabProps) {
   const { hasPermission } = useSession()
   const query = useDealQuotes(dealId)
   const mutations = useQuoteMutations()
-  const canCreate = hasPermission('quotes.create')
+  const deal = useRecord('deals.deal', dealId)
+  const dealOpen = deal.data ? deal.data.status === 'open' : false
+  const canCreate = hasPermission('quotes.create') && dealOpen
 
   const create = async (fromItems: boolean) => {
     try {

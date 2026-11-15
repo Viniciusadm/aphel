@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { Pagination } from '@/components/ui/pagination'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrency, formatDate, useRecordFormatting } from '@/sdk'
+import { formatCurrency, formatDate, formatDateTime, useRecordFormatting } from '@/sdk'
 import { QUOTES_PER_PAGE, quotePath, useQuotes } from './api'
 import { QuoteStatusBadge } from './QuoteStatusBadge'
 import type { QuoteStatus } from './types'
@@ -27,7 +28,6 @@ export function QuotesPage() {
   const [status, setStatus] = useState('')
   const query = useQuotes(page, search.trim(), status)
   const total = query.data?.meta.total ?? 0
-  const pages = Math.max(1, Math.ceil(total / QUOTES_PER_PAGE))
 
   return (
     <Page>
@@ -64,13 +64,26 @@ export function QuotesPage() {
       ) : query.isError ? (
         <ErrorState title={t('list.loadError')} onRetry={() => void query.refetch()} />
       ) : query.data.data.length === 0 ? (
-        <EmptyState icon={FileText} title={t('list.empty')} />
+        <EmptyState
+          icon={FileText}
+          title={search.trim() || status ? t('list.empty') : t('list.emptyNone')}
+          description={search.trim() || status ? undefined : t('list.emptyDescription')}
+          action={
+            search.trim() || status ? undefined : (
+              <Button asChild size="sm">
+                <Link to="/deals">{t('list.goToDeals')}</Link>
+              </Button>
+            )
+          }
+        />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t('list.columns.number')}</TableHead>
               <TableHead>{t('list.columns.title')}</TableHead>
+              <TableHead>{t('list.columns.deal')}</TableHead>
+              <TableHead>{t('list.columns.company')}</TableHead>
               <TableHead>{t('list.columns.status')}</TableHead>
               <TableHead className="text-right">{t('list.columns.total')}</TableHead>
               <TableHead>{t('list.columns.validUntil')}</TableHead>
@@ -86,28 +99,32 @@ export function QuotesPage() {
                     {quote.title}
                   </Link>
                 </TableCell>
+                <TableCell className="max-w-56 truncate">
+                  <Link to={`/deals/${encodeURIComponent(quote.deal_id)}`} className="text-muted-foreground hover:underline">
+                    {quote.deal_title ?? '—'}
+                  </Link>
+                </TableCell>
+                <TableCell className="max-w-48 truncate">
+                  {quote.company_id ? (
+                    <Link to={`/organizations/${encodeURIComponent(quote.company_id)}`} className="text-muted-foreground hover:underline">
+                      {quote.company_name ?? '—'}
+                    </Link>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
                 <TableCell>
                   <QuoteStatusBadge status={quote.status} />
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{formatCurrency(quote.total, formatting, quote.currency)}</TableCell>
                 <TableCell>{quote.valid_until ? formatDate(quote.valid_until, formatting) : '—'}</TableCell>
-                <TableCell>{formatDate(quote.updated_at, formatting)}</TableCell>
+                <TableCell>{formatDateTime(quote.updated_at, formatting)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
-      {pages > 1 && (
-        <div className="flex items-center justify-end gap-2 text-sm">
-          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-            {t('list.previous')}
-          </Button>
-          <span>{t('list.page', { page, pages })}</span>
-          <Button size="sm" variant="outline" disabled={page >= pages} onClick={() => setPage(page + 1)}>
-            {t('list.next')}
-          </Button>
-        </div>
-      )}
+      <Pagination page={page} perPage={QUOTES_PER_PAGE} total={total} onPageChange={setPage} />
     </Page>
   )
 }

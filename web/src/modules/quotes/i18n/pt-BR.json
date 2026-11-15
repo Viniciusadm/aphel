@@ -24,11 +24,16 @@
       "status": "Situação",
       "total": "Total",
       "validUntil": "Válida até",
-      "updatedAt": "Atualizada em"
+      "updatedAt": "Atualizada em",
+      "deal": "Oportunidade",
+      "company": "Empresa"
     },
     "previous": "Anterior",
     "next": "Próxima",
-    "page": "Página {{page}} de {{pages}}"
+    "page": "Página {{page}} de {{pages}}",
+    "emptyNone": "Nenhuma cotação ainda",
+    "emptyDescription": "As cotações nascem dentro de cada oportunidade: abra uma oportunidade e use a aba Cotações.",
+    "goToDeals": "Ir para as oportunidades"
   },
   "deal": {
     "tab": "Cotações",
@@ -82,7 +87,8 @@
       "maxDiscount": "Maior desconto: {{percent}}%",
       "limit": "Limite do responsável: {{percent}}%",
       "exceeds": "O desconto passa do limite do responsável: a cotação precisa de aprovação antes do envio.",
-      "serverNote": "Os totais são calculados pelo servidor ao salvar."
+      "serverNote": "Os totais são calculados pelo servidor ao salvar.",
+      "currency": "Valores em {{currency}}."
     },
     "save": "Salvar",
     "saved": "Cotação salva.",
@@ -102,7 +108,8 @@
     "synced": "Itens e valor aplicados à oportunidade.",
     "syncPending": "Aplicando itens e valor na oportunidade…",
     "acceptedManually": "Registrado manualmente por um usuário.",
-    "acceptedByNoEmail": "Aceita por {{name}} em {{date}}"
+    "acceptedByNoEmail": "Aceita por {{name}} em {{date}}",
+    "noItemsWarning": "Nenhum item ainda: adicione ao menos um item do catálogo ou um item livre antes de enviar."
   },
   "actions": {
     "submit": "Enviar para aprovação",
@@ -178,10 +185,10 @@
     "title": "Cotações",
     "description": "Valores padrão das novas cotações e o que acontece com a oportunidade quando o cliente aceita.",
     "validDays": "Validade padrão (dias)",
-    "validDaysHint": "Vazio: sem validade padrão.",
+    "validDaysHint": "Vazio: sem validade padrão. De 1 a 3650 dias.",
     "terms": "Condições padrão",
     "acceptStages": "Etapa da oportunidade no aceite",
-    "acceptStagesHint": "Ao aceitar uma cotação, a oportunidade recebe os itens e o valor da versão aceita e, se configurado, vai para a etapa escolhida do seu funil.",
+    "acceptStagesHint": "Ao aceitar uma cotação, a oportunidade recebe os itens e o valor da versão aceita e, se configurado, vai para a etapa em aberto escolhida do seu funil.",
     "noMove": "Não mover",
     "save": "Salvar",
     "saved": "Configurações salvas."

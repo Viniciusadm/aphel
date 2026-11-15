@@ -488,6 +488,8 @@ pub struct QuoteDetails {
 pub(crate) struct QuoteSummary {
     pub(crate) quote: Quote,
     pub(crate) custom_fields: Map<String, Value>,
+    pub(crate) deal_title: Option<String>,
+    pub(crate) company_name: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

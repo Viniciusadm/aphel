@@ -24,11 +24,16 @@
       "status": "Status",
       "total": "Total",
       "validUntil": "Valid until",
-      "updatedAt": "Updated at"
+      "updatedAt": "Updated at",
+      "deal": "Deal",
+      "company": "Company"
     },
     "previous": "Previous",
     "next": "Next",
-    "page": "Page {{page}} of {{pages}}"
+    "page": "Page {{page}} of {{pages}}",
+    "emptyNone": "No quotes yet",
+    "emptyDescription": "Quotes are created inside each deal: open a deal and use its Quotes tab.",
+    "goToDeals": "Go to deals"
   },
   "deal": {
     "tab": "Quotes",
@@ -82,7 +87,8 @@
       "maxDiscount": "Highest discount: {{percent}}%",
       "limit": "Owner limit: {{percent}}%",
       "exceeds": "The discount is above the owner limit: the quote needs approval before sending.",
-      "serverNote": "Totals are computed by the server when saving."
+      "serverNote": "Totals are computed by the server when saving.",
+      "currency": "Amounts in {{currency}}."
     },
     "save": "Save",
     "saved": "Quote saved.",
@@ -102,7 +108,8 @@
     "synced": "Items and amount applied to the deal.",
     "syncPending": "Applying items and amount to the deal…",
     "acceptedManually": "Recorded manually by a user.",
-    "acceptedByNoEmail": "Accepted by {{name}} on {{date}}"
+    "acceptedByNoEmail": "Accepted by {{name}} on {{date}}",
+    "noItemsWarning": "No items yet: add at least one catalog or free item before sending."
   },
   "actions": {
     "submit": "Send for approval",

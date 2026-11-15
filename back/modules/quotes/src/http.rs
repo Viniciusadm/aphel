@@ -1040,11 +1040,17 @@ pub(crate) struct QuoteResponse {
     pub(crate) updated_at: String,
     #[schema(value_type = Object)]
     pub(crate) custom_fields: Map<String, Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) deal_title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) company_name: Option<String>,
 }
 
 impl QuoteResponse {
     fn build(quote: &Quote, custom_fields: Map<String, Value>) -> Self {
         Self {
+            deal_title: None,
+            company_name: None,
             id: quote.id.to_string(),
             number: quote.number,
             version: quote.version,
@@ -1078,7 +1084,10 @@ impl QuoteResponse {
 
 impl From<QuoteSummary> for QuoteResponse {
     fn from(summary: QuoteSummary) -> Self {
-        Self::build(&summary.quote, summary.custom_fields)
+        let mut response = Self::build(&summary.quote, summary.custom_fields);
+        response.deal_title = summary.deal_title;
+        response.company_name = summary.company_name;
+        response
     }
 }
 

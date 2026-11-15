@@ -93257,6 +93257,12 @@
                     "null"
                   ]
                 },
+                "company_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "contact_id": {
                   "type": [
                     "string",
@@ -93281,6 +93287,12 @@
                 },
                 "deal_id": {
                   "type": "string"
+                },
+                "deal_title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "discount_total": {
                   "type": "string",
@@ -111563,6 +111575,12 @@
                     "null"
                   ]
                 },
+                "company_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "contact_id": {
                   "type": [
                     "string",
@@ -111587,6 +111605,12 @@
                 },
                 "deal_id": {
                   "type": "string"
+                },
+                "deal_title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 },
                 "discount_total": {
                   "type": "string",
@@ -117548,6 +117572,12 @@
               "null"
             ]
           },
+          "company_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "contact_id": {
             "type": [
               "string",
@@ -117572,6 +117602,12 @@
           },
           "deal_id": {
             "type": "string"
+          },
+          "deal_title": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "discount_total": {
             "type": "string",

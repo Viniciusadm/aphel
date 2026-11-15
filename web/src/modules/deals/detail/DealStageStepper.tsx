@@ -12,7 +12,7 @@ export function DealStageStepper({ record }: { record: RecordItem }) {
   const { t } = useTranslation('deals')
   const runner = useDealRunner(record)
   const amountLocked = useContext(DealAmountLockContext)
-  const { deal, allStages, currentStage } = runner
+  const { deal, allStages } = runner
   const open = allStages.filter((stage) => stage.is_active && stage.kind === 'open').sort((left, right) => left.position - right.position)
   const currentIndex = open.findIndex((stage) => stage.id === deal.stage_id)
   if (open.length === 0 && !runner.canUpdate) return null

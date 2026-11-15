@@ -11,12 +11,12 @@ use crate::QUOTE;
 use crate::domain::{
     CreateQuoteCommand, MAX_DEFAULT_VALID_DAYS, MAX_QUOTE_ITEMS, MAX_QUOTE_TEXT_LENGTH,
     MAX_QUOTE_TITLE_LENGTH, QUOTE_ALREADY_ACCEPTED, QUOTE_CREATED, QUOTE_DELETED,
-    QUOTE_ITEMS_LIMIT_REACHED, QUOTE_LINK_PATH, QUOTE_NOT_CURRENT, QUOTE_NOT_EDITABLE,
-    QUOTE_NOT_FOUND, QUOTE_PRICE_LIST_NOT_FOUND, QUOTE_SETTINGS_UPDATED, QUOTE_UPDATED,
-    QUOTE_VERSION_CREATED, Quote, QuoteDetails, QuoteDiscount, QuoteInput, QuoteItem,
-    QuoteItemData, QuoteSettings, QuoteStatus, QuoteSummary, QuoteVersionSummary, TOKEN_KEY_NAME,
-    TOKEN_KEY_OWNER, TotalsBreakdown, TotalsError, UpdateQuoteCommand, UpdateQuoteSettingsCommand,
-    compute_totals, exceeds_discount_limit, max_discount_percent,
+    QUOTE_INVALID_TRANSITION, QUOTE_ITEMS_LIMIT_REACHED, QUOTE_LINK_PATH, QUOTE_NOT_CURRENT,
+    QUOTE_NOT_EDITABLE, QUOTE_NOT_FOUND, QUOTE_PRICE_LIST_NOT_FOUND, QUOTE_SETTINGS_UPDATED,
+    QUOTE_UPDATED, QUOTE_VERSION_CREATED, Quote, QuoteDetails, QuoteDiscount, QuoteInput,
+    QuoteItem, QuoteItemData, QuoteSettings, QuoteStatus, QuoteSummary, QuoteVersionSummary,
+    TOKEN_KEY_NAME, TOKEN_KEY_OWNER, TotalsBreakdown, TotalsError, UpdateQuoteCommand,
+    UpdateQuoteSettingsCommand, compute_totals, exceeds_discount_limit, max_discount_percent,
 };
 use crate::gateway::{QuoteApprovals, QuoteCatalog, QuoteGateway, quote_base_url};
 use crate::pricing::{PricingContext, item_input_from_deal, item_input_from_quote, resolve_items};
@@ -268,6 +268,12 @@ pub async fn create(ctx: &Ctx<'_>, command: CreateQuoteCommand) -> Result<QuoteD
         )
     })?;
     let deal = QuoteGateway::of(ctx).deal(scope, deal_id).await?;
+    if !deal.is_open {
+        return Err(AppError::conflict_code(
+            QUOTE_INVALID_TRANSITION,
+            "the deal is already won or lost; quotes can only be created for open deals",
+        ));
+    }
     let settings = QuoteStore::of(ctx).settings().await?;
     let today = today(ctx).await?;
     let now = ctx.now();
@@ -856,11 +862,14 @@ pub(crate) async fn update_settings(
                     if aphel_sdk::workflow::WorkflowReader::of(ctx)?
                         .find_stage(stage_id)
                         .await?
-                        .is_some_and(|stage| stage.pipeline_id == pipeline_id) =>
+                        .is_some_and(|stage| {
+                            stage.pipeline_id == pipeline_id
+                                && stage.kind == aphel_sdk::workflow::StageKind::Open
+                        }) =>
                 {
                     parsed.insert(pipeline_id, stage_id);
                 }
-                _ => validator.violation(&field, "must be a stage of that pipeline"),
+                _ => validator.violation(&field, "must be an open stage of that pipeline"),
             }
         }
         settings.accept_stages = parsed;
@@ -1093,6 +1102,9 @@ pub(crate) async fn apply_input(
         match valid_until.as_deref().map(str::trim) {
             None | Some("") => quote.valid_until = None,
             Some(text) => match parse_date(text) {
+                Some(date) if base.valid_until != Some(date) && date < today(ctx).await? => {
+                    validator.violation("valid_until", "must not be in the past")
+                }
                 Some(date) => quote.valid_until = Some(date),
                 None => validator.violation("valid_until", "must be a date (YYYY-MM-DD)"),
             },
@@ -1322,6 +1334,12 @@ pub(crate) async fn details(ctx: &Ctx<'_>, quote: Quote) -> Result<QuoteDetails,
     })
 }
 
+#[derive(Clone, Copy)]
+enum QuoteRecordKind {
+    Deal,
+    Company,
+}
+
 pub(crate) async fn summaries(
     ctx: &Ctx<'_>,
     quotes: Vec<Quote>,
@@ -1331,10 +1349,44 @@ pub(crate) async fn summaries(
     let mut values = CustomFieldReader::new(&ctx.fields())
         .load(scope, &QUOTE, &ids)
         .await?;
+    let mut labels: BTreeMap<Uuid, Option<String>> = BTreeMap::new();
+    let query = ctx.query();
+    use aphel_sdk::platform::application::query::RecordQueryPorts;
+    for quote in &quotes {
+        for (entity, id) in [
+            (QuoteRecordKind::Deal, Some(quote.deal_id)),
+            (QuoteRecordKind::Company, quote.company_id),
+        ] {
+            let Some(id) = id else { continue };
+            if labels.contains_key(&id) {
+                continue;
+            }
+            let record_type = match entity {
+                QuoteRecordKind::Deal => aphel_sdk::platform::application::shared::RecordType::DEAL,
+                QuoteRecordKind::Company => {
+                    aphel_sdk::platform::application::shared::RecordType::COMPANY
+                }
+            };
+            let label = aphel_sdk::records::visible_record_label(
+                ctx.pool(),
+                ctx.registry(),
+                query.definitions(),
+                scope,
+                &aphel_sdk::platform::application::shared::RecordRef::new(record_type, id),
+            )
+            .await?
+            .and_then(|label| label.title);
+            labels.insert(id, label);
+        }
+    }
     Ok(quotes
         .into_iter()
         .map(|quote| QuoteSummary {
             custom_fields: values.remove(&quote.id).unwrap_or_default(),
+            deal_title: labels.get(&quote.deal_id).cloned().flatten(),
+            company_name: quote
+                .company_id
+                .and_then(|id| labels.get(&id).cloned().flatten()),
             quote,
         })
         .collect())

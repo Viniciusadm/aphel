@@ -3,12 +3,14 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MoneyInput } from '@/components/ui/money-input'
+import { numberSeparators } from '@/components/fields/lib/number'
 import { Slot, formatCurrency, useRecordFormatting } from '@/sdk'
 import { DISCOUNT_TYPES, type EditableItem } from './items'
 import type { QuoteDiscountType } from './types'
 import { EmptyState } from '@/components/ui/empty-state'
 
-const GRID = 'grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,2fr)_5rem_7rem_9rem_5rem_7rem_2.25rem] md:items-center'
+const GRID = 'grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,2fr)_5rem_7rem_11rem_5rem_7rem_2.25rem] md:items-center'
 
 export interface QuoteItemsEditorProps {
   currency: string
@@ -21,6 +23,8 @@ export interface QuoteItemsEditorProps {
 export function QuoteItemsEditor({ currency, items, editable, onChange, onAddProduct }: QuoteItemsEditorProps) {
   const { t } = useTranslation('quotes')
   const formatting = useRecordFormatting()
+  const separators = numberSeparators(formatting.locale)
+  const currencySymbol = String(formatCurrency(0, formatting, currency).replace(/[\d.,\s\u00a0]/g, '') || currency)
   const money = (value: string | null | undefined) => (value ? formatCurrency(value, formatting, currency) : '—')
 
   const update = (key: string, patch: Partial<EditableItem>) =>
@@ -93,38 +97,38 @@ export function QuoteItemsEditor({ currency, items, editable, onChange, onAddPro
                 disabled={!editable}
                 onChange={(event) => update(item.key, { quantity: event.target.value })}
               />
-              <Input
+              <MoneyInput
                 aria-label={t('editor.items.unitPrice')}
-                inputMode="decimal"
-                value={item.unit_price ?? ''}
-                placeholder="—"
+                separators={separators}
+                value={String(item.unit_price ?? '')}
+                placeholder="0,00"
                 disabled={!editable}
-                onChange={(event) => update(item.key, { unit_price: event.target.value })}
+                onValueChange={(value) => update(item.key, { unit_price: value })}
               />
               <div className="flex gap-1">
                 <NativeSelect value={item.discount_type ?? 'none'}
                   disabled={!editable}
-                  onValueChange={(value) => update(item.key, { discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-16">
+                  onValueChange={(value) => update(item.key, { discount_type: value as QuoteDiscountType })} aria-label={t('editor.fields.discountType')} className="w-20 shrink-0">
                     {DISCOUNT_TYPES.map((type) => (
                       <option key={type} value={type}>
-                        {type === 'none' ? '—' : type === 'percent' ? '%' : '$'}
+                        {type === 'none' ? '—' : type === 'percent' ? '%' : currencySymbol}
                       </option>
                     ))}
                   </NativeSelect>
-                <Input placeholder={t('placeholders.discount')}
+                <MoneyInput placeholder="0,00"
                   aria-label={t('editor.items.discount')}
-                  inputMode="decimal"
-                  value={item.discount_type === 'none' ? '' : (item.discount_value ?? '')}
+                  separators={separators}
+                  value={item.discount_type === 'none' ? '' : String(item.discount_value ?? '')}
                   disabled={!editable || item.discount_type === 'none'}
-                  onChange={(event) => update(item.key, { discount_value: event.target.value })}
+                  onValueChange={(value) => update(item.key, { discount_value: value })}
                 />
               </div>
-              <Input placeholder={t('placeholders.tax')}
+              <MoneyInput placeholder="0,00"
                 aria-label={t('editor.items.tax')}
-                inputMode="decimal"
-                value={item.tax_percent ?? ''}
+                separators={separators}
+                value={String(item.tax_percent ?? '')}
                 disabled={!editable}
-                onChange={(event) => update(item.key, { tax_percent: event.target.value })}
+                onValueChange={(value) => update(item.key, { tax_percent: value })}
               />
               <span className="text-right text-sm font-medium tabular-nums">{money(item.saved?.total)}</span>
               {editable ? (
