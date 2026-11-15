@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/ui/error-state'
 import { toast } from '@/components/ui/toast-store'
-import { type FieldSchema, fieldViolations, type FormLayout, formLayoutKeys, formLayoutsApi, LAYOUT_CONTEXTS, type LayoutContext, layoutFields, layoutKeys, ListSkeleton, RecordForm, RecordTypeSelect, RequirePermission, savedLayout, SETTINGS_MANAGE, useFieldSchema, useFormLayout, useIsKnownRecordType } from '@/sdk'
+import { type FieldSchema, fieldViolations, type FormLayout, formLayoutKeys, formLayoutsApi, LAYOUT_CONTEXTS, type LayoutContext, layoutFields, layoutKeys, ListSkeleton, RecordForm, RecordTypeSelect, RequirePermission, savedLayout, SETTINGS_MANAGE, useFieldSchema, useFormLayout, useIsKnownRecordType, getRecordResource, useRecordFormatting } from '@/sdk'
 import { FieldRulesDialog } from '@/modules/record_layouts/ui/components/FieldRulesDialog'
 import { LayoutCanvas } from '@/modules/record_layouts/ui/components/LayoutCanvas'
 import { fieldAtPath, layoutCandidates, layoutsEqual, normalizeForSave, setFieldRules, startingLayout } from '@/modules/record_layouts/ui/lib/draft'
@@ -97,6 +97,7 @@ interface LayoutWorkspaceProps {
 function LayoutWorkspace({ recordType, context, schema, saved }: LayoutWorkspaceProps) {
   const { t } = useTranslation('layouts')
   const queryClient = useQueryClient()
+  const { currency } = useRecordFormatting()
   const candidates = useMemo(() => layoutCandidates(schema.fields, context), [schema.fields, context])
   const initial = useMemo(() => saved ?? startingLayout(schema.fields, context), [saved, schema.fields, context])
   const [draft, setDraft] = useState<FormLayout>(initial)
@@ -200,6 +201,7 @@ function LayoutWorkspace({ recordType, context, schema, saved }: LayoutWorkspace
               formLayout={draft}
               readOnlyKeys={context === 'view' ? [] : undefined}
               mode={context === 'create' ? 'create' : 'edit'}
+              defaultValues={context === 'create' ? getRecordResource(recordType)?.createDefaults?.({ currency }) : undefined}
               record={context === 'create' ? undefined : { id: 'preview' }}
               guardUnsavedChanges={false}
               onCancel={() => setPreviewing(false)}

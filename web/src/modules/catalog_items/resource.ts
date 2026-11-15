@@ -18,6 +18,7 @@ export const productResource = registerRecordResource({
   titleField: 'name',
   subtitleField: 'code',
   detailPath: productPath,
+  createDefaults: ({ currency }) => ({ currency, recurrence: 'none', is_active: true }),
 })
 
 export const PRODUCT_CREATE_LAYOUT = ['name', 'code', 'price', 'currency', 'unit', 'recurrence', 'term_months', 'is_active']

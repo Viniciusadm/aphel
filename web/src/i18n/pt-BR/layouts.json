@@ -25,10 +25,10 @@
     }
   },
   "contexts": {
-    "label": "Formulário",
-    "create": "Criação",
-    "edit": "Edição",
-    "view": "Visualização",
+    "label": "Tela",
+    "create": "Ao criar",
+    "edit": "Ao editar",
+    "view": "Ao visualizar",
     "createHint": "Usado ao criar registros. Campos obrigatórios entram automaticamente.",
     "editHint": "Usado ao editar registros. Sem layout de edição, as regras do layout de criação continuam valendo nas edições.",
     "viewHint": "Usado na lateral da página do registro. Aceita apenas regras de visibilidade."
@@ -56,7 +56,7 @@
     "add": "Adicionar seção",
     "newLabel": "Nova seção",
     "name": "Nome da seção",
-    "namePlaceholder": "Sem título",
+    "namePlaceholder": "Opcional",
     "remove": "Remover seção",
     "moveUp": "Mover seção para cima",
     "moveDown": "Mover seção para baixo",

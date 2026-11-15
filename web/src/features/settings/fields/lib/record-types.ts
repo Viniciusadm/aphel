@@ -12,14 +12,17 @@ export function useRecordTypeOptions(): RecordTypeOption[] {
   const entities = useEntities()
   return useMemo(
     () =>
-      (entities.data ?? []).map((entity) => ({
-        value: entity.record_type,
-        label: entityLabel(entity, i18n.language, entity.record_type),
-      })),
+      (entities.data ?? [])
+        .filter((entity) => 'ui.plural_labels' in entity.traits)
+        .map((entity) => ({
+          value: entity.record_type,
+          label: entityLabel(entity, i18n.language, entity.record_type),
+        })),
     [entities.data, i18n.language],
   )
 }
 
 export function useIsKnownRecordType(recordType: string): boolean {
-  return useRecordTypeOptions().some((option) => option.value === recordType)
+  const entities = useEntities()
+  return (entities.data ?? []).some((entity) => entity.record_type === recordType)
 }

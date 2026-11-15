@@ -22,6 +22,7 @@ export interface RecordResource {
   listSorts?: () => RecordListSort[]
   editDialog?: ComponentType<RecordEditDialogProps>
   defaultLayout?: 'list'
+  createDefaults?: (context: { currency: string }) => Record<string, unknown>
   calendarLink?: { module: string; to: string }
 }
 

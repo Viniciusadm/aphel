@@ -25,10 +25,10 @@
     }
   },
   "contexts": {
-    "label": "Form",
-    "create": "Create",
-    "edit": "Edit",
-    "view": "View",
+    "label": "Screen",
+    "create": "When creating",
+    "edit": "When editing",
+    "view": "When viewing",
     "createHint": "Used when creating records. Required fields are always added.",
     "editHint": "Used when editing records. Without an edit layout, the rules of the create layout also apply to edits.",
     "viewHint": "Used in the side panel of the record page. Only visibility rules are accepted."
@@ -56,7 +56,7 @@
     "add": "Add section",
     "newLabel": "New section",
     "name": "Section name",
-    "namePlaceholder": "Untitled",
+    "namePlaceholder": "Optional",
     "remove": "Remove section",
     "moveUp": "Move section up",
     "moveDown": "Move section down",

@@ -9,7 +9,7 @@ export { DEFAULT_OBJECT_COLOR, DEFAULT_OBJECT_ICON, OBJECT_COLORS, OBJECT_ICON_N
 export type { Relationship, RelationshipCardinality, RelationshipOnDelete } from '@/features/custom-records'
 export { DEFAULT_READ_ONLY_FIELD_KEYS, RecordDetailPage, useRecord, useUpdateRecord } from '@/features/records/detail'
 export type { RecordTab, RecordTabsConfig } from '@/features/records/detail'
-export { activeFields, fieldViolations, findField, getFieldValue, isReadOnlyField } from '@/features/records/fields'
+export { activeFields, fieldViolations, findField, getFieldValue, isFormulaField, isReadOnlyField } from '@/features/records/fields'
 export type { FieldViolation } from '@/features/records/fields'
 export { FieldPicker, FilterBuilder, FilterChips, FilterMenu, countConditions, describeCondition, describeNode, emptyCondition, emptyGroup, pseudoFilterField, serializeFilter, toDraft, useFilterSchema } from '@/features/records/filters'
 export type { DraftGroup, FilterExtensionSummaryProps, FilterExtensionValueProps, FilterFieldExtension, SummaryContext } from '@/features/records/filters'

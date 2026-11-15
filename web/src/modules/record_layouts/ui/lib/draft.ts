@@ -1,4 +1,4 @@
-import { type FieldDefinition, type FilterNode, type FormLayout, isEditableField, type LayoutContext, type LayoutField, layoutKeys, type LayoutSection, MAX_LAYOUT_COLUMNS, READ_ONLY_SYSTEM_KEYS } from '@/sdk'
+import { type FieldDefinition, type FilterNode, type FormLayout, isEditableField, isFormulaField, type LayoutContext, type LayoutField, layoutKeys, type LayoutSection, MAX_LAYOUT_COLUMNS, READ_ONLY_SYSTEM_KEYS } from '@/sdk'
 export interface FieldLocation {
   tabId: string
   sectionId: string
@@ -30,7 +30,7 @@ export function clone(layout: FormLayout): FormLayout {
 
 export function layoutCandidates(fields: FieldDefinition[], context: LayoutContext): FieldDefinition[] {
   const active = fields.filter((field) => field.is_active).sort((left, right) => left.position - right.position)
-  return context === 'view' ? active : active.filter((field) => isEditableField(field, READ_ONLY_SYSTEM_KEYS))
+  return context === 'view' ? active : active.filter((field) => isEditableField(field, READ_ONLY_SYSTEM_KEYS) && !isFormulaField(field))
 }
 
 export function isLocked(field: FieldDefinition, context: LayoutContext): boolean {

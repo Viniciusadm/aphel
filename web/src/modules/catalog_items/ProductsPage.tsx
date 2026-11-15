@@ -6,7 +6,7 @@ import { useSession } from '@/app/session/session-context'
 import { Button } from '@/components/ui/button'
 import { type FilterNode, type RecordListPreset, RecordFormDialog, RecordListView, useRecordFormatting, useRecordList } from '@/sdk'
 import { Slot } from '@/kernel/modules/Slot'
-import { PRODUCT_CREATE_LAYOUT, PRODUCT_RECORD_TYPE, productPath } from './resource'
+import { PRODUCT_CREATE_LAYOUT, PRODUCT_RECORD_TYPE, productPath, productResource } from './resource'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
 
@@ -31,7 +31,7 @@ export function ProductsPage() {
   const { hasPermission } = useSession()
   const [creating, setCreating] = useState(false)
   const { currency } = useRecordFormatting()
-  const defaults = useMemo(() => ({ currency, recurrence: 'none', is_active: true }), [currency])
+  const defaults = useMemo(() => productResource.createDefaults?.({ currency }), [currency])
   const counts = usePresetCounts()
   const presets: RecordListPreset[] = PRESET_KEYS.map((key) => ({
     key,
