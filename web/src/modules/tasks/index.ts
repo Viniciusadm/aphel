@@ -1,6 +1,8 @@
 import { TasksDashboardEventLabel } from './dashboard/EventLabel'
 import { TaskPendingSections } from './dashboard/PendingSections'
 import type { TaskPendingData } from './dashboard/types'
+import { lazyComponent } from '@/lib/lazy-component'
+import type { TeamActivityRankingData } from './dashboard/ranking-types'
 import { createElement } from 'react'
 import { TasksSummary } from './dashboard/Summary'
 import { CalendarCreateDialog } from "./CalendarCreateDialog"
@@ -18,6 +20,10 @@ import {ACTIVITY_TIMELINE_RENDERERS} from '@/sdk'
 
 const TASKS_READ = ['tasks.read']
 
+const TeamActivityRankingWidget = lazyComponent(
+  async () => (await import('./dashboard/TeamActivityRankingWidget')).TeamActivityRankingWidget,
+)
+
 const activitiesModule = defineModule({
   key: 'tasks',
   translations: { 'pt-BR': () => import('./i18n/pt-BR.json'), en: () => import('./i18n/en.json') },
@@ -25,6 +31,14 @@ const activitiesModule = defineModule({
     app.filter('dashboard.eventLabel', (label, { event }) => event.event_type.startsWith('activity.') ? createElement(TasksDashboardEventLabel, { event }) : label)
     app.slot('dashboard.source', { key: 'tasks.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'tasks.summary' ? createElement(TasksSummary, { data: data as Record<string, unknown> }) : null })
     app.slot('dashboard.source', { key: 'tasks.pending', render: ({ collection, source, data }) => collection === 'pending' && source === 'tasks.pending' ? createElement(TaskPendingSections, { data: data as TaskPendingData }) : null })
+    app.widget('team_activity_ranking', {
+      render: (data) => createElement(TeamActivityRankingWidget, { data: data as TeamActivityRankingData }),
+      isEmpty: (data) => (data as TeamActivityRankingData).rows.length === 0,
+      settings: [
+        { kind: 'integer', key: 'limit', label: 'tasks:widgetSettings.rankingLimit', min: 1, max: 20 },
+        { kind: 'boolean', key: 'by_type', label: 'tasks:widgetSettings.byType' },
+      ],
+    })
     app.slot('calendar.create', { key: 'tasks', permission: 'tasks.create', render: CalendarCreateDialog })
     app.routes(activitiesRoutes)
     app.nav({ section: 'work', to: '/tasks', label: 'nav.tasks', icon: CheckSquare, permission: TASKS_READ, order: 80 })

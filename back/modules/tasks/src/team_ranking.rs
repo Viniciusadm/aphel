@@ -2,10 +2,9 @@ use aphel_contract_crm::CrmPermissions;
 use async_trait::async_trait;
 use serde_json::{Value, json};
 
-use crate::CATEGORY;
-use crate::aggregate::{combine, condition, count_at, period, run, with_subject};
-use crate::settings::{SettingsReader, invalid_settings};
 use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::dashboard::aggregate::{combine, condition, count_at, period, run, with_subject};
+use aphel_sdk::dashboard::settings::{SettingsReader, invalid_settings};
 use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_sdk::platform::domain::access::Permission;
 
@@ -34,7 +33,7 @@ fn done_conditions() -> Vec<Value> {
 pub(crate) struct TeamActivityRankingWidget;
 
 impl TeamActivityRankingWidget {
-    pub(crate) const KEY: &'static str = "insights.team_activity_ranking";
+    pub(crate) const KEY: &'static str = "team_activity_ranking";
 }
 
 #[async_trait]
@@ -51,7 +50,7 @@ where
     }
 
     fn category(&self) -> &str {
-        CATEGORY
+        "overview"
     }
 
     fn required_permissions(&self) -> Vec<Permission> {

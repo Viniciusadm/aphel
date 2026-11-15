@@ -6,22 +6,20 @@ use chrono::{Datelike, NaiveDate};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::aggregate::{
-    combine, condition, count_at, is_field_not_accessible, run, visible_fields,
-};
-use crate::settings::{SettingsReader, invalid_settings};
-use crate::{CATEGORY, KEY};
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::records::RecordCtx;
+use aphel_sdk::dashboard::aggregate::{
+    combine, condition, count_at, is_field_not_accessible, run, visible_fields,
+};
+use aphel_sdk::dashboard::settings::{SettingsReader, invalid_settings};
 use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, RecordQuery, RecordQueryEngine, SortSpec,
 };
 use aphel_sdk::platform::domain::access::Permission;
-use aphel_sdk::platform::modules::module_settings;
 
-pub(crate) const BIRTHDAY_FIELD_SETTING: &str = "birthday_field";
+pub(crate) const BIRTHDAY_FIELD: &str = "birthday";
 
 const CONTACT: &str = aphel_contract_crm::keys::CONTACT;
 const DATE_FIELD_TYPE: &str = "date";
@@ -95,7 +93,7 @@ fn is_missing(error: &AppError) -> bool {
 pub(crate) struct BirthdaysWidget;
 
 impl BirthdaysWidget {
-    pub(crate) const KEY: &'static str = "insights.birthdays";
+    pub(crate) const KEY: &'static str = "birthdays";
 
     async fn dates_in_month<P: DashboardPorts>(
         &self,
@@ -184,7 +182,7 @@ where
     }
 
     fn category(&self) -> &str {
-        CATEGORY
+        "overview"
     }
 
     fn required_permissions(&self) -> Vec<Permission> {
@@ -216,15 +214,7 @@ where
         let today = context.now.with_timezone(&context.timezone).date_naive();
         let (month, today_day) = (today.month(), today.day());
         let state_handle = aphel_sdk::runtime()?;
-        let module_settings = module_settings(&state_handle.db()?, KEY).await?;
-        let Some(field) = module_settings
-            .get(BIRTHDAY_FIELD_SETTING)
-            .and_then(Value::as_str)
-            .map(str::trim)
-            .filter(|field| !field.is_empty())
-        else {
-            return Ok(state("not_configured", month, today_day));
-        };
+        let field = BIRTHDAY_FIELD;
         let fields = visible_fields(context, CONTACT).await?;
         let Some(info) = fields
             .iter()

@@ -421,9 +421,6 @@
     "imports": {
       "appears": "como ação de importar nas listas de registros e quando a lista está vazia"
     },
-    "insights": {
-      "appears": "como indicadores no Início: oportunidades por origem, ranking de atividades da equipe e aniversários"
-    },
     "leads": {
       "appears": "como aba de ciclo de vida nas fichas, ações de lead e filtro nas listas"
     },

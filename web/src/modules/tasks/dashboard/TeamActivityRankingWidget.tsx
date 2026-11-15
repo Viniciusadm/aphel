@@ -1,7 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { formatNumber, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import type { RankingRow, TeamActivityRankingData } from './types'
+import type { RankingRow, TeamActivityRankingData } from './ranking-types'
 
 interface RankingBar {
   key: string
@@ -10,7 +10,7 @@ interface RankingBar {
 }
 
 function RankingTooltip({ active, payload }: { active?: boolean; payload?: { payload: RankingBar }[] }) {
-  const t = useModuleTranslation('insights')
+  const t = useModuleTranslation('tasks')
   const bar = active ? payload?.[0]?.payload : undefined
   if (!bar) return null
   return (
@@ -22,7 +22,7 @@ function RankingTooltip({ active, payload }: { active?: boolean; payload?: { pay
 }
 
 export function TeamActivityRankingWidget({ data }: { data: TeamActivityRankingData }) {
-  const t = useModuleTranslation('insights')
+  const t = useModuleTranslation('tasks')
   const formatting = useRecordFormatting()
   const nameOf = (row: RankingRow) => row.name ?? (row.user_id ? t('ranking.unknownUser') : t('ranking.unassigned'))
   const bars: RankingBar[] = data.rows.map((row) => ({

@@ -108,5 +108,26 @@
       "archived": "archived the contact",
       "unarchived": "unarchived the contact"
     }
+  },
+  "birthdays": {
+    "fieldUnavailable": "Birthday field unavailable",
+    "summary_one": "{{count}} birthday in {{month}} ({{field}})",
+    "summary_other": "{{count}} birthdays in {{month}} ({{field}})",
+    "listLabel": "Birthdays in {{month}}",
+    "day": "Day {{day}}",
+    "today": "Today",
+    "more_one": "and {{count}} more contact",
+    "more_other": "and {{count}} more people",
+    "truncated": "There are too many dates to list them all; some birthdays may be missing.",
+    "fieldUnavailableHelp": "The contact Birthday field was deactivated or is not visible to your role.",
+    "configure": "Open contact fields"
+  },
+  "widgetSettings": {
+    "birthdaysLimit": "Contacts shown"
+  },
+  "widgets": {
+    "birthdays": {
+      "title": "This month's birthdays"
+    }
   }
 }

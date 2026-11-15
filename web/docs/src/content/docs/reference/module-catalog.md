@@ -780,19 +780,6 @@ Deals, stage changes, the Kanban board and the team of each deal.
 | Web package | yes |
 | Blueprints | Required by every blueprint (inherited from `crm`). |
 
-### Extra widgets (`insights`)
-
-Additional dashboard widgets: deals by source, team activity ranking and birthdays of the month.
-
-| | |
-| --- | --- |
-| Layer | domain |
-| Depends on | none |
-| Optional dependencies | `deals`, `tasks` |
-| Permissions | none |
-| Web package | yes |
-| Blueprints | Recommended by `saas`. |
-
 ### Forecast (`forecast`)
 
 Revenue forecast per month from open deals, with the organization method, categories and horizon.

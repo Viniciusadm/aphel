@@ -6,6 +6,7 @@ mod merge_references;
 mod merges;
 mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
+mod birthdays;
 mod dashboard;
 mod timeline;
 use aphel_sdk::party::{
@@ -270,6 +271,17 @@ impl Module for PeopleModule {
         )
         .openapi_tag(http::TAG, "Contacts and their organizations")
         .routes(|_| http::router());
+        let birthday = aphel_sdk::platform::application::fields::FieldSpec::new(
+            birthdays::BIRTHDAY_FIELD,
+            labels("Birthday"),
+            FieldType::Date,
+        )?;
+        app.extend(RecordType::CONTACT.as_str(), |extension| {
+            extension.managed_field(birthday);
+        });
+        app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(
+            Arc::new(birthdays::BirthdaysWidget),
+        );
         for permission in RECORD_PERMISSIONS {
             let definition = PermissionDefinition::record(permission.clone());
             if permission == Permission::CONTACTS_ARCHIVE {

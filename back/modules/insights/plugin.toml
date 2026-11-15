@@ -1,5 +1,0 @@
-key = "insights"
-name = "Extra widgets"
-version = "0.1.0"
-layer = "domain"
-runtime = "native"

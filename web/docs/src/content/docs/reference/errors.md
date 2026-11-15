@@ -366,6 +366,7 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 
 | Code | Status | Meaning |
 | --- | --- | --- |
+| `invalid_aggregate` | 422 | The aggregation request of a widget is not valid. |
 | `widget_not_found` | 404 | Widget was not found. |
 
 ### Deals (`deals`)
@@ -450,12 +451,6 @@ Returned by `/api/console/v1` on `CONSOLE_HOST` and by `aphel tenants`.
 | `export_not_found` | 404 | Export was not found. |
 | `export_not_supported` | 422 | The record type cannot be exported. |
 | `export_too_large` | 422 | The export exceeds the maximum number of records; narrow the filter. |
-
-### Extra widgets (`insights`)
-
-| Code | Status | Meaning |
-| --- | --- | --- |
-| `invalid_aggregate` | 422 | The aggregation request is not valid. |
 
 ### Favorites (`favorites`)
 

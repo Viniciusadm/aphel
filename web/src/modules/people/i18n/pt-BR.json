@@ -108,5 +108,26 @@
       "archived": "arquivou o contato",
       "unarchived": "desarquivou o contato"
     }
+  },
+  "birthdays": {
+    "fieldUnavailable": "Campo de aniversário indisponível",
+    "summary_one": "{{count}} aniversariante em {{month}} ({{field}})",
+    "summary_other": "{{count}} aniversariantes em {{month}} ({{field}})",
+    "listLabel": "Aniversariantes de {{month}}",
+    "day": "Dia {{day}}",
+    "today": "Hoje",
+    "more_one": "e mais {{count}} contato",
+    "more_other": "e mais {{count}} contatos",
+    "truncated": "Há datas demais para listar todas; alguns aniversariantes podem não aparecer.",
+    "fieldUnavailableHelp": "O campo Data de aniversário dos contatos foi desativado ou não está visível para o seu papel.",
+    "configure": "Abrir campos de contatos"
+  },
+  "widgetSettings": {
+    "birthdaysLimit": "Contatos exibidos"
+  },
+  "widgets": {
+    "birthdays": {
+      "title": "Aniversariantes do mês"
+    }
   }
 }

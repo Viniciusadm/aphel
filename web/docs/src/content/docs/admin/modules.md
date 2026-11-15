@@ -58,7 +58,7 @@ Removing data is a separate, deliberate step:
 The command-line equivalent disables the module, runs its uninstall step and, with `--purge`, writes the export to a JSON file in the current directory before removing the data and reverting the module's schema:
 
 ```bash
-aphel modules uninstall insights --purge
+aphel modules uninstall webhooks --purge
 ```
 
 Without `--purge`, the data is kept. A required module cannot be uninstalled. See [CLI](/_aphel/docs/admin/cli/).

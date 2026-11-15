@@ -15,7 +15,6 @@ The **Home** screen is a dashboard made of widgets. **Reports** lets you build y
 | Saved reports | `reports` | Recommended in Agency, Consultancy, Other business and B2B Sales. |
 | Goals widget and Goals page | `goals` | Recommended in B2B Sales and SaaS. |
 | Forecast page | `forecast` | Recommended in B2B Sales and SaaS. It has a page of its own, not a widget. |
-| Extra widgets (deals by source, team activity ranking, birthdays) | `insights` | Recommended in SaaS. |
 | Renewals and recurring revenue widgets | `renewals`, `deals_revenue` | Recommended in SaaS (`deals_revenue` also in Agency). |
 
 Widgets are contributed by modules, so which ones you can add depends on the active modules and your permissions. See [Modules](/_aphel/docs/admin/modules/).
@@ -61,17 +60,15 @@ If a widget fails to load, only that widget shows an error. A widget your role c
 | Deals by stage | `deals.read` | Count and value of deals in each stage of the pipeline. | None in the web app |
 | Goals | A goal you can see | Progress of goals in the current period. | Number of goals (1 to 20, default 5), Only my goals |
 | Saved report | Read access to the report's data | A saved report as a table or chart. | Use the dashboard period |
-| Deals by source (Extra widgets) | `deals.read` | Deals created in the period grouped by their Source field. | Sources shown (3 to 20), Won deals only |
-| Team activity ranking (Extra widgets) | `tasks.read` | Tasks completed in the period by owner. | People in the ranking (1 to 20), Split by activity type |
-| This month's birthdays (Extra widgets) | `people.read` | Contacts whose birthday is this month. | Contacts shown (5 to 50) |
+| Deals by source | `deals.read` | Deals created in the period grouped by their Source field. | Sources shown (3 to 20), Won deals only |
+| Team activity ranking | `tasks.read` | Tasks completed in the period by owner. | People in the ranking (1 to 20), Split by activity type |
+| This month's birthdays | `people.read` | Contacts whose birthday is this month. | Contacts shown (5 to 50) |
 | Contracts up for renewal | `deals.read` | Contracts ending within a window and their MRR. | Window in days, Only mine, Items in the list |
 | Won recurring revenue | `deals.read` | Won MRR, ARR and TCV in the period. | None |
 
 Which module provides each widget is in the first table above. Plugins can also add widgets.
 
-:::note
-The birthdays widget needs an administrator to choose the contact date field that holds the birthday, in the settings of the Extra widgets module (**Settings**, **Modules**).
-:::
+The birthdays widget uses the **Birthday** field of contacts. Fill it in on each contact; if an administrator deactivates the field, the widget says it is unavailable.
 
 :::note
 Deal amounts, and any field hidden from your role by field permissions, are left out of widgets and reports for you.

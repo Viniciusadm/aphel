@@ -3,6 +3,8 @@ import { DealPendingSections, type DealPendingData } from './dashboard/PendingSe
 import { SalesIndicatorsWidget } from './dashboard/SalesIndicatorsWidget'
 import { DealStageStepper } from './detail/DealStageStepper'
 import { DealsByStageWidget } from './dashboard/DealsByStageWidget'
+import { lazyComponent } from '@/lib/lazy-component'
+import type { DealsBySourceData } from './dashboard/by-source-types'
 import type { SalesIndicatorsData, DealsByStageData } from './dashboard/types'
 import { createElement } from 'react'
 import { DealsSummary } from './dashboard/Summary'
@@ -14,6 +16,8 @@ import { Briefcase, Users, UsersRound } from 'lucide-react'
 import { SETTINGS_MANAGE, rottingOf, useEntityHasTrait } from '@/sdk'
 
 const PARTY_TRAIT = 'party.contact_points'
+
+const DealsBySourceWidget = lazyComponent(async () => (await import('./dashboard/DealsBySourceWidget')).DealsBySourceWidget)
 import { defineModule } from '@/kernel/modules/define'
 import { CreateDealDialog } from './create-action'
 import { DealTeamRecordTab, RelatedDealsTab } from './record-tabs'
@@ -52,6 +56,17 @@ const dealsModule = defineModule({
     app.slot('dashboard.source', { key: 'deals.summary', render: ({ collection, source, data }) => collection === 'summary' && source === 'deals.summary' ? createElement(DealsSummary, { data: data as Record<string, unknown> }) : null })
     app.slot('dashboard.source', { key: 'deals.stale', render: ({ collection, source, data }) => collection === 'pending' && source === 'deals.stale' ? createElement(DealPendingSections, { data: data as DealPendingData }) : null })
     app.widget('sales_indicators', { render: (data) => createElement(SalesIndicatorsWidget, { data: data as SalesIndicatorsData }) })
+    app.widget('deals_by_source', {
+      render: (data) => createElement(DealsBySourceWidget, { data: data as DealsBySourceData }),
+      isEmpty: (data) => {
+        const value = data as DealsBySourceData
+        return value.status === 'ok' && value.total.count === 0
+      },
+      settings: [
+        { kind: 'integer', key: 'limit', label: 'deals:widgetSettings.sourceLimit', min: 3, max: 20 },
+        { kind: 'boolean', key: 'only_won', label: 'deals:widgetSettings.onlyWon' },
+      ],
+    })
     app.widget('deals_by_stage', { render: (data) => createElement(DealsByStageWidget, { data: data as DealsByStageData }), isEmpty: (data) => { const stages = data as DealsByStageData; return stages.pipeline !== null && stages.stages.every((stage) => stage.count === 0) } })
     app.slot('deals.detail.fieldLocks', { key: 'line-item-amount', render: LineItemAmountLock })
     app.slot('deals.badges', { key: 'rotting', render: RottingDealBadge })

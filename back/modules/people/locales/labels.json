@@ -54,5 +54,9 @@
   "Preferred channel": {
     "pt-BR": "Canal preferido",
     "en": "Preferred channel"
+  },
+  "Birthday": {
+    "pt-BR": "Data de aniversário",
+    "en": "Birthday"
   }
 }

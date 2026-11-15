@@ -1,10 +1,12 @@
 pub use aphel_kernel::domain::period::{
     PeriodPreset, PeriodSelection, ResolvedPeriod, local_today, previous_period, resolve_period,
 };
+pub mod aggregate;
 pub mod dto;
 pub mod period;
 pub mod ports;
 pub mod provider;
+pub mod settings;
 pub mod subject;
 use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
 pub use period::*;

@@ -422,5 +422,28 @@
   "sort": {
     "due": "Prazo",
     "priority": "Prioridade"
+  },
+  "ranking": {
+    "chartLabel": "Atividades concluídas no período por responsável",
+    "listLabel": "Ranking de atividades concluídas",
+    "byTypeLabel": "Atividades de {{name}} por tipo",
+    "position": "{{position}}º",
+    "count": "Concluídas",
+    "activities_one": "{{count}} atividade",
+    "activities_other": "{{count}} atividades",
+    "unassigned": "Sem responsável",
+    "unknownUser": "Usuário sem acesso",
+    "noType": "Sem tipo",
+    "total_one": "{{count}} atividade concluída no período",
+    "total_other": "{{count}} atividades concluídas no período"
+  },
+  "widgetSettings": {
+    "rankingLimit": "Pessoas no ranking",
+    "byType": "Separar por tipo de atividade"
+  },
+  "widgets": {
+    "team_activity_ranking": {
+      "title": "Ranking de atividades da equipe"
+    }
   }
 }

@@ -51,7 +51,6 @@ import catalogItemsModule from '@modules/catalog_items'
 import pricingModule from '@modules/pricing'
 import quotesModule from '@modules/quotes'
 import proposalsModule from '@modules/proposals'
-import insightsModule from '@modules/insights'
 import formsModule from '@modules/forms'
 import aiModule from '@modules/ai'
 import ssoModule from '@modules/sso'
@@ -117,7 +116,6 @@ export const MODULES: WebModule[] = [
   pricingModule,
   quotesModule,
   proposalsModule,
-  insightsModule,
   formsModule,
   aiModule,
   ssoModule,

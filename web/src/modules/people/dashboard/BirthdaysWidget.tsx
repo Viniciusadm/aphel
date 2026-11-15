@@ -5,21 +5,21 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { useRecordFormatting } from '@/sdk'
 import { cn } from '@/lib/utils'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import type { BirthdaysData } from './types'
+import type { BirthdaysData } from './birthdays-types'
 
 export function BirthdaysWidget({ data }: { data: BirthdaysData }) {
-  const t = useModuleTranslation('insights')
+  const t = useModuleTranslation('people')
   const formatting = useRecordFormatting()
   if (data.status !== 'ok') {
     return (
       <EmptyState
         icon={Cake}
         className="p-4"
-        title={t(data.status === 'not_configured' ? 'birthdays.notConfigured' : 'birthdays.fieldUnavailable')}
-        description={t(data.status === 'not_configured' ? 'birthdays.notConfiguredHelp' : 'birthdays.fieldUnavailableHelp')}
+        title={t('birthdays.fieldUnavailable')}
+        description={t('birthdays.fieldUnavailableHelp')}
         action={
           <Button asChild variant="outline" size="sm">
-            <Link to="/integrations/modules">
+            <Link to="/settings/fields/people.person">
               <Settings aria-hidden />
               {t('birthdays.configure')}
             </Link>

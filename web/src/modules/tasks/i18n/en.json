@@ -422,5 +422,28 @@
   "sort": {
     "due": "Due date",
     "priority": "Priority"
+  },
+  "ranking": {
+    "chartLabel": "Activities completed in the period by owner",
+    "listLabel": "Completed tasks ranking",
+    "byTypeLabel": "{{name}}'s tasks by type",
+    "position": "#{{position}}",
+    "count": "Completed",
+    "activities_one": "{{count}} activity",
+    "activities_other": "{{count}} tasks",
+    "unassigned": "No owner",
+    "unknownUser": "User without access",
+    "noType": "No type",
+    "total_one": "{{count}} activity completed in the period",
+    "total_other": "{{count}} tasks completed in the period"
+  },
+  "widgetSettings": {
+    "rankingLimit": "People in the ranking",
+    "byType": "Split by activity type"
+  },
+  "widgets": {
+    "team_activity_ranking": {
+      "title": "Team activity ranking"
+    }
   }
 }

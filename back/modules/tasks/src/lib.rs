@@ -6,6 +6,7 @@ mod merge_references;
 mod reminders;
 pub mod remote_calendar;
 mod report_subjects;
+mod team_ranking;
 mod transactions;
 mod writer;
 use aphel_sdk::privacy::PrivacyTraits;
@@ -321,6 +322,9 @@ impl Module for TasksModule {
         app.contribute::<dyn aphel_sdk::dashboard::DashboardSource>(Arc::new(
             dashboard::TaskPendingSource,
         ));
+        app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(
+            Arc::new(team_ranking::TeamActivityRankingWidget),
+        );
         app.contribute::<dyn aphel_sdk::privacy::PrivacySource>(std::sync::Arc::new(
             privacy::TasksPrivacy,
         ));

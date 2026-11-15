@@ -421,9 +421,6 @@
     "imports": {
       "appears": "as an import action in record lists and when a list is empty"
     },
-    "insights": {
-      "appears": "as indicators on Home: deals by source, team activity ranking and birthdays"
-    },
     "leads": {
       "appears": "as a lifecycle tab on records, lead actions and a filter in lists"
     },

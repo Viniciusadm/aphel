@@ -440,6 +440,7 @@ impl Module for DealsModule {
         ));
         app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(std::sync::Arc::new(dashboard::widgets::SalesIndicatorsWidget));
         app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(std::sync::Arc::new(dashboard::widgets::DealsByStageWidget));
+        app.contribute::<dyn aphel_sdk::dashboard::WidgetProvider<aphel_sdk::dashboard::WidgetPorts>>(std::sync::Arc::new(dashboard::by_source::DealsBySourceWidget));
         app.contribute(std::sync::Arc::new(
             aphel_sdk::timeline::KindDefinition::new("deal_stage", "Stages", "Etapas")
                 .events(&["deal.stage_changed"]),

@@ -51,7 +51,6 @@ catalog_items = { path = "modules/catalog_items" }
 pricing = { path = "modules/pricing" }
 quotes = { path = "modules/quotes" }
 proposals = { path = "modules/proposals" }
-insights = { path = "modules/insights" }
 forms = { path = "modules/forms" }
 ai = { path = "modules/ai" }
 sso = { path = "modules/sso" }

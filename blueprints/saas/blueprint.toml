@@ -16,7 +16,6 @@ recommended = [
   "segments",
   "automations",
   "webhooks",
-  "insights",
   "google",
   "microsoft",
   "sso",

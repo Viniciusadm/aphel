@@ -5,13 +5,12 @@ use async_trait::async_trait;
 use rust_decimal::Decimal;
 use serde_json::{Value, json};
 
-use crate::CATEGORY;
-use crate::aggregate::{
+use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::dashboard::aggregate::{
     AggregateOutput, condition, count_at, has_field, is_field_not_accessible, period, run, text_at,
     visible_fields, with_subject,
 };
-use crate::settings::{SettingsReader, invalid_settings};
-use aphel_kernel::errors::{AppError, FieldViolation};
+use aphel_sdk::dashboard::settings::{SettingsReader, invalid_settings};
 use aphel_sdk::dashboard::{DashboardPorts, WidgetContext, WidgetProvider, WidgetSize};
 use aphel_sdk::platform::domain::access::Permission;
 
@@ -36,7 +35,7 @@ fn parse(settings: &Value) -> Result<(DealsBySourceSettings, Value), Vec<FieldVi
 pub(crate) struct DealsBySourceWidget;
 
 impl DealsBySourceWidget {
-    pub(crate) const KEY: &'static str = "insights.deals_by_source";
+    pub(crate) const KEY: &'static str = "deals_by_source";
 
     async fn aggregate<P: DashboardPorts>(
         &self,
@@ -82,7 +81,7 @@ where
     }
 
     fn category(&self) -> &str {
-        CATEGORY
+        "sales"
     }
 
     fn required_permissions(&self) -> Vec<Permission> {

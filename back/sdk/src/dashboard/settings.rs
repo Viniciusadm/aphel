@@ -2,7 +2,7 @@ use serde_json::{Map, Value};
 
 use aphel_kernel::errors::{AppError, FieldViolation};
 
-pub(crate) struct SettingsReader<'a> {
+pub struct SettingsReader<'a> {
     settings: Option<&'a Map<String, Value>>,
     known: Vec<&'static str>,
     normalized: Map<String, Value>,
@@ -10,7 +10,7 @@ pub(crate) struct SettingsReader<'a> {
 }
 
 impl<'a> SettingsReader<'a> {
-    pub(crate) fn new(settings: &'a Value) -> Result<Self, Vec<FieldViolation>> {
+    pub fn new(settings: &'a Value) -> Result<Self, Vec<FieldViolation>> {
         let settings = match settings {
             Value::Null => None,
             Value::Object(map) => Some(map),
@@ -30,7 +30,7 @@ impl<'a> SettingsReader<'a> {
             .filter(|value| !value.is_null())
     }
 
-    pub(crate) fn integer(&mut self, key: &'static str, default: i64, min: i64, max: i64) -> i64 {
+    pub fn integer(&mut self, key: &'static str, default: i64, min: i64, max: i64) -> i64 {
         self.known.push(key);
         let value = match self.get(key) {
             None => default,
@@ -49,7 +49,7 @@ impl<'a> SettingsReader<'a> {
         value
     }
 
-    pub(crate) fn boolean(&mut self, key: &'static str, default: bool) -> bool {
+    pub fn boolean(&mut self, key: &'static str, default: bool) -> bool {
         self.known.push(key);
         let value = match self.get(key) {
             None => default,
@@ -66,7 +66,7 @@ impl<'a> SettingsReader<'a> {
         value
     }
 
-    pub(crate) fn finish(mut self) -> Result<Value, Vec<FieldViolation>> {
+    pub fn finish(mut self) -> Result<Value, Vec<FieldViolation>> {
         if let Some(settings) = self.settings {
             for key in settings.keys() {
                 if !self.known.contains(&key.as_str()) {
@@ -85,6 +85,6 @@ impl<'a> SettingsReader<'a> {
     }
 }
 
-pub(crate) fn invalid_settings(violations: Vec<FieldViolation>) -> AppError {
+pub fn invalid_settings(violations: Vec<FieldViolation>) -> AppError {
     AppError::invalid_fields("invalid widget settings", violations)
 }

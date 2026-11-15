@@ -451,6 +451,27 @@
     },
     "deals_by_stage": {
       "title": "Oportunidades por etapa"
+    },
+    "deals_by_source": {
+      "title": "Oportunidades por origem"
     }
+  },
+  "dealsBySource": {
+    "chartLabel": "Oportunidades criadas no período, por origem",
+    "chartLabelWon": "Oportunidades ganhas criadas no período, por origem",
+    "source": "Origem",
+    "count": "Quantidade",
+    "amount": "Valor",
+    "total": "Total",
+    "noSource": "Sem origem",
+    "other": "Outras origens",
+    "deals_one": "{{count}} oportunidade",
+    "deals_other": "{{count}} oportunidades",
+    "amountHidden": "O valor das oportunidades não está visível para o seu papel; exibindo só a quantidade.",
+    "sourceHidden": "O campo Origem das oportunidades não está visível para o seu papel."
+  },
+  "widgetSettings": {
+    "sourceLimit": "Origens exibidas",
+    "onlyWon": "Somente oportunidades ganhas"
   }
 }

@@ -1,18 +1,18 @@
 use serde_json::{Value, json};
 
+use crate::dashboard::{DashboardPorts, WidgetContext};
+use crate::platform::api::dto::aggregates::{AggregateQueryRequest, decimal};
+use crate::platform::application::fields::FieldSet;
+use crate::platform::application::query::{AggregateEngine, RecordQueryPorts};
 use aphel_kernel::errors::AppError;
-use aphel_sdk::dashboard::{DashboardPorts, WidgetContext};
-use aphel_sdk::platform::api::dto::aggregates::{AggregateQueryRequest, decimal};
-use aphel_sdk::platform::application::fields::FieldSet;
-use aphel_sdk::platform::application::query::{AggregateEngine, RecordQueryPorts};
 
-pub(crate) const FIELD_NOT_ACCESSIBLE: &str = "field_not_accessible";
+pub const FIELD_NOT_ACCESSIBLE: &str = "field_not_accessible";
 
-pub(crate) fn condition(field: &str, operator: &str, value: Value) -> Value {
+pub fn condition(field: &str, operator: &str, value: Value) -> Value {
     json!({ "field": field, "operator": operator, "value": value })
 }
 
-pub(crate) fn combine(operator: &str, mut conditions: Vec<Value>) -> Option<Value> {
+pub fn combine(operator: &str, mut conditions: Vec<Value>) -> Option<Value> {
     match conditions.len() {
         0 => None,
         1 => conditions.pop(),
@@ -20,7 +20,7 @@ pub(crate) fn combine(operator: &str, mut conditions: Vec<Value>) -> Option<Valu
     }
 }
 
-pub(crate) fn with_subject<P: DashboardPorts>(
+pub fn with_subject<P: DashboardPorts>(
     context: &WidgetContext<'_, P>,
     mut conditions: Vec<Value>,
 ) -> Result<Option<Value>, AppError> {
@@ -32,7 +32,7 @@ pub(crate) fn with_subject<P: DashboardPorts>(
     Ok(combine("and", conditions))
 }
 
-pub(crate) fn period<P: DashboardPorts>(context: &WidgetContext<'_, P>, field: &str) -> Value {
+pub fn period<P: DashboardPorts>(context: &WidgetContext<'_, P>, field: &str) -> Value {
     json!({
         "field": field,
         "preset": "custom",
@@ -41,7 +41,7 @@ pub(crate) fn period<P: DashboardPorts>(context: &WidgetContext<'_, P>, field: &
     })
 }
 
-pub(crate) fn error_code(error: &AppError) -> Option<&'static str> {
+pub fn error_code(error: &AppError) -> Option<&'static str> {
     match error {
         AppError::Coded { code, .. }
         | AppError::CodedDetails { code, .. }
@@ -50,17 +50,17 @@ pub(crate) fn error_code(error: &AppError) -> Option<&'static str> {
     }
 }
 
-pub(crate) fn is_field_not_accessible(error: &AppError) -> bool {
+pub fn is_field_not_accessible(error: &AppError) -> bool {
     error_code(error) == Some(FIELD_NOT_ACCESSIBLE)
 }
 
-pub(crate) struct VisibleField {
-    pub(crate) key: String,
-    pub(crate) label: String,
-    pub(crate) field_type: String,
+pub struct VisibleField {
+    pub key: String,
+    pub label: String,
+    pub field_type: String,
 }
 
-pub(crate) async fn visible_fields<P: DashboardPorts>(
+pub async fn visible_fields<P: DashboardPorts>(
     context: &WidgetContext<'_, P>,
     record_type: &str,
 ) -> Result<Vec<VisibleField>, AppError> {
@@ -77,27 +77,27 @@ pub(crate) async fn visible_fields<P: DashboardPorts>(
         .collect())
 }
 
-pub(crate) fn has_field(fields: &[VisibleField], key: &str) -> bool {
+pub fn has_field(fields: &[VisibleField], key: &str) -> bool {
     fields.iter().any(|field| field.key == key)
 }
 
-pub(crate) struct GroupValue {
-    pub(crate) value: Option<String>,
-    pub(crate) label: Option<String>,
+pub struct GroupValue {
+    pub value: Option<String>,
+    pub label: Option<String>,
 }
 
-pub(crate) struct AggregateRow {
-    pub(crate) groups: Vec<GroupValue>,
-    pub(crate) values: Vec<Option<String>>,
+pub struct AggregateRow {
+    pub groups: Vec<GroupValue>,
+    pub values: Vec<Option<String>>,
 }
 
-pub(crate) struct AggregateOutput {
-    pub(crate) rows: Vec<AggregateRow>,
-    pub(crate) totals: Vec<Option<String>>,
-    pub(crate) truncated: bool,
+pub struct AggregateOutput {
+    pub rows: Vec<AggregateRow>,
+    pub totals: Vec<Option<String>>,
+    pub truncated: bool,
 }
 
-pub(crate) async fn run<P: DashboardPorts>(
+pub async fn run<P: DashboardPorts>(
     context: &WidgetContext<'_, P>,
     body: Value,
 ) -> Result<AggregateOutput, AppError> {
@@ -127,7 +127,7 @@ pub(crate) async fn run<P: DashboardPorts>(
     })
 }
 
-pub(crate) fn count_at(values: &[Option<String>], index: usize) -> u64 {
+pub fn count_at(values: &[Option<String>], index: usize) -> u64 {
     values
         .get(index)
         .and_then(Option::as_deref)
@@ -136,6 +136,6 @@ pub(crate) fn count_at(values: &[Option<String>], index: usize) -> u64 {
         .unwrap_or(0)
 }
 
-pub(crate) fn text_at(values: &[Option<String>], index: usize) -> Option<String> {
+pub fn text_at(values: &[Option<String>], index: usize) -> Option<String> {
     values.get(index).cloned().flatten()
 }

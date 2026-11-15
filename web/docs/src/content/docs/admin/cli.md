@@ -190,8 +190,8 @@ aphel db reset --confirm aphel
 
 ```bash
 aphel modules list
-aphel modules uninstall insights
-aphel modules uninstall insights --purge
+aphel modules uninstall webhooks
+aphel modules uninstall webhooks --purge
 ```
 
 See [Modules](/_aphel/docs/admin/modules/).

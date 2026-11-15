@@ -451,6 +451,27 @@
     },
     "deals_by_stage": {
       "title": "Deals by stage"
+    },
+    "deals_by_source": {
+      "title": "Deals by source"
     }
+  },
+  "dealsBySource": {
+    "chartLabel": "Deals created in the period, by source",
+    "chartLabelWon": "Won deals created in the period, by source",
+    "source": "Source",
+    "count": "Count",
+    "amount": "Amount",
+    "total": "Total",
+    "noSource": "No source",
+    "other": "Other sources",
+    "deals_one": "{{count}} deal",
+    "deals_other": "{{count}} deals",
+    "amountHidden": "Deal amounts are not visible to your role; showing counts only.",
+    "sourceHidden": "The deal Source field is not visible to your role."
+  },
+  "widgetSettings": {
+    "sourceLimit": "Sources shown",
+    "onlyWon": "Won deals only"
   }
 }

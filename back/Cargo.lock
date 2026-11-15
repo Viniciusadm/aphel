@@ -176,7 +176,6 @@ dependencies = [
  "aphel-mod-goals",
  "aphel-mod-google",
  "aphel-mod-imports",
- "aphel-mod-insights",
  "aphel-mod-integrations",
  "aphel-mod-leads",
  "aphel-mod-line-items",
@@ -1188,20 +1187,6 @@ dependencies = [
  "tracing",
  "utoipa",
  "utoipa-axum",
- "uuid",
-]
-
-[[package]]
-name = "aphel-mod-insights"
-version = "0.1.1"
-dependencies = [
- "aphel-contract-crm",
- "aphel-kernel",
- "aphel-sdk",
- "async-trait",
- "chrono",
- "rust_decimal",
- "serde_json",
  "uuid",
 ]
 

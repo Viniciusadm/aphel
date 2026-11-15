@@ -1,7 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { formatCurrency, formatNumber, useRecordFormatting } from '@/sdk'
 import { useModuleTranslation } from '@/kernel/modules/i18n'
-import type { DealsBySourceData } from './types'
+import type { DealsBySourceData } from './by-source-types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface SourceBar {
@@ -18,7 +18,7 @@ interface TooltipProps {
 }
 
 function SourceTooltip({ active, payload, currency }: TooltipProps) {
-  const t = useModuleTranslation('insights')
+  const t = useModuleTranslation('deals')
   const formatting = useRecordFormatting()
   const bar = active ? payload?.[0]?.payload : undefined
   if (!bar) return null
@@ -32,7 +32,7 @@ function SourceTooltip({ active, payload, currency }: TooltipProps) {
 }
 
 export function DealsBySourceWidget({ data }: { data: DealsBySourceData }) {
-  const t = useModuleTranslation('insights')
+  const t = useModuleTranslation('deals')
   const formatting = useRecordFormatting()
   if (data.status === 'source_hidden') {
     return <p className="text-sm text-muted-foreground">{t('dealsBySource.sourceHidden')}</p>
