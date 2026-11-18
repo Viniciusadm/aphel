@@ -78,6 +78,17 @@ Backend code follows a hexagonal (ports and adapters) layout:
 
 Modules follow the same direction of dependencies. Every route has an OpenAPI annotation, and the document is served at `/api/openapi.json`.
 
+### Data layer
+
+SQL lives only in the data layer of the module that owns the table: `store.rs` or `store/` in modules, and `infrastructure/` (`mysql_*.rs`, `repositories/`) in the kernel and in modules with ports. The kernel's own migration runner (`database/`) and tenant provisioning are the other places allowed to talk to MySQL directly.
+
+- HTTP handlers, services, hooks and workflows never hold SQL. They call store functions and pass the open transaction when they are inside one, so moving a query never takes it out of its transaction.
+- Code outside the data layer names the database with neutral types from `aphel_sdk::platform::database`: `Db` (the pool), `Tx` (a transaction, with its after-commit effects) and `SqlBuilder` (the builder that SQL-fragment extension points, such as timeline sources or trash exclusions, receive). sqlx MySQL types appear only in the data layer.
+- Contract adapters whose body is only queries (privacy sources, merge references, reference cleanup, timeline sources and similar) live whole in `store/`.
+- A trait in front of a store is added only when there are two implementations or a test needs a fake; otherwise a store is a plain set of functions or a struct.
+
+The architecture check (`cargo run -p xtask -- arch check`, part of `make lint`) counts SQL calls outside the data layer, SQL in HTTP handlers and sqlx MySQL type names outside the data layer, and keeps all three at zero.
+
 ## The request path
 
 ```text
