@@ -43,6 +43,7 @@ FROM scratch AS binary
 COPY --from=back /usr/local/bin/aphel /aphel
 
 FROM debian:bookworm-slim AS runtime
+LABEL org.opencontainers.image.source="https://github.com/Viniciusadm/aphel"
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates tzdata libssl3 \
     && rm -rf /var/lib/apt/lists/* \
