@@ -18,3 +18,5 @@ pub(crate) use ports::MySqlSystemAdminPorts;
 pub use probe::SystemHealthProbe;
 pub use terminal::read_password;
 pub use upgrades::MySqlUpgradeLog;
+
+pub(crate) mod updates;

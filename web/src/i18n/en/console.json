@@ -6,7 +6,8 @@
     "audit": "History",
     "password": "Change password",
     "signOut": "Sign out",
-    "menu": "Account"
+    "menu": "Account",
+    "updates": "Updates"
   },
   "signIn": {
     "title": "Sign in to the console",

@@ -13,3 +13,5 @@ pub use ports::*;
 
 pub const WORKER_ROLE: &str = "worker";
 pub const APHEL_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+pub(crate) mod updates;

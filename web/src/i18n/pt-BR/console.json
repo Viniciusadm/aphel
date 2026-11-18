@@ -6,7 +6,8 @@
     "audit": "Histórico",
     "password": "Trocar senha",
     "signOut": "Sair",
-    "menu": "Conta"
+    "menu": "Conta",
+    "updates": "Atualizações"
   },
   "signIn": {
     "title": "Entrar no console",

@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router'
+import { UpdatesSection } from '@/features/system/UpdatesSection'
 import { ConsoleLayout } from './components/ConsoleLayout'
 import { AuditPage } from './pages/AuditPage'
 import { InvitationPage } from './pages/InvitationPage'
@@ -24,6 +25,7 @@ export const consoleRouter = createBrowserRouter([
       { path: OPERATORS_PATH, element: <OperatorsPage /> },
       { path: AUDIT_PATH, element: <AuditPage /> },
       { path: PASSWORD_PATH, element: <PasswordPage /> },
+      { path: '/updates', element: <UpdatesSection consoleMode /> },
       { path: '*', element: <TenantsPage /> },
     ],
   },

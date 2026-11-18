@@ -13,6 +13,7 @@ import { FailedJobsSection } from './FailedJobsSection'
 import { FailuresSection } from './FailuresSection'
 import { ModulesSection, MigrationsSection } from './MigrationsSection'
 import { QueueSection } from './QueueSection'
+import { UpdatesSection } from './UpdatesSection'
 import { StatusSection } from './StatusSection'
 import { PageHeader } from '@/components/ui/page-header'
 import { Page } from '@/components/ui/page'
@@ -55,6 +56,7 @@ export function SystemPage() {
     body = (
       <div className="grid gap-4">
         <StatusSection overview={overview.data} />
+        <UpdatesSection />
         <QueueSection />
         <FailedJobsSection />
         <FailuresSection />

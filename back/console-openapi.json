@@ -2319,6 +2319,260 @@
           }
         }
       }
+    },
+    "/api/console/v1/updates": {
+      "get": {
+        "tags": [
+          "console"
+        ],
+        "description": "Update service availability, installed version, latest stable release, operation and history",
+        "operationId": "console_updates_status",
+        "responses": {
+          "200": {
+            "description": "Update status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SystemUpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed in this context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Update state changed or another operation is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "External update service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/updates/apply": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "description": "Confirm a prepared update; the external service backs up data, restarts the installation and records the outcome",
+        "operationId": "console_updates_apply",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplySystemUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Update status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SystemUpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed in this context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Update state changed or another operation is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "External update service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/updates/check": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "description": "Check the latest stable release without changing the running application",
+        "operationId": "console_updates_check",
+        "responses": {
+          "200": {
+            "description": "Update status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SystemUpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed in this context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Update state changed or another operation is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "External update service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/v1/updates/prepare": {
+      "post": {
+        "tags": [
+          "console"
+        ],
+        "description": "Download and verify the latest stable image; does not restart the application",
+        "operationId": "console_updates_prepare",
+        "responses": {
+          "200": {
+            "description": "Update status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data_SystemUpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed in this context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Update state changed or another operation is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "External update service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2333,6 +2587,21 @@
             "type": "string",
             "maxLength": 128,
             "minLength": 8
+          }
+        }
+      },
+      "ApplySystemUpdate": {
+        "type": "object",
+        "required": [
+          "operation_id",
+          "confirm"
+        ],
+        "properties": {
+          "confirm": {
+            "type": "boolean"
+          },
+          "operation_id": {
+            "type": "string"
           }
         }
       },
@@ -2834,6 +3103,66 @@
         "properties": {
           "data": {
             "type": "object"
+          }
+        }
+      },
+      "Data_SystemUpdateStatus": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "enabled",
+              "managed_by_console",
+              "current_version",
+              "history"
+            ],
+            "properties": {
+              "checked_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "current_version": {
+                "type": "string"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "history": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SystemUpdateOperation"
+                }
+              },
+              "latest": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SystemRelease"
+                  }
+                ]
+              },
+              "managed_by_console": {
+                "type": "boolean"
+              },
+              "operation": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SystemUpdateOperation"
+                  }
+                ]
+              }
+            }
           }
         }
       },
@@ -3946,6 +4275,122 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "SystemRelease": {
+        "type": "object",
+        "required": [
+          "version",
+          "url",
+          "notes"
+        ],
+        "properties": {
+          "notes": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "SystemUpdateOperation": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "phase",
+          "actor",
+          "started_at"
+        ],
+        "properties": {
+          "actor": {
+            "type": "string"
+          },
+          "backup_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "message_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "SystemUpdateStatus": {
+        "type": "object",
+        "required": [
+          "enabled",
+          "managed_by_console",
+          "current_version",
+          "history"
+        ],
+        "properties": {
+          "checked_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current_version": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemUpdateOperation"
+            }
+          },
+          "latest": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SystemRelease"
+              }
+            ]
+          },
+          "managed_by_console": {
+            "type": "boolean"
+          },
+          "operation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SystemUpdateOperation"
+              }
+            ]
           }
         }
       },

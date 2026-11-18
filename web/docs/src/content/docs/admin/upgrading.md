@@ -98,3 +98,42 @@ A binary older than the database refuses to start on migrations it does not know
 ## Version compatibility of backups
 
 Restore a backup with the same Aphel version that produced it, or a newer one. Pending migrations then run at start or through `aphel upgrade`.
+
+## Update from the interface
+
+In a single-company installation, an administrator with `system.manage` finds **System updates** on the **System** screen. In a multi-company installation, the **Updates** page is in the operator console. Company administrators cannot update the shared installation, even by calling the company API directly. Requests require browser sessions; API tokens cannot start system updates.
+
+The screen shows the installed version, the latest stable release, release notes, progress and history. **Check for updates** reads the latest non-draft, non-prerelease GitHub release. The external service also checks every six hours. Builds of `master` (`edge`) are not stable releases and do not appear as available updates. Publish a version tag matching `back/Cargo.toml` to make a stable release available after its release workflow succeeds.
+
+**Prepare update** downloads the official image, verifies its source and version, and pins its digest without interrupting the application. **Update now** requires a separate confirmation. In multi-company mode, the confirmation explains that every company will be unavailable during the update.
+
+### Enable the external update service
+
+This first implementation supports Linux hosts running the production Docker Compose stack with a dedicated MySQL service and a Docker volume mounted at `/app/storage`. Binary and externally managed database installations continue to use the manual upgrade procedure. No Docker socket is mounted inside the web application.
+
+Install Python 3, Docker and the Compose plugin on the host. Copy `docker/updater/compose.updater.yml` into the installation directory. Add it after the installation's existing Compose files when installing the host service:
+
+```bash
+sudo docker/updater/install.sh /opt/aphel docker-compose.prod.yml compose.multi.yml compose.updater.yml
+sudo aphel-compose up -d --no-build --wait
+```
+
+Omit `compose.multi.yml` for a single-company installation. The application image must include the update API. The installer creates `/etc/aphel/updater.json` (root-only), installs `aphel-updater.service` and exposes only `/run/aphel-updater/updater.sock`, writable by root and container group 10001. The application sees this socket through a read-only directory mount and communicates through a fixed API; it cannot submit shell commands, image names or backup paths.
+
+If the container package is private, authenticate the host using a read-only registry credential:
+
+```bash
+sudo docker --config /etc/aphel/registry login ghcr.io
+```
+
+The credential stays on the host and is not sent to the application. Use `sudo aphel-compose` for subsequent Compose operations: it includes the installed configuration and any image digest selected by the updater. Calling only the original Compose file could select the old image again.
+
+### Backup and recovery
+
+Before installation, the updater checks disk space, stops the application and worker, and creates a backup in `/var/lib/aphel-updater/backups/<operation-id>/`. The backup contains all application databases in this stack's MySQL service (including the control database and every company database), local uploaded files, the installation environment and Compose files, and a SHA-256 manifest. Remote S3 objects are not copied. These backups contain secrets and remain readable only by root; keep an off-server copy under your backup policy.
+
+A download or backup failure keeps the existing image. Once the new application has been started, its migrations may have changed schemas. If startup, health or isolation verification fails, the updater stops the application and worker and records **Recovery required**. It does not switch back to an old binary against an unknown database schema. An interrupted updater operation is also marked for recovery on restart. New updates are blocked until an administrator has recovered the installation.
+
+Recovery is a server operation: stop `aphel-updater.service`, verify the backup manifest, restore `database.sql.gz` into this stack's MySQL service, restore `storage.tar.gz` into the application volume, and select the previous image override recorded in `previous-image.json`. Restore the saved installation environment if needed. Restart and verify the application and worker before clearing the recovery state. To clear it after successful recovery, move `/var/lib/aphel-updater/state.json` aside and restart the update service; retain the saved state and backups as the incident record. Do not clear recovery state merely to retry a failed migration.
+
+After installing a release, the service waits for both containers to become healthy and verifies the installed version. Single-company installations must pass the readiness check; multi-company installations must pass `aphel tenancy-check`. The operation history records the initiating administrator or operator and the final outcome.

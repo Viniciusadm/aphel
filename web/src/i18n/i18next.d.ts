@@ -88,6 +88,7 @@ import type telephonyNamespace from '../modules/telephony/i18n/pt-BR.json'
 import type timelineNamespace from '../modules/timeline/i18n/pt-BR.json'
 import type trashNamespace from '../modules/trash/i18n/pt-BR.json'
 import type twoFactorNamespace from './pt-BR/two-factor.json'
+import type updatesNamespace from './pt-BR/updates.json'
 import type validationMessagesNamespace from './pt-BR/validation-messages.json'
 import type validationRulesNamespace from './pt-BR/validation-rules.json'
 import type webhooksNamespace from '../modules/webhooks/i18n/pt-BR.json'
@@ -186,6 +187,7 @@ declare module 'i18next' {
       timeline: typeof timelineNamespace
       trash: typeof trashNamespace
       'two-factor': typeof twoFactorNamespace
+      updates: typeof updatesNamespace
       'validation-messages': typeof validationMessagesNamespace
       'validation-rules': typeof validationRulesNamespace
       webhooks: typeof webhooksNamespace

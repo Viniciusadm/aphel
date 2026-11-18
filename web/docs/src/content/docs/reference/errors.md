@@ -950,3 +950,9 @@ Answered when a module needs a capability that another module provides and that 
 - `site_styles_invalid`: the styles document has an unknown key, a color that is not `#rrggbb`, a size that is not in rem, an unknown font or block style value. Fix the value named in the message.
 - `site_appearance_unavailable`: Publication is disabled. Enable it before editing or publishing appearance.
 - `site_appearance_pending`: appearance provisioned by a pack has not completed publication. Resolve its publication request, then retry the import.
+
+### System updates
+
+- `system_updater_unavailable` (503): the host update service is not configured, unreachable or unable to complete the request. Check its configuration and service logs.
+- `system_update_conflict` (409): another operation is running, recovery is required, or the prepared operation changed. Refresh its status before retrying.
+- `system_updates_console_only` (403): a company attempted to update a multi-company installation. Only an authenticated operator can update the installation from the console.

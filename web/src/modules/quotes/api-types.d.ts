@@ -424,6 +424,7 @@ export interface components {
         QuoteResponse: {
             accepted_at?: string | null;
             company_id?: string | null;
+            company_name?: string | null;
             contact_id?: string | null;
             created_at: string;
             created_by?: string | null;
@@ -431,6 +432,7 @@ export interface components {
             currency: string;
             custom_fields: Record<string, never>;
             deal_id: string;
+            deal_title?: string | null;
             /** @example 300.00 */
             discount_total: string;
             exceeds_discount_limit: boolean;
@@ -569,6 +571,7 @@ export interface components {
             data: {
                 accepted_at?: string | null;
                 company_id?: string | null;
+                company_name?: string | null;
                 contact_id?: string | null;
                 created_at: string;
                 created_by?: string | null;
@@ -576,6 +579,7 @@ export interface components {
                 currency: string;
                 custom_fields: Record<string, never>;
                 deal_id: string;
+                deal_title?: string | null;
                 /** @example 300.00 */
                 discount_total: string;
                 exceeds_discount_limit: boolean;
@@ -699,6 +703,7 @@ export interface components {
             data: {
                 accepted_at?: string | null;
                 company_id?: string | null;
+                company_name?: string | null;
                 contact_id?: string | null;
                 created_at: string;
                 created_by?: string | null;
@@ -706,6 +711,7 @@ export interface components {
                 currency: string;
                 custom_fields: Record<string, never>;
                 deal_id: string;
+                deal_title?: string | null;
                 /** @example 300.00 */
                 discount_total: string;
                 exceeds_discount_limit: boolean;

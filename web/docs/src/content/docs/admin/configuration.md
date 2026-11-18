@@ -163,3 +163,7 @@ With no outgoing email configured, Aphel keeps working: invitation and password-
 ## Check the result
 
 `aphel doctor` prints a diagnostic report of the configuration without revealing secrets. See [CLI](/_aphel/docs/admin/cli/) and [Operations](/_aphel/docs/admin/operations/).
+
+### System update service
+
+`APHEL_UPDATER_SOCKET` is the absolute Unix socket path of the external update service (for example `/run/aphel-updater/updater.sock`). If unset, the system update screen explains that server setup is required and does not offer execution. Enable it only on the application container; the worker does not need access. See [Upgrading](/_aphel/docs/admin/upgrading/#update-from-the-interface) for installation and recovery.

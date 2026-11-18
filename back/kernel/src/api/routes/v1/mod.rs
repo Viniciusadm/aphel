@@ -26,3 +26,5 @@ pub(crate) mod two_factor;
 pub(crate) mod entities;
 
 pub(crate) mod dynamic_records;
+
+pub(crate) mod system_updates;

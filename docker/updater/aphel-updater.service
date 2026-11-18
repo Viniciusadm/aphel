@@ -1,0 +1,20 @@
+[Unit]
+Description=Aphel installation update service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/lib/aphel-updater/updater.py --config /etc/aphel/updater.json
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=1900
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadOnlyPaths=/etc/aphel
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+services:
+  app:
+    environment:
+      APHEL_UPDATER_SOCKET: /run/aphel-updater/updater.sock
+    volumes:
+      - /run/aphel-updater:/run/aphel-updater:ro

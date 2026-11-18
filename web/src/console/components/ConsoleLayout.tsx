@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Building2, ChevronDown, History, KeyRound, LogOut, Users } from 'lucide-react'
+import { Building2, ChevronDown, Download, History, KeyRound, LogOut, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
@@ -38,6 +38,7 @@ export function ConsoleLayout() {
   const links = [
     { to: TENANTS_PATH, label: t('nav.tenants'), icon: Building2, end: false, active: location.pathname === '/' || location.pathname.startsWith('/tenants') },
     { to: OPERATORS_PATH, label: t('nav.operators'), icon: Users, end: true, active: undefined },
+    { to: '/updates', label: t('nav.updates'), icon: Download, end: true, active: undefined },
     { to: AUDIT_PATH, label: t('nav.audit'), icon: History, end: true, active: undefined },
   ]
 

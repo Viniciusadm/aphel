@@ -3,6 +3,7 @@ pub(super) mod operators;
 mod plugins;
 mod session;
 mod tenants;
+mod updates;
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -66,7 +67,8 @@ fn api() -> OpenApiRouter<Shared> {
         API_PREFIX,
         session::router()
             .merge(tenants::router())
-            .merge(plugins::router()),
+            .merge(plugins::router())
+            .merge(updates::router()),
     )
 }
 

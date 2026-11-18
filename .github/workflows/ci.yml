@@ -13,6 +13,14 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  updater:
+    name: Update service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile docker/updater/updater.py docker/updater/compose.py
+      - run: bash -n docker/updater/install.sh
+
   backend:
     name: Backend
     runs-on: ubuntu-latest

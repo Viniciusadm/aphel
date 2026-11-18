@@ -7803,6 +7803,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/system/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Update service availability, installed version, latest stable release, operation and history */
+        get: operations["system_updates_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/updates/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Confirm a prepared update; the external service backs up data, restarts the installation and records the outcome */
+        post: operations["system_updates_apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/updates/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Check the latest stable release without changing the running application */
+        post: operations["system_updates_check"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/updates/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Download and verify the latest stable image; does not restart the application */
+        post: operations["system_updates_prepare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tagging": {
         parameters: {
             query?: never;
@@ -9672,6 +9740,10 @@ export interface components {
             applied: components["schemas"]["PlanItemResponse"][];
             install: components["schemas"]["ConfigPackageInstallResponse"];
             summary: components["schemas"]["PlanSummaryResponse"];
+        };
+        ApplySystemUpdate: {
+            confirm: boolean;
+            operation_id: string;
         };
         ApplyVersionRequest: {
             fingerprint: string;
@@ -14629,6 +14701,17 @@ export interface components {
                 version: string;
             };
         };
+        Data_SystemUpdateStatus: {
+            data: {
+                checked_at?: string | null;
+                current_version: string;
+                enabled: boolean;
+                history: components["schemas"]["SystemUpdateOperation"][];
+                latest?: null | components["schemas"]["SystemRelease"];
+                managed_by_console: boolean;
+                operation?: null | components["schemas"]["SystemUpdateOperation"];
+            };
+        };
         Data_TagResponse: {
             data: {
                 color: string;
@@ -15506,6 +15589,7 @@ export interface components {
             data: {
                 accepted_at?: string | null;
                 company_id?: string | null;
+                company_name?: string | null;
                 contact_id?: string | null;
                 created_at: string;
                 created_by?: string | null;
@@ -15513,6 +15597,7 @@ export interface components {
                 currency: string;
                 custom_fields: Record<string, never>;
                 deal_id: string;
+                deal_title?: string | null;
                 /** @example 300.00 */
                 discount_total: string;
                 exceeds_discount_limit: boolean;
@@ -20210,6 +20295,7 @@ export interface components {
             data: {
                 accepted_at?: string | null;
                 company_id?: string | null;
+                company_name?: string | null;
                 contact_id?: string | null;
                 created_at: string;
                 created_by?: string | null;
@@ -20217,6 +20303,7 @@ export interface components {
                 currency: string;
                 custom_fields: Record<string, never>;
                 deal_id: string;
+                deal_title?: string | null;
                 /** @example 300.00 */
                 discount_total: string;
                 exceeds_discount_limit: boolean;
@@ -21701,6 +21788,7 @@ export interface components {
         QuoteResponse: {
             accepted_at?: string | null;
             company_id?: string | null;
+            company_name?: string | null;
             contact_id?: string | null;
             created_at: string;
             created_by?: string | null;
@@ -21708,6 +21796,7 @@ export interface components {
             currency: string;
             custom_fields: Record<string, never>;
             deal_id: string;
+            deal_title?: string | null;
             /** @example 300.00 */
             discount_total: string;
             exceeds_discount_limit: boolean;
@@ -23099,6 +23188,30 @@ export interface components {
             readiness: components["schemas"]["ReadinessResponse"];
             /** @example 0.1.0 */
             version: string;
+        };
+        SystemRelease: {
+            notes: string;
+            url: string;
+            version: string;
+        };
+        SystemUpdateOperation: {
+            actor: string;
+            backup_id?: string | null;
+            finished_at?: string | null;
+            id: string;
+            message_code?: string | null;
+            phase: string;
+            started_at: string;
+            version: string;
+        };
+        SystemUpdateStatus: {
+            checked_at?: string | null;
+            current_version: string;
+            enabled: boolean;
+            history: components["schemas"]["SystemUpdateOperation"][];
+            latest?: null | components["schemas"]["SystemRelease"];
+            managed_by_console: boolean;
+            operation?: null | components["schemas"]["SystemUpdateOperation"];
         };
         TagRecordRequest: {
             tag_id: string;
@@ -64247,6 +64360,270 @@ export interface operations {
             };
             /** @description API token rate limit exceeded (`rate_limited`); see `Retry-After` and `X-RateLimit-*` */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    system_updates_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Update status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SystemUpdateStatus"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not allowed in this context */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Update state changed or another operation is running */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description External update service unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    system_updates_apply: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplySystemUpdate"];
+            };
+        };
+        responses: {
+            /** @description Update status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SystemUpdateStatus"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not allowed in this context */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Update state changed or another operation is running. The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description External update service unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    system_updates_check: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Update status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SystemUpdateStatus"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not allowed in this context */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Update state changed or another operation is running. The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description External update service unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    system_updates_prepare: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Up to 255 printable ASCII characters. The same key with the same request (method, path and body) within 24 hours answers the stored response with the same status and body plus `Idempotent-Replayed: true`. Scoped to the credential (session cookie or API token); ignored without a credential. 5xx and 429 responses are not stored */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Update status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Data_SystemUpdateStatus"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not allowed in this context */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Update state changed or another operation is running. The first request with this `Idempotency-Key` is still being processed (`idempotency_key_in_progress`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description `Idempotency-Key` already used with a different request (`idempotency_key_reused`) or longer than 255 characters (`validation_error`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description External update service unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

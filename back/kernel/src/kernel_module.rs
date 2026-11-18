@@ -137,6 +137,7 @@ fn routes() -> OpenApiRouter<AppState> {
         .merge(v1::teams::router())
         .merge(v1::system_jobs::router())
         .merge(v1::system::router())
+        .merge(v1::system_updates::router())
         .merge(v1::platform_catalog::router())
         .merge(v1::entities::router())
         .merge(v1::audit::router())
