@@ -1,3 +1,5 @@
+pub(crate) mod activity;
+
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use uuid::Uuid;

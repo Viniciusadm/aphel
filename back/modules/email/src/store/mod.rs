@@ -1,3 +1,7 @@
+pub(crate) mod automation_source;
+pub(crate) mod followers;
+pub(crate) mod points;
+
 pub mod imap;
 pub(crate) mod links;
 pub mod mailboxes;

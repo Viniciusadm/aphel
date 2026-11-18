@@ -352,7 +352,7 @@ pub trait PrivacySource: Send + Sync {
     async fn restrict_inactive(
         &self,
         _ctx: &Ctx<'_>,
-        _builder: &mut sqlx::QueryBuilder<sqlx::MySql>,
+        _builder: &mut aphel_kernel::database::SqlBuilder,
         _record_type: &aphel_kernel::application::shared::RecordType,
         _threshold: DateTime<Utc>,
     ) -> Result<(), AppError> {

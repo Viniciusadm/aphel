@@ -705,17 +705,11 @@ const CONTACT_SAVEPOINT: &str = "booking_contact";
 const ACTIVITY_SAVEPOINT: &str = "booking_activity";
 
 async fn savepoint(tx: &mut Tx, name: &str) -> Result<(), AppError> {
-    sqlx::raw_sql(sqlx::AssertSqlSafe(format!("SAVEPOINT {name}")))
-        .execute(&mut **tx)
-        .await?;
-    Ok(())
+    crate::store::savepoint(tx, name).await
 }
 
 async fn rollback_to_savepoint(tx: &mut Tx, name: &str) -> Result<(), AppError> {
-    sqlx::raw_sql(sqlx::AssertSqlSafe(format!("ROLLBACK TO SAVEPOINT {name}")))
-        .execute(&mut **tx)
-        .await?;
-    Ok(())
+    crate::store::rollback_to_savepoint(tx, name).await
 }
 
 async fn create_contact_attempt(

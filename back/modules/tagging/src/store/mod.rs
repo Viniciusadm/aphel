@@ -1,3 +1,6 @@
+pub(crate) mod config_references;
+pub(crate) mod merge_references;
+
 use std::collections::HashMap;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
@@ -385,4 +388,29 @@ impl TagStore {
         .rows_affected();
         Ok(removed > 0)
     }
+}
+
+pub(crate) async fn untag_record(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::query("DELETE FROM taggings WHERE record_type = ? AND record_id = ?")
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}
+
+pub(crate) async fn tagged_records(
+    pool: &aphel_sdk::platform::database::Db,
+    tag_id: uuid::Uuid,
+) -> Result<Vec<(String, String)>, aphel_kernel::errors::AppError> {
+    Ok(
+        sqlx::query_as("SELECT record_type, record_id FROM taggings WHERE tag_id = ?")
+            .bind(tag_id.to_string())
+            .fetch_all(pool)
+            .await?,
+    )
 }

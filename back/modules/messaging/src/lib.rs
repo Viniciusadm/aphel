@@ -1,7 +1,6 @@
 mod opt_out_http;
 mod opt_out_store;
 mod opt_outs;
-mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 use aphel_sdk::platform::database::Db;
 pub(crate) mod actor;
@@ -16,6 +15,7 @@ pub(crate) mod model;
 pub(crate) mod public;
 pub(crate) mod sending;
 pub(crate) mod store;
+use store::reference_cleanup;
 pub(crate) mod text;
 pub(crate) mod triggers;
 

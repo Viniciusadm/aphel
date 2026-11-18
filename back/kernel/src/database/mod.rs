@@ -8,3 +8,5 @@ pub mod receipt;
 pub use transaction::Tx;
 
 pub type Db = sqlx::MySqlPool;
+
+pub type SqlBuilder = sqlx::QueryBuilder<sqlx::MySql>;

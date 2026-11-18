@@ -84,13 +84,7 @@ impl aphel_kernel::modules::ReferenceKeySource for KeySource {
         kind: aphel_contract::ReferenceKind,
         id: &str,
     ) -> Result<Option<String>, AppError> {
-        Ok(sqlx::query_scalar(
-            "SELECT `key` FROM config_item_keys WHERE item_type = ? AND item_id = ?",
-        )
-        .bind(kind.key())
-        .bind(id)
-        .fetch_optional(ctx.pool())
-        .await?)
+        infrastructure::mysql_keys::stable_key(ctx.pool(), kind.key(), id).await
     }
     async fn resolve_key(
         &self,
@@ -98,12 +92,6 @@ impl aphel_kernel::modules::ReferenceKeySource for KeySource {
         kind: aphel_contract::ReferenceKind,
         key: &str,
     ) -> Result<Option<String>, AppError> {
-        Ok(sqlx::query_scalar(
-            "SELECT item_id FROM config_item_keys WHERE item_type = ? AND `key` = ?",
-        )
-        .bind(kind.key())
-        .bind(key)
-        .fetch_optional(ctx.pool())
-        .await?)
+        infrastructure::mysql_keys::item_of_key(ctx.pool(), kind.key(), key).await
     }
 }

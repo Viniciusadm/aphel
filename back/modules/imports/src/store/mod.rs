@@ -1,3 +1,5 @@
+pub(crate) mod dashboard;
+
 pub(crate) mod privacy;
 
 pub(crate) mod lookups;

@@ -7,10 +7,10 @@ pub(crate) mod http;
 mod jobs;
 pub(crate) mod model;
 pub mod notifications;
-mod points;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod store;
+use store::points;
 
 use std::sync::Arc;
 

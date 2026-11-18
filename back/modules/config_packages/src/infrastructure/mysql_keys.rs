@@ -72,3 +72,35 @@ pub(crate) async fn assign_key(
     .await?;
     Ok(())
 }
+
+pub(crate) async fn stable_key(
+    pool: &aphel_sdk::platform::database::Db,
+    item_type: &str,
+    id: &str,
+) -> Result<Option<String>, aphel_kernel::errors::AppError> {
+    Ok(
+        sqlx::query_scalar(
+            "SELECT `key` FROM config_item_keys WHERE item_type = ? AND item_id = ?",
+        )
+        .bind(item_type)
+        .bind(id)
+        .fetch_optional(pool)
+        .await?,
+    )
+}
+
+pub(crate) async fn item_of_key(
+    pool: &aphel_sdk::platform::database::Db,
+    item_type: &str,
+    key: &str,
+) -> Result<Option<String>, aphel_kernel::errors::AppError> {
+    Ok(
+        sqlx::query_scalar(
+            "SELECT item_id FROM config_item_keys WHERE item_type = ? AND `key` = ?",
+        )
+        .bind(item_type)
+        .bind(key)
+        .fetch_optional(pool)
+        .await?,
+    )
+}

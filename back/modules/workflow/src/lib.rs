@@ -88,10 +88,17 @@ impl Module for WorkflowModule {
                 "workflow_checklist_progress",
             ),
         ));
-        app.on(aphel_kernel::records::RecordPurged, 10, |ctx,args| Box::pin(async move {
-            sqlx::query("DELETE FROM workflow_checklist_progress WHERE record_type = ? AND record_id = ?").bind(args.record_type.as_str()).bind(args.record.record_id.to_string()).execute(&mut **ctx.tx).await?;
-            Ok(())
-        }));
+        app.on(aphel_kernel::records::RecordPurged, 10, |ctx, args| {
+            Box::pin(async move {
+                store::forget_checklist(
+                    ctx.tx,
+                    args.record_type.as_str(),
+                    &args.record.record_id.to_string(),
+                )
+                .await?;
+                Ok(())
+            })
+        });
 
         app.contribute(std::sync::Arc::new(
             aphel_sdk::configuration::versioning::fragments::SectionFragmentLayout {

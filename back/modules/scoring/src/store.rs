@@ -701,3 +701,23 @@ impl ScoreStore {
         rows.iter().map(score_from_row).collect()
     }
 }
+
+pub(crate) async fn visible_record(
+    pool: &aphel_sdk::platform::database::Db,
+    scope: &aphel_sdk::platform::domain::access::AccessScope,
+    definition: &aphel_sdk::platform::application::fields::EntityDefinition,
+    visibility: &aphel_sdk::platform::domain::access::RecordScopeFilter,
+    record_id: &str,
+) -> Result<bool, aphel_kernel::errors::AppError> {
+    use aphel_sdk::platform::infrastructure::query::compiler::{push_record_scope, quoted};
+    let mut builder = sqlx::QueryBuilder::<sqlx::MySql>::new(format!(
+        "SELECT r.id FROM {} r WHERE ",
+        quoted(&definition.table)
+    ));
+    builder.push("r.id = ").push_bind(record_id.to_owned());
+    if let Some(deleted) = &definition.deleted_column {
+        builder.push(format!(" AND r.{} IS NULL", quoted(deleted)));
+    }
+    push_record_scope(&mut builder, scope, definition, visibility);
+    Ok(builder.build().fetch_optional(pool).await?.is_some())
+}

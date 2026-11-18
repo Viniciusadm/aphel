@@ -1,10 +1,10 @@
 pub(crate) mod dto;
 pub mod engine;
 pub(crate) mod http;
-mod points;
 pub(crate) mod registry;
 pub(crate) mod service;
 pub(crate) mod store;
+use store::points;
 
 use aphel_kernel::modules::Migration;
 

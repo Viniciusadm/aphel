@@ -302,3 +302,15 @@ pub(crate) async fn list_submissions(
         .collect::<Result<Vec<_>, AppError>>()?;
     Ok((items, u64::try_from(total).unwrap_or_default()))
 }
+
+pub(crate) async fn organization_branding(
+    pool: &aphel_sdk::platform::database::Db,
+) -> Result<Option<(Option<String>, Option<String>)>, aphel_kernel::errors::AppError> {
+    Ok(
+        sqlx::query_as(
+            "SELECT logo_file_id, primary_color FROM organization_settings WHERE id = 1",
+        )
+        .fetch_optional(pool)
+        .await?,
+    )
+}

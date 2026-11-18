@@ -17,7 +17,7 @@ pub trait DashboardSource: Send + Sync {
 }
 
 pub trait RecentEventExclusion: Send + Sync {
-    fn exclude(&self, builder: &mut sqlx::QueryBuilder<sqlx::MySql>);
+    fn exclude(&self, builder: &mut aphel_kernel::database::SqlBuilder);
 }
 
 #[async_trait]
@@ -28,7 +28,7 @@ pub trait DashboardEventScope: Send + Sync {
         pool: &Db,
         scope: &AccessScope,
         records: &[aphel_kernel::application::query::QueryPlan],
-        builder: &mut sqlx::QueryBuilder<sqlx::MySql>,
+        builder: &mut aphel_kernel::database::SqlBuilder,
     ) -> Result<(), AppError>;
     async fn targets(
         &self,

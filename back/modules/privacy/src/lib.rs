@@ -3,10 +3,10 @@ pub(crate) mod dto;
 pub(crate) mod http;
 pub mod mysql;
 pub(crate) mod notifications;
-mod points;
 pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
+use store::points;
 
 use std::sync::Arc;
 

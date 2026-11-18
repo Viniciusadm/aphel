@@ -1,5 +1,4 @@
 mod context_source;
-mod email_engagement;
 mod merges;
 use aphel_sdk::imports::ImportTraits;
 use aphel_sdk::party::{
@@ -10,6 +9,7 @@ pub mod hierarchy;
 pub(crate) mod http;
 pub mod service;
 pub mod store;
+use store::email_engagement;
 
 use aphel_contract_crm::{
     CrmPermissions, CrmRecordTypes, activities_relation, email_engagement_fields,

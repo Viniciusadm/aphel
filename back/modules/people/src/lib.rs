@@ -6,7 +6,6 @@ mod merges;
 use aphel_sdk::imports::ImportTraits;
 mod birthdays;
 mod dashboard;
-mod timeline;
 use aphel_sdk::party::{
     ContactPoint, ContactPointKind, ContactPoints, PartyTraits, address_fields, phone_field,
 };
@@ -14,6 +13,7 @@ pub mod domain;
 pub mod http;
 pub mod service;
 pub mod store;
+use store::timeline;
 use store::{merge_references, primary_organizations};
 
 use aphel_contract_crm::traits;

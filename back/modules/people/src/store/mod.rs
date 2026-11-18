@@ -1,3 +1,5 @@
+pub(crate) mod timeline;
+
 pub(crate) mod merge_references;
 pub(crate) mod primary_organizations;
 

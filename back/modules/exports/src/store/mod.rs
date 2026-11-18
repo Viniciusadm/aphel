@@ -1,3 +1,5 @@
+pub(crate) mod points;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 

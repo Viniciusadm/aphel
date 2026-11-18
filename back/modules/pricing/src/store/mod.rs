@@ -1,3 +1,5 @@
+pub(crate) mod reference_cleanup;
+
 use aphel_contract_crm::CrmRecordTypes;
 use std::collections::HashMap;
 

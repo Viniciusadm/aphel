@@ -7,7 +7,6 @@ mod followers;
 mod reports;
 use aphel_sdk::privacy::PrivacyTraits;
 mod line_items;
-mod timeline;
 use aphel_sdk::assignment::AssignmentTraits;
 use aphel_sdk::line_items::LineItemTraits;
 use aphel_sdk::money::MoneyTraits;
@@ -26,6 +25,7 @@ pub(crate) mod operations;
 pub(crate) mod runtime;
 pub mod service;
 pub mod store;
+use store::timeline;
 use store::{financials, lifecycle, merge_references, probability};
 pub mod team;
 

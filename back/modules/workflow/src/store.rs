@@ -515,3 +515,16 @@ impl PipelineStore {
         reorder(tx, "lost_reasons", None, ordered_ids).await
     }
 }
+
+pub(crate) async fn forget_checklist(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::query("DELETE FROM workflow_checklist_progress WHERE record_type = ? AND record_id = ?")
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}

@@ -1,3 +1,5 @@
+pub(crate) mod reference_cleanup;
+
 use aphel_contract_crm::CrmRecordTypes;
 use aphel_sdk::platform::application::shared::RecordType;
 use std::collections::BTreeMap;
@@ -693,4 +695,13 @@ impl QuoteStore {
             .map(|id| Uuid::parse_str(id).map_err(|_| mapper::invalid_column("quotes.id", id)))
             .collect()
     }
+}
+
+pub(crate) async fn lock_organization_settings(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::query("SELECT id FROM organization_settings WHERE id = 1 FOR UPDATE")
+        .fetch_one(&mut **tx)
+        .await?;
+    Ok(())
 }

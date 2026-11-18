@@ -1,5 +1,4 @@
 mod calendar_source;
-mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub(crate) mod dto;
@@ -12,9 +11,10 @@ pub(crate) mod payload;
 pub(crate) mod public_http;
 pub(crate) mod runtime;
 pub(crate) mod service;
-mod site_embed;
 pub(crate) mod slots;
 pub(crate) mod store;
+use store::reference_cleanup;
+use store::site_embed;
 pub mod token;
 pub(crate) mod validation;
 

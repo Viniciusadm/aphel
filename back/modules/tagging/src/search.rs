@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use sqlx::Row;
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
@@ -81,14 +80,9 @@ impl SearchContentSource for TagSearchContent {
 }
 
 async fn tagged_records(pool: &Db, tag_id: Uuid) -> Result<Vec<SearchRefresh>, AppError> {
-    let rows = sqlx::query("SELECT record_type, record_id FROM taggings WHERE tag_id = ?")
-        .bind(tag_id.to_string())
-        .fetch_all(pool)
-        .await?;
+    let rows = crate::store::tagged_records(pool, tag_id).await?;
     let mut grouped: HashMap<String, Vec<Uuid>> = HashMap::new();
-    for row in rows {
-        let record_type: String = row.try_get("record_type")?;
-        let record_id: String = row.try_get("record_id")?;
+    for (record_type, record_id) in rows {
         if let Ok(record_id) = Uuid::parse_str(&record_id) {
             grouped.entry(record_type).or_default().push(record_id);
         }

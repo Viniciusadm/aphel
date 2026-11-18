@@ -1,10 +1,10 @@
 mod merges;
-mod references;
 use aphel_sdk::imports::ImportTraits;
 pub mod domain;
 pub mod http;
 pub mod service;
 pub mod store;
+use store::references;
 
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
 use std::sync::Arc;

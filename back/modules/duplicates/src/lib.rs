@@ -6,11 +6,11 @@ pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod kinds;
 pub(crate) mod model;
-mod privacy;
 pub(crate) mod scan;
 pub(crate) mod service;
 pub(crate) mod store;
-mod timeline;
+use store::privacy;
+use store::timeline;
 
 use aphel_kernel::modules::Migration;
 
@@ -68,7 +68,9 @@ impl Module for DuplicatesModule {
         )
         .routes(|_| http::router())
         .provide::<dyn DuplicateDetector>(Arc::new(hooks::RuleDuplicateDetector))
-        .contribute::<dyn aphel_sdk::trash::TrashExclusion>(Arc::new(hooks::MergedRecords));
+        .contribute::<dyn aphel_sdk::trash::TrashExclusion>(Arc::new(
+            store::trash_exclusion::MergedRecords,
+        ));
         app.on(
             aphel_kernel::records::RecordPurged,
             aphel_kernel::modules::DEFAULT_PRIORITY,

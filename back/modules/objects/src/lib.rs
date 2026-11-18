@@ -1,10 +1,11 @@
+mod store;
+use store::staged;
 pub mod application;
 mod dto;
 mod http;
 pub mod infrastructure;
 mod managed_writer;
 mod section;
-mod staged;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
 pub const KEY: &str = "objects";

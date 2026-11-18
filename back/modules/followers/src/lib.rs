@@ -1,4 +1,3 @@
-pub(crate) mod activity;
 pub(crate) mod domain;
 pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
@@ -6,6 +5,7 @@ pub(crate) mod http;
 pub(crate) mod notifications;
 pub(crate) mod service;
 pub(crate) mod store;
+pub(crate) use store::activity;
 
 use std::sync::Arc;
 

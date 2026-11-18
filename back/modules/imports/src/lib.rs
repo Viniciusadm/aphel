@@ -1,5 +1,4 @@
 pub(crate) mod coerce;
-pub(crate) mod dashboard;
 mod drafts;
 pub mod dto;
 pub(crate) mod hooks;
@@ -12,6 +11,7 @@ pub mod service;
 pub(crate) mod source;
 mod source_service;
 pub mod store;
+pub(crate) use store::dashboard;
 use store::privacy;
 pub(crate) mod writer;
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use serde_json::{Value, json};
-use sqlx::{MySql, QueryBuilder, Row};
+use sqlx::Row;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
@@ -18,9 +18,7 @@ use aphel_sdk::platform::application::query::{
 use aphel_sdk::platform::application::security::Clock;
 use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
-use aphel_sdk::platform::infrastructure::query::compiler::{
-    Projection, build_query, push_record_scope, quoted,
-};
+use aphel_sdk::platform::infrastructure::query::compiler::{Projection, build_query};
 use aphel_sdk::platform::infrastructure::query::mysql_executor::MySqlRecordQueryPorts;
 use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 
@@ -231,15 +229,13 @@ impl ScoringDirectory {
         let Ok(visibility) = scope.record_filter(permission) else {
             return Ok(false);
         };
-        let mut builder = QueryBuilder::<MySql>::new(format!(
-            "SELECT r.id FROM {} r WHERE ",
-            quoted(&definition.table)
-        ));
-        builder.push("r.id = ").push_bind(record_id.to_string());
-        if let Some(deleted) = &definition.deleted_column {
-            builder.push(format!(" AND r.{} IS NULL", quoted(deleted)));
-        }
-        push_record_scope(&mut builder, scope, definition, &visibility);
-        Ok(builder.build().fetch_optional(&self.pool).await?.is_some())
+        crate::store::visible_record(
+            &self.pool,
+            scope,
+            definition,
+            &visibility,
+            &record_id.to_string(),
+        )
+        .await
     }
 }

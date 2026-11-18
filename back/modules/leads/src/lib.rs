@@ -132,18 +132,12 @@ impl Module for LeadsModule {
             LIFECYCLE_STAGE_PRIORITY,
             |ctx, args| {
                 Box::pin(async move {
-                    if args.record_type.as_str() == aphel_contract_crm::keys::CONTACT {
-                        sqlx::query("DELETE FROM lead_disqualifications WHERE contact_id = ?")
-                            .bind(args.record.record_id.to_string())
-                            .execute(&mut **ctx.tx)
-                            .await?;
-                    }
-                    sqlx::query(
-                        "DELETE FROM lifecycle_stage_history WHERE record_type = ? AND record_id = ?",
+                    store::forget_record(
+                        ctx.tx,
+                        args.record_type.as_str(),
+                        &args.record.record_id.to_string(),
+                        args.record_type.as_str() == aphel_contract_crm::keys::CONTACT,
                     )
-                    .bind(args.record_type.as_str())
-                    .bind(args.record.record_id.to_string())
-                    .execute(&mut **ctx.tx)
                     .await?;
                     Ok(())
                 })

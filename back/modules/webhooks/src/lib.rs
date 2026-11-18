@@ -1,3 +1,5 @@
+mod store;
+use store::points;
 mod privacy;
 pub mod settings;
 use aphel_contract_automation::AutomationBuilder;
@@ -8,7 +10,6 @@ pub(crate) mod incoming;
 pub(crate) mod notifications;
 pub(crate) mod operations;
 pub(crate) mod outgoing;
-mod points;
 
 use std::sync::Arc;
 

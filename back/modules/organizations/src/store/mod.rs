@@ -1,3 +1,5 @@
+pub(crate) mod email_engagement;
+
 use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 

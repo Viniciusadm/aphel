@@ -352,3 +352,33 @@ pub(crate) async fn purge(tx: &mut Tx) -> Result<(), AppError> {
     }
     Ok(())
 }
+
+pub(crate) async fn set_provider_ids(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    id: uuid::Uuid,
+    envelope_id: &str,
+    document_id: &str,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::query(
+        "UPDATE esign_requests SET provider_envelope_id = ?, provider_document_id = ? WHERE id = ?",
+    )
+    .bind(envelope_id)
+    .bind(document_id)
+    .bind(id.to_string())
+    .execute(&mut **tx)
+    .await?;
+    Ok(())
+}
+
+pub(crate) async fn set_provider_signer_id(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    signer_id: uuid::Uuid,
+    provider_signer_id: &Option<String>,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::query("UPDATE esign_signers SET provider_signer_id = ? WHERE id = ?")
+        .bind(provider_signer_id)
+        .bind(signer_id.to_string())
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}

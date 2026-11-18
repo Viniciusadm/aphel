@@ -1,3 +1,5 @@
+pub(crate) mod points;
+
 pub(crate) mod privacy;
 pub(crate) mod retention;
 

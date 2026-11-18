@@ -9,7 +9,6 @@ use chrono::Duration;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::clock::automation_clock;
@@ -554,26 +553,15 @@ impl AutomationRunHandler {
         };
         let recorder = RunStepRecorder { runs: &runs };
         let origin = if let Some(event_id) = run.trigger_event_id {
-            let row = sqlx::query(
-                "SELECT actor_type, actor_id, execution FROM domain_events WHERE id = ?",
-            )
-            .bind(event_id.to_string())
-            .fetch_optional(ctx.pool())
-            .await?;
-            match row {
-                Some(row) => {
-                    let execution: Option<Json<ExecutionContext>> = row.try_get("execution")?;
-                    Some(match execution {
-                        Some(Json(execution)) => execution,
-                        None => ExecutionContext::event_origin(
-                            event_id,
-                            &Actor::from_parts(
-                                &row.try_get::<String, _>("actor_type")?,
-                                row.try_get("actor_id")?,
-                            )?,
-                        ),
-                    })
-                }
+            match crate::store::event_origin(ctx.pool(), event_id).await? {
+                Some(row) => Some(match row.execution {
+                    Some(execution) => serde_json::from_value::<ExecutionContext>(execution)
+                        .map_err(|error| AppError::Internal(error.to_string()))?,
+                    None => ExecutionContext::event_origin(
+                        event_id,
+                        &Actor::from_parts(&row.actor_type, row.actor_id)?,
+                    ),
+                }),
                 None => None,
             }
         } else {

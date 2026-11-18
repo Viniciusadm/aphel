@@ -1,3 +1,5 @@
+pub(crate) mod points;
+
 pub(crate) mod data;
 pub(crate) mod exports;
 pub(crate) mod snapshot;

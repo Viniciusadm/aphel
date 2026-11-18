@@ -4,10 +4,10 @@ pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod public;
-mod reference_cleanup;
 pub(crate) mod section;
 pub mod service;
 pub(crate) mod store;
+use store::reference_cleanup;
 
 use std::sync::Arc;
 

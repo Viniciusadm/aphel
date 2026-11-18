@@ -195,21 +195,10 @@ async fn send(
     let mut current = store::lock_request(&mut tx, id)
         .await?
         .ok_or_else(service::request_not_found)?;
-    sqlx::query(
-        "UPDATE esign_requests SET provider_envelope_id = ?, provider_document_id = ? WHERE id = ?",
-    )
-    .bind(&sent.envelope_id)
-    .bind(&sent.document_id)
-    .bind(id.to_string())
-    .execute(&mut *tx)
-    .await?;
+    store::set_provider_ids(&mut tx, id, &sent.envelope_id, &sent.document_id).await?;
     for (index, signer) in signers.iter_mut().enumerate() {
         signer.provider_signer_id = sent.signer_ids.get(index).cloned();
-        sqlx::query("UPDATE esign_signers SET provider_signer_id = ? WHERE id = ?")
-            .bind(&signer.provider_signer_id)
-            .bind(signer.id.to_string())
-            .execute(&mut *tx)
-            .await?;
+        store::set_provider_signer_id(&mut tx, signer.id, &signer.provider_signer_id).await?;
     }
     store::set_request_status(&mut tx, id, store::STATUS_SENT, Utc::now()).await?;
     current.status = store::STATUS_SENT.to_owned();

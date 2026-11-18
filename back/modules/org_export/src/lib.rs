@@ -6,10 +6,10 @@ pub(crate) mod http;
 pub(crate) mod installer_http;
 pub(crate) mod model;
 pub(crate) mod notifications;
-mod points;
 pub(crate) mod runtime;
 pub(crate) mod service;
 pub(crate) mod store;
+use store::points;
 
 use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;

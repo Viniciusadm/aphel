@@ -1,6 +1,7 @@
+mod store;
+use store::favorites;
 pub mod application;
 pub mod dto;
-mod favorites;
 mod http;
 pub mod infrastructure;
 mod reader;

@@ -1,18 +1,18 @@
 mod classifiable;
-mod config_references;
 pub(crate) mod contract;
 pub(crate) mod domain;
 pub mod dto;
 pub(crate) mod hooks;
 pub mod http;
 mod includes;
-mod merge_references;
 mod provision;
 mod resolver;
 pub(crate) mod search;
 pub mod section;
 pub mod service;
 pub(crate) mod store;
+use store::config_references;
+use store::merge_references;
 mod vocabularies;
 
 use std::sync::Arc;

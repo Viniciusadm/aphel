@@ -662,3 +662,23 @@ impl LeadRecords {
             .collect()
     }
 }
+
+pub(crate) async fn forget_record(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+    is_contact: bool,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    if is_contact {
+        sqlx::query("DELETE FROM lead_disqualifications WHERE contact_id = ?")
+            .bind(record_id)
+            .execute(&mut **tx)
+            .await?;
+    }
+    sqlx::query("DELETE FROM lifecycle_stage_history WHERE record_type = ? AND record_id = ?")
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}

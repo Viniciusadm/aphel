@@ -3,10 +3,10 @@ pub mod domain;
 pub(crate) mod exposed_operations;
 pub(crate) mod hooks;
 pub(crate) mod http;
-mod reference_cleanup;
 pub(crate) mod section;
 pub(crate) mod service;
 pub(crate) mod store;
+pub(crate) use store::reference_cleanup;
 pub(crate) mod telephony;
 
 use std::sync::Arc;

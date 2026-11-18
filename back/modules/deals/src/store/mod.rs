@@ -1,3 +1,5 @@
+pub(crate) mod timeline;
+
 pub(crate) mod deal_rows;
 pub(crate) mod financials;
 pub(crate) mod lifecycle;

@@ -2,7 +2,6 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::Row;
 use utoipa::ToSchema;
 
 use crate::store::public_path;
@@ -117,17 +116,9 @@ fn choice<T: serde::de::DeserializeOwned>(settings: &Value, key: &str) -> Option
 
 pub(crate) async fn branding(ctx: &Ctx<'_>) -> Result<Branding, AppError> {
     let settings = aphel_sdk::platform::modules::module_settings(ctx.pool(), crate::KEY).await?;
-    let row =
-        sqlx::query("SELECT logo_file_id, primary_color FROM organization_settings WHERE id = 1")
-            .fetch_optional(ctx.pool())
-            .await?;
-    let (logo, color) = match row {
-        Some(row) => (
-            row.try_get::<Option<String>, _>("logo_file_id")?,
-            row.try_get::<Option<String>, _>("primary_color")?,
-        ),
-        None => (None, None),
-    };
+    let (logo, color) = crate::store::organization_branding(ctx.pool())
+        .await?
+        .unwrap_or((None, None));
     let fallback = Branding::default();
     Ok(Branding {
         accent: color.filter(|value| is_hex_color(value)),

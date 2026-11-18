@@ -768,3 +768,18 @@ impl DistributionStore {
         })
     }
 }
+
+pub(crate) async fn rule_names(
+    pool: &aphel_sdk::platform::database::Db,
+    ids: &[uuid::Uuid],
+) -> Result<Vec<(String, String)>, aphel_kernel::errors::AppError> {
+    let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
+        "SELECT id, name FROM assignment_rules WHERE id IN (",
+    );
+    let mut list = query.separated(", ");
+    for id in ids {
+        list.push_bind(id.to_string());
+    }
+    query.push(")");
+    Ok(query.build_query_as().fetch_all(pool).await?)
+}

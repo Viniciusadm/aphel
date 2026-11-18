@@ -1,3 +1,6 @@
+pub(crate) mod reference_cleanup;
+pub(crate) mod site_embed;
+
 use aphel_sdk::calendar::BusyInterval;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use chrono_tz::Tz;
@@ -785,4 +788,24 @@ fn slug_conflict(error: sqlx::Error) -> AppError {
     } else {
         AppError::from(error)
     }
+}
+
+pub(crate) async fn savepoint(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    name: &str,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::raw_sql(sqlx::AssertSqlSafe(format!("SAVEPOINT {name}")))
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}
+
+pub(crate) async fn rollback_to_savepoint(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    name: &str,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::raw_sql(sqlx::AssertSqlSafe(format!("ROLLBACK TO SAVEPOINT {name}")))
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
 }

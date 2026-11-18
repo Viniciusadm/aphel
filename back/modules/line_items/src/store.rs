@@ -273,3 +273,30 @@ pub(crate) async fn sync_record_rate(
     .await?;
     Ok(())
 }
+
+pub(crate) async fn record_has_items(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+) -> Result<bool, aphel_kernel::errors::AppError> {
+    Ok(sqlx::query_scalar(
+        "SELECT EXISTS(SELECT 1 FROM line_items WHERE record_type = ? AND record_id = ?)",
+    )
+    .bind(record_type)
+    .bind(record_id)
+    .fetch_one(&mut **tx)
+    .await?)
+}
+
+pub(crate) async fn delete_for_record(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+) -> Result<(), aphel_kernel::errors::AppError> {
+    sqlx::query("DELETE FROM line_items WHERE record_type = ? AND record_id = ?")
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}

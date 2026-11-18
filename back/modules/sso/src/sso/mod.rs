@@ -2,7 +2,8 @@ pub mod login;
 pub mod oauth;
 pub(crate) mod session;
 pub mod settings;
-pub mod states;
+pub mod states_store;
+pub use states_store as states;
 pub mod status;
 
 pub use login::{

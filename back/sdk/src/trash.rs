@@ -1,7 +1,7 @@
 pub trait TrashExclusion: Send + Sync {
     fn push_hidden(
         &self,
-        builder: &mut sqlx::QueryBuilder<sqlx::MySql>,
+        builder: &mut aphel_kernel::database::SqlBuilder,
         definition: &crate::fields::EntityDefinition,
         alias: &str,
     );

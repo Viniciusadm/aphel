@@ -149,15 +149,7 @@ impl aphel_sdk::assignment::HostAssignment for HostAssignments {
         if ids.is_empty() {
             return Ok(HashMap::new());
         }
-        let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
-            "SELECT id, name FROM assignment_rules WHERE id IN (",
-        );
-        let mut list = query.separated(", ");
-        for id in ids {
-            list.push_bind(id.to_string());
-        }
-        query.push(")");
-        let rows: Vec<(String, String)> = query.build_query_as().fetch_all(pool).await?;
+        let rows = crate::store::rule_names(pool, ids).await?;
         rows.into_iter()
             .map(|(id, name)| {
                 Ok((

@@ -1,11 +1,11 @@
 pub(crate) mod domain;
 pub(crate) mod http;
 pub(crate) mod notifications;
-mod reference_cleanup;
 pub(crate) mod runtime;
 pub(crate) mod section;
 pub(crate) mod service;
 pub(crate) mod store;
+use store::reference_cleanup;
 pub(crate) mod widget;
 
 use aphel_contract_crm::CrmRecordTypes;

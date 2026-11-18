@@ -18,7 +18,7 @@ pub mod tenancy {
 }
 
 pub mod database {
-    pub use aphel_kernel::database::{Db, Tx, receipt, transaction};
+    pub use aphel_kernel::database::{Db, SqlBuilder, Tx, receipt, transaction};
 }
 
 pub mod domain {

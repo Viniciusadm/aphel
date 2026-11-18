@@ -26,12 +26,11 @@ pub(crate) async fn block_currency_change_with_items(
     if args.write().changed(&mapping.currency_field).is_none() {
         return Ok(());
     }
-    let has_items: bool = sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM line_items WHERE record_type = ? AND record_id = ?)",
+    let has_items = crate::store::record_has_items(
+        ctx.tx(),
+        args.record.record_type.as_str(),
+        &args.record.record_id.to_string(),
     )
-    .bind(args.record.record_type.as_str())
-    .bind(args.record.record_id.to_string())
-    .fetch_one(&mut **ctx.tx())
     .await?;
     if !has_items {
         return Ok(());

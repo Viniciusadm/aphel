@@ -1,3 +1,5 @@
+pub(crate) mod references;
+
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use sqlx::mysql::MySqlRow;

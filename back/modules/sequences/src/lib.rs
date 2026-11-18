@@ -1,7 +1,5 @@
-mod config_references;
 mod contacts;
 mod enrollment_service;
-mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
 pub mod domain;
@@ -17,6 +15,8 @@ pub(crate) mod runtime;
 pub(crate) mod section;
 pub mod service;
 pub(crate) mod store;
+use store::config_references;
+use store::reference_cleanup;
 
 use aphel_contract_crm::CrmPermissions;
 use std::sync::Arc;

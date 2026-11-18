@@ -1,3 +1,5 @@
+pub(crate) mod points;
+
 use chrono::{DateTime, NaiveDateTime, Utc};
 use serde_json::{Map, Value};
 use sqlx::mysql::MySqlRow;

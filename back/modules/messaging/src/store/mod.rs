@@ -1,3 +1,5 @@
+pub(crate) mod reference_cleanup;
+
 use chrono::NaiveDateTime;
 use serde_json::Value;
 use sqlx::mysql::MySqlRow;

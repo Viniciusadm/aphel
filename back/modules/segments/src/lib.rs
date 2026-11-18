@@ -1,4 +1,3 @@
-mod config_references;
 pub(crate) mod domain;
 pub(crate) mod dto;
 pub(crate) mod exposed_operations;
@@ -6,6 +5,7 @@ pub(crate) mod hooks;
 pub(crate) mod http;
 pub(crate) mod service;
 pub(crate) mod store;
+use store::config_references;
 mod target_reader;
 
 use std::sync::Arc;

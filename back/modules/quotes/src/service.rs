@@ -1263,9 +1263,7 @@ pub(crate) async fn token_key(ctx: &Ctx<'_>, tx: &mut Tx) -> Result<Vec<u8>, App
     if let Some(key) = existing_token_key(ctx).await? {
         return Ok(key);
     }
-    sqlx::query("SELECT id FROM organization_settings WHERE id = 1 FOR UPDATE")
-        .fetch_one(&mut **tx)
-        .await?;
+    crate::store::lock_organization_settings(tx).await?;
     if let Some(key) = existing_token_key(ctx).await? {
         return Ok(key);
     }
