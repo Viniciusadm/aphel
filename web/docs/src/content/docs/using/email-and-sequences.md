@@ -170,7 +170,7 @@ Deleting a sequence removes its enrollments and history; emails and tasks alread
 
 ## Shared inbox (messaging)
 
-If the `messaging` module is active, **Inbox** (under **My work**, at the messaging address) shows team conversations from WhatsApp (Meta Cloud API) and email channels. This is different from the task **Inbox** described in [Tasks and calendar](/_aphel/docs/using/tasks-and-calendar/#inbox).
+If the `messaging` module is active, **Inbox** (under **My work**, at the messaging address) shows team conversations from WhatsApp (Meta Cloud API) and email channels. This is different from the task **Inbox** described in [Tasks and calendar](/_aphel/docs/using/tasks-and-calendar/#the-task-list).
 
 - Filter by status (Open, Pending, Resolved), assignee (All, Mine, Unassigned), channel and unread.
 - Assign a conversation, change its status, and link it to a contact and a deal so new messages show on their timeline.

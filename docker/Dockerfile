@@ -5,6 +5,9 @@ WORKDIR /src
 COPY rust-toolchain.toml ./
 COPY Makefile ./
 COPY back/ back/
+COPY sdk/rust/ sdk/rust/
+COPY sdk/cli/ sdk/cli/
+COPY blueprints/ blueprints/
 COPY web/ web/
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/src/back/target \
@@ -25,6 +28,9 @@ WORKDIR /src/back
 COPY rust-toolchain.toml /src/rust-toolchain.toml
 ENV SQLX_OFFLINE=true
 COPY back/ ./
+COPY sdk/rust/ /src/sdk/rust/
+COPY sdk/cli/ /src/sdk/cli/
+COPY blueprints/ /src/blueprints/
 COPY --from=modules /src/back/app/Cargo.toml ./app/Cargo.toml
 COPY --from=modules /src/back/app/src/modules.rs ./app/src/modules.rs
 COPY --from=web /src/web/dist /src/web/dist

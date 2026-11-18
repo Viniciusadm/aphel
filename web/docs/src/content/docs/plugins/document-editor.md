@@ -1,6 +1,6 @@
 ---
 title: Document editor
-description: How a plugin lets the host edit its documents: the DocumentKind, the flow body, the checklist and the publish panel.
+description: "How a plugin lets the host edit its documents: the DocumentKind, the flow body, the checklist and the publish panel."
 ---
 
 The host web SDK (`@aphel/web-sdk`) ships the editor used by the native site pages and by the Blog plugin. A plugin does not write an editor: it describes its document with a `DocumentKind` and mounts `DocumentEditorPage` under a `DocumentKindContext`.
