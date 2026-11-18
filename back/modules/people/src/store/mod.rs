@@ -1,3 +1,6 @@
+pub(crate) mod merge_references;
+pub(crate) mod primary_organizations;
+
 use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 
@@ -556,4 +559,71 @@ fn engagement_from_row(row: &MySqlRow) -> Result<EmailEngagement, AppError> {
         interaction_count: i64::from(row.try_get::<i32, _>("interaction_count")?),
         last_contacted_by: optional_user(row, "last_contacted_by")?,
     })
+}
+
+pub(crate) async fn lock_person(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    id: Uuid,
+) -> Result<bool, AppError> {
+    let found: Option<String> = sqlx::query_scalar("SELECT id FROM people WHERE id = ? FOR UPDATE")
+        .bind(id.to_string())
+        .fetch_optional(&mut **tx)
+        .await?;
+    Ok(found.is_some())
+}
+
+pub(crate) struct Engagement {
+    pub last_contacted_at: Option<chrono::NaiveDateTime>,
+    pub last_email_received_at: Option<chrono::NaiveDateTime>,
+    pub last_email_sent_at: Option<chrono::NaiveDateTime>,
+    pub interaction_count: i64,
+    pub last_contacted_by: Option<String>,
+}
+
+pub(crate) async fn set_engagement(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    id: Uuid,
+    engagement: Engagement,
+) -> Result<(), AppError> {
+    sqlx::query("UPDATE people SET last_contacted_at = ?, last_email_received_at = ?, last_email_sent_at = ?, interaction_count = ?, last_contacted_by = ?, updated_at = updated_at WHERE id = ?")
+        .bind(engagement.last_contacted_at)
+        .bind(engagement.last_email_received_at)
+        .bind(engagement.last_email_sent_at)
+        .bind(engagement.interaction_count)
+        .bind(engagement.last_contacted_by)
+        .bind(id.to_string())
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
+}
+
+pub(crate) async fn organizations_of(
+    pool: &aphel_sdk::platform::database::Db,
+    people: &[Uuid],
+) -> Result<Vec<String>, AppError> {
+    let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
+        "SELECT company_id AS id FROM people WHERE company_id IS NOT NULL AND id IN (",
+    );
+    let mut separated = query.separated(", ");
+    for id in people {
+        separated.push_bind(id.to_string());
+    }
+    query.push(") UNION SELECT company_id AS id FROM people_organizations WHERE contact_id IN (");
+    let mut separated = query.separated(", ");
+    for id in people {
+        separated.push_bind(id.to_string());
+    }
+    query.push(")");
+    Ok(query.build_query_scalar::<String>().fetch_all(pool).await?)
+}
+
+pub(crate) async fn unlink_organization(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    company_id: Uuid,
+) -> Result<(), AppError> {
+    sqlx::query("DELETE FROM people_organizations WHERE company_id = ?")
+        .bind(company_id.to_string())
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
 }

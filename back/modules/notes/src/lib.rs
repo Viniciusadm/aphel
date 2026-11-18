@@ -1,9 +1,5 @@
 mod context_source;
-mod dashboard;
 mod followers;
-mod merge_references;
-mod privacy;
-mod timeline;
 mod writer;
 use aphel_contract_automation::AutomationBuilder;
 pub(crate) mod automation;
@@ -14,9 +10,9 @@ pub mod http;
 pub(crate) mod notifications;
 pub(crate) mod operations;
 pub(crate) mod public;
-pub(crate) mod search;
 pub mod service;
 pub mod store;
+use store::{dashboard, merge_references, privacy, search, timeline};
 
 use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::modules::Migration;

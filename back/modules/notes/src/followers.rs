@@ -67,7 +67,7 @@ impl FollowedEventSource for NotesFollowedEvents {
         let Some(record) = &event.record else {
             return Ok(false);
         };
-        let visible: bool = sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM notes WHERE id = ? AND deleted_at IS NULL AND visibility = 'team')").bind(record.record_id.to_string()).fetch_one(pool).await?;
+        let visible = crate::store::team_note_exists(pool, &record.record_id.to_string()).await?;
         Ok(visible)
     }
 }

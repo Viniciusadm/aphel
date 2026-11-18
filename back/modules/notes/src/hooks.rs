@@ -6,10 +6,11 @@ pub(crate) async fn purge_record_notes(
     ctx: &mut HookCtx<'_>,
     removed: &RemovedRecord,
 ) -> Result<(), AppError> {
-    sqlx::query("DELETE FROM notes WHERE record_type = ? AND record_id = ?")
-        .bind(removed.record_type.as_str())
-        .bind(removed.record.record_id.to_string())
-        .execute(&mut **ctx.tx)
-        .await?;
+    crate::store::delete_for_record(
+        ctx.tx,
+        removed.record_type.as_str(),
+        &removed.record.record_id.to_string(),
+    )
+    .await?;
     Ok(())
 }

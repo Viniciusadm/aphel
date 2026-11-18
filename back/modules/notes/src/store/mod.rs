@@ -1,3 +1,9 @@
+pub(crate) mod dashboard;
+pub(crate) mod merge_references;
+pub(crate) mod privacy;
+pub(crate) mod search;
+pub(crate) mod timeline;
+
 use chrono::{DateTime, NaiveDateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
@@ -245,4 +251,29 @@ impl NoteStore {
             .map(|id| mapper::typed_id(id, UserId::new))
             .collect()
     }
+}
+
+pub(crate) async fn team_note_exists(
+    pool: &aphel_sdk::platform::database::Db,
+    id: &str,
+) -> Result<bool, AppError> {
+    Ok(sqlx::query_scalar(
+        "SELECT EXISTS(SELECT 1 FROM notes WHERE id = ? AND deleted_at IS NULL AND visibility = 'team')",
+    )
+    .bind(id)
+    .fetch_one(pool)
+    .await?)
+}
+
+pub(crate) async fn delete_for_record(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+) -> Result<(), AppError> {
+    sqlx::query("DELETE FROM notes WHERE record_type = ? AND record_id = ?")
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
+    Ok(())
 }

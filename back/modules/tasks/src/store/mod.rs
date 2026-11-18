@@ -1,3 +1,11 @@
+pub(crate) mod config_references;
+pub(crate) mod merge_references;
+pub(crate) mod points;
+pub(crate) mod privacy;
+pub(crate) mod reminders;
+pub(crate) mod report_subjects;
+pub(crate) mod timeline;
+
 use aphel_contract_crm::CrmRecordTypes;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -947,6 +955,29 @@ pub(crate) async fn hydrate_link_titles(
                     .and_then(|label| label.title.clone());
             }
         }
+    }
+    Ok(())
+}
+
+pub(crate) async fn unlink_record(
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
+    record_type: &str,
+    record_id: &str,
+) -> Result<(), AppError> {
+    sqlx::query("DELETE FROM task_links WHERE record_type = ? AND record_id = ?")
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
+    for table in ["tasks", "task_recurrences"] {
+        sqlx::query(sqlx::AssertSqlSafe(format!(
+            "UPDATE {table} SET record_type = NULL, record_id = NULL \
+             WHERE record_type = ? AND record_id = ?"
+        )))
+        .bind(record_type)
+        .bind(record_id)
+        .execute(&mut **tx)
+        .await?;
     }
     Ok(())
 }

@@ -20,20 +20,22 @@ impl EmailEngagementProjection for Projection {
             return Ok(());
         }
         let mut tx = aphel_sdk::platform::database::receipt::begin(pool).await?;
-        let found: Option<String> =
-            sqlx::query_scalar("SELECT id FROM people WHERE id = ? FOR UPDATE")
-                .bind(record.record_id.to_string())
-                .fetch_optional(&mut *tx)
-                .await?;
-        if found.is_some() {
+        if crate::store::lock_person(&mut tx, record.record_id).await? {
             let snapshot = reader.snapshot(&mut tx, record).await?;
-            sqlx::query("UPDATE people SET last_contacted_at = ?, last_email_received_at = ?, last_email_sent_at = ?, interaction_count = ?, last_contacted_by = ?, updated_at = updated_at WHERE id = ?")
-                .bind(snapshot.last_contacted_at.map(|value| value.naive_utc()))
-                .bind(snapshot.last_email_received_at.map(|value| value.naive_utc()))
-                .bind(snapshot.last_email_sent_at.map(|value| value.naive_utc()))
-                .bind(snapshot.interaction_count)
-                .bind(snapshot.last_contacted_by.map(|user| user.into_inner()))
-                .bind(record.record_id.to_string()).execute(&mut *tx).await?;
+            crate::store::set_engagement(
+                &mut tx,
+                record.record_id,
+                crate::store::Engagement {
+                    last_contacted_at: snapshot.last_contacted_at.map(|value| value.naive_utc()),
+                    last_email_received_at: snapshot
+                        .last_email_received_at
+                        .map(|value| value.naive_utc()),
+                    last_email_sent_at: snapshot.last_email_sent_at.map(|value| value.naive_utc()),
+                    interaction_count: snapshot.interaction_count,
+                    last_contacted_by: snapshot.last_contacted_by.map(|user| user.into_inner()),
+                },
+            )
+            .await?;
         }
         tx.commit().await?;
         Ok(())

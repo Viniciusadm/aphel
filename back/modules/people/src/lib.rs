@@ -2,9 +2,7 @@ mod associations;
 mod context_source;
 mod creator;
 mod email_engagement;
-mod merge_references;
 mod merges;
-mod primary_organizations;
 use aphel_sdk::imports::ImportTraits;
 mod birthdays;
 mod dashboard;
@@ -16,6 +14,7 @@ pub mod domain;
 pub mod http;
 pub mod service;
 pub mod store;
+use store::{merge_references, primary_organizations};
 
 use aphel_contract_crm::traits;
 use aphel_contract_crm::{
@@ -227,10 +226,7 @@ impl Module for PeopleModule {
         app.on(aphel_kernel::records::RecordPurged, 10, |ctx, args| {
             Box::pin(async move {
                 if args.record_type == RecordType::COMPANY {
-                    sqlx::query("DELETE FROM people_organizations WHERE company_id = ?")
-                        .bind(args.record.record_id.to_string())
-                        .execute(&mut **ctx.tx)
-                        .await?;
+                    store::unlink_organization(ctx.tx, args.record.record_id).await?;
                 }
                 Ok(())
             })

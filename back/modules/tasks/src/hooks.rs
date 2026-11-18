@@ -119,20 +119,6 @@ pub(crate) async fn unlink_purged_record(
 ) -> Result<(), AppError> {
     let record_type = removed.record_type.as_str();
     let record_id = removed.record.record_id.to_string();
-    sqlx::query("DELETE FROM task_links WHERE record_type = ? AND record_id = ?")
-        .bind(record_type)
-        .bind(&record_id)
-        .execute(&mut **ctx.tx)
-        .await?;
-    for table in ["tasks", "task_recurrences"] {
-        sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE {table} SET record_type = NULL, record_id = NULL \
-             WHERE record_type = ? AND record_id = ?"
-        )))
-        .bind(record_type)
-        .bind(&record_id)
-        .execute(&mut **ctx.tx)
-        .await?;
-    }
+    crate::store::unlink_record(ctx.tx, record_type, &record_id).await?;
     Ok(())
 }
