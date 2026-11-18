@@ -1,3 +1,13 @@
+pub(crate) mod changes;
+pub mod compiled;
+pub mod directory;
+pub(crate) mod effects;
+pub(crate) mod executions;
+pub(crate) mod external_queries;
+pub(crate) mod grants;
+pub(crate) mod module_conflicts;
+pub(crate) mod schema;
+
 use chrono::{DateTime, Utc};
 use serde_json::{Map, Value};
 use sqlx::mysql::MySqlRow;
@@ -190,6 +200,16 @@ pub async fn files_under(
         .collect()
 }
 
+pub(crate) async fn has_backend(pool: &MySqlPool, key: &str) -> Result<bool, AppError> {
+    let present: i32 = sqlx::query_scalar(
+        "SELECT EXISTS(SELECT 1 FROM plugins_files WHERE plugin_key = ? AND path = 'backend.wasm')",
+    )
+    .bind(key)
+    .fetch_one(pool)
+    .await?;
+    Ok(present != 0)
+}
+
 pub async fn backend(pool: &MySqlPool, key: &str) -> Result<Option<Vec<u8>>, AppError> {
     Ok(sqlx::query_scalar(
         "SELECT content FROM plugins_files WHERE plugin_key = ? AND path = 'backend.wasm'",
@@ -267,6 +287,41 @@ pub async fn kv_set(
     .bind(Json(value))
     .execute(pool)
     .await?;
+    Ok(())
+}
+
+pub(crate) async fn kv_set_in(
+    tx: &mut Tx,
+    key: &str,
+    collection: &str,
+    item: &str,
+    value: &Value,
+) -> Result<(), AppError> {
+    sqlx::query(
+        "INSERT INTO plugins_data (plugin_key, collection, item_id, value) VALUES (?, ?, ?, ?) \
+         ON DUPLICATE KEY UPDATE value = VALUES(value)",
+    )
+    .bind(key)
+    .bind(collection)
+    .bind(item)
+    .bind(Json(value))
+    .execute(&mut **tx)
+    .await?;
+    Ok(())
+}
+
+pub(crate) async fn kv_delete_in(
+    tx: &mut Tx,
+    key: &str,
+    collection: &str,
+    item: &str,
+) -> Result<(), AppError> {
+    sqlx::query("DELETE FROM plugins_data WHERE plugin_key = ? AND collection = ? AND item_id = ?")
+        .bind(key)
+        .bind(collection)
+        .bind(item)
+        .execute(&mut **tx)
+        .await?;
     Ok(())
 }
 

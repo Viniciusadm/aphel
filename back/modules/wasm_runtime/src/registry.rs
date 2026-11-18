@@ -250,10 +250,9 @@ async fn load(pool: &Db) -> Result<Arc<Snapshot>, AppError> {
         let (backend, backend_error) = match cache.compiled.get(&installed.key) {
             Some((checksum, loaded)) if checksum == &installed.checksum => loaded.clone(),
             _ => {
-                let present: i32 = sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM plugins_files WHERE plugin_key = ? AND path = 'backend.wasm')")
-                    .bind(&installed.key).fetch_one(pool).await?;
+                let present = crate::store::has_backend(pool, &installed.key).await?;
                 let backend = (
-                    if present != 0 {
+                    if present {
                         Some(Arc::new(BackendSlot {
                             key: installed.key.clone(),
                             checksum: installed.checksum.clone(),
@@ -262,7 +261,7 @@ async fn load(pool: &Db) -> Result<Arc<Snapshot>, AppError> {
                     } else {
                         None
                     },
-                    if present == 0 && installed.manifest.needs_backend() {
+                    if !present && installed.manifest.needs_backend() {
                         Some("the declared plugin backend is missing".to_owned())
                     } else {
                         None

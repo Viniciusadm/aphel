@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::store::grants as store;
 use serde::Serialize;
 use utoipa::ToSchema;
-use uuid::Uuid;
 
 use crate::manifest::PluginManifest;
 use aphel_kernel::errors::{AppError, FieldViolation};
@@ -65,11 +65,7 @@ async fn role_ids(
 ) -> Result<BTreeMap<String, String>, AppError> {
     let mut ids = BTreeMap::new();
     for role in roles {
-        let id: Option<String> = sqlx::query_scalar("SELECT id FROM roles WHERE `key` = ?")
-            .bind(role)
-            .fetch_optional(&mut **tx)
-            .await?;
-        if let Some(id) = id {
+        if let Some(id) = store::role_id(tx, role).await? {
             ids.insert(role.clone(), id);
         }
     }
@@ -90,16 +86,8 @@ pub async fn reconcile(
         else {
             continue;
         };
-        let created = sqlx::query(
-            "INSERT IGNORE INTO roles (id, `key`, name, is_system) VALUES (?, ?, ?, FALSE)",
-        )
-        .bind(Uuid::now_v7().to_string())
-        .bind(&preset.key)
-        .bind(&preset.label)
-        .execute(&mut **tx)
-        .await?
-        .rows_affected();
-        if created > 0 {
+        let created = store::create_role(tx, &preset.key, &preset.label).await?;
+        if created {
             report.created_roles.push(preset.key.clone());
         }
     }
@@ -110,35 +98,19 @@ pub async fn reconcile(
         let Some(role_id) = ids.get(&grant.role) else {
             continue;
         };
-        report.granted += sqlx::query(
-            "INSERT IGNORE INTO role_permissions (role_id, permission, scope) VALUES (?, ?, ?)",
-        )
-        .bind(role_id)
-        .bind(&grant.permission)
-        .bind(grant.scope.as_str())
-        .execute(&mut **tx)
-        .await?
-        .rows_affected();
+        report.granted +=
+            store::grant(tx, role_id, &grant.permission, grant.scope.as_str()).await?;
     }
     for entity in &manifest.entities {
         let Some(scope) = manifest.entity_scope(entity) else {
             continue;
         };
-        report.granted += sqlx::query(
-            "INSERT IGNORE INTO role_permissions (role_id, permission, scope) \
-             SELECT r.id, CONCAT(?, '.', p.action), ? \
-             FROM roles r JOIN ( \
-               SELECT 'read' AS action UNION ALL SELECT 'create' UNION ALL SELECT 'update' \
-               UNION ALL SELECT 'delete' UNION ALL SELECT 'archive' UNION ALL SELECT 'export' \
-             ) p \
-             WHERE r.is_system = TRUE \
-             AND (r.`key` = 'manager' OR (r.`key` = 'member' AND p.action <> 'export'))",
+        report.granted += store::grant_entity_to_system_roles(
+            tx,
+            &manifest.entity_record_type(&entity.key),
+            scope.as_str(),
         )
-        .bind(manifest.entity_record_type(&entity.key))
-        .bind(scope.as_str())
-        .execute(&mut **tx)
-        .await?
-        .rows_affected();
+        .await?;
     }
     Ok(report)
 }
@@ -160,21 +132,9 @@ pub async fn status(
             .role_presets
             .iter()
             .find(|preset| preset.key == role);
-        let id: Option<String> = sqlx::query_scalar("SELECT id FROM roles WHERE `key` = ?")
-            .bind(&role)
-            .fetch_optional(pool)
-            .await?;
-        let granted: BTreeSet<String> = match &id {
-            Some(id) => sqlx::query_scalar::<_, String>(
-                "SELECT permission FROM role_permissions WHERE role_id = ?",
-            )
-            .bind(id)
-            .fetch_all(pool)
-            .await?
-            .into_iter()
-            .collect(),
-            None => BTreeSet::new(),
-        };
+        let stored = store::role_permissions(pool, &role).await?;
+        let role_exists = stored.is_some();
+        let granted: BTreeSet<String> = stored.unwrap_or_default().into_iter().collect();
         let missing: Vec<String> = permissions
             .iter()
             .filter(|permission| !granted.contains(*permission))
@@ -183,7 +143,7 @@ pub async fn status(
         statuses.push(RoleGrantStatus {
             label: preset.map(|preset| preset.label.clone()),
             preset: preset.is_some(),
-            role_exists: id.is_some(),
+            role_exists,
             expected: permissions.len() as u64,
             granted: (permissions.len() - missing.len()) as u64,
             missing,

@@ -426,7 +426,6 @@ async fn external_query(
     remaining: std::time::Duration,
 ) -> Result<String, AppError> {
     use aphel_sdk::platform::application::shared::ExecutionContext;
-    use sqlx::{Row, types::Json};
     let execution = ExecutionContext::current().ok_or_else(|| {
         AppError::Internal("external plugin queries require an execution context".to_owned())
     })?;
@@ -434,20 +433,22 @@ async fn external_query(
     let authority_hash =
         aphel_sdk::platform::application::files::sha256_hex(format!("{:?}", ctx.scope).as_bytes());
     let execution_id = execution.id.to_string();
-    let inserted = sqlx::query("INSERT IGNORE INTO plugins_external_queries (plugin_key, execution_id, operation, input_hash, authority_hash) VALUES (?, ?, ?, ?, ?)")
-        .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).bind(&authority_hash).execute(ctx.pool()).await?.rows_affected();
-    if inserted == 0 {
-        let row = sqlx::query("SELECT status, output, authority_hash FROM plugins_external_queries WHERE plugin_key = ? AND execution_id = ? AND operation = ? AND input_hash = ?")
-            .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).fetch_one(ctx.pool()).await?;
-        if row.try_get::<String, _>("authority_hash")? != authority_hash {
+    let key = crate::store::external_queries::QueryKey {
+        plugin_key: &plugin.key,
+        execution_id: &execution_id,
+        operation: operation.key,
+        input_hash: &hash,
+    };
+    if !crate::store::external_queries::start(ctx.pool(), &key, &authority_hash).await? {
+        let row = crate::store::external_queries::find(ctx.pool(), &key).await?;
+        if row.authority_hash != authority_hash {
             return Err(AppError::forbidden_code(
                 "plugin_query_authority_changed",
                 "the authority of the cached external query has changed",
             ));
         }
-        if row.try_get::<String, _>("status")? == "completed" {
-            let Json(output): Json<Value> = row.try_get("output")?;
-            return Ok(output.to_string());
+        if row.status == "completed" {
+            return Ok(row.output.unwrap_or(Value::Null).to_string());
         }
         return Err(AppError::conflict_code(
             "plugin_query_outcome_unknown",
@@ -464,13 +465,11 @@ async fn external_query(
         })?;
     match result {
         Ok(output) => {
-            sqlx::query("UPDATE plugins_external_queries SET status = 'completed', output = ?, completed_at = UTC_TIMESTAMP(6) WHERE plugin_key = ? AND execution_id = ? AND operation = ? AND input_hash = ?")
-                .bind(Json(&output)).bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).execute(ctx.pool()).await?;
+            crate::store::external_queries::complete(ctx.pool(), &key, &output).await?;
             Ok(output.to_string())
         }
         Err(error) => {
-            sqlx::query("UPDATE plugins_external_queries SET status = 'failed', completed_at = UTC_TIMESTAMP(6) WHERE plugin_key = ? AND execution_id = ? AND operation = ? AND input_hash = ?")
-                .bind(&plugin.key).bind(&execution_id).bind(operation.key).bind(&hash).execute(ctx.pool()).await?;
+            crate::store::external_queries::fail(ctx.pool(), &key).await?;
             Err(error)
         }
     }

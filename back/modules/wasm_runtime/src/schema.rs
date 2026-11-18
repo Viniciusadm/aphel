@@ -2,13 +2,13 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
+use crate::store::schema as store;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_kernel::state::AppState;
 use aphel_sdk::objects::{
     CreateObjectCommand, ManagedObject, ManagedObjectWriter, managed_object_writer,
 };
 use aphel_sdk::platform::application::custom_objects::custom_record_definition;
-use aphel_sdk::platform::application::fields::config_to_json;
 use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
 use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
@@ -27,22 +27,13 @@ const FIELD_UNIQUE_CONFLICT: &str = "plugin_field_unique_conflict";
 const DUPLICATE_SAMPLE: u32 = 20;
 
 async fn bump_schema(state: &AppState) -> Result<(), AppError> {
-    sqlx::query(
-        "UPDATE organization_settings SET custom_schema_version = custom_schema_version + 1 WHERE id = 1",
-    )
-    .execute(&state.db()?)
-    .await?;
+    store::bump_schema_version(&state.db()?).await?;
     state.record_types.invalidate();
     Ok(())
 }
 
 async fn object_owner(pool: &Db, key: &str) -> Result<Option<Option<String>>, AppError> {
-    Ok(
-        sqlx::query_scalar("SELECT module_key FROM custom_objects WHERE `key` = ?")
-            .bind(key)
-            .fetch_optional(pool)
-            .await?,
-    )
+    store::object_owner(pool, key).await
 }
 
 pub async fn validate_dependencies(
@@ -329,17 +320,13 @@ pub async fn apply(
     }
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
-        let storage: Option<Option<sqlx::types::Json<serde_json::Value>>> =
-            sqlx::query_scalar("SELECT entity_definition FROM custom_objects WHERE `key` = ?")
-                .bind(&object_key)
-                .fetch_optional(&pool)
-                .await?;
+        let storage = store::object_entity_definition(&pool, &object_key).await?;
         if let Some(stored) = storage {
             let previous = stored
                 .and_then(|json| {
                     serde_json::from_value::<
                         aphel_sdk::platform::application::fields::EntityDeclaration,
-                    >(json.0)
+                    >(json)
                     .ok()
                 })
                 .map(|declaration| declaration.storage)
@@ -362,17 +349,17 @@ pub async fn apply(
         }
         match object_owner(&pool, &object_key).await? {
             Some(Some(owner)) if owner == manifest.key => {
-                sqlx::query(
-                    "UPDATE custom_objects SET label_singular = ?, label_plural = ?, description = ?, \
-                     owner_enabled = ?, is_internal = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE `key` = ?",
+                store::update_object_labels(
+                    &pool,
+                    &object_key,
+                    store::ObjectLabels {
+                        label_singular: &entity.label,
+                        label_plural: &entity.label_plural,
+                        description: &entity.description,
+                        owner_enabled: entity.owner_enabled,
+                        internal: entity.internal,
+                    },
                 )
-                .bind(&entity.label)
-                .bind(&entity.label_plural)
-                .bind(&entity.description)
-                .bind(entity.owner_enabled)
-                .bind(entity.internal)
-                .bind(&object_key)
-                .execute(&pool)
                 .await?;
             }
             Some(_) => {
@@ -410,13 +397,12 @@ pub async fn apply(
         }
     }
     for entity in &manifest.entities {
-        sqlx::query(
-            "UPDATE custom_objects SET entity_definition = ? WHERE `key` = ? AND module_key = ?",
+        store::set_entity_definition(
+            &pool,
+            &manifest.object_key(&entity.key),
+            &manifest.key,
+            entity,
         )
-        .bind(sqlx::types::Json(entity))
-        .bind(manifest.object_key(&entity.key))
-        .bind(&manifest.key)
-        .execute(&pool)
         .await?;
     }
     bump_schema(state).await?;
@@ -426,13 +412,7 @@ pub async fn apply(
     let mut tx = aphel_sdk::platform::database::transaction::Tx::from(pool.begin().await?);
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
         let mut definition = definition(&registry, &manifest.key, &record_type, &field, index)?;
-        let existing: Option<(String, Option<String>)> = sqlx::query_as(
-            "SELECT id, module_key FROM field_definitions WHERE record_type = ? AND `key` = ?",
-        )
-        .bind(&record_type)
-        .bind(&field.key)
-        .fetch_optional(&mut *tx)
-        .await?;
+        let existing = store::field_id_and_owner(&mut tx, &record_type, &field.key).await?;
         match existing {
             None => repository.insert(&mut tx, &definition).await?,
             Some((id, owner))
@@ -444,40 +424,11 @@ pub async fn apply(
             {
                 definition.id = Uuid::parse_str(&id)
                     .map_err(|_| AppError::Internal(format!("invalid field id {id}")))?;
-                sqlx::query(
-                    "UPDATE field_definitions SET module_key = ?, is_system = ?, column_name = ?, label = ?, is_required = ?, is_unique = ?, \
-                     is_searchable = ?, is_personal = ?, is_sensitive = ?, config = ?, \
-                     is_active = TRUE WHERE id = ?",
-                )
-                .bind(&manifest.key)
-                .bind(definition.is_system)
-                .bind(&definition.column_name)
-                .bind(&definition.label)
-                .bind(definition.is_required)
-                .bind(definition.is_unique)
-                .bind(definition.is_searchable)
-                .bind(definition.is_personal)
-                .bind(definition.is_sensitive)
-                .bind(sqlx::types::Json(config_to_json(&definition.config)))
-                .bind(&id)
-                .execute(&mut *tx)
-                .await?;
+                store::update_plugin_field(&mut tx, &id, &manifest.key, &definition).await?;
                 for (position, option) in definition.options.iter().enumerate() {
-                    sqlx::query(
-                        "INSERT INTO field_options (id, field_id, value, label, color, position, is_active) \
-                         VALUES (?, ?, ?, ?, ?, ?, TRUE) AS new \
-                         ON DUPLICATE KEY UPDATE label = new.label, color = new.color, is_active = TRUE",
-                    )
-                    .bind(Uuid::now_v7().to_string())
-                    .bind(&id)
-                    .bind(&option.value)
-                    .bind(&option.label)
-                    .bind(&option.color)
-                    .bind(position as i32)
-                    .execute(&mut *tx)
-                    .await?;
+                    store::upsert_field_option(&mut tx, &id, option, position as i32).await?;
                 }
-                deactivate_undeclared_options(&mut tx, &id, &definition.options).await?;
+                store::deactivate_undeclared_options(&mut tx, &id, &definition.options).await?;
                 if definition.field_type.supports_unique() {
                     unique_values::rebuild(&mut tx, registry.require(&record_type)?, &definition)
                         .await
@@ -584,9 +535,7 @@ async fn preflight(pool: &Db, manifest: &PluginManifest) -> Result<(), AppError>
         {
             Some((_, entity_key)) => reserved_keys(manifest, entity_key)?.contains(&field.key),
             None => {
-                let owner: Option<(Option<String>, bool, Option<String>)> = sqlx::query_as(
-                    "SELECT module_key, is_system, column_name FROM field_definitions WHERE record_type = ? AND `key` = ?",
-                ).bind(&record_type).bind(&field.key).fetch_optional(pool).await?;
+                let owner = store::field_claim(pool, &record_type, &field.key).await?;
                 let owned_managed = manifest.entities.iter().any(|entity| {
                     entity.storage
                         == aphel_sdk::platform::application::fields::EntityStorage::Managed
@@ -633,12 +582,7 @@ pub(crate) fn declared_fields(manifest: &PluginManifest) -> Vec<(String, FieldDe
 }
 
 async fn ensure_compatible(pool: &Db, manifest: &PluginManifest) -> Result<(), AppError> {
-    let existing: Vec<(String, String, String)> = sqlx::query_as(
-        "SELECT record_type, `key`, field_type FROM field_definitions WHERE module_key = ?",
-    )
-    .bind(&manifest.key)
-    .fetch_all(pool)
-    .await?;
+    let existing = store::module_field_types(pool, &manifest.key).await?;
     for (record_type, field) in declared_fields(manifest) {
         let Some(new_type) = FieldType::parse(&field.field_type) else {
             continue;
@@ -661,44 +605,15 @@ async fn ensure_compatible(pool: &Db, manifest: &PluginManifest) -> Result<(), A
     Ok(())
 }
 
-async fn deactivate_undeclared_options(
-    tx: &mut aphel_sdk::platform::database::transaction::Tx,
-    field_id: &str,
-    options: &[FieldOption],
-) -> Result<(), AppError> {
-    let mut builder = sqlx::QueryBuilder::<sqlx::MySql>::new(
-        "UPDATE field_options SET is_active = FALSE WHERE field_id = ",
-    );
-    builder.push_bind(field_id.to_owned());
-    if !options.is_empty() {
-        builder.push(" AND value NOT IN (");
-        let mut values = builder.separated(", ");
-        for option in options {
-            values.push_bind(option.value.clone());
-        }
-        builder.push(")");
-    }
-    builder.build().execute(&mut **tx).await?;
-    Ok(())
-}
-
 async fn deactivate_undeclared(pool: &Db, manifest: &PluginManifest) -> Result<(), AppError> {
     let declared: Vec<(String, String)> = declared_fields(manifest)
         .into_iter()
         .map(|(record_type, field)| (record_type, field.key.clone()))
         .collect();
-    let existing: Vec<(String, String, String)> = sqlx::query_as(
-        "SELECT id, record_type, `key` FROM field_definitions WHERE module_key = ? AND is_active = TRUE",
-    )
-    .bind(&manifest.key)
-    .fetch_all(pool)
-    .await?;
+    let existing = store::active_module_fields(pool, &manifest.key).await?;
     for (id, record_type, key) in existing {
         if !declared.contains(&(record_type, key)) {
-            sqlx::query("UPDATE field_definitions SET is_active = FALSE WHERE id = ?")
-                .bind(&id)
-                .execute(pool)
-                .await?;
+            store::deactivate_field(pool, &id).await?;
         }
     }
     let objects: Vec<String> = manifest
@@ -706,18 +621,10 @@ async fn deactivate_undeclared(pool: &Db, manifest: &PluginManifest) -> Result<(
         .iter()
         .map(|entity| manifest.object_key(&entity.key))
         .collect();
-    let owned: Vec<String> = sqlx::query_scalar(
-        "SELECT `key` FROM custom_objects WHERE module_key = ? AND is_active = TRUE",
-    )
-    .bind(&manifest.key)
-    .fetch_all(pool)
-    .await?;
+    let owned = store::active_module_objects(pool, &manifest.key).await?;
     for key in owned {
         if !objects.contains(&key) {
-            sqlx::query("UPDATE custom_objects SET is_active = FALSE WHERE `key` = ?")
-                .bind(&key)
-                .execute(pool)
-                .await?;
+            store::deactivate_object(pool, &key).await?;
         }
     }
     Ok(())
@@ -806,19 +713,7 @@ pub async fn set_active(
         validate_dependencies(state, manifest).await?;
     }
     let pool = state.db()?;
-    sqlx::query("UPDATE custom_objects SET is_active = ? WHERE module_key = ?")
-        .bind(active)
-        .bind(&manifest.key)
-        .execute(&pool)
-        .await?;
-    sqlx::query(
-        "UPDATE field_definitions SET is_active = ? WHERE module_key = ? \
-         AND record_type NOT LIKE 'co\\_%'",
-    )
-    .bind(active)
-    .bind(&manifest.key)
-    .execute(&pool)
-    .await?;
+    store::set_module_schema_active(&pool, &manifest.key, active).await?;
     if active {
         deactivate_undeclared(&pool, manifest).await?;
     }
@@ -830,45 +725,9 @@ pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
     let mut tx = aphel_sdk::platform::database::transaction::Tx::from(pool.begin().await?);
     let mut attached: Vec<Uuid> = Vec::new();
     for record_type in manifest.entity_record_types() {
-        let files: Vec<String> =
-            sqlx::query_scalar("SELECT file_id FROM attachments WHERE record_type = ?")
-                .bind(&record_type)
-                .fetch_all(&mut *tx)
-                .await?;
-        attached.extend(files.iter().filter_map(|id| Uuid::parse_str(id).ok()));
-        for table in ["attachments", "record_shares"] {
-            sqlx::query(sqlx::AssertSqlSafe(format!(
-                "DELETE FROM {table} WHERE record_type = ?"
-            )))
-            .bind(&record_type)
-            .execute(&mut *tx)
-            .await?;
-        }
-        for table in ["custom_field_values", "custom_field_multi_values"] {
-            sqlx::query(sqlx::AssertSqlSafe(format!(
-                "DELETE FROM {table} WHERE record_type = ?"
-            )))
-            .bind(&record_type)
-            .execute(&mut *tx)
-            .await?;
-        }
-        sqlx::query("DELETE FROM field_definitions WHERE record_type = ?")
-            .bind(&record_type)
-            .execute(&mut *tx)
-            .await?;
-        sqlx::query("DELETE FROM role_permissions WHERE permission LIKE ?")
-            .bind(format!("{record_type}.%"))
-            .execute(&mut *tx)
-            .await?;
+        attached.extend(store::purge_record_type(&mut tx, &record_type).await?);
     }
-    sqlx::query("DELETE FROM field_definitions WHERE module_key = ?")
-        .bind(&manifest.key)
-        .execute(&mut *tx)
-        .await?;
-    sqlx::query("DELETE FROM custom_objects WHERE module_key = ?")
-        .bind(&manifest.key)
-        .execute(&mut *tx)
-        .await?;
+    store::delete_module_schema(&mut tx, &manifest.key).await?;
     let orphans =
         aphel_sdk::platform::infrastructure::storage::references::delete_unreferenced_files(
             &mut tx, &attached,
@@ -881,11 +740,7 @@ pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), Ap
                 "{}.{}",
                 manifest.key, entity.key
             ));
-            sqlx::raw_sql(sqlx::AssertSqlSafe(format!(
-                "DROP TABLE IF EXISTS `{table}`"
-            )))
-            .execute(&pool)
-            .await?;
+            store::drop_table(&pool, &table).await?;
         }
     }
 

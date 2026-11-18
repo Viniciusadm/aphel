@@ -3,7 +3,6 @@ use std::time::Duration;
 use async_trait::async_trait;
 use serde::Serialize;
 use serde_json::{Value, json};
-use sqlx::{Row, types::Json};
 use utoipa::ToSchema;
 
 use crate::manifest::PLUGIN_EVENT_PREFIX;
@@ -95,31 +94,31 @@ impl EventConsumer for ChangeFeedConsumer {
         let Some(owner) = owner else {
             return Ok(());
         };
-        sqlx::query(
-            "INSERT IGNORE INTO plugins_changes (plugin_key, event_id, event_type, record_type, record_id, fields, occurred_at) \
-             VALUES (?, ?, ?, ?, ?, ?, ?)",
+        crate::store::changes::insert(
+            &self.pool,
+            crate::store::changes::NewChange {
+                plugin_key: &owner,
+                event_id: event.id.to_string(),
+                event_type: &event.event_type,
+                record_type: event
+                    .record
+                    .as_ref()
+                    .map(|record| record.record_type.as_str().to_owned()),
+                record_id: event
+                    .record
+                    .as_ref()
+                    .map(|record| record.record_id.to_string()),
+                fields: changed_fields(&event.payload),
+                occurred_at: event.occurred_at.naive_utc(),
+            },
         )
-        .bind(&owner)
-        .bind(event.id.to_string())
-        .bind(&event.event_type)
-        .bind(event.record.as_ref().map(|record| record.record_type.as_str().to_owned()))
-        .bind(event.record.as_ref().map(|record| record.record_id.to_string()))
-        .bind(Json(changed_fields(&event.payload)))
-        .bind(event.occurred_at.naive_utc())
-        .execute(&self.pool)
         .await?;
         Ok(())
     }
 }
 
 pub(crate) async fn prune(pool: &Db) -> Result<(), AppError> {
-    sqlx::query(
-        "DELETE FROM plugins_changes WHERE created_at < UTC_TIMESTAMP(6) - INTERVAL ? HOUR LIMIT 10000",
-    )
-    .bind(RETENTION_HOURS)
-    .execute(pool)
-    .await?;
-    Ok(())
+    crate::store::changes::prune(pool, RETENTION_HOURS).await
 }
 
 pub(crate) async fn page(
@@ -131,27 +130,15 @@ pub(crate) async fn page(
     let state = aphel_sdk::runtime()?;
     let pool = state.db()?;
     let registry = state.registry().await?;
-    let oldest: Option<u64> =
-        sqlx::query_scalar("SELECT MIN(seq) FROM plugins_changes WHERE plugin_key = ?")
-            .bind(plugin)
-            .fetch_one(&pool)
-            .await?;
+    let oldest = crate::store::changes::oldest_seq(&pool, plugin).await?;
     let reset = since > 0 && oldest.is_some_and(|oldest| oldest > since + 1);
-    let rows = sqlx::query(
-        "SELECT seq, event_type, record_type, record_id, fields, occurred_at FROM plugins_changes \
-         WHERE plugin_key = ? AND seq > ? ORDER BY seq LIMIT ?",
-    )
-    .bind(plugin)
-    .bind(since)
-    .bind(limit.clamp(1, MAX_PAGE))
-    .fetch_all(&pool)
-    .await?;
+    let rows = crate::store::changes::after(&pool, plugin, since, limit.clamp(1, MAX_PAGE)).await?;
     let mut next = since;
     let mut data = Vec::with_capacity(rows.len());
-    for row in &rows {
-        let seq: u64 = row.try_get("seq")?;
+    for row in rows {
+        let seq = row.seq;
         next = seq;
-        let record_type: Option<String> = row.try_get("record_type")?;
+        let record_type = row.record_type;
         if let Some(record_type) = &record_type {
             let readable = registry.require(record_type).is_ok_and(|definition| {
                 scope
@@ -163,15 +150,13 @@ pub(crate) async fn page(
                 continue;
             }
         }
-        let Json(fields): Json<Vec<String>> = row.try_get("fields")?;
-        let occurred_at: chrono::NaiveDateTime = row.try_get("occurred_at")?;
         data.push(ChangeResponse {
             seq,
-            event_type: row.try_get("event_type")?,
-            record_id: row.try_get("record_id")?,
+            event_type: row.event_type,
+            record_id: row.record_id,
             record_type,
-            fields,
-            occurred_at: occurred_at.and_utc().to_rfc3339(),
+            fields: row.fields,
+            occurred_at: row.occurred_at.and_utc().to_rfc3339(),
         });
     }
     Ok(ChangesPage { data, next, reset })

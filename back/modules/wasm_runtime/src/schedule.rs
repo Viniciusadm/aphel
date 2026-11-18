@@ -5,7 +5,6 @@ use aphel_sdk::platform::database::Db;
 use async_trait::async_trait;
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use serde_json::{Value, json};
-use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
@@ -164,28 +163,30 @@ impl JobHandler for Run {
         let execution =
             ExecutionContext::plugin(&key, "schedule", None, None, None, Uuid::now_v7())?;
         let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
-        sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
-            .bind(execution.id.to_string()).bind(&key).bind(&source).bind(Json(json!({"name": name, "slot": slot})))
-            .bind(Json(&execution)).execute(&mut *tx).await?;
+        crate::store::executions::insert_once(
+            &mut tx,
+            &execution.id.to_string(),
+            &key,
+            &source,
+            &json!({"name": name, "slot": slot}),
+            &execution,
+        )
+        .await?;
         tx.commit().await?;
         let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
-        let row = sqlx::query("SELECT id, execution, status FROM plugins_executions WHERE plugin_key = ? AND source_key = ? FOR UPDATE")
-            .bind(&key).bind(&source).fetch_one(&mut *tx).await?;
-        if row.try_get::<String, _>("status")? == "completed" {
+        let (id, execution, status) =
+            crate::store::executions::lock_by_source(&mut tx, &key, &source).await?;
+        if status == "completed" {
             return Ok(());
         }
-        let id: String = row.try_get("id")?;
-        let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
+        let execution: ExecutionContext = serde_json::from_value(execution)
+            .map_err(|error| AppError::Internal(error.to_string()))?;
         match runtime::on_schedule(plugin, &name, &slot, execution).await {
             Ok(()) => {
-                sqlx::query("UPDATE plugins_executions SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
-                .bind(id).execute(&mut *tx).await?;
+                crate::store::executions::complete(&mut tx, &id).await?;
             }
             Err(error) => {
-                sqlx::query("UPDATE plugins_executions SET last_error = ? WHERE id = ?")
-                    .bind(error.client_message())
-                    .bind(id)
-                    .execute(&mut *tx)
+                crate::store::executions::set_last_error(&mut tx, &id, error.client_message())
                     .await?;
                 tx.commit().await?;
                 return Err(error);

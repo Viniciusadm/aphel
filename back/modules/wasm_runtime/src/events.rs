@@ -6,7 +6,6 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{Actor, DomainEvent, EventConsumer};
 use aphel_sdk::platform::application::shared::{ExecutionContext, JobContext, JobHandler};
 use aphel_sdk::platform::database::Db;
-use sqlx::{Row, types::Json};
 use std::sync::Arc;
 
 pub(crate) const EVENTS_CONSUMER: &str = "wasm_runtime.events";
@@ -67,15 +66,14 @@ impl EventConsumer for PluginEventsConsumer {
                 "actor_type": event.actor.kind(), "actor_id": event.actor.id(),
                 "occurred_at": event.occurred_at.to_rfc3339(), "payload": event.payload,
             });
-            sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
-                .bind(execution.id.to_string()).bind(&plugin.key).bind(format!("event:{}", event.id))
-                .bind(sqlx::types::Json(input)).bind(sqlx::types::Json(&execution)).execute(&mut *tx).await?;
-            let id: String = sqlx::query_scalar(
-                "SELECT id FROM plugins_executions WHERE plugin_key = ? AND source_key = ?",
+            let id = crate::store::executions::record_once(
+                &mut tx,
+                &execution.id.to_string(),
+                &plugin.key,
+                &format!("event:{}", event.id),
+                &input,
+                &execution,
             )
-            .bind(&plugin.key)
-            .bind(format!("event:{}", event.id))
-            .fetch_one(&mut *tx)
             .await?;
             use aphel_sdk::platform::application::shared::JobQueue;
             aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue::new(self.pool.clone())
@@ -122,18 +120,18 @@ impl JobHandler for Run {
             .and_then(serde_json::Value::as_str)
             .ok_or_else(|| AppError::Validation("plugin.event requires an id".to_owned()))?;
         let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
-        let row = sqlx::query("SELECT plugin_key, input, execution, status FROM plugins_executions WHERE id = ? FOR UPDATE")
-            .bind(id).fetch_one(&mut *tx).await?;
-        if row.try_get::<String, _>("status")? == "completed" {
+        let row = crate::store::executions::lock(&mut tx, id).await?;
+        if row.status == "completed" {
             return Ok(());
         }
-        let key: String = row.try_get("plugin_key")?;
+        let key = row.plugin_key;
         let snapshot = registry::current(&self.pool).await?;
         let plugin = snapshot.plugin(&key).ok_or_else(|| {
             AppError::unavailable_code("plugin_disabled", "the plugin is disabled or uninstalled")
         })?;
-        let Json(input): Json<serde_json::Value> = row.try_get("input")?;
-        let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
+        let input = row.input;
+        let execution: ExecutionContext = serde_json::from_value(row.execution)
+            .map_err(|error| AppError::Internal(error.to_string()))?;
         let text = |key: &str| {
             input
                 .get(key)
@@ -182,13 +180,10 @@ impl JobHandler for Run {
         };
         match outcome {
             Ok(()) => {
-                sqlx::query("UPDATE plugins_executions SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?").bind(id).execute(&mut *tx).await?;
+                crate::store::executions::complete(&mut tx, id).await?;
             }
             Err(error) => {
-                sqlx::query("UPDATE plugins_executions SET last_error = ? WHERE id = ?")
-                    .bind(error.client_message())
-                    .bind(id)
-                    .execute(&mut *tx)
+                crate::store::executions::set_last_error(&mut tx, id, error.client_message())
                     .await?;
                 tx.commit().await?;
                 return Err(error);

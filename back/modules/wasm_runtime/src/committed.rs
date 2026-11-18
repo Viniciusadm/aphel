@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
-use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::{
@@ -63,14 +62,14 @@ pub async fn enqueue(ctx: &mut HookCtx<'_>, changed: &ChangedRecord) -> Result<(
             "actor_type": actor.kind(), "actor_id": actor.id(), "values": changed.values,
             "changes": changed.changes.iter().map(|change| json!({"field": change.field, "old": change.old, "new": change.new})).collect::<Vec<_>>(),
             "state": state, "authority": authority});
-        sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
-            .bind(execution.id.to_string()).bind(&plugin.key).bind(&source).bind(Json(input)).bind(Json(&execution)).execute(&mut **ctx.tx).await?;
-        let id: String = sqlx::query_scalar(
-            "SELECT id FROM plugins_executions WHERE plugin_key = ? AND source_key = ?",
+        let id = crate::store::executions::record_once(
+            ctx.tx,
+            &execution.id.to_string(),
+            &plugin.key,
+            &source,
+            &input,
+            &execution,
         )
-        .bind(&plugin.key)
-        .bind(&source)
-        .fetch_one(&mut **ctx.tx)
         .await?;
         MySqlJobQueue::new(ctx.pool.clone())
             .enqueue(
@@ -105,17 +104,18 @@ impl JobHandler for Run {
             .and_then(Value::as_str)
             .ok_or_else(|| AppError::Validation("plugin.committed requires an id".to_owned()))?;
         let mut tx = Tx::from(self.pool.begin().await?);
-        let row = sqlx::query("SELECT plugin_key, input, execution, status FROM plugins_executions WHERE id = ? FOR UPDATE").bind(id).fetch_one(&mut *tx).await?;
-        if row.try_get::<String, _>("status")? == "completed" {
+        let row = crate::store::executions::lock(&mut tx, id).await?;
+        if row.status == "completed" {
             return Ok(());
         }
-        let key: String = row.try_get("plugin_key")?;
+        let key = row.plugin_key;
         let snapshot = registry::current(&self.pool).await?;
         let plugin = snapshot.plugin(&key).ok_or_else(|| {
             AppError::unavailable_code("plugin_disabled", "the plugin is disabled or uninstalled")
         })?;
-        let Json(input): Json<Value> = row.try_get("input")?;
-        let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
+        let input = row.input;
+        let execution: ExecutionContext = serde_json::from_value(row.execution)
+            .map_err(|error| AppError::Internal(error.to_string()))?;
         let authority: Authority = serde_json::from_value(input["authority"].clone())
             .map_err(|error| AppError::Internal(error.to_string()))?;
         let scope = authority
@@ -166,7 +166,7 @@ impl JobHandler for Run {
         execution
             .scope(runtime::on_hook(plugin, &mut ctx, &call))
             .await?;
-        sqlx::query("UPDATE plugins_executions SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?").bind(id).execute(&mut *tx).await?;
+        crate::store::executions::complete(&mut tx, id).await?;
         tx.commit().await?;
         Ok(())
     }

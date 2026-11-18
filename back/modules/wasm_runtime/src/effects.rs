@@ -2,10 +2,10 @@ use aphel_contract_crm::CrmPermissions;
 use aphel_sdk::platform::database::Db;
 use std::sync::Arc;
 
+use crate::store::effects as effects_store;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
@@ -379,31 +379,32 @@ pub async fn persist(
     let queue = MySqlJobQueue::new(pool.clone());
     let mut identifiers = Vec::new();
     for effect in pending {
-        sqlx::query(
-            "INSERT IGNORE INTO plugins_effect_limits (plugin_key, execution_id) VALUES (?, ?)",
+        let execution_id = effect.execution.id.to_string();
+        let count = effects_store::locked_effect_count(tx, &effect.plugin, &execution_id).await?;
+        let inserted = effects_store::insert_once(
+            tx,
+            effects_store::NewEffect {
+                id: effect.id,
+                plugin_key: &effect.plugin,
+                execution_id: &execution_id,
+                effect_key: &effect.key,
+                command: &effect.command,
+                authority: &effect.authority,
+                execution: &effect.execution,
+            },
         )
-        .bind(&effect.plugin)
-        .bind(effect.execution.id.to_string())
-        .execute(&mut **tx)
         .await?;
-        let count: u32 = sqlx::query_scalar("SELECT effect_count FROM plugins_effect_limits WHERE plugin_key = ? AND execution_id = ? FOR UPDATE")
-            .bind(&effect.plugin).bind(effect.execution.id.to_string()).fetch_one(&mut **tx).await?;
-        let inserted = sqlx::query("INSERT IGNORE INTO plugins_effects (id, plugin_key, execution_id, effect_key, command, authority, execution) VALUES (?, ?, ?, ?, ?, ?, ?)")
-            .bind(effect.id.to_string()).bind(&effect.plugin).bind(effect.execution.id.to_string()).bind(&effect.key)
-            .bind(Json(&effect.command)).bind(Json(&effect.authority)).bind(Json(&effect.execution)).execute(&mut **tx).await?.rows_affected();
-        if inserted != 0 {
+        if inserted {
             if count >= 100 {
                 return Err(AppError::validation_code(
                     "plugin_effect_limit",
                     "an execution can defer at most 100 distinct effects",
                 ));
             }
-            sqlx::query("UPDATE plugins_effect_limits SET effect_count = effect_count + 1 WHERE plugin_key = ? AND execution_id = ?")
-                .bind(&effect.plugin).bind(effect.execution.id.to_string()).execute(&mut **tx).await?;
+            effects_store::count_effect(tx, &effect.plugin, &execution_id).await?;
         }
-        let row = sqlx::query("SELECT id, command FROM plugins_effects WHERE plugin_key = ? AND execution_id = ? AND effect_key = ? FOR UPDATE")
-            .bind(&effect.plugin).bind(effect.execution.id.to_string()).bind(&effect.key).fetch_one(&mut **tx).await?;
-        let Json(command): Json<Value> = row.try_get("command")?;
+        let (id, command) =
+            effects_store::lock_by_key(tx, &effect.plugin, &execution_id, &effect.key).await?;
         if command
             != serde_json::to_value(&effect.command)
                 .map_err(|error| AppError::Internal(error.to_string()))?
@@ -413,7 +414,6 @@ pub async fn persist(
                 "the effect key was already used with another command",
             ));
         }
-        let id: String = row.try_get("id")?;
         queue
             .enqueue(
                 tx,
@@ -447,27 +447,30 @@ impl JobHandler for Run {
             .and_then(Value::as_str)
             .and_then(|id| Uuid::parse_str(id).ok())
             .ok_or_else(|| AppError::Validation("plugin.effect requires an id".to_owned()))?;
-        let row = sqlx::query("SELECT plugin_key, command, authority, execution, status FROM plugins_effects WHERE id = ?").bind(id.to_string()).fetch_one(&self.pool).await?;
-        if row.try_get::<String, _>("status")? == "completed" {
+        let row = effects_store::find(&self.pool, id).await?;
+        if row.status == "completed" {
             return Ok(());
         }
         if receipt::applied(&self.pool, id).await? {
             return complete(&self.pool, id).await;
         }
-        let key: String = row.try_get("plugin_key")?;
+        let key = row.plugin_key;
         let snapshot = registry::current(&self.pool).await?;
         let plugin = snapshot.plugin(&key).ok_or_else(|| {
             AppError::unavailable_code("plugin_disabled", "the plugin is disabled or uninstalled")
         })?;
-        let Json(command): Json<Command> = row.try_get("command")?;
+        let command: Command = serde_json::from_value(row.command)
+            .map_err(|error| AppError::Internal(error.to_string()))?;
         validate(plugin, &command).await?;
-        let Json(authority): Json<Authority> = row.try_get("authority")?;
+        let authority: Authority = serde_json::from_value(row.authority)
+            .map_err(|error| AppError::Internal(error.to_string()))?;
         let scope = authority
             .resolve(&self.pool)
             .await?
             .restricted(|permission| plugin.manifest.allows(permission))
             .acting_as("plugin", &plugin.key);
-        let Json(execution): Json<ExecutionContext> = row.try_get("execution")?;
+        let execution: ExecutionContext = serde_json::from_value(row.execution)
+            .map_err(|error| AppError::Internal(error.to_string()))?;
         let result = execution
             .scope(MutationReceipt::scope(
                 id,
@@ -480,19 +483,13 @@ impl JobHandler for Run {
         let error = result.err().unwrap_or_else(|| {
             AppError::Internal("durable command did not commit a receipt".to_owned())
         });
-        sqlx::query("UPDATE plugins_effects SET last_error = ? WHERE id = ?")
-            .bind(error.client_message())
-            .bind(id.to_string())
-            .execute(&self.pool)
-            .await?;
+        effects_store::set_last_error(&self.pool, id, error.client_message()).await?;
         Err(error)
     }
 }
 
 async fn complete(pool: &Db, id: Uuid) -> Result<(), AppError> {
-    sqlx::query("UPDATE plugins_effects SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
-        .bind(id.to_string()).execute(pool).await?;
-    Ok(())
+    effects_store::complete(pool, id).await
 }
 
 async fn execute(
@@ -516,11 +513,7 @@ async fn execute(
             if let Err(refusal) =
                 aphel_sdk::platform::application::mail::check_recipient(pool, &to, &purpose).await
             {
-                sqlx::query("UPDATE plugins_effects SET last_error = ? WHERE id = ?")
-                    .bind(refusal.client_message())
-                    .bind(effect_id.to_string())
-                    .execute(pool)
-                    .await?;
+                effects_store::set_last_error(pool, effect_id, refusal.client_message()).await?;
             } else {
                 EMAIL_LIMIT
                     .check(
@@ -612,20 +605,12 @@ async fn execute(
             value,
         } => {
             let mut tx = receipt::begin(pool).await?;
-            sqlx::query("INSERT INTO plugins_data (plugin_key, collection, item_id, value) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)")
-                .bind(&plugin.key).bind(collection).bind(id).bind(Json(value)).execute(&mut *tx).await?;
+            crate::store::kv_set_in(&mut tx, &plugin.key, &collection, &id, &value).await?;
             tx.commit().await?;
         }
         Command::KvDelete { collection, id } => {
             let mut tx = receipt::begin(pool).await?;
-            sqlx::query(
-                "DELETE FROM plugins_data WHERE plugin_key = ? AND collection = ? AND item_id = ?",
-            )
-            .bind(&plugin.key)
-            .bind(collection)
-            .bind(id)
-            .execute(&mut *tx)
-            .await?;
+            crate::store::kv_delete_in(&mut tx, &plugin.key, &collection, &id).await?;
             tx.commit().await?;
         }
         Command::Emit {
@@ -694,13 +679,9 @@ fn empty_object() -> Value {
 
 /// Result access is scoped to the calling plugin, never another plugin's effects.
 pub async fn result(pool: &Db, plugin: &str, id: &str) -> Result<Option<String>, AppError> {
-    let value: Option<Option<Json<Value>>> =
-        sqlx::query_scalar("SELECT result FROM plugins_effects WHERE id = ? AND plugin_key = ?")
-            .bind(id)
-            .bind(plugin)
-            .fetch_optional(pool)
-            .await?;
-    Ok(value.flatten().map(|Json(value)| value.to_string()))
+    Ok(effects_store::result(pool, plugin, id)
+        .await?
+        .map(|value| value.to_string()))
 }
 
 fn http_result(response: Result<crate::runtime::wit::HttpResponse, AppError>) -> Value {
@@ -732,14 +713,7 @@ async fn execute_http_with_result(
         ));
     }
     // A committed sending marker prevents a worker restart from silently repeating a POST.
-    let claimed = sqlx::query(
-        "UPDATE plugins_effects SET status = 'sending' WHERE id = ? AND status = 'pending'",
-    )
-    .bind(effect_id.to_string())
-    .execute(pool)
-    .await?
-    .rows_affected()
-        == 1;
+    let claimed = effects_store::claim_sending(pool, effect_id).await?;
     let response = if claimed {
         http_result(
             crate::net::fetch(
@@ -755,8 +729,7 @@ async fn execute_http_with_result(
         )))
     };
     let mut tx = receipt::begin(pool).await?;
-    sqlx::query("UPDATE plugins_effects SET result = ?, status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
-        .bind(Json(&response)).bind(effect_id.to_string()).execute(&mut *tx).await?;
+    effects_store::complete_with_result(&mut tx, effect_id, &response).await?;
     let continuation = event.and_then(|event| {
         match parent.external_response(&plugin.key, Uuid::now_v7()) {
             Ok(execution) => Some((event, execution)),
@@ -773,9 +746,15 @@ async fn execute_http_with_result(
             "record_type": null, "record_id": null, "occurred_at": chrono::Utc::now().to_rfc3339(),
             "payload": {"effect_id": effect_id, "context": context, "response": response},
             "authority": Authority::capture(scope)});
-        sqlx::query("INSERT INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
-            .bind(execution.id.to_string()).bind(&plugin.key).bind(format!("http:{effect_id}"))
-            .bind(Json(input)).bind(Json(&execution)).execute(&mut *tx).await?;
+        crate::store::executions::insert(
+            &mut tx,
+            &execution.id.to_string(),
+            &plugin.key,
+            &format!("http:{effect_id}"),
+            &input,
+            &execution,
+        )
+        .await?;
         MySqlJobQueue::new(pool.clone())
             .enqueue(
                 &mut tx,

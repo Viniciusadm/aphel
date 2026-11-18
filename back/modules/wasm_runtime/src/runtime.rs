@@ -559,15 +559,17 @@ pub async fn on_action(
         "automation:{}",
         backend_hash(format!("{}:{}:{step_id}", call.automation_id, call.run_id).as_bytes())
     );
-    sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, JSON_OBJECT(), ?)")
-        .bind(execution.id.to_string()).bind(&plugin.key).bind(&source).bind(sqlx::types::Json(&execution)).execute(&pool).await?;
-    let sqlx::types::Json(execution): sqlx::types::Json<ExecutionContext> = sqlx::query_scalar(
-        "SELECT execution FROM plugins_executions WHERE plugin_key = ? AND source_key = ?",
+    let execution: ExecutionContext = serde_json::from_value(
+        crate::store::executions::record_action_once(
+            &pool,
+            &execution.id.to_string(),
+            &plugin.key,
+            &source,
+            &execution,
+        )
+        .await?,
     )
-    .bind(&plugin.key)
-    .bind(&source)
-    .fetch_one(&pool)
-    .await?;
+    .map_err(|error| AppError::Internal(error.to_string()))?;
     let scope = capability_scope(plugin, scope);
     let (mut store, bindings) = instantiate(plugin, scope, ACTION_TIMEOUT, false).await?;
     store.data_mut().retryable = true;

@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde::Serialize;
-use sqlx::Row;
 use utoipa::ToSchema;
 
 use crate::manifest::PluginManifest;
@@ -22,17 +21,9 @@ pub struct PluginModuleGuard;
 #[async_trait]
 impl ModuleToggleGuard for PluginModuleGuard {
     async fn held_modules(&self, pool: &Db) -> Result<HashMap<String, String>, AppError> {
-        let rows = sqlx::query(
-            "SELECT c.module_key, p.name FROM plugins_module_conflicts c \
-             JOIN plugins_installed p ON p.plugin_key = c.plugin_key \
-             ORDER BY c.created_at",
-        )
-        .fetch_all(pool)
-        .await?;
+        let rows = store::module_conflicts::holders(pool).await?;
         let mut held: HashMap<String, String> = HashMap::new();
-        for row in rows {
-            let module: String = row.try_get("module_key")?;
-            let name: String = row.try_get("name")?;
+        for (module, name) in rows {
             held.entry(module)
                 .and_modify(|names| {
                     names.push_str(", ");
@@ -205,20 +196,7 @@ pub fn ensure_unblocked(plans: &[ModuleConflictPlan]) -> Result<(), AppError> {
 }
 
 async fn held_rows(pool: &Db, plugin_key: &str) -> Result<Vec<(String, bool)>, AppError> {
-    let rows = sqlx::query(
-        "SELECT module_key, was_enabled FROM plugins_module_conflicts WHERE plugin_key = ?",
-    )
-    .bind(plugin_key)
-    .fetch_all(pool)
-    .await?;
-    rows.iter()
-        .map(|row| {
-            Ok((
-                row.try_get::<String, _>("module_key")?,
-                row.try_get::<bool, _>("was_enabled")?,
-            ))
-        })
-        .collect()
+    store::module_conflicts::held_by(pool, plugin_key).await
 }
 
 pub async fn hold(
@@ -258,26 +236,13 @@ async fn hold_module(
     module: &str,
 ) -> Result<(), AppError> {
     let pool = state.db()?;
-    let held_by_others: Option<bool> = sqlx::query_scalar(
-        "SELECT MAX(was_enabled) FROM plugins_module_conflicts WHERE module_key = ? AND plugin_key <> ?",
-    )
-    .bind(module)
-    .bind(plugin_key)
-    .fetch_one(&pool)
-    .await?;
+    let held_by_others =
+        store::module_conflicts::enabled_before_other_holders(&pool, module, plugin_key).await?;
     let was_enabled = held_by_others.unwrap_or_else(|| state.app.is_enabled(module));
     if state.app.is_enabled(module) {
         module_use_cases(state)?.disable(scope, module).await?;
     }
-    sqlx::query(
-        "INSERT INTO plugins_module_conflicts (plugin_key, module_key, was_enabled) VALUES (?, ?, ?) \
-         ON DUPLICATE KEY UPDATE was_enabled = VALUES(was_enabled)",
-    )
-    .bind(plugin_key)
-    .bind(module)
-    .bind(was_enabled)
-    .execute(&pool)
-    .await?;
+    store::module_conflicts::hold(&pool, plugin_key, module, was_enabled).await?;
     Ok(())
 }
 
@@ -319,23 +284,8 @@ async fn release_module(
     plugin_key: &str,
     module: &str,
 ) -> Result<(), AppError> {
-    let was_enabled: Option<bool> = sqlx::query_scalar(
-        "SELECT was_enabled FROM plugins_module_conflicts WHERE plugin_key = ? AND module_key = ?",
-    )
-    .bind(plugin_key)
-    .bind(module)
-    .fetch_optional(pool)
-    .await?;
-    sqlx::query("DELETE FROM plugins_module_conflicts WHERE plugin_key = ? AND module_key = ?")
-        .bind(plugin_key)
-        .bind(module)
-        .execute(pool)
-        .await?;
-    let remaining: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM plugins_module_conflicts WHERE module_key = ?")
-            .bind(module)
-            .fetch_one(pool)
-            .await?;
+    let (was_enabled, remaining) =
+        store::module_conflicts::release(pool, plugin_key, module).await?;
     if was_enabled == Some(true) && remaining == 0 {
         module_use_cases(state)?.enable(scope, module).await?;
     }
