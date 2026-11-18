@@ -242,7 +242,6 @@ impl TeamRepository for MySqlTeamRepository {
     }
 }
 
-/// `(id, name)` of the given teams, ordered by name; unknown ids are skipped.
 pub(crate) async fn team_names(
     pool: &MySqlPool,
     ids: &[String],

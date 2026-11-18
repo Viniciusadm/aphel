@@ -11,6 +11,7 @@ mod openapi;
 mod probe;
 mod secrets;
 mod serve;
+mod store;
 mod tenancy_check;
 mod tenants;
 mod upgrade;

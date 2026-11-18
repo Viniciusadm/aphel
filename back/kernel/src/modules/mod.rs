@@ -6,7 +6,7 @@ pub(crate) mod global;
 pub mod hooks;
 pub mod intern;
 pub(crate) mod manifest;
-pub mod migrations;
+pub use crate::database::module_migrations as migrations;
 pub(crate) mod module;
 pub mod operations;
 pub mod plugin_bridge;
@@ -17,6 +17,7 @@ pub mod runtime;
 mod runtime_contribution;
 pub(crate) mod services;
 pub(crate) mod settings;
+mod store;
 pub mod unified_catalog;
 pub mod worker;
 

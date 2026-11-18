@@ -1,9 +1,6 @@
-//! Sliding-window counters behind the HTTP rate limiter (`api::rate_limit`).
-
 use chrono::NaiveDateTime;
 use sqlx::{MySqlPool, Row};
 
-/// Counts one hit in the window starting at `window_start`.
 pub(crate) async fn record_hit(
     pool: &MySqlPool,
     bucket: &str,
@@ -22,7 +19,6 @@ pub(crate) async fn record_hit(
     Ok(())
 }
 
-/// Hits of the two windows, as `(window_start, hits)`; missing windows are absent.
 pub(crate) async fn window_hits(
     pool: &MySqlPool,
     bucket: &str,
@@ -42,7 +38,6 @@ pub(crate) async fn window_hits(
     .collect()
 }
 
-/// Takes back a hit that was rejected, so rejected requests do not extend the block.
 pub(crate) async fn undo_hit(
     pool: &MySqlPool,
     bucket: &str,
@@ -58,7 +53,6 @@ pub(crate) async fn undo_hit(
     Ok(())
 }
 
-/// Deletes up to `batch` expired counters.
 pub(crate) async fn delete_expired(
     pool: &MySqlPool,
     now: NaiveDateTime,

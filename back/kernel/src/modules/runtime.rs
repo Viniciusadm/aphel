@@ -4,8 +4,6 @@ use crate::database::Db;
 use crate::modules::manifest::table_prefix;
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
-use sqlx::types::Json;
-use sqlx::{AssertSqlSafe, MySql, QueryBuilder};
 
 use crate::api::state::{AppState, SharedAuditLog, SharedEventPublisher, SharedSecretVault};
 use crate::application::fields::is_sql_identifier;
@@ -60,21 +58,7 @@ impl ModuleRuntime {
             .module(key)
             .map(|entry| entry.manifest.owned_tables.clone())
             .unwrap_or_default();
-        let mut query = QueryBuilder::<MySql>::new(
-            "SELECT TABLE_NAME FROM information_schema.TABLES \
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' AND (TABLE_NAME LIKE ",
-        );
-        query.push_bind(own);
-        if !owned.is_empty() {
-            query.push(" OR TABLE_NAME IN (");
-            let mut tables = query.separated(", ");
-            for table in owned {
-                tables.push_bind(table);
-            }
-            query.push(")");
-        }
-        query.push(") ORDER BY TABLE_NAME");
-        let tables: Vec<String> = query.build_query_scalar().fetch_all(&self.pool).await?;
+        let tables = super::store::data_tables(&self.pool, own, owned).await?;
         Ok(tables
             .into_iter()
             .filter(|table| is_sql_identifier(table))
@@ -82,13 +66,7 @@ impl ModuleRuntime {
     }
 
     async fn columns(&self, table: &str) -> Result<Vec<String>, AppError> {
-        let columns: Vec<String> = sqlx::query_scalar(
-            "SELECT COLUMN_NAME FROM information_schema.COLUMNS \
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION",
-        )
-        .bind(table)
-        .fetch_all(&self.pool)
-        .await?;
+        let columns = super::store::columns(&self.pool, table).await?;
         Ok(columns
             .into_iter()
             .filter(|column| is_sql_identifier(column))
@@ -100,17 +78,7 @@ impl ModuleRuntime {
         if columns.is_empty() {
             return Ok(json!([]));
         }
-        let object = columns
-            .iter()
-            .map(|column| format!("'{column}', `{column}`"))
-            .collect::<Vec<_>>()
-            .join(", ");
-        let rows: Option<Json<Value>> = sqlx::query_scalar(AssertSqlSafe(format!(
-            "SELECT JSON_ARRAYAGG(JSON_OBJECT({object})) FROM `{table}`"
-        )))
-        .fetch_one(&self.pool)
-        .await?;
-        Ok(rows.map(|rows| rows.0).unwrap_or_else(|| json!([])))
+        super::store::table_as_json(&self.pool, table, &columns).await
     }
 }
 
@@ -211,11 +179,8 @@ impl ModuleLifecycle for ModuleRuntime {
             let before = pending.len();
             let mut blocked = Vec::new();
             for table in pending {
-                let result = sqlx::query(AssertSqlSafe(format!("DELETE FROM `{table}`")))
-                    .execute(&mut **tx)
-                    .await;
-                match result {
-                    Ok(done) => removed += done.rows_affected(),
+                match super::store::delete_all(tx, &table).await {
+                    Ok(done) => removed += done,
                     Err(error) => {
                         tracing::debug!(module = key, table = %table, "purge retried: {error}");
                         blocked.push(table);

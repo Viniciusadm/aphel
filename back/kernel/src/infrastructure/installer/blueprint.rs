@@ -1,8 +1,5 @@
-//! Storage used when (re)applying the installer blueprint (`api::routes::v1::installer`).
-
 use sqlx::MySqlPool;
 
-/// The answers given in the installer (`settings.$.installer`), if any.
 pub(crate) async fn installer_answers(
     pool: &MySqlPool,
 ) -> Result<Option<serde_json::Value>, sqlx::Error> {
@@ -14,7 +11,6 @@ pub(crate) async fn installer_answers(
     Ok(document.flatten())
 }
 
-/// Creates the role when its key is new and returns its id either way.
 pub(crate) async fn ensure_role(
     pool: &MySqlPool,
     key: &str,
@@ -32,7 +28,6 @@ pub(crate) async fn ensure_role(
         .await
 }
 
-/// Grants an organization-wide permission to the role; already granted is fine.
 pub(crate) async fn grant_permission(
     pool: &MySqlPool,
     role_id: &str,
@@ -48,7 +43,6 @@ pub(crate) async fn grant_permission(
     Ok(())
 }
 
-/// Stores (`Some`) or clears (`None`) the last blueprint configuration error.
 pub(crate) async fn record_configuration_error(
     pool: &MySqlPool,
     error: Option<&str>,

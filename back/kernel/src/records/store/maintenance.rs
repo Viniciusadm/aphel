@@ -123,7 +123,8 @@ pub async fn inspect_entity(
 ) -> Result<Option<Value>, AppError> {
     let definition = registry.require(record.record_type.as_str())?;
     let mut tx = Tx::from(pool.begin().await?);
-    let Some(mut snapshot) = super::snapshot::capture(&mut tx, pool, registry, record).await?
+    let Some(mut snapshot) =
+        crate::records::snapshot::capture(&mut tx, pool, registry, record).await?
     else {
         return Ok(None);
     };

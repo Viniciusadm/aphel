@@ -93,10 +93,7 @@ async fn run_multi(config: AppConfig, tenancy: MultiTenancyConfig, args: ServeAr
 }
 
 async fn directory_size(control: &ControlPlane) -> i64 {
-    sqlx::query_scalar("SELECT COUNT(*) FROM tenants WHERE status = 'active'")
-        .fetch_one(control.pool())
-        .await
-        .unwrap_or_default()
+    super::store::active_tenant_count(control.pool()).await
 }
 
 async fn run_single(config: AppConfig, args: ServeArgs) -> CliResult {

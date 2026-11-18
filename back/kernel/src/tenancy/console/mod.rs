@@ -1,5 +1,5 @@
 mod dto;
-mod operators;
+pub(super) mod operators;
 mod plugins;
 mod session;
 mod tenants;

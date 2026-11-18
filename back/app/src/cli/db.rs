@@ -1,7 +1,5 @@
 use clap::{Args, Subcommand};
 use serde_json::Map;
-use sqlx::MySql;
-use sqlx::migrate::MigrateDatabase;
 use sqlx::mysql::MySqlConnectOptions;
 use tracing::warn;
 
@@ -192,8 +190,7 @@ async fn recreate(config: &AppConfig, confirm: &str) -> CliResult {
     }
 
     warn!(database, "permanently deleting and recreating the database");
-    MySql::drop_database(database_url).await?;
-    MySql::create_database(database_url).await?;
+    super::store::recreate_database(database_url).await?;
     migrate::run(config.clone(), None).await?;
     Ok(())
 }

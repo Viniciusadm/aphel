@@ -1,6 +1,3 @@
-//! `site_redirects` (created when a record's address field changes) and
-//! `site_path_redirects` (added by hand).
-
 use chrono::{DateTime, Utc};
 use sqlx::{FromRow, MySqlConnection, MySqlPool};
 
@@ -23,7 +20,6 @@ pub(crate) struct PathRedirect {
     pub created_at: DateTime<Utc>,
 }
 
-/// Newest record redirects first.
 pub(crate) async fn list_record_redirects(
     pool: &MySqlPool,
     limit: i64,
@@ -37,7 +33,6 @@ pub(crate) async fn list_record_redirects(
     .await
 }
 
-/// Locks and deletes a record redirect, returning what it was; `None` when unknown.
 pub(crate) async fn delete_record_redirect(
     conn: &mut MySqlConnection,
     id: u64,
@@ -58,7 +53,6 @@ pub(crate) async fn delete_record_redirect(
     Ok(found)
 }
 
-/// Newest hand-made redirects first.
 pub(crate) async fn list_path_redirects(
     pool: &MySqlPool,
     limit: i64,
@@ -72,7 +66,6 @@ pub(crate) async fn list_path_redirects(
     .await
 }
 
-/// Locks the redirect of `source_path` (or the gap where it would be) and tells whether it exists.
 pub(crate) async fn lock_path_redirect(
     conn: &mut MySqlConnection,
     source_path: &str,
@@ -85,7 +78,6 @@ pub(crate) async fn lock_path_redirect(
     Ok(found.is_some())
 }
 
-/// Inserts a hand-made redirect and returns its id.
 pub(crate) async fn insert_path_redirect(
     conn: &mut MySqlConnection,
     source_path: &str,
@@ -103,7 +95,6 @@ pub(crate) async fn insert_path_redirect(
     .last_insert_id())
 }
 
-/// Locks and deletes a hand-made redirect, returning `(source_path, target)`; `None` when unknown.
 pub(crate) async fn delete_path_redirect(
     conn: &mut MySqlConnection,
     id: u64,

@@ -246,8 +246,7 @@ async fn checks(context: &Context, a: &Side, b: &Side) -> Result<IsolationReport
 async fn scoped_database(runtime: &Arc<TenantRuntime>) -> Result<String, String> {
     scope(runtime.clone(), async {
         let pool = crate::state::runtime_pool().map_err(|error| error.to_string())?;
-        sqlx::query_scalar::<_, Option<String>>("SELECT DATABASE()")
-            .fetch_one(&pool)
+        super::store::probe::current_database(&pool)
             .await
             .map_err(|error| error.to_string())
             .map(Option::unwrap_or_default)
@@ -573,9 +572,7 @@ async fn team_events(runtime: &Arc<TenantRuntime>, team_id: &str) -> Result<i64,
     let team_id = team_id.to_owned();
     scope(runtime.clone(), async move {
         let pool = crate::state::runtime_pool().map_err(|error| error.to_string())?;
-        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM domain_events WHERE record_id = ?")
-            .bind(team_id)
-            .fetch_one(&pool)
+        super::store::probe::record_event_count(&pool, &team_id)
             .await
             .map_err(|error| error.to_string())
     })

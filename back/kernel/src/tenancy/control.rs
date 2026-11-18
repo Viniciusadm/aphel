@@ -84,15 +84,16 @@ impl ControlPlane {
     }
 
     pub async fn find_tenant(&self, slug: &str) -> Result<Option<Tenant>, AppError> {
-        let row: Option<(String, String, String, String, String, bool)> = sqlx::query_as(
-            "SELECT id, slug, name, database_name, status, plugin_management_enabled \
-             FROM tenants WHERE slug = ?",
-        )
-        .bind(slug)
-        .fetch_optional(&self.pool)
-        .await?;
+        let row = super::store::tenants::by_slug(&self.pool, slug).await?;
         row.map(
-            |(id, slug, name, database_name, status, plugin_management)| {
+            |super::store::tenants::TenantRow {
+                 id,
+                 slug,
+                 name,
+                 database_name,
+                 status,
+                 plugin_management,
+             }| {
                 Ok(Tenant {
                     id: uuid::Uuid::parse_str(&id)
                         .map_err(|_| AppError::Persistence(format!("invalid tenant id {id:?}")))?,

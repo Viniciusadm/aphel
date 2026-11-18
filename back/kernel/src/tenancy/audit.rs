@@ -28,17 +28,14 @@ pub async fn record_operator_action(
     tenant_id: Option<Uuid>,
     details: Value,
 ) {
-    let result = sqlx::query(
-        "INSERT INTO operator_audit (id, operator_id, action, tenant_id, details, ip) \
-         VALUES (?, ?, ?, ?, ?, ?)",
+    let result = super::store::audit::insert(
+        pool,
+        actor.operator_id,
+        action,
+        tenant_id,
+        &details,
+        actor.ip.as_deref(),
     )
-    .bind(Uuid::now_v7().to_string())
-    .bind(actor.operator_id.map(|id| id.to_string()))
-    .bind(action)
-    .bind(tenant_id.map(|id| id.to_string()))
-    .bind(sqlx::types::Json(&details))
-    .bind(actor.ip.as_deref())
-    .execute(pool)
     .await;
     if let Err(error) = result {
         tracing::error!(action, "could not record the operator action: {error}");

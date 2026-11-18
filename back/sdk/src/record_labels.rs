@@ -13,12 +13,7 @@ use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
 };
 use aphel_kernel::database::Db;
-use aphel_kernel::infrastructure::query::{
-    MySqlRecordQueryPorts,
-    compiler::{push_partition, quoted},
-    computed::system_expression,
-};
-use sqlx::{MySql, QueryBuilder, Row};
+use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
 use std::{collections::HashMap, sync::Arc};
 use uuid::Uuid;
 
@@ -60,26 +55,11 @@ pub async fn visible_record_labels<D: FieldDefinitionRepository>(
     else {
         return Ok(labels);
     };
-    let mut query = QueryBuilder::<MySql>::new(format!(
-        "SELECT r.id, {} AS record_label FROM {} r WHERE r.id IN (",
-        system_expression(field, "r"),
-        quoted(&definition.table)
-    ));
-    let mut separated = query.separated(", ");
-    for id in &selected {
-        separated.push_bind(id.to_string());
-    }
-    query.push(")");
-    push_partition(&mut query, definition, "r");
-    for row in query.build().fetch_all(pool).await? {
-        let raw: String = row.try_get("id")?;
-        let id = Uuid::parse_str(&raw)
-            .map_err(|_| AppError::Internal("invalid stored record identity".into()))?;
+    for (id, title) in
+        aphel_kernel::records::record_titles(pool, definition, field, &selected).await?
+    {
         if let Some(label) = labels.get_mut(&id) {
-            label.title =
-                aphel_kernel::records::decode_record_field(&row, "record_label", field.field_type)?
-                    .as_str()
-                    .map(str::to_owned);
+            label.title = title;
         }
     }
     Ok(labels)

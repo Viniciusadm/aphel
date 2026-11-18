@@ -10,12 +10,7 @@ pub fn module_secret_key(module: &str, name: &str) -> SecretKey {
 }
 
 pub async fn module_settings(pool: &Db, module: &str) -> Result<Value, AppError> {
-    let stored: Option<sqlx::types::Json<Value>> =
-        sqlx::query_scalar("SELECT settings FROM installed_modules WHERE module_key = ?")
-            .bind(module)
-            .fetch_optional(pool)
-            .await?;
-    let mut settings = match stored.map(|json| json.0) {
+    let mut settings = match super::store::stored_settings(pool, module).await? {
         Some(Value::Object(map)) => map,
         _ => Map::new(),
     };

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use uuid::Uuid;
 
 use crate::application::custom_objects::RecordLinkRepository;
 use crate::application::fields::CustomFieldValueRepository;
@@ -306,12 +305,12 @@ impl RecordPipeline for MySqlRecordPipeline {
                     && field.is_available()
                     && removed.insert(&extension.table)
                 {
-                    sqlx::query(sqlx::AssertSqlSafe(format!(
-                        "DELETE FROM `{}` WHERE `{}` = ?",
-                        extension.table, extension.record_column
-                    )))
-                    .bind(record.record_id.to_string())
-                    .execute(&mut **tx)
+                    super::store::cleanup::delete_extension_row(
+                        tx,
+                        &extension.table,
+                        &extension.record_column,
+                        record.record_id,
+                    )
                     .await?;
                 }
             }
@@ -324,51 +323,12 @@ impl RecordPipeline for MySqlRecordPipeline {
         MySqlRecordLinkRepository::new(self.pool.clone(), self.registry.clone())
             .delete_record_links(tx, record.record_id)
             .await?;
-        clear_record_references(tx, record).await?;
-        let attached = delete_record_rows(tx, record).await?;
+        super::store::cleanup::clear_record_references(tx, record).await?;
+        let attached = super::store::cleanup::delete_record_rows(tx, record).await?;
         Ok(PurgedRecord {
             orphan_storage_keys: delete_unreferenced_files(tx, &attached).await?,
         })
     }
-}
-
-async fn clear_record_references(tx: &mut Tx, record: &RecordRef) -> Result<(), AppError> {
-    sqlx::query(
-        "DELETE v FROM custom_field_values v JOIN field_definitions f ON f.id = v.field_id \
-         WHERE f.field_type = 'record' \
-         AND JSON_UNQUOTE(JSON_EXTRACT(f.config, '$.target_record_type')) = ? \
-         AND v.value_text = ?",
-    )
-    .bind(record.record_type.as_str())
-    .bind(record.record_id.to_string())
-    .execute(&mut **tx)
-    .await?;
-    Ok(())
-}
-
-async fn delete_record_rows(tx: &mut Tx, record: &RecordRef) -> Result<Vec<Uuid>, AppError> {
-    let kind = record.record_type.as_str();
-    let id = record.record_id.to_string();
-    let attached: Vec<String> = sqlx::query_scalar(
-        "SELECT file_id FROM attachments WHERE record_type = ? AND record_id = ?",
-    )
-    .bind(kind)
-    .bind(&id)
-    .fetch_all(&mut **tx)
-    .await?;
-    for table in ["attachments", "record_shares"] {
-        sqlx::query(sqlx::AssertSqlSafe(format!(
-            "DELETE FROM {table} WHERE record_type = ? AND record_id = ?"
-        )))
-        .bind(kind)
-        .bind(&id)
-        .execute(&mut **tx)
-        .await?;
-    }
-    Ok(attached
-        .iter()
-        .filter_map(|file_id| Uuid::parse_str(file_id).ok())
-        .collect())
 }
 
 async fn read_only<K: HookRef>(

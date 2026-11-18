@@ -18,8 +18,6 @@ pub struct TenantDirectory {
     snapshot: RwLock<Arc<Snapshot>>,
 }
 
-type HostRow = (String, String, String, String, String, bool, Option<String>);
-
 impl TenantDirectory {
     pub async fn load(pool: Db) -> Result<Arc<Self>, AppError> {
         let directory = Arc::new(Self {
@@ -31,14 +29,17 @@ impl TenantDirectory {
     }
 
     pub async fn refresh(&self) -> Result<(), AppError> {
-        let rows: Vec<HostRow> = sqlx::query_as(
-            "SELECT t.id, t.slug, t.name, t.database_name, t.status, t.plugin_management_enabled, h.host \
-             FROM tenants t LEFT JOIN tenant_hosts h ON h.tenant_id = t.id",
-        )
-        .fetch_all(&self.pool)
-        .await?;
+        let rows = super::store::tenants::with_hosts(&self.pool).await?;
         let mut snapshot = Snapshot::default();
-        for (id, slug, name, database_name, status, plugin_management, host) in rows {
+        for (row, host) in rows {
+            let super::store::tenants::TenantRow {
+                id,
+                slug,
+                name,
+                database_name,
+                status,
+                plugin_management,
+            } = row;
             let Some(tenant) =
                 parse_tenant(&id, slug, name, database_name, &status, plugin_management)
             else {

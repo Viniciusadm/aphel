@@ -3,8 +3,7 @@ use std::sync::Arc;
 use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use chrono::{NaiveDateTime, Utc};
-use serde_json::Value;
+use chrono::Utc;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -507,16 +506,6 @@ async fn catalog(_session: OperatorSession) -> Json<Data<CatalogResponse>> {
     }))
 }
 
-type AuditRow = (
-    String,
-    Option<String>,
-    String,
-    Option<String>,
-    sqlx::types::Json<Value>,
-    Option<String>,
-    NaiveDateTime,
-);
-
 #[utoipa::path(
     get,
     path = "/audit",
@@ -533,35 +522,20 @@ async fn audit(
     _session: OperatorSession,
     pagination: Pagination,
 ) -> Result<Json<Page<AuditEntryResponse>>, ApiError> {
-    let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM operator_audit")
-        .fetch_one(state.control.pool())
-        .await
-        .map_err(AppError::from)?;
-    let rows: Vec<AuditRow> = sqlx::query_as(
-        "SELECT a.id, o.email, a.action, a.tenant_id, a.details, a.ip, a.occurred_at \
-         FROM operator_audit a LEFT JOIN operators o ON o.id = a.operator_id \
-         ORDER BY a.occurred_at DESC, a.id DESC LIMIT ? OFFSET ?",
-    )
-    .bind(pagination.limit())
-    .bind(pagination.offset())
-    .fetch_all(state.control.pool())
-    .await
-    .map_err(AppError::from)?;
-    let entries = rows
+    let pool = state.control.pool();
+    let total = crate::tenancy::store::audit::count(pool).await?;
+    let entries = crate::tenancy::store::audit::page(pool, pagination.limit(), pagination.offset())
+        .await?
         .into_iter()
-        .map(
-            |(id, operator_email, action, tenant_id, details, ip, occurred_at)| {
-                AuditEntryResponse {
-                    id,
-                    operator_email,
-                    action,
-                    tenant_id,
-                    details: details.0,
-                    ip,
-                    occurred_at: crate::api::dto::common::timestamp(occurred_at.and_utc()),
-                }
-            },
-        )
+        .map(|entry| AuditEntryResponse {
+            id: entry.id,
+            operator_email: entry.operator_email,
+            action: entry.action,
+            tenant_id: entry.tenant_id,
+            details: entry.details,
+            ip: entry.ip,
+            occurred_at: crate::api::dto::common::timestamp(entry.occurred_at.and_utc()),
+        })
         .collect();
     Ok(Json(Page::new(
         entries,

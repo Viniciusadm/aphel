@@ -27,7 +27,6 @@ impl SystemHealthProbe {
     }
 }
 
-/// True when the database answers a trivial query.
 pub async fn database_up(pool: &MySqlPool) -> bool {
     sqlx::query_scalar::<_, i32>("SELECT 1")
         .fetch_one(pool)

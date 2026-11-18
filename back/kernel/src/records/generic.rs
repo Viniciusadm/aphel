@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
-use sqlx::{MySql, QueryBuilder};
 use uuid::Uuid;
 
 use crate::Ctx;
@@ -84,14 +83,8 @@ impl GenericRecordHandler {
         ctx.scope.require(&permission)?;
         let mut tx = ctx.begin().await?;
         self.authorize(&ctx, &mut tx, id, &permission).await?;
-        let previous: Option<chrono::NaiveDateTime> =
-            sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
-                "SELECT `{column}` FROM `{}` WHERE id = ? FOR UPDATE",
-                definition.table
-            )))
-            .bind(id.to_string())
-            .fetch_one(&mut *tx)
-            .await?;
+        let previous =
+            super::store::entity::lock_archived_at(&mut tx, &definition.table, column, id).await?;
         if previous.is_some() == archived {
             return Ok(());
         }
@@ -103,14 +96,8 @@ impl GenericRecordHandler {
                 .archiving(&mut tx, ctx.scope, &record)
                 .await?;
         }
-        sqlx::query(sqlx::AssertSqlSafe(format!(
-            "UPDATE `{}` SET `{column}` = {}, updated_at = UTC_TIMESTAMP(6) WHERE id = ?",
-            definition.table,
-            if archived { "UTC_TIMESTAMP(6)" } else { "NULL" }
-        )))
-        .bind(id.to_string())
-        .execute(&mut *tx)
-        .await?;
+        super::store::entity::set_archived(&mut tx, &definition.table, column, id, archived)
+            .await?;
         if !archived {
             ctx.pipeline().restored(&mut tx, ctx.scope, &record).await?;
         }
@@ -152,26 +139,15 @@ impl GenericRecordHandler {
     ) -> Result<(), AppError> {
         let definition = ctx.registry().require(self.record_type.as_str())?;
         let visibility = ctx.scope.record_filter(permission)?;
-        let mut query = QueryBuilder::<MySql>::new(format!(
-            "SELECT r.id FROM `{}` r WHERE r.id = ",
-            definition.table
-        ));
-        query.push_bind(id.to_string());
-        crate::infrastructure::query::compiler::push_record_scope(
-            &mut query,
+        if !super::store::entity::live_row_in_scope(
+            tx,
             ctx.scope,
             definition,
             &visibility,
-        );
-        if let Some(column) = &definition.deleted_column {
-            query.push(format!(" AND r.`{column}` IS NULL"));
-        }
-        query.push(" FOR UPDATE");
-        if query
-            .build_query_scalar::<String>()
-            .fetch_optional(&mut **tx)
-            .await?
-            .is_none()
+            id,
+            super::store::entity::RowLock::Update,
+        )
+        .await?
         {
             return Err(AppError::forbidden_code(
                 "permission_denied",
@@ -507,92 +483,8 @@ impl GenericRecordHandler {
         mode: WriteMode,
         creator: Option<String>,
     ) -> Result<(), AppError> {
-        let fields = definition
-            .system_fields
-            .iter()
-            .filter(|field| {
-                field.writable
-                    && !field.is_computed()
-                    && field.contributed_by.is_none()
-                    && values.contains_key(field.key.as_str())
-            })
-            .collect::<Vec<_>>();
-        let mut query = QueryBuilder::<MySql>::new(if mode == WriteMode::Create {
-            format!("INSERT INTO `{}` (`id`", definition.table)
-        } else {
-            format!("UPDATE `{}` SET ", definition.table)
-        });
-        if mode == WriteMode::Create {
-            for field in &fields {
-                query.push(format!(", `{}`", field.column));
-            }
-            if definition.storage == crate::application::fields::EntityStorage::Managed {
-                query.push(", `created_by`");
-            }
-            query.push(") VALUES (").push_bind(id.to_string());
-            for field in &fields {
-                query.push(", ");
-                push_value(&mut query, &values[field.key.as_str()]);
-            }
-            if definition.storage == crate::application::fields::EntityStorage::Managed {
-                query.push(", ").push_bind(creator);
-            }
-            query.push(")");
-        } else {
-            for (index, field) in fields.iter().enumerate() {
-                if index > 0 {
-                    query.push(", ");
-                }
-                query.push(format!("`{}` = ", field.column));
-                push_value(&mut query, &values[field.key.as_str()]);
-            }
-            if definition.storage == crate::application::fields::EntityStorage::Managed
-                || definition.system_field_by_key("updated_at").is_some()
-            {
-                if !fields.is_empty() {
-                    query.push(", ");
-                }
-                query.push("updated_at = UTC_TIMESTAMP(6)");
-            } else if fields.is_empty() {
-                query.push("id = id");
-            }
-
-            query.push(" WHERE id = ").push_bind(id.to_string());
-        }
-        query.build().execute(&mut **tx).await.map_err(|error| {
-            if error
-                .as_database_error()
-                .is_some_and(|error| error.is_unique_violation())
-            {
-                AppError::conflict_code(
-                    "entity_unique_conflict",
-                    "record violates a unique entity index",
-                )
-            } else {
-                AppError::from(error)
-            }
-        })?;
+        super::store::entity::write_row(tx, definition, id, values, mode, creator).await?;
         super::write_contributed(tx, definition, id, values).await
-    }
-}
-
-fn push_value(query: &mut QueryBuilder<MySql>, value: &Value) {
-    match value {
-        Value::Null => {
-            query.push_bind(None::<String>);
-        }
-        Value::Bool(value) => {
-            query.push_bind(*value);
-        }
-        Value::Number(value) => {
-            query.push_bind(value.to_string());
-        }
-        Value::String(value) => {
-            query.push_bind(value.clone());
-        }
-        value => {
-            query.push_bind(value.to_string());
-        }
     }
 }
 
@@ -696,18 +588,7 @@ impl RecordTypeHandler for GenericRecordHandler {
         let before = self.snapshot(&ctx, tx, id).await?;
         let record = RecordRef::new(self.record_type.clone(), id);
         ctx.pipeline().deleting(tx, ctx.scope, &record).await?;
-        let mut query = QueryBuilder::<MySql>::new(match &definition.deleted_column {
-            Some(column) => format!(
-                "UPDATE `{}` SET `{column}` = UTC_TIMESTAMP(6) WHERE id = ",
-                definition.table
-            ),
-            None => format!("DELETE FROM `{}` WHERE id = ", definition.table),
-        });
-        query
-            .push_bind(id.to_string())
-            .build()
-            .execute(&mut **tx)
-            .await?;
+        super::store::entity::delete_row(tx, definition, id).await?;
         ctx.pipeline().deleted(tx, ctx.scope, &record).await?;
         if definition.deleted_column.is_none() {
             ctx.pipeline().purged(tx, ctx.scope, &record).await?;
@@ -764,13 +645,9 @@ impl RecordTypeHandler for GenericRecordHandler {
         let definition = ctx.registry().require(self.record_type.as_str())?;
         let mut values = snapshot["values"].as_object().cloned().unwrap_or_default();
         if let Some(column) = &definition.archived_column {
-            let archived: Option<chrono::NaiveDateTime> = sqlx::query_scalar(sqlx::AssertSqlSafe(
-                format!("SELECT `{column}` FROM `{}` WHERE id = ?", definition.table),
-            ))
-            .bind(id.to_string())
-            .fetch_optional(ctx.pool())
-            .await?
-            .flatten();
+            let archived =
+                super::store::entity::archived_at(ctx.pool(), &definition.table, column, id)
+                    .await?;
             values.insert(
                 "archived_at".to_owned(),
                 archived

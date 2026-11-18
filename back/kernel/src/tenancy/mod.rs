@@ -8,6 +8,7 @@ mod provisioning;
 mod router;
 mod runtime;
 mod scope;
+mod store;
 mod tenant;
 mod worker;
 

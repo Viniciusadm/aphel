@@ -100,9 +100,5 @@ impl EnabledModules {
 }
 
 pub async fn stored_enabled(pool: &Db) -> Result<Vec<String>, AppError> {
-    Ok(sqlx::query_scalar(
-        "SELECT module_key FROM installed_modules WHERE enabled ORDER BY module_key",
-    )
-    .fetch_all(pool)
-    .await?)
+    super::store::enabled_keys(pool).await
 }

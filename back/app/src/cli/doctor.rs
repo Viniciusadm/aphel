@@ -56,10 +56,7 @@ fn describe_sqlx_error(error: &sqlx::Error) -> String {
 }
 
 pub(crate) async fn mysql_version(pool: &Db) -> Option<String> {
-    sqlx::query_scalar::<_, String>("SELECT VERSION()")
-        .fetch_one(pool)
-        .await
-        .ok()
+    super::store::server_version(pool).await
 }
 
 pub(crate) fn mysql_check(version: Option<&str>) -> DoctorCheck {
@@ -170,14 +167,7 @@ fn disk_space_check(name: &str, path: &Path, min_free_mb: u64) -> DoctorCheck {
 }
 
 async fn smtp_check(pool: &Db) -> DoctorCheck {
-    let row: Option<(Option<String>, Option<i64>)> = sqlx::query_as(
-        "SELECT JSON_UNQUOTE(JSON_EXTRACT(config, '$.host')), \
-         CAST(JSON_EXTRACT(config, '$.port') AS SIGNED) FROM integrations \
-         WHERE provider_key = 'smtp' AND status IN ('active', 'error')",
-    )
-    .fetch_optional(pool)
-    .await
-    .unwrap_or(None);
+    let row = super::store::smtp_endpoint(pool).await;
     let Some((Some(host), Some(port))) = row else {
         return DoctorCheck::new(
             "smtp",
