@@ -166,10 +166,7 @@ async fn metrics_snapshot(state: &AppState, settings: &SystemSettings) -> Metric
         return snapshot;
     };
     let now = Utc::now();
-    snapshot.database_up = sqlx::query_scalar::<_, i32>("SELECT 1")
-        .fetch_one(pool)
-        .await
-        .is_ok();
+    snapshot.database_up = probe::database_up(pool).await;
     if !snapshot.database_up {
         return snapshot;
     }

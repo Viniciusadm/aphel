@@ -419,16 +419,7 @@ pub async fn me_response(
     if !team_ids.is_empty()
         && let Ok(pool) = state.db()
     {
-        let mut builder =
-            sqlx::QueryBuilder::<sqlx::MySql>::new("SELECT id, name FROM teams WHERE id IN (");
-        let mut separated = builder.separated(", ");
-        for id in &team_ids {
-            separated.push_bind(id.clone());
-        }
-        builder.push(") ORDER BY name");
-        let rows: Vec<(String, String)> = builder
-            .build_query_as()
-            .fetch_all(&pool)
+        let rows = crate::infrastructure::repositories::mysql_teams::team_names(&pool, &team_ids)
             .await
             .map_err(AppError::from)?;
         response.teams = rows

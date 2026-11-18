@@ -1,4 +1,5 @@
 pub(crate) mod mysql_account_sessions;
+pub(crate) mod mysql_rate_limit_counters;
 pub(crate) mod mysql_security_events;
 
 use std::env;

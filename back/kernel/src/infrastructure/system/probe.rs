@@ -27,6 +27,14 @@ impl SystemHealthProbe {
     }
 }
 
+/// True when the database answers a trivial query.
+pub async fn database_up(pool: &MySqlPool) -> bool {
+    sqlx::query_scalar::<_, i32>("SELECT 1")
+        .fetch_one(pool)
+        .await
+        .is_ok()
+}
+
 pub async fn probe_storage(storage: &SharedFileStorage) -> Result<(), AppError> {
     let key = format!("system/health/probe-{}", Uuid::now_v7().simple());
     storage.put(&key, Bytes::from_static(b"ok")).await?;

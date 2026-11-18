@@ -419,7 +419,39 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
         }
     }
 
+    let mut data_sources = kernel_sources.clone();
+    data_sources.extend(plugin_sources.iter().map(|(_, file)| file.clone()));
+    for root in DATA_EXTRA_SOURCES {
+        data_sources.extend(rust_files(&back.join(root)));
+    }
+    let mut sql_outside = Vec::new();
+    let mut sql_in_http = Vec::new();
+    for file in &data_sources {
+        let path = relative(back, file);
+        let text = fs::read_to_string(file)?;
+        let calls = sql_calls(without_tests(&text));
+        if calls == 0 {
+            continue;
+        }
+        if !is_data_layer(&path) {
+            sql_outside.extend((0..calls).map(|_| path.clone()));
+        }
+        if is_http_layer(&path) {
+            sql_in_http.extend((0..calls).map(|_| path.clone()));
+        }
+    }
+
     Ok(vec![
+        Metric::new(
+            "sql_outside_data_layer",
+            "SQL calls (sqlx::query*, raw_sql, QueryBuilder) outside the data layer: store.rs, *_store.rs, store/, infrastructure/, repositories/, repository.rs, mysql_*.rs, queries.rs, sql.rs, kernel/src/database/, tenancy/provisioning.rs; one finding per call",
+            sql_outside,
+        ),
+        Metric::new(
+            "sql_in_http_handlers",
+            "SQL calls in HTTP handlers (http.rs, http/, kernel/src/api/); one finding per call",
+            sql_in_http,
+        ),
         Metric::new(
             "plugin_crates_depending_on_plugin_crates",
             "plugin crates with a dependency on another plugin crate",
@@ -885,6 +917,49 @@ fn mutable_static(line: &str) -> Option<String> {
             .iter()
             .any(|marker| kind.contains(marker)))
     .then(|| name.trim().to_string())
+}
+
+const DATA_EXTRA_SOURCES: [&str; 2] = ["sdk/src", "app/src"];
+const SQL_CALL_MARKERS: [&str; 4] = [
+    "sqlx::query",
+    "sqlx::raw_sql(",
+    "QueryBuilder::new(",
+    "QueryBuilder::<",
+];
+const DATA_LAYER_DIRS: [&str; 5] = [
+    "store",
+    "infrastructure",
+    "repositories",
+    "mysql",
+    "database",
+];
+const DATA_LAYER_FILES: [&str; 4] = ["store.rs", "repository.rs", "queries.rs", "sql.rs"];
+const DATA_LAYER_ENGINES: [&str; 1] = ["kernel/src/tenancy/provisioning.rs"];
+
+fn sql_calls(text: &str) -> usize {
+    SQL_CALL_MARKERS
+        .iter()
+        .map(|marker| text.matches(marker).count())
+        .sum()
+}
+
+fn is_data_layer(path: &str) -> bool {
+    if DATA_LAYER_ENGINES.contains(&path) {
+        return true;
+    }
+    let mut parts: Vec<&str> = path.split('/').collect();
+    let file = parts.pop().unwrap_or_default();
+    DATA_LAYER_FILES.contains(&file)
+        || file.ends_with("_store.rs")
+        || file.ends_with("_repository.rs")
+        || file.starts_with("mysql_")
+        || parts.iter().any(|part| DATA_LAYER_DIRS.contains(part))
+}
+
+fn is_http_layer(path: &str) -> bool {
+    path.starts_with("kernel/src/api/")
+        || path.ends_with("/http.rs")
+        || path.split('/').any(|part| part == "http")
 }
 
 fn rust_files(root: &Path) -> Vec<PathBuf> {

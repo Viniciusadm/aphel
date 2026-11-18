@@ -18,6 +18,8 @@
   "plugin_state_escapes": 0,
   "plugins_with_literal_record_types": 0,
   "required_plugins": 1,
+  "sql_in_http_handlers": 0,
+  "sql_outside_data_layer": 358,
   "unscoped_spawns": 0,
   "web_conflict_usages": 0,
   "web_feature_imports_from_plugins": 0,

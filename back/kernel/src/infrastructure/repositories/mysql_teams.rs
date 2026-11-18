@@ -241,3 +241,20 @@ impl TeamRepository for MySqlTeamRepository {
         Ok(())
     }
 }
+
+/// `(id, name)` of the given teams, ordered by name; unknown ids are skipped.
+pub(crate) async fn team_names(
+    pool: &MySqlPool,
+    ids: &[String],
+) -> Result<Vec<(String, String)>, sqlx::Error> {
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut builder = QueryBuilder::<MySql>::new("SELECT id, name FROM teams WHERE id IN (");
+    let mut separated = builder.separated(", ");
+    for id in ids {
+        separated.push_bind(id.clone());
+    }
+    builder.push(") ORDER BY name");
+    builder.build_query_as().fetch_all(pool).await
+}

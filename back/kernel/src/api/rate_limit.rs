@@ -5,7 +5,9 @@ use std::time::{Duration, Instant};
 
 use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha256};
-use sqlx::{MySqlPool, Row};
+use sqlx::MySqlPool;
+
+use crate::infrastructure::security::mysql_rate_limit_counters as counters;
 
 use crate::errors::AppError;
 
@@ -177,28 +179,11 @@ async fn hit_counter(
     .unwrap_or(now)
     .naive_utc();
 
-    sqlx::query(
-        "INSERT INTO rate_limit_counters (bucket, window_start, hits, expires_at) VALUES (?, ?, 1, ?) \
-         ON DUPLICATE KEY UPDATE hits = hits + 1",
-    )
-    .bind(bucket)
-    .bind(current_start)
-    .bind(expires_at)
-    .execute(pool)
-    .await?;
-    let rows = sqlx::query(
-        "SELECT window_start, hits FROM rate_limit_counters WHERE bucket = ? AND window_start IN (?, ?)",
-    )
-    .bind(bucket)
-    .bind(current_start)
-    .bind(previous_start)
-    .fetch_all(pool)
-    .await?;
+    counters::record_hit(pool, bucket, current_start, expires_at).await?;
+    let rows = counters::window_hits(pool, bucket, current_start, previous_start).await?;
     let mut previous = 0.0;
     let mut current = 0.0;
-    for row in &rows {
-        let start: i64 = row.try_get("window_start")?;
-        let hits: u32 = row.try_get("hits")?;
+    for (start, hits) in rows {
         if start == current_start {
             current = f64::from(hits);
         } else {
@@ -217,13 +202,7 @@ async fn hit_counter(
     let counter = if allowed {
         counter
     } else {
-        sqlx::query(
-            "UPDATE rate_limit_counters SET hits = hits - 1 WHERE bucket = ? AND window_start = ? AND hits > 0",
-        )
-        .bind(bucket)
-        .bind(current_start)
-        .execute(pool)
-        .await?;
+        counters::undo_hit(pool, bucket, current_start).await?;
         SlidingCounter {
             current: (counter.current - 1.0).max(0.0),
             ..counter
@@ -252,12 +231,7 @@ async fn cleanup_expired(pool: &MySqlPool, now: DateTime<Utc>) {
     {
         return;
     }
-    if let Err(error) = sqlx::query("DELETE FROM rate_limit_counters WHERE expires_at < ? LIMIT ?")
-        .bind(now.naive_utc())
-        .bind(CLEANUP_BATCH)
-        .execute(pool)
-        .await
-    {
+    if let Err(error) = counters::delete_expired(pool, now.naive_utc(), CLEANUP_BATCH).await {
         tracing::debug!(%error, "could not clean expired rate limit counters");
     }
 }

@@ -11,10 +11,9 @@ use aphel_sdk::platform::domain::access::Permission;
 use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use chrono::{DateTime, SecondsFormat, Utc};
+use chrono::SecondsFormat;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sqlx::Row;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
@@ -23,6 +22,7 @@ use crate::cache::{self, ALL_TAG};
 use crate::redirects;
 use crate::runtime;
 use crate::settings::site_settings;
+use crate::store;
 
 pub(crate) const TAG: &str = "site";
 const REDIRECT_DELETED: &str = "site.redirect_deleted";
@@ -403,32 +403,22 @@ async fn list_redirects(
                 _ => None,
             })
     };
-    let rows = sqlx::query(
-        "SELECT id, record_type, field, old_value, new_value, created_at FROM site_redirects \
-         ORDER BY created_at DESC, id DESC LIMIT ?",
-    )
-    .bind(MAX_REDIRECTS)
-    .fetch_all(&state.db()?)
-    .await
-    .map_err(AppError::from)?;
-    let mut redirects = Vec::with_capacity(rows.len());
-    for row in rows {
-        let created_at: DateTime<Utc> = row.try_get("created_at").map_err(AppError::from)?;
-        let record_type: String = row.try_get("record_type").map_err(AppError::from)?;
-        let field: String = row.try_get("field").map_err(AppError::from)?;
-        let old_value: String = row.try_get("old_value").map_err(AppError::from)?;
-        let new_value: String = row.try_get("new_value").map_err(AppError::from)?;
-        redirects.push(SiteRedirectResponse {
-            id: row.try_get("id").map_err(AppError::from)?,
-            old_path: path_of(&record_type, &field, &old_value),
-            new_path: path_of(&record_type, &field, &new_value),
-            record_type,
-            field,
-            old_value,
-            new_value,
-            created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
-        });
-    }
+    let rows = store::redirects::list_record_redirects(&state.db()?, MAX_REDIRECTS)
+        .await
+        .map_err(AppError::from)?;
+    let redirects = rows
+        .into_iter()
+        .map(|row| SiteRedirectResponse {
+            id: row.id,
+            old_path: path_of(&row.record_type, &row.field, &row.old_value),
+            new_path: path_of(&row.record_type, &row.field, &row.new_value),
+            record_type: row.record_type,
+            field: row.field,
+            old_value: row.old_value,
+            new_value: row.new_value,
+            created_at: row.created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
+        })
+        .collect();
     Ok(Json(Data::new(redirects)))
 }
 
@@ -456,23 +446,18 @@ async fn delete_redirect(
     require_manage(&tenant.scope)?;
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let mut tx = ctx.begin().await?;
-    let row = sqlx::query(
-        "SELECT record_type, field, old_value, new_value FROM site_redirects WHERE id = ? FOR UPDATE",
-    )
-    .bind(redirect_id)
-    .fetch_optional(&mut *tx)
-    .await
-    .map_err(AppError::from)?
-    .ok_or_else(|| AppError::not_found_code("site_redirect_not_found", "the redirect was not found"))?;
-    let record_type: String = row.try_get("record_type").map_err(AppError::from)?;
-    let field: String = row.try_get("field").map_err(AppError::from)?;
-    let old_value: String = row.try_get("old_value").map_err(AppError::from)?;
-    let new_value: String = row.try_get("new_value").map_err(AppError::from)?;
-    sqlx::query("DELETE FROM site_redirects WHERE id = ?")
-        .bind(redirect_id)
-        .execute(&mut *tx)
+    let store::redirects::RecordRedirect {
+        record_type,
+        field,
+        old_value,
+        new_value,
+        ..
+    } = store::redirects::delete_record_redirect(&mut tx, redirect_id)
         .await
-        .map_err(AppError::from)?;
+        .map_err(AppError::from)?
+        .ok_or_else(|| {
+            AppError::not_found_code("site_redirect_not_found", "the redirect was not found")
+        })?;
     publish_mutation(
         ctx.events(),
         ctx.audit(),
@@ -522,9 +507,7 @@ async fn purge_cache(
     require_manage(&tenant.scope)?;
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let mut tx = ctx.begin().await?;
-    sqlx::query("INSERT INTO site_cache_invalidations (tag) VALUES (?)")
-        .bind(ALL_TAG)
-        .execute(&mut *tx)
+    store::cache::queue_invalidation(&mut tx, ALL_TAG)
         .await
         .map_err(AppError::from)?;
     publish_mutation(
@@ -565,25 +548,18 @@ async fn list_path_redirects(
     tenant: AuthContext,
 ) -> Result<Json<Data<Vec<SitePathRedirectResponse>>>, ApiError> {
     require_manage(&tenant.scope)?;
-    let rows: Vec<(u64, String, String, bool, DateTime<Utc>)> = sqlx::query_as(
-        "SELECT id, source_path, target, permanent, created_at FROM site_path_redirects \
-         ORDER BY created_at DESC, id DESC LIMIT ?",
-    )
-    .bind(MAX_REDIRECTS)
-    .fetch_all(&state.db()?)
-    .await
-    .map_err(AppError::from)?;
+    let rows = store::redirects::list_path_redirects(&state.db()?, MAX_REDIRECTS)
+        .await
+        .map_err(AppError::from)?;
     Ok(Json(Data::new(
         rows.into_iter()
-            .map(
-                |(id, source_path, target, permanent, created_at)| SitePathRedirectResponse {
-                    id,
-                    source_path,
-                    target,
-                    permanent,
-                    created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
-                },
-            )
+            .map(|row| SitePathRedirectResponse {
+                id: row.id,
+                source_path: row.source_path,
+                target: row.target,
+                permanent: row.permanent,
+                created_at: row.created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
+            })
             .collect(),
     )))
 }
@@ -623,29 +599,20 @@ async fn create_path_redirect(
     }
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let mut tx = ctx.begin().await?;
-    let exists: Option<u64> =
-        sqlx::query_scalar("SELECT id FROM site_path_redirects WHERE source_path = ? FOR UPDATE")
-            .bind(&source_path)
-            .fetch_optional(&mut *tx)
-            .await
-            .map_err(AppError::from)?;
-    if exists.is_some() {
+    let exists = store::redirects::lock_path_redirect(&mut tx, &source_path)
+        .await
+        .map_err(AppError::from)?;
+    if exists {
         return Err(AppError::conflict_code(
             "site_path_redirect_exists",
             "the old address already redirects",
         )
         .into());
     }
-    let id = sqlx::query(
-        "INSERT INTO site_path_redirects (source_path, target, permanent) VALUES (?, ?, ?)",
-    )
-    .bind(&source_path)
-    .bind(&target)
-    .bind(input.permanent)
-    .execute(&mut *tx)
-    .await
-    .map_err(AppError::from)?
-    .last_insert_id();
+    let id =
+        store::redirects::insert_path_redirect(&mut tx, &source_path, &target, input.permanent)
+            .await
+            .map_err(AppError::from)?;
     publish_mutation(
         ctx.events(),
         ctx.audit(),
@@ -706,21 +673,12 @@ async fn delete_path_redirect(
     require_manage(&tenant.scope)?;
     let ctx = Ctx::from_state(&state, &tenant.scope).await?;
     let mut tx = ctx.begin().await?;
-    let (source_path, target): (String, String) = sqlx::query_as(
-        "SELECT source_path, target FROM site_path_redirects WHERE id = ? FOR UPDATE",
-    )
-    .bind(redirect_id)
-    .fetch_optional(&mut *tx)
-    .await
-    .map_err(AppError::from)?
-    .ok_or_else(|| {
-        AppError::not_found_code("site_path_redirect_not_found", "the redirect was not found")
-    })?;
-    sqlx::query("DELETE FROM site_path_redirects WHERE id = ?")
-        .bind(redirect_id)
-        .execute(&mut *tx)
+    let (source_path, target) = store::redirects::delete_path_redirect(&mut tx, redirect_id)
         .await
-        .map_err(AppError::from)?;
+        .map_err(AppError::from)?
+        .ok_or_else(|| {
+            AppError::not_found_code("site_path_redirect_not_found", "the redirect was not found")
+        })?;
     publish_mutation(
         ctx.events(),
         ctx.audit(),

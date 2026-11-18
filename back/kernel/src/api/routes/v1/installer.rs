@@ -19,7 +19,7 @@ use crate::application::auth::LoginCommand;
 use crate::application::installer::{InstallCommand, InstallerUseCases};
 use crate::domain::Secret;
 use crate::errors::AppError;
-use crate::infrastructure::installer::MySqlInstallerPorts;
+use crate::infrastructure::installer::{MySqlInstallerPorts, blueprint};
 
 pub const TAG: &str = "installer";
 
@@ -297,13 +297,7 @@ async fn reapply_blueprint(
 }
 
 async fn installer_settings(state: &AppState) -> Result<Option<serde_json::Value>, AppError> {
-    let document: Option<serde_json::Value> = sqlx::query_scalar(
-        "SELECT JSON_EXTRACT(settings, '$.installer') FROM organization_settings WHERE id = 1",
-    )
-    .fetch_optional(&state.db()?)
-    .await?
-    .flatten();
-    Ok(document)
+    Ok(blueprint::installer_answers(&state.db()?).await?)
 }
 
 async fn apply_blueprint(
@@ -331,30 +325,13 @@ async fn install_blueprint_roles(
         .contributions::<dyn crate::application::installer::InstallerBlueprintSource>()
     {
         for role in source.roles(business) {
-            sqlx::query(
-                "INSERT IGNORE INTO roles (id, `key`, name, is_system) VALUES (?, ?, ?, FALSE)",
-            )
-            .bind(uuid::Uuid::now_v7().to_string())
-            .bind(&role.key)
-            .bind(&role.label)
-            .execute(&pool)
-            .await?;
-            let id: String = sqlx::query_scalar("SELECT id FROM roles WHERE `key` = ?")
-                .bind(&role.key)
-                .fetch_one(&pool)
-                .await?;
+            let id = blueprint::ensure_role(&pool, &role.key, &role.label).await?;
             for permission in role
                 .permissions
                 .iter()
                 .filter(|permission| known.contains(*permission))
             {
-                sqlx::query(
-                    "INSERT IGNORE INTO role_permissions (role_id, permission, scope) VALUES (?, ?, 'organization')",
-                )
-                .bind(&id)
-                .bind(permission)
-                .execute(&pool)
-                .await?;
+                blueprint::grant_permission(&pool, &id, permission).await?;
             }
         }
     }
@@ -365,24 +342,11 @@ async fn record_configuration(state: &AppState, outcome: Result<(), AppError>) {
     let Ok(pool) = state.db() else {
         return;
     };
-    let result = match outcome {
-        Ok(()) => {
-            sqlx::query(
-                "UPDATE organization_settings SET settings = JSON_REMOVE(COALESCE(settings, JSON_OBJECT()), '$.installer.configuration_error') WHERE id = 1",
-            )
-            .execute(&pool)
-            .await
-        }
-        Err(error) => {
-            tracing::error!("blueprint configuration failed: {error}");
-            sqlx::query(
-                "UPDATE organization_settings SET settings = JSON_SET(COALESCE(settings, JSON_OBJECT()), '$.installer.configuration_error', ?) WHERE id = 1",
-            )
-            .bind(error.to_string())
-            .execute(&pool)
-            .await
-        }
-    };
+    let error = outcome.err().map(|error| {
+        tracing::error!("blueprint configuration failed: {error}");
+        error.to_string()
+    });
+    let result = blueprint::record_configuration_error(&pool, error.as_deref()).await;
     if let Err(error) = result {
         tracing::error!("could not record the blueprint configuration state: {error}");
     }

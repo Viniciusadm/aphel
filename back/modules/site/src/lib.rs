@@ -30,6 +30,7 @@ pub(crate) mod session;
 pub(crate) mod settings;
 pub(crate) mod sitemap;
 pub(crate) mod status;
+pub(crate) mod store;
 pub(crate) mod stylesheets;
 pub(crate) mod targets;
 mod terms;
