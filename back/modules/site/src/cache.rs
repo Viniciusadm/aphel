@@ -6,7 +6,6 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::tenancy::TenantLocal;
 use sha2::{Digest, Sha256};
-use sqlx::Row;
 
 pub(crate) const ALL_TAG: &str = "*";
 const CHECK_INTERVAL: Duration = Duration::from_secs(1);
@@ -101,30 +100,15 @@ pub(crate) async fn sync(pool: &Db) -> Result<(), AppError> {
         return Ok(());
     };
     let Some(last) = last else {
-        let newest: Option<u64> =
-            sqlx::query_scalar("SELECT MAX(id) FROM site_cache_invalidations")
-                .fetch_one(pool)
-                .await?;
+        let newest = crate::store::cache::newest_invalidation(pool).await?;
         with_cache(|cache| {
             cache.last_invalidation = Some(newest.unwrap_or_default());
             cache.checked_at = Some(Instant::now());
         });
         return Ok(());
     };
-    let rows = sqlx::query(
-        "SELECT id, tag FROM site_cache_invalidations WHERE id > ? ORDER BY id LIMIT ?",
-    )
-    .bind(last)
-    .bind(INVALIDATION_BATCH)
-    .fetch_all(pool)
-    .await?;
-    let mut invalidations = Vec::with_capacity(rows.len());
-    for row in rows {
-        invalidations.push((
-            row.try_get::<u64, _>("id")?,
-            row.try_get::<String, _>("tag")?,
-        ));
-    }
+    let invalidations =
+        crate::store::cache::invalidations_after(pool, last, INVALIDATION_BATCH).await?;
     with_cache(|cache| {
         if invalidations.len() as i64 == INVALIDATION_BATCH {
             cache.purge(ALL_TAG);
@@ -190,17 +174,7 @@ pub(crate) fn put(
 }
 
 pub(crate) async fn invalidate(pool: &Db, tags: &[String]) -> Result<(), AppError> {
-    for tag in tags {
-        sqlx::query("INSERT INTO site_cache_invalidations (tag) VALUES (?)")
-            .bind(tag)
-            .execute(pool)
-            .await?;
-    }
-    sqlx::query(
-        "DELETE FROM site_cache_invalidations WHERE created_at < NOW(6) - INTERVAL 1 DAY LIMIT 1000",
-    )
-    .execute(pool)
-    .await?;
+    crate::store::cache::record_invalidations(pool, tags).await?;
     Ok(())
 }
 

@@ -113,3 +113,65 @@ pub(crate) async fn delete_path_redirect(
     }
     Ok(found)
 }
+
+pub(crate) async fn save_record_change(
+    pool: &MySqlPool,
+    record_type: &str,
+    field: &str,
+    old_value: &str,
+    new_value: &str,
+) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    sqlx::query("DELETE FROM site_redirects WHERE record_type = ? AND field = ? AND old_value = ?")
+        .bind(record_type)
+        .bind(field)
+        .bind(new_value)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query(
+        "UPDATE site_redirects SET new_value = ? WHERE record_type = ? AND field = ? AND new_value = ?",
+    )
+    .bind(new_value)
+    .bind(record_type)
+    .bind(field)
+    .bind(old_value)
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query(
+        "INSERT INTO site_redirects (record_type, field, old_value, new_value) VALUES (?, ?, ?, ?) \
+         ON DUPLICATE KEY UPDATE new_value = VALUES(new_value), created_at = CURRENT_TIMESTAMP(6)",
+    )
+    .bind(record_type)
+    .bind(field)
+    .bind(old_value)
+    .bind(new_value)
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await
+}
+
+pub(crate) async fn record_target(
+    pool: &MySqlPool,
+    record_type: &str,
+    field: &str,
+    value: &str,
+) -> Result<Option<String>, sqlx::Error> {
+    sqlx::query_scalar(
+        "SELECT new_value FROM site_redirects WHERE record_type = ? AND field = ? AND old_value = ?",
+    )
+    .bind(record_type)
+    .bind(field)
+    .bind(value)
+    .fetch_optional(pool)
+    .await
+}
+
+pub(crate) async fn path_target(
+    pool: &MySqlPool,
+    source_path: &str,
+) -> Result<Option<(String, bool)>, sqlx::Error> {
+    sqlx::query_as("SELECT target, permanent FROM site_path_redirects WHERE source_path = ?")
+        .bind(source_path)
+        .fetch_optional(pool)
+        .await
+}

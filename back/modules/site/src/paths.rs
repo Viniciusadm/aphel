@@ -97,9 +97,7 @@ fn taken(field: &str) -> AppError {
 }
 
 async fn serialize_claims(ctx: &mut HookCtx<'_>) -> Result<(), AppError> {
-    sqlx::query("SELECT id FROM site_path_lock WHERE id = 1 FOR UPDATE")
-        .execute(&mut **ctx.tx)
-        .await?;
+    crate::store::paths::lock_claims(ctx.tx).await?;
     Ok(())
 }
 

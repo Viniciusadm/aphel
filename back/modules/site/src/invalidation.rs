@@ -72,10 +72,7 @@ pub(crate) async fn invalidate_in_tx(
         }
     };
     for tag in tags {
-        sqlx::query("INSERT INTO site_cache_invalidations (tag) VALUES (?)")
-            .bind(tag)
-            .execute(&mut **tx)
-            .await?;
+        crate::store::cache::queue_invalidation(tx, &tag).await?;
     }
     Ok(())
 }

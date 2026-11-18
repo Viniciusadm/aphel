@@ -17,33 +17,8 @@ pub(crate) async fn record_change(
     {
         return Ok(());
     }
-    let mut tx = pool.begin().await?;
-    sqlx::query("DELETE FROM site_redirects WHERE record_type = ? AND field = ? AND old_value = ?")
-        .bind(record_type)
-        .bind(field)
-        .bind(new_value)
-        .execute(&mut *tx)
+    crate::store::redirects::save_record_change(pool, record_type, field, old_value, new_value)
         .await?;
-    sqlx::query(
-        "UPDATE site_redirects SET new_value = ? WHERE record_type = ? AND field = ? AND new_value = ?",
-    )
-    .bind(new_value)
-    .bind(record_type)
-    .bind(field)
-    .bind(old_value)
-    .execute(&mut *tx)
-    .await?;
-    sqlx::query(
-        "INSERT INTO site_redirects (record_type, field, old_value, new_value) VALUES (?, ?, ?, ?) \
-         ON DUPLICATE KEY UPDATE new_value = VALUES(new_value), created_at = CURRENT_TIMESTAMP(6)",
-    )
-    .bind(record_type)
-    .bind(field)
-    .bind(old_value)
-    .bind(new_value)
-    .execute(&mut *tx)
-    .await?;
-    tx.commit().await?;
     Ok(())
 }
 
@@ -53,14 +28,7 @@ pub(crate) async fn lookup(
     field: &str,
     value: &str,
 ) -> Result<Option<String>, AppError> {
-    Ok(sqlx::query_scalar(
-        "SELECT new_value FROM site_redirects WHERE record_type = ? AND field = ? AND old_value = ?",
-    )
-    .bind(record_type)
-    .bind(field)
-    .bind(value)
-    .fetch_optional(pool)
-    .await?)
+    Ok(crate::store::redirects::record_target(pool, record_type, field, value).await?)
 }
 
 const MAX_SOURCE_LENGTH: usize = 255;
@@ -128,10 +96,6 @@ pub(crate) async fn find_path(pool: &Db, path: &str) -> Result<Option<PathRedire
         "" => "/",
         trimmed => trimmed,
     };
-    let row: Option<(String, bool)> =
-        sqlx::query_as("SELECT target, permanent FROM site_path_redirects WHERE source_path = ?")
-            .bind(path)
-            .fetch_optional(pool)
-            .await?;
+    let row = crate::store::redirects::path_target(pool, path).await?;
     Ok(row.map(|(target, permanent)| PathRedirect { target, permanent }))
 }

@@ -78,46 +78,29 @@ pub(crate) async fn start(
     record: Option<&PreviewRecord>,
     path: Option<&str>,
 ) -> Result<String, AppError> {
-    sqlx::query("DELETE FROM site_previews WHERE expires_at < NOW(6)")
-        .execute(pool)
-        .await?;
     let issued = Sha256SecureTokens.issue()?;
     let fields = record
         .map(|record| serde_json::to_string(&record.fields))
         .transpose()
         .map_err(|error| AppError::Internal(error.to_string()))?;
-    sqlx::query(
-        "INSERT INTO site_previews (token_hash, theme, record_type, record_id, draft_fields, target_path, expires_at) \
-         VALUES (?, ?, ?, ?, ?, ?, NOW(6) + INTERVAL ? MINUTE)",
+    crate::store::previews::create(
+        pool,
+        crate::store::previews::NewPreview {
+            token_hash: &issued.hash,
+            theme,
+            record_type: record.map(|record| record.record_type.as_str()),
+            record_id: record.map(|record| record.record_id.as_str()),
+            draft_fields: fields,
+            target_path: path,
+            minutes: PREVIEW_MINUTES,
+        },
     )
-    .bind(&issued.hash)
-    .bind(theme)
-    .bind(record.map(|record| record.record_type.as_str()))
-    .bind(record.map(|record| record.record_id.as_str()))
-    .bind(fields)
-    .bind(path)
-    .bind(PREVIEW_MINUTES)
-    .execute(pool)
     .await?;
     Ok(issued.token.expose().to_owned())
 }
 
-type PreviewRow = (
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-);
-
 async fn find(pool: &Db, token: &str) -> Result<Option<(Preview, Option<String>)>, AppError> {
-    let row: Option<PreviewRow> = sqlx::query_as(
-        "SELECT theme, record_type, record_id, draft_fields, target_path FROM site_previews \
-         WHERE token_hash = ? AND expires_at > NOW(6)",
-    )
-    .bind(Sha256SecureTokens.digest(token))
-    .fetch_optional(pool)
-    .await?;
+    let row = crate::store::previews::live(pool, &Sha256SecureTokens.digest(token)).await?;
     Ok(row.map(|(theme, record_type, record_id, fields, path)| {
         let record = record_type
             .zip(record_id)

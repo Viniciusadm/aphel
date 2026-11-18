@@ -70,24 +70,14 @@ async fn link_customer(state: &AppState, customer_id: &str) -> Result<(), AppErr
         return Ok(());
     }
     let pool = state.db()?;
-    let row: Option<(String, String, Option<String>)> = sqlx::query_as(
-        "SELECT email, name, person_id FROM site_customers WHERE id = ? AND deleted_at IS NULL \
-         AND email_verified_at IS NOT NULL",
-    )
-    .bind(customer_id)
-    .fetch_optional(&pool)
-    .await?;
+    let row = crate::store::customers::verified_customer(&pool, customer_id).await?;
     let Some((email, name, None)) = row else {
         return Ok(());
     };
     let scope = customer_scope(customer_id);
     let ctx = Ctx::from_state(state, &scope).await?;
     if let Some(person_id) = find_person(&ctx, &email).await? {
-        sqlx::query("UPDATE site_customers SET person_id = ? WHERE id = ? AND person_id IS NULL")
-            .bind(person_id)
-            .bind(customer_id)
-            .execute(&pool)
-            .await?;
+        crate::store::customers::link_person(&pool, customer_id, &person_id).await?;
         return Ok(());
     }
     let Some(owner) = settings.people_owner.as_deref() else {
@@ -119,11 +109,12 @@ async fn link_customer(state: &AppState, customer_id: &str) -> Result<(), AppErr
             },
         )
         .await?;
-    sqlx::query("UPDATE site_customers SET person_id = ? WHERE id = ? AND person_id IS NULL")
-        .bind(created.record.record_id.to_string())
-        .bind(customer_id)
-        .execute(&mut *tx)
-        .await?;
+    crate::store::customers::link_person_in(
+        &mut tx,
+        customer_id,
+        &created.record.record_id.to_string(),
+    )
+    .await?;
     tx.commit().await?;
     created.committed(&ctx).await;
     Ok(())
@@ -154,12 +145,8 @@ impl aphel_sdk::merges::MergeReferences for PersonMerges {
         if record_type != PERSON_RECORD_TYPE {
             return Ok(moved);
         }
-        let count = sqlx::query("UPDATE site_customers SET person_id = ? WHERE person_id = ?")
-            .bind(to.to_string())
-            .bind(from.to_string())
-            .execute(&mut **tx)
-            .await?
-            .rows_affected();
+        let count =
+            crate::store::customers::move_person(tx, &from.to_string(), &to.to_string()).await?;
         if count > 0 {
             moved.insert(CUSTOMERS_TABLE.to_owned(), count);
         }
@@ -168,9 +155,6 @@ impl aphel_sdk::merges::MergeReferences for PersonMerges {
 }
 
 pub(crate) async fn forget_person(pool: &Db, person_id: &str) -> Result<(), AppError> {
-    sqlx::query("UPDATE site_customers SET person_id = NULL WHERE person_id = ?")
-        .bind(person_id)
-        .execute(pool)
-        .await?;
+    crate::store::customers::forget_person(pool, person_id).await?;
     Ok(())
 }

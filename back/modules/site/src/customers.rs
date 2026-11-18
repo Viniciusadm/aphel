@@ -1,3 +1,4 @@
+use crate::store::customers as store;
 use aphel_contract_site::{CUSTOMER_RECORD_TYPE, SiteCustomer};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
@@ -9,9 +10,8 @@ use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::auth::{Argon2PasswordHasher, Sha256SecureTokens};
-use chrono::{DateTime, Duration, Utc};
+use chrono::Duration;
 use serde_json::json;
-use sqlx::Row;
 use uuid::Uuid;
 
 pub(crate) const SESSION_COOKIE: &str = "aphel_site_session";
@@ -98,17 +98,6 @@ pub(crate) fn customer_scope(customer_id: &str) -> AccessScope {
     AccessScope::system().acting_as("site_customer", customer_id)
 }
 
-fn customer_of(row: &sqlx::mysql::MySqlRow) -> Result<SiteCustomer, AppError> {
-    Ok(SiteCustomer {
-        id: row.try_get("id")?,
-        email: row.try_get("email")?,
-        name: row.try_get("name")?,
-        email_verified: row
-            .try_get::<Option<DateTime<Utc>>, _>("email_verified_at")?
-            .is_some(),
-    })
-}
-
 async fn publish(
     ctx: &Ctx<'_>,
     tx: &mut Tx,
@@ -140,38 +129,20 @@ pub(crate) async fn find_by_email(
     pool: &Db,
     email: &str,
 ) -> Result<Option<SiteCustomer>, AppError> {
-    let row = sqlx::query(
-        "SELECT id, email, name, email_verified_at FROM site_customers WHERE email = ? AND deleted_at IS NULL",
-    )
-    .bind(email)
-    .fetch_optional(pool)
-    .await?;
-    row.as_ref().map(customer_of).transpose()
+    Ok(store::by_email(pool, email).await?)
 }
 
 pub(crate) async fn export(pool: &Db, id: &str) -> Result<Option<serde_json::Value>, AppError> {
-    let row = sqlx::query(
-        "SELECT id, email, name, email_verified_at, last_login_at, created_at FROM site_customers WHERE id = ? AND deleted_at IS NULL",
-    )
-    .bind(id)
-    .fetch_optional(pool)
-    .await?;
-    row.map(|row| -> Result<serde_json::Value, AppError> {
-        let moment = |column: &str| -> Result<Option<String>, AppError> {
-            Ok(row
-                .try_get::<Option<DateTime<Utc>>, _>(column)?
-                .map(|value| value.to_rfc3339()))
-        };
-        Ok(json!({
-            "id": row.try_get::<String, _>("id")?,
-            "email": row.try_get::<String, _>("email")?,
-            "name": row.try_get::<String, _>("name")?,
-            "email_verified_at": moment("email_verified_at")?,
-            "last_login_at": moment("last_login_at")?,
-            "created_at": row.try_get::<DateTime<Utc>, _>("created_at")?.to_rfc3339(),
-        }))
-    })
-    .transpose()
+    Ok(store::export(pool, id).await?.map(|row| {
+        json!({
+            "id": row.id,
+            "email": row.email,
+            "name": row.name,
+            "email_verified_at": row.email_verified_at.map(|value| value.to_rfc3339()),
+            "last_login_at": row.last_login_at.map(|value| value.to_rfc3339()),
+            "created_at": row.created_at.to_rfc3339(),
+        })
+    }))
 }
 
 pub(crate) async fn sign_up(
@@ -201,15 +172,7 @@ pub(crate) async fn sign_up(
     let scope = customer_scope(&id);
     let ctx = Ctx::from_state(state, &scope).await?;
     let mut tx = ctx.begin().await?;
-    let inserted = sqlx::query(
-        "INSERT INTO site_customers (id, email, name, password_hash) VALUES (?, ?, ?, ?)",
-    )
-    .bind(&id)
-    .bind(&email)
-    .bind(&name)
-    .bind(password_hash)
-    .execute(&mut *tx)
-    .await;
+    let inserted = store::insert(&mut tx, &id, &email, &name, password_hash).await;
     if let Err(error) = inserted {
         return match error.as_database_error() {
             Some(database) if database.is_unique_violation() => Err(SignUpError::EmailTaken),
@@ -245,24 +208,17 @@ pub(crate) async fn authenticate(
     let Some(email) = normalize_email(email) else {
         return Ok(None);
     };
-    let row = sqlx::query(
-        "SELECT id, email, name, email_verified_at, password_hash FROM site_customers WHERE email = ? AND deleted_at IS NULL",
-    )
-    .bind(&email)
-    .fetch_optional(pool)
-    .await?;
-    let Some(row) = row else {
+    let Some((customer, hash)) = store::credentials(pool, &email).await? else {
         let _ = Argon2PasswordHasher.hash_password(password);
         return Ok(None);
     };
-    let hash: Option<String> = row.try_get("password_hash")?;
     let Some(hash) = hash else {
         return Ok(None);
     };
     if !Argon2PasswordHasher.verify_password(password, &hash)? {
         return Ok(None);
     }
-    customer_of(&row).map(Some)
+    Ok(Some(customer))
 }
 
 pub(crate) async fn start_session(
@@ -272,57 +228,31 @@ pub(crate) async fn start_session(
     user_agent: Option<String>,
 ) -> Result<String, AppError> {
     let issued = Sha256SecureTokens.issue()?;
-    sqlx::query(
-        "INSERT INTO site_customer_sessions (id, customer_id, token_hash, ip, user_agent, expires_at) \
-         VALUES (?, ?, ?, ?, ?, NOW(6) + INTERVAL ? DAY)",
+    store::start_session(
+        pool,
+        customer_id,
+        &issued.hash,
+        ip,
+        user_agent.map(|agent| agent.chars().take(255).collect::<String>()),
+        SESSION_DAYS,
     )
-    .bind(Uuid::now_v7().to_string())
-    .bind(customer_id)
-    .bind(&issued.hash)
-    .bind(ip)
-    .bind(user_agent.map(|agent| agent.chars().take(255).collect::<String>()))
-    .bind(SESSION_DAYS)
-    .execute(pool)
     .await?;
-    sqlx::query("UPDATE site_customers SET last_login_at = NOW(6) WHERE id = ?")
-        .bind(customer_id)
-        .execute(pool)
-        .await?;
     Ok(issued.token.expose().to_owned())
 }
 
 pub(crate) async fn current(pool: &Db, token: &str) -> Result<Option<SiteCustomer>, AppError> {
     let hash = Sha256SecureTokens.digest(token);
-    let row = sqlx::query(
-        "SELECT c.id, c.email, c.name, c.email_verified_at, s.id AS session_id, \
-         s.last_seen_at < NOW(6) - INTERVAL ? MINUTE AS stale \
-         FROM site_customer_sessions s JOIN site_customers c ON c.id = s.customer_id \
-         WHERE s.token_hash = ? AND s.revoked_at IS NULL AND s.expires_at > NOW(6) AND c.deleted_at IS NULL",
-    )
-    .bind(TOUCH_MINUTES)
-    .bind(&hash)
-    .fetch_optional(pool)
-    .await?;
-    let Some(row) = row else {
+    let Some(session) = store::live_session(pool, &hash, TOUCH_MINUTES).await? else {
         return Ok(None);
     };
-    if row.try_get::<i64, _>("stale")? != 0 {
-        sqlx::query(
-            "UPDATE site_customer_sessions SET last_seen_at = NOW(6), expires_at = NOW(6) + INTERVAL ? DAY WHERE id = ?",
-        )
-        .bind(SESSION_DAYS)
-        .bind(row.try_get::<String, _>("session_id")?)
-        .execute(pool)
-        .await?;
+    if session.stale {
+        store::extend_session(pool, &session.session_id, SESSION_DAYS).await?;
     }
-    customer_of(&row).map(Some)
+    Ok(Some(session.customer))
 }
 
 pub(crate) async fn end_session(pool: &Db, token: &str) -> Result<(), AppError> {
-    sqlx::query("UPDATE site_customer_sessions SET revoked_at = NOW(6) WHERE token_hash = ?")
-        .bind(Sha256SecureTokens.digest(token))
-        .execute(pool)
-        .await?;
+    store::revoke_session(pool, &Sha256SecureTokens.digest(token)).await?;
     Ok(())
 }
 
@@ -332,23 +262,13 @@ pub(crate) async fn issue_token(
     purpose: TokenPurpose,
 ) -> Result<String, AppError> {
     let issued = Sha256SecureTokens.issue()?;
-    sqlx::query(
-        "UPDATE site_customer_tokens SET used_at = NOW(6) WHERE customer_id = ? AND purpose = ? AND used_at IS NULL",
+    store::replace_token(
+        pool,
+        customer_id,
+        purpose.as_str(),
+        &issued.hash,
+        purpose.lifetime().num_minutes(),
     )
-    .bind(customer_id)
-    .bind(purpose.as_str())
-    .execute(pool)
-    .await?;
-    sqlx::query(
-        "INSERT INTO site_customer_tokens (id, customer_id, purpose, token_hash, expires_at) \
-         VALUES (?, ?, ?, ?, NOW(6) + INTERVAL ? MINUTE)",
-    )
-    .bind(Uuid::now_v7().to_string())
-    .bind(customer_id)
-    .bind(purpose.as_str())
-    .bind(&issued.hash)
-    .bind(purpose.lifetime().num_minutes())
-    .execute(pool)
     .await?;
     Ok(issued.token.expose().to_owned())
 }
@@ -358,14 +278,7 @@ pub(crate) async fn peek_token(
     token: &str,
     purpose: TokenPurpose,
 ) -> Result<Option<String>, AppError> {
-    Ok(sqlx::query_scalar(
-        "SELECT customer_id FROM site_customer_tokens \
-         WHERE token_hash = ? AND purpose = ? AND used_at IS NULL AND expires_at > NOW(6)",
-    )
-    .bind(Sha256SecureTokens.digest(token))
-    .bind(purpose.as_str())
-    .fetch_optional(pool)
-    .await?)
+    Ok(store::token_customer(pool, &Sha256SecureTokens.digest(token), purpose.as_str()).await?)
 }
 
 pub(crate) async fn redeem_token(
@@ -374,32 +287,11 @@ pub(crate) async fn redeem_token(
     purpose: TokenPurpose,
 ) -> Result<Option<String>, AppError> {
     let hash = Sha256SecureTokens.digest(token);
-    let mut tx = pool.begin().await?;
-    let customer: Option<String> = sqlx::query_scalar(
-        "SELECT customer_id FROM site_customer_tokens \
-         WHERE token_hash = ? AND purpose = ? AND used_at IS NULL AND expires_at > NOW(6) FOR UPDATE",
-    )
-    .bind(&hash)
-    .bind(purpose.as_str())
-    .fetch_optional(&mut *tx)
-    .await?;
-    if customer.is_some() {
-        sqlx::query("UPDATE site_customer_tokens SET used_at = NOW(6) WHERE token_hash = ?")
-            .bind(&hash)
-            .execute(&mut *tx)
-            .await?;
-    }
-    tx.commit().await?;
-    Ok(customer)
+    Ok(store::redeem_token(pool, &hash, purpose.as_str()).await?)
 }
 
 pub(crate) async fn mark_verified(pool: &Db, customer_id: &str) -> Result<(), AppError> {
-    sqlx::query(
-        "UPDATE site_customers SET email_verified_at = COALESCE(email_verified_at, NOW(6)), updated_at = NOW(6) WHERE id = ?",
-    )
-    .bind(customer_id)
-    .execute(pool)
-    .await?;
+    store::mark_verified(pool, customer_id).await?;
     Ok(())
 }
 
@@ -413,17 +305,7 @@ pub(crate) async fn set_password(
     let scope = customer_scope(customer_id);
     let ctx = Ctx::from_state(state, &scope).await?;
     let mut tx = ctx.begin().await?;
-    sqlx::query("UPDATE site_customers SET password_hash = ?, updated_at = NOW(6) WHERE id = ?")
-        .bind(hash)
-        .bind(customer_id)
-        .execute(&mut *tx)
-        .await?;
-    sqlx::query(
-        "UPDATE site_customer_sessions SET revoked_at = NOW(6) WHERE customer_id = ? AND revoked_at IS NULL",
-    )
-    .bind(customer_id)
-    .execute(&mut *tx)
-    .await?;
+    store::replace_password(&mut tx, customer_id, hash).await?;
     publish(
         &ctx,
         &mut tx,
@@ -454,11 +336,7 @@ pub(crate) async fn rename(
     let scope = customer_scope(&customer.id);
     let ctx = Ctx::from_state(state, &scope).await?;
     let mut tx = ctx.begin().await?;
-    sqlx::query("UPDATE site_customers SET name = ?, updated_at = NOW(6) WHERE id = ?")
-        .bind(&name)
-        .bind(&customer.id)
-        .execute(&mut *tx)
-        .await?;
+    store::rename(&mut tx, &customer.id, &name).await?;
     publish(
         &ctx,
         &mut tx,
@@ -478,32 +356,15 @@ pub(crate) async fn close(
     ip: Option<String>,
 ) -> Result<(), AppError> {
     let mut tx = ctx.begin().await?;
-    let Some(row) = sqlx::query(
-        "SELECT email, name FROM site_customers WHERE id = ? AND deleted_at IS NULL FOR UPDATE",
+    let Some((email, name)) = store::close(
+        &mut tx,
+        customer_id,
+        &format!("{customer_id}@{CLOSED_EMAIL_DOMAIN}"),
     )
-    .bind(customer_id)
-    .fetch_optional(&mut *tx)
     .await?
     else {
         return Ok(());
     };
-    let email: String = row.try_get("email")?;
-    let name: String = row.try_get("name")?;
-    sqlx::query(
-        "UPDATE site_customers SET email = ?, name = '', password_hash = NULL, deleted_at = NOW(6), updated_at = NOW(6) WHERE id = ?",
-    )
-    .bind(format!("{customer_id}@{CLOSED_EMAIL_DOMAIN}"))
-    .bind(customer_id)
-    .execute(&mut *tx)
-    .await?;
-    sqlx::query("UPDATE site_customer_sessions SET revoked_at = NOW(6) WHERE customer_id = ? AND revoked_at IS NULL")
-        .bind(customer_id)
-        .execute(&mut *tx)
-        .await?;
-    sqlx::query("DELETE FROM site_customer_tokens WHERE customer_id = ?")
-        .bind(customer_id)
-        .execute(&mut *tx)
-        .await?;
     publish(
         ctx,
         &mut tx,
