@@ -7,12 +7,12 @@ pub(crate) mod http;
 pub(crate) mod mapping;
 pub(crate) mod model;
 pub(crate) mod notifications;
-mod privacy;
 pub(crate) mod runtime;
 pub mod service;
 pub(crate) mod source;
 mod source_service;
 pub mod store;
+use store::privacy;
 pub(crate) mod writer;
 
 use std::sync::Arc;
