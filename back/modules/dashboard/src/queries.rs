@@ -90,7 +90,9 @@ pub(crate) async fn recent_events<P: aphel_sdk::platform::application::query::Re
     query: &P,
     request: &RecentEventsRequest,
 ) -> Result<Vec<RecentEvent>, AppError> {
-    Ok(recent_events_page(pool, scope, query, request).await?.events)
+    Ok(recent_events_page(pool, scope, query, request)
+        .await?
+        .events)
 }
 
 pub(crate) async fn recent_events_page<
@@ -162,7 +164,8 @@ pub(crate) async fn recent_events_page<
         builder.push(")");
     }
     if let Some(cursor) = &request.before {
-        let at = aphel_sdk::platform::infrastructure::repositories::mapper::naive(cursor.occurred_at);
+        let at =
+            aphel_sdk::platform::infrastructure::repositories::mapper::naive(cursor.occurred_at);
         builder
             .push(" AND (e.occurred_at < ")
             .push_bind(at)

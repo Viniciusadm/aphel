@@ -33,7 +33,11 @@ pub(crate) struct ImportStore {
 }
 
 impl ImportStore {
-    pub(crate) async fn delete_job(&self, tx: &mut MySqlTx, job: &ImportJob) -> Result<(), AppError> {
+    pub(crate) async fn delete_job(
+        &self,
+        tx: &mut MySqlTx,
+        job: &ImportJob,
+    ) -> Result<(), AppError> {
         sqlx::query("DELETE FROM import_jobs WHERE id = ?")
             .bind(job.id.to_string())
             .execute(&mut **tx)

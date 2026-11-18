@@ -163,7 +163,7 @@
     "description": "Seu espaço de trabalho está pronto para uso.",
     "next": {
       "import": "Traga seus contatos e empresas de uma planilha.",
-      "invite": "Convide sua equipe em Configurações › Membros.",
+      "invite": "Convide sua equipe em Configurações › Usuários.",
       "customize": "Ajuste campos, funis e recursos sempre que precisar."
     },
     "done": "O que foi preparado",

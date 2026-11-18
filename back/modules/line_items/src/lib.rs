@@ -16,10 +16,10 @@ use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Module, SettingField, SettingKind, SettingOption,
 };
-use serde_json::json;
 use aphel_kernel::records::RecordValidating;
 use aphel_sdk::configuration::ConfigSectionFactory;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
+use serde_json::json;
 
 pub const KEY: &str = "line_items";
 pub(crate) const SETTING_AMOUNT_MODE: &str = "amount_mode";

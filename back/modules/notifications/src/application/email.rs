@@ -7,7 +7,7 @@ use crate::application::{
     NOTIFICATION_EMAIL_JOB, NotificationDirectory, NotificationPorts, NotificationRepository,
 };
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::application::mail::Mailer;
+use aphel_sdk::platform::application::mail::{Mailer, is_mail_not_configured};
 use aphel_sdk::platform::application::security::Clock;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
 
@@ -66,7 +66,11 @@ where
             &notification.view,
             &self.app_base_url.app_root(),
         );
-        self.mailer.send(message).await?;
+        match self.mailer.send(message).await {
+            Ok(()) => {}
+            Err(error) if is_mail_not_configured(&error) => return Ok(EmailDelivery::Skipped),
+            Err(error) => return Err(error),
+        }
         let now = self.ports.clock().now();
         self.ports
             .notifications()

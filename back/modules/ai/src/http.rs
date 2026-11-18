@@ -372,13 +372,7 @@ mod tests {
 
     #[test]
     fn query_accepts_namespaced_record_types() {
-        assert!(
-            validate_query(&request(
-                "acme.gadget",
-                "criados nos últimos 30 dias"
-            ))
-            .is_ok()
-        );
+        assert!(validate_query(&request("acme.gadget", "criados nos últimos 30 dias")).is_ok());
         assert!(validate_query(&request("acme.widget", "meus itens")).is_ok());
     }
 

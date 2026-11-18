@@ -36,11 +36,14 @@ interface FeaturesStepProps {
 
 function useModuleText(module: InstallerModule) {
   const translate = useModuleTranslation(module.key)
+  const { t } = useTranslation()
+  const shared = (field: string) =>
+    (t as unknown as (key: string, options: Record<string, unknown>) => string)(`catalog.${module.key}.${field}`, { ns: 'modules', defaultValue: '' })
   const name = translate('name')
   const description = translate('description')
   return {
-    name: name === 'name' ? module.name : name,
-    description: description === 'description' ? module.description : description,
+    name: shared('name') || (name === 'name' ? module.name : name),
+    description: shared('description') || (description === 'description' ? module.description : description),
   }
 }
 

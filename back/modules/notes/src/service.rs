@@ -5,9 +5,8 @@ use uuid::Uuid;
 
 use crate::domain::{
     CreateNoteCommand, ListNotesQuery, NOTE_CREATED, NOTE_DELETED, NOTE_PINNED, NOTE_RESTORED,
-    NOTE_UNPINNED,
-    NOTE_UPDATED, NoteData, NoteView, NoteVisibility, UpdateNoteCommand, normalize_note_body,
-    note_not_found,
+    NOTE_UNPINNED, NOTE_UPDATED, NoteData, NoteView, NoteVisibility, UpdateNoteCommand,
+    normalize_note_body, note_not_found,
 };
 use crate::store::NoteStore;
 use aphel_kernel::Ctx;
@@ -231,7 +230,10 @@ pub(crate) async fn restore(
         .await?
         .filter(|note| note.is_visible_to(ctx.scope.user_id()))
         .ok_or_else(note_not_found)?;
-    if !record_access(ctx).can_read(ctx.scope, &current.record).await? {
+    if !record_access(ctx)
+        .can_read(ctx.scope, &current.record)
+        .await?
+    {
         return Err(note_not_found());
     }
     require_manage(ctx, &current, &Permission::NOTES_DELETE, "restore").await?;
@@ -321,7 +323,12 @@ async fn write_update(
     let touched = old.body != data.body || old.visibility != data.visibility;
     let mut tx = ctx.begin().await?;
     NoteStore::of(ctx)
-        .update(&mut tx, current.id, &data, if touched { now } else { current.updated_at })
+        .update(
+            &mut tx,
+            current.id,
+            &data,
+            if touched { now } else { current.updated_at },
+        )
         .await?;
     publish(
         ctx,

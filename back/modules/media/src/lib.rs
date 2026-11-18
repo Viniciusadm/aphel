@@ -62,7 +62,12 @@ fn definition() -> Result<EntityDefinition, AppError> {
         .update_permission(manage)
         .title_field("name")
         .system_field(text("name", "Name", 160)?.required())
-        .system_field(SystemField::new("file", labels("File"), FieldType::File, "file")?)
+        .system_field(SystemField::new(
+            "file",
+            labels("File"),
+            FieldType::File,
+            "file",
+        )?)
         .system_field(text("content_type", "Type", 127)?)
         .system_field(text("alt", "Alternative text", 300)?)
         .system_field(text("caption", "Caption", 300)?)
@@ -83,8 +88,19 @@ fn definition() -> Result<EntityDefinition, AppError> {
         }
     }
     for key in ["created_at", "updated_at"] {
-        definition = definition
-            .system_field(SystemField::new(key, labels(if key == "created_at" { "Created at" } else { "Updated at" }), FieldType::DateTime, key)?.read_only());
+        definition = definition.system_field(
+            SystemField::new(
+                key,
+                labels(if key == "created_at" {
+                    "Created at"
+                } else {
+                    "Updated at"
+                }),
+                FieldType::DateTime,
+                key,
+            )?
+            .read_only(),
+        );
     }
     Ok(definition.handler(Arc::new(GenericRecordHandler::new(record_type))))
 }
@@ -114,8 +130,19 @@ fn folder_definition() -> Result<EntityDefinition, AppError> {
         }
     }
     for key in ["created_at", "updated_at"] {
-        definition = definition
-            .system_field(SystemField::new(key, labels(if key == "created_at" { "Created at" } else { "Updated at" }), FieldType::DateTime, key)?.read_only());
+        definition = definition.system_field(
+            SystemField::new(
+                key,
+                labels(if key == "created_at" {
+                    "Created at"
+                } else {
+                    "Updated at"
+                }),
+                FieldType::DateTime,
+                key,
+            )?
+            .read_only(),
+        );
     }
     Ok(definition.handler(Arc::new(GenericRecordHandler::new(record_type))))
 }

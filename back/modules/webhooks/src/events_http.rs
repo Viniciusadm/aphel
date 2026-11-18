@@ -6,6 +6,7 @@ use utoipa_axum::routes;
 use crate::events_dto::PublicEventTypeResponse;
 use aphel_sdk::platform::api::dto::common::{Data, ErrorEnvelope};
 use aphel_sdk::platform::api::error::ApiError;
+use aphel_sdk::platform::api::extractors::AuthContext;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::public_events::{
     CUSTOM_EVENT_PATTERN_PREFIX, custom_public_events, public_event_catalog,
@@ -31,6 +32,7 @@ pub(crate) fn router() -> OpenApiRouter<AppState> {
 )]
 async fn event_catalog(
     State(state): State<AppState>,
+    _auth: AuthContext,
 ) -> Result<Json<Data<Vec<PublicEventTypeResponse>>>, ApiError> {
     aphel_sdk::platform::application::public_events::refresh_public_events(&state.db()?).await?;
     let mut events: Vec<PublicEventTypeResponse> = public_event_catalog()

@@ -36,7 +36,8 @@ fn encode(cursor: &EventCursor) -> String {
 
 fn decode(value: &str) -> Option<EventCursor> {
     let (micros, id) = value.split_once(':')?;
-    if id.is_empty() || id.len() > 64 || !id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
+    if id.is_empty() || id.len() > 64 || !id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
+    {
         return None;
     }
     Some(EventCursor {
@@ -52,13 +53,19 @@ fn cursor_of(event: &RecentEvent) -> EventCursor {
     }
 }
 
-pub(crate) async fn activity(ctx: &Ctx<'_>, query: ActivityQuery) -> Result<ActivityPage, AppError> {
+pub(crate) async fn activity(
+    ctx: &Ctx<'_>,
+    query: ActivityQuery,
+) -> Result<ActivityPage, AppError> {
     let mut violations = Vec::new();
     let per_page = query.per_page.unwrap_or(DEFAULT_ACTIVITY_PAGE_SIZE);
     if !(1..=MAX_ACTIVITY_PAGE_SIZE).contains(&per_page) {
         violations.push(FieldViolation::new("per_page", "must be between 1 and 50"));
     }
-    if query.days.is_some_and(|days| !(1..=MAX_DAYS).contains(&days)) {
+    if query
+        .days
+        .is_some_and(|days| !(1..=MAX_DAYS).contains(&days))
+    {
         violations.push(FieldViolation::new("days", "must be between 1 and 365"));
     }
     let cursor = match query.cursor.as_deref().map(str::trim) {
@@ -72,7 +79,10 @@ pub(crate) async fn activity(ctx: &Ctx<'_>, query: ActivityQuery) -> Result<Acti
         }
     };
     if !violations.is_empty() {
-        return Err(AppError::invalid_fields("invalid activity query", violations));
+        return Err(AppError::invalid_fields(
+            "invalid activity query",
+            violations,
+        ));
     }
     let scopes = ctx.app().contributions::<dyn ActivityScope>();
     let empty = ActivityPage {
@@ -94,14 +104,17 @@ pub(crate) async fn activity(ctx: &Ctx<'_>, query: ActivityQuery) -> Result<Acti
     if request.records.is_empty() {
         return Ok(empty);
     }
-    request.since = query.days.map(|days| Utc::now() - Duration::days(i64::from(days)));
+    request.since = query
+        .days
+        .map(|days| Utc::now() - Duration::days(i64::from(days)));
     request.record_types = query.record_type.map(|record_type| vec![record_type]);
     request.actor_ids = query.actor_id.map(|id| vec![id]);
     request.before = cursor;
     let mut items: Vec<RecentEvent> = Vec::new();
     let mut next = None;
     for _ in 0..MAX_BATCHES {
-        let page = queries::recent_events_page(ports.pool(), ctx.scope, ports.query(), &request).await?;
+        let page =
+            queries::recent_events_page(ports.pool(), ctx.scope, ports.query(), &request).await?;
         let refs: Vec<RecordRef> = page
             .events
             .iter()
@@ -112,7 +125,11 @@ pub(crate) async fn activity(ctx: &Ctx<'_>, query: ActivityQuery) -> Result<Acti
             .collect();
         let mut followed = HashSet::new();
         for scope in &scopes {
-            followed.extend(scope.followed(ports.pool(), ctx.scope.user_id(), &refs).await?);
+            followed.extend(
+                scope
+                    .followed(ports.pool(), ctx.scope.user_id(), &refs)
+                    .await?,
+            );
         }
         for event in page.events {
             let keep = event.record.as_ref().is_some_and(|record| {

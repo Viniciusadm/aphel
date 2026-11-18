@@ -6,12 +6,11 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::domain::{
-    HostRecord, INVALID_LINE_ITEM, LINE_ITEM_ADDED, LINE_ITEM_REMOVED,
-    LINE_ITEM_UPDATED,
+    HostRecord, INVALID_LINE_ITEM, LINE_ITEM_ADDED, LINE_ITEM_REMOVED, LINE_ITEM_UPDATED,
     LINE_ITEMS_LIMIT_REACHED, LINE_ITEMS_REORDERED, LineItemInput, LineItemLine, LineItemSettings,
     LineItemsSummary, PRODUCT_CURRENCY_MISMATCH, RECORD_HAS_NO_ITEMS, ReorderLineItemsCommand,
-    SaveLineItemCommand, item_changes, item_not_found,
-    item_snapshot, line, line_total, parse_decimal,
+    SaveLineItemCommand, item_changes, item_not_found, item_snapshot, line, line_total,
+    parse_decimal,
 };
 use crate::recurring::apply_item_recurrence;
 use crate::store::LineItemStore;

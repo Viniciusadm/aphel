@@ -37,6 +37,9 @@ pub struct AppMountPrefix(pub String);
 #[derive(Debug, Clone)]
 pub struct PublicToolsBase(pub String);
 
+#[derive(Debug, Clone)]
+struct Embeddable;
+
 #[derive(Debug, PartialEq, Eq)]
 enum Target {
     Reserved(String),
@@ -175,6 +178,9 @@ pub async fn dispatch(state: AppState, mounted: Router, request: Request) -> Res
         },
         Target::App(prefix) => {
             let mut request = request;
+            if serves_public_tool(&state, &path, &prefix) {
+                request.extensions_mut().insert(Embeddable);
+            }
             request
                 .extensions_mut()
                 .insert(PublicToolsBase(public_tools_url(&state)));
@@ -290,14 +296,31 @@ pub async fn serve_app_shell(request: Request) -> Response {
         ),
         1,
     );
-    (
+    let embeddable = request.extensions().get::<Embeddable>().is_some()
+        || request.extensions().get::<SiteSurface>().is_some();
+    let mut response = (
         [
             (header::CONTENT_TYPE, "text/html; charset=utf-8"),
             (header::CACHE_CONTROL, "no-cache"),
         ],
         html,
     )
-        .into_response()
+        .into_response();
+    if !embeddable {
+        deny_foreign_frames(&mut response);
+    }
+    response
+}
+
+fn deny_foreign_frames(response: &mut Response) {
+    response.headers_mut().insert(
+        header::X_FRAME_OPTIONS,
+        HeaderValue::from_static("SAMEORIGIN"),
+    );
+    response.headers_mut().insert(
+        header::CONTENT_SECURITY_POLICY,
+        HeaderValue::from_static("frame-ancestors 'self'"),
+    );
 }
 
 pub(crate) fn serve_console_shell(path: &str) -> Response {
@@ -318,14 +341,16 @@ pub(crate) fn serve_console_shell(path: &str) -> Response {
         ),
         1,
     );
-    (
+    let mut response = (
         [
             (header::CONTENT_TYPE, "text/html; charset=utf-8"),
             (header::CACHE_CONTROL, "no-cache"),
         ],
         html,
     )
-        .into_response()
+        .into_response();
+    deny_foreign_frames(&mut response);
+    response
 }
 
 pub(crate) fn serve_console_asset(path: &str) -> Response {

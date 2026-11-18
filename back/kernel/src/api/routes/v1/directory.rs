@@ -7,7 +7,7 @@ use utoipa_axum::routes;
 use crate::api::dto::common::{ErrorEnvelope, Page};
 use crate::api::dto::directory::{DirectoryParams, DirectoryUserResponse};
 use crate::api::error::ApiError;
-use crate::api::extractors::{Pagination, PaginationQuery};
+use crate::api::extractors::{AuthContext, Pagination, PaginationQuery};
 use crate::api::state::AppState;
 use crate::application::directory::DirectoryUseCases;
 use crate::application::organization_admin::ListWindow;
@@ -35,6 +35,7 @@ pub fn router() -> OpenApiRouter<AppState> {
 )]
 async fn list_users(
     State(state): State<AppState>,
+    _auth: AuthContext,
     pagination: Pagination,
     query: Result<Query<DirectoryParams>, QueryRejection>,
 ) -> Result<Json<Page<DirectoryUserResponse>>, ApiError> {

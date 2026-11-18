@@ -5,7 +5,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use crate::application::auth::UserRepository;
-use crate::application::mail::{EmailMessage, MailLocale, Mailer, templates};
+use crate::application::mail::{
+    EmailMessage, MailLocale, Mailer, is_mail_not_configured, templates,
+};
 use crate::application::security::{
     NewSecurityEvent, SecurityEventKind, SecurityEventRecorder, describe_device, device_key,
 };
@@ -254,6 +256,9 @@ where
             &self.security_link(),
             MailLocale::resolve(user.locale.as_deref(), None),
         );
-        self.mailer.send(message).await
+        match self.mailer.send(message).await {
+            Err(error) if is_mail_not_configured(&error) => Ok(()),
+            result => result,
+        }
     }
 }

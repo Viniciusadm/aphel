@@ -7,7 +7,7 @@
 | 0.1.x (latest) | Yes |
 | Earlier than 0.1 | No |
 
-While the project is in the 0.x series, only the latest version receives fixes. Upgrade by following [docs/upgrading.md](docs/upgrading.md).
+While the project is in the 0.x series, only the latest version receives fixes. Upgrade by following the [upgrade guide](web/docs/src/content/docs/admin/upgrading.md).
 
 ## How to report a vulnerability
 
@@ -44,7 +44,7 @@ Out of scope: problems that depend on an insecure configuration documented as su
 
 ## Good practices for installers
 
-- Use HTTPS (reverse proxy) and set `APP_BASE_URL` with `https://`, so the session cookie is sent with `Secure`.
+- Use HTTPS (reverse proxy) and save the public address (**Settings → General**) with `https://`, so the session cookie is sent with `Secure`.
 - Change the passwords from `.env.example` and keep `.env` out of version control.
 - Expose the Aphel port only to the proxy (`APP_PORT=127.0.0.1:3001`) and do not expose MySQL.
 - Keep encrypted backups and test restoring them ([docs/backup.md](docs/backup.md)).

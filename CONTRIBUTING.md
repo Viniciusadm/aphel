@@ -24,7 +24,7 @@ make dev-web
 - `make dev-back` runs the backend at http://127.0.0.1:3001; `make dev-web` runs Vite at http://localhost:5173.
 - On an empty database, the first access opens the installation assistant.
 
-Ports in use and other details: [docs/development.md](docs/development.md).
+Ports in use and other details: the Development section of the [README](README.md#development).
 
 ## Checks
 
@@ -77,7 +77,7 @@ The project follows simple rules, which the review checks:
 - **Authorization in the use case:** the use case checks the permission explicitly (`scope.require(...)` or `scope.record_filter(...)`). Hiding a button on the frontend is not authorization. New permissions go into the catalog in `domain/access/permission.rs`.
 - **Events and audit:** every business change writes the domain event and the audit in the same transaction as the write.
 - **API:** REST at `/api/v1`, every route documented with `utoipa`; errors always in the `{ "error": { "code", "message", "details" } }` envelope; paginated lists (`items`, `total`, `page`, `per_page`). Non-GET requests require the `X-Requested-With: aphel` header.
-- **Lists and custom fields** go through the query engine (`RecordQuery`) and the `CustomFieldWriter`; never build SQL with text coming from the user. Guide: [docs/architecture/custom-fields.md](docs/architecture/custom-fields.md).
+- **Lists and custom fields** go through the query engine (`RecordQuery`) and the `CustomFieldWriter`; never build SQL with text coming from the user. Guide: [architecture](web/docs/src/content/docs/start/architecture.md).
 - **Frontend:** each feature in `web/src/features/<feature>/`; API calls only through `web/src/api` (generated types); base components in `web/src/components/ui`; record screens reuse the blocks from `web/src/features/records`.
 
 ## Contribution license

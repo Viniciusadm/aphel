@@ -192,7 +192,8 @@ impl LineItemStore {
     }
 
     pub(crate) async fn settings(&self) -> Result<LineItemSettings, AppError> {
-        let settings = aphel_sdk::platform::modules::module_settings(&self.pool, crate::KEY).await?;
+        let settings =
+            aphel_sdk::platform::modules::module_settings(&self.pool, crate::KEY).await?;
         let mode = settings
             .get(crate::SETTING_AMOUNT_MODE)
             .and_then(|value| value.as_str())

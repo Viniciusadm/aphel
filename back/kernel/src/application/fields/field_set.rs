@@ -91,7 +91,11 @@ impl FieldSet {
                     FieldAccess::Editable
                 };
                 let untouched = system.label == definition.label
-                    || system.labels.0.values().any(|label| *label == definition.label);
+                    || system
+                        .labels
+                        .0
+                        .values()
+                        .any(|label| *label == definition.label);
                 let labels = if untouched {
                     definition.label = system.label.clone();
                     system.labels.clone()

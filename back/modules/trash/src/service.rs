@@ -134,9 +134,7 @@ fn trash_visibility(ctx: &Ctx<'_>, definition: &EntityDefinition) -> Option<Reco
     if ctx.scope.require(&Permission::SETTINGS_MANAGE).is_ok() {
         return Some(read);
     }
-    ctx.scope
-        .record_filter(&delete_permission(definition))
-        .ok()
+    ctx.scope.record_filter(&delete_permission(definition)).ok()
 }
 
 fn readable_types(ctx: &Ctx<'_>) -> Vec<(EntityDefinition, RecordScopeFilter)> {
@@ -165,8 +163,7 @@ pub(crate) async fn list(
         None | Some("") => readable_types(ctx),
         Some(value) => {
             let definition = parse_type(ctx, value)?;
-            let visibility =
-                trash_visibility(ctx, &definition).ok_or_else(permission_denied)?;
+            let visibility = trash_visibility(ctx, &definition).ok_or_else(permission_denied)?;
             vec![(definition, visibility)]
         }
     };

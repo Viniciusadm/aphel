@@ -163,7 +163,7 @@
     "description": "Your workspace is ready to use.",
     "next": {
       "import": "Bring your people and organizations from a spreadsheet.",
-      "invite": "Invite your team from Settings › Members.",
+      "invite": "Invite your team from Settings › Users.",
       "customize": "Adjust fields, workflow and features whenever you need."
     },
     "done": "What was set up",

@@ -14,6 +14,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control'
 import { ErrorState } from '@/components/ui/error-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { notifyError, notifySuccess } from '@/components/feedback'
+import { isApiError } from '@/api'
 import { API_BASE_URL } from '@/api/client'
 import {
   BlockForm,
@@ -299,7 +300,12 @@ function DesignWorkspace({ entry, record: initialRecord, defaultPath, onRecordsC
           if (!cancelled) setHtml(next)
         })
         .catch((error) => {
-          if (!cancelled) setHtml(`<p style="font:16px system-ui;padding:2rem;color:#b42318">${String((error as Error).message ?? error)}</p>`)
+          if (cancelled) return
+          const message = isApiError(error) && error.status === 404 ? t('page.noPages') : String((error as Error).message ?? error)
+          const note = document.createElement('p')
+          note.style.cssText = 'font:16px system-ui;padding:2rem;color:#b42318'
+          note.textContent = message
+          setHtml(note.outerHTML)
         })
         .finally(() => {
           if (!cancelled) setLoading(false)
@@ -309,7 +315,7 @@ function DesignWorkspace({ entry, record: initialRecord, defaultPath, onRecordsC
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [entry.target, serialized, path])
+  }, [entry.target, serialized, path, t])
 
   const change = useCallback((next: DesignContent) => {
     setHistory((current) => ({ past: [...current.past.slice(-80), content], future: [] }))

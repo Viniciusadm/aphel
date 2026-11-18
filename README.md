@@ -10,7 +10,7 @@ Fields, workflow, automations and plugins adapt each installation without changi
 
 ## Blueprints
 
-The installer offers a blueprint or a blank system. A blueprint (`blueprints/<key>/blueprint.toml`) lists required and recommended plugins, navigation, roles and configuration packages, and can extend another one. See [`docs/blueprints`](docs/blueprints/README.md).
+The installer offers a blueprint or a blank system. A blueprint (`blueprints/<key>/blueprint.toml`) lists required and recommended plugins, navigation, roles and configuration packages, and can extend another one. See [the blueprints guide](web/docs/src/content/docs/admin/blueprints.md).
 
 ## Features of the `crm` blueprint in v0.1
 
@@ -45,7 +45,7 @@ Before the last command, change `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` in `.
 
 Three services start: `app` (web server and API), `worker` (notifications, emails, imports, exports) and `mysql`, with volumes for the database and the files.
 
-Production (HTTPS, reverse proxy, SMTP), manual installation with the binary and systemd: [docs/installation.md](docs/installation.md).
+Production (HTTPS, reverse proxy, SMTP), manual installation with the binary and systemd: [installation guide](web/docs/src/content/docs/admin/installation.md).
 
 ## Configuration
 
@@ -64,7 +64,7 @@ Production (HTTPS, reverse proxy, SMTP), manual installation with the binary and
 
 Public address, email sending (SMTP integration), file storage (local disk or S3-compatible), upload limit, webhook delivery and API token limits are configured in the interface (**Settings**), after the installer.
 
-Full list, with the effect of each one: [docs/configuration.md](docs/configuration.md).
+Full list, with the effect of each one: [configuration reference](web/docs/src/content/docs/admin/configuration.md).
 
 ## Command line
 
@@ -84,13 +84,13 @@ Full list, with the effect of each one: [docs/configuration.md](docs/configurati
 
 | Document | Content |
 | --- | --- |
-| [Installation](docs/installation.md) | Docker, manual installation, reverse proxy, first access |
-| [Configuration](docs/configuration.md) | All environment variables |
+| [Installation](web/docs/src/content/docs/admin/installation.md) | Docker, manual installation, reverse proxy, first access |
+| [Configuration](web/docs/src/content/docs/admin/configuration.md) | All environment variables |
 | [Backup and restore](docs/backup.md) | Scripts, scheduling and tested restore |
-| [Upgrading](docs/upgrading.md) | Migrations, upgrading and rolling back |
-| [Development](docs/development.md) | Local environment, tests, lint and build |
-| [Custom fields](docs/architecture/custom-fields.md) | Architecture of fields and of the query engine |
-| [Privacy and LGPD](docs/privacy.md) | Personal data, data subject requests, retention and limits |
+| [Upgrading](web/docs/src/content/docs/admin/upgrading.md) | Migrations, upgrading and rolling back |
+| [Development](CONTRIBUTING.md) | Local environment, tests, lint and build |
+| [Architecture](web/docs/src/content/docs/start/architecture.md) | Crates, layers, request path, records engine, events and jobs |
+| [Privacy and LGPD](web/docs/src/content/docs/admin/security.md#privacy-requests) | Personal data, data subject requests, retention and limits |
 | [Backend](back/README.md) | Backend layers, API and conventions |
 
 ## Development
@@ -104,7 +104,7 @@ make dev-back
 make dev-web
 ```
 
-`make up` starts MySQL and Mailpit (emails at http://127.0.0.1:8025), `make dev-back` runs the backend at http://127.0.0.1:3001 and `make dev-web` runs Vite at http://localhost:5173. `make lint` runs the CI checks. Details in [docs/development.md](docs/development.md).
+`make up` starts MySQL and Mailpit (emails at http://127.0.0.1:8025), `make dev-back` runs the backend at http://127.0.0.1:3001 and `make dev-web` runs Vite at http://localhost:5173. `make lint` runs the CI checks. Details in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Stack: Rust (axum, sqlx, modular monolith with a kernel and modules), React 19 + TypeScript + Vite, Tailwind CSS, MySQL 8.
 

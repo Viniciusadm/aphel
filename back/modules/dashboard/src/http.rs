@@ -5,8 +5,8 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use crate::dto::{
-    ActivityPageResponse, ActivityParams, DashboardLayoutResponse, DashboardSubjectsResponse, SaveDashboardLayoutRequest,
-    WidgetDataParams, WidgetDataResponse, WidgetDescriptorResponse,
+    ActivityPageResponse, ActivityParams, DashboardLayoutResponse, DashboardSubjectsResponse,
+    SaveDashboardLayoutRequest, WidgetDataParams, WidgetDataResponse, WidgetDescriptorResponse,
 };
 use crate::service;
 use aphel_kernel::context::Ctx;

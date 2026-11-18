@@ -51,11 +51,7 @@ impl LineItemsSection {
     }
 
     async fn current_mode(&self) -> Result<AmountMode, AppError> {
-        Ok(self
-            .store
-            .settings()
-            .await?
-            .amount_mode)
+        Ok(self.store.settings().await?.amount_mode)
     }
 
     async fn change(&self, content: &Value) -> Result<Option<PlanChange>, AppError> {

@@ -46,6 +46,9 @@ where
         let attempt = LoginAttempt::new(&command.email, &command.client);
         self.ports.monitor().ensure_allowed(&attempt).await?;
         let Some(user) = self.ports.users().find_by_email(&attempt.email).await? else {
+            self.ports
+                .hasher()
+                .hash_password(command.password.expose())?;
             return self
                 .reject_login(&attempt, None, LoginFailure::UnknownAccount)
                 .await;
@@ -55,7 +58,12 @@ where
                 .ports
                 .hasher()
                 .verify_password(command.password.expose(), password_hash.as_str())?,
-            None => false,
+            None => {
+                self.ports
+                    .hasher()
+                    .hash_password(command.password.expose())?;
+                false
+            }
         };
         if !password_matches {
             return self

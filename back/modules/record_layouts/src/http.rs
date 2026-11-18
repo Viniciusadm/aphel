@@ -46,6 +46,7 @@ async fn layout_use_cases(state: &AppState) -> Result<LayoutUseCases<MySqlLayout
 )]
 async fn get_layout(
     State(state): State<AppState>,
+    _auth: AuthContext,
     Path((record_type, context)): Path<(String, String)>,
 ) -> Result<Json<Data<FormLayoutResponse>>, ApiError> {
     let entry = layout_use_cases(&state)

@@ -35,7 +35,9 @@ impl Module for FollowersModule {
     }
 
     fn register(&self, app: &mut AppBuilder) -> Result<(), AppError> {
-        app.contribute::<dyn aphel_sdk::dashboard::ActivityScope>(Arc::new(activity::FollowedRecords));
+        app.contribute::<dyn aphel_sdk::dashboard::ActivityScope>(Arc::new(
+            activity::FollowedRecords,
+        ));
         app.contribute::<dyn aphel_sdk::notifications::NotificationTexts>(std::sync::Arc::new(
             crate::notifications::FollowerNotificationTexts,
         ));
