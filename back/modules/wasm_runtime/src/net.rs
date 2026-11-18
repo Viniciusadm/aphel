@@ -343,7 +343,8 @@ mod mtls_integration_tests {
                 let (stream, _) = listener.accept().await.unwrap();
                 if let Ok(mut stream) = acceptor.accept(stream).await {
                     let mut buffer = [0u8; 2048];
-                    stream.read(&mut buffer).await.unwrap();
+                    let read = stream.read(&mut buffer).await.unwrap();
+                    assert!(read > 0);
                     stream
                         .write_all(
                             b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok",
