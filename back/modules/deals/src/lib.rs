@@ -1,8 +1,5 @@
 mod associations;
 mod context_source;
-mod lifecycle;
-mod merge_references;
-mod probability;
 mod renewal_writer;
 use aphel_sdk::imports::ImportTraits;
 mod dashboard;
@@ -11,9 +8,8 @@ mod reports;
 use aphel_sdk::privacy::PrivacyTraits;
 mod line_items;
 mod timeline;
-use aphel_sdk::line_items::LineItemTraits;
-mod financials;
 use aphel_sdk::assignment::AssignmentTraits;
+use aphel_sdk::line_items::LineItemTraits;
 use aphel_sdk::money::MoneyTraits;
 use aphel_sdk::workflow::WorkflowRecordTypes;
 mod workflow_source;
@@ -30,6 +26,7 @@ pub(crate) mod operations;
 pub(crate) mod runtime;
 pub mod service;
 pub mod store;
+use store::{financials, lifecycle, merge_references, probability};
 pub mod team;
 
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes, activities_relation};
@@ -398,10 +395,7 @@ impl Module for DealsModule {
         app.on(aphel_kernel::records::RecordPurged, 10, |ctx, args| {
             Box::pin(async move {
                 if args.record_type == RecordType::CONTACT {
-                    sqlx::query("DELETE FROM deal_contacts WHERE contact_id = ?")
-                        .bind(args.record.record_id.to_string())
-                        .execute(&mut **ctx.tx)
-                        .await?;
+                    store::deal_rows::unlink_contact(ctx.tx, args.record.record_id).await?;
                 }
                 Ok(())
             })

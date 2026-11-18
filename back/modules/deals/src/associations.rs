@@ -1,6 +1,5 @@
 use aphel_sdk::platform::application::fields::{CustomFieldPorts, FieldSet};
 use aphel_sdk::{AppError, Ctx, party::PartyAssociationSource, shared::RecordType};
-use sqlx::QueryBuilder;
 use uuid::Uuid;
 pub(crate) struct Associations;
 #[async_trait::async_trait]
@@ -36,22 +35,7 @@ impl PartyAssociationSource for Associations {
         if ids.is_empty() {
             return Ok(Vec::new());
         }
-        let mut query = QueryBuilder::<sqlx::MySql>::new(
-            "SELECT id FROM deals WHERE status = 'open' AND deleted_at IS NULL AND archived_at IS NULL AND (contact_id IN (",
-        );
-        let mut separated = query.separated(", ");
-        for id in &ids {
-            separated.push_bind(id.to_string());
-        }
-        query.push(") OR id IN (SELECT deal_id FROM deal_contacts WHERE contact_id IN (");
-        let mut separated = query.separated(", ");
-        for id in &ids {
-            separated.push_bind(id.to_string());
-        }
-        query.push(")))");
-        let candidates = query
-            .build_query_scalar::<String>()
-            .fetch_all(ctx.pool())
+        let candidates = crate::store::deal_rows::open_deals_of_contacts(ctx.pool(), &ids)
             .await?
             .into_iter()
             .map(|id| {

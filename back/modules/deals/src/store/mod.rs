@@ -1,3 +1,9 @@
+pub(crate) mod deal_rows;
+pub(crate) mod financials;
+pub(crate) mod lifecycle;
+pub(crate) mod merge_references;
+pub(crate) mod probability;
+
 use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
 

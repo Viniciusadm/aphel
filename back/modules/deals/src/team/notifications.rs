@@ -39,12 +39,7 @@ impl DealTeamNotificationConsumer {
     }
 
     async fn deal_title(&self, deal_id: &str) -> Result<Option<String>, AppError> {
-        Ok(
-            sqlx::query_scalar("SELECT title FROM deals WHERE id = ? AND deleted_at IS NULL")
-                .bind(deal_id)
-                .fetch_optional(&self.pool)
-                .await?,
-        )
+        crate::store::deal_rows::title(&self.pool, deal_id).await
     }
 }
 

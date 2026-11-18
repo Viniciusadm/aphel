@@ -43,12 +43,7 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
         pool: &Db,
         id: Uuid,
     ) -> Result<Option<(String, Option<String>)>, AppError> {
-        Ok(
-            sqlx::query_as("SELECT title, owner_id FROM deals WHERE id = ? AND deleted_at IS NULL")
-                .bind(id.to_string())
-                .fetch_optional(pool)
-                .await?,
-        )
+        crate::store::deal_rows::title_and_owner(pool, id).await
     }
 
     async fn widget_rows(
@@ -152,11 +147,7 @@ impl aphel_sdk::deals::DealRenewalReader for Writer {
         {
             return Ok(None);
         }
-        let row: Option<(String, Option<chrono::NaiveDateTime>)> =
-            sqlx::query_as("SELECT id, deleted_at FROM deals WHERE renewal_of_deal_id = ?")
-                .bind(original_id.to_string())
-                .fetch_optional(ctx.pool())
-                .await?;
+        let row = crate::store::deal_rows::renewal_of(ctx.pool(), original_id).await?;
         row.map(|(id, deleted)| {
             Ok(aphel_sdk::deals::ExistingDealRenewal {
                 deal_id: aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
@@ -177,7 +168,6 @@ async fn widget_rows(
     use aphel_sdk::platform::application::fields::FieldSet;
     use aphel_sdk::platform::application::query::RecordQueryPorts;
     use aphel_sdk::platform::infrastructure::query::compiler::{Projection, build_query};
-    use sqlx::Row;
     if plan.record_type.record_type.as_str() != aphel_sdk::deals::RECORD_TYPE
         || !(1..=1000).contains(&plan.window.limit)
     {
@@ -202,15 +192,7 @@ async fn widget_rows(
         context.scope,
     )
     .await?;
-    let mut query = sqlx::QueryBuilder::<sqlx::MySql>::new(
-        "SELECT d.id, d.title, d.amount, d.currency, d.stage_id, d.contract_end, d.owner_id, u.display_name AS owner_name FROM deals d LEFT JOIN users u ON u.id = d.owner_id WHERE d.id IN (",
-    );
-    let mut list = query.separated(", ");
-    for id in &ids {
-        list.push_bind(id.clone());
-    }
-    query.push(")");
-    let rows = query.build().fetch_all(pool).await?;
+    let rows = crate::store::deal_rows::renewal_rows(pool, &ids).await?;
     let mut stages = std::collections::HashMap::new();
     if !fields.is_hidden("stage_id")
         && let Some(source) = context
@@ -221,9 +203,8 @@ async fn widget_rows(
         let stage_ids = rows
             .iter()
             .map(|row| {
-                let id: String = row.try_get("stage_id")?;
                 aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
-                    &id,
+                    &row.stage_id,
                     "deals.stage_id",
                 )
             })
@@ -232,10 +213,9 @@ async fn widget_rows(
     }
     let mut values = std::collections::HashMap::new();
     for row in rows {
-        let raw_id: String = row.try_get("id")?;
-        let stage_id: String = row.try_get("stage_id")?;
+        let raw_id = row.id;
         let stage_id = aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
-            &stage_id,
+            &row.stage_id,
             "deals.stage_id",
         )?;
         let id = aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid(
@@ -248,33 +228,33 @@ async fn widget_rows(
                 title: if fields.is_hidden("title") {
                     String::new()
                 } else {
-                    row.try_get("title")?
+                    row.title
                 },
                 amount: if fields.is_hidden("amount") {
                     None
                 } else {
-                    row.try_get("amount")?
+                    row.amount
                 },
                 currency: if fields.is_hidden("currency") {
                     String::new()
                 } else {
-                    row.try_get("currency")?
+                    row.currency
                 },
                 stage_name: stages.get(&stage_id).cloned().unwrap_or_default(),
                 contract_end: if fields.is_hidden("contract_end") {
                     None
                 } else {
-                    row.try_get("contract_end")?
+                    row.contract_end
                 },
                 owner_id: if fields.is_hidden("owner_id") {
                     None
                 } else {
-                    row.try_get("owner_id")?
+                    row.owner_id
                 },
                 owner_name: if fields.is_hidden("owner_id") {
                     None
                 } else {
-                    row.try_get("owner_name")?
+                    row.owner_name
                 },
             },
         );
