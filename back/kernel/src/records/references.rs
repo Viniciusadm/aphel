@@ -213,7 +213,9 @@ pub async fn deleting(
             "reference cascade exceeds 1000 records".to_owned(),
         ));
     }
-    let target_definition = registry.require(target.record_type.as_str())?;
+    let Some(target_definition) = registry.get(&target.record_type) else {
+        return Ok(());
+    };
     let scope = AccessScope::system().acting_as("reference_policy", target_definition.key.clone());
     let ctx = crate::Ctx::from_parts(
         &scope,
