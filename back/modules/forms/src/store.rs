@@ -10,7 +10,7 @@ use crate::model::{
 };
 use crate::{PUBLIC_FORMS_PATH, form_not_found};
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 #[derive(Debug, Clone)]
 pub(crate) struct StoredForm {
@@ -177,7 +177,7 @@ pub(crate) async fn find_by_public_id(
     row.as_ref().map(form_from_row).transpose()
 }
 
-pub(crate) async fn insert_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(), AppError> {
+pub(crate) async fn insert_form(tx: &mut Tx, form: &StoredForm) -> Result<(), AppError> {
     sqlx::query(
         "INSERT INTO forms_forms (id, public_id, name, is_active, acting_user_id, definition, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
@@ -195,7 +195,7 @@ pub(crate) async fn insert_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(
     Ok(())
 }
 
-pub(crate) async fn update_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(), AppError> {
+pub(crate) async fn update_form(tx: &mut Tx, form: &StoredForm) -> Result<(), AppError> {
     sqlx::query(
         "UPDATE forms_forms SET public_id = ?, name = ?, is_active = ?, acting_user_id = ?, definition = ?, updated_at = ? WHERE id = ?",
     )
@@ -211,7 +211,7 @@ pub(crate) async fn update_form(tx: &mut MySqlTx, form: &StoredForm) -> Result<(
     Ok(())
 }
 
-pub(crate) async fn delete_form(tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+pub(crate) async fn delete_form(tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
     sqlx::query("DELETE FROM forms_submissions WHERE form_id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)

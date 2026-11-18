@@ -15,7 +15,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::EntityDefinition;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const POLICY_SELECT: &str = "SELECT p.*, u.display_name AS created_by_name FROM retention_policies p \
@@ -230,7 +230,7 @@ impl RetentionStore {
 
     pub(crate) async fn insert_policy(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy: &RetentionPolicy,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -258,7 +258,7 @@ impl RetentionStore {
 
     pub(crate) async fn save_policy(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy: &RetentionPolicy,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -296,7 +296,7 @@ impl RetentionStore {
 
     pub(crate) async fn mark_policy_run(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy_id: Uuid,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -310,7 +310,7 @@ impl RetentionStore {
 
     pub(crate) async fn delete_policy(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy_id: Uuid,
     ) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM retention_policies WHERE id = ?")
@@ -320,11 +320,7 @@ impl RetentionStore {
         Ok(result.rows_affected() > 0)
     }
 
-    pub(crate) async fn insert_run(
-        &self,
-        tx: &mut MySqlTx,
-        run: &RetentionRun,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert_run(&self, tx: &mut Tx, run: &RetentionRun) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO retention_runs (id, policy_id, policy_name, action, record_type, \
              threshold_days, trigger_kind, status, requested_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -344,11 +340,7 @@ impl RetentionStore {
         Ok(())
     }
 
-    pub(crate) async fn save_run(
-        &self,
-        tx: &mut MySqlTx,
-        run: &RetentionRun,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn save_run(&self, tx: &mut Tx, run: &RetentionRun) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE retention_runs SET status = ?, affected = ?, files_removed = ?, errors = ?, error_message = ?, \
              started_at = ?, finished_at = ?, heartbeat_at = UTC_TIMESTAMP(6) WHERE id = ?",
@@ -539,7 +531,7 @@ impl RetentionStore {
 
     pub(crate) async fn archive_record(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         id: Uuid,
         now: DateTime<Utc>,

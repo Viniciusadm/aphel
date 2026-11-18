@@ -1,6 +1,6 @@
 use crate::{AppError, Ctx, fields::EntityTraits, shared::RecordRef};
 pub use aphel_contract_line_items::*;
-use aphel_kernel::{database::transaction::MySqlTx, domain::UserId, modules::Hook};
+use aphel_kernel::{database::transaction::Tx, domain::UserId, modules::Hook};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
@@ -101,13 +101,13 @@ pub trait LineItemsPort: Send + Sync {
     async fn managed(&self, ctx: &Ctx<'_>, record: &RecordRef) -> Result<bool, AppError>;
     async fn sync_rate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         rate: Option<Decimal>,
     ) -> Result<(), AppError>;
     async fn rebase_amounts(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         factor: Decimal,
     ) -> Result<(), AppError>;
@@ -170,7 +170,7 @@ pub trait LineItemProjection: Send + Sync {
     async fn apply(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         totals: &TotalsChanged,
     ) -> Result<(), AppError>;
 }

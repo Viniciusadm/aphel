@@ -18,7 +18,7 @@ use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, ModuleCtx, SettingField, SettingKind, SettingOption,
 };
 use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 
 pub(crate) const KEY: &str = "enrichment";
@@ -281,7 +281,7 @@ impl Module for EnrichmentModule {
         Ok(json!({ "lookups_total": lookups, "field_sources_total": sources }))
     }
 
-    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
+    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, tx: &mut Tx) -> Result<(), AppError> {
         store::purge(tx).await
     }
 }

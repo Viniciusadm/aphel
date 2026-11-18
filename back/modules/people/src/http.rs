@@ -37,7 +37,7 @@ use aphel_sdk::platform::api::routes::v1::field_permissions::{
 use aphel_sdk::platform::api::routes::v1::members::window;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::records::record_includes;
 
@@ -852,7 +852,7 @@ impl aphel_kernel::records::EntityWriteBehavior for ContactBehavior {
     async fn create(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         values: Value,
     ) -> Result<PendingCommit, AppError> {
         let command =
@@ -866,7 +866,7 @@ impl aphel_kernel::records::EntityWriteBehavior for ContactBehavior {
     async fn update(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         values: Value,
     ) -> Result<Option<PendingCommit>, AppError> {

@@ -4,7 +4,7 @@ use sqlx::{self, MySqlPool, Row};
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 pub(crate) const STATUS_SENT: &str = "sent";
 pub(crate) const STATUS_COMPLETED: &str = "completed";
@@ -118,7 +118,7 @@ fn signer(row: &MySqlRow) -> Result<SignerRow, AppError> {
 }
 
 pub(crate) async fn insert_request(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     row: &RequestRow,
     signers: &[SignerRow],
 ) -> Result<(), AppError> {
@@ -172,10 +172,7 @@ pub(crate) async fn find_request(
         .transpose()
 }
 
-pub(crate) async fn lock_request(
-    tx: &mut MySqlTx,
-    id: Uuid,
-) -> Result<Option<RequestRow>, AppError> {
+pub(crate) async fn lock_request(tx: &mut Tx, id: Uuid) -> Result<Option<RequestRow>, AppError> {
     let sql = format!("SELECT {REQUEST_COLUMNS} FROM esign_requests WHERE id = ? FOR UPDATE");
     sqlx::query(sqlx::AssertSqlSafe(sql))
         .bind(id.to_string())
@@ -244,7 +241,7 @@ pub(crate) async fn signers_of(
 }
 
 pub(crate) async fn signers_in_tx(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request_id: Uuid,
 ) -> Result<Vec<SignerRow>, AppError> {
     let sql = format!(
@@ -260,7 +257,7 @@ pub(crate) async fn signers_in_tx(
 }
 
 pub(crate) async fn set_request_status(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
     status: &str,
     now: DateTime<Utc>,
@@ -279,7 +276,7 @@ pub(crate) async fn set_request_status(
 }
 
 pub(crate) async fn set_signer_status(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
     status: &str,
     now: DateTime<Utc>,
@@ -299,11 +296,7 @@ pub(crate) async fn set_signer_status(
     Ok(())
 }
 
-pub(crate) async fn set_signed_file(
-    tx: &mut MySqlTx,
-    id: Uuid,
-    file_id: Uuid,
-) -> Result<(), AppError> {
+pub(crate) async fn set_signed_file(tx: &mut Tx, id: Uuid, file_id: Uuid) -> Result<(), AppError> {
     sqlx::query("UPDATE esign_requests SET signed_file_id = ?, updated_at = ? WHERE id = ?")
         .bind(file_id.to_string())
         .bind(Utc::now().naive_utc())
@@ -314,7 +307,7 @@ pub(crate) async fn set_signed_file(
 }
 
 pub(crate) async fn record_receipt(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     body_hash: &str,
     request_id: Option<Uuid>,
     event_name: &str,
@@ -349,7 +342,7 @@ pub(crate) async fn count_requests(pool: &MySqlPool) -> Result<i64, AppError> {
         .await?)
 }
 
-pub(crate) async fn purge(tx: &mut MySqlTx) -> Result<(), AppError> {
+pub(crate) async fn purge(tx: &mut Tx) -> Result<(), AppError> {
     for sql in [
         "DELETE FROM esign_webhook_receipts",
         "DELETE FROM esign_signers",

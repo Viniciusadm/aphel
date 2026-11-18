@@ -15,7 +15,7 @@ use aphel_sdk::platform::application::files::RecordAccessChecker;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn link(
@@ -147,7 +147,7 @@ async fn prepare(
 #[allow(clippy::too_many_arguments)]
 async fn record_change(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     event_type: &'static str,
     thread_id: &Uuid,
     mailbox_id: &Uuid,

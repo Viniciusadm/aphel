@@ -30,7 +30,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::domain::users::User;
 use aphel_sdk::platform::infrastructure::auth::Sha256SecureTokens;
@@ -880,7 +880,7 @@ fn validate_tolerance(value: u32, violations: &mut Vec<FieldViolation>) -> u32 {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     webhook: &IncomingWebhook,
     event_type: &'static str,
     changes: Vec<FieldChange>,

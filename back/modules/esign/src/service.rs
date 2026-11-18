@@ -12,7 +12,7 @@ use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, Job, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 use crate::clicksign::Clicksign;
@@ -254,7 +254,7 @@ pub(crate) async fn read_file(
 
 pub(crate) async fn record_event(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     event_type: &str,
     deal_id: Uuid,

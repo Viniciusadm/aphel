@@ -3,9 +3,9 @@ use crate::{
     fields::LocalizedLabels,
     shared::{DomainEvent, RecordRef},
 };
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::UserId;
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 
 pub struct FollowedEvent {
     pub targets: Vec<RecordRef>,
@@ -23,7 +23,7 @@ pub trait FollowedEventSource: Send + Sync {
     fn signal(&self, event: &DomainEvent) -> Option<FollowedEvent>;
     async fn visible(
         &self,
-        _pool: &MySqlPool,
+        _pool: &Db,
         _recipient: &UserId,
         _event: &DomainEvent,
     ) -> Result<bool, AppError> {

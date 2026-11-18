@@ -21,7 +21,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::line_items::{DiscountKind, Recurrence};
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope_as;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -307,7 +307,7 @@ impl QuoteStore {
         rows.iter().map(quote_from_row).collect()
     }
 
-    pub(crate) async fn lock(&self, tx: &mut MySqlTx, id: Uuid) -> Result<Option<Quote>, AppError> {
+    pub(crate) async fn lock(&self, tx: &mut Tx, id: Uuid) -> Result<Option<Quote>, AppError> {
         let mut builder = Self::select();
         builder
             .push(" AND r.id = ")
@@ -352,7 +352,7 @@ impl QuoteStore {
         rows.iter().map(quote_from_row).collect()
     }
 
-    pub(crate) async fn next_number(&self, tx: &mut MySqlTx) -> Result<u32, AppError> {
+    pub(crate) async fn next_number(&self, tx: &mut Tx) -> Result<u32, AppError> {
         sqlx::query(
             "INSERT INTO quote_counters (id, last_number) VALUES (1, LAST_INSERT_ID(1)) \
              ON DUPLICATE KEY UPDATE last_number = LAST_INSERT_ID(last_number + 1), \
@@ -367,7 +367,7 @@ impl QuoteStore {
             .map_err(|_| AppError::Internal("the quote counter overflowed".to_owned()))
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, quote: &Quote) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, quote: &Quote) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO quotes (id, deal_id, number, version, is_current, title, \
              status, owner_id, contact_id, company_id, currency, price_list_id, valid_until, terms, \
@@ -405,7 +405,7 @@ impl QuoteStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, quote: &Quote) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, quote: &Quote) -> Result<(), AppError> {
         let acceptance = quote.acceptance.as_ref();
         sqlx::query(
             "UPDATE quotes SET title = ?, status = ?, owner_id = ?, contact_id = ?, company_id = ?, \
@@ -461,7 +461,7 @@ impl QuoteStore {
 
     pub(crate) async fn replace_items(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         quote_id: Uuid,
         items: &[QuoteItem],
         at: DateTime<Utc>,
@@ -512,7 +512,7 @@ impl QuoteStore {
 
     pub(crate) async fn retire_versions(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         number: u32,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -529,7 +529,7 @@ impl QuoteStore {
 
     pub(crate) async fn delete_number(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         number: u32,
         at: DateTime<Utc>,
     ) -> Result<Vec<Uuid>, AppError> {
@@ -656,7 +656,7 @@ impl QuoteStore {
 
     pub(crate) async fn save_settings(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         settings: &QuoteSettings,
     ) -> Result<(), AppError> {
         let stages: serde_json::Map<String, Value> = settings

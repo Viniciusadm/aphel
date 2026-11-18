@@ -3,8 +3,8 @@ use crate::infrastructure::MySqlSearchPorts;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::Job;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::search::{SearchMaintenance, SearchReindexSummary};
-use sqlx::MySqlPool;
 use std::sync::Arc;
 
 pub(crate) struct Maintenance;
@@ -17,7 +17,7 @@ impl SearchMaintenance for Maintenance {
 
     async fn rebuild(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
     ) -> Result<SearchReindexSummary, AppError> {
         let outcome = SearchUseCases::new(MySqlSearchPorts::new(pool.clone(), registry.clone()))

@@ -6,12 +6,12 @@ pub mod versioning;
 pub mod versions_dto;
 pub use aphel_contract_configuration::*;
 use aphel_kernel::application::fields::RecordTypeRegistry;
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::Db;
+use aphel_kernel::database::transaction::Tx;
 use aphel_kernel::errors::AppError;
 use async_trait::async_trait;
 pub use keys::*;
 pub use section::*;
-use sqlx::MySqlPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -31,9 +31,8 @@ pub trait ConfigKeyRepository: Send + Sync {
     ) -> Result<(), AppError>;
 }
 
-pub type ConfigSectionBuild = Arc<
-    dyn Fn(&MySqlPool, &Arc<RecordTypeRegistry>) -> Arc<dyn ConfigSection<MySqlTx>> + Send + Sync,
->;
+pub type ConfigSectionBuild =
+    Arc<dyn Fn(&Db, &Arc<RecordTypeRegistry>) -> Arc<dyn ConfigSection<Tx>> + Send + Sync>;
 
 pub struct ConfigSectionFactory {
     pub order: u16,
@@ -43,10 +42,7 @@ pub struct ConfigSectionFactory {
 impl ConfigSectionFactory {
     pub fn new<F>(order: u16, build: F) -> Self
     where
-        F: Fn(&MySqlPool, &Arc<RecordTypeRegistry>) -> Arc<dyn ConfigSection<MySqlTx>>
-            + Send
-            + Sync
-            + 'static,
+        F: Fn(&Db, &Arc<RecordTypeRegistry>) -> Arc<dyn ConfigSection<Tx>> + Send + Sync + 'static,
     {
         Self {
             order,
@@ -59,12 +55,12 @@ impl ConfigSectionFactory {
 pub trait ConfigurationKeys: Send + Sync {
     async fn keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         kind: ConfigReferenceKind,
     ) -> Result<HashMap<Uuid, String>, AppError>;
     async fn assign(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         kind: ConfigReferenceKind,
         id: Uuid,
         key: &str,
@@ -73,10 +69,10 @@ pub trait ConfigurationKeys: Send + Sync {
 
 #[derive(Clone)]
 pub struct ConfigKeyClient {
-    pool: MySqlPool,
+    pool: Db,
 }
 impl ConfigKeyClient {
-    pub fn new(pool: MySqlPool) -> Self {
+    pub fn new(pool: Db) -> Self {
         Self { pool }
     }
 }
@@ -97,13 +93,13 @@ fn key_service() -> Result<Arc<dyn ConfigurationKeys>, AppError> {
 }
 #[async_trait]
 impl ConfigKeyRepository for ConfigKeyClient {
-    type Tx = MySqlTx;
+    type Tx = Tx;
     async fn keys(&self, kind: ConfigReferenceKind) -> Result<HashMap<Uuid, String>, AppError> {
         key_service()?.keys(&self.pool, kind).await
     }
     async fn assign(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         kind: ConfigReferenceKind,
         id: Uuid,
         key: &str,
@@ -122,7 +118,7 @@ pub struct InstallationReference {
 pub trait ConfigurationCatalog: Send + Sync {
     async fn installed_versions(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &crate::access::AccessScope,
     ) -> Result<Vec<(String, String)>, AppError>;
 
@@ -208,13 +204,13 @@ pub trait ConfigurationReferences: Send + Sync {
     }
     async fn keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         kind: ConfigReferenceKind,
     ) -> Result<HashMap<Uuid, String>, AppError>;
 }
 
 pub async fn reference_keys(
-    pool: &MySqlPool,
+    pool: &Db,
     kind: ConfigReferenceKind,
 ) -> Result<HashMap<Uuid, String>, AppError> {
     reference_keys_from(
@@ -226,7 +222,7 @@ pub async fn reference_keys(
 }
 
 pub async fn stored_reference_keys(
-    pool: &MySqlPool,
+    pool: &Db,
     kind: ConfigReferenceKind,
 ) -> Result<HashMap<Uuid, String>, AppError> {
     reference_keys_from(
@@ -242,7 +238,7 @@ pub async fn stored_reference_keys(
 }
 
 async fn reference_keys_from(
-    pool: &MySqlPool,
+    pool: &Db,
     kind: ConfigReferenceKind,
     sources: Vec<Arc<dyn ConfigurationReferences>>,
 ) -> Result<HashMap<Uuid, String>, AppError> {

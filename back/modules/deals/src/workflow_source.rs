@@ -5,13 +5,14 @@ use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
 use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 use aphel_sdk::workflow::{StageLocation, StageMove, StageUsage, StagedRecordSource, UsageTarget};
 use async_trait::async_trait;
-use sqlx::{MySql, MySqlPool, QueryBuilder};
+use sqlx::{MySql, QueryBuilder};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -59,7 +60,7 @@ impl StagedRecordSource for DealStages {
             })
             .collect()
     }
-    async fn usage(&self, pool: &MySqlPool, target: UsageTarget) -> Result<StageUsage, AppError> {
+    async fn usage(&self, pool: &Db, target: UsageTarget) -> Result<StageUsage, AppError> {
         let (sql, id) = match target {
             UsageTarget::Stage(id) => (
                 "SELECT COUNT(*), CAST(COALESCE(SUM(deleted_at IS NULL), 0) AS UNSIGNED) FROM deals WHERE stage_id = ?",
@@ -79,11 +80,7 @@ impl StagedRecordSource for DealStages {
             active,
         })
     }
-    async fn location(
-        &self,
-        pool: &MySqlPool,
-        id: Uuid,
-    ) -> Result<Option<StageLocation>, AppError> {
+    async fn location(&self, pool: &Db, id: Uuid) -> Result<Option<StageLocation>, AppError> {
         let row: Option<(String, String)> = sqlx::query_as(
             "SELECT pipeline_id, stage_id FROM deals WHERE id = ? AND deleted_at IS NULL",
         )
@@ -101,7 +98,7 @@ impl StagedRecordSource for DealStages {
     async fn move_records(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         movement: &StageMove,
     ) -> Result<u64, AppError> {
         ctx.scope.require(&Permission::SETTINGS_MANAGE)?;

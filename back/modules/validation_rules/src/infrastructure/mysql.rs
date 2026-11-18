@@ -13,7 +13,7 @@ use crate::application::{
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType, FieldValue};
 use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
@@ -70,7 +70,7 @@ impl MySqlValidationRuleRepository {
 
 #[async_trait]
 impl ValidationRuleRepository for MySqlValidationRuleRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self, record_type: Option<&str>) -> Result<Vec<ValidationRule>, AppError> {
         let rows = match record_type {
@@ -119,7 +119,7 @@ impl ValidationRuleRepository for MySqlValidationRuleRepository {
         row.as_ref().map(rule_from_row).transpose()
     }
 
-    async fn insert(&self, tx: &mut MySqlTx, rule: &ValidationRule) -> Result<(), AppError> {
+    async fn insert(&self, tx: &mut Tx, rule: &ValidationRule) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO validation_rules (id, `key`, record_type, name, \
              expression, message, field_key, applies_on, is_active, position, created_by, \
@@ -144,7 +144,7 @@ impl ValidationRuleRepository for MySqlValidationRuleRepository {
         Ok(())
     }
 
-    async fn update(&self, tx: &mut MySqlTx, rule: &ValidationRule) -> Result<(), AppError> {
+    async fn update(&self, tx: &mut Tx, rule: &ValidationRule) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE validation_rules SET name = ?, expression = ?, message = ?, field_key = ?, \
              applies_on = ?, is_active = ?, position = ?, updated_by = ?, updated_at = ? \
@@ -165,7 +165,7 @@ impl ValidationRuleRepository for MySqlValidationRuleRepository {
         Ok(())
     }
 
-    async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM validation_rules WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -173,11 +173,7 @@ impl ValidationRuleRepository for MySqlValidationRuleRepository {
         Ok(())
     }
 
-    async fn set_positions(
-        &self,
-        tx: &mut MySqlTx,
-        positions: &[(Uuid, i32)],
-    ) -> Result<(), AppError> {
+    async fn set_positions(&self, tx: &mut Tx, positions: &[(Uuid, i32)]) -> Result<(), AppError> {
         for (id, position) in positions {
             sqlx::query("UPDATE validation_rules SET position = ? WHERE id = ?")
                 .bind(*position)
@@ -229,11 +225,11 @@ pub struct MySqlProposedFieldValues;
 
 #[async_trait]
 impl ProposedFieldValues for MySqlProposedFieldValues {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn load(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         fields: &[FieldDefinition],
     ) -> Result<HashMap<Uuid, FieldValue>, AppError> {

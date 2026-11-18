@@ -4,7 +4,6 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use chrono::Utc;
-use sqlx::MySqlPool;
 use sqlx::mysql::MySqlPoolOptions;
 
 use crate::cli::CliResult;
@@ -17,6 +16,7 @@ use aphel_kernel::application::system::health::age_seconds;
 use aphel_kernel::application::system::upgrade::{MIN_MYSQL_MAJOR, mysql_version_supported};
 use aphel_kernel::application::system::{APHEL_VERSION, MigrationStatus, WORKER_ROLE};
 use aphel_kernel::config::AppConfig;
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::infrastructure::organization_profile::organization_config_catalog;
 use aphel_kernel::infrastructure::secrets::EncryptionKeyring;
@@ -29,7 +29,7 @@ use aphel_kernel::infrastructure::system::{SystemSettings, disk, monitor, probe}
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
-pub(crate) async fn connect_quietly(database_url: &str) -> Result<MySqlPool, String> {
+pub(crate) async fn connect_quietly(database_url: &str) -> Result<Db, String> {
     let pool = MySqlPoolOptions::new()
         .max_connections(2)
         .acquire_timeout(CONNECT_TIMEOUT)
@@ -55,7 +55,7 @@ fn describe_sqlx_error(error: &sqlx::Error) -> String {
     }
 }
 
-pub(crate) async fn mysql_version(pool: &MySqlPool) -> Option<String> {
+pub(crate) async fn mysql_version(pool: &Db) -> Option<String> {
     sqlx::query_scalar::<_, String>("SELECT VERSION()")
         .fetch_one(pool)
         .await
@@ -78,7 +78,7 @@ pub(crate) fn mysql_check(version: Option<&str>) -> DoctorCheck {
 
 async fn configured_storage(
     config: &AppConfig,
-    pool: &MySqlPool,
+    pool: &Db,
 ) -> Result<(StorageSettings, SharedFileStorage), String> {
     let settings = organization_config_catalog(pool)
         .current()
@@ -99,7 +99,7 @@ async fn configured_storage(
     Ok((settings, storage))
 }
 
-pub(crate) async fn storage_check(config: &AppConfig, pool: &MySqlPool) -> DoctorCheck {
+pub(crate) async fn storage_check(config: &AppConfig, pool: &Db) -> DoctorCheck {
     let (settings, storage) = match configured_storage(config, pool).await {
         Ok(configured) => configured,
         Err(reason) => {
@@ -135,7 +135,7 @@ pub(crate) async fn storage_check(config: &AppConfig, pool: &MySqlPool) -> Docto
     }
 }
 
-pub(crate) async fn disk_space_checks(pool: &MySqlPool, min_free_mb: u64) -> Vec<DoctorCheck> {
+pub(crate) async fn disk_space_checks(pool: &Db, min_free_mb: u64) -> Vec<DoctorCheck> {
     let mut targets = Vec::new();
     if let Ok(configuration) = organization_config_catalog(pool).current().await
         && let StorageSettings::Local { path } = &configuration.storage
@@ -169,7 +169,7 @@ fn disk_space_check(name: &str, path: &Path, min_free_mb: u64) -> DoctorCheck {
     }
 }
 
-async fn smtp_check(pool: &MySqlPool) -> DoctorCheck {
+async fn smtp_check(pool: &Db) -> DoctorCheck {
     let row: Option<(Option<String>, Option<i64>)> = sqlx::query_as(
         "SELECT JSON_UNQUOTE(JSON_EXTRACT(config, '$.host')), \
          CAST(JSON_EXTRACT(config, '$.port') AS SIGNED) FROM integrations \
@@ -260,7 +260,7 @@ pub(crate) fn migrations_check(status: &MigrationStatus) -> DoctorCheck {
     DoctorCheck::new("migrations", state, detail)
 }
 
-async fn worker_checks(pool: &MySqlPool, settings: &SystemSettings) -> Vec<DoctorCheck> {
+async fn worker_checks(pool: &Db, settings: &SystemSettings) -> Vec<DoctorCheck> {
     let now = Utc::now();
     let thresholds = settings.readiness;
     let mut checks = Vec::new();

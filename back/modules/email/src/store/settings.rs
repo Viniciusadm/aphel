@@ -14,7 +14,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::files::NewFile;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::users::UserStatus;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
@@ -71,7 +71,7 @@ impl SettingsStore {
 
     pub(crate) async fn save_capture_settings(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         settings: &CaptureSettings,
         now: DateTime<Utc>,
@@ -129,7 +129,7 @@ impl SettingsStore {
 
     pub(crate) async fn insert_block(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         entry: &BlockedEntry,
     ) -> Result<(), AppError> {
@@ -148,7 +148,7 @@ impl SettingsStore {
         Ok(())
     }
 
-    pub(crate) async fn delete_block(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn delete_block(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM email_blocklist WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -270,11 +270,7 @@ impl DirectoryStore {
             .collect()
     }
 
-    pub(crate) async fn insert_file(
-        &self,
-        tx: &mut MySqlTx,
-        file: &NewFile,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert_file(&self, tx: &mut Tx, file: &NewFile) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO files (id, storage_key, original_name, mime_type, size, checksum, uploaded_by, created_at) \
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -360,11 +356,7 @@ impl DirectoryStore {
             .collect()
     }
 
-    pub(crate) async fn delete_files(
-        &self,
-        tx: &mut MySqlTx,
-        ids: &[Uuid],
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete_files(&self, tx: &mut Tx, ids: &[Uuid]) -> Result<(), AppError> {
         if ids.is_empty() {
             return Ok(());
         }
@@ -457,7 +449,7 @@ pub(crate) struct EngagementReader;
 impl aphel_sdk::email::EmailEngagementReader for EngagementReader {
     async fn snapshot(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
     ) -> Result<aphel_sdk::email::EmailEngagement, AppError> {
         let instant = "COALESCE(e.sent_at, e.created_at)";

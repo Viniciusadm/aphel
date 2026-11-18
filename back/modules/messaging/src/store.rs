@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::channels::ChannelKind;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 #[derive(Debug, Clone)]
 pub(crate) struct StoredChannel {
@@ -191,10 +191,7 @@ pub(crate) async fn polling_channels(pool: &MySqlPool) -> Result<Vec<StoredChann
     rows.iter().map(channel_from_row).collect()
 }
 
-pub(crate) async fn insert_channel(
-    tx: &mut MySqlTx,
-    channel: &StoredChannel,
-) -> Result<(), AppError> {
+pub(crate) async fn insert_channel(tx: &mut Tx, channel: &StoredChannel) -> Result<(), AppError> {
     sqlx::query(
         "INSERT INTO messaging_channels (id, kind, name, config, is_active, status, acting_user_id, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
@@ -213,10 +210,7 @@ pub(crate) async fn insert_channel(
     Ok(())
 }
 
-pub(crate) async fn update_channel(
-    tx: &mut MySqlTx,
-    channel: &StoredChannel,
-) -> Result<(), AppError> {
+pub(crate) async fn update_channel(tx: &mut Tx, channel: &StoredChannel) -> Result<(), AppError> {
     sqlx::query(
         "UPDATE messaging_channels SET name = ?, config = ?, is_active = ?, status = ?, last_error = ?, acting_user_id = ?, imap_uid_validity = ?, imap_last_uid = ?, updated_at = ? WHERE id = ?",
     )
@@ -235,7 +229,7 @@ pub(crate) async fn update_channel(
     Ok(())
 }
 
-pub(crate) async fn delete_channel(tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+pub(crate) async fn delete_channel(tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
     sqlx::query("DELETE FROM messaging_channels WHERE id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)
@@ -365,7 +359,7 @@ where
 }
 
 pub(crate) async fn find_conversation_for_update(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
 ) -> Result<Option<StoredConversation>, AppError> {
     let row = sqlx::query(AssertSqlSafe(format!(
@@ -413,7 +407,7 @@ pub(crate) async fn conversation_by_message_ids(
 }
 
 pub(crate) async fn insert_conversation(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     conversation: &StoredConversation,
 ) -> Result<(), AppError> {
     sqlx::query(
@@ -440,7 +434,7 @@ pub(crate) async fn insert_conversation(
 }
 
 pub(crate) async fn save_conversation(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     conversation: &StoredConversation,
 ) -> Result<(), AppError> {
     sqlx::query(
@@ -587,10 +581,7 @@ pub(crate) async fn message_exists(
     Ok(found.is_some())
 }
 
-pub(crate) async fn insert_message(
-    tx: &mut MySqlTx,
-    message: &StoredMessage,
-) -> Result<bool, AppError> {
+pub(crate) async fn insert_message(tx: &mut Tx, message: &StoredMessage) -> Result<bool, AppError> {
     let result = sqlx::query(
         "INSERT INTO messaging_messages (id, conversation_id, channel_id, direction, external_id, sender, sender_name, subject, body, message_type, status, error_code, error_message, in_reply_to, thread_references, sent_by_user_id, provider_timestamp, sent_at, delivered_at, read_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
@@ -709,7 +700,7 @@ pub(crate) async fn mark_message_sent(
 }
 
 pub(crate) async fn mark_message_failed(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     message: &StoredMessage,
     code: &str,
     error: &str,

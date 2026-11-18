@@ -2,9 +2,9 @@ use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
-use sqlx::MySqlPool;
 use tokio::task::JoinHandle;
 
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::tenancy::TenantLocal;
 
@@ -80,13 +80,13 @@ impl EnabledModules {
         }
     }
 
-    pub async fn refresh(&self, pool: &MySqlPool) -> Result<(), AppError> {
+    pub async fn refresh(&self, pool: &Db) -> Result<(), AppError> {
         let keys = stored_enabled(pool).await?;
         self.replace(keys);
         Ok(())
     }
 
-    pub fn spawn_refresh(self: Arc<Self>, pool: MySqlPool) -> JoinHandle<()> {
+    pub fn spawn_refresh(self: Arc<Self>, pool: Db) -> JoinHandle<()> {
         crate::tenancy::spawn(async move {
             let mut interval = tokio::time::interval(REFRESH_INTERVAL);
             loop {
@@ -99,7 +99,7 @@ impl EnabledModules {
     }
 }
 
-pub async fn stored_enabled(pool: &MySqlPool) -> Result<Vec<String>, AppError> {
+pub async fn stored_enabled(pool: &Db) -> Result<Vec<String>, AppError> {
     Ok(sqlx::query_scalar(
         "SELECT module_key FROM installed_modules WHERE enabled ORDER BY module_key",
     )

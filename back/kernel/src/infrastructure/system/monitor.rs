@@ -9,7 +9,7 @@ use crate::application::system::model::{
     FailedJob, FailedJobFilter, FailureEntry, InstanceHeartbeat, JobKindCounts, PageWindow,
 };
 use crate::application::system::ports::{FailedJobRepository, QueueMonitor};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
 use crate::infrastructure::system::probe;
@@ -178,9 +178,9 @@ pub struct MySqlFailedJobRepository;
 
 #[async_trait]
 impl FailedJobRepository for MySqlFailedJobRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
-    async fn lock_failed(&self, tx: &mut MySqlTx, id: Uuid) -> Result<Option<FailedJob>, AppError> {
+    async fn lock_failed(&self, tx: &mut Tx, id: Uuid) -> Result<Option<FailedJob>, AppError> {
         let row = sqlx::query(AssertSqlSafe(format!(
             "SELECT {FAILED_JOB_COLUMNS} FROM jobs j \
              WHERE j.id = ? AND j.finished_at IS NULL AND j.failed_at IS NOT NULL FOR UPDATE OF j"
@@ -191,12 +191,7 @@ impl FailedJobRepository for MySqlFailedJobRepository {
         row.as_ref().map(failed_job).transpose()
     }
 
-    async fn requeue(
-        &self,
-        tx: &mut MySqlTx,
-        id: Uuid,
-        now: DateTime<Utc>,
-    ) -> Result<(), AppError> {
+    async fn requeue(&self, tx: &mut Tx, id: Uuid, now: DateTime<Utc>) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE jobs SET failed_at = NULL, attempts = 0, run_at = ?, locked_at = NULL, locked_by = NULL \
              WHERE id = ? AND failed_at IS NOT NULL",
@@ -208,7 +203,7 @@ impl FailedJobRepository for MySqlFailedJobRepository {
         Ok(())
     }
 
-    async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM jobs WHERE id = ? AND failed_at IS NOT NULL")
             .bind(id.to_string())
             .execute(&mut **tx)

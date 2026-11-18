@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -20,7 +21,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const STAGE_GUIDANCE_SECTION: &str = "stage_guidance";
@@ -91,7 +92,7 @@ pub(crate) struct StageGuidanceSection {
     keys: ConfigKeyClient,
 }
 
-pub(crate) fn stage_guidance_section(pool: &sqlx::MySqlPool) -> StageGuidanceSection {
+pub(crate) fn stage_guidance_section(pool: &Db) -> StageGuidanceSection {
     StageGuidanceSection {
         guidance: GuidanceStore::new(pool.clone()),
         workflow: PipelineStore::new(pool.clone()),
@@ -222,7 +223,7 @@ fn merged_entry(
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for StageGuidanceSection {
+impl ConfigSection<Tx> for StageGuidanceSection {
     fn key(&self) -> &'static str {
         STAGE_GUIDANCE_SECTION
     }
@@ -373,7 +374,7 @@ impl ConfigSection<MySqlTx> for StageGuidanceSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

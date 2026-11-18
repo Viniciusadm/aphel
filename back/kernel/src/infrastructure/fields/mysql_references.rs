@@ -3,7 +3,7 @@ use sqlx::{MySql, MySqlPool, QueryBuilder};
 use uuid::Uuid;
 
 use crate::application::fields::{EntityDefinition, ReferenceChecker};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::domain::access::{AccessScope, RecordScopeFilter};
 use crate::errors::AppError;
@@ -85,7 +85,7 @@ fn parsed(found: Vec<String>) -> Vec<Uuid> {
 }
 
 pub(crate) async fn existing_records_in(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     target: &EntityDefinition,
     visibility: &RecordScopeFilter,

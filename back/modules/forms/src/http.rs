@@ -22,7 +22,7 @@ use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mysql_directory::MySqlUserDirectory;
 
 use crate::model::{
@@ -90,7 +90,7 @@ fn audit_changes(before: Option<&StoredForm>, after: Option<&StoredForm>) -> Vec
 
 async fn record_change(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     event_type: &'static str,
     payload: Value,
     changes: Vec<FieldChange>,

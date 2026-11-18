@@ -7,7 +7,7 @@ use std::sync::{
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 
 pub struct MutationReceipt {
@@ -78,14 +78,14 @@ pub async fn applied(pool: &MySqlPool, id: Uuid) -> Result<bool, AppError> {
     )
 }
 
-pub async fn begin(pool: &MySqlPool) -> Result<MySqlTx, AppError> {
+pub async fn begin(pool: &MySqlPool) -> Result<Tx, AppError> {
     let receipt = RECEIPT.try_with(|receipt| {
         if receipt.state.committed.load(Ordering::SeqCst) || receipt.state.active.swap(true, Ordering::SeqCst) {
             return Err(AppError::conflict_code("mutation_multiple_transactions", "durable mutations must use one committing transaction without nested transactions"));
         }
         Ok((receipt.id, ReceiptLease(receipt.state.clone())))
     }).ok().transpose()?;
-    let mut tx = MySqlTx::from(pool.begin().await?);
+    let mut tx = Tx::from(pool.begin().await?);
     if let Some((id, lease)) = receipt {
         tx.receipt_lease = Some(lease);
         let inserted = sqlx::query("INSERT IGNORE INTO mutation_receipts (id) VALUES (?)")

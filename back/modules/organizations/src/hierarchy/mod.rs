@@ -13,7 +13,7 @@ use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{
     AuditLog, EventPublisher, FieldChange, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::domain::fields::FieldValueError;
 
@@ -71,7 +71,7 @@ fn parent_not_found() -> AppError {
 pub(crate) async fn check_parent(
     hierarchy: &HierarchyStore,
     organizations: &CompanyStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     company_id: Uuid,
     parent_id: Option<Uuid>,
@@ -100,7 +100,7 @@ pub(crate) async fn check_parent(
 
 async fn check_placement(
     hierarchy: &HierarchyStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     company_id: Uuid,
     parent_lineage: &[Uuid],
 ) -> Result<(), AppError> {
@@ -118,14 +118,14 @@ pub(crate) async fn reattach_children<E, A>(
     hierarchy: &HierarchyStore,
     events: &E,
     audit: &A,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     company_id: Uuid,
     now: DateTime<Utc>,
 ) -> Result<Vec<Uuid>, AppError>
 where
-    E: EventPublisher<MySqlTx> + ?Sized,
-    A: AuditLog<MySqlTx> + ?Sized,
+    E: EventPublisher<Tx> + ?Sized,
+    A: AuditLog<Tx> + ?Sized,
 {
     let Some(current_parent) = hierarchy.parent_of(tx, company_id).await? else {
         return Ok(Vec::new());
@@ -180,7 +180,7 @@ where
 
 pub async fn blocked_parents(
     hierarchy: &HierarchyStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     roots: &[Uuid],
 ) -> Result<HashSet<Uuid>, AppError> {
     let mut blocked = HashSet::new();
@@ -205,13 +205,13 @@ pub async fn reparent_children<E, A>(
     hierarchy: &HierarchyStore,
     events: &E,
     audit: &A,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     reparent: Reparent,
 ) -> Result<Vec<Uuid>, AppError>
 where
-    E: EventPublisher<MySqlTx> + ?Sized,
-    A: AuditLog<MySqlTx> + ?Sized,
+    E: EventPublisher<Tx> + ?Sized,
+    A: AuditLog<Tx> + ?Sized,
 {
     let children: Vec<Uuid> = hierarchy
         .children(tx, reparent.from_parent)

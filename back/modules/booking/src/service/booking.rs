@@ -29,7 +29,7 @@ use aphel_sdk::platform::application::secrets::{SecretKey, SecretVault};
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, Job, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
 use aphel_sdk::platform::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_sdk::tasks::{MeetingActivity, MeetingActivityMove};
@@ -423,7 +423,7 @@ fn parse_guest(command: &BookCommand, meeting_type: &MeetingType) -> Result<Gues
 
 async fn pick_host<'a>(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     meeting_type: &MeetingType,
     candidates: &'a [&'a Host],
 ) -> Result<&'a Host, AppError> {
@@ -460,7 +460,7 @@ async fn ensure_host_row(ctx: &Ctx<'_>, host: &Host) -> Result<(), AppError> {
         .await
 }
 
-async fn lock_host(ctx: &Ctx<'_>, tx: &mut MySqlTx, host: &Host) -> Result<(), AppError> {
+async fn lock_host(ctx: &Ctx<'_>, tx: &mut Tx, host: &Host) -> Result<(), AppError> {
     if BookingStore::of(ctx)
         .lock_availability(tx, &host.user_id)
         .await?
@@ -473,7 +473,7 @@ async fn lock_host(ctx: &Ctx<'_>, tx: &mut MySqlTx, host: &Host) -> Result<(), A
 
 async fn still_free(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     host: &Host,
     meeting_type: &MeetingType,
     starts_at: DateTime<Utc>,
@@ -506,7 +506,7 @@ async fn still_free(
 
 async fn enqueue_emails(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     booking: &Booking,
     kind: &str,
 ) -> Result<(), AppError> {
@@ -530,7 +530,7 @@ async fn enqueue_emails(
 
 async fn publish_meeting(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     origin: Origin,
     event_type: &'static str,
     booking: &Booking,
@@ -656,7 +656,7 @@ pub(crate) async fn book(
 
 async fn confirm(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     booking: &Booking,
     contact_id: Uuid,
     ip: Option<String>,
@@ -704,14 +704,14 @@ struct BookingRecords {
 const CONTACT_SAVEPOINT: &str = "booking_contact";
 const ACTIVITY_SAVEPOINT: &str = "booking_activity";
 
-async fn savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppError> {
+async fn savepoint(tx: &mut Tx, name: &str) -> Result<(), AppError> {
     sqlx::raw_sql(sqlx::AssertSqlSafe(format!("SAVEPOINT {name}")))
         .execute(&mut **tx)
         .await?;
     Ok(())
 }
 
-async fn rollback_to_savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppError> {
+async fn rollback_to_savepoint(tx: &mut Tx, name: &str) -> Result<(), AppError> {
     sqlx::raw_sql(sqlx::AssertSqlSafe(format!("ROLLBACK TO SAVEPOINT {name}")))
         .execute(&mut **tx)
         .await?;
@@ -720,7 +720,7 @@ async fn rollback_to_savepoint(tx: &mut MySqlTx, name: &str) -> Result<(), AppEr
 
 async fn create_contact_attempt(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     command: PersonCreation,
 ) -> Result<PendingCommit, AppError> {
     savepoint(tx, CONTACT_SAVEPOINT).await?;
@@ -746,7 +746,7 @@ impl UpdatedActivity {
 
 async fn cancel_activity(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     booking: &Booking,
     ip: Option<String>,
 ) -> Result<Option<UpdatedActivity>, AppError> {
@@ -771,7 +771,7 @@ async fn cancel_activity(
 
 async fn move_activity(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     booking: &Booking,
     host: &Host,
     duration_minutes: u32,
@@ -814,7 +814,7 @@ enum ActivityChange {
 
 async fn update_activity_attempt(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     acting: AccessScope,
     activity_id: Uuid,
     change: ActivityChange,
@@ -859,7 +859,7 @@ async fn update_activity_attempt(
 
 async fn find_or_create_contact(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     host: &Host,
     meeting_type: &MeetingType,
     booking: &Booking,
@@ -935,7 +935,7 @@ async fn find_or_create_contact(
 
 async fn create_records(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     host: &Host,
     meeting_type: &MeetingType,
     booking: &Booking,

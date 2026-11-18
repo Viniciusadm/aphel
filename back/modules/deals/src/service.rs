@@ -50,7 +50,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::platform::domain::fields::FieldType;
 use aphel_sdk::workflow::WorkflowReader;
@@ -204,7 +204,7 @@ pub async fn create_with_revenue(
 
 pub(crate) async fn create_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     input: DealInput,
     revenue: DealRevenue,
 ) -> Result<PendingCommit, AppError> {
@@ -213,7 +213,7 @@ pub(crate) async fn create_in_tx(
 
 async fn create_record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     input: DealInput,
     revenue: DealRevenue,
     record_id: Uuid,
@@ -384,7 +384,7 @@ pub(crate) async fn update(
 
 pub(crate) async fn update_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     deal_id: &str,
     input: DealInput,
 ) -> Result<Option<PendingCommit>, AppError> {
@@ -410,7 +410,7 @@ async fn commit_update(
 
 async fn update_record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     deal_id: &str,
     input: DealInput,
     filtered: bool,
@@ -996,7 +996,7 @@ async fn transition(ctx: &Ctx<'_>, deal_id: &str, input: DealInput) -> Result<De
 
 async fn saving(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     mode: WriteMode,
     (deal, contributed): (&Deal, &Map<String, Value>),
@@ -1280,7 +1280,7 @@ async fn convert_deal(
 
 async fn sync_converted_items(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     current: &Deal,
     deal: &Deal,
 ) -> Result<(), AppError> {
@@ -1319,11 +1319,7 @@ impl Moving<'_> {
     }
 }
 
-async fn before_moving(
-    ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
-    moving: &Moving<'_>,
-) -> Result<(), AppError> {
+async fn before_moving(ctx: &Ctx<'_>, tx: &mut Tx, moving: &Moving<'_>) -> Result<(), AppError> {
     if moving.stage_changed {
         let change = StageChange {
             deal: moving.deal.clone(),
@@ -1346,11 +1342,7 @@ async fn before_moving(
     Ok(())
 }
 
-async fn after_moving(
-    ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
-    moving: &Moving<'_>,
-) -> Result<(), AppError> {
+async fn after_moving(ctx: &Ctx<'_>, tx: &mut Tx, moving: &Moving<'_>) -> Result<(), AppError> {
     if !moving.status_changed {
         return Ok(());
     }
@@ -1713,7 +1705,7 @@ async fn field_events(
 
 async fn finish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     outcome: Outcome,
 ) -> Result<(), AppError> {

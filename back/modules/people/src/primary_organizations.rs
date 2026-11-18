@@ -1,9 +1,10 @@
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::{
     AppError,
     access::AccessScope,
     people::{PrimaryOrganization, PrimaryOrganizationReader},
 };
-use sqlx::{MySqlPool, QueryBuilder};
+use sqlx::QueryBuilder;
 use uuid::Uuid;
 pub(crate) struct Reader;
 fn authorize(scope: &AccessScope, ids: &[Uuid]) -> Result<(), AppError> {
@@ -20,7 +21,7 @@ fn authorize(scope: &AccessScope, ids: &[Uuid]) -> Result<(), AppError> {
     Ok(())
 }
 async fn read(
-    pool: &MySqlPool,
+    pool: &Db,
     query: &mut QueryBuilder<sqlx::MySql>,
 ) -> Result<Vec<PrimaryOrganization>, AppError> {
     query
@@ -47,7 +48,7 @@ async fn read(
 impl PrimaryOrganizationReader for Reader {
     async fn by_people(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         ids: &[Uuid],
         include_deleted: bool,
@@ -71,7 +72,7 @@ impl PrimaryOrganizationReader for Reader {
     }
     async fn people_page(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         organizations: &[Uuid],
         after: Option<Uuid>,

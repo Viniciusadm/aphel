@@ -11,7 +11,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::EntityDefinition;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::{
@@ -248,7 +248,7 @@ impl TrashStore {
 
     pub(crate) async fn restore(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         record_id: Uuid,
     ) -> Result<bool, AppError> {
@@ -279,7 +279,7 @@ impl TrashStore {
 
     pub async fn purge(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         id: Uuid,
     ) -> Result<bool, AppError> {
@@ -296,7 +296,7 @@ impl TrashStore {
 
     pub(crate) async fn save_retention(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         retention_days: u32,
     ) -> Result<(), AppError> {
         sqlx::query(

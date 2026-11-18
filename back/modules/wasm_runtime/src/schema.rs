@@ -1,5 +1,4 @@
 use serde_json::json;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::manifest::{FieldDef, PluginManifest};
@@ -11,6 +10,7 @@ use aphel_sdk::objects::{
 use aphel_sdk::platform::application::custom_objects::custom_record_definition;
 use aphel_sdk::platform::application::fields::config_to_json;
 use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::custom_objects::{
     CustomObject, CustomObjectData, DEFAULT_TITLE_FIELD_KEY,
@@ -36,7 +36,7 @@ async fn bump_schema(state: &AppState) -> Result<(), AppError> {
     Ok(())
 }
 
-async fn object_owner(pool: &MySqlPool, key: &str) -> Result<Option<Option<String>>, AppError> {
+async fn object_owner(pool: &Db, key: &str) -> Result<Option<Option<String>>, AppError> {
     Ok(
         sqlx::query_scalar("SELECT module_key FROM custom_objects WHERE `key` = ?")
             .bind(key)
@@ -423,7 +423,7 @@ pub async fn apply(
     let registry = state.registry().await?;
     let fields = declared_fields(manifest);
     let repository = MySqlFieldDefinitionRepository::new(pool.clone());
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(pool.begin().await?);
     for (index, (record_type, field)) in fields.into_iter().enumerate() {
         let mut definition = definition(&registry, &manifest.key, &record_type, &field, index)?;
         let existing: Option<(String, Option<String>)> = sqlx::query_as(
@@ -562,7 +562,7 @@ fn reserved_keys(manifest: &PluginManifest, entity_key: &str) -> Result<Vec<Stri
     Ok(keys)
 }
 
-async fn preflight(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), AppError> {
+async fn preflight(pool: &Db, manifest: &PluginManifest) -> Result<(), AppError> {
     let mut new_entities = Vec::new();
     for entity in &manifest.entities {
         let object_key = manifest.object_key(&entity.key);
@@ -632,7 +632,7 @@ pub(crate) fn declared_fields(manifest: &PluginManifest) -> Vec<(String, FieldDe
     fields
 }
 
-async fn ensure_compatible(pool: &MySqlPool, manifest: &PluginManifest) -> Result<(), AppError> {
+async fn ensure_compatible(pool: &Db, manifest: &PluginManifest) -> Result<(), AppError> {
     let existing: Vec<(String, String, String)> = sqlx::query_as(
         "SELECT record_type, `key`, field_type FROM field_definitions WHERE module_key = ?",
     )
@@ -662,7 +662,7 @@ async fn ensure_compatible(pool: &MySqlPool, manifest: &PluginManifest) -> Resul
 }
 
 async fn deactivate_undeclared_options(
-    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
     field_id: &str,
     options: &[FieldOption],
 ) -> Result<(), AppError> {
@@ -682,10 +682,7 @@ async fn deactivate_undeclared_options(
     Ok(())
 }
 
-async fn deactivate_undeclared(
-    pool: &MySqlPool,
-    manifest: &PluginManifest,
-) -> Result<(), AppError> {
+async fn deactivate_undeclared(pool: &Db, manifest: &PluginManifest) -> Result<(), AppError> {
     let declared: Vec<(String, String)> = declared_fields(manifest)
         .into_iter()
         .map(|(record_type, field)| (record_type, field.key.clone()))
@@ -830,7 +827,7 @@ pub async fn set_active(
 
 pub async fn purge(state: &AppState, manifest: &PluginManifest) -> Result<(), AppError> {
     let pool = state.db()?;
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(pool.begin().await?);
     let mut attached: Vec<Uuid> = Vec::new();
     for record_type in manifest.entity_record_types() {
         let files: Vec<String> =

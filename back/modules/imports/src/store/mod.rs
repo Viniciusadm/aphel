@@ -18,7 +18,7 @@ use aphel_kernel::context::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const ROW_INSERT_CHUNK: usize = 500;
@@ -33,11 +33,7 @@ pub(crate) struct ImportStore {
 }
 
 impl ImportStore {
-    pub(crate) async fn delete_job(
-        &self,
-        tx: &mut MySqlTx,
-        job: &ImportJob,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete_job(&self, tx: &mut Tx, job: &ImportJob) -> Result<(), AppError> {
         sqlx::query("DELETE FROM import_jobs WHERE id = ?")
             .bind(job.id.to_string())
             .execute(&mut **tx)
@@ -166,11 +162,7 @@ fn preview_json(job: &ImportJob) -> Result<Json<Value>, AppError> {
 }
 
 impl ImportStore {
-    pub(crate) async fn insert_job(
-        &self,
-        tx: &mut MySqlTx,
-        job: &ImportJob,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert_job(&self, tx: &mut Tx, job: &ImportJob) -> Result<(), AppError> {
         sqlx::query(AssertSqlSafe(format!(
             "INSERT INTO import_jobs ({JOB_COLUMNS}) \
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -202,7 +194,7 @@ impl ImportStore {
         Ok(())
     }
 
-    pub(crate) async fn save_job(&self, tx: &mut MySqlTx, job: &ImportJob) -> Result<(), AppError> {
+    pub(crate) async fn save_job(&self, tx: &mut Tx, job: &ImportJob) -> Result<(), AppError> {
         let redacted: Option<Option<NaiveDateTime>> = sqlx::query_scalar(
             "SELECT privacy_redacted_at FROM import_jobs WHERE id = ? FOR UPDATE",
         )
@@ -296,7 +288,7 @@ impl ImportStore {
 
     pub(crate) async fn insert_rows(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         import_id: Uuid,
         rows: &[SourceRow],
     ) -> Result<(), AppError> {
@@ -373,7 +365,7 @@ impl ImportStore {
     }
 
     pub(crate) async fn mark_row_written(
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         import_id: Uuid,
         row_index: u32,
         action: RowAction,
@@ -479,7 +471,7 @@ impl ImportStore {
 
     pub(crate) async fn reset_failed_rows(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         import_id: Uuid,
     ) -> Result<u64, AppError> {
         let result = sqlx::query(

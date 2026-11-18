@@ -8,7 +8,7 @@ use crate::application::{
 };
 use crate::infrastructure::{EmbeddedTemplates, MySqlConfigInstallRepository};
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::auth::SystemClock;
 use aphel_sdk::platform::infrastructure::fields::{
     MySqlCustomFieldValueRepository, MySqlFieldDefinitionRepository,
@@ -22,9 +22,9 @@ pub use aphel_sdk::configuration::{ConfigSectionBuild, ConfigSectionFactory};
 pub fn builtin_sections(
     pool: &MySqlPool,
     registry: Arc<RecordTypeRegistry>,
-) -> ConfigSectionRegistry<MySqlTx> {
+) -> ConfigSectionRegistry<Tx> {
     let definitions = || MySqlFieldDefinitionRepository::new(pool.clone());
-    let mut sections: Vec<(u16, Arc<dyn ConfigSection<MySqlTx>>)> = vec![(
+    let mut sections: Vec<(u16, Arc<dyn ConfigSection<Tx>>)> = vec![(
         20,
         Arc::new(FieldsSection::new(
             registry.clone(),
@@ -46,7 +46,7 @@ pub fn builtin_sections(
     sections.sort_by_key(|(order, _)| *order);
     let mut registry = ConfigSectionRegistry::new()
         .with_all(sections.into_iter().map(|(_, section)| section).collect())
-        .with_all(app.contributions::<dyn ConfigSection<MySqlTx>>());
+        .with_all(app.contributions::<dyn ConfigSection<Tx>>());
     for key in unavailable {
         registry.mark_unavailable(key);
     }
@@ -64,7 +64,7 @@ pub fn builtin_sections(
 }
 
 pub struct MySqlConfigPackagePorts {
-    sections: ConfigSectionRegistry<MySqlTx>,
+    sections: ConfigSectionRegistry<Tx>,
     transactions: MySqlTransactionManager,
     installs: MySqlConfigInstallRepository,
     events: SharedEventPublisher,
@@ -96,7 +96,7 @@ impl ConfigPackagePorts for MySqlConfigPackagePorts {
     type Audit = SharedAuditLog;
     type Clock = SystemClock;
 
-    fn sections(&self) -> &ConfigSectionRegistry<MySqlTx> {
+    fn sections(&self) -> &ConfigSectionRegistry<Tx> {
         &self.sections
     }
 

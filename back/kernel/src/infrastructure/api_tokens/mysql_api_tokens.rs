@@ -6,7 +6,7 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::application::api_tokens::{ApiToken, ApiTokenRepository};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::domain::api_tokens::ApiTokenScopes;
 use crate::errors::AppError;
@@ -53,7 +53,7 @@ fn token_from_row(row: &MySqlRow) -> Result<ApiToken, AppError> {
 
 #[async_trait]
 impl ApiTokenRepository for MySqlApiTokenRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn insert(
         &self,

@@ -2,12 +2,12 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use uuid::Uuid;
 
 use crate::application::shared::ensure_version;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::modules::manifest::is_table_name;
 
 pub async fn lock_version(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     table: &str,
     id: Uuid,
     expected: Option<DateTime<Utc>>,

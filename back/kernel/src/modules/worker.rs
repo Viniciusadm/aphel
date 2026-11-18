@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::application::auth::AuthSettings;
 use crate::application::custom_objects::RecordTypeCatalog;
@@ -14,6 +13,7 @@ use crate::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler, SharedFileStorage,
 };
 use crate::config::OutboundHttpConfig;
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::infrastructure::platform::SharedSecretVault;
 use crate::modules::enabled::EnabledModules;
@@ -21,7 +21,7 @@ use crate::state::AppState;
 
 #[derive(Clone)]
 pub struct WorkerEnv {
-    pub pool: MySqlPool,
+    pub pool: Db,
     pub secrets: SharedSecretVault,
     pub mailer: SharedMailer,
     pub storage: SharedFileStorage,
@@ -169,9 +169,9 @@ impl EventConsumer for GatedConsumer {
     }
 }
 
-pub fn lazy_pool(database_url: Option<&str>) -> Result<MySqlPool, AppError> {
+pub fn lazy_pool(database_url: Option<&str>) -> Result<Db, AppError> {
     let url = database_url.unwrap_or("mysql://aphel@localhost/aphel");
-    MySqlPool::connect_lazy(url).map_err(|error| AppError::Configuration(error.to_string()))
+    Db::connect_lazy(url).map_err(|error| AppError::Configuration(error.to_string()))
 }
 
 impl crate::modules::builder::App {

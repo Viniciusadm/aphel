@@ -11,7 +11,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -53,7 +53,7 @@ impl CurrencyStore {
         Self::new(ctx.pool().clone())
     }
 
-    pub(crate) async fn begin(&self) -> Result<MySqlTx, AppError> {
+    pub(crate) async fn begin(&self) -> Result<Tx, AppError> {
         aphel_sdk::platform::database::receipt::begin(&self.pool).await
     }
 
@@ -114,7 +114,7 @@ impl CurrencyStore {
 
     pub(crate) async fn enable(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         currency: &str,
         by: Option<&UserId>,
         at: DateTime<Utc>,
@@ -131,7 +131,7 @@ impl CurrencyStore {
         Ok(())
     }
 
-    pub(crate) async fn disable(&self, tx: &mut MySqlTx, currency: &str) -> Result<(), AppError> {
+    pub(crate) async fn disable(&self, tx: &mut Tx, currency: &str) -> Result<(), AppError> {
         sqlx::query("DELETE FROM money_currencies WHERE currency = ?")
             .bind(currency)
             .execute(&mut **tx)
@@ -220,7 +220,7 @@ impl CurrencyStore {
 
     pub(crate) async fn insert_rate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         rate: &ExchangeRate,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -243,7 +243,7 @@ impl CurrencyStore {
 
     pub(crate) async fn update_rate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         rate: &ExchangeRate,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -261,7 +261,7 @@ impl CurrencyStore {
         Ok(())
     }
 
-    pub(crate) async fn delete_rate(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete_rate(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM money_exchange_rates WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -287,7 +287,7 @@ impl CurrencyStore {
 
     pub(crate) async fn save_provider_settings(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         settings: &RatesProviderSettings,
         by: Option<&UserId>,
         at: DateTime<Utc>,
@@ -319,10 +319,7 @@ impl CurrencyStore {
         Ok(())
     }
 
-    pub(crate) async fn lock_rates_base(
-        &self,
-        tx: &mut MySqlTx,
-    ) -> Result<Option<String>, AppError> {
+    pub(crate) async fn lock_rates_base(&self, tx: &mut Tx) -> Result<Option<String>, AppError> {
         sqlx::query("INSERT IGNORE INTO money_settings (id) VALUES (1)")
             .execute(&mut **tx)
             .await?;
@@ -333,11 +330,7 @@ impl CurrencyStore {
         )
     }
 
-    pub(crate) async fn set_rates_base(
-        &self,
-        tx: &mut MySqlTx,
-        base: &str,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn set_rates_base(&self, tx: &mut Tx, base: &str) -> Result<(), AppError> {
         sqlx::query("UPDATE money_settings SET rates_base = ? WHERE id = 1")
             .bind(base)
             .execute(&mut **tx)
@@ -345,7 +338,7 @@ impl CurrencyStore {
         Ok(())
     }
 
-    pub(crate) async fn base_in(&self, tx: &mut MySqlTx) -> Result<Option<String>, AppError> {
+    pub(crate) async fn base_in(&self, tx: &mut Tx) -> Result<Option<String>, AppError> {
         Ok(
             sqlx::query_scalar("SELECT currency FROM organization_settings WHERE id = 1")
                 .fetch_optional(&mut **tx)
@@ -353,10 +346,7 @@ impl CurrencyStore {
         )
     }
 
-    pub(crate) async fn all_rates_in(
-        &self,
-        tx: &mut MySqlTx,
-    ) -> Result<Vec<ExchangeRate>, AppError> {
+    pub(crate) async fn all_rates_in(&self, tx: &mut Tx) -> Result<Vec<ExchangeRate>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
             "SELECT {RATE_COLUMNS} FROM money_exchange_rates ORDER BY currency, effective_date FOR UPDATE"
         )))
@@ -369,7 +359,7 @@ impl CurrencyStore {
 
     pub(crate) async fn rate_dated_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         currency: &str,
         date: NaiveDate,
     ) -> Result<Option<ExchangeRate>, AppError> {

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use aphel_kernel::domain::UserId;
@@ -16,6 +15,7 @@ use aphel_sdk::platform::application::public_events::{
     public_definition_for, public_record_type, public_resource_loader,
 };
 use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 #[derive(Clone)]
@@ -28,7 +28,7 @@ impl ApiPublicEventRenderer {
         Self { state }
     }
 
-    pub(crate) fn shared(pool: MySqlPool) -> SharedPublicEventRenderer {
+    pub(crate) fn shared(pool: Db) -> SharedPublicEventRenderer {
         Arc::new(Self::new(Runtime::from(
             aphel_kernel::state::AppState::new(Some(pool)).with_mysql_platform(),
         )))

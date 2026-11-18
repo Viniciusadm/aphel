@@ -17,7 +17,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::PendingCommit;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const RULE_NOT_FOUND: &str = "assignment_rule_not_found";
@@ -416,11 +416,7 @@ pub(crate) async fn preview(
 
 #[async_trait]
 pub trait OwnerWriter: Send + Sync {
-    async fn write(
-        &self,
-        tx: &mut MySqlTx,
-        user_id: UserId,
-    ) -> Result<Option<PendingCommit>, AppError>;
+    async fn write(&self, tx: &mut Tx, user_id: UserId) -> Result<Option<PendingCommit>, AppError>;
 }
 
 pub(crate) struct CreateOwner<'a> {
@@ -454,11 +450,7 @@ impl<'a> CreateOwner<'a> {
 
 #[async_trait]
 impl OwnerWriter for CreateOwner<'_> {
-    async fn write(
-        &self,
-        tx: &mut MySqlTx,
-        user_id: UserId,
-    ) -> Result<Option<PendingCommit>, AppError> {
+    async fn write(&self, tx: &mut Tx, user_id: UserId) -> Result<Option<PendingCommit>, AppError> {
         let mut body = self.body.clone();
         if let Some(object) = body.as_object_mut() {
             object.insert(
@@ -492,18 +484,14 @@ pub struct PickOnly;
 impl OwnerWriter for PickOnly {
     async fn write(
         &self,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _user_id: UserId,
     ) -> Result<Option<PendingCommit>, AppError> {
         Ok(None)
     }
 }
 
-async fn commit(
-    ctx: &Ctx<'_>,
-    tx: MySqlTx,
-    pending: Option<PendingCommit>,
-) -> Result<(), AppError> {
+async fn commit(ctx: &Ctx<'_>, tx: Tx, pending: Option<PendingCommit>) -> Result<(), AppError> {
     tx.commit().await?;
     if let Some(pending) = pending {
         pending.committed(ctx).await;
@@ -653,11 +641,7 @@ struct AutomationOwner<'a> {
 
 #[async_trait]
 impl OwnerWriter for AutomationOwner<'_> {
-    async fn write(
-        &self,
-        tx: &mut MySqlTx,
-        user_id: UserId,
-    ) -> Result<Option<PendingCommit>, AppError> {
+    async fn write(&self, tx: &mut Tx, user_id: UserId) -> Result<Option<PendingCommit>, AppError> {
         let mut values = Map::new();
         values.insert(self.field.to_owned(), Value::String(user_id.into_inner()));
         self.ctx

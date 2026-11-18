@@ -17,7 +17,7 @@ use aphel_kernel::modules::{OperationFuture, operation_input};
 use aphel_kernel::records::{PendingCommit, RecordCtx, RecordTypeHandler};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 const OWNER_FIELD: &str = "owner_id";
@@ -76,11 +76,7 @@ struct OwnerUpdate<'a> {
 
 #[async_trait]
 impl OwnerWriter for OwnerUpdate<'_> {
-    async fn write(
-        &self,
-        tx: &mut MySqlTx,
-        user_id: UserId,
-    ) -> Result<Option<PendingCommit>, AppError> {
+    async fn write(&self, tx: &mut Tx, user_id: UserId) -> Result<Option<PendingCommit>, AppError> {
         self.handler
             .update_in_tx(
                 &RecordCtx::from_runtime(self.scope, self.state),

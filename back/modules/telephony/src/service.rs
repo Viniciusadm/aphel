@@ -25,7 +25,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 use aphel_sdk::tasks::{CreateActivityCommand, PreparedTask, TaskRecord, instant, transactions};
@@ -648,7 +648,7 @@ pub(crate) async fn prepare_call(
 
 pub(crate) async fn insert_call(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     prepared: &PreparedCall,
 ) -> Result<(), AppError> {
     let now = ctx.now();
@@ -722,7 +722,7 @@ async fn save_update(
 #[allow(clippy::too_many_arguments)]
 pub(crate) async fn publish_call(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     activity_id: Uuid,
     details: &CallDetails,
     outcome: &CallOutcome,
@@ -1066,7 +1066,7 @@ pub(crate) async fn reorder_outcomes(
 
 async fn publish_outcome(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     outcome: &CallOutcome,
     event_type: &'static str,
     changes: Vec<FieldChange>,
@@ -1374,7 +1374,7 @@ pub(crate) async fn finish_session(
 
 async fn advance(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     session: &mut CallSession,
     after: u32,
     ip: Option<String>,
@@ -1394,7 +1394,7 @@ async fn advance(
 
 async fn complete(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     session: &mut CallSession,
     ip: Option<String>,
 ) -> Result<(), AppError> {
@@ -1424,7 +1424,7 @@ async fn active_session(ctx: &Ctx<'_>, id: &str) -> Result<CallSession, AppError
     Ok(session)
 }
 
-async fn lock_active(ctx: &Ctx<'_>, tx: &mut MySqlTx, id: Uuid) -> Result<CallSession, AppError> {
+async fn lock_active(ctx: &Ctx<'_>, tx: &mut Tx, id: Uuid) -> Result<CallSession, AppError> {
     let session = CallSessionStore::of(ctx)
         .lock(tx, id)
         .await?
@@ -1456,7 +1456,7 @@ async fn session_view(ctx: &Ctx<'_>, session: CallSession) -> Result<CallSession
 
 async fn publish_session(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     session: &CallSession,
     event_type: &'static str,
     extra: Value,

@@ -17,6 +17,7 @@ use aphel_sdk::platform::application::access::{AccessRepository, build_access_sc
 use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::SharedFileStorage;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::custom_objects::MySqlCustomSchemaSource;
@@ -88,10 +89,7 @@ pub(crate) async fn run(config: AppConfig, command: OrgCommand) -> CommandResult
     result
 }
 
-async fn operator_scope(
-    pool: &sqlx::MySqlPool,
-    actor: Option<&str>,
-) -> Result<AccessScope, AppError> {
+async fn operator_scope(pool: &Db, actor: Option<&str>) -> Result<AccessScope, AppError> {
     let user_id = OrgDataStore::new(pool.clone())
         .operator(actor)
         .await?
@@ -108,24 +106,21 @@ async fn operator_scope(
     Ok(build_access_scope(user_id, access))
 }
 
-fn catalog(pool: &sqlx::MySqlPool) -> Arc<RecordTypeCatalog> {
+fn catalog(pool: &Db) -> Arc<RecordTypeCatalog> {
     Arc::new(RecordTypeCatalog::new(
         RecordTypeRegistry::builtin(),
         Arc::new(MySqlCustomSchemaSource::new(pool.clone())),
     ))
 }
 
-async fn file_storage(
-    config: &AppConfig,
-    pool: &sqlx::MySqlPool,
-) -> Result<SharedFileStorage, AppError> {
+async fn file_storage(config: &AppConfig, pool: &Db) -> Result<SharedFileStorage, AppError> {
     let secrets = build_secret_vault(pool, &config.encryption)?;
     let configuration = organization_config_catalog(pool);
     configuration.refresh().await;
     Ok(DynamicFileStorage::shared(configuration, secrets))
 }
 
-async fn export(config: &AppConfig, pool: sqlx::MySqlPool, args: OrgExportArgs) -> CommandResult {
+async fn export(config: &AppConfig, pool: Db, args: OrgExportArgs) -> CommandResult {
     let scope = operator_scope(&pool, args.actor.as_deref()).await?;
     let registry = catalog(&pool).registry().await?;
     let storage = file_storage(config, &pool).await?;
@@ -160,7 +155,7 @@ async fn export(config: &AppConfig, pool: sqlx::MySqlPool, args: OrgExportArgs) 
     Ok(())
 }
 
-async fn import(config: &AppConfig, pool: sqlx::MySqlPool, args: OrgImportArgs) -> CommandResult {
+async fn import(config: &AppConfig, pool: Db, args: OrgImportArgs) -> CommandResult {
     let archive = args.archive;
     let catalog = catalog(&pool);
     let env = RestoreEnv::new(

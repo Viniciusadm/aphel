@@ -1,5 +1,6 @@
 use aphel_sdk::fields::LocalizedLabels;
 use aphel_sdk::followers::{FollowedEvent, FollowedEventSource};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::shared::DomainEvent;
 use async_trait::async_trait;
 use serde_json::Value;
@@ -36,7 +37,7 @@ impl FollowedEventSource for EmailFollowedEvents {
     }
     async fn visible(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         recipient: &aphel_kernel::domain::UserId,
         event: &DomainEvent,
     ) -> Result<bool, aphel_sdk::AppError> {

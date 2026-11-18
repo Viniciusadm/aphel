@@ -3,7 +3,7 @@ use sqlx::types::Json;
 use sqlx::{Executor, MySql, MySqlPool};
 
 use crate::application::shared::{EnqueueOutcome, Job, JobQueue};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::infrastructure::jobs::signal::wake_workers;
 use crate::infrastructure::repositories::mapper;
@@ -24,8 +24,8 @@ impl MySqlJobQueue {
 }
 
 #[async_trait]
-impl JobQueue<MySqlTx> for MySqlJobQueue {
-    async fn enqueue(&self, tx: &mut MySqlTx, job: Job) -> Result<EnqueueOutcome, AppError> {
+impl JobQueue<Tx> for MySqlJobQueue {
+    async fn enqueue(&self, tx: &mut Tx, job: Job) -> Result<EnqueueOutcome, AppError> {
         let outcome = insert_job(&mut **tx, job).await?;
         if matches!(outcome, EnqueueOutcome::Enqueued(_)) {
             tx.after_commit.push(Box::pin(async { wake_workers() }));

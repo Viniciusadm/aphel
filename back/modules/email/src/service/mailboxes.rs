@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::domain::{EmailVisibility, MailboxStatus, normalize_address};
@@ -29,7 +28,8 @@ use aphel_sdk::platform::application::secrets::SecretVault;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
 
@@ -397,7 +397,7 @@ pub(crate) async fn account(
 }
 
 struct VaultCredentialSink {
-    pool: MySqlPool,
+    pool: Db,
     secrets: SharedSecretVault,
     scope: AccessScope,
 }
@@ -409,8 +409,7 @@ impl CredentialSink for VaultCredentialSink {
         mailbox_id: Uuid,
         credentials: &MailboxCredentials,
     ) -> Result<(), AppError> {
-        let mut tx =
-            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
         self.secrets
             .store(
                 &mut tx,
@@ -550,7 +549,7 @@ async fn details(
 
 async fn record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     event_type: &'static str,
     mailbox_id: Uuid,
     provider: &str,

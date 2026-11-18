@@ -1,16 +1,11 @@
 use aphel_contract_crm::CrmRecordTypes;
 use aphel_kernel::modules::AppBuilder;
 use aphel_sdk::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::shared::RecordType;
 use uuid::Uuid;
 
-async fn execute(
-    tx: &mut MySqlTx,
-    sql: &'static str,
-    id: &str,
-    binds: usize,
-) -> Result<(), AppError> {
+async fn execute(tx: &mut Tx, sql: &'static str, id: &str, binds: usize) -> Result<(), AppError> {
     let mut query = sqlx::query(sql);
     for _ in 0..binds {
         query = query.bind(id.to_owned());
@@ -19,7 +14,7 @@ async fn execute(
     Ok(())
 }
 
-async fn purged(tx: &mut MySqlTx, record_type: &RecordType, id: Uuid) -> Result<(), AppError> {
+async fn purged(tx: &mut Tx, record_type: &RecordType, id: Uuid) -> Result<(), AppError> {
     let id = id.to_string();
     if *record_type == RecordType::DEAL {
         execute(tx, "DELETE FROM quotes WHERE deal_id = ?", &id, 1).await?;

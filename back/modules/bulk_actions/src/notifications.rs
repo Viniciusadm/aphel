@@ -2,10 +2,10 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 
 use crate::{BULK_OPERATION_COMPLETED, BULK_OPERATION_FAILED};
 use aphel_sdk::platform::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+use aphel_sdk::platform::database::Db;
 
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
@@ -38,10 +38,7 @@ pub(crate) struct BulkNotificationConsumer {
 }
 
 impl BulkNotificationConsumer {
-    pub(crate) fn shared(
-        pool: MySqlPool,
-        catalog: Arc<RecordTypeCatalog>,
-    ) -> Arc<dyn EventConsumer> {
+    pub(crate) fn shared(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Arc<dyn EventConsumer> {
         CatalogEventConsumer::shared(
             catalog,
             Arc::new(move |registry| {

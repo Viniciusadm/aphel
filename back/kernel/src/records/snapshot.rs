@@ -5,7 +5,8 @@ use crate::application::fields::{
     FieldDefinitionRepository, FieldSet, RecordTypeRegistry, value_to_json,
 };
 use crate::application::shared::RecordRef;
-use crate::database::transaction::MySqlTx;
+use crate::database::Db;
+use crate::database::transaction::Tx;
 use crate::domain::fields::FieldDefinition;
 use crate::errors::AppError;
 use crate::infrastructure::fields::mysql_definitions::MySqlFieldDefinitionRepository;
@@ -13,8 +14,8 @@ use crate::infrastructure::fields::mysql_values::MySqlCustomFieldValueRepository
 use crate::infrastructure::query::{compiler::quoted, computed::system_expression};
 
 pub async fn capture(
-    tx: &mut MySqlTx,
-    pool: &sqlx::MySqlPool,
+    tx: &mut Tx,
+    pool: &Db,
     registry: &RecordTypeRegistry,
     record: &RecordRef,
 ) -> Result<Option<Value>, AppError> {
@@ -25,7 +26,7 @@ pub async fn capture(
 }
 
 pub async fn read(
-    pool: &sqlx::MySqlPool,
+    pool: &Db,
     registry: &RecordTypeRegistry,
     record: &RecordRef,
 ) -> Result<Option<Value>, AppError> {
@@ -119,14 +120,14 @@ async fn capture_on(
     ))
 }
 
-pub(crate) fn remember(tx: &mut MySqlTx, record: &RecordRef, snapshot: Option<Value>) {
+pub(crate) fn remember(tx: &mut Tx, record: &RecordRef, snapshot: Option<Value>) {
     tx.fresh_snapshot = Some((
         (record.record_type.as_str().to_owned(), record.record_id),
         snapshot,
     ));
 }
 
-pub(crate) fn take_fresh(tx: &mut MySqlTx, record: &RecordRef) -> Option<Option<Value>> {
+pub(crate) fn take_fresh(tx: &mut Tx, record: &RecordRef) -> Option<Option<Value>> {
     let ((record_type, record_id), snapshot) = tx.fresh_snapshot.take()?;
     (record_type == record.record_type.as_str() && record_id == record.record_id)
         .then_some(snapshot)

@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const CONTENT_KEY_PREFIX: char = '@';
@@ -23,19 +23,19 @@ pub fn content_key(source: &dyn SearchContentSource) -> String {
 
 #[derive(Clone, Default)]
 pub struct SearchContents {
-    pool: Option<MySqlPool>,
+    pool: Option<Db>,
     sources: Vec<Arc<dyn SearchContentSource>>,
 }
 
 impl SearchContents {
-    pub fn new(pool: MySqlPool, sources: Vec<Arc<dyn SearchContentSource>>) -> Self {
+    pub fn new(pool: Db, sources: Vec<Arc<dyn SearchContentSource>>) -> Self {
         Self {
             pool: Some(pool),
             sources,
         }
     }
 
-    pub fn from_app(pool: MySqlPool) -> Self {
+    pub fn from_app(pool: Db) -> Self {
         let sources = aphel_sdk::platform::modules::try_app()
             .map(|app| app.contributions::<dyn SearchContentSource>())
             .unwrap_or_default();

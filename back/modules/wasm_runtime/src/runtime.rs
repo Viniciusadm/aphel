@@ -4,7 +4,6 @@ use std::sync::{Arc, Mutex, OnceLock, Weak};
 use std::time::{Duration, Instant};
 
 use sha2::{Digest, Sha256};
-use sqlx::MySqlPool;
 
 use wasmtime::component::{Component, HasSelf, Linker, ResourceTable};
 use wasmtime::{Config, Engine, Store, StoreLimits, StoreLimitsBuilder};
@@ -16,6 +15,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::{AppError, CodedKind, FieldViolation};
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::shared::{Actor, ExecutionContext};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::platform::state::runtime_pool;
@@ -171,7 +171,7 @@ fn release_compile_memory() {
     }
 }
 
-async fn stored_component(pool: &MySqlPool, hash: &str) -> Option<Component> {
+async fn stored_component(pool: &Db, hash: &str) -> Option<Component> {
     let artifact = match compiled::find(pool, hash, engine_key()).await {
         Ok(artifact) => artifact?,
         Err(error) => {
@@ -186,7 +186,7 @@ async fn stored_component(pool: &MySqlPool, hash: &str) -> Option<Component> {
 }
 
 async fn compile_component(
-    pool: Option<&MySqlPool>,
+    pool: Option<&Db>,
     hash: &str,
     bytes: Vec<u8>,
 ) -> Result<Component, AppError> {

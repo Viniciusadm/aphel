@@ -14,7 +14,7 @@ use crate::application::files::{
 };
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::shared::{AuditLog, EventPublisher, FileStorage, RecordRef};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
@@ -99,9 +99,9 @@ fn attachment_query(filter: &str) -> String {
 
 #[async_trait]
 impl FileRepository for MySqlFileRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
-    async fn insert_file(&self, tx: &mut MySqlTx, file: &NewFile) -> Result<(), AppError> {
+    async fn insert_file(&self, tx: &mut Tx, file: &NewFile) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO files (id, storage_key, original_name, mime_type, size, checksum, uploaded_by, created_at) \
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -172,7 +172,7 @@ impl FileRepository for MySqlFileRepository {
 
     async fn insert_attachment(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         attachment: &NewAttachment,
     ) -> Result<(), AppError> {
         let inserted = sqlx::query(
@@ -249,11 +249,7 @@ impl FileRepository for MySqlFileRepository {
         })
     }
 
-    async fn delete_attachment(
-        &self,
-        tx: &mut MySqlTx,
-        attachment_id: Uuid,
-    ) -> Result<bool, AppError> {
+    async fn delete_attachment(&self, tx: &mut Tx, attachment_id: Uuid) -> Result<bool, AppError> {
         let deleted = sqlx::query("DELETE FROM attachments WHERE id = ?")
             .bind(attachment_id.to_string())
             .execute(&mut **tx)
@@ -265,8 +261,8 @@ impl FileRepository for MySqlFileRepository {
 pub struct MySqlFilePorts {
     transactions: MySqlTransactionManager,
     files: MySqlFileRepository,
-    events: Arc<dyn EventPublisher<MySqlTx>>,
-    audit: Arc<dyn AuditLog<MySqlTx>>,
+    events: Arc<dyn EventPublisher<Tx>>,
+    audit: Arc<dyn AuditLog<Tx>>,
     storage: Arc<dyn FileStorage>,
     records: MySqlRecordAccessChecker,
 }
@@ -275,8 +271,8 @@ impl MySqlFilePorts {
     pub fn new(
         pool: MySqlPool,
         storage: Arc<dyn FileStorage>,
-        events: Arc<dyn EventPublisher<MySqlTx>>,
-        audit: Arc<dyn AuditLog<MySqlTx>>,
+        events: Arc<dyn EventPublisher<Tx>>,
+        audit: Arc<dyn AuditLog<Tx>>,
     ) -> Self {
         Self {
             transactions: MySqlTransactionManager::new(pool.clone()),
@@ -300,8 +296,8 @@ impl MySqlFilePorts {
 impl FilePorts for MySqlFilePorts {
     type Transactions = MySqlTransactionManager;
     type Files = MySqlFileRepository;
-    type Events = Arc<dyn EventPublisher<MySqlTx>>;
-    type Audit = Arc<dyn AuditLog<MySqlTx>>;
+    type Events = Arc<dyn EventPublisher<Tx>>;
+    type Audit = Arc<dyn AuditLog<Tx>>;
     type Storage = dyn FileStorage;
     type Records = MySqlRecordAccessChecker;
     type Clock = SystemClock;

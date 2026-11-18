@@ -7,15 +7,16 @@ use aphel_kernel::{
 };
 use aphel_sdk::platform::api::dto::common::timestamp as instant;
 use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::timeline::{
     KindDefinition, TimelineEntry, TimelineRequest, TimelineSource, push_cursor,
 };
 use async_trait::async_trait;
 use serde_json::json;
-use sqlx::{MySql, MySqlPool, QueryBuilder};
+use sqlx::{MySql, QueryBuilder};
 pub(crate) struct NotesTimeline;
 struct SourceStore {
-    pool: MySqlPool,
+    pool: Db,
 }
 impl SourceStore {
     async fn load(

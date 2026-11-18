@@ -5,6 +5,7 @@ use crate::domain::{Conversion, organization_today};
 use crate::store::CurrencyStore;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::Db;
 
 pub(crate) use aphel_sdk::money::CurrencyConverter;
 
@@ -37,22 +38,18 @@ impl CurrencyConverter for RateCurrencyConverter {
 
 #[async_trait]
 impl aphel_sdk::money::MoneyRates for RateCurrencyConverter {
-    async fn currency_enabled(
-        &self,
-        pool: &sqlx::MySqlPool,
-        currency: &str,
-    ) -> Result<bool, AppError> {
+    async fn currency_enabled(&self, pool: &Db, currency: &str) -> Result<bool, AppError> {
         CurrencyStore::new(pool.clone()).is_enabled(currency).await
     }
     async fn context(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
     ) -> Result<Option<aphel_sdk::money::CurrencyContext>, AppError> {
         CurrencyStore::new(pool.clone()).find_context().await
     }
     async fn rate_on(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         currency: &str,
         date: chrono::NaiveDate,
     ) -> Result<Option<Decimal>, AppError> {

@@ -4,7 +4,7 @@ use sqlx::{MySqlPool, Row};
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct TemplateRow {
@@ -177,7 +177,7 @@ pub(crate) async fn count_templates(pool: &MySqlPool) -> Result<i64, AppError> {
     )
 }
 
-pub(crate) async fn clear_default(tx: &mut MySqlTx, except: Uuid) -> Result<(), AppError> {
+pub(crate) async fn clear_default(tx: &mut Tx, except: Uuid) -> Result<(), AppError> {
     sqlx::query("UPDATE proposals_templates SET is_default = 0 WHERE id <> ? AND is_default = 1")
         .bind(except.to_string())
         .execute(&mut **tx)
@@ -186,7 +186,7 @@ pub(crate) async fn clear_default(tx: &mut MySqlTx, except: Uuid) -> Result<(), 
 }
 
 pub(crate) async fn insert_template(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     user_id: Uuid,
     values: &TemplateValues,
 ) -> Result<Uuid, AppError> {
@@ -216,7 +216,7 @@ pub(crate) async fn insert_template(
 }
 
 pub(crate) async fn update_template(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     user_id: Uuid,
     id: Uuid,
     values: &TemplateValues,
@@ -240,7 +240,7 @@ pub(crate) async fn update_template(
     Ok(())
 }
 
-pub(crate) async fn delete_template(tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+pub(crate) async fn delete_template(tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
     sqlx::query("DELETE FROM proposals_templates WHERE id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)
@@ -260,7 +260,7 @@ fn key_conflict(error: sqlx::Error) -> AppError {
     }
 }
 
-pub(crate) async fn next_number(tx: &mut MySqlTx) -> Result<u32, AppError> {
+pub(crate) async fn next_number(tx: &mut Tx) -> Result<u32, AppError> {
     sqlx::query(
         "INSERT INTO proposals_counters (id, last_number) VALUES (1, 1) ON DUPLICATE KEY UPDATE last_number = last_number + 1",
     )
@@ -273,7 +273,7 @@ pub(crate) async fn next_number(tx: &mut MySqlTx) -> Result<u32, AppError> {
 }
 
 pub(crate) async fn insert_document(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     document: &DocumentRow,
     actor_type: &str,
 ) -> Result<(), AppError> {

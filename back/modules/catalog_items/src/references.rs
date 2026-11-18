@@ -1,10 +1,11 @@
 use aphel_sdk::catalog_items::CatalogReferences;
 use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::{
     AppError,
     access::{AccessScope, Permission},
 };
-use sqlx::{MySqlPool, QueryBuilder, Row};
+use sqlx::{QueryBuilder, Row};
 use std::collections::{BTreeSet, HashMap};
 use uuid::Uuid;
 pub(crate) struct ReferenceReader;
@@ -12,7 +13,7 @@ pub(crate) struct ReferenceReader;
 impl CatalogReferences for ReferenceReader {
     async fn existing(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         ids: &[Uuid],
     ) -> Result<Vec<Uuid>, AppError> {
@@ -51,7 +52,7 @@ impl CatalogReferences for ReferenceReader {
     }
     async fn codes(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         ids: &[Uuid],
     ) -> Result<HashMap<Uuid, Option<String>>, AppError> {
@@ -84,7 +85,7 @@ impl CatalogReferences for ReferenceReader {
     }
     async fn by_codes(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         codes: &[String],
     ) -> Result<Vec<(String, Uuid)>, AppError> {

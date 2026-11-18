@@ -7,7 +7,7 @@ use crate::guidance::domain::{ChecklistItem, ChecklistProgress, GuidanceText};
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{naive, parse_uuid, utc};
 
 macro_rules! item_select {
@@ -125,7 +125,7 @@ impl GuidanceStore {
 
     pub(crate) async fn save_guidance(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         guidance: &GuidanceText,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -146,7 +146,7 @@ impl GuidanceStore {
 
     pub(crate) async fn insert_item(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         item: &ChecklistItem,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -168,7 +168,7 @@ impl GuidanceStore {
 
     pub(crate) async fn update_item(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         item: &ChecklistItem,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -186,11 +186,7 @@ impl GuidanceStore {
         Ok(())
     }
 
-    pub(crate) async fn delete_item(
-        &self,
-        tx: &mut MySqlTx,
-        item_id: Uuid,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete_item(&self, tx: &mut Tx, item_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM workflow_stage_checklist_items WHERE id = ?")
             .bind(item_id.to_string())
             .execute(&mut **tx)
@@ -229,7 +225,7 @@ impl GuidanceStore {
 
     pub(crate) async fn mark_done(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &aphel_sdk::platform::application::shared::RecordType,
         record_id: Uuid,
         progress: &ChecklistProgress,
@@ -251,7 +247,7 @@ impl GuidanceStore {
 
     pub(crate) async fn mark_pending(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &aphel_sdk::platform::application::shared::RecordType,
         record_id: Uuid,
         item_id: Uuid,

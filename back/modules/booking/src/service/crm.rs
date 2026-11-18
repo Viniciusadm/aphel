@@ -12,7 +12,7 @@ use aphel_sdk::platform::application::fields::FieldDefinitionRepository;
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::query::{Filter, FilterOperator, RecordQuery};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::fields::FieldType;
 use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
@@ -134,7 +134,7 @@ pub(crate) async fn meeting_activity_type(
 
 pub(crate) async fn schedule_meeting(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     meeting: MeetingActivity,
 ) -> Result<Uuid, AppError> {
     aphel_sdk::tasks::meetings()?
@@ -144,7 +144,7 @@ pub(crate) async fn schedule_meeting(
 
 pub(crate) async fn move_meeting(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     activity_id: Uuid,
     change: MeetingActivityMove,
@@ -156,7 +156,7 @@ pub(crate) async fn move_meeting(
 
 pub(crate) async fn cancel_meeting(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     activity_id: Uuid,
     ip: Option<String>,

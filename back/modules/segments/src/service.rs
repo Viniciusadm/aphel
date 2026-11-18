@@ -21,7 +21,7 @@ use aphel_sdk::platform::application::query::{
     ResolveContext, in_saved_filter, resolve_filter_with,
 };
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn list(
@@ -324,7 +324,7 @@ async fn ensure_name_free(
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     segment: &Segment,
     event_type: &'static str,
     (before, after): (&Value, &Value),

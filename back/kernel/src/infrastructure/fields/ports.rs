@@ -5,7 +5,7 @@ use sqlx::MySqlPool;
 use crate::application::fields::ContributedConditionalRules;
 use crate::application::fields::{CustomFieldPorts, FieldPorts, RecordTypeRegistry};
 use crate::application::shared::{AuditLog, EventPublisher};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::infrastructure::auth::SystemClock;
 use crate::infrastructure::custom_objects::MySqlRecordLinkRepository;
 use crate::infrastructure::fields::{
@@ -41,7 +41,7 @@ impl MySqlCustomFieldPorts {
 }
 
 impl CustomFieldPorts for MySqlCustomFieldPorts {
-    type Tx = MySqlTx;
+    type Tx = Tx;
     type Definitions = MySqlFieldDefinitionRepository;
     type Values = MySqlCustomFieldValueRepository;
     type References = MySqlReferenceChecker;
@@ -83,16 +83,16 @@ pub struct MySqlFieldPorts {
     transactions: MySqlTransactionManager,
     definitions: MySqlFieldDefinitionRepository,
     values: MySqlCustomFieldValueRepository,
-    events: Arc<dyn EventPublisher<MySqlTx>>,
-    audit: Arc<dyn AuditLog<MySqlTx>>,
+    events: Arc<dyn EventPublisher<Tx>>,
+    audit: Arc<dyn AuditLog<Tx>>,
 }
 
 impl MySqlFieldPorts {
     pub fn new(
         pool: MySqlPool,
         registry: Arc<RecordTypeRegistry>,
-        events: Arc<dyn EventPublisher<MySqlTx>>,
-        audit: Arc<dyn AuditLog<MySqlTx>>,
+        events: Arc<dyn EventPublisher<Tx>>,
+        audit: Arc<dyn AuditLog<Tx>>,
     ) -> Self {
         Self {
             registry,
@@ -109,8 +109,8 @@ impl FieldPorts for MySqlFieldPorts {
     type Transactions = MySqlTransactionManager;
     type Definitions = MySqlFieldDefinitionRepository;
     type Values = MySqlCustomFieldValueRepository;
-    type Events = Arc<dyn EventPublisher<MySqlTx>>;
-    type Audit = Arc<dyn AuditLog<MySqlTx>>;
+    type Events = Arc<dyn EventPublisher<Tx>>;
+    type Audit = Arc<dyn AuditLog<Tx>>;
     type Clock = SystemClock;
 
     fn registry(&self) -> &RecordTypeRegistry {

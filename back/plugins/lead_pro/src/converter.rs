@@ -6,7 +6,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::leads::{Conversion, ConvertLeadCommand};
 use aphel_sdk::leads::{Lead, LeadConverter};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 use crate::domain::CONVERTED_TOUCH;
 use crate::store;
@@ -18,7 +18,7 @@ impl LeadConverter for WithTouches {
     async fn convert(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         lead: &Lead,
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError> {

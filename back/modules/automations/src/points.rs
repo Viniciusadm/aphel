@@ -1,8 +1,9 @@
 use aphel_sdk::AppError;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::points::{FailureEntry, FailureSource, HealthSource};
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 
 pub(crate) struct AutomationFailures;
 
@@ -10,7 +11,7 @@ pub(crate) struct AutomationFailures;
 impl HealthSource for AutomationFailures {
     async fn recent_failures(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         since: DateTime<Utc>,
         limit: u64,
     ) -> Result<Vec<FailureEntry>, AppError> {

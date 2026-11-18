@@ -14,7 +14,7 @@ use crate::application::custom_objects::{
 use crate::application::fields::{EntityDefinition, RecordTypeRegistry};
 use crate::application::organization_admin::{ListWindow, Listing};
 use crate::application::shared::RecordRef;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::{AccessScope, RecordScope, RecordScopeFilter};
 use crate::domain::custom_objects::{CustomObject, CustomRecord, OnDelete, RelationshipDefinition};
 use crate::errors::AppError;
@@ -74,7 +74,7 @@ impl MySqlCustomObjectRepository {
 
 #[async_trait]
 impl CustomObjectRepository for MySqlCustomObjectRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self) -> Result<Vec<CustomObject>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
@@ -284,7 +284,7 @@ impl MySqlRelationshipRepository {
 
 #[async_trait]
 impl RelationshipRepository for MySqlRelationshipRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self) -> Result<Vec<RelationshipDefinition>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
@@ -409,7 +409,7 @@ fn link_columns(inverse: bool) -> (&'static str, &'static str) {
 
 #[async_trait]
 impl RecordLinkRepository for MySqlRecordLinkRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn linked_ids(
         &self,
@@ -652,7 +652,7 @@ impl MySqlCustomRecordRepository {
 
 #[async_trait]
 impl CustomRecordRepository for MySqlCustomRecordRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn find(
         &self,

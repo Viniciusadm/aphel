@@ -5,8 +5,8 @@ use std::time::{Duration, Instant};
 
 use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha256};
-use sqlx::MySqlPool;
 
+use crate::database::Db;
 use crate::infrastructure::security::mysql_rate_limit_counters as counters;
 
 use crate::errors::AppError;
@@ -153,7 +153,7 @@ pub async fn shared_hit(
     }
 }
 
-fn shared_pool() -> Option<MySqlPool> {
+fn shared_pool() -> Option<Db> {
     crate::state::runtime_state().ok()?.db
 }
 
@@ -163,7 +163,7 @@ fn bucket(scope: &str, key: &str) -> String {
 }
 
 async fn hit_counter(
-    pool: &MySqlPool,
+    pool: &Db,
     bucket: &str,
     limit: u32,
     window: Duration,
@@ -223,7 +223,7 @@ async fn hit_counter(
     })
 }
 
-async fn cleanup_expired(pool: &MySqlPool, now: DateTime<Utc>) {
+async fn cleanup_expired(pool: &Db, now: DateTime<Utc>) {
     static HITS: AtomicU64 = AtomicU64::new(0);
     if !HITS
         .fetch_add(1, Ordering::Relaxed)

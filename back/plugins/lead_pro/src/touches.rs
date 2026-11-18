@@ -1,10 +1,10 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_sdk::platform::database::Db;
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use chrono::Duration;
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
@@ -110,12 +110,12 @@ fn touched_contact(event: &DomainEvent) -> Option<Uuid> {
 }
 
 pub(crate) struct TouchConsumer {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl TouchConsumer {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 
@@ -195,12 +195,12 @@ pub(crate) fn cooldown_schedule() -> ScheduledJobDefinition {
 }
 
 pub(crate) struct Cooldown {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl Cooldown {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 }

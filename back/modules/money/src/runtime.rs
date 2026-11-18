@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::domain::{EXCHANGE_RATES_SYNC_CRON, EXCHANGE_RATES_SYNC_JOB};
 use crate::provider::configured_provider;
@@ -13,6 +12,7 @@ use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
     Actor, DomainEvent, EventConsumer, JobContext, JobHandler, JobQueue,
 };
+use aphel_sdk::platform::database::Db;
 
 pub(crate) const CURRENCIES_BASE_CONSUMER: &str = "money.base_currency";
 const ORGANIZATION_UPDATED: &str = "organization.updated";
@@ -28,7 +28,7 @@ pub(crate) struct ExchangeRatesSyncHandler {
 }
 
 impl ExchangeRatesSyncHandler {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             ports: RatePorts::system(pool),
         }
@@ -62,7 +62,7 @@ impl JobHandler for ExchangeRatesSyncHandler {
     }
 }
 
-pub(crate) fn exchange_rates_sync_handler(pool: MySqlPool) -> Arc<dyn JobHandler> {
+pub(crate) fn exchange_rates_sync_handler(pool: Db) -> Arc<dyn JobHandler> {
     Arc::new(ExchangeRatesSyncHandler::new(pool))
 }
 
@@ -71,7 +71,7 @@ pub(crate) struct BaseCurrencyConsumer {
 }
 
 impl BaseCurrencyConsumer {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             ports: RatePorts::system(pool),
         }
@@ -105,10 +105,10 @@ impl EventConsumer for BaseCurrencyConsumer {
 }
 
 pub(crate) struct MoneyRecalculateHandler {
-    pool: MySqlPool,
+    pool: Db,
 }
 impl MoneyRecalculateHandler {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self { pool }
     }
 }
@@ -132,10 +132,10 @@ impl JobHandler for MoneyRecalculateHandler {
 }
 
 pub(crate) struct MoneyRebaseCompletedHandler {
-    pool: MySqlPool,
+    pool: Db,
 }
 impl MoneyRebaseCompletedHandler {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self { pool }
     }
 }

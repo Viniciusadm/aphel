@@ -9,7 +9,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::api::rate_limit::{SlidingWindowLimiter, shared_hit};
 use aphel_kernel::application::access::{AccessRepository, build_access_scope};
 use aphel_kernel::application::auth::UserRepository;
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::transaction::Tx;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 use aphel_kernel::domain::{Secret, UserId};
 use aphel_kernel::errors::AppError;
@@ -46,7 +46,7 @@ pub async fn secret(ctx: &Ctx<'_>, key: &str, name: &str) -> Result<Option<Strin
 
 pub async fn store_secret(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     key: &str,
     name: &str,
     value: &str,
@@ -63,7 +63,7 @@ pub async fn store_secret(
 
 pub async fn remove_secret(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     key: &str,
     name: &str,
 ) -> Result<(), AppError> {

@@ -87,7 +87,7 @@ async fn record_change(
     event_type: &'static str,
     before: Value,
     after: Value,
-    mut tx: aphel_sdk::platform::database::transaction::MySqlTx,
+    mut tx: aphel_sdk::platform::database::transaction::Tx,
 ) -> Result<(), AppError> {
     let now = Utc::now();
     let actor = Actor::from_scope(&tenant.scope);

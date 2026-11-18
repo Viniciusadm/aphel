@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use crate::application::fields::{CustomFieldValueRepository, EntityDefinition, StoredFieldValue};
 use crate::application::shared::{RecordRef, RecordType};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::domain::access::{AccessScope, RecordScopeFilter};
 use crate::domain::fields::{FieldDefinition, FieldType, FieldValue, ValueColumn};
@@ -29,7 +29,7 @@ impl MySqlCustomFieldValueRepository {
         Self { pool }
     }
     pub async fn load_in_tx(
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &RecordType,
         fields: &[FieldDefinition],
         record_ids: &[Uuid],
@@ -196,7 +196,7 @@ fn push_value_column(
 
 #[async_trait]
 impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn record_timestamp(
         &self,
@@ -215,7 +215,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn record_timestamp_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         column: &str,
         record_id: Uuid,
@@ -231,7 +231,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn load_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &RecordType,
         fields: &[FieldDefinition],
         record_ids: &[Uuid],
@@ -315,7 +315,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn upsert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         field: &FieldDefinition,
         value: &FieldValue,
@@ -366,7 +366,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         field_id: Uuid,
     ) -> Result<(), AppError> {
@@ -383,7 +383,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
         Ok(())
     }
 
-    async fn delete_record(&self, tx: &mut MySqlTx, record: &RecordRef) -> Result<(), AppError> {
+    async fn delete_record(&self, tx: &mut Tx, record: &RecordRef) -> Result<(), AppError> {
         unique_values::release_record(tx, record).await?;
         for table in ["custom_field_values", "custom_field_multi_values"] {
             sqlx::query(sqlx::AssertSqlSafe(format!(
@@ -399,7 +399,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn is_taken(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         record: &RecordRef,
         field: &FieldDefinition,
@@ -458,7 +458,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn reserve_unique(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         record: &RecordRef,
         field: &FieldDefinition,
@@ -468,7 +468,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn release_unique(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         field_id: Uuid,
     ) -> Result<(), AppError> {
@@ -477,7 +477,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn existing_records_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         target: &EntityDefinition,
         visibility: &RecordScopeFilter,
@@ -493,7 +493,7 @@ impl CustomFieldValueRepository for MySqlCustomFieldValueRepository {
 
     async fn rebuild_unique(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         field: &FieldDefinition,
     ) -> Result<(), AppError> {

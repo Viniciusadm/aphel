@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::opt_outs::{OPT_OUT_EXISTS, OptOut, OptOutScope, Purpose, normalize_address};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const SELECT: &str =
@@ -77,7 +77,7 @@ pub async fn find(pool: &MySqlPool, id: Uuid) -> Result<Option<OptOut>, AppError
         .transpose()
 }
 
-pub async fn insert(tx: &mut MySqlTx, opt_out: &OptOut) -> Result<(), AppError> {
+pub async fn insert(tx: &mut Tx, opt_out: &OptOut) -> Result<(), AppError> {
     sqlx::query(
         "INSERT INTO communication_opt_outs (id, address, scope, reason, source, created_by, created_at) \
          VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -100,7 +100,7 @@ pub async fn insert(tx: &mut MySqlTx, opt_out: &OptOut) -> Result<(), AppError> 
     Ok(())
 }
 
-pub async fn delete(tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+pub async fn delete(tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
     sqlx::query("DELETE FROM communication_opt_outs WHERE id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)

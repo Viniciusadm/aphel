@@ -2,7 +2,6 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::Utc;
-use sqlx::MySqlPool;
 use tokio::sync::Semaphore;
 
 use crate::application::custom_objects::RecordTypeCatalog;
@@ -10,6 +9,7 @@ use crate::application::fields::RecordTypeRegistry;
 use crate::application::jobs::{EventConsumerRegistry, JobRegistry, ScheduledJobDefinition};
 use crate::application::shared::{EventConsumer, JobHandler};
 use crate::config::WorkerConfig;
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::infrastructure::custom_objects::MySqlCustomSchemaSource;
 use crate::infrastructure::jobs::{
@@ -21,7 +21,7 @@ use crate::infrastructure::platform::SharedSecretVault;
 use crate::modules::{App, WorkerEnv};
 
 pub struct WorkerRuntime {
-    pool: MySqlPool,
+    pool: Db,
     settings: WorkerSettings,
     scheduler_interval: Duration,
     handlers: JobRegistry,
@@ -34,7 +34,7 @@ pub struct WorkerRuntime {
 }
 
 impl WorkerRuntime {
-    pub fn new(pool: MySqlPool, config: &WorkerConfig) -> Self {
+    pub fn new(pool: Db, config: &WorkerConfig) -> Self {
         let record_types = Arc::new(RecordTypeCatalog::new(
             RecordTypeRegistry::builtin(),
             Arc::new(MySqlCustomSchemaSource::new(pool.clone())),
@@ -112,7 +112,7 @@ impl WorkerRuntime {
         self.record_types.clone()
     }
 
-    pub fn pool(&self) -> MySqlPool {
+    pub fn pool(&self) -> Db {
         self.pool.clone()
     }
 

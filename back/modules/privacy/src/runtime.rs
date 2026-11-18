@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::domain::{
     PRIVACY_REQUEST_RUN_JOB, PRIVACY_RETENTION_CRON, PRIVACY_RETENTION_JOB,
@@ -15,6 +14,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler, SharedFileStorage};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -33,14 +33,14 @@ pub(crate) fn privacy_retention_sweep_schedule() -> ScheduledJobDefinition {
 
 #[derive(Clone)]
 pub(crate) struct PrivacyRuntime {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
     storage: SharedFileStorage,
 }
 
 impl PrivacyRuntime {
     pub(crate) fn new(
-        pool: MySqlPool,
+        pool: Db,
         catalog: Arc<RecordTypeCatalog>,
         storage: SharedFileStorage,
     ) -> Self {

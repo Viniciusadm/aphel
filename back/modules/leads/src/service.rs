@@ -1,4 +1,5 @@
 use aphel_contract_crm::{CrmPermissions, CrmRecordTypes};
+use aphel_sdk::platform::database::Db;
 use std::collections::BTreeSet;
 
 use chrono::{DateTime, Duration, NaiveDate, Utc};
@@ -13,7 +14,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Map;
-use sqlx::MySqlPool;
 
 use crate::domain::{
     DEFAULT_REPORT_DAYS, DisqualificationReason, LEAD_STAGE, LIFECYCLE_STAGE_FIELD,
@@ -37,7 +37,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -706,7 +706,7 @@ async fn find_reason(ctx: &Ctx<'_>, id: &str) -> Result<DisqualificationReason, 
 
 async fn publish_reason(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     reason: &DisqualificationReason,
     event_type: &'static str,
     changes: Vec<FieldChange>,
@@ -997,7 +997,7 @@ async fn move_stage(ctx: &Ctx<'_>, stage_move: StageMove) -> Result<(), AppError
 
 async fn move_stage_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
     stage_move: StageMove,
 ) -> Result<Option<aphel_kernel::records::PendingCommit>, AppError> {
     let scope = ctx.scope;
@@ -1106,12 +1106,12 @@ fn is_skippable(error: &AppError) -> bool {
 }
 
 pub(crate) struct LifecycleTransitions {
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
 }
 
 impl LifecycleTransitions {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+    pub(crate) fn new(pool: Db, registry: Arc<RecordTypeRegistry>) -> Self {
         Self { pool, registry }
     }
 
@@ -1228,7 +1228,7 @@ impl EventConsumer for LifecycleTransitions {
 }
 
 pub(crate) fn lifecycle_transitions_consumer(
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 ) -> Arc<dyn EventConsumer> {
     CatalogEventConsumer::shared(
@@ -1241,7 +1241,7 @@ pub(crate) fn lifecycle_transitions_consumer(
 
 pub async fn record_stage_history(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     from_stage: Option<String>,
     to_stage: Option<String>,

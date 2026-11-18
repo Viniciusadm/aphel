@@ -12,7 +12,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
@@ -140,7 +140,7 @@ impl CompanyStore {
         self.with_contributed(views).await
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, company: &Company) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, company: &Company) -> Result<(), AppError> {
         let data = &company.data;
         let address = &data.address;
         sqlx::query(
@@ -180,7 +180,7 @@ impl CompanyStore {
 
     pub async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
         data: &CompanyData,
         updated_at: DateTime<Utc>,
@@ -222,7 +222,7 @@ impl CompanyStore {
 
     pub(crate) async fn set_archived(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
         archived_at: Option<DateTime<Utc>>,
     ) -> Result<(), AppError> {
@@ -239,7 +239,7 @@ impl CompanyStore {
 
     pub async fn soft_delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
         deleted_at: DateTime<Utc>,
     ) -> Result<(), AppError> {

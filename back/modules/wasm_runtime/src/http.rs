@@ -34,7 +34,8 @@ use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::organization_profile::CORE_UI_PLUGIN;
 use aphel_sdk::platform::application::secrets::MAX_SECRET_BYTES;
 use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::infrastructure::organization_profile::{
     clear_ui_plugin, find_ui_plugin_default,
@@ -122,7 +123,7 @@ async fn record(
     ip: Option<String>,
 ) -> Result<(), AppError> {
     let pool = state.db()?;
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
         pool.begin().await.map_err(AppError::from)?,
     );
     record_in(&mut tx, state, scope, action, plugin, changes, ip).await?;
@@ -132,7 +133,7 @@ async fn record(
 }
 
 async fn record_in(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     state: &AppState,
     scope: &AccessScope,
     action: &'static str,
@@ -520,7 +521,7 @@ fn permissions_owner(key: &str) -> String {
 }
 
 async fn sync_permissions(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     manifest: &PluginManifest,
     active: bool,
 ) -> Result<(), AppError> {
@@ -812,7 +813,7 @@ pub(crate) async fn apply_install(
     let mut held: Vec<String> = Vec::new();
     let outcome: Result<InstalledPlugin, AppError> = async {
         schema::apply(state, scope, &package.manifest).await?;
-        let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
             pool.begin().await.map_err(AppError::from)?,
         );
         let installer = installer_of(&pool, scope).await?;
@@ -1218,7 +1219,7 @@ pub(crate) async fn install_pack_bytes(
     }
     crate::provision::enable_modules(state, scope, &requirements.modules_to_enable).await?;
     let pool = state.db()?;
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
         pool.begin().await.map_err(AppError::from)?,
     );
     let installer = installer_of(&pool, scope).await?;
@@ -1281,7 +1282,7 @@ pub(crate) async fn install_pack_bytes(
             }
         }
     }
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
         pool.begin().await.map_err(AppError::from)?,
     );
     record_in(
@@ -1356,7 +1357,7 @@ async fn apply_pack_settings(
     }
     let mut settings = plugin.settings.clone();
     settings.extend(pending);
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
     store::set_settings(&mut tx, &plugin.key, &settings).await?;
@@ -1472,7 +1473,7 @@ pub(crate) async fn reapply_grants(
     key: &str,
 ) -> Result<PluginResponse, AppError> {
     let plugin = installed(state, key).await?;
-    let mut tx = MySqlTx::from(state.db()?.begin().await.map_err(AppError::from)?);
+    let mut tx = Tx::from(state.db()?.begin().await.map_err(AppError::from)?);
     let report = grants::reconcile(&mut tx, &plugin.manifest, &[]).await?;
     record_in(
         &mut tx,
@@ -1657,7 +1658,7 @@ pub(crate) async fn uninstall(
     } else {
         schema::set_active(state, &plugin.manifest, false).await?;
     }
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
     store::delete(&mut tx, key).await?;
@@ -1740,7 +1741,7 @@ pub(crate) async fn toggle(
             crate::modules::ensure_unblocked(&plans)?;
             crate::modules::hold(state, scope, &plugin.manifest).await?;
         }
-        let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
             state.db()?.begin().await.map_err(AppError::from)?,
         );
         store::set_enabled(&mut tx, key, enabled).await?;
@@ -2009,7 +2010,7 @@ pub(crate) async fn save_settings(
         Value::Object(plugin.settings),
         Value::Object(settings.clone()),
     )];
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(
         state.db()?.begin().await.map_err(AppError::from)?,
     );
     store::set_settings(&mut tx, key, &settings).await?;
@@ -2509,7 +2510,7 @@ fn form_pairs(query: &str) -> Vec<(String, String)> {
 pub(crate) struct PluginAdmin;
 
 async fn installer_of(
-    pool: &sqlx::MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
 ) -> Result<aphel_kernel::domain::UserId, AppError> {
     if scope.is_system() {

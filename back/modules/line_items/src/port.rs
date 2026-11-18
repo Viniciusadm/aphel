@@ -1,5 +1,5 @@
 use aphel_kernel::{
-    Ctx, application::shared::RecordRef, database::transaction::MySqlTx, errors::AppError,
+    Ctx, application::shared::RecordRef, database::transaction::Tx, errors::AppError,
 };
 use aphel_sdk::line_items::{LineData, LineItem, LineItemSummary, LineItemsPort};
 use rust_decimal::Decimal;
@@ -41,7 +41,7 @@ impl LineItemsPort for Port {
     }
     async fn sync_rate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         rate: Option<Decimal>,
     ) -> Result<(), AppError> {
@@ -49,7 +49,7 @@ impl LineItemsPort for Port {
     }
     async fn rebase_amounts(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         factor: Decimal,
     ) -> Result<(), AppError> {

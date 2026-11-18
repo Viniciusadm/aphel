@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -18,6 +17,7 @@ use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler,
 };
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -30,12 +30,12 @@ pub(crate) fn scoring_decay_schedule() -> ScheduledJobDefinition {
 
 #[derive(Clone)]
 pub(crate) struct ScoringRuntime {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl ScoringRuntime {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 

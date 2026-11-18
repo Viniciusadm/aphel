@@ -3,12 +3,12 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use chrono::{Duration, Utc};
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::incoming::IncomingWebhookStore;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::database::Db;
 
 pub(crate) const INCOMING_WEBHOOKS_PURGE_JOB: &str = "incoming_webhooks.purge";
 pub(crate) const INCOMING_WEBHOOKS_PURGE_CRON: &str = "0 25 * * * *";
@@ -21,7 +21,7 @@ pub(crate) fn incoming_webhooks_purge_schedule() -> ScheduledJobDefinition {
         .with_max_attempts(1)
 }
 
-pub(crate) fn incoming_webhooks_purge_handler(pool: MySqlPool) -> Arc<dyn JobHandler> {
+pub(crate) fn incoming_webhooks_purge_handler(pool: Db) -> Arc<dyn JobHandler> {
     Arc::new(IncomingWebhooksPurgeHandler {
         store: IncomingWebhookStore::new(pool),
     })

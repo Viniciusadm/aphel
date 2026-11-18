@@ -18,7 +18,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
@@ -163,7 +163,7 @@ impl SequenceStore {
         Ok(sequences)
     }
 
-    async fn write_steps(&self, tx: &mut MySqlTx, sequence: &SequenceView) -> Result<(), AppError> {
+    async fn write_steps(&self, tx: &mut Tx, sequence: &SequenceView) -> Result<(), AppError> {
         let mut builder =
             QueryBuilder::<MySql>::new("DELETE FROM sequence_steps WHERE sequence_id = ");
         builder.push_bind(sequence.id.to_string());
@@ -210,7 +210,7 @@ impl SequenceStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         sequence: &SequenceView,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -237,7 +237,7 @@ impl SequenceStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         sequence: &SequenceView,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -260,7 +260,7 @@ impl SequenceStore {
         self.write_steps(tx, sequence).await
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM sequences WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -368,7 +368,7 @@ impl SequenceStore {
 
     pub(crate) async fn template_ids_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
     ) -> Result<HashMap<String, Uuid>, AppError> {
         match aphel_sdk::email::automation_reader() {
             Some(reader) => reader.organization_template_ids_in(tx).await,
@@ -514,7 +514,7 @@ impl EnrollmentStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         enrollment: &NewEnrollment,
     ) -> Result<bool, AppError> {
         let now = mapper::naive(enrollment.next_run_at);
@@ -552,7 +552,7 @@ impl EnrollmentStore {
 
     pub(crate) async fn lock(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
     ) -> Result<Option<EnrollmentView>, AppError> {
         let row = sqlx::query(AssertSqlSafe(format!(
@@ -566,7 +566,7 @@ impl EnrollmentStore {
 
     pub(crate) async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         enrollment: &EnrollmentView,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -746,11 +746,7 @@ impl EnrollmentStore {
             .collect()
     }
 
-    pub(crate) async fn claim_run(
-        &self,
-        tx: &mut MySqlTx,
-        run: &StepRun,
-    ) -> Result<bool, AppError> {
+    pub(crate) async fn claim_run(&self, tx: &mut Tx, run: &StepRun) -> Result<bool, AppError> {
         let now = mapper::naive(run.executed_at);
         let result = sqlx::query(
             "INSERT INTO sequence_step_runs (id, sequence_id, enrollment_id, \
@@ -780,7 +776,7 @@ impl EnrollmentStore {
 
     pub(crate) async fn release_run(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         enrollment_id: Uuid,
         position: u32,
     ) -> Result<(), AppError> {
@@ -813,7 +809,7 @@ impl EnrollmentStore {
         row.as_ref().map(run_from_row).transpose()
     }
 
-    pub(crate) async fn save_run(&self, tx: &mut MySqlTx, run: &StepRun) -> Result<(), AppError> {
+    pub(crate) async fn save_run(&self, tx: &mut Tx, run: &StepRun) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE sequence_step_runs SET status = ?, mailbox_id = ?, email_id = ?, \
              thread_id = ?, activity_id = ?, failure_reason = ?, updated_at = ? \

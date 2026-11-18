@@ -1,26 +1,26 @@
 use crate::store::PipelineStore;
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::workflow::{LostReason, Pipeline, PipelineStage, WorkflowCatalog};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 pub(crate) struct NativeWorkflowCatalog;
 #[async_trait::async_trait]
 impl WorkflowCatalog for NativeWorkflowCatalog {
-    async fn pipelines(&self, pool: &MySqlPool) -> Result<Vec<Pipeline>, AppError> {
+    async fn pipelines(&self, pool: &Db) -> Result<Vec<Pipeline>, AppError> {
         PipelineStore::new(pool.clone()).list_pipelines().await
     }
-    async fn pipeline(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<Pipeline>, AppError> {
+    async fn pipeline(&self, pool: &Db, id: Uuid) -> Result<Option<Pipeline>, AppError> {
         PipelineStore::new(pool.clone()).find_pipeline(id).await
     }
-    async fn default_pipeline(&self, pool: &MySqlPool) -> Result<Option<Pipeline>, AppError> {
+    async fn default_pipeline(&self, pool: &Db) -> Result<Option<Pipeline>, AppError> {
         PipelineStore::new(pool.clone()).default_pipeline().await
     }
-    async fn stages(&self, pool: &MySqlPool, id: Uuid) -> Result<Vec<PipelineStage>, AppError> {
+    async fn stages(&self, pool: &Db, id: Uuid) -> Result<Vec<PipelineStage>, AppError> {
         PipelineStore::new(pool.clone()).list_stages(id).await
     }
     async fn stages_for_pipelines(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         ids: &[Uuid],
     ) -> Result<Vec<PipelineStage>, AppError> {
         PipelineStore::new(pool.clone())
@@ -29,7 +29,7 @@ impl WorkflowCatalog for NativeWorkflowCatalog {
     }
     async fn stage_names(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         ids: &[Uuid],
     ) -> Result<std::collections::HashMap<Uuid, String>, AppError> {
         if ids.len() > 1000 {
@@ -39,17 +39,13 @@ impl WorkflowCatalog for NativeWorkflowCatalog {
         }
         PipelineStore::new(pool.clone()).stage_names(ids).await
     }
-    async fn stage(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<PipelineStage>, AppError> {
+    async fn stage(&self, pool: &Db, id: Uuid) -> Result<Option<PipelineStage>, AppError> {
         PipelineStore::new(pool.clone()).find_stage(id).await
     }
-    async fn lost_reasons(&self, pool: &MySqlPool) -> Result<Vec<LostReason>, AppError> {
+    async fn lost_reasons(&self, pool: &Db) -> Result<Vec<LostReason>, AppError> {
         PipelineStore::new(pool.clone()).list_lost_reasons().await
     }
-    async fn lost_reason(
-        &self,
-        pool: &MySqlPool,
-        id: Uuid,
-    ) -> Result<Option<LostReason>, AppError> {
+    async fn lost_reason(&self, pool: &Db, id: Uuid) -> Result<Option<LostReason>, AppError> {
         PipelineStore::new(pool.clone()).find_lost_reason(id).await
     }
 }

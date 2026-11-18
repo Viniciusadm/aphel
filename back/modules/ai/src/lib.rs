@@ -23,7 +23,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{
     AppBuilder, Manifest, Migration, Module, ModuleCtx, SettingField, SettingKind, SettingOption,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, PermissionDefinition};
 
 pub(crate) const KEY: &str = "ai";
@@ -226,7 +226,7 @@ impl Module for AiModule {
         }))
     }
 
-    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
+    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, tx: &mut Tx) -> Result<(), AppError> {
         store::purge(tx).await
     }
 }

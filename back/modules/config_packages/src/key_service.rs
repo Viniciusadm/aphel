@@ -1,7 +1,7 @@
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::{ConfigKeyRepository, ConfigReferenceKind, ConfigurationKeys};
-use aphel_sdk::platform::database::transaction::MySqlTx;
-use sqlx::MySqlPool;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use std::collections::HashMap;
 use uuid::Uuid;
 pub(crate) struct Keys;
@@ -9,7 +9,7 @@ pub(crate) struct Keys;
 impl ConfigurationKeys for Keys {
     async fn keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         kind: ConfigReferenceKind,
     ) -> Result<HashMap<Uuid, String>, AppError> {
         crate::infrastructure::MySqlConfigKeyRepository::new(pool.clone())
@@ -18,7 +18,7 @@ impl ConfigurationKeys for Keys {
     }
     async fn assign(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         kind: ConfigReferenceKind,
         id: Uuid,
         key: &str,

@@ -12,7 +12,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const WEBHOOK_COLUMNS: &str = "w.id, w.name, w.description, w.token_prefix, \
@@ -111,7 +111,7 @@ impl IncomingWebhookStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         webhook: &IncomingWebhook,
         token_hash: &str,
     ) -> Result<(), AppError> {
@@ -139,7 +139,7 @@ impl IncomingWebhookStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         webhook: &IncomingWebhook,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -161,7 +161,7 @@ impl IncomingWebhookStore {
 
     pub(crate) async fn replace_token(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         token_prefix: &str,
         token_hash: &str,
@@ -180,7 +180,7 @@ impl IncomingWebhookStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM incoming_webhooks WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)

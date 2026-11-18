@@ -48,7 +48,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::platform::domain::organization_profile::ORGANIZATION_RECORD_ID;
 use aphel_sdk::pricing::PriceListSelection;
@@ -771,7 +771,7 @@ pub(crate) async fn create_version(
 
 pub(crate) async fn saving(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     mode: WriteMode,
     quote: Quote,
@@ -1184,7 +1184,7 @@ pub(crate) fn event_payload(quote: &Quote, extra: Value) -> Value {
 
 pub(crate) async fn record_system_event(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     quote: &Quote,
     event: SystemEvent<'_>,
 ) -> Result<(), AppError> {
@@ -1217,7 +1217,7 @@ pub(crate) async fn record_system_event(
 
 pub(crate) async fn record_deal_event(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: Actor,
     quote: &Quote,
     event_type: &str,
@@ -1259,7 +1259,7 @@ pub(crate) async fn existing_token_key(ctx: &Ctx<'_>) -> Result<Option<Vec<u8>>,
         .and_then(|secret| decode_key(secret.expose())))
 }
 
-pub(crate) async fn token_key(ctx: &Ctx<'_>, tx: &mut MySqlTx) -> Result<Vec<u8>, AppError> {
+pub(crate) async fn token_key(ctx: &Ctx<'_>, tx: &mut Tx) -> Result<Vec<u8>, AppError> {
     if let Some(key) = existing_token_key(ctx).await? {
         return Ok(key);
     }

@@ -23,7 +23,7 @@ use aphel_sdk::platform::application::fields::{
 use aphel_sdk::platform::application::organization_admin::Listing;
 use aphel_sdk::platform::application::query::{RecordQuery, RecordQueryEngine};
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn list(
@@ -236,7 +236,7 @@ pub(crate) async fn update(
 
 async fn saving(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     mode: WriteMode,
     (data, currency): (ProductData, &str),

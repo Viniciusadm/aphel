@@ -12,7 +12,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::files::UserReference;
 use aphel_sdk::platform::application::query::QueryPlan;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::users::UserStatus;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
@@ -98,11 +98,7 @@ impl DealMemberStore {
         rows.iter().map(member_from_row).collect()
     }
 
-    pub(crate) async fn lock_deal(
-        &self,
-        tx: &mut MySqlTx,
-        deal_id: Uuid,
-    ) -> Result<bool, AppError> {
+    pub(crate) async fn lock_deal(&self, tx: &mut Tx, deal_id: Uuid) -> Result<bool, AppError> {
         let found: Option<String> = sqlx::query_scalar(
             "SELECT id FROM deals WHERE id = ? AND deleted_at IS NULL FOR UPDATE",
         )
@@ -114,7 +110,7 @@ impl DealMemberStore {
 
     pub(crate) async fn list_locked(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
     ) -> Result<Vec<DealMember>, AppError> {
         let rows = sqlx::query(MEMBER_SELECT)
@@ -125,11 +121,7 @@ impl DealMemberStore {
         rows.iter().map(member_from_row).collect()
     }
 
-    pub(crate) async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        member: &NewDealMember,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, member: &NewDealMember) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO deal_members (id, deal_id, user_id, role_id, credit_percent, \
              added_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -149,7 +141,7 @@ impl DealMemberStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         member_id: Uuid,
         role_id: Option<Uuid>,
         credit_percent: Decimal,
@@ -170,7 +162,7 @@ impl DealMemberStore {
 
     pub(crate) async fn delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
         member_id: Uuid,
     ) -> Result<(), AppError> {
@@ -240,11 +232,7 @@ impl DealMemberRoleStore {
         .transpose()
     }
 
-    pub(crate) async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        role: &DealMemberRole,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, role: &DealMemberRole) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO deal_member_roles (id, `key`, name, is_active, position, \
              created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -261,11 +249,7 @@ impl DealMemberRoleStore {
         Ok(())
     }
 
-    pub(crate) async fn update(
-        &self,
-        tx: &mut MySqlTx,
-        role: &DealMemberRole,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, role: &DealMemberRole) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE deal_member_roles SET name = ?, is_active = ?, updated_at = ? \
              WHERE id = ?",
@@ -279,7 +263,7 @@ impl DealMemberRoleStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM deal_member_roles WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -289,7 +273,7 @@ impl DealMemberRoleStore {
 
     pub(crate) async fn reorder(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         ordered_ids: &[Uuid],
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {

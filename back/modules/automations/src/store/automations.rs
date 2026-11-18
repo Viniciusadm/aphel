@@ -14,7 +14,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -127,7 +127,7 @@ impl AutomationStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         automation: &Automation,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -155,7 +155,7 @@ impl AutomationStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         automation: &Automation,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -176,11 +176,7 @@ impl AutomationStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(
-        &self,
-        tx: &mut MySqlTx,
-        automation_id: Uuid,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, automation_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM automations WHERE id = ?")
             .bind(automation_id.to_string())
             .execute(&mut **tx)
@@ -253,7 +249,7 @@ impl AutomationStore {
 
     pub(crate) async fn insert_version(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         version: &AutomationVersion,
     ) -> Result<(), AppError> {
         sqlx::query(

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::service;
 use aphel_kernel::Ctx;
@@ -12,6 +11,7 @@ use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, JobContext, JobHandler,
 };
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -30,7 +30,7 @@ pub(crate) fn purge_orphans_schedule() -> ScheduledJobDefinition {
 
 #[derive(Clone)]
 pub(crate) struct PurgeOrphanGoalsHandler {
-    pub(crate) pool: MySqlPool,
+    pub(crate) pool: Db,
     pub(crate) catalog: Arc<RecordTypeCatalog>,
 }
 

@@ -18,7 +18,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const EMAIL_TEMPLATES_SECTION: &str = "email_templates";
@@ -140,7 +140,7 @@ fn parse(content: &Value) -> Result<Vec<PackageEmailTemplate>, AppError> {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for EmailTemplatesSection {
+impl ConfigSection<Tx> for EmailTemplatesSection {
     fn key(&self) -> &'static str {
         EMAIL_TEMPLATES_SECTION
     }
@@ -247,7 +247,7 @@ impl ConfigSection<MySqlTx> for EmailTemplatesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

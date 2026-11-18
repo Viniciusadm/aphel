@@ -1,4 +1,4 @@
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::{
     AppError, Ctx,
     people::{PersonCreation, PersonWriter},
@@ -10,7 +10,7 @@ impl PersonWriter for Creator {
     async fn create_in_tx(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         creation: PersonCreation,
     ) -> Result<PendingCommit, AppError> {
         let created = crate::service::create_in_tx(

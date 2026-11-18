@@ -4,7 +4,6 @@ use axum::Json;
 use axum::extract::{Path, State};
 use serde::Serialize;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -20,6 +19,7 @@ use crate::application::fields::permissions::{
     FieldAccessPolicy, FieldAccessRule, FieldPermissionUseCases, is_unrestricted,
 };
 use crate::application::shared::RecordType;
+use crate::database::Db;
 use crate::domain::UserId;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
@@ -67,7 +67,7 @@ pub async fn field_redaction(
 }
 
 pub async fn user_field_redaction(
-    pool: &MySqlPool,
+    pool: &Db,
     user_id: Option<&UserId>,
     record_type: &RecordType,
 ) -> Result<FieldRedaction, AppError> {

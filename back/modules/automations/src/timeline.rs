@@ -1,7 +1,8 @@
 use aphel_kernel::{application::shared::RecordRef, domain::access::AccessScope, errors::AppError};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::timeline::{TimelineEntry, TimelineEventExtension, TimelineRequest};
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 pub(crate) struct AutomationActors;
 #[async_trait::async_trait]
 impl TimelineEventExtension for AutomationActors {
@@ -15,7 +16,7 @@ impl TimelineEventExtension for AutomationActors {
     }
     async fn enrich(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         _scope: &AccessScope,
         entries: &mut [TimelineEntry],
     ) -> Result<(), AppError> {

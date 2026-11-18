@@ -14,7 +14,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::{FieldSet, RecordTypeRegistry, load_values};
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::MySqlCustomFieldValueRepository;
 use aphel_sdk::platform::infrastructure::query::compiler::{push_partition, quoted};
 use aphel_sdk::platform::infrastructure::query::computed::system_expression;
@@ -83,7 +83,7 @@ impl ExportStore {
         Self::new(ctx.pool().clone())
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, job: &ExportJob) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, job: &ExportJob) -> Result<(), AppError> {
         sqlx::query(AssertSqlSafe(format!(
             "INSERT INTO export_jobs ({EXPORT_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )))
@@ -105,7 +105,7 @@ impl ExportStore {
         Ok(())
     }
 
-    pub(crate) async fn save(&self, tx: &mut MySqlTx, job: &ExportJob) -> Result<(), AppError> {
+    pub(crate) async fn save(&self, tx: &mut Tx, job: &ExportJob) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE export_jobs SET status = ?, file_id = ?, row_count = ?, failure_reason = ?, \
              updated_at = ?, finished_at = ? WHERE id = ?",
@@ -122,7 +122,7 @@ impl ExportStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, job: &ExportJob) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, job: &ExportJob) -> Result<(), AppError> {
         sqlx::query("DELETE FROM export_jobs WHERE id = ?")
             .bind(job.id.to_string())
             .execute(&mut **tx)

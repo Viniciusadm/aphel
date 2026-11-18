@@ -9,7 +9,7 @@ use crate::application::organization_admin::{
     RoleView,
 };
 use crate::application::organization_profile::NewRole;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::RoleId;
 use crate::domain::access::{Permission, PermissionGrant, RecordScope, RoleKey};
 use crate::errors::AppError;
@@ -123,7 +123,7 @@ fn role_missing() -> AppError {
 
 #[async_trait]
 impl RoleRepository for MySqlRoleRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self, window: ListWindow) -> Result<Listing<RoleView>, AppError> {
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM roles")
@@ -161,7 +161,7 @@ impl RoleRepository for MySqlRoleRepository {
         Ok(exists)
     }
 
-    async fn create(&self, tx: &mut MySqlTx, role: NewRole) -> Result<(), AppError> {
+    async fn create(&self, tx: &mut Tx, role: NewRole) -> Result<(), AppError> {
         sqlx::query("INSERT INTO roles (id, `key`, name, is_system) VALUES (?, ?, ?, ?)")
             .bind(role.id.as_str())
             .bind(role.key.as_str())
@@ -176,7 +176,7 @@ impl RoleRepository for MySqlRoleRepository {
 
     async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         role_id: &RoleId,
         changes: RoleChanges,
     ) -> Result<(), AppError> {
@@ -208,7 +208,7 @@ impl RoleRepository for MySqlRoleRepository {
         Ok(())
     }
 
-    async fn delete(&self, tx: &mut MySqlTx, role_id: &RoleId) -> Result<(), AppError> {
+    async fn delete(&self, tx: &mut Tx, role_id: &RoleId) -> Result<(), AppError> {
         let deleted = sqlx::query("DELETE FROM roles WHERE id = ? AND is_system = FALSE")
             .bind(role_id.as_str())
             .execute(&mut **tx)

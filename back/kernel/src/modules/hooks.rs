@@ -4,10 +4,10 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
+use crate::database::Db;
 use aphel_contract::HookKey;
-use sqlx::MySqlPool;
 
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
 use crate::modules::builder::Contribution;
@@ -57,8 +57,8 @@ pub trait Hook: 'static {
 }
 
 pub struct HookCtx<'a> {
-    pub tx: &'a mut MySqlTx,
-    pub pool: &'a MySqlPool,
+    pub tx: &'a mut Tx,
+    pub pool: &'a Db,
     pub scope: &'a AccessScope,
     pub services: &'a Services,
     pub module: &'a str,
@@ -66,8 +66,8 @@ pub struct HookCtx<'a> {
 
 impl<'a> HookCtx<'a> {
     pub fn new(
-        tx: &'a mut MySqlTx,
-        pool: &'a MySqlPool,
+        tx: &'a mut Tx,
+        pool: &'a Db,
         scope: &'a AccessScope,
         services: &'a Services,
         module: &'a str,
@@ -81,7 +81,7 @@ impl<'a> HookCtx<'a> {
         }
     }
 
-    pub fn tx(&mut self) -> &mut MySqlTx {
+    pub fn tx(&mut self) -> &mut Tx {
         self.tx
     }
 }

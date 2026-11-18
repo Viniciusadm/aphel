@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use chrono::Utc;
 use clap::{Args, Subcommand};
-use sqlx::MySqlPool;
 
 use crate::cli::CliResult;
 use crate::cli::doctor::connect_quietly;
@@ -12,6 +11,7 @@ use aphel_kernel::application::custom_objects::RecordTypeCatalog;
 use aphel_kernel::application::fields::RecordTypeRegistry;
 use aphel_kernel::application::organization_profile::{OrganizationConfigCatalog, PublicBaseUrl};
 use aphel_kernel::config::AppConfig;
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::mail::SmtpMailerProvider;
@@ -390,7 +390,7 @@ async fn doctor(config: &AppConfig, app: &App) -> CliResult {
     Ok(())
 }
 
-async fn platform_state(config: &AppConfig, pool: &MySqlPool) -> Result<AppState, AppError> {
+async fn platform_state(config: &AppConfig, pool: &Db) -> Result<AppState, AppError> {
     let secrets = build_secret_vault(pool, &config.encryption)?;
     let state = AppState::new(Some(pool.clone()))
         .with_secrets(secrets)

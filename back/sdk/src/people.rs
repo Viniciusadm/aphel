@@ -1,5 +1,6 @@
 pub use aphel_contract_people::*;
 use aphel_kernel::application::public_events::PublicResource;
+use aphel_kernel::database::Db;
 pub const RESOURCE: PublicResource = PublicResource::new(RECORD_TYPE, "ContactResponse")
     .with_nested(&[("company", crate::organizations::RECORD_TYPE)]);
 
@@ -12,14 +13,14 @@ pub struct PrimaryOrganization {
 pub trait PrimaryOrganizationReader: Send + Sync {
     async fn by_people(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         scope: &crate::access::AccessScope,
         ids: &[uuid::Uuid],
         include_deleted: bool,
     ) -> Result<Vec<PrimaryOrganization>, crate::AppError>;
     async fn people_page(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         scope: &crate::access::AccessScope,
         organizations: &[uuid::Uuid],
         after: Option<uuid::Uuid>,
@@ -41,7 +42,7 @@ pub trait PersonWriter: Send + Sync {
     async fn create_in_tx(
         &self,
         ctx: &crate::Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_kernel::database::transaction::Tx,
         creation: PersonCreation,
     ) -> Result<crate::records::PendingCommit, crate::AppError>;
 }

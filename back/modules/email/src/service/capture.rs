@@ -16,7 +16,7 @@ use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) async fn settings(ctx: &Ctx<'_>) -> Result<CaptureSettings, AppError> {
@@ -193,7 +193,7 @@ pub(crate) async fn remove_block(
 
 async fn record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     event_type: &'static str,
     record: Option<RecordRef>,
     payload: Value,

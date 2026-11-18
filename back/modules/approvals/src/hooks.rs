@@ -15,7 +15,7 @@ use aphel_kernel::modules::HookCtx;
 use aphel_kernel::records::ChangedRecord;
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 
@@ -28,7 +28,7 @@ impl ApprovalGate for EngineApprovalGate {
     async fn checkpoint(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         checkpoint: &ApprovalCheckpoint,
     ) -> Result<(), AppError> {
         engine::checkpoint(ctx, tx, checkpoint).await
@@ -37,7 +37,7 @@ impl ApprovalGate for EngineApprovalGate {
     async fn submit(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         submission: &ApprovalSubmission,
     ) -> Result<SubmissionOutcome, AppError> {
         engine::submit(ctx, tx, submission, None).await
@@ -46,7 +46,7 @@ impl ApprovalGate for EngineApprovalGate {
     async fn cancel_open(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         reason: &str,
     ) -> Result<u32, AppError> {

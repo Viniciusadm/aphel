@@ -23,7 +23,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 #[derive(Debug, Serialize)]
@@ -394,7 +394,7 @@ async fn require_type(ctx: &Ctx<'_>, id: &str) -> Result<ActivityTypeView, AppEr
 
 async fn record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     action: &'static str,
     view: Option<&ActivityTypeView>,
     changes: Vec<FieldChange>,

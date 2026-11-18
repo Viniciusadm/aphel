@@ -23,7 +23,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::fields::FieldType;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -224,7 +224,7 @@ impl PrivacyStore {
 
     async fn redact_table(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         table: &str,
         column: &str,
         records: &[RecordRef],
@@ -261,7 +261,7 @@ const MENTION_BATCH: i64 = 500;
 impl PrivacyStore {
     pub(crate) async fn redact_mentions(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         redaction: &Redaction,
     ) -> Result<u64, AppError> {
         let redaction = redaction.mentions_only();
@@ -413,7 +413,7 @@ impl PrivacyStore {
 
     pub(crate) async fn insert_request(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &PrivacyRequest,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -444,7 +444,7 @@ impl PrivacyStore {
 
     pub(crate) async fn save_request(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &PrivacyRequest,
         from: PrivacyRequestStatus,
     ) -> Result<bool, AppError> {
@@ -544,7 +544,7 @@ impl PrivacyStore {
 
     pub(crate) async fn update_columns(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         id: Uuid,
         assignments: &[ColumnAssignment],
@@ -554,7 +554,7 @@ impl PrivacyStore {
 
     pub(crate) async fn claim_item(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request_id: Uuid,
         record: &RecordRef,
     ) -> Result<bool, AppError> {
@@ -571,7 +571,7 @@ impl PrivacyStore {
 
     pub(crate) async fn count_record_attachments(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
     ) -> Result<u64, AppError> {
         let count: i64 = sqlx::query_scalar(
@@ -586,7 +586,7 @@ impl PrivacyStore {
 
     pub(crate) async fn delete_record_attachments(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
     ) -> Result<(u64, Vec<StoredFileRef>), AppError> {
         let file_ids: Vec<String> = sqlx::query_scalar(
@@ -632,7 +632,7 @@ impl PrivacyStore {
 
     pub(crate) async fn redact_history(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         records: &[RecordRef],
         redaction: &Redaction,
     ) -> Result<u64, AppError> {
@@ -650,7 +650,7 @@ impl PrivacyStore {
 
     pub(crate) async fn mark_deleted(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         id: Uuid,
         now: DateTime<Utc>,
@@ -660,7 +660,7 @@ impl PrivacyStore {
 
     pub(crate) async fn delete_file_rows(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         file_ids: &[Uuid],
     ) -> Result<(), AppError> {
         if file_ids.is_empty() {

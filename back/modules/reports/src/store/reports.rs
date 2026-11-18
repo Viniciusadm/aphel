@@ -11,7 +11,7 @@ use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::query::AggregateQuery;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -117,11 +117,7 @@ impl ReportStore {
         )
     }
 
-    pub(crate) async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        report: &SavedReport,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, report: &SavedReport) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO reports (id, record_type, name, description, owner_id, visibility, \
              team_id, visualization, definition, settings, created_at, updated_at) \
@@ -144,11 +140,7 @@ impl ReportStore {
         Ok(())
     }
 
-    pub(crate) async fn update(
-        &self,
-        tx: &mut MySqlTx,
-        report: &SavedReport,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, report: &SavedReport) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE reports SET record_type = ?, name = ?, description = ?, visibility = ?, team_id = ?, \
              visualization = ?, definition = ?, settings = ?, updated_at = ? \
@@ -169,7 +161,7 @@ impl ReportStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, report_id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, report_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM reports WHERE id = ?")
             .bind(report_id.to_string())
             .execute(&mut **tx)

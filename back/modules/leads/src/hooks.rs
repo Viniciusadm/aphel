@@ -13,7 +13,7 @@ use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_kernel::modules::{Hook, HookCtx, HookForwarding, PluginHookArgs};
 use aphel_kernel::records::{ChangedRecord, RemovedRecord};
 use aphel_sdk::platform::application::shared::{Actor, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 pub use aphel_sdk::leads::{
     Conversion, ConvertLeadCommand, Lead, LeadConversion, LeadConverter, LeadConverting,
@@ -217,7 +217,7 @@ impl LeadConverter for DealLeadConverter {
     async fn convert(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         lead: &Lead,
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError> {

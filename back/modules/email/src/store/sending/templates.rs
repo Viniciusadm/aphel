@@ -9,7 +9,7 @@ use crate::templates::{
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -62,7 +62,7 @@ impl TemplateStore {
 impl TemplateStore {
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         template: &NewEmailTemplate,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -106,7 +106,7 @@ impl TemplateStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         template: &EmailTemplateView,
         updated_by: &UserId,
         now: DateTime<Utc>,
@@ -128,7 +128,7 @@ impl TemplateStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM email_templates WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)

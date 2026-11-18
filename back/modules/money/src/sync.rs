@@ -15,7 +15,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 enum SyncedRate {
     Created,
@@ -187,7 +187,7 @@ pub(crate) async fn rebase(
 
 async fn rebase_rates(
     ports: &RatePorts,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: &Actor,
     previous: &str,
     base: &str,

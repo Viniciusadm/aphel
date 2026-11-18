@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::MySqlPool;
 
 use crate::application::user_preferences::UiPluginDefaults;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 
 pub async fn find_ui_plugin_default(pool: &MySqlPool) -> Result<Option<String>, AppError> {
@@ -16,7 +16,7 @@ pub async fn find_ui_plugin_default(pool: &MySqlPool) -> Result<Option<String>, 
 }
 
 pub async fn save_ui_plugin_default(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     key: Option<&str>,
 ) -> Result<Option<String>, AppError> {
     let current: Option<String> = sqlx::query_scalar(
@@ -46,7 +46,7 @@ pub async fn save_ui_plugin_default(
     Ok(previous)
 }
 
-pub async fn clear_ui_plugin(tx: &mut MySqlTx, key: &str) -> Result<(), AppError> {
+pub async fn clear_ui_plugin(tx: &mut Tx, key: &str) -> Result<(), AppError> {
     sqlx::query("UPDATE user_preferences SET ui_plugin = NULL WHERE ui_plugin = ?")
         .bind(key)
         .execute(&mut **tx)

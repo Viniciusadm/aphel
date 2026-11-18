@@ -112,7 +112,7 @@ impl SessionRepository for MySqlSessionRepository {
     }
 
     async fn revoke(&self, id: &SessionId, at: DateTime<Utc>) -> Result<(), AppError> {
-        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
+        let mut tx: crate::database::transaction::Tx = self.pool.begin().await?.into();
         sqlx::query("UPDATE sessions SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL")
             .bind(mapper::naive(at))
             .bind(id.as_str())
@@ -144,7 +144,7 @@ impl SessionRepository for MySqlSessionRepository {
         user_id: &UserId,
         at: DateTime<Utc>,
     ) -> Result<u64, AppError> {
-        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
+        let mut tx: crate::database::transaction::Tx = self.pool.begin().await?.into();
         let result = sqlx::query(
             "UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL",
         )

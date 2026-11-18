@@ -1,6 +1,6 @@
 use crate::{AppError, Ctx};
 pub use aphel_contract_approvals::*;
-use aphel_kernel::{application::shared::RecordRef, database::transaction::MySqlTx};
+use aphel_kernel::{application::shared::RecordRef, database::transaction::Tx};
 use async_trait::async_trait;
 use uuid::Uuid;
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -68,21 +68,21 @@ pub trait ApprovalGate: Send + Sync {
     async fn checkpoint(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         checkpoint: &ApprovalCheckpoint,
     ) -> Result<(), AppError>;
 
     async fn submit(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         submission: &ApprovalSubmission,
     ) -> Result<SubmissionOutcome, AppError>;
 
     async fn cancel_open(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         reason: &str,
     ) -> Result<u32, AppError>;

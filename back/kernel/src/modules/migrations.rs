@@ -1,6 +1,7 @@
+use crate::database::Db;
 use crate::modules::manifest::Migration;
 use sha2::{Digest, Sha256};
-use sqlx::{MySqlConnection, MySqlPool, Row};
+use sqlx::{MySqlConnection, Row};
 use tracing::info;
 
 use crate::errors::AppError;
@@ -17,7 +18,7 @@ pub fn checksum_of(sql: &str) -> String {
         .collect()
 }
 
-pub async fn run(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
+pub async fn run(pool: &Db, app: &App) -> Result<(), AppError> {
     for entry in app.modules().iter().filter(|entry| entry.is_compatible()) {
         run_module(pool, entry).await?;
     }
@@ -30,7 +31,7 @@ pub async fn run(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
     sync_required(pool, app).await
 }
 
-pub async fn applied(pool: &MySqlPool, key: &str) -> Result<Vec<(u32, String)>, AppError> {
+pub async fn applied(pool: &Db, key: &str) -> Result<Vec<(u32, String)>, AppError> {
     Ok(sqlx::query(
         "SELECT version, checksum FROM module_migrations WHERE module_key = ? ORDER BY version",
     )
@@ -42,7 +43,7 @@ pub async fn applied(pool: &MySqlPool, key: &str) -> Result<Vec<(u32, String)>, 
     .collect::<Result<_, sqlx::Error>>()?)
 }
 
-async fn run_module(pool: &MySqlPool, entry: &LoadedModule) -> Result<(), AppError> {
+async fn run_module(pool: &Db, entry: &LoadedModule) -> Result<(), AppError> {
     let key = entry.key();
     if entry.manifest.migrations.is_empty() {
         return Ok(());
@@ -88,7 +89,7 @@ async fn run_module(pool: &MySqlPool, entry: &LoadedModule) -> Result<(), AppErr
     Ok(())
 }
 
-pub async fn revert(pool: &MySqlPool, entry: &LoadedModule) -> Result<bool, AppError> {
+pub async fn revert(pool: &Db, entry: &LoadedModule) -> Result<bool, AppError> {
     let key = entry.key();
     let reverted = match entry.manifest.uninstall_sql {
         Some(sql) => {
@@ -105,7 +106,7 @@ pub async fn revert(pool: &MySqlPool, entry: &LoadedModule) -> Result<bool, AppE
     Ok(reverted)
 }
 
-async fn sync_required(pool: &MySqlPool, app: &App) -> Result<(), AppError> {
+async fn sync_required(pool: &Db, app: &App) -> Result<(), AppError> {
     for entry in app
         .modules()
         .iter()

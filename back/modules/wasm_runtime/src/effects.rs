@@ -1,17 +1,18 @@
 use aphel_contract_crm::CrmPermissions;
+use aphel_sdk::platform::database::Db;
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sqlx::{MySqlPool, Row, types::Json};
+use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
 use crate::runtime::CallState;
 use aphel_kernel::database::{
     receipt::{self, MutationReceipt},
-    transaction::MySqlTx,
+    transaction::Tx,
 };
 use aphel_kernel::errors::AppError;
 use aphel_kernel::records::RecordCtx;
@@ -199,7 +200,7 @@ pub async fn defer(
         state.effects.push(effect);
     } else {
         let pool = runtime_pool()?;
-        let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(pool.begin().await?);
         let canonical = persist(&mut tx, &pool, vec![effect]).await?;
         tx.commit().await?;
         return canonical
@@ -371,8 +372,8 @@ async fn validate(plugin: &LoadedPlugin, command: &Command) -> Result<(), AppErr
 }
 
 pub async fn persist(
-    tx: &mut MySqlTx,
-    pool: &MySqlPool,
+    tx: &mut Tx,
+    pool: &Db,
     pending: Vec<PendingEffect>,
 ) -> Result<Vec<String>, AppError> {
     let queue = MySqlJobQueue::new(pool.clone());
@@ -425,11 +426,11 @@ pub async fn persist(
 }
 
 pub struct Run {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl Run {
-    pub fn shared(pool: MySqlPool) -> Arc<dyn JobHandler> {
+    pub fn shared(pool: Db) -> Arc<dyn JobHandler> {
         Arc::new(Self { pool })
     }
 }
@@ -488,14 +489,14 @@ impl JobHandler for Run {
     }
 }
 
-async fn complete(pool: &MySqlPool, id: Uuid) -> Result<(), AppError> {
+async fn complete(pool: &Db, id: Uuid) -> Result<(), AppError> {
     sqlx::query("UPDATE plugins_effects SET status = 'completed', completed_at = UTC_TIMESTAMP(6), last_error = NULL WHERE id = ?")
         .bind(id.to_string()).execute(pool).await?;
     Ok(())
 }
 
 async fn execute(
-    pool: &MySqlPool,
+    pool: &Db,
     plugin: &LoadedPlugin,
     scope: &AccessScope,
     effect_id: Uuid,
@@ -692,7 +693,7 @@ fn empty_object() -> Value {
 }
 
 /// Result access is scoped to the calling plugin, never another plugin's effects.
-pub async fn result(pool: &MySqlPool, plugin: &str, id: &str) -> Result<Option<String>, AppError> {
+pub async fn result(pool: &Db, plugin: &str, id: &str) -> Result<Option<String>, AppError> {
     let value: Option<Option<Json<Value>>> =
         sqlx::query_scalar("SELECT result FROM plugins_effects WHERE id = ? AND plugin_key = ?")
             .bind(id)
@@ -715,7 +716,7 @@ fn http_result(response: Result<crate::runtime::wit::HttpResponse, AppError>) ->
 }
 
 async fn execute_http_with_result(
-    pool: &MySqlPool,
+    pool: &Db,
     plugin: &LoadedPlugin,
     scope: &AccessScope,
     effect_id: Uuid,

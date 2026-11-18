@@ -3,7 +3,7 @@ use crate::store::ProductStore;
 use aphel_contract_crm::CrmPermissions;
 use aphel_sdk::merges::{MergeOwner, PreparedMerge, use_duplicate};
 use aphel_sdk::platform::application::access::Authorizer;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::{AppError, Ctx};
 use chrono::{DateTime, Utc};
@@ -95,7 +95,7 @@ impl MergeOwner for Owner {
     async fn retire(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         duplicate: Uuid,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -113,7 +113,7 @@ impl PreparedMerge for Prepared {
     async fn apply(
         &mut self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         now: DateTime<Utc>,
         _ip: Option<String>,
     ) -> Result<Value, AppError> {
@@ -123,7 +123,7 @@ impl PreparedMerge for Prepared {
     async fn persist(
         &mut self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
         if self.merged != self.primary.data {

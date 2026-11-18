@@ -17,7 +17,7 @@ use aphel_sdk::platform::application::query::{
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -67,7 +67,7 @@ pub(crate) fn linked_records(conversation: &StoredConversation) -> Vec<RecordRef
 
 pub(crate) async fn publish_on_records(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     event_type: &str,
     conversation: &StoredConversation,
@@ -100,7 +100,7 @@ pub(crate) async fn publish_on_records(
 
 pub(crate) async fn audit_conversation(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     event_type: &str,
     conversation: &StoredConversation,

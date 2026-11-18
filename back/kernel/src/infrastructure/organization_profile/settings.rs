@@ -12,7 +12,7 @@ use crate::application::organization_profile::{
     OrganizationConfigRepository, OrganizationConfigSource, OrganizationConfigUseCases, ROOT_PATH,
     SecretChange, UpdateOrganizationConfig,
 };
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
@@ -141,7 +141,7 @@ pub fn spawn_config_refresh(
 }
 
 pub(crate) async fn write_configuration(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     config: &OrganizationConfig,
 ) -> Result<(), AppError> {
     let value = serde_json::to_value(config)
@@ -170,7 +170,7 @@ impl MySqlOrganizationConfigRepository {
 
 #[async_trait]
 impl OrganizationConfigRepository for MySqlOrganizationConfigRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn find(&self) -> Result<Option<OrganizationConfig>, AppError> {
         let row: Option<Option<Json<Value>>> = sqlx::query_scalar(
@@ -181,10 +181,7 @@ impl OrganizationConfigRepository for MySqlOrganizationConfigRepository {
         Ok(row.map(parse_config))
     }
 
-    async fn find_for_update(
-        &self,
-        tx: &mut MySqlTx,
-    ) -> Result<Option<OrganizationConfig>, AppError> {
+    async fn find_for_update(&self, tx: &mut Tx) -> Result<Option<OrganizationConfig>, AppError> {
         let row: Option<Option<Json<Value>>> = sqlx::query_scalar(
             "SELECT JSON_EXTRACT(settings, '$.configuration') FROM organization_settings \
              WHERE id = 1 FOR UPDATE",
@@ -194,7 +191,7 @@ impl OrganizationConfigRepository for MySqlOrganizationConfigRepository {
         Ok(row.map(parse_config))
     }
 
-    async fn save(&self, tx: &mut MySqlTx, config: &OrganizationConfig) -> Result<(), AppError> {
+    async fn save(&self, tx: &mut Tx, config: &OrganizationConfig) -> Result<(), AppError> {
         write_configuration(tx, config).await
     }
 }

@@ -8,6 +8,7 @@ pub mod ports;
 pub mod provider;
 pub mod settings;
 pub mod subject;
+use aphel_kernel::database::Db;
 use aphel_kernel::infrastructure::query::MySqlRecordQueryPorts;
 pub use period::*;
 pub use ports::*;
@@ -16,14 +17,14 @@ use std::sync::Arc;
 pub use subject::*;
 pub struct WidgetPorts {
     services: Arc<aphel_kernel::modules::Services>,
-    pool: sqlx::MySqlPool,
+    pool: Db,
     query: MySqlRecordQueryPorts,
     repository: Arc<dyn DashboardRepository>,
 }
 impl WidgetPorts {
     pub fn new(
         services: Arc<aphel_kernel::modules::Services>,
-        pool: sqlx::MySqlPool,
+        pool: Db,
         query: MySqlRecordQueryPorts,
         repository: Arc<dyn DashboardRepository>,
     ) -> Self {
@@ -39,7 +40,7 @@ impl DashboardPorts for WidgetPorts {
     fn services(&self) -> &aphel_kernel::modules::Services {
         &self.services
     }
-    fn pool(&self) -> &sqlx::MySqlPool {
+    fn pool(&self) -> &Db {
         &self.pool
     }
     type Query = MySqlRecordQueryPorts;

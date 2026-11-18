@@ -8,7 +8,7 @@ use crate::api::dto::custom_objects::{CustomRecordRequest, CustomRecordResponse}
 use crate::api::record_services::custom_record_use_cases;
 use crate::api::routes::v1::field_permissions::redacted;
 use crate::application::shared::RecordType;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::records::{
     PendingCommit, RecordCtx, RecordTypeHandler, optional_record, values_request,
@@ -74,7 +74,7 @@ impl RecordTypeHandler for CustomRecordHandler {
     async fn create_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         values: Value,
     ) -> Result<PendingCommit, AppError> {
         let key = self.object_key(ctx).await?;
@@ -89,7 +89,7 @@ impl RecordTypeHandler for CustomRecordHandler {
     async fn update_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         values: Value,
     ) -> Result<Option<PendingCommit>, AppError> {
@@ -105,7 +105,7 @@ impl RecordTypeHandler for CustomRecordHandler {
     async fn delete_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
     ) -> Result<(), AppError> {
         let key = self.object_key(ctx).await?;

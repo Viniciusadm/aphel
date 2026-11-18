@@ -9,7 +9,7 @@ use crate::{DueMailbox, MailboxChanges, MailboxSyncState, MailboxView, NewMailbo
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -76,7 +76,7 @@ impl MailboxStore {
 impl MailboxStore {
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         mailbox: &NewMailbox,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -103,7 +103,7 @@ impl MailboxStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         changes: &MailboxChanges,
         now: DateTime<Utc>,
@@ -156,7 +156,7 @@ impl MailboxStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM mailboxes WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)

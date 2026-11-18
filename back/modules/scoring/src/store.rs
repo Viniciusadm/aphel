@@ -15,7 +15,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::query::Filter;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 
@@ -188,7 +188,7 @@ impl ModelStore {
 
     pub(crate) async fn save_criteria(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         model: &ScoringModel,
     ) -> Result<(), AppError> {
         let mut builder = QueryBuilder::<MySql>::new("DELETE FROM scoring_criteria WHERE ");
@@ -272,11 +272,7 @@ impl ModelStore {
         Ok(self.with_criteria(vec![model_from_row(&row)?]).await?.pop())
     }
 
-    pub(crate) async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        model: &ScoringModel,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, model: &ScoringModel) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO scoring_models (id, `key`, record_type, name, description, \
              is_primary, is_active, warm_from, hot_from, created_by, updated_by, created_at, \
@@ -300,11 +296,7 @@ impl ModelStore {
         self.save_criteria(tx, model).await
     }
 
-    pub(crate) async fn update(
-        &self,
-        tx: &mut MySqlTx,
-        model: &ScoringModel,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, model: &ScoringModel) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE scoring_models SET name = ?, description = ?, is_primary = ?, is_active = ?, \
              warm_from = ?, hot_from = ?, updated_by = ?, updated_at = ? \
@@ -326,7 +318,7 @@ impl ModelStore {
 
     pub(crate) async fn clear_primary(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         keep: Uuid,
     ) -> Result<(), AppError> {
@@ -341,7 +333,7 @@ impl ModelStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM scoring_models WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -425,7 +417,7 @@ impl ScoreStore {
 
     pub(crate) async fn record_signal_in_tx(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         signal: BehaviorSignal,
         source_key: &str,
@@ -612,7 +604,7 @@ impl ScoreStore {
 
     pub(crate) async fn lock_scores(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         model_id: Uuid,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, RecordScore>, AppError> {
@@ -635,7 +627,7 @@ impl ScoreStore {
 
     pub(crate) async fn save_score(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         score: &RecordScore,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -658,7 +650,7 @@ impl ScoreStore {
 
     pub(crate) async fn delete_scores(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         model_id: Uuid,
         record_ids: &[Uuid],
     ) -> Result<(), AppError> {

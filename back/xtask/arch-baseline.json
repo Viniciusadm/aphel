@@ -10,6 +10,7 @@
   "kernel_sql_on_plugin_tables": 0,
   "layer_direction_violations": 0,
   "mutable_statics": 9,
+  "mysql_types_outside_data_layer": 139,
   "plugin_bridge_files": 0,
   "plugin_crates_depending_on_plugin_crates": 0,
   "plugin_hook_adapters": 0,

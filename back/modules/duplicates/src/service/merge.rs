@@ -25,7 +25,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
 const STAGE_FIELD: &str = "lifecycle_stage";
 
@@ -50,7 +50,7 @@ fn tracks_lifecycle(ctx: &Ctx<'_>, kind: &DuplicateType) -> bool {
 
 async fn lifecycle_stage(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     kind: &DuplicateType,
     id: Uuid,
 ) -> Result<Option<Option<String>>, AppError> {
@@ -252,7 +252,7 @@ struct Read<'a> {
 
 async fn lock_pair(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     kind: &DuplicateType,
     (primary_id, duplicate_id): (Uuid, Uuid),
     read: Read<'_>,
@@ -292,7 +292,7 @@ async fn load_custom(
 
 async fn apply_custom(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     kind: &DuplicateType,
     primary_id: Uuid,
     snapshot: &Value,
@@ -337,7 +337,7 @@ async fn apply_custom(
 
 async fn retire_duplicate(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     kind: &DuplicateType,
     (primary_id, duplicate_id): (Uuid, Uuid),
     now: DateTime<Utc>,
@@ -376,7 +376,7 @@ async fn retire_duplicate(
 
 async fn finish_merge(
     ctx: &Ctx<'_>,
-    mut tx: MySqlTx,
+    mut tx: Tx,
     merge: CompletedMerge,
 ) -> Result<MergeOutcome, AppError> {
     let scope = ctx.scope;
@@ -504,7 +504,7 @@ struct Published {
     ip: Option<String>,
 }
 
-async fn publish(ctx: &Ctx<'_>, tx: &mut MySqlTx, published: Published) -> Result<(), AppError> {
+async fn publish(ctx: &Ctx<'_>, tx: &mut Tx, published: Published) -> Result<(), AppError> {
     let Published {
         actor,
         event_type,

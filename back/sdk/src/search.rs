@@ -1,8 +1,8 @@
 use aphel_kernel::application::shared::{DomainEvent, RecordType};
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::access::Permission;
 use aphel_kernel::errors::AppError;
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -23,7 +23,7 @@ pub trait SearchContentSource: Send + Sync {
 
     async fn load(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         record_type: &RecordType,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError>;
@@ -32,7 +32,7 @@ pub trait SearchContentSource: Send + Sync {
 
     async fn affected(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         event: &DomainEvent,
     ) -> Result<Vec<SearchRefresh>, AppError>;
 }
@@ -48,7 +48,7 @@ pub trait SearchMaintenance: Send + Sync {
     fn reindex_job(&self) -> aphel_kernel::application::shared::Job;
     async fn rebuild(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &std::sync::Arc<aphel_kernel::application::fields::RecordTypeRegistry>,
     ) -> Result<SearchReindexSummary, AppError>;
 }

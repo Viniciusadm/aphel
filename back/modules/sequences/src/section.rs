@@ -18,7 +18,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanAction, PlanChange,
     PlanItem, parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const SEQUENCES_SECTION: &str = "sequences";
@@ -317,7 +317,7 @@ fn parse(content: &Value) -> Result<Vec<PackageSequence>, AppError> {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for SequencesSection {
+impl ConfigSection<Tx> for SequencesSection {
     fn key(&self) -> &'static str {
         SEQUENCES_SECTION
     }
@@ -433,7 +433,7 @@ impl ConfigSection<MySqlTx> for SequencesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

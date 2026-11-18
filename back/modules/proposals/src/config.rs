@@ -7,7 +7,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::state::runtime_pool;
 
@@ -87,7 +87,7 @@ fn changes(current: &TemplateValues, proposed: &TemplateValues) -> Vec<PlanChang
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for TemplatesSection {
+impl ConfigSection<Tx> for TemplatesSection {
     fn key(&self) -> &'static str {
         SECTION
     }
@@ -197,7 +197,7 @@ impl ConfigSection<MySqlTx> for TemplatesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

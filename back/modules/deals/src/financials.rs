@@ -1,7 +1,7 @@
 use crate::domain::DealStatus;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::deals::{DealFinancials, DealRevenue, LockedAmount, RevenueState};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{
     invalid_column, naive, optional_uuid, utc,
 };
@@ -15,7 +15,7 @@ pub(crate) struct Financials;
 impl DealFinancials for Financials {
     async fn lock_amount(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
     ) -> Result<Option<LockedAmount>, AppError> {
         let row = sqlx::query(
@@ -36,7 +36,7 @@ impl DealFinancials for Financials {
 
     async fn set_amount(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
         amount: Decimal,
         at: DateTime<Utc>,
@@ -56,7 +56,7 @@ impl DealFinancials for Financials {
 
     async fn lock_revenue(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
     ) -> Result<Option<RevenueState>, AppError> {
         let row = sqlx::query(
@@ -98,7 +98,7 @@ impl DealFinancials for Financials {
 
     async fn save_revenue(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
         revenue: &DealRevenue,
         at: DateTime<Utc>,
@@ -118,7 +118,7 @@ impl DealFinancials for Financials {
         .await?;
         Ok(())
     }
-    async fn open_ids(&self, tx: &mut MySqlTx, currency: &str) -> Result<Vec<Uuid>, AppError> {
+    async fn open_ids(&self, tx: &mut Tx, currency: &str) -> Result<Vec<Uuid>, AppError> {
         let ids: Vec<String> = sqlx::query_scalar("SELECT id FROM deals WHERE currency = ? AND status = 'open' AND deleted_at IS NULL FOR UPDATE")
             .bind(currency).fetch_all(&mut **tx).await?;
         ids.into_iter()

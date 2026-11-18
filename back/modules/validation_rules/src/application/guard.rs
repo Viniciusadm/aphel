@@ -4,19 +4,19 @@ use crate::application::{
 use aphel_kernel::errors::{AppError, FieldViolation};
 use aphel_sdk::formulas::{PredicateInput, ProspectiveRequest, prospective};
 use aphel_sdk::platform::application::fields::{RecordTypeRegistry, RecordWrite};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
-use sqlx::MySqlPool;
 use std::sync::Arc;
 
 pub struct ValidationRuleGuard<R, V> {
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
     rules: R,
     values: V,
 }
 impl<R, V> ValidationRuleGuard<R, V> {
-    pub fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>, rules: R, values: V) -> Self {
+    pub fn new(pool: Db, registry: Arc<RecordTypeRegistry>, rules: R, values: V) -> Self {
         Self {
             pool,
             registry,
@@ -28,11 +28,11 @@ impl<R, V> ValidationRuleGuard<R, V> {
 impl<R, V> ValidationRuleGuard<R, V>
 where
     R: ValidationRuleRepository,
-    V: ProposedFieldValues<Tx = MySqlTx>,
+    V: ProposedFieldValues<Tx = Tx>,
 {
     pub async fn check(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {

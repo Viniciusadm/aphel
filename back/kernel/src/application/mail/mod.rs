@@ -1,3 +1,4 @@
+use crate::database::Db;
 pub(crate) mod capture;
 pub(crate) mod locale;
 pub(crate) mod ports;
@@ -25,13 +26,13 @@ pub use resolver::*;
 pub trait MailRecipientPolicy: Send + Sync {
     async fn check(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         address: &str,
         purpose: &str,
     ) -> Result<(), crate::errors::AppError>;
 }
 pub async fn check_recipient(
-    pool: &sqlx::MySqlPool,
+    pool: &Db,
     address: &str,
     purpose: &str,
 ) -> Result<(), crate::errors::AppError> {

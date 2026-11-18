@@ -3,7 +3,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::{
     ConfigKeyClient, ConfigKeyRepository, ConfigReferenceKind, ConfigurationReferences, assign_keys,
 };
-use sqlx::MySqlPool;
+use aphel_sdk::platform::database::Db;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -43,7 +43,7 @@ impl ConfigurationReferences for References {
     }
     async fn keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         kind: ConfigReferenceKind,
     ) -> Result<HashMap<Uuid, String>, AppError> {
         let workflow = PipelineStore::new(pool.clone());

@@ -1,16 +1,17 @@
 use aphel_kernel::domain::{UserId, users::UserStatus};
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::tasks::{DueTaskReminder, TaskReminderSource};
 use chrono::{DateTime, Utc};
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 pub(crate) struct Reminders;
 #[async_trait::async_trait]
 impl TaskReminderSource for Reminders {
     async fn due(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         since: DateTime<Utc>,
         now: DateTime<Utc>,
         limit: u32,
@@ -51,7 +52,7 @@ impl TaskReminderSource for Reminders {
 
     async fn mark_sent(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         reminder: &DueTaskReminder,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {

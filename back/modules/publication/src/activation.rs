@@ -24,7 +24,7 @@ use aphel_sdk::approvals::{
 use aphel_sdk::platform::application::access::{AccessRepository, Authorizer, build_access_scope};
 use aphel_sdk::platform::application::auth::UserRepository;
 use aphel_sdk::platform::application::shared::{Actor, ExecutionContext};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::platform::infrastructure::repositories::mysql_users::MySqlUserRepository;
@@ -38,7 +38,7 @@ pub(crate) fn module_scope() -> AccessScope {
 
 async fn emit(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &PublicationRequest,
     event_type: &'static str,
     extra: Value,
@@ -338,10 +338,7 @@ async fn attempt(request_id: Uuid, inline: Option<AccessScope>) -> Result<Step, 
     Ok(Step::Done(RequestStatus::Completed))
 }
 
-async fn await_approval(
-    mut tx: MySqlTx,
-    mut request: PublicationRequest,
-) -> Result<Step, AppError> {
+async fn await_approval(mut tx: Tx, mut request: PublicationRequest) -> Result<Step, AppError> {
     request.status = RequestStatus::AwaitingApproval;
     store::save_request(&mut tx, &request).await?;
     tx.commit().await?;

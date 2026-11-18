@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
-use sqlx::{MySqlPool, Row, types::Json};
+use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::{
@@ -16,7 +16,8 @@ use aphel_kernel::records::ChangedRecord;
 use aphel_sdk::platform::application::shared::{
     Actor, ExecutionContext, Job, JobContext, JobHandler, JobQueue,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
 pub const RUN_JOB: &str = "plugin.committed";
@@ -83,11 +84,11 @@ pub async fn enqueue(ctx: &mut HookCtx<'_>, changed: &ChangedRecord) -> Result<(
 }
 
 pub struct Run {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl Run {
-    pub fn shared(pool: MySqlPool) -> Arc<dyn JobHandler> {
+    pub fn shared(pool: Db) -> Arc<dyn JobHandler> {
         Arc::new(Self { pool })
     }
 }
@@ -103,7 +104,7 @@ impl JobHandler for Run {
             .get("id")
             .and_then(Value::as_str)
             .ok_or_else(|| AppError::Validation("plugin.committed requires an id".to_owned()))?;
-        let mut tx = MySqlTx::from(self.pool.begin().await?);
+        let mut tx = Tx::from(self.pool.begin().await?);
         let row = sqlx::query("SELECT plugin_key, input, execution, status FROM plugins_executions WHERE id = ? FOR UPDATE").bind(id).fetch_one(&mut *tx).await?;
         if row.try_get::<String, _>("status")? == "completed" {
             return Ok(());

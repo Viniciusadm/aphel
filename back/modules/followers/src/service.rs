@@ -1,4 +1,5 @@
 use aphel_sdk::platform::application::fields::CustomFieldPorts;
+use aphel_sdk::platform::database::Db;
 
 use async_trait::async_trait;
 use uuid::Uuid;
@@ -144,11 +145,7 @@ pub(crate) struct FollowerSource;
 
 #[async_trait]
 impl RecordFollowerSource for FollowerSource {
-    async fn followers(
-        &self,
-        pool: &sqlx::MySqlPool,
-        record: &RecordRef,
-    ) -> Result<Vec<UserId>, AppError> {
+    async fn followers(&self, pool: &Db, record: &RecordRef) -> Result<Vec<UserId>, AppError> {
         if !aphel_sdk::platform::modules::app().is_enabled(KEY) {
             return Ok(Vec::new());
         }

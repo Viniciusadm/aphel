@@ -2,10 +2,10 @@ use sqlx::{MySql, QueryBuilder};
 use uuid::Uuid;
 
 use crate::application::files::declared_file_columns;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 
-async fn reference_columns(tx: &mut MySqlTx) -> Result<Vec<(String, String)>, AppError> {
+async fn reference_columns(tx: &mut Tx) -> Result<Vec<(String, String)>, AppError> {
     let declared = declared_file_columns(crate::modules::app());
     if declared.is_empty() {
         return Ok(Vec::new());
@@ -32,7 +32,7 @@ async fn reference_columns(tx: &mut MySqlTx) -> Result<Vec<(String, String)>, Ap
 }
 
 async fn is_referenced(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     columns: &[(String, String)],
     file_id: &str,
 ) -> Result<bool, AppError> {
@@ -51,7 +51,7 @@ async fn is_referenced(
 }
 
 pub async fn delete_unreferenced_files(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     candidates: &[Uuid],
 ) -> Result<Vec<String>, AppError> {
     if candidates.is_empty() {

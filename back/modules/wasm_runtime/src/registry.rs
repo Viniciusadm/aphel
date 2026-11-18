@@ -3,7 +3,6 @@ use std::sync::{Arc, OnceLock, RwLock};
 use std::time::{Duration, Instant};
 
 use serde_json::{Map, Value};
-use sqlx::MySqlPool;
 use tokio::sync::Mutex;
 
 use crate::manifest::PluginManifest;
@@ -11,6 +10,7 @@ use crate::widgets::PluginWidget;
 use crate::{notify, runtime, store};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications as intern;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::tenancy::TenantLocal;
 
 const CHECK_INTERVAL: Duration = Duration::from_secs(2);
@@ -203,7 +203,7 @@ pub async fn invalidate() {
     }
 }
 
-pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
+pub async fn current(pool: &Db) -> Result<Arc<Snapshot>, AppError> {
     load(pool).await.map_err(|error| {
         tracing::warn!(error = %error, "plugin catalog is unavailable");
         AppError::unavailable_code(
@@ -213,7 +213,7 @@ pub async fn current(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
     })
 }
 
-async fn load(pool: &MySqlPool) -> Result<Arc<Snapshot>, AppError> {
+async fn load(pool: &Db) -> Result<Arc<Snapshot>, AppError> {
     let state = REGISTRY.try_get()?;
     let available = cached();
     let mut cache = match state.cache.try_lock() {
@@ -401,7 +401,7 @@ fn publish_extensions(snapshot: &Snapshot) {
     app.replace_runtime(crate::KEY, batch);
 }
 
-pub fn spawn_refresh(pool: MySqlPool) {
+pub fn spawn_refresh(pool: Db) {
     if tokio::runtime::Handle::try_current().is_err() {
         return;
     }
@@ -429,7 +429,7 @@ impl aphel_sdk::platform::application::public_events::RuntimePublicEventSource f
         event_type.starts_with("plugin.")
     }
 
-    async fn refresh(&self, pool: &MySqlPool) -> Result<(), AppError> {
+    async fn refresh(&self, pool: &Db) -> Result<(), AppError> {
         current(pool).await?;
         Ok(())
     }
@@ -437,7 +437,7 @@ impl aphel_sdk::platform::application::public_events::RuntimePublicEventSource f
 
 #[async_trait::async_trait]
 impl aphel_sdk::platform::modules::runtime_catalog::RuntimeCatalogSource for PublicEvents {
-    async fn ensure_ready(&self, pool: &MySqlPool) -> Result<(), AppError> {
+    async fn ensure_ready(&self, pool: &Db) -> Result<(), AppError> {
         current(pool).await?;
         Ok(())
     }
@@ -455,7 +455,7 @@ impl aphel_sdk::platform::infrastructure::deferred_authority::DeferredPluginPoli
 {
     async fn reauthorize(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         key: &str,
         scope: aphel_sdk::platform::domain::access::AccessScope,
     ) -> Result<aphel_sdk::platform::domain::access::AccessScope, AppError> {

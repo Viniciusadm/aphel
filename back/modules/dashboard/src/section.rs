@@ -1,5 +1,5 @@
 use aphel_sdk::dashboard::{DashboardReferenceCatalog, WidgetReferenceSetting};
-use sqlx::MySqlPool;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
@@ -19,7 +19,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const DASHBOARD_SECTION: &str = "dashboard";
@@ -45,14 +45,14 @@ pub(crate) struct PackageWidget {
 pub(crate) struct DashboardSection {
     widgets: HashMap<String, Vec<WidgetReferenceSetting>>,
     layouts: LayoutStore,
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl DashboardSection {
     pub(crate) fn new(
         widgets: HashMap<String, Vec<WidgetReferenceSetting>>,
         layouts: LayoutStore,
-        pool: MySqlPool,
+        pool: Db,
     ) -> Self {
         Self {
             widgets,
@@ -248,7 +248,7 @@ fn parse(content: &Value) -> Result<PackageDashboard, AppError> {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for DashboardSection {
+impl ConfigSection<Tx> for DashboardSection {
     fn key(&self) -> &'static str {
         DASHBOARD_SECTION
     }
@@ -359,7 +359,7 @@ impl ConfigSection<MySqlTx> for DashboardSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

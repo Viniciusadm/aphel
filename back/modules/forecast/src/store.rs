@@ -5,7 +5,7 @@ use sqlx::{MySqlPool, Row};
 use crate::domain::{ForecastMethod, ForecastSettings};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -59,7 +59,7 @@ impl ForecastStore {
 
     pub(crate) async fn save_settings(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         settings: &ForecastSettings,
         at: DateTime<Utc>,

@@ -24,7 +24,7 @@ use aphel_kernel::modules::{
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_sdk::platform::application::public_events::{PublicEventDefinition, event};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
@@ -256,7 +256,7 @@ impl Module for EsignModule {
         }))
     }
 
-    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
+    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, tx: &mut Tx) -> Result<(), AppError> {
         store::purge(tx).await
     }
 }

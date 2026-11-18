@@ -3,9 +3,9 @@ use crate::infrastructure::MySqlFormulaPorts;
 use aphel_sdk::access::AccessScope;
 use aphel_sdk::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::RecordType;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldValue};
 use aphel_sdk::{AppError, formulas::FormulaPredicates};
-use sqlx::MySqlPool;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -22,7 +22,7 @@ fn expression(field: &FieldDefinition) -> Result<&str, AppError> {
 impl FormulaPredicates for Predicates {
     async fn violations(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
         scope: &AccessScope,
         field: FieldDefinition,
@@ -43,7 +43,7 @@ impl FormulaPredicates for Predicates {
     }
     async fn matches(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
         scope: &AccessScope,
         field: FieldDefinition,

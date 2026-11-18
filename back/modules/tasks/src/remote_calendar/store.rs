@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use super::model::{CalendarConnectionStatus, STATUS_ACTIVE, STATUS_REVOKED};
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::sso::errors::internal;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,7 +121,7 @@ pub(crate) async fn list_connections(
 }
 
 pub(crate) async fn upsert_connection(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     key: &str,
     user_id: Uuid,
     account_email: Option<&str>,
@@ -142,7 +142,7 @@ pub(crate) async fn upsert_connection(
 }
 
 pub(crate) async fn delete_connection(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     key: &str,
     user_id: Uuid,
 ) -> Result<bool, AppError> {

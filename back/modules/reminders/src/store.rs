@@ -12,7 +12,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -146,7 +146,7 @@ impl ReminderStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         id: Uuid,
         data: &ReminderData,
@@ -180,7 +180,7 @@ impl ReminderStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         id: Uuid,
         data: &ReminderData,
@@ -207,7 +207,7 @@ impl ReminderStore {
 
     pub(crate) async fn delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         id: Uuid,
     ) -> Result<bool, AppError> {

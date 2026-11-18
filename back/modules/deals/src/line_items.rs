@@ -3,7 +3,7 @@ use aphel_contract_crm::CrmRecordTypes;
 use aphel_kernel::{
     Ctx,
     application::shared::{FieldChange, RecordRef, RecordType},
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     errors::AppError,
     records::{RecordMutation, changes_payload, publish_mutation},
 };
@@ -22,7 +22,7 @@ impl LineItemProjection for Projection {
     async fn apply(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         totals: &TotalsChanged,
     ) -> Result<(), AppError> {
         let owner = ctx.services().require::<dyn DealFinancials>()?;

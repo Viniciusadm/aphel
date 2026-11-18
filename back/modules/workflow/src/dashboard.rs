@@ -1,8 +1,8 @@
 use aphel_sdk::dashboard::DashboardReferenceCatalog;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::{AppError, ReferenceKind};
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use std::collections::{BTreeMap, HashMap};
 use uuid::Uuid;
 
@@ -21,7 +21,7 @@ impl DashboardReferenceCatalog for WorkflowDashboardReferences {
             .map(|pipeline| pipeline.key)
             .collect()
     }
-    async fn keys(&self, pool: &MySqlPool) -> Result<HashMap<Uuid, String>, AppError> {
+    async fn keys(&self, pool: &Db) -> Result<HashMap<Uuid, String>, AppError> {
         Ok(crate::section::keyed_pipelines(
             &crate::store::PipelineStore::new(pool.clone()),
             &aphel_sdk::configuration::ConfigKeyClient::new(pool.clone()),

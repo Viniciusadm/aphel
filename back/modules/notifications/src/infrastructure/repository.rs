@@ -15,7 +15,7 @@ use crate::domain::{NotificationCursor, NotificationKind};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -69,13 +69,9 @@ const INBOX_FILTER: &str = "n.user_id = ? AND n.in_app = TRUE AND (? = FALSE OR 
 
 #[async_trait]
 impl NotificationRepository for MySqlNotificationRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
-    async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        notification: &NewNotification,
-    ) -> Result<bool, AppError> {
+    async fn insert(&self, tx: &mut Tx, notification: &NewNotification) -> Result<bool, AppError> {
         let result = sqlx::query(
             "INSERT INTO notifications (id, user_id, kind, title, body, record_type, record_id, \
              actor_id, link, data, dedupe_key, in_app, created_at) \

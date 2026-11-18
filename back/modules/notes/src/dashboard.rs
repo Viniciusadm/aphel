@@ -2,11 +2,12 @@ use aphel_contract_crm::CrmPermissions;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::dashboard::DashboardEventScope;
 use aphel_sdk::platform::application::query::QueryPlan;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::infrastructure::query::compiler::push_reference_subquery;
 use aphel_sdk::shared::{RecordRef, RecordType};
 use async_trait::async_trait;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -19,7 +20,7 @@ impl DashboardEventScope for NoteDashboardEvents {
     }
     async fn restrict(
         &self,
-        _pool: &MySqlPool,
+        _pool: &Db,
         scope: &AccessScope,
         records: &[QueryPlan],
         builder: &mut QueryBuilder<MySql>,
@@ -36,11 +37,7 @@ impl DashboardEventScope for NoteDashboardEvents {
         builder.push(")))");
         Ok(())
     }
-    async fn targets(
-        &self,
-        pool: &MySqlPool,
-        ids: &[Uuid],
-    ) -> Result<HashMap<Uuid, RecordRef>, AppError> {
+    async fn targets(&self, pool: &Db, ids: &[Uuid]) -> Result<HashMap<Uuid, RecordRef>, AppError> {
         let mut targets = HashMap::new();
         if ids.is_empty() {
             return Ok(targets);

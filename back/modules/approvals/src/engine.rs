@@ -17,7 +17,7 @@ use aphel_sdk::platform::application::fields::{EntityDefinition, RecordWrite, Wr
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 pub(crate) struct RequestEvent<'a> {
@@ -187,7 +187,7 @@ fn definition<'r>(ctx: &'r Ctx<'_>, record: &RecordRef) -> Result<&'r EntityDefi
 
 pub(crate) async fn applicable(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     checkpoint: &ApprovalCheckpoint,
 ) -> Result<Vec<ApprovalPolicy>, AppError> {
     let scope = ctx.scope;
@@ -226,7 +226,7 @@ pub(crate) async fn applicable(
 
 pub(crate) async fn checkpoint(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     checkpoint: &ApprovalCheckpoint,
 ) -> Result<(), AppError> {
     let policies = applicable(ctx, tx, checkpoint).await?;
@@ -273,7 +273,7 @@ pub(crate) async fn checkpoint(
 
 pub(crate) async fn submit(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     submission: &ApprovalSubmission,
     only_policy: Option<&str>,
 ) -> Result<SubmissionOutcome, AppError> {
@@ -388,7 +388,7 @@ pub(crate) async fn submit(
 
 pub(crate) async fn owner_of(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
 ) -> Result<Option<UserId>, AppError> {
     let scope = ctx.scope;
@@ -403,7 +403,7 @@ pub(crate) async fn owner_of(
 
 pub(crate) async fn step_approvers(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &ApprovalRequest,
     step: u32,
     owner: Option<&UserId>,
@@ -449,7 +449,7 @@ pub(crate) fn no_approver_error(request: &ApprovalRequest, step: u32) -> AppErro
 
 pub(crate) async fn ensure_approvers(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &ApprovalRequest,
     owner: Option<&UserId>,
 ) -> Result<(), AppError> {
@@ -466,7 +466,7 @@ pub(crate) async fn ensure_approvers(
 
 pub(crate) async fn start_step(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &ApprovalRequest,
     step: u32,
     owner: Option<&UserId>,
@@ -486,7 +486,7 @@ pub(crate) async fn start_step(
 
 pub(crate) async fn cancel_open(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     reason: &str,
 ) -> Result<u32, AppError> {
@@ -516,7 +516,7 @@ pub(crate) async fn cancel_open(
 
 pub(crate) async fn cancel(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     mut request: ApprovalRequest,
     reason: Option<String>,
     ip: Option<String>,
@@ -546,7 +546,7 @@ pub(crate) async fn cancel(
 
 pub(crate) async fn guard(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     write: &RecordWrite<'_>,
 ) -> Result<(), AppError> {
     if write.mode != WriteMode::Update || write.changes.is_empty() {
@@ -582,7 +582,7 @@ pub(crate) async fn guard(
 
 pub(crate) async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     event: RequestEvent<'_>,
 ) -> Result<(), AppError> {
     let scope = ctx.scope;

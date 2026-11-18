@@ -10,7 +10,8 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const CURRENCIES_SECTION: &str = "currencies";
@@ -21,7 +22,7 @@ pub(crate) struct CurrenciesSection {
 }
 
 impl CurrenciesSection {
-    pub(crate) fn new(pool: sqlx::MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             currencies: CurrencyStore::new(pool),
         }
@@ -52,7 +53,7 @@ impl CurrenciesSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for CurrenciesSection {
+impl ConfigSection<Tx> for CurrenciesSection {
     fn key(&self) -> &'static str {
         CURRENCIES_SECTION
     }
@@ -134,7 +135,7 @@ impl ConfigSection<MySqlTx> for CurrenciesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

@@ -21,7 +21,7 @@ use aphel_sdk::platform::application::query::{
     Filter, FilterOperator, ID_FIELD, RecordQuery, RecordQueryEngine, in_saved_filter,
 };
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::access::{PermissionSet, RoleKey};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
@@ -400,7 +400,7 @@ impl PriceListStore {
             .collect())
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, list: &PriceList) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, list: &PriceList) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO price_lists (id, `key`, name, description, currency, \
              applies_to, segment_id, valid_from, valid_to, is_active, is_default, created_by, \
@@ -425,7 +425,7 @@ impl PriceListStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, list: &PriceList) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, list: &PriceList) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE price_lists SET `key` = ?, name = ?, description = ?, currency = ?, \
              applies_to = ?, segment_id = ?, valid_from = ?, valid_to = ?, is_active = ?, \
@@ -450,7 +450,7 @@ impl PriceListStore {
 
     pub(crate) async fn clear_default(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         currency: &str,
         except: Uuid,
     ) -> Result<(), AppError> {
@@ -467,7 +467,7 @@ impl PriceListStore {
 
     pub(crate) async fn set_companies(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         price_list_id: Uuid,
         company_ids: &[Uuid],
     ) -> Result<(), AppError> {
@@ -491,7 +491,7 @@ impl PriceListStore {
 
     pub(crate) async fn replace_items(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         price_list_id: Uuid,
         items: &[NewPriceListItem],
     ) -> Result<(), AppError> {
@@ -520,7 +520,7 @@ impl PriceListStore {
 
     pub(crate) async fn touch(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         price_list_id: Uuid,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -532,11 +532,7 @@ impl PriceListStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(
-        &self,
-        tx: &mut MySqlTx,
-        price_list_id: Uuid,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, price_list_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM price_lists WHERE id = ?")
             .bind(price_list_id.to_string())
             .execute(&mut **tx)
@@ -597,7 +593,7 @@ impl DiscountLimitStore {
 
     pub(crate) async fn set(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         role_id: Uuid,
         max_discount_percent: Option<Decimal>,
         by: Option<&UserId>,
@@ -800,7 +796,7 @@ impl BundleStore {
 
     pub(crate) async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         bundle: &ProductBundle,
         by: Option<&UserId>,
     ) -> Result<(), AppError> {
@@ -838,7 +834,7 @@ impl BundleStore {
         Ok(())
     }
 
-    pub(crate) async fn remove(&self, tx: &mut MySqlTx, product_id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn remove(&self, tx: &mut Tx, product_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM product_bundles WHERE product_id = ?")
             .bind(product_id.to_string())
             .execute(&mut **tx)

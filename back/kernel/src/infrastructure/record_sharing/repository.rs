@@ -10,7 +10,7 @@ use crate::application::record_sharing::{
     ShareGrantee, ShareGranteeType,
 };
 use crate::application::shared::RecordRef;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::domain::users::UserStatus;
 use crate::errors::AppError;
@@ -73,7 +73,7 @@ fn share_from_row(row: &MySqlRow) -> Result<RecordShare, AppError> {
 
 #[async_trait]
 impl RecordShareRepository for MySqlRecordShareRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self, record: &RecordRef) -> Result<Vec<RecordShare>, AppError> {
         let rows = sqlx::query(SHARE_SELECT)
@@ -86,7 +86,7 @@ impl RecordShareRepository for MySqlRecordShareRepository {
 
     async fn lock_list(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
     ) -> Result<Vec<RecordShare>, AppError> {
         let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
@@ -122,7 +122,7 @@ impl RecordShareRepository for MySqlRecordShareRepository {
         Ok(name)
     }
 
-    async fn insert(&self, tx: &mut MySqlTx, share: &NewRecordShare) -> Result<(), AppError> {
+    async fn insert(&self, tx: &mut Tx, share: &NewRecordShare) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO record_shares (id, record_type, record_id, grantee_type, \
              grantee_id, access, shared_by, created_at, updated_at) \
@@ -153,7 +153,7 @@ impl RecordShareRepository for MySqlRecordShareRepository {
 
     async fn update_access(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         share_id: Uuid,
         access: ShareAccess,
         at: DateTime<Utc>,
@@ -167,7 +167,7 @@ impl RecordShareRepository for MySqlRecordShareRepository {
         Ok(())
     }
 
-    async fn delete(&self, tx: &mut MySqlTx, share_id: Uuid) -> Result<(), AppError> {
+    async fn delete(&self, tx: &mut Tx, share_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM record_shares WHERE id = ?")
             .bind(share_id.to_string())
             .execute(&mut **tx)

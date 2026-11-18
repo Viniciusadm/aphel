@@ -11,7 +11,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::{
@@ -94,7 +94,7 @@ impl HierarchyStore {
 
     pub(crate) async fn subtree_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<Vec<HierarchyEntry>, AppError> {
         let rows = subtree_query(company_id)
@@ -106,7 +106,7 @@ impl HierarchyStore {
 
     pub(crate) async fn children(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<Vec<Uuid>, AppError> {
         let rows = sqlx::query(
@@ -120,7 +120,7 @@ impl HierarchyStore {
     }
 
     async fn locked_parent(
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<Option<Option<Uuid>>, AppError> {
         let row = sqlx::query(
@@ -135,7 +135,7 @@ impl HierarchyStore {
 
     pub(crate) async fn parent_of(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<Option<Option<Uuid>>, AppError> {
         Self::locked_parent(tx, company_id).await
@@ -143,7 +143,7 @@ impl HierarchyStore {
 
     pub(crate) async fn lock_company(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<bool, AppError> {
         Ok(Self::locked_parent(tx, company_id).await?.is_some())
@@ -151,7 +151,7 @@ impl HierarchyStore {
 
     pub(crate) async fn locked_lineage(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<Vec<Uuid>, AppError> {
         let mut lineage = Vec::new();
@@ -171,7 +171,7 @@ impl HierarchyStore {
 
     pub(crate) async fn locked_height(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_id: Uuid,
     ) -> Result<usize, AppError> {
         let mut seen = std::collections::HashSet::from([company_id]);
@@ -199,7 +199,7 @@ impl HierarchyStore {
 
     pub(crate) async fn mark_detached(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_ids: &[Uuid],
         detached_from: Uuid,
     ) -> Result<(), AppError> {
@@ -217,7 +217,7 @@ impl HierarchyStore {
 
     pub(crate) async fn detached_children(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         detached_from: Uuid,
         current_parent: Option<Uuid>,
     ) -> Result<Vec<Uuid>, AppError> {
@@ -242,7 +242,7 @@ impl HierarchyStore {
 
     pub(crate) async fn clear_detached(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         detached_from: Uuid,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -256,7 +256,7 @@ impl HierarchyStore {
 
     pub(crate) async fn set_parent(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         company_ids: &[Uuid],
         parent_id: Option<Uuid>,
         updated_at: DateTime<Utc>,

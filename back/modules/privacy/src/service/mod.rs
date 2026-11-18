@@ -22,7 +22,7 @@ use aphel_sdk::platform::application::fields::{
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, FileStorage, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
 use aphel_sdk::privacy::{
     DataSubjectAction, DataSubjectRequest, DataSubjectSource, affected_items,
@@ -132,7 +132,7 @@ pub(crate) async fn personal_fields(
 
 pub(crate) async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     mutation: Mutation,
 ) -> Result<(), AppError> {
     let Mutation {
@@ -165,7 +165,7 @@ pub(crate) async fn publish(
 
 pub(crate) async fn audit_only(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     action: &'static str,
     record: RecordRef,
     changes: Vec<FieldChange>,

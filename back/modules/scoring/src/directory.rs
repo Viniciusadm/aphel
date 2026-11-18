@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
@@ -16,6 +16,7 @@ use aphel_sdk::platform::application::query::{
     resolve_query_related, validate_view_query_related,
 };
 use aphel_sdk::platform::application::security::Clock;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::query::compiler::{
     Projection, build_query, push_record_scope, quoted,
@@ -27,12 +28,12 @@ const PAGE_SIZE: u64 = 1000;
 
 #[derive(Clone)]
 pub(crate) struct ScoringDirectory {
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
 }
 
 impl ScoringDirectory {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+    pub(crate) fn new(pool: Db, registry: Arc<RecordTypeRegistry>) -> Self {
         Self { pool, registry }
     }
 

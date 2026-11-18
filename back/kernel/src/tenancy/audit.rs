@@ -1,5 +1,5 @@
+use crate::database::Db;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -22,7 +22,7 @@ impl OperatorActor {
 }
 
 pub async fn record_operator_action(
-    pool: &MySqlPool,
+    pool: &Db,
     actor: &OperatorActor,
     action: &str,
     tenant_id: Option<Uuid>,

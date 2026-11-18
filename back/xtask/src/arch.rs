@@ -426,10 +426,19 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
     }
     let mut sql_outside = Vec::new();
     let mut sql_in_http = Vec::new();
+    let mut mysql_types = Vec::new();
     for file in &data_sources {
         let path = relative(back, file);
         let text = fs::read_to_string(file)?;
-        let calls = sql_calls(without_tests(&text));
+        let text = without_tests(&text);
+        if !is_data_layer(&path) {
+            let names = tokenize(text)
+                .into_iter()
+                .filter(|token| MYSQL_TYPE_NAMES.contains(&token.as_str()))
+                .count();
+            mysql_types.extend((0..names).map(|_| path.clone()));
+        }
+        let calls = sql_calls(text);
         if calls == 0 {
             continue;
         }
@@ -451,6 +460,11 @@ fn backend_metrics(back: &Path) -> Result<Vec<Metric>, Failure> {
             "sql_in_http_handlers",
             "SQL calls in HTTP handlers (http.rs, http/, kernel/src/api/); one finding per call",
             sql_in_http,
+        ),
+        Metric::new(
+            "mysql_types_outside_data_layer",
+            "sqlx MySQL type names (MySql, MySqlPool, MySqlConnection, MySqlRow) outside the data layer; the rest of the code uses Db and Tx; one finding per mention",
+            mysql_types,
         ),
         Metric::new(
             "plugin_crates_depending_on_plugin_crates",
@@ -926,6 +940,7 @@ const SQL_CALL_MARKERS: [&str; 4] = [
     "QueryBuilder::new(",
     "QueryBuilder::<",
 ];
+const MYSQL_TYPE_NAMES: [&str; 4] = ["MySql", "MySqlPool", "MySqlConnection", "MySqlRow"];
 const DATA_LAYER_DIRS: [&str; 5] = [
     "store",
     "infrastructure",

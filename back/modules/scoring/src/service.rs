@@ -26,7 +26,7 @@ use aphel_sdk::platform::application::query::Filter;
 use aphel_sdk::platform::application::shared::{
     FieldChange, Job, JobQueue, RecordRef, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 const INVALID_SCORING_MODEL: &str = "invalid scoring model";
@@ -705,7 +705,7 @@ async fn validated(
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     model: &ScoringModel,
     event_type: &'static str,
     changes: Vec<FieldChange>,

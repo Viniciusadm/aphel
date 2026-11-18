@@ -2,7 +2,7 @@ pub(crate) mod whatsapp;
 use crate::{KEY, store::StoredChannel};
 use aphel_kernel::{
     Ctx,
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     domain::{Secret, access::AccessScope},
     errors::AppError,
     modules::module_secret_key,
@@ -53,7 +53,7 @@ pub(crate) async fn configured_secrets(
 
 pub(crate) async fn store_credential(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     channel_id: uuid::Uuid,
     name: &str,
     value: &str,
@@ -70,7 +70,7 @@ pub(crate) async fn store_credential(
 
 pub(crate) async fn remove_credential(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     channel_id: uuid::Uuid,
     name: &str,
 ) -> Result<(), AppError> {
@@ -85,7 +85,7 @@ pub(crate) async fn remove_credential(
 
 pub(crate) async fn remove_credentials(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     channel: &StoredChannel,
 ) -> Result<(), AppError> {
     for name in compiled_channel_provider(channel.kind.as_str())

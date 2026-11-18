@@ -7,7 +7,7 @@ use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
 use crate::application::organization_admin::{
     ListWindow, Listing, TeamDraft, TeamMemberView, TeamRepository, TeamView,
 };
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::{TeamId, UserId};
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
@@ -116,7 +116,7 @@ async fn insert_members(
 
 #[async_trait]
 impl TeamRepository for MySqlTeamRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self, window: ListWindow) -> Result<Listing<TeamView>, AppError> {
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM teams")
@@ -184,7 +184,7 @@ impl TeamRepository for MySqlTeamRepository {
 
     async fn create(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         team_id: &TeamId,
         draft: TeamDraft,
     ) -> Result<(), AppError> {
@@ -201,7 +201,7 @@ impl TeamRepository for MySqlTeamRepository {
 
     async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         team_id: &TeamId,
         draft: TeamDraft,
     ) -> Result<(), AppError> {
@@ -230,7 +230,7 @@ impl TeamRepository for MySqlTeamRepository {
         Ok(())
     }
 
-    async fn delete(&self, tx: &mut MySqlTx, team_id: &TeamId) -> Result<(), AppError> {
+    async fn delete(&self, tx: &mut Tx, team_id: &TeamId) -> Result<(), AppError> {
         let deleted = sqlx::query("DELETE FROM teams WHERE id = ?")
             .bind(team_id.as_str())
             .execute(&mut **tx)

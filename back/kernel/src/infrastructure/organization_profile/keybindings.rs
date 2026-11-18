@@ -4,7 +4,7 @@ use sqlx::types::Json;
 
 use crate::application::keybindings::{Keybindings, keybindings_from_json, keybindings_to_json};
 use crate::application::user_preferences::KeybindingDefaults;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 
 fn decode(value: Option<Option<Json<serde_json::Value>>>) -> Keybindings {
@@ -24,7 +24,7 @@ pub async fn find_organization_keybindings(pool: &MySqlPool) -> Result<Keybindin
 }
 
 pub async fn save_organization_keybindings(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     keybindings: &Keybindings,
 ) -> Result<Keybindings, AppError> {
     let current: Option<Option<Json<serde_json::Value>>> = sqlx::query_scalar(

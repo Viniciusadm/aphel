@@ -37,7 +37,7 @@ use aphel_sdk::platform::api::routes::v1::field_permissions::{
 };
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::workflow::RottingState;
 use aphel_sdk::workflow::{PipelineStageResponse, PipelineSummaryResponse, StageKindSchema};
 
@@ -1061,7 +1061,7 @@ impl RecordTypeHandler for DealHandler {
     async fn create_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         values: Value,
     ) -> Result<PendingCommit, AppError> {
         let command = values_request::<DealRequest>(deal_body(values))?.into_input(None, None);
@@ -1099,7 +1099,7 @@ impl RecordTypeHandler for DealHandler {
     async fn update_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         values: Value,
     ) -> Result<Option<PendingCommit>, AppError> {

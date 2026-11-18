@@ -9,7 +9,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::domain::users::UserStatus;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
@@ -57,7 +57,7 @@ impl NoteStore {
 impl NoteStore {
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         id: Uuid,
         record: &RecordRef,
@@ -84,7 +84,7 @@ impl NoteStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         data: &NoteData,
         updated_at: DateTime<Utc>,
@@ -105,7 +105,7 @@ impl NoteStore {
 
     pub(crate) async fn soft_delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -135,7 +135,7 @@ impl NoteStore {
         row.as_ref().map(note_from_row).transpose()
     }
 
-    pub(crate) async fn restore(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn restore(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query(
             "UPDATE notes SET deleted_at = NULL, updated_at = updated_at \
              WHERE id = ? AND deleted_at IS NOT NULL",

@@ -1,4 +1,5 @@
 pub use aphel_contract_timeline::*;
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::{
     Ctx,
@@ -8,7 +9,7 @@ use aphel_kernel::{
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
-use sqlx::{MySql, MySqlPool, QueryBuilder};
+use sqlx::{MySql, QueryBuilder};
 use std::collections::BTreeSet;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedRecord {
@@ -103,7 +104,7 @@ pub trait TimelineEventExtension: Send + Sync {
     );
     async fn enrich(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         entries: &mut [TimelineEntry],
     ) -> Result<(), AppError>;

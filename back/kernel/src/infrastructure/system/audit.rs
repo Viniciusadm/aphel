@@ -3,7 +3,7 @@ use sqlx::types::Json;
 
 use crate::application::system::model::SystemAuditEntry;
 use crate::application::system::ports::SystemAuditLog;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
 
@@ -11,8 +11,8 @@ use crate::infrastructure::repositories::mapper;
 pub struct MySqlSystemAuditLog;
 
 #[async_trait]
-impl SystemAuditLog<MySqlTx> for MySqlSystemAuditLog {
-    async fn record(&self, tx: &mut MySqlTx, entry: SystemAuditEntry) -> Result<(), AppError> {
+impl SystemAuditLog<Tx> for MySqlSystemAuditLog {
+    async fn record(&self, tx: &mut Tx, entry: SystemAuditEntry) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO system_audit_logs (id, action, actor_user_id, subject_type, subject_id, metadata, ip, occurred_at) \
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

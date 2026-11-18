@@ -8,7 +8,7 @@ use aphel_kernel::{
         fields::LocalizedLabels,
         shared::{RecordRef, RecordType},
     },
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     domain::access::Permission,
     errors::AppError,
 };
@@ -125,7 +125,7 @@ impl PrivacySource for NotesPrivacy {
     async fn erase(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &SourceRequest<'_>,
     ) -> Result<SourceOutcome, AppError> {
         ctx.scope.require(&Permission::PRIVACY_MANAGE)?;
@@ -163,7 +163,7 @@ impl PrivacySource for NotesPrivacy {
     async fn redact(
         &self,
         _ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         redaction: &Redaction,
     ) -> Result<u64, AppError> {
         redact_text(tx, "notes", "body", redaction).await

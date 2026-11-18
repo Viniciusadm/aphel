@@ -1,6 +1,7 @@
 use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::{ConfigReferenceKind, ConfigurationReferences};
-use sqlx::{MySqlPool, Row};
+use aphel_sdk::platform::database::Db;
+use sqlx::Row;
 use std::collections::HashMap;
 use uuid::Uuid;
 const KINDS: &[ConfigReferenceKind] = &[ConfigReferenceKind::new("sequences.sequence")];
@@ -12,7 +13,7 @@ impl ConfigurationReferences for References {
     }
     async fn keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         _kind: ConfigReferenceKind,
     ) -> Result<HashMap<Uuid, String>, AppError> {
         sqlx::query("SELECT id, `key` AS reference FROM sequences")

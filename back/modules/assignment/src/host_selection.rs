@@ -13,7 +13,8 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::ListWindow;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 
 fn rules(ctx: &Ctx<'_>) -> DistributionStore {
     DistributionStore::of(ctx)
@@ -52,7 +53,7 @@ use aphel_sdk::assignment::{HostPick, WeightedHost};
 
 pub(crate) async fn pick_user(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     rule_id: Uuid,
     hosts: &[WeightedHost],
 ) -> Result<HostPick, AppError> {
@@ -139,11 +140,7 @@ fn snapshot(rule: DistributionRule) -> aphel_sdk::assignment::HostRule {
 }
 #[async_trait::async_trait]
 impl aphel_sdk::assignment::HostAssignment for HostAssignments {
-    async fn rule_names(
-        &self,
-        pool: &sqlx::MySqlPool,
-        ids: &[Uuid],
-    ) -> Result<HashMap<Uuid, String>, AppError> {
+    async fn rule_names(&self, pool: &Db, ids: &[Uuid]) -> Result<HashMap<Uuid, String>, AppError> {
         if ids.len() > 1000 {
             return Err(AppError::Validation(
                 "at most 1000 assignment rule labels may be requested".into(),
@@ -217,7 +214,7 @@ impl aphel_sdk::assignment::HostAssignment for HostAssignments {
     async fn pick_user(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         hosts: &[WeightedHost],
     ) -> Result<HostPick, AppError> {

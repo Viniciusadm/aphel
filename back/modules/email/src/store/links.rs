@@ -8,7 +8,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -30,7 +30,7 @@ impl LinkStore {
 impl LinkStore {
     pub(crate) async fn link(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         link: &NewRecordLink,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -54,7 +54,7 @@ impl LinkStore {
 
     pub(crate) async fn unlink(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         thread_id: Uuid,
         record: &RecordRef,
     ) -> Result<bool, AppError> {

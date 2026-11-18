@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::domain::custom::{
     DeliveryRequest, REPORT_DELIVERY_JOB, REPORT_SCHEDULES_DISPATCH_CRON,
@@ -17,6 +16,7 @@ use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::mail::SharedMailer;
 use aphel_sdk::platform::application::organization_profile::PublicBaseUrl;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -32,12 +32,12 @@ pub(crate) fn report_schedules_dispatch_schedule() -> ScheduledJobDefinition {
 
 #[derive(Clone)]
 pub(crate) struct ReportsRuntime {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl ReportsRuntime {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 

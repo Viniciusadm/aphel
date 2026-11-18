@@ -11,7 +11,8 @@ use aphel_sdk::platform::application::fields::{
     FieldDefinitionReader, RecordTypeRegistry, SystemField, WriteMode,
 };
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::fields::FieldDefinition;
 use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
@@ -22,7 +23,6 @@ use aphel_sdk::{
         ProposedFieldValues, ProspectivePredicates, ProspectiveRequest,
     },
 };
-use sqlx::MySqlPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -61,8 +61,8 @@ impl ProspectivePredicates for Predicates {
     async fn evaluate(
         &self,
         request: ProspectiveRequest<'_, '_>,
-        tx: &mut MySqlTx,
-        values_source: &dyn ProposedFieldValues<Tx = MySqlTx>,
+        tx: &mut Tx,
+        values_source: &dyn ProposedFieldValues<Tx = Tx>,
     ) -> Result<Vec<PredicateOutcome>, AppError> {
         let ProspectiveRequest {
             pool,
@@ -195,7 +195,7 @@ impl ProspectivePredicates for Predicates {
     }
     async fn preview(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
         scope: &AccessScope,
         mut command: PreviewFormulaCommand,

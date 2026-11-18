@@ -14,7 +14,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::query::{Filter, SortSpec};
 use aphel_sdk::platform::application::shared::{AuditLog, EventPublisher, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::auth::SystemClock;
 use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
@@ -93,7 +93,7 @@ fn to_json<T: serde::Serialize>(value: &T) -> Result<Json<Value>, AppError> {
 
 #[async_trait]
 impl SavedViewRepository for MySqlSavedViewRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list_visible(
         &self,
@@ -164,7 +164,7 @@ impl SavedViewRepository for MySqlSavedViewRepository {
         Ok(id.and_then(|id| Uuid::parse_str(&id).ok()))
     }
 
-    async fn insert(&self, tx: &mut MySqlTx, view: &SavedView) -> Result<(), AppError> {
+    async fn insert(&self, tx: &mut Tx, view: &SavedView) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO saved_views (id, record_type, name, owner_id, visibility, team_id, \
              view_type, filter, sort, columns, settings, is_default, position, created_at, updated_at) \
@@ -190,7 +190,7 @@ impl SavedViewRepository for MySqlSavedViewRepository {
         Ok(())
     }
 
-    async fn update(&self, tx: &mut MySqlTx, view: &SavedView) -> Result<(), AppError> {
+    async fn update(&self, tx: &mut Tx, view: &SavedView) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE saved_views SET name = ?, visibility = ?, team_id = ?, view_type = ?, filter = ?, \
              sort = ?, columns = ?, settings = ?, is_default = ?, updated_at = ? \
@@ -212,7 +212,7 @@ impl SavedViewRepository for MySqlSavedViewRepository {
         Ok(())
     }
 
-    async fn delete(&self, tx: &mut MySqlTx, view_id: Uuid) -> Result<(), AppError> {
+    async fn delete(&self, tx: &mut Tx, view_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM saved_views WHERE id = ?")
             .bind(view_id.to_string())
             .execute(&mut **tx)
@@ -223,7 +223,7 @@ impl SavedViewRepository for MySqlSavedViewRepository {
 
     async fn clear_organization_default(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &RecordType,
         except: Uuid,
     ) -> Result<(), AppError> {
@@ -276,16 +276,16 @@ pub struct MySqlViewPorts {
     transactions: MySqlTransactionManager,
     views: MySqlSavedViewRepository,
     definitions: MySqlFieldDefinitionRepository,
-    events: Arc<dyn EventPublisher<MySqlTx>>,
-    audit: Arc<dyn AuditLog<MySqlTx>>,
+    events: Arc<dyn EventPublisher<Tx>>,
+    audit: Arc<dyn AuditLog<Tx>>,
 }
 
 impl MySqlViewPorts {
     pub fn new(
         pool: MySqlPool,
         registry: Arc<RecordTypeRegistry>,
-        events: Arc<dyn EventPublisher<MySqlTx>>,
-        audit: Arc<dyn AuditLog<MySqlTx>>,
+        events: Arc<dyn EventPublisher<Tx>>,
+        audit: Arc<dyn AuditLog<Tx>>,
     ) -> Self {
         Self {
             registry,
@@ -302,8 +302,8 @@ impl ViewPorts for MySqlViewPorts {
     type Transactions = MySqlTransactionManager;
     type Views = MySqlSavedViewRepository;
     type Definitions = MySqlFieldDefinitionRepository;
-    type Events = Arc<dyn EventPublisher<MySqlTx>>;
-    type Audit = Arc<dyn AuditLog<MySqlTx>>;
+    type Events = Arc<dyn EventPublisher<Tx>>;
+    type Audit = Arc<dyn AuditLog<Tx>>;
     type Clock = SystemClock;
 
     fn registry(&self) -> &RecordTypeRegistry {

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::tenancy::{Tenant, TenantStatus, normalize_host};
 
@@ -14,14 +14,14 @@ struct Snapshot {
 }
 
 pub struct TenantDirectory {
-    pool: MySqlPool,
+    pool: Db,
     snapshot: RwLock<Arc<Snapshot>>,
 }
 
 type HostRow = (String, String, String, String, String, bool, Option<String>);
 
 impl TenantDirectory {
-    pub async fn load(pool: MySqlPool) -> Result<Arc<Self>, AppError> {
+    pub async fn load(pool: Db) -> Result<Arc<Self>, AppError> {
         let directory = Arc::new(Self {
             pool,
             snapshot: RwLock::new(Arc::default()),

@@ -7,7 +7,7 @@ use sqlx::MySqlPool;
 
 use crate::application::fields::RecordTypeRegistry;
 use crate::application::installer::{FirstOrganization, InstallationRepository, InstallerPorts};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::infrastructure::auth::{Argon2PasswordHasher, SystemClock};
 use crate::infrastructure::organization_profile::settings::write_configuration;
@@ -39,11 +39,11 @@ impl MySqlInstallationRepository {
 
 #[async_trait]
 impl InstallationRepository for MySqlInstallationRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn configure_modules(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         modules: &[crate::application::installer::modules::PreparedModule],
     ) -> Result<(), AppError> {
         use crate::application::secrets::SecretVault;
@@ -84,7 +84,7 @@ impl InstallationRepository for MySqlInstallationRepository {
         Ok(available)
     }
 
-    async fn claim(&self, tx: &mut MySqlTx) -> Result<bool, AppError> {
+    async fn claim(&self, tx: &mut Tx) -> Result<bool, AppError> {
         let available: bool =
             sqlx::query_scalar("SELECT NOT EXISTS(SELECT 1 FROM organization_settings FOR UPDATE)")
                 .fetch_one(&mut **tx)
@@ -94,7 +94,7 @@ impl InstallationRepository for MySqlInstallationRepository {
 
     async fn create_first_organization(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         organization: &FirstOrganization,
     ) -> Result<(), AppError> {
         let registration = &organization.registration;

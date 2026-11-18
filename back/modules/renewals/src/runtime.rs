@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::domain::{RENEWALS_SCAN_CRON, RENEWALS_SCAN_JOB, RenewalScanOutcome};
 use crate::service;
@@ -12,6 +11,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
@@ -23,12 +23,12 @@ pub(crate) fn renewals_scan_schedule() -> ScheduledJobDefinition {
 }
 
 pub(crate) struct RenewalScanHandler {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl RenewalScanHandler {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 

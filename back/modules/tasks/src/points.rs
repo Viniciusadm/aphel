@@ -1,9 +1,10 @@
 use aphel_sdk::AppError;
 use aphel_sdk::notifications::{DigestSource, DueTask};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::points::UserId;
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
 pub(crate) struct OpenTasks;
@@ -12,7 +13,7 @@ pub(crate) struct OpenTasks;
 impl DigestSource for OpenTasks {
     async fn open_tasks_due(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         owner: Option<&UserId>,
         from: DateTime<Utc>,
         to: DateTime<Utc>,

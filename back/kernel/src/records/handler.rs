@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::Ctx;
 use crate::application::fields::{RecordPipeline, RecordWrite, WriteMode};
 use crate::application::shared::{FieldChange, RecordRef, RecordType};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, CodedKind};
 use crate::state::AppState;
@@ -102,7 +102,7 @@ pub trait RecordTypeHandler: Send + Sync {
     async fn create_in_tx(
         &self,
         _ctx: &RecordCtx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _values: Value,
     ) -> Result<PendingCommit, AppError> {
         Err(operation_not_supported(
@@ -117,7 +117,7 @@ pub trait RecordTypeHandler: Send + Sync {
     async fn update_in_tx(
         &self,
         _ctx: &RecordCtx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _id: Uuid,
         _values: Value,
     ) -> Result<Option<PendingCommit>, AppError> {
@@ -130,7 +130,7 @@ pub trait RecordTypeHandler: Send + Sync {
     async fn delete_in_tx(
         &self,
         _ctx: &RecordCtx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _id: Uuid,
     ) -> Result<(), AppError> {
         Err(operation_not_supported(

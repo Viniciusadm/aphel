@@ -6,6 +6,7 @@ pub mod section;
 
 use aphel_kernel::errors::AppError;
 use aphel_kernel::modules::{AppBuilder, Manifest, Module};
+use aphel_sdk::platform::database::Db;
 pub const KEY: &str = "record_layouts";
 pub struct RecordLayoutsModule;
 impl Module for RecordLayoutsModule {
@@ -67,7 +68,7 @@ struct RulesFactory;
 impl aphel_sdk::platform::application::fields::ConditionalRulesFactory for RulesFactory {
     fn create(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
     ) -> std::sync::Arc<dyn aphel_sdk::platform::application::fields::ConditionalRules> {
         std::sync::Arc::new(application::LayoutConditionalRules::new(
             infrastructure::MySqlFormLayoutRepository::new(pool.clone()),

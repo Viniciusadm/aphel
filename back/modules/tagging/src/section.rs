@@ -16,7 +16,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, KeyedItem,
     PackageIssue, PlanChange, PlanItem, assign_keys, parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const TAGS_SECTION: &str = "tags";
@@ -198,9 +198,9 @@ fn parse(content: &Value) -> Result<Vec<PackageTag>, AppError> {
 }
 
 #[async_trait]
-impl<K> ConfigSection<MySqlTx> for TagsSection<K>
+impl<K> ConfigSection<Tx> for TagsSection<K>
 where
-    K: ConfigKeyRepository<Tx = MySqlTx>,
+    K: ConfigKeyRepository<Tx = Tx>,
 {
     fn key(&self) -> &'static str {
         TAGS_SECTION
@@ -292,7 +292,7 @@ where
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

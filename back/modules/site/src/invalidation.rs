@@ -3,9 +3,9 @@ use std::sync::Arc;
 use aphel_contract_site::{PageSource, SiteBundle, SiteContentSource};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
+use aphel_sdk::platform::database::Db;
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::cache::{self, ALL_TAG};
 use crate::redirects;
@@ -30,17 +30,17 @@ const SITE_WIDE_EVENTS: &[&str] = &[
 ];
 
 pub(crate) struct SiteInvalidationConsumer {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl SiteInvalidationConsumer {
-    pub(crate) fn shared(pool: MySqlPool) -> Arc<dyn EventConsumer> {
+    pub(crate) fn shared(pool: Db) -> Arc<dyn EventConsumer> {
         Arc::new(Self { pool })
     }
 }
 
 pub(crate) async fn invalidate_in_tx(
-    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
     record: &aphel_sdk::platform::application::shared::RecordRef,
 ) -> Result<(), AppError> {
     let record_type = record.record_type.as_str();
@@ -106,7 +106,7 @@ fn changed_value(value: Option<&Value>) -> Option<String> {
 }
 
 async fn record_redirects(
-    pool: &MySqlPool,
+    pool: &Db,
     bundles: &[SiteBundle],
     record_type: &str,
     payload: &Value,

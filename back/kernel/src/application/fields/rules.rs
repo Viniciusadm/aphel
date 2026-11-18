@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use serde_json::{Map, Value};
 
 use crate::application::fields::{FieldSet, WriteMode};
+use crate::database::Db;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, FieldViolation};
 
@@ -33,10 +34,10 @@ impl ConditionalRules for NoConditionalRules {
 }
 
 pub trait ConditionalRulesFactory: Send + Sync {
-    fn create(&self, pool: &sqlx::MySqlPool) -> std::sync::Arc<dyn ConditionalRules>;
+    fn create(&self, pool: &Db) -> std::sync::Arc<dyn ConditionalRules>;
 }
 
-pub struct ContributedConditionalRules(pub sqlx::MySqlPool);
+pub struct ContributedConditionalRules(pub Db);
 #[async_trait]
 impl ConditionalRules for ContributedConditionalRules {
     async fn violations(

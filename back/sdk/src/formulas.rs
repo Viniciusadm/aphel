@@ -1,8 +1,8 @@
 use crate::AppError;
 use crate::access::AccessScope;
 use crate::fields::RecordTypeRegistry;
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::fields::FieldDefinition;
-use sqlx::MySqlPool;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -10,14 +10,14 @@ use uuid::Uuid;
 pub trait FormulaPredicates: Send + Sync {
     async fn violations(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
         scope: &AccessScope,
         field: FieldDefinition,
     ) -> Result<Vec<String>, AppError>;
     async fn matches(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
         scope: &AccessScope,
         field: FieldDefinition,
@@ -72,7 +72,7 @@ pub fn definition_planner() -> Result<std::sync::Arc<dyn FormulaDefinitionPlanne
 pub mod dto;
 use aphel_kernel::application::fields::{FieldDefinitionReader, RecordWrite};
 use aphel_kernel::application::shared::{RecordRef, RecordType};
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::transaction::Tx;
 use aphel_kernel::domain::fields::FieldValue;
 use async_trait::async_trait;
 use std::collections::HashMap;
@@ -123,7 +123,7 @@ pub struct BooleanFormulaPreview {
     pub matched: Option<bool>,
 }
 pub struct ProspectiveRequest<'a, 'w> {
-    pub pool: &'a MySqlPool,
+    pub pool: &'a Db,
     pub registry: &'a Arc<RecordTypeRegistry>,
     pub scope: &'a AccessScope,
     pub write: &'a RecordWrite<'w>,
@@ -142,12 +142,12 @@ pub trait ProspectivePredicates: Send + Sync {
     async fn evaluate(
         &self,
         request: ProspectiveRequest<'_, '_>,
-        tx: &mut MySqlTx,
-        values: &dyn ProposedFieldValues<Tx = MySqlTx>,
+        tx: &mut Tx,
+        values: &dyn ProposedFieldValues<Tx = Tx>,
     ) -> Result<Vec<PredicateOutcome>, AppError>;
     async fn preview(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         registry: &Arc<RecordTypeRegistry>,
         scope: &AccessScope,
         command: PreviewFormulaCommand,

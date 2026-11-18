@@ -1,11 +1,11 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde_json::{Map, Value};
-use sqlx::MySqlPool;
 
 use crate::Ctx;
 use crate::application::files::GeneratedFileKind;
 use crate::application::system::FailureEntry;
+use crate::database::Db;
 use crate::errors::AppError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,7 +53,7 @@ pub trait ModuleSettingsTester: Send + Sync {
 pub trait FileReferenceSource: Send + Sync {
     async fn reference_kind(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         file_id: &str,
     ) -> Result<Option<GeneratedFileKind>, AppError>;
 }
@@ -62,7 +62,7 @@ pub trait FileReferenceSource: Send + Sync {
 pub trait HealthSource: Send + Sync {
     async fn recent_failures(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         since: DateTime<Utc>,
         limit: u64,
     ) -> Result<Vec<FailureEntry>, AppError>;

@@ -5,12 +5,13 @@ use aphel_kernel::records::{RecordMutation, publish_mutation};
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::security::{PasswordHasher, SecureTokens};
 use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::auth::{Argon2PasswordHasher, Sha256SecureTokens};
 use chrono::{DateTime, Duration, Utc};
 use serde_json::json;
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 use uuid::Uuid;
 
 pub(crate) const SESSION_COOKIE: &str = "aphel_site_session";
@@ -110,7 +111,7 @@ fn customer_of(row: &sqlx::mysql::MySqlRow) -> Result<SiteCustomer, AppError> {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     customer_id: &str,
     event_type: &'static str,
     changes: Vec<FieldChange>,
@@ -136,7 +137,7 @@ async fn publish(
 }
 
 pub(crate) async fn find_by_email(
-    pool: &MySqlPool,
+    pool: &Db,
     email: &str,
 ) -> Result<Option<SiteCustomer>, AppError> {
     let row = sqlx::query(
@@ -148,10 +149,7 @@ pub(crate) async fn find_by_email(
     row.as_ref().map(customer_of).transpose()
 }
 
-pub(crate) async fn export(
-    pool: &MySqlPool,
-    id: &str,
-) -> Result<Option<serde_json::Value>, AppError> {
+pub(crate) async fn export(pool: &Db, id: &str) -> Result<Option<serde_json::Value>, AppError> {
     let row = sqlx::query(
         "SELECT id, email, name, email_verified_at, last_login_at, created_at FROM site_customers WHERE id = ? AND deleted_at IS NULL",
     )
@@ -240,7 +238,7 @@ pub(crate) async fn sign_up(
 }
 
 pub(crate) async fn authenticate(
-    pool: &MySqlPool,
+    pool: &Db,
     email: &str,
     password: &str,
 ) -> Result<Option<SiteCustomer>, AppError> {
@@ -268,7 +266,7 @@ pub(crate) async fn authenticate(
 }
 
 pub(crate) async fn start_session(
-    pool: &MySqlPool,
+    pool: &Db,
     customer_id: &str,
     ip: Option<String>,
     user_agent: Option<String>,
@@ -293,10 +291,7 @@ pub(crate) async fn start_session(
     Ok(issued.token.expose().to_owned())
 }
 
-pub(crate) async fn current(
-    pool: &MySqlPool,
-    token: &str,
-) -> Result<Option<SiteCustomer>, AppError> {
+pub(crate) async fn current(pool: &Db, token: &str) -> Result<Option<SiteCustomer>, AppError> {
     let hash = Sha256SecureTokens.digest(token);
     let row = sqlx::query(
         "SELECT c.id, c.email, c.name, c.email_verified_at, s.id AS session_id, \
@@ -323,7 +318,7 @@ pub(crate) async fn current(
     customer_of(&row).map(Some)
 }
 
-pub(crate) async fn end_session(pool: &MySqlPool, token: &str) -> Result<(), AppError> {
+pub(crate) async fn end_session(pool: &Db, token: &str) -> Result<(), AppError> {
     sqlx::query("UPDATE site_customer_sessions SET revoked_at = NOW(6) WHERE token_hash = ?")
         .bind(Sha256SecureTokens.digest(token))
         .execute(pool)
@@ -332,7 +327,7 @@ pub(crate) async fn end_session(pool: &MySqlPool, token: &str) -> Result<(), App
 }
 
 pub(crate) async fn issue_token(
-    pool: &MySqlPool,
+    pool: &Db,
     customer_id: &str,
     purpose: TokenPurpose,
 ) -> Result<String, AppError> {
@@ -359,7 +354,7 @@ pub(crate) async fn issue_token(
 }
 
 pub(crate) async fn peek_token(
-    pool: &MySqlPool,
+    pool: &Db,
     token: &str,
     purpose: TokenPurpose,
 ) -> Result<Option<String>, AppError> {
@@ -374,7 +369,7 @@ pub(crate) async fn peek_token(
 }
 
 pub(crate) async fn redeem_token(
-    pool: &MySqlPool,
+    pool: &Db,
     token: &str,
     purpose: TokenPurpose,
 ) -> Result<Option<String>, AppError> {
@@ -398,7 +393,7 @@ pub(crate) async fn redeem_token(
     Ok(customer)
 }
 
-pub(crate) async fn mark_verified(pool: &MySqlPool, customer_id: &str) -> Result<(), AppError> {
+pub(crate) async fn mark_verified(pool: &Db, customer_id: &str) -> Result<(), AppError> {
     sqlx::query(
         "UPDATE site_customers SET email_verified_at = COALESCE(email_verified_at, NOW(6)), updated_at = NOW(6) WHERE id = ?",
     )

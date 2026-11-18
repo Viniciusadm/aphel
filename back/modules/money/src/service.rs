@@ -19,9 +19,8 @@ use crate::domain::{
 };
 use crate::provider::configured_provider;
 use crate::sync::sync_rates;
+use aphel_sdk::platform::database::Db;
 use std::sync::Arc;
-
-use sqlx::MySqlPool;
 
 use crate::store::CurrencyStore;
 use aphel_kernel::Ctx;
@@ -32,7 +31,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -530,7 +529,7 @@ async fn require_rate(store: &CurrencyStore, id: &str) -> Result<ExchangeRate, A
 
 async fn enqueue_recalculation(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     context: &CurrencyContext,
     currency: &str,
     dates: &[NaiveDate],
@@ -558,7 +557,7 @@ async fn enqueue_recalculation(
 
 async fn publish_rate(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     rate: &ExchangeRate,
     event_type: &'static str,
     changes: Vec<FieldChange>,
@@ -594,7 +593,7 @@ impl RatePorts {
         }
     }
 
-    pub(crate) fn system(pool: MySqlPool) -> Self {
+    pub(crate) fn system(pool: Db) -> Self {
         Self {
             store: CurrencyStore::new(pool.clone()),
             events: Arc::new(MySqlEventPublisher::new()),
@@ -615,7 +614,7 @@ fn changes_payload(changes: &[FieldChange]) -> Value {
 
 pub(crate) async fn publish_rate_change(
     ports: &RatePorts,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: &Actor,
     rate: &ExchangeRate,
     event_type: &'static str,

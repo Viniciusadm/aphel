@@ -38,7 +38,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 use aphel_sdk::platform::application::shared::parse_uuid as parse_id;
@@ -309,7 +309,7 @@ pub(crate) async fn list(
 
 async fn cancel_waiting(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     automation_id: Uuid,
     reason: SkipReason,
 ) -> Result<u64, AppError> {
@@ -451,7 +451,7 @@ pub(crate) async fn create(
 
 async fn store_secrets(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     automation_id: Uuid,
     changes: Vec<SecretChange>,
 ) -> Result<(), AppError> {
@@ -862,7 +862,7 @@ pub(crate) async fn run_details(
 
 async fn record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     action: &str,
     automation: &Automation,
     changes: Vec<FieldChange>,

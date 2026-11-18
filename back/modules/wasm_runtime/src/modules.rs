@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde::Serialize;
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 use utoipa::ToSchema;
 
 use crate::manifest::PluginManifest;
@@ -10,6 +10,7 @@ use crate::store;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::modules::runtime::module_use_cases;
 use aphel_sdk::platform::modules::toggle_guard::ModuleToggleGuard;
@@ -20,7 +21,7 @@ pub struct PluginModuleGuard;
 
 #[async_trait]
 impl ModuleToggleGuard for PluginModuleGuard {
-    async fn held_modules(&self, pool: &MySqlPool) -> Result<HashMap<String, String>, AppError> {
+    async fn held_modules(&self, pool: &Db) -> Result<HashMap<String, String>, AppError> {
         let rows = sqlx::query(
             "SELECT c.module_key, p.name FROM plugins_module_conflicts c \
              JOIN plugins_installed p ON p.plugin_key = c.plugin_key \
@@ -42,7 +43,7 @@ impl ModuleToggleGuard for PluginModuleGuard {
         Ok(held)
     }
 
-    async fn dependents(&self, pool: &MySqlPool) -> Result<HashMap<String, Vec<String>>, AppError> {
+    async fn dependents(&self, pool: &Db) -> Result<HashMap<String, Vec<String>>, AppError> {
         let snapshot = crate::registry::current(pool).await?;
         let app = aphel_sdk::platform::modules::app();
         let enabled_modules: Vec<_> = app
@@ -203,7 +204,7 @@ pub fn ensure_unblocked(plans: &[ModuleConflictPlan]) -> Result<(), AppError> {
     ))
 }
 
-async fn held_rows(pool: &MySqlPool, plugin_key: &str) -> Result<Vec<(String, bool)>, AppError> {
+async fn held_rows(pool: &Db, plugin_key: &str) -> Result<Vec<(String, bool)>, AppError> {
     let rows = sqlx::query(
         "SELECT module_key, was_enabled FROM plugins_module_conflicts WHERE plugin_key = ?",
     )
@@ -314,7 +315,7 @@ pub async fn release_modules(
 async fn release_module(
     state: &AppState,
     scope: &AccessScope,
-    pool: &MySqlPool,
+    pool: &Db,
     plugin_key: &str,
     module: &str,
 ) -> Result<(), AppError> {

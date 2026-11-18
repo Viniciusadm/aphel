@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::model::{AiCall, AiUsageTotals};
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 pub(crate) struct NewCall<'a> {
     pub(crate) user_id: Option<Uuid>,
@@ -159,7 +159,7 @@ pub(crate) fn thirty_days_ago() -> NaiveDateTime {
     (Utc::now() - chrono::Duration::days(30)).naive_utc()
 }
 
-pub(crate) async fn purge(tx: &mut MySqlTx) -> Result<(), AppError> {
+pub(crate) async fn purge(tx: &mut Tx) -> Result<(), AppError> {
     for table in ["ai_calls", "ai_usage"] {
         sqlx::query(sqlx::AssertSqlSafe(format!("DELETE FROM {table}")))
             .execute(&mut **tx)

@@ -3,7 +3,7 @@ use serde_json::{Value, json};
 use sqlx::types::Json;
 
 use crate::application::shared::{AuditEntry, AuditLog, FieldChange};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
 
@@ -28,8 +28,8 @@ pub(crate) fn changes_to_json(changes: &[FieldChange]) -> Value {
 }
 
 #[async_trait]
-impl AuditLog<MySqlTx> for MySqlAuditLog {
-    async fn record(&self, tx: &mut MySqlTx, mut entry: AuditEntry) -> Result<(), AppError> {
+impl AuditLog<Tx> for MySqlAuditLog {
+    async fn record(&self, tx: &mut Tx, mut entry: AuditEntry) -> Result<(), AppError> {
         let execution = crate::application::shared::ExecutionContext::current();
         if let Some(execution) = &execution
             && execution.executor_kind == "plugin"

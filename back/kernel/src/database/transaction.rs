@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 pub type DatabaseTransaction<'a> = Transaction<'a, MySql>;
 
-pub struct MySqlTx {
+pub struct Tx {
     inner: DatabaseTransaction<'static>,
     pub operation_id: Uuid,
     pub(crate) reference_deletions: std::collections::HashSet<(String, Uuid)>,
@@ -19,7 +19,7 @@ pub struct MySqlTx {
     pub(crate) dispatch_requested: bool,
 }
 
-impl From<DatabaseTransaction<'static>> for MySqlTx {
+impl From<DatabaseTransaction<'static>> for Tx {
     fn from(inner: DatabaseTransaction<'static>) -> Self {
         Self {
             inner,
@@ -35,7 +35,7 @@ impl From<DatabaseTransaction<'static>> for MySqlTx {
     }
 }
 
-impl Deref for MySqlTx {
+impl Deref for Tx {
     type Target = MySqlConnection;
 
     fn deref(&self) -> &Self::Target {
@@ -43,13 +43,13 @@ impl Deref for MySqlTx {
     }
 }
 
-impl DerefMut for MySqlTx {
+impl DerefMut for Tx {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
-impl MySqlTx {
+impl Tx {
     pub async fn commit(mut self) -> Result<(), sqlx::Error> {
         let after_commit = std::mem::take(&mut self.after_commit);
         self.inner.commit().await?;

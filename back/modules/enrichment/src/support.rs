@@ -80,7 +80,7 @@ pub(crate) async fn fields(ctx: &Ctx<'_>, record_type: &str) -> Result<FieldSet,
 
 pub(crate) async fn update_record_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+    tx: &mut aphel_sdk::platform::database::transaction::Tx,
     record_type: &str,
     id: Uuid,
     values: Map<String, Value>,

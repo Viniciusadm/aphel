@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -18,7 +19,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub const ACTIVITY_TYPES_SECTION: &str = "task_types";
@@ -49,7 +50,7 @@ pub(crate) struct ActivityTypesSection {
     task_types: ActivityTypeStore,
 }
 
-pub(crate) fn task_types_section(pool: sqlx::MySqlPool) -> ActivityTypesSection {
+pub(crate) fn task_types_section(pool: Db) -> ActivityTypesSection {
     ActivityTypesSection::new(ActivityTypeStore::new(pool))
 }
 
@@ -148,7 +149,7 @@ fn parse(content: &Value) -> Result<Vec<PackageActivityType>, AppError> {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for ActivityTypesSection {
+impl ConfigSection<Tx> for ActivityTypesSection {
     fn key(&self) -> &'static str {
         ACTIVITY_TYPES_SECTION
     }
@@ -245,7 +246,7 @@ impl ConfigSection<MySqlTx> for ActivityTypesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

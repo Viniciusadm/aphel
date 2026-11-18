@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -24,9 +25,8 @@ use aphel_sdk::configuration::{
 use aphel_sdk::configuration::{package_reference_keys, reference_keys};
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
-use sqlx::MySqlPool;
 
 pub(crate) const APPROVAL_POLICIES_SECTION: &str = "approval_policies";
 const APPROVAL_POLICY_KIND: &str = "approval_policy";
@@ -204,7 +204,7 @@ pub(crate) struct ApprovalPoliciesSection {
     registry: Arc<RecordTypeRegistry>,
     repository: ApprovalStore,
     directory: ApprovalDirectory,
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl ApprovalPoliciesSection {
@@ -212,7 +212,7 @@ impl ApprovalPoliciesSection {
         registry: Arc<RecordTypeRegistry>,
         repository: ApprovalStore,
         directory: ApprovalDirectory,
-        pool: MySqlPool,
+        pool: Db,
     ) -> Self {
         Self {
             registry,
@@ -335,7 +335,7 @@ impl ApprovalPoliciesSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
+impl ConfigSection<Tx> for ApprovalPoliciesSection {
     fn key(&self) -> &'static str {
         APPROVAL_POLICIES_SECTION
     }
@@ -528,7 +528,7 @@ impl ConfigSection<MySqlTx> for ApprovalPoliciesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

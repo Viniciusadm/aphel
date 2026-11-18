@@ -23,7 +23,7 @@ use aphel_sdk::platform::application::query::{
 use aphel_sdk::platform::application::shared::{
     FieldChange, RecordRef, RecordType, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
 use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
@@ -732,7 +732,7 @@ async fn ensure_name_free(
 
 async fn record_change(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: RecordRef,
     tag: &Tag,
     event_type: &'static str,
@@ -767,7 +767,7 @@ async fn record_change(
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     tag: &Tag,
     event_type: &'static str,
     changes: Vec<FieldChange>,

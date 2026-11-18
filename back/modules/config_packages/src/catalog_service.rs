@@ -3,6 +3,7 @@ use crate::infrastructure::{EmbeddedTemplates, MySqlConfigInstallRepository};
 use aphel_kernel::{Ctx, errors::AppError};
 use aphel_sdk::configuration::{ConfigurationCatalog, InstallationReference};
 use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::Permission;
 use uuid::Uuid;
 
@@ -12,7 +13,7 @@ pub(crate) struct Catalog;
 impl ConfigurationCatalog for Catalog {
     async fn installed_versions(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         scope: &aphel_sdk::access::AccessScope,
     ) -> Result<Vec<(String, String)>, AppError> {
         use crate::application::versioning::ConfigVersionRepository;

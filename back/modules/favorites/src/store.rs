@@ -7,7 +7,7 @@ use crate::domain::{FAVORITE_ALREADY_EXISTS, Favorite, FavoriteKind};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -96,7 +96,7 @@ impl FavoriteStore {
 
     pub(crate) async fn lock_and_stats(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
     ) -> Result<(usize, i32), AppError> {
         sqlx::query("SELECT id FROM users WHERE id = ? FOR UPDATE")
@@ -114,7 +114,7 @@ impl FavoriteStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         favorite: &Favorite,
     ) -> Result<(), AppError> {
@@ -146,7 +146,7 @@ impl FavoriteStore {
 
     pub(crate) async fn delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         favorite_id: Uuid,
     ) -> Result<bool, AppError> {
@@ -160,7 +160,7 @@ impl FavoriteStore {
 
     pub(crate) async fn reorder(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         ordered: &[Uuid],
     ) -> Result<(), AppError> {

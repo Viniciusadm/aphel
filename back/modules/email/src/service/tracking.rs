@@ -22,7 +22,7 @@ use aphel_sdk::platform::application::secrets::SecretVault;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::privacy::mask_email;
 
@@ -423,7 +423,7 @@ async fn engage(
 
 async fn publish_objection(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: &Actor,
     action: &'static str,
     id: Uuid,

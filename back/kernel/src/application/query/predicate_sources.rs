@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::application::query::{Filter, FilterOperator};
+use crate::database::Db;
 use crate::errors::AppError;
 
 pub const ID_FIELD: &str = "id";
@@ -19,11 +19,7 @@ pub struct FilterSource {
 #[async_trait]
 pub trait FilterSourceResolver: Send + Sync {
     fn field(&self) -> &'static str;
-    async fn source(
-        &self,
-        pool: &MySqlPool,
-        filter_id: Uuid,
-    ) -> Result<Option<FilterSource>, AppError>;
+    async fn source(&self, pool: &Db, filter_id: Uuid) -> Result<Option<FilterSource>, AppError>;
 }
 
 pub type FilterExpansions = HashMap<Uuid, Filter>;

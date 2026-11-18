@@ -11,6 +11,7 @@ use crate::store::{self, SavedResource};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::{AppError, CodedKind};
 use aphel_sdk::platform::api::state::AppState;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 use aphel_sdk::provisioning::{
@@ -79,7 +80,7 @@ struct Installer {
     name: String,
 }
 
-async fn installer_of(pool: &sqlx::MySqlPool, scope: &AccessScope) -> Option<Installer> {
+async fn installer_of(pool: &Db, scope: &AccessScope) -> Option<Installer> {
     if scope.is_system() {
         return None;
     }

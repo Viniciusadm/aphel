@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -21,7 +22,7 @@ use aphel_sdk::configuration::{
     parse_section,
 };
 use aphel_sdk::platform::application::shared::JobQueue;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::jobs::MySqlJobQueue;
 
@@ -125,7 +126,7 @@ pub(crate) struct ScoringModelsSection {
     jobs: MySqlJobQueue,
 }
 
-pub(crate) fn scoring_models_section(pool: &sqlx::MySqlPool) -> ScoringModelsSection {
+pub(crate) fn scoring_models_section(pool: &Db) -> ScoringModelsSection {
     ScoringModelsSection::new(
         ModelStore::new(pool.clone()),
         MySqlJobQueue::new(pool.clone()),
@@ -260,7 +261,7 @@ impl ScoringModelsSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for ScoringModelsSection {
+impl ConfigSection<Tx> for ScoringModelsSection {
     fn key(&self) -> &'static str {
         SCORING_MODELS_SECTION
     }
@@ -392,7 +393,7 @@ impl ConfigSection<MySqlTx> for ScoringModelsSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

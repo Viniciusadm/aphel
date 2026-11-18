@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeMap, BTreeSet};
 
 use async_trait::async_trait;
@@ -6,7 +7,6 @@ use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -23,7 +23,7 @@ use aphel_sdk::configuration::{
 };
 use aphel_sdk::line_items::parse_money;
 use aphel_sdk::money::normalize_currency_code as normalize_currency;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const PRICE_LISTS_SECTION: &str = "price_lists";
@@ -142,7 +142,7 @@ pub(crate) struct PriceListsSection {
 }
 
 impl PriceListsSection {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             lists: PriceListStore::new(pool),
         }
@@ -304,7 +304,7 @@ impl PriceListsSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for PriceListsSection {
+impl ConfigSection<Tx> for PriceListsSection {
     fn key(&self) -> &'static str {
         PRICE_LISTS_SECTION
     }
@@ -496,7 +496,7 @@ impl ConfigSection<MySqlTx> for PriceListsSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         package: &ConfigPackage,
         content: &Value,
@@ -538,7 +538,7 @@ pub(crate) struct DiscountLimitsSection {
 }
 
 impl DiscountLimitsSection {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             limits: DiscountLimitStore::new(pool),
         }
@@ -593,7 +593,7 @@ impl DiscountLimitsSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for DiscountLimitsSection {
+impl ConfigSection<Tx> for DiscountLimitsSection {
     fn key(&self) -> &'static str {
         DISCOUNT_LIMITS_SECTION
     }
@@ -673,7 +673,7 @@ impl ConfigSection<MySqlTx> for DiscountLimitsSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

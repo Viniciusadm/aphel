@@ -24,7 +24,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::LabelNormalization;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::{
@@ -295,7 +295,7 @@ impl DuplicateStore {
 
     pub(crate) async fn save_rule(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         setting: &RuleSetting,
     ) -> Result<(), AppError> {
@@ -568,7 +568,7 @@ impl DuplicateStore {
 
     pub(crate) async fn upsert_candidates(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         candidates: &[NewCandidate],
     ) -> Result<u64, AppError> {
@@ -672,7 +672,7 @@ impl DuplicateStore {
 
     pub(crate) async fn set_candidate_status(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         candidate_id: Uuid,
         status: CandidateStatus,
         resolution: &CandidateResolution,
@@ -692,7 +692,7 @@ impl DuplicateStore {
 
     pub(crate) async fn resolve_merged(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         merged_id: Uuid,
         survivor_id: Uuid,
@@ -781,11 +781,7 @@ impl DuplicateStore {
             .collect()
     }
 
-    pub(crate) async fn delete_pending(
-        &self,
-        tx: &mut MySqlTx,
-        ids: &[Uuid],
-    ) -> Result<u64, AppError> {
+    pub(crate) async fn delete_pending(&self, tx: &mut Tx, ids: &[Uuid]) -> Result<u64, AppError> {
         if ids.is_empty() {
             return Ok(0);
         }
@@ -798,7 +794,7 @@ impl DuplicateStore {
 
     pub(crate) async fn update_pending_rules(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         rules: &[DuplicateRule],
     ) -> Result<(), AppError> {
@@ -813,7 +809,7 @@ impl DuplicateStore {
     }
 
     pub(crate) async fn forget_record(
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         record_id: Uuid,
     ) -> Result<(), AppError> {

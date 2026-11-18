@@ -3,7 +3,7 @@ use std::sync::Arc;
 use aphel_contract_crm::CrmRecordTypes;
 use aphel_kernel::modules::AppBuilder;
 use aphel_sdk::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::reference_cleanup::ReferenceCleanup;
 use aphel_sdk::shared::RecordType;
 use async_trait::async_trait;
@@ -11,12 +11,7 @@ use uuid::Uuid;
 
 struct Cleanup;
 
-async fn execute(
-    tx: &mut MySqlTx,
-    sql: &'static str,
-    id: &str,
-    binds: usize,
-) -> Result<(), AppError> {
+async fn execute(tx: &mut Tx, sql: &'static str, id: &str, binds: usize) -> Result<(), AppError> {
     let mut query = sqlx::query(sql);
     for _ in 0..binds {
         query = query.bind(id.to_owned());
@@ -34,7 +29,7 @@ impl ReferenceCleanup for Cleanup {
         ]
     }
 
-    async fn removed(&self, tx: &mut MySqlTx, kind: &str, id: Uuid) -> Result<(), AppError> {
+    async fn removed(&self, tx: &mut Tx, kind: &str, id: Uuid) -> Result<(), AppError> {
         let id = id.to_string();
         match kind {
             aphel_contract_crm::keys::PIPELINE => {
@@ -55,7 +50,7 @@ impl ReferenceCleanup for Cleanup {
     }
 }
 
-async fn purged(tx: &mut MySqlTx, record_type: &RecordType, id: Uuid) -> Result<(), AppError> {
+async fn purged(tx: &mut Tx, record_type: &RecordType, id: Uuid) -> Result<(), AppError> {
     let id = id.to_string();
     if *record_type == RecordType::DEAL {
         execute(

@@ -15,7 +15,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const LOST_REASONS_SECTION: &str = "lost_reasons";
@@ -136,9 +136,9 @@ fn parse(content: &Value) -> Result<Vec<PackageLostReason>, AppError> {
 }
 
 #[async_trait]
-impl<K> ConfigSection<MySqlTx> for LostReasonsSection<K>
+impl<K> ConfigSection<Tx> for LostReasonsSection<K>
 where
-    K: ConfigKeyRepository<Tx = MySqlTx>,
+    K: ConfigKeyRepository<Tx = Tx>,
 {
     fn key(&self) -> &'static str {
         LOST_REASONS_SECTION
@@ -206,7 +206,7 @@ where
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

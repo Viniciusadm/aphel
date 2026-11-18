@@ -1,9 +1,10 @@
 use aphel_contract_crm::CrmPermissions;
+use aphel_sdk::platform::database::Db;
 use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
@@ -34,7 +35,7 @@ impl SearchContentSource for NoteSearchContent {
 
     async fn load(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         record_type: &RecordType,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
@@ -84,7 +85,7 @@ impl SearchContentSource for NoteSearchContent {
 
     async fn affected(
         &self,
-        _pool: &MySqlPool,
+        _pool: &Db,
         event: &DomainEvent,
     ) -> Result<Vec<SearchRefresh>, AppError> {
         let record_type = event

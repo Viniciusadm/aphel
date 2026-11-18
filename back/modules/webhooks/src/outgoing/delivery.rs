@@ -23,7 +23,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EnqueueOutcome, EventPublisher, FieldChange,
     JobQueue, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::outbound_http::OutboundHttpNetwork;
 
 pub(crate) const OUTGOING_WEBHOOKS_CONSUMER: &str = "webhooks.outgoing";
@@ -267,7 +267,7 @@ async fn finish(
 
 async fn publish_disabled(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     endpoints: &WebhookEndpointStore,
     endpoint: &WebhookEndpoint,
     failures: u32,

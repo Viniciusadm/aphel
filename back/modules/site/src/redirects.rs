@@ -1,10 +1,10 @@
 use aphel_kernel::errors::AppError;
-use sqlx::MySqlPool;
+use aphel_sdk::platform::database::Db;
 
 const MAX_VALUE_LENGTH: usize = 255;
 
 pub(crate) async fn record_change(
-    pool: &MySqlPool,
+    pool: &Db,
     record_type: &str,
     field: &str,
     old_value: &str,
@@ -48,7 +48,7 @@ pub(crate) async fn record_change(
 }
 
 pub(crate) async fn lookup(
-    pool: &MySqlPool,
+    pool: &Db,
     record_type: &str,
     field: &str,
     value: &str,
@@ -123,10 +123,7 @@ pub(crate) fn normalize_target(target: &str, source: &str) -> Result<String, App
     Ok(target.to_owned())
 }
 
-pub(crate) async fn find_path(
-    pool: &MySqlPool,
-    path: &str,
-) -> Result<Option<PathRedirect>, AppError> {
+pub(crate) async fn find_path(pool: &Db, path: &str) -> Result<Option<PathRedirect>, AppError> {
     let path = match path.trim_end_matches('/') {
         "" => "/",
         trimmed => trimmed,

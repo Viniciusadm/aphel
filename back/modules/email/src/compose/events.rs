@@ -7,7 +7,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{
     Actor, DomainEvent, EventPublisher, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 pub(crate) const EMAIL_MESSAGE_RECORD: RecordType = RecordType::from_static("email.email_message");
 
@@ -46,7 +46,7 @@ pub(crate) async fn email_event_payload(
 
 pub(crate) async fn publish_email_event(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: &Actor,
     event_type: &str,
     payload: &EmailEventPayload,

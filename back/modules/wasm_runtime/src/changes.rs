@@ -3,7 +3,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use serde::Serialize;
 use serde_json::{Value, json};
-use sqlx::{MySqlPool, Row, types::Json};
+use sqlx::{Row, types::Json};
 use utoipa::ToSchema;
 
 use crate::manifest::PLUGIN_EVENT_PREFIX;
@@ -11,6 +11,7 @@ use crate::registry;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::public_events::custom_event_record_type;
 use aphel_sdk::platform::application::shared::{DomainEvent, EventConsumer};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const CHANGES_CONSUMER: &str = "wasm_runtime.changes";
@@ -37,11 +38,11 @@ pub(crate) struct ChangesPage {
 }
 
 pub(crate) struct ChangeFeedConsumer {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl ChangeFeedConsumer {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self { pool }
     }
 }
@@ -111,7 +112,7 @@ impl EventConsumer for ChangeFeedConsumer {
     }
 }
 
-pub(crate) async fn prune(pool: &MySqlPool) -> Result<(), AppError> {
+pub(crate) async fn prune(pool: &Db) -> Result<(), AppError> {
     sqlx::query(
         "DELETE FROM plugins_changes WHERE created_at < UTC_TIMESTAMP(6) - INTERVAL ? HOUR LIMIT 10000",
     )

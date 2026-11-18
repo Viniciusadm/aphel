@@ -47,7 +47,7 @@ impl aphel_sdk::tasks::MeetingScheduler for Writer {
     async fn schedule(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::Tx,
         meeting: aphel_sdk::tasks::MeetingActivity,
     ) -> Result<Uuid, AppError> {
         let mut prepared = crate::service::prepare_create(
@@ -73,7 +73,7 @@ impl aphel_sdk::tasks::MeetingScheduler for Writer {
     async fn move_to(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::Tx,
         scope: &aphel_sdk::access::AccessScope,
         activity_id: Uuid,
         change: aphel_sdk::tasks::MeetingActivityMove,
@@ -95,7 +95,7 @@ impl aphel_sdk::tasks::MeetingScheduler for Writer {
     async fn cancel(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::Tx,
         scope: &aphel_sdk::access::AccessScope,
         activity_id: Uuid,
         ip: Option<String>,

@@ -1,5 +1,5 @@
 use aphel_kernel::{
-    Ctx, application::fields::LocalizedLabels, database::transaction::MySqlTx,
+    Ctx, application::fields::LocalizedLabels, database::transaction::Tx,
     domain::access::Permission, errors::AppError,
 };
 use aphel_sdk::platform::application::access::Authorizer;
@@ -22,7 +22,7 @@ impl PrivacySource for DuplicatePrivacy {
     async fn erase(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &SourceRequest<'_>,
     ) -> Result<SourceOutcome, AppError> {
         ctx.scope.require(&Permission::PRIVACY_MANAGE)?;

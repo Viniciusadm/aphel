@@ -11,7 +11,7 @@ use crate::application::organization_admin::{
     ALREADY_MEMBER, InvitationContext, LAST_ADMIN, ListWindow, Listing, MemberRepository,
     MemberView, NewInvitation, RoleSummary, TeamReference,
 };
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::RoleKey;
 use crate::domain::users::UserStatus;
 use crate::domain::{Email, RoleId, TeamId, UserId};
@@ -168,7 +168,7 @@ async fn ensure_admin_remains(
 }
 
 async fn revoke_sessions(
-    transaction: &mut MySqlTx,
+    transaction: &mut Tx,
     pool: &MySqlPool,
     user_id: &UserId,
     at: DateTime<Utc>,
@@ -189,7 +189,7 @@ fn member_missing() -> AppError {
 
 #[async_trait]
 impl MemberRepository for MySqlMemberRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self, window: ListWindow) -> Result<Listing<MemberView>, AppError> {
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
@@ -262,7 +262,7 @@ impl MemberRepository for MySqlMemberRepository {
 
     async fn create_invitation(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         invitation: NewInvitation,
     ) -> Result<(), AppError> {
         let user = &invitation.user;
@@ -298,7 +298,7 @@ impl MemberRepository for MySqlMemberRepository {
 
     async fn replace_invitation_token(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
         token: NewUserToken,
         at: DateTime<Utc>,
@@ -314,7 +314,7 @@ impl MemberRepository for MySqlMemberRepository {
 
     async fn cancel_invitation(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
         at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -365,7 +365,7 @@ impl MemberRepository for MySqlMemberRepository {
 
     async fn deactivate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -382,7 +382,7 @@ impl MemberRepository for MySqlMemberRepository {
         Ok(())
     }
 
-    async fn reactivate(&self, tx: &mut MySqlTx, user_id: &UserId) -> Result<(), AppError> {
+    async fn reactivate(&self, tx: &mut Tx, user_id: &UserId) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE users SET status = ?, updated_at = UTC_TIMESTAMP(6) WHERE id = ? AND status = ?",
         )
@@ -396,7 +396,7 @@ impl MemberRepository for MySqlMemberRepository {
 
     async fn remove(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {

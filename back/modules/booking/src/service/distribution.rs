@@ -1,6 +1,6 @@
 pub(crate) use aphel_sdk::assignment::{HostPick, WeightedHost};
 use aphel_sdk::assignment::{HostPool, HostRule, host_assignment};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::{AppError, Ctx};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
@@ -32,7 +32,7 @@ pub(crate) async fn rule_pool(
 }
 pub(crate) async fn pick_user(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
     hosts: &[WeightedHost],
 ) -> Result<HostPick, AppError> {

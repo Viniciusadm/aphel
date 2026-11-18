@@ -7,7 +7,7 @@ use crate::application::organization_profile::{
     OrganizationSettingsRepository,
 };
 use crate::application::shared::{FileStorage, SharedFileStorage};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::organization_profile::Organization;
 use crate::domain::users::UserStatus;
 use crate::errors::AppError;
@@ -47,17 +47,13 @@ impl OrganizationRepository for MySqlOrganizationRepository {
 
 #[async_trait]
 impl OrganizationSettingsRepository for MySqlOrganizationRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn find(&self) -> Result<Option<Organization>, AppError> {
         find_organization(&self.pool).await
     }
 
-    async fn update(
-        &self,
-        tx: &mut MySqlTx,
-        changes: &OrganizationChanges,
-    ) -> Result<(), AppError> {
+    async fn update(&self, tx: &mut Tx, changes: &OrganizationChanges) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE organization_settings SET name = ?, primary_color = ?, locale = ?, timezone = ?, currency = ?, logo_file_id = ? WHERE id = 1",
         )

@@ -1,6 +1,7 @@
 use crate::AppError;
 pub use aphel_contract_deals::*;
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::Db;
+use aphel_kernel::database::transaction::Tx;
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
@@ -17,31 +18,23 @@ pub struct RevenueState {
 }
 #[async_trait]
 pub trait DealFinancials: Send + Sync {
-    async fn lock_amount(
-        &self,
-        tx: &mut MySqlTx,
-        id: Uuid,
-    ) -> Result<Option<LockedAmount>, AppError>;
+    async fn lock_amount(&self, tx: &mut Tx, id: Uuid) -> Result<Option<LockedAmount>, AppError>;
     async fn set_amount(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         amount: Decimal,
         at: DateTime<Utc>,
     ) -> Result<(), AppError>;
-    async fn lock_revenue(
-        &self,
-        tx: &mut MySqlTx,
-        id: Uuid,
-    ) -> Result<Option<RevenueState>, AppError>;
+    async fn lock_revenue(&self, tx: &mut Tx, id: Uuid) -> Result<Option<RevenueState>, AppError>;
     async fn save_revenue(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         revenue: &DealRevenue,
         at: DateTime<Utc>,
     ) -> Result<(), AppError>;
-    async fn open_ids(&self, tx: &mut MySqlTx, currency: &str) -> Result<Vec<Uuid>, AppError>;
+    async fn open_ids(&self, tx: &mut Tx, currency: &str) -> Result<Vec<Uuid>, AppError>;
 }
 pub trait RevenueCalculator: Send + Sync {
     fn project(
@@ -57,14 +50,10 @@ pub trait DealLifecycle: Send + Sync {
     async fn lifecycle_people(&self, ctx: &crate::Ctx<'_>, id: Uuid)
     -> Result<Vec<Uuid>, AppError>;
 
-    async fn parties(
-        &self,
-        pool: &sqlx::MySqlPool,
-        id: Uuid,
-    ) -> Result<Option<DealParties>, AppError>;
+    async fn parties(&self, pool: &Db, id: Uuid) -> Result<Option<DealParties>, AppError>;
     async fn outcomes(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         entity: &crate::shared::RecordType,
         id: Uuid,
     ) -> Result<DealOutcomes, AppError>;
@@ -281,7 +270,7 @@ pub struct ExistingDealRenewal {
 pub trait DealRenewalReader: Send + Sync {
     async fn notification_target(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         id: Uuid,
     ) -> Result<Option<(String, Option<String>)>, AppError>;
 

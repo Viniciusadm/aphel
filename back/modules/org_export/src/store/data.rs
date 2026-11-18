@@ -16,7 +16,7 @@ use aphel_sdk::configuration::{configuration_keys_available, stored_reference_ke
 use aphel_sdk::platform::application::fields::{RecordTypeRegistry, is_sql_identifier};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::organization_profile::OrganizationRegistration;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::RoleKey;
 use aphel_sdk::platform::infrastructure::query::compiler::quoted;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -405,7 +405,7 @@ impl OrgDataStore {
 
     pub(crate) async fn update_reference(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         table: &str,
         column: &str,
         id: &str,
@@ -455,7 +455,7 @@ impl OrgDataStore {
 
     pub(crate) async fn create_installation(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         registration: &OrganizationRegistration,
         registry: &RecordTypeRegistry,
     ) -> Result<bool, AppError> {
@@ -476,7 +476,7 @@ impl OrgDataStore {
 
     pub(crate) async fn insert_member(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         member: &MemberRow,
         joined_at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -520,7 +520,7 @@ impl OrgDataStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         table: &str,
         columns: &[ColumnInfo],
         row: &DataRow,
@@ -530,7 +530,7 @@ impl OrgDataStore {
 
     pub(crate) async fn upsert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         table: &str,
         columns: &[ColumnInfo],
         row: &DataRow,
@@ -540,7 +540,7 @@ impl OrgDataStore {
 
     async fn write(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         table: &str,
         columns: &[ColumnInfo],
         row: &DataRow,

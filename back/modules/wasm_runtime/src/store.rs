@@ -8,7 +8,7 @@ use crate::manifest::PluginManifest;
 use crate::package::PluginPackage;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper::instant;
 
 #[derive(Debug, Clone)]
@@ -84,7 +84,7 @@ pub async fn version(pool: &MySqlPool) -> Result<u64, AppError> {
     Ok(version.unwrap_or_default())
 }
 
-pub async fn bump(tx: &mut MySqlTx) -> Result<(), AppError> {
+pub async fn bump(tx: &mut Tx) -> Result<(), AppError> {
     sqlx::query(
         "INSERT INTO plugins_state (id, version) VALUES (1, 1) \
          ON DUPLICATE KEY UPDATE version = version + 1",
@@ -111,7 +111,7 @@ pub async fn default_installer(pool: &MySqlPool) -> Result<UserId, AppError> {
 }
 
 pub async fn save(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     package: &PluginPackage,
     installed_by: Option<&UserId>,
     pack_key: Option<&str>,
@@ -199,7 +199,7 @@ pub async fn backend(pool: &MySqlPool, key: &str) -> Result<Option<Vec<u8>>, App
     .await?)
 }
 
-pub async fn set_enabled(tx: &mut MySqlTx, key: &str, enabled: bool) -> Result<(), AppError> {
+pub async fn set_enabled(tx: &mut Tx, key: &str, enabled: bool) -> Result<(), AppError> {
     sqlx::query(
         "UPDATE plugins_installed SET enabled = ?, updated_at = CURRENT_TIMESTAMP(6) WHERE plugin_key = ?",
     )
@@ -211,7 +211,7 @@ pub async fn set_enabled(tx: &mut MySqlTx, key: &str, enabled: bool) -> Result<(
 }
 
 pub async fn set_settings(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     key: &str,
     settings: &Map<String, Value>,
 ) -> Result<(), AppError> {
@@ -225,7 +225,7 @@ pub async fn set_settings(
     Ok(())
 }
 
-pub async fn delete(tx: &mut MySqlTx, key: &str) -> Result<(), AppError> {
+pub async fn delete(tx: &mut Tx, key: &str) -> Result<(), AppError> {
     sqlx::query("DELETE FROM plugins_installed WHERE plugin_key = ?")
         .bind(key)
         .execute(&mut **tx)
@@ -386,7 +386,7 @@ pub struct InstalledPack {
 }
 
 pub async fn save_pack(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     manifest: &crate::pack::PackManifest,
     installed_by: Option<&UserId>,
 ) -> Result<(), AppError> {

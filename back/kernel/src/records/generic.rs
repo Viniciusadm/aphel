@@ -16,7 +16,7 @@ use crate::application::query::{
     ArchivedFilter, Filter, FilterCondition, FilterOperator, RecordQuery, RecordQueryEngine,
 };
 use crate::application::shared::{RecordRef, RecordType};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::fields::{FieldValue, validate_value};
 use crate::errors::{AppError, FieldViolation};
 
@@ -30,13 +30,13 @@ pub trait EntityWriteBehavior: Send + Sync {
     async fn create(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         values: Value,
     ) -> Result<PendingCommit, AppError>;
     async fn update(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         values: Value,
     ) -> Result<Option<PendingCommit>, AppError>;
@@ -146,7 +146,7 @@ impl GenericRecordHandler {
     async fn authorize(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         permission: &crate::domain::access::Permission,
     ) -> Result<(), AppError> {
@@ -198,7 +198,7 @@ impl GenericRecordHandler {
             .is_empty())
     }
 
-    async fn snapshot(&self, ctx: &Ctx<'_>, tx: &mut MySqlTx, id: Uuid) -> Result<Value, AppError> {
+    async fn snapshot(&self, ctx: &Ctx<'_>, tx: &mut Tx, id: Uuid) -> Result<Value, AppError> {
         let record = RecordRef::new(self.record_type.clone(), id);
         let snapshot = super::snapshot::capture(tx, ctx.pool(), ctx.registry(), &record).await?;
         let checked = tx
@@ -213,12 +213,12 @@ impl GenericRecordHandler {
         Ok(snapshot.expect("checked snapshot"))
     }
 
-    async fn begin_visible(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<MySqlTx, AppError> {
+    async fn begin_visible(&self, ctx: &RecordCtx<'_>, id: Uuid) -> Result<Tx, AppError> {
         let query_ctx = Ctx::from_state(ctx.state, ctx.scope).await?;
         if !self.visible(&query_ctx, id).await? {
             return Err(record_not_found());
         }
-        let mut tx: MySqlTx = ctx.state.db()?.begin().await?.into();
+        let mut tx: Tx = ctx.state.db()?.begin().await?.into();
         tx.visible_record = Some((self.record_type.as_str().to_owned(), id));
         Ok(tx)
     }
@@ -226,7 +226,7 @@ impl GenericRecordHandler {
     async fn mutate(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         body: Value,
         mode: WriteMode,
@@ -453,7 +453,7 @@ impl GenericRecordHandler {
     async fn check_reference(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         field: &crate::domain::fields::FieldDefinition,
         value: &FieldValue,
     ) -> Result<(), AppError> {
@@ -500,7 +500,7 @@ impl GenericRecordHandler {
 
     async fn persist(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         definition: &EntityDefinition,
         id: Uuid,
         values: &Map<String, Value>,
@@ -618,7 +618,7 @@ impl RecordTypeHandler for GenericRecordHandler {
     async fn create_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         body: Value,
     ) -> Result<PendingCommit, AppError> {
         if let Some(behavior) = &self.behavior {
@@ -646,7 +646,7 @@ impl RecordTypeHandler for GenericRecordHandler {
     async fn update_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         body: Value,
     ) -> Result<Option<PendingCommit>, AppError> {
@@ -668,7 +668,7 @@ impl RecordTypeHandler for GenericRecordHandler {
     async fn delete_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
     ) -> Result<(), AppError> {
         let ctx = Ctx::from_state(ctx.state, ctx.scope).await?;

@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 use uuid::Uuid;
 
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{DomainEvent, RecordType};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::search::{SearchContentSource, SearchRefresh};
 
@@ -32,7 +33,7 @@ impl SearchContentSource for TagSearchContent {
 
     async fn load(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         record_type: &RecordType,
         record_ids: &[Uuid],
     ) -> Result<HashMap<Uuid, String>, AppError> {
@@ -59,7 +60,7 @@ impl SearchContentSource for TagSearchContent {
 
     async fn affected(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         event: &DomainEvent,
     ) -> Result<Vec<SearchRefresh>, AppError> {
         let Some(record) = event.record.as_ref() else {
@@ -79,7 +80,7 @@ impl SearchContentSource for TagSearchContent {
     }
 }
 
-async fn tagged_records(pool: &MySqlPool, tag_id: Uuid) -> Result<Vec<SearchRefresh>, AppError> {
+async fn tagged_records(pool: &Db, tag_id: Uuid) -> Result<Vec<SearchRefresh>, AppError> {
     let rows = sqlx::query("SELECT record_type, record_id FROM taggings WHERE tag_id = ?")
         .bind(tag_id.to_string())
         .fetch_all(pool)

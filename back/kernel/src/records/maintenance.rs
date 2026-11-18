@@ -1,15 +1,16 @@
+use crate::database::Db;
 use crate::{
     application::{
         fields::{EntityDefinition, RecordTypeRegistry, is_sql_identifier},
         shared::RecordRef,
     },
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     errors::AppError,
     infrastructure::query::compiler::{push_partition, quoted},
 };
 use chrono::{DateTime, NaiveDateTime, Utc};
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use std::sync::Arc;
 use uuid::Uuid;
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -63,7 +64,7 @@ fn predicate(builder: &mut QueryBuilder<MySql>, expression: &str, comparison: &T
     }
 }
 pub async fn matching_entity_text_ids(
-    pool: &MySqlPool,
+    pool: &Db,
     definition: &EntityDefinition,
     field: StoredTextField<'_>,
     comparison: &TextComparison,
@@ -116,12 +117,12 @@ pub async fn matching_entity_text_ids(
         .collect()
 }
 pub async fn inspect_entity(
-    pool: &MySqlPool,
+    pool: &Db,
     registry: &Arc<RecordTypeRegistry>,
     record: &RecordRef,
 ) -> Result<Option<Value>, AppError> {
     let definition = registry.require(record.record_type.as_str())?;
-    let mut tx = MySqlTx::from(pool.begin().await?);
+    let mut tx = Tx::from(pool.begin().await?);
     let Some(mut snapshot) = super::snapshot::capture(&mut tx, pool, registry, record).await?
     else {
         return Ok(None);
@@ -159,7 +160,7 @@ pub async fn inspect_entity(
     Ok(Some(snapshot))
 }
 pub async fn existing_entity_ids(
-    pool: &MySqlPool,
+    pool: &Db,
     definition: &EntityDefinition,
     ids: &[Uuid],
 ) -> Result<Vec<Uuid>, AppError> {
@@ -186,7 +187,7 @@ pub async fn existing_entity_ids(
         .collect()
 }
 pub async fn update_entity_text(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     id: Uuid,
     assignments: &[TextAssignment],
@@ -218,7 +219,7 @@ pub async fn update_entity_text(
     Ok(builder.build().execute(&mut **tx).await?.rows_affected() > 0)
 }
 pub async fn mark_entity_deleted(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     id: Uuid,
     at: DateTime<Utc>,
@@ -240,7 +241,7 @@ pub async fn mark_entity_deleted(
     Ok(builder.build().execute(&mut **tx).await?.rows_affected() > 0)
 }
 pub async fn archive_entity(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     id: Uuid,
     at: DateTime<Utc>,
@@ -267,7 +268,7 @@ pub async fn archive_entity(
     Ok(builder.build().execute(&mut **tx).await?.rows_affected() > 0)
 }
 pub async fn purge_entity(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     id: Uuid,
 ) -> Result<bool, AppError> {
@@ -284,7 +285,7 @@ pub async fn purge_entity(
 }
 
 pub async fn lock_entity_version(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     id: Uuid,
 ) -> Result<Option<chrono::DateTime<chrono::Utc>>, AppError> {

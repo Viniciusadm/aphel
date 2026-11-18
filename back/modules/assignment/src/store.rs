@@ -18,7 +18,7 @@ use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, FieldS
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::organization_admin::Listing;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 use chrono::{DateTime, Utc};
@@ -151,11 +151,7 @@ impl DistributionStore {
         Ok(rules)
     }
 
-    async fn write_members(
-        &self,
-        tx: &mut MySqlTx,
-        rule: &DistributionRule,
-    ) -> Result<(), AppError> {
+    async fn write_members(&self, tx: &mut Tx, rule: &DistributionRule) -> Result<(), AppError> {
         sqlx::query("DELETE FROM assignment_members WHERE rule_id = ?")
             .bind(rule.id.to_string())
             .execute(&mut **tx)
@@ -394,7 +390,7 @@ impl DistributionStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         rule: &DistributionRule,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -434,7 +430,7 @@ impl DistributionStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         rule: &DistributionRule,
     ) -> Result<(), AppError> {
         let result = sqlx::query(
@@ -466,7 +462,7 @@ impl DistributionStore {
         self.write_members(tx, rule).await
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, rule_id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, rule_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM assignment_rules WHERE id = ?")
             .bind(rule_id.to_string())
             .execute(&mut **tx)
@@ -475,11 +471,7 @@ impl DistributionStore {
         Ok(())
     }
 
-    pub async fn lock_state(
-        &self,
-        tx: &mut MySqlTx,
-        rule_id: Uuid,
-    ) -> Result<Option<u64>, AppError> {
+    pub async fn lock_state(&self, tx: &mut Tx, rule_id: Uuid) -> Result<Option<u64>, AppError> {
         let sequence: Option<u64> = sqlx::query_scalar(
             "SELECT sequence FROM assignment_states \
              WHERE rule_id = ? FOR UPDATE",
@@ -492,7 +484,7 @@ impl DistributionStore {
 
     pub async fn locked_counters(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         rule_id: Uuid,
         users: &[UserId],
     ) -> Result<Vec<Counter>, AppError> {
@@ -523,7 +515,7 @@ impl DistributionStore {
 
     pub(crate) async fn find_assignment(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         idempotency_key: &str,
     ) -> Result<Option<UserId>, AppError> {
         let user: Option<Option<String>> = sqlx::query_scalar(
@@ -538,7 +530,7 @@ impl DistributionStore {
             .transpose()
     }
 
-    pub async fn record_pick(&self, tx: &mut MySqlTx, pick: &PickRecord) -> Result<(), AppError> {
+    pub async fn record_pick(&self, tx: &mut Tx, pick: &PickRecord) -> Result<(), AppError> {
         let rule_id = pick.rule_id.to_string();
         let at = mapper::naive(pick.at);
         sqlx::query(

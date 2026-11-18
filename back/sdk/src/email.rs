@@ -3,7 +3,8 @@ pub mod mime;
 pub mod oauth;
 use crate::{AppError, Ctx};
 pub use aphel_contract_email::*;
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::Db;
+use aphel_kernel::database::transaction::Tx;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -36,7 +37,7 @@ pub trait EmailSender: Send + Sync {
     async fn enqueue_in_tx(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         command: SendEmailCommand,
     ) -> Result<uuid::Uuid, AppError>;
 }
@@ -57,7 +58,7 @@ pub struct EmailEngagement {
 pub trait EmailEngagementReader: Send + Sync {
     async fn snapshot(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &crate::shared::RecordRef,
     ) -> Result<EmailEngagement, AppError>;
 }
@@ -66,7 +67,7 @@ pub trait EmailEngagementProjection: Send + Sync {
     fn record_type(&self) -> &'static str;
     async fn refresh(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         record: &crate::shared::RecordRef,
         reader: &dyn EmailEngagementReader,
     ) -> Result<(), AppError>;
@@ -114,25 +115,17 @@ pub fn sender() -> Result<std::sync::Arc<dyn EmailSender>, AppError> {
 pub trait EmailAutomationReader: Send + Sync {
     async fn organization_template_keys(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
     ) -> Result<std::collections::HashMap<uuid::Uuid, String>, AppError>;
     async fn organization_template_ids_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
     ) -> Result<std::collections::HashMap<String, uuid::Uuid>, AppError>;
-    async fn objection_hash(
-        &self,
-        pool: &sqlx::MySqlPool,
-        id: uuid::Uuid,
-    ) -> Result<Option<String>, AppError>;
-    async fn has_objection(
-        &self,
-        pool: &sqlx::MySqlPool,
-        address_hash: &str,
-    ) -> Result<bool, AppError>;
+    async fn objection_hash(&self, pool: &Db, id: uuid::Uuid) -> Result<Option<String>, AppError>;
+    async fn has_objection(&self, pool: &Db, address_hash: &str) -> Result<bool, AppError>;
     async fn sendable_mailbox(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         owner: &UserId,
         id: Option<uuid::Uuid>,
     ) -> Result<Option<uuid::Uuid>, AppError>;

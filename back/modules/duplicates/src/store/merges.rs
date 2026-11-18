@@ -11,7 +11,7 @@ use crate::domain::DuplicateFamily;
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::SystemField;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::{aliased, push_partition};
@@ -68,7 +68,7 @@ impl MergeStore {
     pub(crate) async fn move_links(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         kind: &DuplicateType,
         from: Uuid,
         to: Uuid,
@@ -103,7 +103,7 @@ impl MergeStore {
 
     pub(crate) async fn lock_versions(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         kind: &DuplicateType,
         ids: &[Uuid],
     ) -> Result<RecordVersions, AppError> {
@@ -147,7 +147,7 @@ impl MergeStore {
 
     pub(crate) async fn record_merge(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record_type: &str,
         merged_id: Uuid,

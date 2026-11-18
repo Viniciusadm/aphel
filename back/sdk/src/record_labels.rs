@@ -12,12 +12,13 @@ use aphel_kernel::application::organization_admin::ListWindow;
 use aphel_kernel::application::query::{
     ArchivedFilter, Filter, FilterOperator, RecordQuery, RecordQueryEngine,
 };
+use aphel_kernel::database::Db;
 use aphel_kernel::infrastructure::query::{
     MySqlRecordQueryPorts,
     compiler::{push_partition, quoted},
     computed::system_expression,
 };
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use std::{collections::HashMap, sync::Arc};
 use uuid::Uuid;
 
@@ -27,7 +28,7 @@ pub struct VisibleRecordLabel {
 }
 
 pub async fn visible_record_labels<D: FieldDefinitionRepository>(
-    pool: &MySqlPool,
+    pool: &Db,
     registry: &Arc<RecordTypeRegistry>,
     definitions: &D,
     scope: &AccessScope,
@@ -85,7 +86,7 @@ pub async fn visible_record_labels<D: FieldDefinitionRepository>(
 }
 
 pub async fn visible_record_label<D: FieldDefinitionRepository>(
-    pool: &MySqlPool,
+    pool: &Db,
     registry: &Arc<RecordTypeRegistry>,
     definitions: &D,
     scope: &AccessScope,
@@ -104,7 +105,7 @@ pub async fn visible_record_label<D: FieldDefinitionRepository>(
 }
 
 pub async fn visible_record_ids(
-    pool: &MySqlPool,
+    pool: &Db,
     registry: &Arc<RecordTypeRegistry>,
     scope: &AccessScope,
     record_type: &RecordType,

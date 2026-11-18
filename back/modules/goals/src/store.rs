@@ -12,7 +12,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::{TeamId, UserId};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::Listing;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const GOAL_SELECT: &str = "SELECT g.id, g.owner_type, g.user_id, g.team_id, g.metric, g.period, \
@@ -220,7 +220,7 @@ impl GoalStore {
             .transpose()
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, goal: &Goal) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, goal: &Goal) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO goals (id, owner_type, user_id, team_id, metric, period, \
              starts_on, ends_on, target, credit_mode, created_by, created_at, updated_at) \
@@ -244,7 +244,7 @@ impl GoalStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, goal: &Goal) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, goal: &Goal) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE goals SET owner_type = ?, user_id = ?, team_id = ?, metric = ?, period = ?, \
              starts_on = ?, ends_on = ?, target = ?, credit_mode = ?, updated_at = ? \
@@ -266,7 +266,7 @@ impl GoalStore {
         Ok(())
     }
 
-    pub(crate) async fn lock_orphans(&self, tx: &mut MySqlTx) -> Result<Vec<OrphanGoal>, AppError> {
+    pub(crate) async fn lock_orphans(&self, tx: &mut Tx) -> Result<Vec<OrphanGoal>, AppError> {
         let rows = sqlx::query(
             "SELECT g.id, g.owner_type, g.metric, g.period, g.starts_on, g.target FROM goals g \
              WHERE (g.owner_type = 'user' AND g.user_id IS NULL) \
@@ -289,7 +289,7 @@ impl GoalStore {
             .collect()
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, goal_id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, goal_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM goals WHERE id = ?")
             .bind(goal_id.to_string())
             .execute(&mut **tx)

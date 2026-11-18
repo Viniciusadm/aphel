@@ -4,7 +4,7 @@ use aphel_kernel::{
         fields::LocalizedLabels,
         shared::{RecordRef, RecordType},
     },
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     domain::access::Permission,
     errors::AppError,
 };
@@ -120,7 +120,7 @@ impl PrivacySource for TasksPrivacy {
     async fn erase(
         &self,
         _ctx: &Ctx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         request: &SourceRequest<'_>,
     ) -> Result<SourceOutcome, AppError> {
         if !request.items.is_empty() {
@@ -133,7 +133,7 @@ impl PrivacySource for TasksPrivacy {
     async fn redact(
         &self,
         _ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         redaction: &Redaction,
     ) -> Result<u64, AppError> {
         Ok(redact_text(tx, "tasks", "title", redaction).await?

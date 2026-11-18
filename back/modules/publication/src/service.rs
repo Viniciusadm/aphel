@@ -27,7 +27,7 @@ use aphel_sdk::platform::application::query::{
     ArchivedFilter, Filter, FilterCondition, FilterOperator, RecordQuery, RecordQueryEngine,
 };
 use aphel_sdk::platform::application::shared::{Job, JobQueue, RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::records::{lock_version, snapshot};
 use aphel_sdk::records::RecordCtx;
@@ -170,7 +170,7 @@ fn require_update(ctx: &Ctx<'_>, entity: &EntityDefinition) -> Result<(), AppErr
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     event_type: &'static str,
     payload: Value,
@@ -277,7 +277,7 @@ fn check_key(key: &str) -> Result<String, AppError> {
 }
 
 async fn replay(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     user: &str,
     key: &str,
     input_hash: &str,
@@ -295,7 +295,7 @@ async fn replay(
 
 async fn supersede_open(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     status: RequestStatus,
 ) -> Result<(), AppError> {
@@ -321,7 +321,7 @@ async fn supersede_open(
 
 pub(crate) async fn enqueue(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &PublicationRequest,
 ) -> Result<(), AppError> {
     let mut job = Job::new(
@@ -352,7 +352,7 @@ struct NewRequest {
 
 async fn open_request(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     new: NewRequest,
 ) -> Result<PublicationRequest, AppError> {

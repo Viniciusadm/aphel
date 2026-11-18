@@ -1,8 +1,8 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_sdk::platform::database::Db;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 
 use crate::domain::COMPANY_RESTORED;
 use crate::hierarchy::{HierarchyStore, reattach_children};
@@ -17,15 +17,12 @@ use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
 pub(crate) const HIERARCHY_RESTORE_CONSUMER: &str = "organizations.hierarchy_restore";
 
 pub(crate) struct HierarchyRestoreConsumer {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl HierarchyRestoreConsumer {
-    pub(crate) fn shared(
-        pool: MySqlPool,
-        catalog: Arc<RecordTypeCatalog>,
-    ) -> Arc<dyn EventConsumer> {
+    pub(crate) fn shared(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Arc<dyn EventConsumer> {
         Arc::new(Self { pool, catalog })
     }
 }

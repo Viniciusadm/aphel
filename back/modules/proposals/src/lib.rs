@@ -22,7 +22,7 @@ use aphel_kernel::modules::{AppBuilder, Manifest, Migration, Module, ModuleCtx};
 use aphel_sdk::configuration::ConfigSection;
 use aphel_sdk::platform::application::files::{FileReferenceColumn, FileReferenceSource};
 use aphel_sdk::platform::application::public_events::event;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::PermissionDefinition;
 
 pub(crate) use service::{
@@ -79,7 +79,7 @@ impl Module for ProposalsModule {
         .routes(|_| http::router())
         .action(Arc::new(automation::GenerateProposalAction))
         .trigger(Arc::new(automation::ProposalGeneratedTrigger))
-        .contribute::<dyn ConfigSection<MySqlTx>>(Arc::new(config::TemplatesSection))
+        .contribute::<dyn ConfigSection<Tx>>(Arc::new(config::TemplatesSection))
         .contribute::<dyn FileReferenceSource>(Arc::new(ProposalFileReferences));
         app.permission(PermissionDefinition::administrative(MANAGE));
         app.public_event(event(

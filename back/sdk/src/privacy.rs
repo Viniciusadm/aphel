@@ -4,7 +4,7 @@ use aphel_kernel::application::shared::REDACTED;
 use aphel_kernel::{
     Ctx,
     application::{fields::LocalizedLabels, shared::RecordRef},
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     errors::AppError,
 };
 use async_trait::async_trait;
@@ -382,7 +382,7 @@ pub trait PrivacySource: Send + Sync {
     async fn erase(
         &self,
         _ctx: &Ctx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _request: &SourceRequest<'_>,
     ) -> Result<SourceOutcome, AppError> {
         Ok(SourceOutcome::default())
@@ -390,7 +390,7 @@ pub trait PrivacySource: Send + Sync {
     async fn redact(
         &self,
         _ctx: &Ctx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _redaction: &Redaction,
     ) -> Result<u64, AppError> {
         Ok(0)

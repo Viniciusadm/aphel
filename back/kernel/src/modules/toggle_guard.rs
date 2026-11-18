@@ -1,23 +1,20 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 
+use crate::database::Db;
 use crate::errors::AppError;
 
 #[async_trait]
 pub trait ModuleToggleGuard: Send + Sync {
-    async fn held_modules(&self, pool: &MySqlPool) -> Result<HashMap<String, String>, AppError>;
+    async fn held_modules(&self, pool: &Db) -> Result<HashMap<String, String>, AppError>;
 
-    async fn dependents(
-        &self,
-        _pool: &MySqlPool,
-    ) -> Result<HashMap<String, Vec<String>>, AppError> {
+    async fn dependents(&self, _pool: &Db) -> Result<HashMap<String, Vec<String>>, AppError> {
         Ok(HashMap::new())
     }
 }
 
-pub async fn held_modules(pool: &MySqlPool) -> Result<HashMap<String, String>, AppError> {
+pub async fn held_modules(pool: &Db) -> Result<HashMap<String, String>, AppError> {
     let mut held = HashMap::new();
     for guard in crate::modules::app().contributions::<dyn ModuleToggleGuard>() {
         held.extend(guard.held_modules(pool).await?);
@@ -25,7 +22,7 @@ pub async fn held_modules(pool: &MySqlPool) -> Result<HashMap<String, String>, A
     Ok(held)
 }
 
-pub async fn dependents(pool: &MySqlPool) -> Result<HashMap<String, Vec<String>>, AppError> {
+pub async fn dependents(pool: &Db) -> Result<HashMap<String, Vec<String>>, AppError> {
     let mut dependents: HashMap<String, Vec<String>> = HashMap::new();
     for guard in crate::modules::app().contributions::<dyn ModuleToggleGuard>() {
         for (module, names) in guard.dependents(pool).await? {

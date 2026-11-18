@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::engine::{Integration, IntegrationError, IntegrationStatus};
 use aphel_kernel::context::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const INTEGRATION_COLUMNS: &str = "id, provider_key, config, status, recent_errors, last_tested_at, \
@@ -88,7 +88,7 @@ impl IntegrationStore {
 
     pub(crate) async fn find_for_update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         provider_key: &str,
     ) -> Result<Option<Integration>, AppError> {
         let sql = format!(
@@ -105,7 +105,7 @@ impl IntegrationStore {
 
     pub(crate) async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         integration: &Integration,
     ) -> Result<(), AppError> {
         let last_error = integration.last_error();
@@ -134,7 +134,7 @@ impl IntegrationStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<bool, AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM integrations WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)

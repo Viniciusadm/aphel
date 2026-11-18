@@ -31,7 +31,7 @@ use aphel_sdk::platform::application::query::{
     TimeGranularity, bucket_start, next_bucket,
 };
 use aphel_sdk::platform::application::shared::{RecordRef, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScope};
 
 use aphel_sdk::platform::application::shared::is_access_denied as is_unavailable;
@@ -745,7 +745,7 @@ async fn ensure_unique(ctx: &Ctx<'_>, goal: &Goal) -> Result<(), AppError> {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     goal: &Goal,
     event_type: &'static str,
     (before, after): (&Value, &Value),

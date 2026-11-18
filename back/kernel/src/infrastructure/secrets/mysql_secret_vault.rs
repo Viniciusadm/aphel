@@ -4,7 +4,7 @@ use sqlx::{AssertSqlSafe, MySqlPool, Row};
 use uuid::Uuid;
 
 use crate::application::secrets::{MAX_SECRET_BYTES, SecretKey, SecretVault};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::Secret;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
@@ -46,10 +46,10 @@ fn into_secret(bytes: Vec<u8>) -> Result<Secret, AppError> {
 }
 
 #[async_trait]
-impl SecretVault<MySqlTx> for MySqlSecretVault {
+impl SecretVault<Tx> for MySqlSecretVault {
     async fn store(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         key: &SecretKey,
         value: &Secret,
@@ -110,7 +110,7 @@ impl SecretVault<MySqlTx> for MySqlSecretVault {
 
     async fn remove(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         key: &SecretKey,
     ) -> Result<(), AppError> {
@@ -125,7 +125,7 @@ impl SecretVault<MySqlTx> for MySqlSecretVault {
 
     async fn remove_owner(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         owner_type: &str,
         owner_id: &str,

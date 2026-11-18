@@ -8,7 +8,7 @@ use crate::domain::{Product, ProductData, Recurrence};
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{instant, optional_user, push_ids};
@@ -104,7 +104,7 @@ impl ProductStore {
         }))
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, product: &Product) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, product: &Product) -> Result<(), AppError> {
         let data = &product.data;
         sqlx::query(
             "INSERT INTO products (id, name, code, description, price, currency, \
@@ -131,7 +131,7 @@ impl ProductStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         product_id: Uuid,
         data: &ProductData,
         updated_at: DateTime<Utc>,
@@ -159,7 +159,7 @@ impl ProductStore {
 
     pub(crate) async fn soft_delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         product_id: Uuid,
         deleted_at: DateTime<Utc>,
     ) -> Result<(), AppError> {

@@ -1,10 +1,10 @@
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::security::SecureTokens;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::infrastructure::auth::Sha256SecureTokens;
 use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
 use axum::response::{IntoResponse, Response};
-use sqlx::MySqlPool;
 use std::collections::BTreeMap;
 
 pub(crate) const PREVIEW_SEGMENT: &str = "preview";
@@ -73,7 +73,7 @@ fn cookie_token(headers: &HeaderMap) -> Option<String> {
 }
 
 pub(crate) async fn start(
-    pool: &MySqlPool,
+    pool: &Db,
     theme: Option<&str>,
     record: Option<&PreviewRecord>,
     path: Option<&str>,
@@ -110,10 +110,7 @@ type PreviewRow = (
     Option<String>,
 );
 
-async fn find(
-    pool: &MySqlPool,
-    token: &str,
-) -> Result<Option<(Preview, Option<String>)>, AppError> {
+async fn find(pool: &Db, token: &str) -> Result<Option<(Preview, Option<String>)>, AppError> {
     let row: Option<PreviewRow> = sqlx::query_as(
         "SELECT theme, record_type, record_id, draft_fields, target_path FROM site_previews \
          WHERE token_hash = ? AND expires_at > NOW(6)",

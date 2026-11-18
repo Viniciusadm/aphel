@@ -34,7 +34,7 @@ use aphel_sdk::platform::application::query::{
     RecordQueryPorts, ResolveContext, TimeGranularity,
 };
 use aphel_sdk::platform::application::shared::{RecordRef, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 const DEAL: &str = aphel_contract_crm::keys::DEAL;
@@ -165,7 +165,7 @@ pub(crate) fn merge_settings(
 
 pub(crate) async fn write_settings(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     current: &ForecastSettings,
     mut next: ForecastSettings,
     ip: Option<String>,
@@ -491,7 +491,7 @@ async fn won(
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     settings: &ForecastSettings,
     (before, after): (&Value, &Value),
     ip: Option<String>,

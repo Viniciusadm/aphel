@@ -79,7 +79,7 @@ impl AccountSessionRepository for MySqlAccountSessionRepository {
         session_id: &SessionId,
         at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
-        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
+        let mut tx: crate::database::transaction::Tx = self.pool.begin().await?.into();
         let result = sqlx::query(
             "UPDATE sessions SET revoked_at = ? WHERE id = ? AND user_id = ? AND revoked_at IS NULL",
         )
@@ -109,7 +109,7 @@ impl AccountSessionRepository for MySqlAccountSessionRepository {
         keep: &SessionId,
         at: DateTime<Utc>,
     ) -> Result<u64, AppError> {
-        let mut tx: crate::database::transaction::MySqlTx = self.pool.begin().await?.into();
+        let mut tx: crate::database::transaction::Tx = self.pool.begin().await?.into();
         let result = sqlx::query(
             "UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND id <> ? AND revoked_at IS NULL AND expires_at > ?",
         )

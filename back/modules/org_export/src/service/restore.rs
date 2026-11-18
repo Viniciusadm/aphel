@@ -1,4 +1,5 @@
 use aphel_contract_crm::CrmPermissions;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -7,8 +8,6 @@ use chrono::{DateTime, SecondsFormat, Utc};
 use serde::Serialize;
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
-
-use sqlx::MySqlPool;
 
 use crate::service::install_config_package;
 use crate::store::{InstallationSnapshot, OrgDataStore};
@@ -36,7 +35,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     SharedFileStorage,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionSet, RoleKey};
 use aphel_sdk::platform::domain::fields::{FieldDefinition, FieldType, validate_value};
 use aphel_sdk::platform::infrastructure::fields::{
@@ -222,7 +221,7 @@ impl IdMapper {
 }
 
 pub(crate) struct RestoreEnv {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
     storage: SharedFileStorage,
     events: SharedEventPublisher,
@@ -232,7 +231,7 @@ pub(crate) struct RestoreEnv {
 
 impl RestoreEnv {
     pub(crate) fn new(
-        pool: MySqlPool,
+        pool: Db,
         catalog: Arc<RecordTypeCatalog>,
         storage: SharedFileStorage,
         events: SharedEventPublisher,
@@ -368,7 +367,7 @@ pub(crate) async fn restore_installation(
     )?;
     let registry = env.registry().await?;
     let snapshot = InstallationSnapshot::capture(&env.pool).await?;
-    let mut tx = aphel_sdk::platform::database::transaction::MySqlTx::from(env.pool.begin().await?);
+    let mut tx = aphel_sdk::platform::database::transaction::Tx::from(env.pool.begin().await?);
     if !env
         .data
         .create_installation(&mut tx, &registration, &registry)
@@ -933,7 +932,7 @@ impl Restore<'_> {
     async fn restore_dataset(
         &self,
         reader: &ArchiveReader,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         state: &mut RestoreState,
         dataset: &DatasetEntry,
     ) -> Result<(), AppError> {
@@ -1027,7 +1026,7 @@ impl Restore<'_> {
 
     async fn write_custom_fields(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         state: &mut RestoreState,
         record: &RecordRef,
         values: &Map<String, Value>,

@@ -16,6 +16,7 @@ use aphel_kernel::application::system::upgrade::{
 use aphel_kernel::application::system::{APHEL_VERSION, MigrationStatus};
 use aphel_kernel::config::AppConfig;
 use aphel_kernel::database;
+use aphel_kernel::database::Db;
 use aphel_kernel::errors::AppError;
 use aphel_kernel::infrastructure::custom_objects::sync_custom_object_fields;
 use aphel_kernel::infrastructure::fields::sync_system_fields;
@@ -143,7 +144,7 @@ fn applied_between(before: &MigrationStatus, after: &MigrationStatus) -> Vec<Str
     applied
 }
 
-async fn apply(pool: &sqlx::MySqlPool) -> Result<(), AppError> {
+async fn apply(pool: &Db) -> Result<(), AppError> {
     database::migrations::run(pool).await?;
     sync_system_fields(pool, &RecordTypeRegistry::builtin()).await?;
     sync_custom_object_fields(pool).await?;

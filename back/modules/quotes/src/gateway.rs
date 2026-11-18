@@ -17,7 +17,7 @@ use aphel_sdk::line_items::LineData;
 use aphel_sdk::line_items::LineItemsPort;
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use aphel_sdk::pricing::{
@@ -168,7 +168,7 @@ impl<'a, 'b> QuoteGateway<'a, 'b> {
 
     pub(crate) async fn send_email(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         email: QuoteEmail,
     ) -> Result<(), AppError> {
@@ -332,7 +332,7 @@ impl<'a, 'b> QuoteApprovals<'a, 'b> {
 
     pub(crate) async fn checkpoint(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         checkpoint: &ApprovalCheckpoint,
     ) -> Result<(), AppError> {
@@ -347,7 +347,7 @@ impl<'a, 'b> QuoteApprovals<'a, 'b> {
 
     pub(crate) async fn submit(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         submission: &ApprovalSubmission,
     ) -> Result<SubmissionOutcome, AppError> {
@@ -362,7 +362,7 @@ impl<'a, 'b> QuoteApprovals<'a, 'b> {
 
     pub(crate) async fn cancel_open(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record: &RecordRef,
         reason: &str,

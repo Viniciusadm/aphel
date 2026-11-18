@@ -3,8 +3,8 @@ use aphel_sdk::notifications::{
     DispatchOutcome, NotificationDelivery, NotificationDirectory, NotificationIntent,
 };
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::infrastructure::platform::SharedJobQueue;
-use sqlx::MySqlPool;
 use std::sync::Arc;
 
 pub(crate) struct Delivery;
@@ -13,7 +13,7 @@ pub(crate) struct Delivery;
 impl NotificationDelivery for Delivery {
     fn directory(
         &self,
-        pool: MySqlPool,
+        pool: Db,
         registry: Arc<RecordTypeRegistry>,
     ) -> Arc<dyn NotificationDirectory> {
         Arc::new(crate::infrastructure::MySqlNotificationDirectory::new(
@@ -23,7 +23,7 @@ impl NotificationDelivery for Delivery {
 
     async fn dispatch(
         &self,
-        pool: MySqlPool,
+        pool: Db,
         registry: Arc<RecordTypeRegistry>,
         jobs: SharedJobQueue,
         intent: NotificationIntent,

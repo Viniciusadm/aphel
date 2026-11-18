@@ -10,7 +10,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const SELECT_COLUMNS: &str = "e.id, e.status, e.include_files, e.file_id, \
@@ -77,11 +77,7 @@ fn export_from_row(row: &MySqlRow) -> Result<OrgExport, AppError> {
 }
 
 impl OrgExportStore {
-    pub(crate) async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        export: &OrgExport,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, export: &OrgExport) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO organization_exports (id, status, include_files, file_id, \
              summary, failure_reason, requested_by, created_at, updated_at, started_at, finished_at) \
@@ -103,7 +99,7 @@ impl OrgExportStore {
         Ok(())
     }
 
-    pub(crate) async fn save(&self, tx: &mut MySqlTx, export: &OrgExport) -> Result<(), AppError> {
+    pub(crate) async fn save(&self, tx: &mut Tx, export: &OrgExport) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE organization_exports SET status = ?, file_id = ?, summary = ?, failure_reason = ?, \
              updated_at = ?, started_at = ?, finished_at = ? WHERE id = ?",
@@ -121,11 +117,7 @@ impl OrgExportStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(
-        &self,
-        tx: &mut MySqlTx,
-        export: &OrgExport,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, export: &OrgExport) -> Result<(), AppError> {
         sqlx::query("DELETE FROM organization_exports WHERE id = ?")
             .bind(export.id.to_string())
             .execute(&mut **tx)
@@ -173,7 +165,7 @@ impl OrgExportStore {
         })
     }
 
-    pub(crate) async fn has_pending(&self, tx: &mut MySqlTx) -> Result<bool, AppError> {
+    pub(crate) async fn has_pending(&self, tx: &mut Tx) -> Result<bool, AppError> {
         sqlx::query("SELECT id FROM organization_settings WHERE id = 1 FOR UPDATE")
             .fetch_optional(&mut **tx)
             .await?;

@@ -17,7 +17,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::query::QueryPlan;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::domain::users::UserStatus;
 use aphel_sdk::platform::infrastructure::query::compiler::{
@@ -171,7 +171,7 @@ impl DealStore {
         rows.iter().map(deal_from_row).collect()
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, deal: &Deal) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, deal: &Deal) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO deals (id, owner_id, pipeline_id, stage_id, title, amount, currency, \
              amount_base, exchange_rate, mrr, arr, tcv, contract_start, contract_end, renewal_of_deal_id, \
@@ -214,7 +214,7 @@ impl DealStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, deal: &Deal) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, deal: &Deal) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE deals SET owner_id = ?, pipeline_id = ?, stage_id = ?, title = ?, amount = ?, currency = ?, \
              amount_base = ?, exchange_rate = ?, mrr = ?, arr = ?, tcv = ?, contract_start = ?, \
@@ -257,7 +257,7 @@ impl DealStore {
 
     pub(crate) async fn soft_delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         deal_id: Uuid,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -360,7 +360,7 @@ impl DealStore {
 
     pub(crate) async fn apply_open_rate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         currency: &str,
         rate: Option<Decimal>,
     ) -> Result<u64, AppError> {

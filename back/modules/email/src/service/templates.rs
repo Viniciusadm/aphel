@@ -24,7 +24,7 @@ use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 const MAX_KEY_ATTEMPTS: usize = 50;
@@ -514,7 +514,7 @@ async fn require(ctx: &Ctx<'_>, id: Uuid) -> Result<EmailTemplateView, AppError>
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     template: &EmailTemplateView,
     action: &'static str,
     changes: Vec<FieldChange>,

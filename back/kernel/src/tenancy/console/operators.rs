@@ -1,8 +1,8 @@
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::application::security::{PasswordHasher, SecureTokens};
+use crate::database::Db;
 use crate::domain::Secret;
 use crate::errors::AppError;
 use crate::infrastructure::auth::{Argon2PasswordHasher, Sha256SecureTokens};
@@ -133,7 +133,7 @@ fn unique_email(error: sqlx::Error) -> AppError {
     }
 }
 
-pub async fn find(pool: &MySqlPool, id: Uuid) -> Result<Option<Operator>, AppError> {
+pub async fn find(pool: &Db, id: Uuid) -> Result<Option<Operator>, AppError> {
     let row: Option<OperatorRow> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {OPERATOR_COLUMNS} FROM operators o WHERE o.id = ?"
     )))
@@ -143,7 +143,7 @@ pub async fn find(pool: &MySqlPool, id: Uuid) -> Result<Option<Operator>, AppErr
     row.map(operator).transpose()
 }
 
-pub async fn list(pool: &MySqlPool) -> Result<Vec<Operator>, AppError> {
+pub async fn list(pool: &Db) -> Result<Vec<Operator>, AppError> {
     let rows: Vec<OperatorRow> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {OPERATOR_COLUMNS} FROM operators o ORDER BY o.status = 'deactivated', o.display_name"
     )))
@@ -153,7 +153,7 @@ pub async fn list(pool: &MySqlPool) -> Result<Vec<Operator>, AppError> {
 }
 
 pub async fn create(
-    pool: &MySqlPool,
+    pool: &Db,
     email: &str,
     display_name: &str,
     password: &str,
@@ -179,11 +179,7 @@ pub async fn create(
         .ok_or_else(|| AppError::Internal("the operator was not stored".to_owned()))
 }
 
-pub async fn authenticate(
-    pool: &MySqlPool,
-    email: &str,
-    password: &str,
-) -> Result<Operator, AppError> {
+pub async fn authenticate(pool: &Db, email: &str, password: &str) -> Result<Operator, AppError> {
     let email = email.trim().to_lowercase();
     let row: Option<CredentialRow> = sqlx::query_as(
         "SELECT id, password_hash, failed_logins, locked_until, status FROM operators WHERE email = ?",
@@ -229,7 +225,7 @@ pub async fn authenticate(
 }
 
 pub async fn issue_session(
-    pool: &MySqlPool,
+    pool: &Db,
     operator_id: Uuid,
     ip: Option<&str>,
     user_agent: Option<&str>,
@@ -254,10 +250,7 @@ pub async fn issue_session(
     })
 }
 
-pub async fn resolve_session(
-    pool: &MySqlPool,
-    token: &str,
-) -> Result<Option<ConsoleSession>, AppError> {
+pub async fn resolve_session(pool: &Db, token: &str) -> Result<Option<ConsoleSession>, AppError> {
     let hash = Sha256SecureTokens.digest(token);
     let row: Option<SessionRow> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT s.id, s.last_seen_at, {OPERATOR_COLUMNS} FROM operator_sessions s \
@@ -294,7 +287,7 @@ pub async fn resolve_session(
     }))
 }
 
-pub async fn revoke_session(pool: &MySqlPool, session_id: Uuid) -> Result<(), AppError> {
+pub async fn revoke_session(pool: &Db, session_id: Uuid) -> Result<(), AppError> {
     sqlx::query("UPDATE operator_sessions SET revoked_at = UTC_TIMESTAMP(6) WHERE id = ? AND revoked_at IS NULL")
         .bind(session_id.to_string())
         .execute(pool)
@@ -303,7 +296,7 @@ pub async fn revoke_session(pool: &MySqlPool, session_id: Uuid) -> Result<(), Ap
 }
 
 async fn revoke_other_sessions(
-    pool: &MySqlPool,
+    pool: &Db,
     operator_id: Uuid,
     keep: Option<Uuid>,
 ) -> Result<(), AppError> {
@@ -319,7 +312,7 @@ async fn revoke_other_sessions(
 }
 
 pub async fn change_password(
-    pool: &MySqlPool,
+    pool: &Db,
     session: &ConsoleSession,
     current: &str,
     new: &str,
@@ -344,7 +337,7 @@ pub async fn change_password(
 }
 
 pub async fn invite(
-    pool: &MySqlPool,
+    pool: &Db,
     email: &str,
     display_name: &str,
 ) -> Result<(Operator, Secret), AppError> {
@@ -371,7 +364,7 @@ pub async fn invite(
     Ok((operator, issued.token))
 }
 
-pub async fn renew_invitation(pool: &MySqlPool, id: Uuid) -> Result<(Operator, Secret), AppError> {
+pub async fn renew_invitation(pool: &Db, id: Uuid) -> Result<(Operator, Secret), AppError> {
     let issued = Sha256SecureTokens.issue()?;
     let updated = sqlx::query(
         "UPDATE operators SET invite_token_hash = ?, invite_expires_at = ? WHERE id = ? AND status = 'invited'",
@@ -391,7 +384,7 @@ pub async fn renew_invitation(pool: &MySqlPool, id: Uuid) -> Result<(Operator, S
     Ok((operator, issued.token))
 }
 
-pub async fn invitation(pool: &MySqlPool, token: &str) -> Result<Operator, AppError> {
+pub async fn invitation(pool: &Db, token: &str) -> Result<Operator, AppError> {
     let hash = Sha256SecureTokens.digest(token);
     let row: Option<OperatorRow> = sqlx::query_as(sqlx::AssertSqlSafe(format!(
         "SELECT {OPERATOR_COLUMNS} FROM operators o WHERE o.invite_token_hash = ? \
@@ -409,7 +402,7 @@ pub async fn invitation(pool: &MySqlPool, token: &str) -> Result<Operator, AppEr
 }
 
 pub async fn accept_invitation(
-    pool: &MySqlPool,
+    pool: &Db,
     token: &str,
     password: &str,
 ) -> Result<Operator, AppError> {
@@ -426,11 +419,7 @@ pub async fn accept_invitation(
     find(pool, invited.id).await?.ok_or_else(operator_not_found)
 }
 
-pub async fn deactivate(
-    pool: &MySqlPool,
-    actor: &Operator,
-    id: Uuid,
-) -> Result<Operator, AppError> {
+pub async fn deactivate(pool: &Db, actor: &Operator, id: Uuid) -> Result<Operator, AppError> {
     if actor.id == id {
         return Err(AppError::conflict_code(
             "operator_self_deactivation",

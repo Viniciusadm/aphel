@@ -21,7 +21,7 @@ use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::audit::{DiffOptions, diff_values};
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 
 mod distribution;
@@ -799,7 +799,7 @@ async fn unique_key(ctx: &Ctx<'_>, name: &str) -> Result<String, AppError> {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     rule: &DistributionRule,
     event_type: &'static str,
     (before, after): (&Value, &Value),

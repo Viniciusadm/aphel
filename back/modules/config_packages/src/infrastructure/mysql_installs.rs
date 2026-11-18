@@ -10,7 +10,7 @@ use crate::application::{ConfigInstallRepository, ConfigPackageInstall};
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const INSTALL_COLUMNS: &str = "i.id, i.name, i.format_version, i.template_key, i.summary, \
@@ -51,7 +51,7 @@ fn install_from_row(row: &MySqlRow, package: Value) -> Result<ConfigPackageInsta
 
 #[async_trait]
 impl ConfigInstallRepository for MySqlConfigInstallRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn organization_locale(&self) -> Result<Option<String>, AppError> {
         Ok(
@@ -61,11 +61,7 @@ impl ConfigInstallRepository for MySqlConfigInstallRepository {
         )
     }
 
-    async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        install: &ConfigPackageInstall,
-    ) -> Result<(), AppError> {
+    async fn insert(&self, tx: &mut Tx, install: &ConfigPackageInstall) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO config_package_installs \
              (id, name, format_version, template_key, package, summary, installed_by, installed_at) \

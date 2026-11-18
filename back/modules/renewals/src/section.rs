@@ -1,10 +1,10 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeSet, HashMap};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -19,7 +19,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigKeyRepository, ConfigPackage, ConfigSection, Decisions, PackageIssue,
     PlanChange, PlanItem, assign_keys, parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::workflow::configuration::{PIPELINES_SECTION, parse_pipelines, stage_item_key};
 use aphel_sdk::workflow::{Pipeline, StageKind, WorkflowReader};
@@ -105,11 +105,11 @@ fn parse(content: &Value) -> Result<Vec<PackagePipelineRenewal>, AppError> {
 
 pub(crate) struct PipelineRenewalsSection {
     renewals: RenewalStore,
-    pool: MySqlPool,
+    pool: Db,
     keys: ConfigKeyClient,
 }
 
-pub(crate) fn pipeline_renewals_section(pool: &MySqlPool) -> PipelineRenewalsSection {
+pub(crate) fn pipeline_renewals_section(pool: &Db) -> PipelineRenewalsSection {
     PipelineRenewalsSection {
         renewals: RenewalStore::new(pool.clone()),
         pool: pool.clone(),
@@ -238,7 +238,7 @@ impl PipelineRenewalsSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for PipelineRenewalsSection {
+impl ConfigSection<Tx> for PipelineRenewalsSection {
     fn key(&self) -> &'static str {
         PIPELINE_RENEWALS_SECTION
     }
@@ -369,7 +369,7 @@ impl ConfigSection<MySqlTx> for PipelineRenewalsSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

@@ -1,6 +1,7 @@
 use aphel_kernel::application::files::UserReference;
 use aphel_kernel::application::mail::MailLocale;
 use aphel_kernel::application::shared::{DomainEvent, RecordRef};
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use async_trait::async_trait;
@@ -112,11 +113,7 @@ pub struct DueTask {
 
 #[async_trait]
 pub trait RecordFollowerSource: Send + Sync {
-    async fn followers(
-        &self,
-        pool: &sqlx::MySqlPool,
-        record: &RecordRef,
-    ) -> Result<Vec<UserId>, AppError>;
+    async fn followers(&self, pool: &Db, record: &RecordRef) -> Result<Vec<UserId>, AppError>;
 }
 
 #[async_trait]
@@ -339,7 +336,7 @@ pub fn record_type_label(record_type: &str, locale: MailLocale) -> String {
 pub trait DigestSource: Send + Sync {
     async fn open_tasks_due(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         owner: Option<&UserId>,
         from: DateTime<Utc>,
         to: DateTime<Utc>,
@@ -351,13 +348,13 @@ pub trait DigestSource: Send + Sync {
 pub trait NotificationDelivery: Send + Sync {
     fn directory(
         &self,
-        pool: sqlx::MySqlPool,
+        pool: Db,
         registry: std::sync::Arc<aphel_kernel::application::fields::RecordTypeRegistry>,
     ) -> std::sync::Arc<dyn NotificationDirectory>;
 
     async fn dispatch(
         &self,
-        pool: sqlx::MySqlPool,
+        pool: Db,
         registry: std::sync::Arc<aphel_kernel::application::fields::RecordTypeRegistry>,
         jobs: aphel_kernel::infrastructure::platform::SharedJobQueue,
         intent: NotificationIntent,
@@ -366,7 +363,7 @@ pub trait NotificationDelivery: Send + Sync {
 
 #[derive(Clone)]
 pub struct NotificationClient {
-    pool: sqlx::MySqlPool,
+    pool: Db,
     registry: std::sync::Arc<aphel_kernel::application::fields::RecordTypeRegistry>,
     jobs: aphel_kernel::infrastructure::platform::SharedJobQueue,
 }
@@ -385,7 +382,7 @@ fn delivery() -> Result<std::sync::Arc<dyn NotificationDelivery>, AppError> {
 
 impl NotificationClient {
     pub fn new(
-        pool: sqlx::MySqlPool,
+        pool: Db,
         registry: std::sync::Arc<aphel_kernel::application::fields::RecordTypeRegistry>,
         jobs: aphel_kernel::infrastructure::platform::SharedJobQueue,
     ) -> Self {

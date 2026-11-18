@@ -10,7 +10,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::line_items::{AmountMode, DiscountKind, LineData, LineItem, Recurrence};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{
     instant, invalid_column, naive, optional_user, optional_uuid,
@@ -79,7 +79,7 @@ impl LineItemStore {
 
     pub(crate) async fn list_locked(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
     ) -> Result<Vec<LineItem>, AppError> {
         let rows = sqlx::query(ITEM_SELECT)
@@ -90,7 +90,7 @@ impl LineItemStore {
         rows.iter().map(item_from_row).collect()
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, item: &LineItem) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, item: &LineItem) -> Result<(), AppError> {
         let data = &item.data;
         sqlx::query(
             "INSERT INTO line_items (id, record_type, record_id, product_id, name, unit, quantity, \
@@ -123,7 +123,7 @@ impl LineItemStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, item: &LineItem) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, item: &LineItem) -> Result<(), AppError> {
         let data = &item.data;
         sqlx::query(
             "UPDATE line_items SET product_id = ?, name = ?, unit = ?, quantity = ?, unit_price = ?, \
@@ -155,7 +155,7 @@ impl LineItemStore {
 
     pub(crate) async fn delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         item_id: Uuid,
     ) -> Result<(), AppError> {
@@ -170,7 +170,7 @@ impl LineItemStore {
 
     pub(crate) async fn set_positions(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         positions: &[(Uuid, i32)],
         at: DateTime<Utc>,
@@ -204,7 +204,7 @@ impl LineItemStore {
 
     pub(crate) async fn save_amount_mode(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         mode: AmountMode,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -235,7 +235,7 @@ impl LineItemStore {
 }
 
 pub(crate) async fn rebase_record_amounts(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     factor: Decimal,
 ) -> Result<(), AppError> {
@@ -254,7 +254,7 @@ pub(crate) async fn rebase_record_amounts(
 }
 
 pub(crate) async fn sync_record_rate(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     rate: Option<Decimal>,
 ) -> Result<(), AppError> {

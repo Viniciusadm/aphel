@@ -30,7 +30,7 @@ use aphel_sdk::platform::application::fields::permissions::{
 use aphel_sdk::platform::application::fields::{CustomFieldPorts, ReferenceChecker};
 use aphel_sdk::platform::application::query::RecordQueryPorts;
 use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 use aphel_sdk::line_items::catalog_item;
 fn parse_id(value: &str) -> Option<Uuid> {
@@ -557,7 +557,7 @@ async fn resolve_input(
 async fn lock(
     ctx: &Ctx<'_>,
     store: &LineItemStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     expected: &HostRecord,
 ) -> Result<(HostRecord, Vec<LineItem>), AppError> {
     let record = &expected.record;
@@ -577,7 +577,7 @@ async fn lock(
 }
 async fn project(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     stamp: &Stamp,
     items: &[LineItem],
     mode: AmountMode,
@@ -605,7 +605,7 @@ async fn project(
 
 async fn record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     stamp: &Stamp,
     event_type: &'static str,
     payload: Value,
@@ -768,7 +768,7 @@ fn has_projection(record: &RecordRef) -> bool {
 async fn summary_locked(
     ctx: &Ctx<'_>,
     store: &LineItemStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
 ) -> Result<LineItemsSummary, AppError> {
     let snapshot =

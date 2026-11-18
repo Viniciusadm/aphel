@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::sources::CompanyData;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LookupRow {
@@ -115,7 +115,7 @@ pub(crate) struct NewFieldSource<'a> {
 }
 
 pub(crate) async fn upsert_field_source(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     source: &NewFieldSource<'_>,
 ) -> Result<(), AppError> {
     sqlx::query(
@@ -176,7 +176,7 @@ pub(crate) async fn counts(pool: &MySqlPool) -> Result<(i64, i64), AppError> {
     Ok((lookups, sources))
 }
 
-pub(crate) async fn purge(tx: &mut MySqlTx) -> Result<(), AppError> {
+pub(crate) async fn purge(tx: &mut Tx) -> Result<(), AppError> {
     for sql in [
         "DELETE FROM enrichment_field_sources",
         "DELETE FROM enrichment_lookups",

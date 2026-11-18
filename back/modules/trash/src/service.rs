@@ -21,7 +21,7 @@ use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::platform::records::permission_denied;
 
@@ -86,7 +86,7 @@ struct TrashMutation {
     ip: Option<String>,
 }
 
-async fn publish(ctx: &Ctx<'_>, tx: &mut MySqlTx, mutation: TrashMutation) -> Result<(), AppError> {
+async fn publish(ctx: &Ctx<'_>, tx: &mut Tx, mutation: TrashMutation) -> Result<(), AppError> {
     let TrashMutation {
         actor,
         event_type,

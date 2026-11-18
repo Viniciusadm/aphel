@@ -25,7 +25,7 @@ use aphel_sdk::platform::application::files::UserReference;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::query::{RecordQueryExecutor, RecordQueryPorts};
 use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, ensure_version};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
@@ -405,7 +405,7 @@ async fn schedule_violations(
 
 async fn record_schedule(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     action: &'static str,
     schedule: &ReportSchedule,
     changes: Vec<FieldChange>,

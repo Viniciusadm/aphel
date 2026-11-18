@@ -1,7 +1,5 @@
 use std::sync::{Arc, Mutex, OnceLock};
 
-use sqlx::MySqlPool;
-
 use crate::api::rate_limit::{RateLimits, SlidingWindowLimiter};
 use crate::application::auth::{AuthSettings, AuthUseCases};
 use crate::application::custom_objects::{CustomSchema, RecordTypeCatalog};
@@ -13,6 +11,7 @@ use crate::application::organization_profile::{
 use crate::application::security::{NoopSecurityEventRecorder, SharedSecurityEventRecorder};
 use crate::application::shared::SharedFileStorage;
 use crate::config::OutboundHttpConfig;
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::infrastructure::audit::MySqlAuditLog;
 use crate::infrastructure::custom_objects::MySqlCustomSchemaSource;
@@ -39,7 +38,7 @@ type CachedApiTokenLimiter = (ApiTokenLimits, Arc<SlidingWindowLimiter>);
 
 #[derive(Clone)]
 pub struct AppState {
-    pub db: Option<MySqlPool>,
+    pub db: Option<Db>,
     pub app: Arc<crate::modules::App>,
     pub auth_settings: Arc<AuthSettings>,
     pub organization_config: Arc<OrganizationConfigCatalog>,
@@ -59,7 +58,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(db: Option<MySqlPool>) -> Self {
+    pub fn new(db: Option<Db>) -> Self {
         let record_types = match &db {
             Some(pool) => RecordTypeCatalog::new(
                 RecordTypeRegistry::builtin(),
@@ -240,7 +239,7 @@ impl AppState {
         self
     }
 
-    pub fn db(&self) -> Result<MySqlPool, AppError> {
+    pub fn db(&self) -> Result<Db, AppError> {
         self.db
             .clone()
             .ok_or_else(|| AppError::Configuration("DATABASE_URL is not configured".to_owned()))
@@ -287,7 +286,7 @@ pub fn install_runtime_state(state: AppState) {
     }
 }
 
-pub fn runtime_pool() -> Result<MySqlPool, AppError> {
+pub fn runtime_pool() -> Result<Db, AppError> {
     runtime_state()?.db()
 }
 
@@ -335,7 +334,7 @@ impl Runtime {
         crate::Ctx::from_state(&self.state, scope).await
     }
 
-    pub fn db(&self) -> Result<MySqlPool, AppError> {
+    pub fn db(&self) -> Result<Db, AppError> {
         self.state.db()
     }
 

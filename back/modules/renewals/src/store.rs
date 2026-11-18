@@ -9,7 +9,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::repositories::mapper::parse_uuid;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
@@ -102,7 +102,7 @@ impl RenewalStore {
 
     pub(crate) async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         settings: &RenewalSettings,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -222,7 +222,7 @@ impl RenewalStore {
 
     pub(crate) async fn mark_renewed(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         original_deal_id: Uuid,
         renewal_deal_id: Uuid,
         at: DateTime<Utc>,

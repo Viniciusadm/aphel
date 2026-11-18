@@ -13,13 +13,14 @@ use aphel_kernel::{
     infrastructure::{query::compiler::push_record_scope, repositories::mapper},
 };
 use aphel_sdk::platform::application::access::Authorizer;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::timeline::{
     KindDefinition, TimelineEntry, TimelineRequest, TimelineSource, push_cursor,
 };
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use std::sync::Arc;
 fn user_json(entry: &Option<aphel_sdk::platform::application::files::UserReference>) -> Value {
     entry
@@ -76,7 +77,7 @@ fn activity_entry(
 
 pub(crate) struct TasksTimeline;
 struct SourceStore {
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
 }
 impl SourceStore {

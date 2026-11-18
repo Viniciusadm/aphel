@@ -1,9 +1,9 @@
 use crate::application::shared::RecordType;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 
 pub async fn purge_record_type_data(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record_type: &RecordType,
 ) -> Result<u64, AppError> {
     let mut removed = 0;
@@ -52,7 +52,7 @@ fn dataset_record_filter(
 }
 
 pub async fn backdate_dataset_history(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &crate::application::shared::RecordRef,
     created_at: chrono::DateTime<chrono::Utc>,
     changed_at: chrono::DateTime<chrono::Utc>,
@@ -81,7 +81,7 @@ pub async fn backdate_dataset_history(
 }
 
 pub async fn dataset_core_counts(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
 ) -> Result<std::collections::BTreeMap<String, u64>, AppError> {
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM custom_records")
         .fetch_one(&mut **tx)
@@ -111,7 +111,7 @@ pub async fn dataset_core_counts(
 }
 
 pub async fn cleanup_dataset_references(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     records: Option<&[crate::application::shared::RecordRef]>,
 ) -> Result<Vec<(String, String)>, AppError> {
     let mut candidates = std::collections::BTreeMap::new();
@@ -197,7 +197,7 @@ pub async fn cleanup_dataset_references(
 }
 
 pub async fn cleanup_dataset_records(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     records: Option<&[crate::application::shared::RecordRef]>,
 ) -> Result<std::collections::BTreeMap<String, u64>, AppError> {
     let mut counts = std::collections::BTreeMap::new();
@@ -293,7 +293,7 @@ pub async fn cleanup_dataset_records(
 }
 
 pub async fn cleanup_dataset_files(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     candidates: &[(String, String)],
     full: bool,
 ) -> Result<Vec<String>, AppError> {

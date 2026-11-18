@@ -1,6 +1,6 @@
 use sqlx::MySqlPool;
 
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::{Permission, PermissionDefinition};
 use crate::errors::AppError;
 
@@ -35,7 +35,7 @@ pub async fn active_runtime_permissions(
 }
 
 pub async fn replace_runtime_permissions(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     owner: &str,
     grants: &[RuntimeGrant<'_>],
     active: bool,
@@ -104,7 +104,7 @@ pub async fn replace_runtime_permissions(
 }
 
 pub async fn set_runtime_permissions_active(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     owner: &str,
     active: bool,
 ) -> Result<(), AppError> {
@@ -116,7 +116,7 @@ pub async fn set_runtime_permissions_active(
     Ok(())
 }
 
-pub async fn remove_runtime_permissions(tx: &mut MySqlTx, owner: &str) -> Result<(), AppError> {
+pub async fn remove_runtime_permissions(tx: &mut Tx, owner: &str) -> Result<(), AppError> {
     sqlx::query(
         "DELETE rp FROM role_permissions rp \
          JOIN runtime_permissions p ON p.permission = rp.permission WHERE p.owner = ?",

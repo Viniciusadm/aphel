@@ -38,7 +38,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, JobQueue, RecordRef,
     RecordType, SharedFileStorage,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 
 const MAX_BACKOFF_MINUTES: i64 = 360;
@@ -646,7 +646,7 @@ async fn import(
 
 async fn link(
     links: &LinkStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     thread_id: Uuid,
     record: &RecordRef,
     now: DateTime<Utc>,
@@ -668,7 +668,7 @@ async fn link(
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     payload: &EmailEventPayload,
     now: DateTime<Utc>,
 ) -> Result<(), AppError> {

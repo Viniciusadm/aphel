@@ -6,6 +6,7 @@ use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::access::{AccessRepository, build_access_scope};
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::query::{Filter, FilterOperator, RecordQuery};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::{AccessScope, PermissionSet, RoleKey};
 use aphel_sdk::platform::infrastructure::repositories::mysql_access::MySqlAccessRepository;
 use serde_json::{Map, Value, json};
@@ -44,7 +45,7 @@ async fn find_person(ctx: &Ctx<'_>, email: &str) -> Result<Option<String>, AppEr
     )
 }
 
-async fn owner_scope(pool: &sqlx::MySqlPool, owner: &str) -> Result<Option<AccessScope>, AppError> {
+async fn owner_scope(pool: &Db, owner: &str) -> Result<Option<AccessScope>, AppError> {
     let Ok(user_id) = UserId::new(owner.to_owned()) else {
         return Ok(None);
     };
@@ -144,7 +145,7 @@ impl aphel_sdk::merges::MergeReferences for PersonMerges {
     async fn move_references(
         &self,
         _ctx: &Ctx<'_>,
-        tx: &mut aphel_sdk::platform::database::transaction::MySqlTx,
+        tx: &mut aphel_sdk::platform::database::transaction::Tx,
         record_type: &str,
         from: uuid::Uuid,
         to: uuid::Uuid,
@@ -166,7 +167,7 @@ impl aphel_sdk::merges::MergeReferences for PersonMerges {
     }
 }
 
-pub(crate) async fn forget_person(pool: &sqlx::MySqlPool, person_id: &str) -> Result<(), AppError> {
+pub(crate) async fn forget_person(pool: &Db, person_id: &str) -> Result<(), AppError> {
     sqlx::query("UPDATE site_customers SET person_id = NULL WHERE person_id = ?")
         .bind(person_id)
         .execute(pool)

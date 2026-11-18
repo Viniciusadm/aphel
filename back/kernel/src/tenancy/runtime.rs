@@ -6,13 +6,13 @@ use std::sync::{Arc, Mutex, OnceLock, RwLock};
 use axum::Router;
 use axum::extract::Request;
 use axum::response::Response;
-use sqlx::MySqlPool;
 use tokio::sync::OnceCell;
 use tokio::task::AbortHandle;
 use tower::ServiceExt;
 use uuid::Uuid;
 
 use crate::config::AppConfig;
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::infrastructure::organization_profile::spawn_config_refresh;
 use crate::infrastructure::secrets::{EncryptionKeyring, build_secret_vault};
@@ -80,7 +80,7 @@ impl TenantRuntime {
 
     async fn initialize(
         &self,
-        pool: MySqlPool,
+        pool: Db,
         config: &AppConfig,
         serves_http: bool,
     ) -> Result<(), AppError> {

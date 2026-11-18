@@ -1,9 +1,9 @@
-use sqlx::MySqlPool;
 use sqlx::migrate::Migrator;
 use sqlx::mysql::MySqlConnectOptions;
 
 use crate::config::MultiTenancyConfig;
 use crate::database;
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::tenancy::{Tenant, TenantStatus};
 
@@ -13,7 +13,7 @@ const CONTROL_MAX_CONNECTIONS: u32 = 5;
 
 #[derive(Clone)]
 pub struct ControlPlane {
-    pool: MySqlPool,
+    pool: Db,
     url: String,
     server: MySqlConnectOptions,
     tenant_max_connections: u32,
@@ -38,7 +38,7 @@ impl ControlPlane {
         })
     }
 
-    pub fn pool(&self) -> &MySqlPool {
+    pub fn pool(&self) -> &Db {
         &self.pool
     }
 
@@ -49,7 +49,7 @@ impl ControlPlane {
             .map_err(|error| AppError::Persistence(error.to_string()))
     }
 
-    pub async fn connect_tenant(&self, tenant: &Tenant) -> Result<MySqlPool, AppError> {
+    pub async fn connect_tenant(&self, tenant: &Tenant) -> Result<Db, AppError> {
         Ok(database::pool::connect_with(
             self.server.clone().database(&tenant.database_name),
             self.tenant_max_connections,

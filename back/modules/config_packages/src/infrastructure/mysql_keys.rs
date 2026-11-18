@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::application::ConfigKeyRepository;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
@@ -23,7 +23,7 @@ impl MySqlConfigKeyRepository {
 
 #[async_trait]
 impl ConfigKeyRepository for MySqlConfigKeyRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn keys(
         &self,
@@ -46,7 +46,7 @@ impl ConfigKeyRepository for MySqlConfigKeyRepository {
 
     async fn assign(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         item_type: ConfigReferenceKind,
         item_id: Uuid,
         key: &str,
@@ -56,7 +56,7 @@ impl ConfigKeyRepository for MySqlConfigKeyRepository {
 }
 
 pub(crate) async fn assign_key(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     item_type: ConfigReferenceKind,
     item_id: Uuid,
     key: &str,

@@ -49,7 +49,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::domain::fields::FieldType;
 use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
@@ -425,7 +425,7 @@ pub async fn prepare_create(
 
 pub async fn insert_prepared(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     prepared: &PreparedActivity,
 ) -> Result<(), AppError> {
     let PreparedActivity {
@@ -495,7 +495,7 @@ pub async fn insert_prepared(
 
 async fn saving(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     mode: WriteMode,
     data: &ActivityData,
@@ -599,7 +599,7 @@ pub async fn update(
 
 pub async fn update_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: &str,
     command: UpdateActivityCommand,
 ) -> Result<Option<PendingCommit>, AppError> {
@@ -1030,7 +1030,7 @@ async fn write_update(
 #[allow(clippy::too_many_arguments)]
 async fn write_update_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     current: &ActivityView,
     data: &ActivityData,
     type_key: &str,
@@ -1139,7 +1139,7 @@ async fn write_update_in_tx(
 
 async fn discard_untouched_occurrence(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     occurrence: OccurrenceRef,
     now: DateTime<Utc>,
     ip: Option<String>,
@@ -1182,7 +1182,7 @@ async fn discard_untouched_occurrence(
 
 async fn insert_occurrence(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     next: NextOccurrence,
     now: DateTime<Utc>,
     ip: Option<String>,
@@ -1340,7 +1340,7 @@ pub(crate) async fn timezone(ctx: &Ctx<'_>) -> Result<Tz, AppError> {
 #[allow(clippy::too_many_arguments)]
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
     data: &ActivityData,
     type_key: &str,

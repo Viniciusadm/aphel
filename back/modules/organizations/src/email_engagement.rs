@@ -1,9 +1,9 @@
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::{
     AppError,
     email::{EmailEngagementProjection, EmailEngagementReader},
     shared::RecordRef,
 };
-use sqlx::MySqlPool;
 pub(crate) struct Projection;
 #[async_trait::async_trait]
 impl EmailEngagementProjection for Projection {
@@ -12,7 +12,7 @@ impl EmailEngagementProjection for Projection {
     }
     async fn refresh(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         record: &RecordRef,
         reader: &dyn EmailEngagementReader,
     ) -> Result<(), AppError> {

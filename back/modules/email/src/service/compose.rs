@@ -47,7 +47,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, Job, JobQueue,
     RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::infrastructure::storage::mysql_files::MySqlFileRepository;
 
@@ -128,7 +128,7 @@ pub(crate) async fn send(
 
 pub async fn enqueue_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     mut command: SendEmailCommand,
 ) -> Result<Uuid, AppError> {
     ctx.scope.require(&Permission::EMAILS_SEND)?;
@@ -381,7 +381,7 @@ async fn compose(
 
 async fn filter_outgoing_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     sender: &UserId,
     mut draft: Draft,
 ) -> Result<Draft, AppError> {
@@ -776,7 +776,7 @@ async fn store_body(ctx: &Ctx<'_>, sender: &UserId, body: &EmailBody) -> Result<
 #[allow(clippy::too_many_arguments)]
 async fn persist_draft_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     sender: &UserId,
     draft: &Draft,
     email_id: Uuid,

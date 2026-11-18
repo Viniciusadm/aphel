@@ -12,7 +12,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const TAG_COLUMNS: &str = "t.id, t.vocabulary_id, t.name, t.slug, t.parent_id, t.color, \
@@ -195,7 +195,7 @@ impl TagStore {
 
     pub(crate) async fn insert_vocabulary(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         vocabulary: &Vocabulary,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -216,7 +216,7 @@ impl TagStore {
 
     pub(crate) async fn update_vocabulary(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         vocabulary: &Vocabulary,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -234,7 +234,7 @@ impl TagStore {
 
     pub(crate) async fn delete_vocabulary(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         vocabulary_id: Uuid,
     ) -> Result<(), AppError> {
         sqlx::query("DELETE FROM tag_vocabularies WHERE id = ?")
@@ -258,7 +258,7 @@ impl TagStore {
             .collect()
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, tag: &Tag) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, tag: &Tag) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO tags (id, vocabulary_id, name, slug, parent_id, color, record_types, \
              created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -278,7 +278,7 @@ impl TagStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, tag: &Tag) -> Result<u64, AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, tag: &Tag) -> Result<u64, AppError> {
         sqlx::query(
             "UPDATE tags SET name = ?, slug = ?, parent_id = ?, color = ?, record_types = ?, \
              updated_at = ? WHERE id = ?",
@@ -307,7 +307,7 @@ impl TagStore {
         Ok(builder.build().execute(&mut **tx).await?.rows_affected())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, tag_id: Uuid) -> Result<u64, AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, tag_id: Uuid) -> Result<u64, AppError> {
         let removed = sqlx::query("DELETE FROM taggings WHERE tag_id = ?")
             .bind(tag_id.to_string())
             .execute(&mut **tx)
@@ -350,7 +350,7 @@ impl TagStore {
 
     pub(crate) async fn add_tagging(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         tagging: &Tagging,
     ) -> Result<bool, AppError> {
         let inserted = sqlx::query(
@@ -370,7 +370,7 @@ impl TagStore {
 
     pub(crate) async fn remove_tagging(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         tag_id: Uuid,
         record: &RecordRef,
     ) -> Result<bool, AppError> {

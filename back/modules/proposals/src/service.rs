@@ -10,7 +10,7 @@ use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 use crate::errors::{self, TEMPLATE_INACTIVE, TEMPLATE_REQUIRED};
@@ -167,7 +167,7 @@ pub(crate) fn template_changes(
 
 async fn record_template_event(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     event_type: &str,
     payload: Value,
     mut changes: Vec<FieldChange>,
@@ -221,7 +221,7 @@ pub(crate) async fn unique_key(ctx: &Ctx<'_>, base: &str) -> Result<String, AppE
 
 pub(crate) async fn insert_template(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     values: &TemplateValues,
 ) -> Result<Uuid, AppError> {
     let id = store::insert_template(tx, actor_id(ctx.scope), values).await?;
@@ -239,7 +239,7 @@ pub(crate) async fn insert_template(
 
 pub(crate) async fn write_template_update(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     current: &TemplateRow,
     values: &TemplateValues,
 ) -> Result<(), AppError> {
@@ -595,7 +595,7 @@ pub(crate) async fn generate(
 
 async fn record_document(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     document: &DocumentRow,
     template: &TemplateRow,
     quote_id: Option<Uuid>,

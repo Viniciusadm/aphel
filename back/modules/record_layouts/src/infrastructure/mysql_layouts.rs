@@ -14,7 +14,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::{AuditLog, EventPublisher, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::auth::SystemClock;
 use aphel_sdk::platform::infrastructure::fields::MySqlFieldDefinitionRepository;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
@@ -63,7 +63,7 @@ fn layout_from_row(row: &MySqlRow) -> Result<StoredFormLayout, AppError> {
 
 #[async_trait]
 impl FormLayoutRepository for MySqlFormLayoutRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn find(
         &self,
@@ -117,7 +117,7 @@ impl FormLayoutRepository for MySqlFormLayoutRepository {
         })
     }
 
-    async fn upsert(&self, tx: &mut MySqlTx, layout: &StoredFormLayout) -> Result<(), AppError> {
+    async fn upsert(&self, tx: &mut Tx, layout: &StoredFormLayout) -> Result<(), AppError> {
         let document = serde_json::to_value(&layout.layout)
             .map_err(|error| AppError::Internal(format!("cannot serialize layout: {error}")))?;
         sqlx::query(
@@ -140,7 +140,7 @@ impl FormLayoutRepository for MySqlFormLayoutRepository {
 
     async fn delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &RecordType,
         context: LayoutContext,
     ) -> Result<(), AppError> {
@@ -158,16 +158,16 @@ pub struct MySqlLayoutPorts {
     transactions: MySqlTransactionManager,
     layouts: MySqlFormLayoutRepository,
     definitions: MySqlFieldDefinitionRepository,
-    events: Arc<dyn EventPublisher<MySqlTx>>,
-    audit: Arc<dyn AuditLog<MySqlTx>>,
+    events: Arc<dyn EventPublisher<Tx>>,
+    audit: Arc<dyn AuditLog<Tx>>,
 }
 
 impl MySqlLayoutPorts {
     pub fn new(
         pool: MySqlPool,
         registry: Arc<RecordTypeRegistry>,
-        events: Arc<dyn EventPublisher<MySqlTx>>,
-        audit: Arc<dyn AuditLog<MySqlTx>>,
+        events: Arc<dyn EventPublisher<Tx>>,
+        audit: Arc<dyn AuditLog<Tx>>,
     ) -> Self {
         Self {
             registry,
@@ -184,8 +184,8 @@ impl LayoutPorts for MySqlLayoutPorts {
     type Transactions = MySqlTransactionManager;
     type Layouts = MySqlFormLayoutRepository;
     type Definitions = MySqlFieldDefinitionRepository;
-    type Events = Arc<dyn EventPublisher<MySqlTx>>;
-    type Audit = Arc<dyn AuditLog<MySqlTx>>;
+    type Events = Arc<dyn EventPublisher<Tx>>;
+    type Audit = Arc<dyn AuditLog<Tx>>;
     type Clock = SystemClock;
 
     fn registry(&self) -> &RecordTypeRegistry {

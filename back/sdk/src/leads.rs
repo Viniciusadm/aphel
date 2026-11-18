@@ -1,6 +1,6 @@
 use crate::{AppError, Ctx};
 pub use aphel_contract_leads::*;
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::transaction::Tx;
 use aphel_kernel::modules::Hook;
 use aphel_kernel::records::PendingCommit;
 use async_trait::async_trait;
@@ -95,7 +95,7 @@ pub trait LeadConverter: Send + Sync {
     async fn convert(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         lead: &Lead,
         command: &ConvertLeadCommand,
     ) -> Result<Conversion, AppError>;
@@ -106,14 +106,14 @@ pub trait LeadMergeHistory: Send + Sync {
     async fn stage(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         entity: &crate::shared::RecordType,
         id: Uuid,
     ) -> Result<Option<Option<String>>, AppError>;
     async fn changed(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &crate::shared::RecordRef,
         before: Option<String>,
         after: Option<String>,

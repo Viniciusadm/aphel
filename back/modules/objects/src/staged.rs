@@ -2,14 +2,15 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder};
+use sqlx::{MySql, QueryBuilder};
 use uuid::Uuid;
 
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::domain::custom_objects::CustomObject;
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
@@ -54,7 +55,7 @@ fn catalog() -> Result<std::sync::Arc<dyn WorkflowCatalog>, AppError> {
         .ok_or_else(|| AppError::Configuration("workflow is unavailable".to_owned()))
 }
 
-async fn stage_ids(pool: &MySqlPool, target: UsageTarget) -> Result<Vec<Uuid>, AppError> {
+async fn stage_ids(pool: &Db, target: UsageTarget) -> Result<Vec<Uuid>, AppError> {
     match target {
         UsageTarget::Stage(id) => Ok(vec![id]),
         UsageTarget::Pipeline(id) => Ok(catalog()?
@@ -132,7 +133,7 @@ impl StagedRecordSource for CustomStagedRecords {
         Ok(counts)
     }
 
-    async fn usage(&self, pool: &MySqlPool, target: UsageTarget) -> Result<StageUsage, AppError> {
+    async fn usage(&self, pool: &Db, target: UsageTarget) -> Result<StageUsage, AppError> {
         let stages = stage_ids(pool, target).await?;
         if stages.is_empty() {
             return Ok(StageUsage::default());
@@ -148,11 +149,7 @@ impl StagedRecordSource for CustomStagedRecords {
         })
     }
 
-    async fn location(
-        &self,
-        pool: &MySqlPool,
-        id: Uuid,
-    ) -> Result<Option<StageLocation>, AppError> {
+    async fn location(&self, pool: &Db, id: Uuid) -> Result<Option<StageLocation>, AppError> {
         let mut query = QueryBuilder::<MySql>::new(format!(
             "SELECT v.value_text {STAGED_VALUES} AND r.deleted_at IS NULL AND r.id = "
         ));
@@ -173,7 +170,7 @@ impl StagedRecordSource for CustomStagedRecords {
     async fn move_records(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         movement: &StageMove,
     ) -> Result<u64, AppError> {
         ctx.scope.require(&Permission::SETTINGS_MANAGE)?;

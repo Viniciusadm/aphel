@@ -1,6 +1,7 @@
 use aphel_kernel::{application::shared::RecordType, errors::AppError};
 use aphel_sdk::deals::{DealLifecycle, DealOutcomes, DealParties};
-use sqlx::{MySqlPool, Row};
+use aphel_sdk::platform::database::Db;
+use sqlx::Row;
 use uuid::Uuid;
 pub(crate) struct Lifecycle;
 #[async_trait::async_trait]
@@ -28,7 +29,7 @@ impl DealLifecycle for Lifecycle {
             .collect()
     }
 
-    async fn parties(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<DealParties>, AppError> {
+    async fn parties(&self, pool: &Db, id: Uuid) -> Result<Option<DealParties>, AppError> {
         let row = sqlx::query("SELECT contact_id,company_id FROM deals WHERE id = ?")
             .bind(id.to_string())
             .fetch_optional(pool)
@@ -51,7 +52,7 @@ impl DealLifecycle for Lifecycle {
     }
     async fn outcomes(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         entity: &RecordType,
         id: Uuid,
     ) -> Result<DealOutcomes, AppError> {

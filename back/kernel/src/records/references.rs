@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder};
+use sqlx::{MySql, QueryBuilder};
 use uuid::Uuid;
 
 use crate::application::access::Authorizer;
 use crate::application::fields::RecordTypeRegistry;
 use crate::application::fields::{DeletePolicy, EntityDefinition, ReferenceTarget, SoftReference};
 use crate::application::shared::RecordRef;
-use crate::database::transaction::MySqlTx;
+use crate::database::Db;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, FieldViolation};
 use crate::infrastructure::query::compiler::push_record_scope;
@@ -16,7 +17,7 @@ use crate::infrastructure::query::computed::system_expression;
 use crate::records::RecordCtx;
 
 pub async fn validate(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     registry: &RecordTypeRegistry,
     record: &RecordRef,
@@ -141,7 +142,7 @@ fn validate_translations(source: &EntityDefinition, values: &Value) -> Result<()
 }
 
 async fn validate_files(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     source: &EntityDefinition,
     record: &RecordRef,
     values: &Value,
@@ -222,8 +223,8 @@ fn matches_target(
 }
 
 pub async fn deleting(
-    tx: &mut MySqlTx,
-    pool: &MySqlPool,
+    tx: &mut Tx,
+    pool: &Db,
     registry: &Arc<RecordTypeRegistry>,
     target: &RecordRef,
 ) -> Result<(), AppError> {
@@ -346,7 +347,7 @@ pub async fn deleting(
 }
 
 pub async fn existing_tables(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     tables: &[&str],
 ) -> Result<std::collections::HashSet<String>, AppError> {
     if tables.len() > 1000 {
@@ -374,7 +375,7 @@ pub async fn existing_tables(
 }
 
 pub async fn move_core_references(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record_type: &str,
     from: Uuid,
     to: Uuid,
@@ -427,7 +428,7 @@ fn custom_merge_storage(definition: &EntityDefinition) -> Result<(), AppError> {
 }
 
 pub async fn copy_custom_columns(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     from: Uuid,
     to: Uuid,
@@ -507,7 +508,7 @@ pub async fn copy_custom_columns(
 }
 
 pub async fn retire_custom(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     id: Uuid,
     now: chrono::DateTime<chrono::Utc>,

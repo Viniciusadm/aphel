@@ -46,7 +46,7 @@ use aphel_sdk::platform::api::routes::v1::field_permissions::{redacted, redacted
 use aphel_sdk::platform::api::routes::v1::members::window;
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 
 pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
@@ -1256,7 +1256,7 @@ impl RecordTypeHandler for ActivityHandler {
     async fn update_in_tx(
         &self,
         ctx: &RecordCtx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         values: Value,
     ) -> Result<Option<PendingCommit>, AppError> {

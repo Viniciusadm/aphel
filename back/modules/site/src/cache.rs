@@ -3,9 +3,10 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::tenancy::TenantLocal;
 use sha2::{Digest, Sha256};
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 
 pub(crate) const ALL_TAG: &str = "*";
 const CHECK_INTERVAL: Duration = Duration::from_secs(1);
@@ -88,7 +89,7 @@ pub(crate) fn etag_of(html: &str) -> String {
     format!("\"{hex}\"")
 }
 
-pub(crate) async fn sync(pool: &MySqlPool) -> Result<(), AppError> {
+pub(crate) async fn sync(pool: &Db) -> Result<(), AppError> {
     let due = with_cache(|cache| {
         let fresh = cache
             .checked_at
@@ -188,7 +189,7 @@ pub(crate) fn put(
     page
 }
 
-pub(crate) async fn invalidate(pool: &MySqlPool, tags: &[String]) -> Result<(), AppError> {
+pub(crate) async fn invalidate(pool: &Db, tags: &[String]) -> Result<(), AppError> {
     for tag in tags {
         sqlx::query("INSERT INTO site_cache_invalidations (tag) VALUES (?)")
             .bind(tag)

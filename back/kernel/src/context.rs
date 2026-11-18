@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
-use sqlx::MySqlPool;
 
 use crate::application::custom_objects::RecordTypeCatalog;
 use crate::application::fields::RecordTypeRegistry;
 use crate::application::shared::SharedFileStorage;
-use crate::database::transaction::MySqlTx;
+use crate::database::Db;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
 use crate::infrastructure::fields::MySqlCustomFieldPorts;
@@ -22,7 +22,7 @@ use crate::state::AppState;
 #[derive(Clone)]
 pub struct Ctx<'a> {
     pub scope: &'a AccessScope,
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
     events: SharedEventPublisher,
     audit: SharedAuditLog,
@@ -52,7 +52,7 @@ impl<'a> Ctx<'a> {
 
     pub fn from_parts(
         scope: &'a AccessScope,
-        pool: MySqlPool,
+        pool: Db,
         registry: Arc<RecordTypeRegistry>,
         events: SharedEventPublisher,
         audit: SharedAuditLog,
@@ -221,7 +221,7 @@ impl<'a> Ctx<'a> {
 
     pub async fn create_record_in_tx(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         entity: &str,
         values: serde_json::Value,
     ) -> Result<crate::records::PendingCommit, AppError> {
@@ -237,7 +237,7 @@ impl<'a> Ctx<'a> {
 
     pub async fn update_record_in_tx(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         entity: &str,
         id: uuid::Uuid,
         values: serde_json::Value,
@@ -265,7 +265,7 @@ impl<'a> Ctx<'a> {
         })
     }
 
-    pub fn pool(&self) -> &MySqlPool {
+    pub fn pool(&self) -> &Db {
         &self.pool
     }
 
@@ -297,7 +297,7 @@ impl<'a> Ctx<'a> {
         Utc::now()
     }
 
-    pub async fn begin(&self) -> Result<MySqlTx, AppError> {
+    pub async fn begin(&self) -> Result<Tx, AppError> {
         crate::database::receipt::begin(&self.pool).await
     }
 
@@ -316,7 +316,7 @@ impl<'a> Ctx<'a> {
     pub async fn run_hook<K: HookRef>(
         &self,
         hook: K,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         module: &'static str,
         args: &K::Args,
     ) -> Result<(), AppError> {
@@ -331,7 +331,7 @@ impl<'a> Ctx<'a> {
     pub async fn apply_hook<K: HookRef>(
         &self,
         hook: K,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         module: &'static str,
         args: K::Args,
     ) -> Result<K::Args, AppError> {

@@ -15,7 +15,7 @@ use crate::infrastructure::MySqlConfigPackagePorts;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::platform::{SharedAuditLog, SharedEventPublisher};
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -61,11 +61,11 @@ fn version_from_row(row: &MySqlRow, applied_package: Value) -> Result<InstalledV
 
 #[async_trait]
 impl ConfigVersionRepository for MySqlConfigVersionRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         version: &InstalledVersion,
         items: &[VersionItem],
     ) -> Result<(), AppError> {

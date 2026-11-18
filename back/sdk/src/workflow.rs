@@ -3,6 +3,7 @@ pub use dto::*;
 pub mod rotting;
 use aphel_kernel::application::access::Authorizer;
 pub use aphel_kernel::application::shared::parse_uuid as parse_id;
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::access::{AccessScope, Permission};
 pub const PIPELINE_NOT_FOUND: &str = "pipeline_not_found";
 use crate::fields::EntityTraits;
@@ -11,9 +12,8 @@ use crate::{AppError, Ctx};
 pub use aphel_contract_workflow::*;
 
 pub const KEY: &str = "workflow";
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::transaction::Tx;
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 use std::collections::HashMap;
 use uuid::Uuid;
 pub trait WorkflowTraits {
@@ -43,13 +43,12 @@ pub trait StagedRecordSource: Send + Sync {
         ctx: &Ctx<'_>,
         pipeline_id: Uuid,
     ) -> Result<HashMap<Uuid, u64>, AppError>;
-    async fn usage(&self, pool: &MySqlPool, target: UsageTarget) -> Result<StageUsage, AppError>;
-    async fn location(&self, pool: &MySqlPool, id: Uuid)
-    -> Result<Option<StageLocation>, AppError>;
+    async fn usage(&self, pool: &Db, target: UsageTarget) -> Result<StageUsage, AppError>;
+    async fn location(&self, pool: &Db, id: Uuid) -> Result<Option<StageLocation>, AppError>;
     async fn move_records(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         movement: &StageMove,
     ) -> Result<u64, AppError>;
 }
@@ -67,40 +66,29 @@ impl WorkflowRecordTypes for RecordType {
 
 #[async_trait]
 pub trait WorkflowCatalog: Send + Sync {
-    async fn pipelines(&self, pool: &MySqlPool) -> Result<Vec<Pipeline>, AppError>;
-    async fn pipeline(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<Pipeline>, AppError>;
-    async fn default_pipeline(&self, pool: &MySqlPool) -> Result<Option<Pipeline>, AppError>;
-    async fn stages(
-        &self,
-        pool: &MySqlPool,
-        pipeline: Uuid,
-    ) -> Result<Vec<PipelineStage>, AppError>;
+    async fn pipelines(&self, pool: &Db) -> Result<Vec<Pipeline>, AppError>;
+    async fn pipeline(&self, pool: &Db, id: Uuid) -> Result<Option<Pipeline>, AppError>;
+    async fn default_pipeline(&self, pool: &Db) -> Result<Option<Pipeline>, AppError>;
+    async fn stages(&self, pool: &Db, pipeline: Uuid) -> Result<Vec<PipelineStage>, AppError>;
     async fn stages_for_pipelines(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         ids: &[Uuid],
     ) -> Result<Vec<PipelineStage>, AppError>;
-    async fn stage(&self, pool: &MySqlPool, id: Uuid) -> Result<Option<PipelineStage>, AppError>;
-    async fn stage_names(
-        &self,
-        pool: &MySqlPool,
-        ids: &[Uuid],
-    ) -> Result<HashMap<Uuid, String>, AppError>;
-    async fn lost_reasons(&self, pool: &MySqlPool) -> Result<Vec<LostReason>, AppError>;
-    async fn lost_reason(&self, pool: &MySqlPool, id: Uuid)
-    -> Result<Option<LostReason>, AppError>;
+    async fn stage(&self, pool: &Db, id: Uuid) -> Result<Option<PipelineStage>, AppError>;
+    async fn stage_names(&self, pool: &Db, ids: &[Uuid])
+    -> Result<HashMap<Uuid, String>, AppError>;
+    async fn lost_reasons(&self, pool: &Db) -> Result<Vec<LostReason>, AppError>;
+    async fn lost_reason(&self, pool: &Db, id: Uuid) -> Result<Option<LostReason>, AppError>;
 }
 
 #[derive(Clone)]
 pub struct WorkflowReader {
-    pool: MySqlPool,
+    pool: Db,
     catalog: std::sync::Arc<dyn WorkflowCatalog>,
 }
 impl WorkflowReader {
-    pub fn new(
-        pool: MySqlPool,
-        services: &aphel_kernel::modules::Services,
-    ) -> Result<Self, AppError> {
+    pub fn new(pool: Db, services: &aphel_kernel::modules::Services) -> Result<Self, AppError> {
         Ok(Self {
             pool,
             catalog: services

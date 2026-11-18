@@ -2,6 +2,7 @@ use async_trait::async_trait;
 
 use crate::dashboard::SubjectDirectory;
 use aphel_kernel::application::query::{AggregatePorts, QueryPlan};
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::access::AccessScope;
 use aphel_kernel::errors::AppError;
 
@@ -14,7 +15,7 @@ pub trait DashboardRepository: Send + Sync {
 
 pub trait DashboardPorts: Send + Sync {
     fn services(&self) -> &aphel_kernel::modules::Services;
-    fn pool(&self) -> &sqlx::MySqlPool;
+    fn pool(&self) -> &Db;
     type Query: AggregatePorts;
     type Dashboard: DashboardRepository + ?Sized;
 

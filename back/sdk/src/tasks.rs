@@ -1,9 +1,9 @@
 pub mod remote_calendar;
 use crate::AppError;
 pub use aphel_contract_tasks::*;
+use aphel_kernel::database::Db;
 use aphel_kernel::domain::UserId;
 use chrono::{DateTime, Utc};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DueTaskReminder {
@@ -19,14 +19,14 @@ pub struct DueTaskReminder {
 pub trait TaskReminderSource: Send + Sync {
     async fn due(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         since: DateTime<Utc>,
         now: DateTime<Utc>,
         limit: u32,
     ) -> Result<Vec<DueTaskReminder>, AppError>;
     async fn mark_sent(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         reminder: &DueTaskReminder,
         now: DateTime<Utc>,
     ) -> Result<(), AppError>;
@@ -99,14 +99,14 @@ pub trait MeetingScheduler: Send + Sync {
     async fn schedule(
         &self,
         ctx: &crate::Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_kernel::database::transaction::Tx,
         meeting: MeetingActivity,
     ) -> Result<Uuid, AppError>;
 
     async fn move_to(
         &self,
         ctx: &crate::Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_kernel::database::transaction::Tx,
         scope: &crate::access::AccessScope,
         activity_id: Uuid,
         change: MeetingActivityMove,
@@ -115,7 +115,7 @@ pub trait MeetingScheduler: Send + Sync {
     async fn cancel(
         &self,
         ctx: &crate::Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_kernel::database::transaction::Tx,
         scope: &crate::access::AccessScope,
         activity_id: Uuid,
         ip: Option<String>,
@@ -308,7 +308,7 @@ pub trait PreparedTask: Send + Sync {
     async fn insert(
         &self,
         ctx: &crate::Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_kernel::database::transaction::Tx,
     ) -> Result<(), AppError>;
     async fn response(&self, ctx: &crate::Ctx<'_>) -> Result<TaskRecord, AppError>;
 }

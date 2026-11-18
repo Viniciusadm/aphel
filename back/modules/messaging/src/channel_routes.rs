@@ -30,7 +30,7 @@ use aphel_sdk::platform::api::extractors::{AuthContext, JsonBody};
 use aphel_sdk::platform::api::rate_limit::SharedRateLimiter;
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{Actor, AuditEntry, DomainEvent, FieldChange};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 const MAX_CHANNELS: u64 = 50;
@@ -259,7 +259,7 @@ fn audit_changes(
 
 async fn record_change(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     scope: &AccessScope,
     event_type: &str,
     payload: Value,

@@ -1,12 +1,12 @@
 use std::ops::Deref;
 
+use crate::database::Db;
 use crate::modules::manifest::{ManifestBase, Migration, SettingField};
 use crate::modules::plugin_manifest::{Layer, PluginManifest, Provides, Runtime, Uses};
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, FieldViolation};
 use crate::modules::builder::AppBuilder;
@@ -132,7 +132,7 @@ impl Deref for Manifest {
 }
 
 pub struct ModuleCtx<'a> {
-    pub pool: &'a MySqlPool,
+    pub pool: &'a Db,
     pub scope: &'a AccessScope,
     pub services: &'a Services,
     pub module: &'static str,
@@ -164,11 +164,7 @@ pub trait Module: Send + Sync + 'static {
         Ok(Value::Null)
     }
 
-    async fn purge_data(
-        &self,
-        _ctx: &mut ModuleCtx<'_>,
-        _tx: &mut MySqlTx,
-    ) -> Result<(), AppError> {
+    async fn purge_data(&self, _ctx: &mut ModuleCtx<'_>, _tx: &mut Tx) -> Result<(), AppError> {
         Ok(())
     }
 }

@@ -24,7 +24,7 @@ use aphel_sdk::platform::api::extractors::{AuthContext, ClientInfo, JsonBody};
 use aphel_sdk::platform::api::state::AppState;
 use aphel_sdk::platform::application::access::Authorizer;
 use aphel_sdk::platform::application::shared::{FieldChange, RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 pub(crate) const VOCABULARY_KEY_TAKEN: &str = "tag_vocabulary_key_taken";
@@ -119,7 +119,7 @@ fn diff(old: &Value, new: &Value) -> Vec<FieldChange> {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     vocabulary: &Vocabulary,
     event_type: &'static str,
     changes: Vec<FieldChange>,

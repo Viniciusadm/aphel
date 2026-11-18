@@ -1,5 +1,6 @@
 use crate::domain::DealInput;
 use aphel_sdk::platform::application::shared::money_text;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::{
     AppError, Ctx,
     deals::{DealRevenue, RenewalDealCreation, RenewalDealWriter, date},
@@ -39,7 +40,7 @@ impl RenewalDealWriter for Writer {
 impl aphel_sdk::deals::DealRenewalReader for Writer {
     async fn notification_target(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         id: Uuid,
     ) -> Result<Option<(String, Option<String>)>, AppError> {
         Ok(

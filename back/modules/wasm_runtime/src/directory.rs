@@ -2,9 +2,10 @@ use std::collections::BTreeMap;
 
 use serde::Deserialize;
 use serde_json::{Value, json};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::Db;
 
 const MAX_PAGE_SIZE: u32 = 100;
 const MAX_SEARCH_LENGTH: usize = 100;
@@ -61,7 +62,7 @@ fn push_conditions(builder: &mut QueryBuilder<MySql>, query: &UserQuery) {
     }
 }
 
-pub async fn users(pool: &MySqlPool, query: UserQuery) -> Result<Value, AppError> {
+pub async fn users(pool: &Db, query: UserQuery) -> Result<Value, AppError> {
     if query
         .search
         .as_ref()
@@ -125,7 +126,7 @@ pub async fn users(pool: &MySqlPool, query: UserQuery) -> Result<Value, AppError
     Ok(json!({ "data": data, "total": total }))
 }
 
-pub async fn roles(pool: &MySqlPool) -> Result<Value, AppError> {
+pub async fn roles(pool: &Db) -> Result<Value, AppError> {
     let rows = sqlx::query("SELECT `key`, name, is_system FROM roles ORDER BY name")
         .fetch_all(pool)
         .await?;
@@ -142,7 +143,7 @@ pub async fn roles(pool: &MySqlPool) -> Result<Value, AppError> {
     Ok(Value::Array(roles))
 }
 
-pub async fn teams(pool: &MySqlPool) -> Result<Value, AppError> {
+pub async fn teams(pool: &Db) -> Result<Value, AppError> {
     let rows = sqlx::query("SELECT id, name, parent_team_id FROM teams ORDER BY name")
         .fetch_all(pool)
         .await?;

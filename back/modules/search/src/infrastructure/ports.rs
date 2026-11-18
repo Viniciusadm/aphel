@@ -13,7 +13,7 @@ use aphel_kernel::modules::BoxFuture;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::query::QueryPlan;
 use aphel_sdk::platform::application::shared::{EventConsumer, JobHandler};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::auth::SystemClock;
 use aphel_sdk::platform::infrastructure::fields::{
@@ -52,7 +52,7 @@ impl MySqlSearchPorts {
 }
 
 impl SearchPorts for MySqlSearchPorts {
-    type Tx = MySqlTx;
+    type Tx = Tx;
     type Index = MySqlSearchIndex;
     type Source = MySqlSearchSource;
     type Definitions = MySqlFieldDefinitionRepository;

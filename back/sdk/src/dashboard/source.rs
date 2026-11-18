@@ -1,5 +1,6 @@
 use super::{WidgetContext, WidgetPorts};
 use crate::{AppError, access::AccessScope};
+use aphel_kernel::database::Db;
 use async_trait::async_trait;
 use serde_json::Value;
 
@@ -24,14 +25,14 @@ pub trait DashboardEventScope: Send + Sync {
     fn record_type(&self) -> crate::shared::RecordType;
     async fn restrict(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         scope: &AccessScope,
         records: &[aphel_kernel::application::query::QueryPlan],
         builder: &mut sqlx::QueryBuilder<sqlx::MySql>,
     ) -> Result<(), AppError>;
     async fn targets(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         ids: &[uuid::Uuid],
     ) -> Result<std::collections::HashMap<uuid::Uuid, crate::shared::RecordRef>, AppError>;
 }
@@ -49,7 +50,7 @@ pub trait DashboardReferenceCatalog: Send + Sync {
     fn package_keys(&self, sections: &std::collections::BTreeMap<String, Value>) -> Vec<String>;
     async fn keys(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
     ) -> Result<std::collections::HashMap<uuid::Uuid, String>, AppError>;
 }
 
@@ -57,7 +58,7 @@ pub trait DashboardReferenceCatalog: Send + Sync {
 pub trait ActivityScope: Send + Sync {
     async fn followed(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         user: &aphel_kernel::domain::UserId,
         records: &[crate::shared::RecordRef],
     ) -> Result<std::collections::HashSet<crate::shared::RecordRef>, AppError>;

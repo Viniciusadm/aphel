@@ -3,7 +3,6 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use serde::Deserialize;
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 
 use crate::domain::{ForecastSettings, UpdateForecastSettingsCommand};
 use crate::service::{merge_settings, settings_snapshot, write_settings};
@@ -15,7 +14,8 @@ use aphel_sdk::configuration::{
     parse_section,
 };
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -49,12 +49,12 @@ impl From<ForecastSectionContent> for UpdateForecastSettingsCommand {
 }
 
 pub(crate) struct ForecastSection {
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
 }
 
 impl ForecastSection {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+    pub(crate) fn new(pool: Db, registry: Arc<RecordTypeRegistry>) -> Self {
         Self { pool, registry }
     }
 
@@ -86,7 +86,7 @@ impl ForecastSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for ForecastSection {
+impl ConfigSection<Tx> for ForecastSection {
     fn key(&self) -> &'static str {
         FORECAST_SECTION
     }
@@ -150,7 +150,7 @@ impl ConfigSection<MySqlTx> for ForecastSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

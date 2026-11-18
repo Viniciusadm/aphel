@@ -1,22 +1,22 @@
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 
 use crate::registry;
 use crate::runtime::{event_actor, on_event, wit};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{Actor, DomainEvent, EventConsumer};
 use aphel_sdk::platform::application::shared::{ExecutionContext, JobContext, JobHandler};
+use aphel_sdk::platform::database::Db;
 use sqlx::{Row, types::Json};
 use std::sync::Arc;
 
 pub(crate) const EVENTS_CONSUMER: &str = "wasm_runtime.events";
 
 pub(crate) struct PluginEventsConsumer {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl PluginEventsConsumer {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         registry::spawn_refresh(pool.clone());
         Self { pool }
     }
@@ -38,8 +38,7 @@ impl EventConsumer for PluginEventsConsumer {
         if consumers.is_empty() {
             return Ok(());
         }
-        let mut tx =
-            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
         for plugin in consumers {
             if matches!(&event.actor, Actor::Service { kind, id } if kind == Actor::PLUGIN && *id == plugin.key)
                 || event
@@ -98,11 +97,11 @@ impl EventConsumer for PluginEventsConsumer {
 pub const RUN_JOB: &str = "plugin.event";
 
 pub struct Run {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl Run {
-    pub fn shared(pool: MySqlPool) -> Arc<dyn JobHandler> {
+    pub fn shared(pool: Db) -> Arc<dyn JobHandler> {
         Arc::new(Self { pool })
     }
 }
@@ -122,8 +121,7 @@ impl JobHandler for Run {
             .get("id")
             .and_then(serde_json::Value::as_str)
             .ok_or_else(|| AppError::Validation("plugin.event requires an id".to_owned()))?;
-        let mut tx =
-            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
         let row = sqlx::query("SELECT plugin_key, input, execution, status FROM plugins_executions WHERE id = ? FOR UPDATE")
             .bind(id).fetch_one(&mut *tx).await?;
         if row.try_get::<String, _>("status")? == "completed" {

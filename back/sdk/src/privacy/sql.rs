@@ -1,6 +1,6 @@
 use super::SubjectMatcher;
 use aphel_kernel::{
-    Ctx, application::shared::RecordRef, database::transaction::MySqlTx, errors::AppError,
+    Ctx, application::shared::RecordRef, database::transaction::Tx, errors::AppError,
 };
 use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
@@ -96,7 +96,7 @@ pub async fn table_exists(ctx: &Ctx<'_>, table: &str) -> Result<bool, AppError> 
     Ok(sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?)").bind(table).fetch_one(ctx.pool()).await?)
 }
 pub async fn redact_text(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     table: &str,
     column: &str,
     redaction: &super::Redaction,

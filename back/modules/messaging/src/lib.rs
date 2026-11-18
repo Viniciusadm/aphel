@@ -3,6 +3,7 @@ mod opt_out_store;
 mod opt_outs;
 mod reference_cleanup;
 use aphel_contract_automation::AutomationBuilder;
+use aphel_sdk::platform::database::Db;
 pub(crate) mod actor;
 pub(crate) mod channel_routes;
 pub(crate) mod channels;
@@ -29,7 +30,7 @@ use aphel_kernel::modules::{
     module_secret_key, module_settings,
 };
 use aphel_kernel::records::RecordCtx;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, PermissionDefinition};
 use aphel_sdk::platform::modules::builder::APHEL_VERSION;
 
@@ -208,7 +209,7 @@ impl Module for MessagingModule {
         }))
     }
 
-    async fn purge_data(&self, ctx: &mut ModuleCtx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
+    async fn purge_data(&self, ctx: &mut ModuleCtx<'_>, tx: &mut Tx) -> Result<(), AppError> {
         let channels = store::list_channels(ctx.pool).await?;
         let state = aphel_sdk::runtime()?;
         let ctx = state.ctx(ctx.scope).await?;
@@ -222,12 +223,7 @@ impl Module for MessagingModule {
 struct RecipientPolicy;
 #[async_trait]
 impl aphel_sdk::platform::application::mail::MailRecipientPolicy for RecipientPolicy {
-    async fn check(
-        &self,
-        pool: &sqlx::MySqlPool,
-        address: &str,
-        purpose: &str,
-    ) -> Result<(), AppError> {
+    async fn check(&self, pool: &Db, address: &str, purpose: &str) -> Result<(), AppError> {
         let purpose = opt_outs::Purpose::parse(purpose).unwrap_or(opt_outs::Purpose::Transactional);
         if opt_out_store::opted_out(pool, address, purpose).await? {
             return Err(opt_outs::opted_out_error(address));

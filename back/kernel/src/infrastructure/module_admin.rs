@@ -6,7 +6,7 @@ use sqlx::types::Json;
 use sqlx::{AssertSqlSafe, MySqlPool, Row};
 
 use crate::application::module_admin::{ModuleState, ModuleStateRepository};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
@@ -53,7 +53,7 @@ fn module(row: &MySqlRow) -> Result<ModuleState, AppError> {
 
 #[async_trait]
 impl ModuleStateRepository for MySqlModuleStateRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn list(&self) -> Result<Vec<ModuleState>, AppError> {
         sqlx::query(AssertSqlSafe(format!(
@@ -80,7 +80,7 @@ impl ModuleStateRepository for MySqlModuleStateRepository {
 
     async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         module: &ModuleState,
     ) -> Result<(), AppError> {

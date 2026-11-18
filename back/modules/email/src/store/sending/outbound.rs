@@ -7,7 +7,7 @@ use crate::domain::EmailStatus;
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Clone)]
@@ -28,7 +28,7 @@ impl OutboundStore {
 impl OutboundStore {
     pub(crate) async fn transition_status(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         from: EmailStatus,
         to: EmailStatus,
@@ -66,7 +66,7 @@ impl OutboundStore {
 
     pub(crate) async fn replace_tracked_links(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         message_id: Uuid,
         urls: &[String],
         now: DateTime<Utc>,

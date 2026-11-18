@@ -1,4 +1,5 @@
 use aphel_sdk::calendar::local_day;
+use aphel_sdk::platform::database::Db;
 const MORNING_HOUR: u32 = 8;
 use aphel_contract_crm::CrmRecordTypes;
 use std::sync::Arc;
@@ -6,7 +7,6 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use chrono::{Duration, SecondsFormat, Timelike};
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 
 use crate::domain::{DueReminder, DueTaskReminder};
 use crate::store::ReminderStore;
@@ -26,7 +26,7 @@ pub(crate) const DEFAULT_REMINDER_TITLE: &str = "Lembrete";
 pub(crate) const TASKS_DUE_TODAY_JOB: &str = "reminders.tasks_due_today";
 pub(crate) const TASKS_DUE_TODAY_CRON: &str = "0 */5 * * * *";
 
-pub(crate) fn reminder_delivery_handler(pool: MySqlPool) -> Arc<dyn JobHandler> {
+pub(crate) fn reminder_delivery_handler(pool: Db) -> Arc<dyn JobHandler> {
     let notifications = NotificationClient::new(
         pool.clone(),
         Arc::new(RecordTypeRegistry::builtin()),
@@ -38,7 +38,7 @@ pub(crate) fn reminder_delivery_handler(pool: MySqlPool) -> Arc<dyn JobHandler> 
     ))
 }
 
-pub(crate) fn tasks_due_today_handler(pool: MySqlPool) -> Arc<dyn JobHandler> {
+pub(crate) fn tasks_due_today_handler(pool: Db) -> Arc<dyn JobHandler> {
     Arc::new(TasksDueTodayHandler::new(NotificationClient::new(
         pool.clone(),
         Arc::new(RecordTypeRegistry::builtin()),

@@ -4,7 +4,8 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::dashboard::ActivityScope;
 use aphel_sdk::platform::application::shared::RecordRef;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use aphel_sdk::platform::database::Db;
+use sqlx::{MySql, QueryBuilder, Row};
 
 pub(crate) struct FollowedRecords;
 
@@ -12,7 +13,7 @@ pub(crate) struct FollowedRecords;
 impl ActivityScope for FollowedRecords {
     async fn followed(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         user: &UserId,
         records: &[RecordRef],
     ) -> Result<HashSet<RecordRef>, AppError> {

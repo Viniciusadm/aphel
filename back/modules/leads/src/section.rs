@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
@@ -18,7 +19,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const LIFECYCLE_SECTION: &str = "lifecycle";
@@ -72,7 +73,7 @@ pub(crate) struct LifecycleSection {
     reasons: ReasonStore,
 }
 
-pub(crate) fn lifecycle_section(pool: &sqlx::MySqlPool) -> LifecycleSection {
+pub(crate) fn lifecycle_section(pool: &Db) -> LifecycleSection {
     LifecycleSection::new(
         SettingsStore::new(pool.clone()),
         ReasonStore::new(pool.clone()),
@@ -235,7 +236,7 @@ impl LifecycleSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for LifecycleSection {
+impl ConfigSection<Tx> for LifecycleSection {
     fn key(&self) -> &'static str {
         LIFECYCLE_SECTION
     }
@@ -370,7 +371,7 @@ impl ConfigSection<MySqlTx> for LifecycleSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

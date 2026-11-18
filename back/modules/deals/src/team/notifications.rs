@@ -1,9 +1,9 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_sdk::platform::database::Db;
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 
 use crate::team::domain::DEAL_MEMBER_ADDED;
 use aphel_kernel::domain::UserId;
@@ -22,12 +22,12 @@ pub(crate) const DEAL_TEAM_NOTIFICATION_KIND: NotificationKindDefinition =
     NotificationKindDefinition::new(DEAL_TEAM_MEMBER_ADDED).push_by_default();
 
 pub(crate) struct DealTeamNotificationConsumer {
-    pool: MySqlPool,
+    pool: Db,
     ports: NotificationClient,
 }
 
 impl DealTeamNotificationConsumer {
-    pub(crate) fn shared(pool: MySqlPool) -> Arc<dyn EventConsumer> {
+    pub(crate) fn shared(pool: Db) -> Arc<dyn EventConsumer> {
         Arc::new(Self {
             ports: NotificationClient::new(
                 pool.clone(),

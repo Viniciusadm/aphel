@@ -9,7 +9,7 @@ use crate::application::auth::two_factor::{
     TwoFactorPolicy, TwoFactorPolicyRepository, TwoFactorRecord, TwoFactorRepository,
     TwoFactorRequirement,
 };
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::RoleKey;
 use crate::domain::{Secret, UserId};
 use crate::errors::AppError;
@@ -41,7 +41,7 @@ fn into_secret(bytes: Vec<u8>) -> Result<Secret, AppError> {
 }
 
 async fn insert_recovery_codes(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     user_id: &UserId,
     code_hashes: &[String],
     at: DateTime<Utc>,
@@ -127,7 +127,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
         let encrypted = self
             .keyring
             .encrypt(secret.expose().as_bytes(), &context(user_id.as_str()))?;
-        let mut tx = MySqlTx::from(self.pool.begin().await?);
+        let mut tx = Tx::from(self.pool.begin().await?);
         sqlx::query("DELETE FROM user_two_factor WHERE user_id = ? AND enabled_at IS NULL")
             .bind(user_id.as_str())
             .execute(&mut *tx)
@@ -155,7 +155,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
         recovery_code_hashes: &[String],
         at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
-        let mut tx = MySqlTx::from(self.pool.begin().await?);
+        let mut tx = Tx::from(self.pool.begin().await?);
         let updated = sqlx::query(
             "UPDATE user_two_factor SET enabled_at = ?, last_used_step = ?, updated_at = ? WHERE user_id = ? AND enabled_at IS NULL",
         )
@@ -212,7 +212,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
         code_hashes: &[String],
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
-        let mut tx = MySqlTx::from(self.pool.begin().await?);
+        let mut tx = Tx::from(self.pool.begin().await?);
         insert_recovery_codes(&mut tx, user_id, code_hashes, at).await?;
         tx.commit().await?;
         Ok(())
@@ -229,7 +229,7 @@ impl TwoFactorRepository for MySqlTwoFactorRepository {
     }
 
     async fn disable(&self, user_id: &UserId) -> Result<(), AppError> {
-        let mut tx = MySqlTx::from(self.pool.begin().await?);
+        let mut tx = Tx::from(self.pool.begin().await?);
         sqlx::query("DELETE FROM two_factor_recovery_codes WHERE user_id = ?")
             .bind(user_id.as_str())
             .execute(&mut *tx)
@@ -256,7 +256,7 @@ impl MySqlTwoFactorPolicyRepository {
 
 #[async_trait]
 impl TwoFactorPolicyRepository for MySqlTwoFactorPolicyRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn find(&self) -> Result<TwoFactorPolicy, AppError> {
         let policy: Option<String> =
@@ -271,7 +271,7 @@ impl TwoFactorPolicyRepository for MySqlTwoFactorPolicyRepository {
 
     async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _updated_by: &UserId,
         policy: TwoFactorPolicy,
         at: DateTime<Utc>,

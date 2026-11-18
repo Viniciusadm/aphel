@@ -15,7 +15,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::Listing;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::RecordScopeFilter;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -358,7 +358,7 @@ impl BookingStore {
 
     pub(crate) async fn save_availability(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         availability: &Availability,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -414,7 +414,7 @@ impl BookingStore {
 
     pub(crate) async fn lock_availability(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
     ) -> Result<bool, AppError> {
         let row =
@@ -525,7 +525,7 @@ impl BookingStore {
 
     pub(crate) async fn insert_meeting_type(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         meeting_type: &MeetingType,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -557,7 +557,7 @@ impl BookingStore {
 
     pub(crate) async fn update_meeting_type(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         meeting_type: &MeetingType,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -585,11 +585,7 @@ impl BookingStore {
         Ok(())
     }
 
-    pub(crate) async fn delete_meeting_type(
-        &self,
-        tx: &mut MySqlTx,
-        id: Uuid,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete_meeting_type(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM meeting_types WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -613,7 +609,7 @@ impl BookingStore {
 
     pub(crate) async fn booked_locked(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
         from: DateTime<Utc>,
         to: DateTime<Utc>,
@@ -692,7 +688,7 @@ impl BookingStore {
 
     pub(crate) async fn insert_booking(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         booking: &Booking,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -725,7 +721,7 @@ impl BookingStore {
 
     pub(crate) async fn move_booking(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         booking: &Booking,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -746,7 +742,7 @@ impl BookingStore {
 
     pub(crate) async fn cancel_booking(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         booking: &Booking,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {

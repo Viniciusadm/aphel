@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::domain::{LostReason, Pipeline, PipelineStage, StageKind, StageUsage};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{
     invalid_column, naive, parse_uuid, utc,
 };
@@ -286,7 +286,7 @@ impl PipelineStore {
 
     pub(crate) async fn insert_pipeline(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         pipeline: &Pipeline,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -307,7 +307,7 @@ impl PipelineStore {
 
     pub(crate) async fn replace_workflow_teams(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         pipeline_id: Uuid,
         team_ids: &[Uuid],
     ) -> Result<(), AppError> {
@@ -336,7 +336,7 @@ impl PipelineStore {
 
     pub(crate) async fn set_default_pipeline(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         pipeline_id: Uuid,
     ) -> Result<(), AppError> {
         sqlx::query("UPDATE workflow SET is_default = (id = ?)")
@@ -348,7 +348,7 @@ impl PipelineStore {
 
     pub(crate) async fn reorder_pipelines(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {
         reorder(tx, "workflow", None, ordered_ids).await
@@ -356,7 +356,7 @@ impl PipelineStore {
 
     pub(crate) async fn delete_pipeline(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         pipeline_id: Uuid,
     ) -> Result<(), AppError> {
         sqlx::query("DELETE FROM workflow WHERE id = ?")
@@ -369,7 +369,7 @@ impl PipelineStore {
 
     pub(crate) async fn update_pipeline(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         pipeline: &Pipeline,
     ) -> Result<(), AppError> {
         sqlx::query("UPDATE workflow SET name = ?, is_active = ?, updated_at = ? WHERE id = ?")
@@ -384,7 +384,7 @@ impl PipelineStore {
 
     pub(crate) async fn insert_stage(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         stage: &PipelineStage,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -409,11 +409,7 @@ impl PipelineStore {
         Ok(())
     }
 
-    pub async fn update_stage(
-        &self,
-        tx: &mut MySqlTx,
-        stage: &PipelineStage,
-    ) -> Result<(), AppError> {
+    pub async fn update_stage(&self, tx: &mut Tx, stage: &PipelineStage) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE workflow_stages SET name = ?, probability = ?, rotting_days = ?, kind = ?, is_active = ?, \
              entry_required_fields = CAST(? AS JSON), exit_required_fields = CAST(? AS JSON), updated_at = ? \
@@ -435,7 +431,7 @@ impl PipelineStore {
 
     pub(crate) async fn reorder_stages(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         pipeline_id: Uuid,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {
@@ -448,11 +444,7 @@ impl PipelineStore {
         .await
     }
 
-    pub(crate) async fn delete_stage(
-        &self,
-        tx: &mut MySqlTx,
-        stage_id: Uuid,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn delete_stage(&self, tx: &mut Tx, stage_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM workflow_stages WHERE id = ?")
             .bind(stage_id.to_string())
             .execute(&mut **tx)
@@ -482,7 +474,7 @@ impl PipelineStore {
 
     pub(crate) async fn insert_lost_reason(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         reason: &LostReason,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -502,7 +494,7 @@ impl PipelineStore {
 
     pub(crate) async fn update_lost_reason(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         reason: &LostReason,
     ) -> Result<(), AppError> {
         sqlx::query("UPDATE lost_reasons SET name = ?, is_active = ?, updated_at = ? WHERE id = ?")
@@ -517,7 +509,7 @@ impl PipelineStore {
 
     pub(crate) async fn reorder_lost_reasons(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {
         reorder(tx, "lost_reasons", None, ordered_ids).await

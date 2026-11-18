@@ -1,8 +1,8 @@
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use aphel_kernel::errors::AppError;
 use aphel_sdk::notifications::NotificationKind;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::modules::module_settings;
 
@@ -39,7 +39,7 @@ pub(crate) struct LeadProSettings {
 }
 
 impl LeadProSettings {
-    pub(crate) async fn load(pool: &MySqlPool) -> Result<Self, AppError> {
+    pub(crate) async fn load(pool: &Db) -> Result<Self, AppError> {
         let settings = module_settings(pool, KEY).await?;
         let number = |key: &str, default: i64| {
             settings

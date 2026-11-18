@@ -1,13 +1,13 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Serialize;
-use sqlx::MySqlPool;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::manifest::PluginManifest;
 use aphel_kernel::errors::{AppError, FieldViolation};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 
 const UNKNOWN_PRESET: &str = "plugin_role_preset_unknown";
 
@@ -60,7 +60,7 @@ pub fn selected_presets(
 }
 
 async fn role_ids(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     roles: &BTreeSet<String>,
 ) -> Result<BTreeMap<String, String>, AppError> {
     let mut ids = BTreeMap::new();
@@ -77,7 +77,7 @@ async fn role_ids(
 }
 
 pub async fn reconcile(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     manifest: &PluginManifest,
     create_presets: &[String],
 ) -> Result<GrantReport, AppError> {
@@ -144,7 +144,7 @@ pub async fn reconcile(
 }
 
 pub async fn status(
-    pool: &MySqlPool,
+    pool: &Db,
     manifest: &PluginManifest,
 ) -> Result<Vec<RoleGrantStatus>, AppError> {
     let mut expected: BTreeMap<String, Vec<String>> = BTreeMap::new();

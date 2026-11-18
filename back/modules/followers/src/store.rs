@@ -8,7 +8,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::files::UserReference;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::users::UserStatus;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -81,7 +81,7 @@ impl FollowerStore {
 
     pub(crate) async fn follow(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         user_id: &UserId,
         origin: FollowOrigin,
@@ -104,7 +104,7 @@ impl FollowerStore {
 
     pub(crate) async fn unfollow(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         user_id: &UserId,
     ) -> Result<bool, AppError> {

@@ -1,4 +1,4 @@
-use aphel_kernel::{application::shared::RecordRef, database::transaction::MySqlTx};
+use aphel_kernel::{application::shared::RecordRef, database::transaction::Tx};
 use aphel_sdk::{
     AppError, Ctx,
     tasks::{CreateActivityCommand, PreparedTask, TaskRecord, TaskTransactions},
@@ -38,7 +38,7 @@ impl PreparedTask for Draft {
     fn ip(&self) -> Option<String> {
         self.0.ip()
     }
-    async fn insert(&self, ctx: &Ctx<'_>, tx: &mut MySqlTx) -> Result<(), AppError> {
+    async fn insert(&self, ctx: &Ctx<'_>, tx: &mut Tx) -> Result<(), AppError> {
         enabled(ctx)?;
         crate::service::insert_prepared(ctx, tx, &self.0).await
     }

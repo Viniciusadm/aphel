@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::service;
 use crate::{
@@ -13,6 +12,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::custom_objects::RecordTypeCatalog;
 use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{JobContext, JobHandler};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -30,12 +30,12 @@ pub(crate) fn duplicates_cleanup_schedule() -> ScheduledJobDefinition {
 }
 
 pub(crate) struct DuplicateScanHandler {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl DuplicateScanHandler {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 }
@@ -61,7 +61,7 @@ impl JobHandler for DuplicateScanHandler {
 
 async fn system_ctx<'a>(
     scope: &'a AccessScope,
-    pool: &MySqlPool,
+    pool: &Db,
     catalog: &RecordTypeCatalog,
 ) -> Result<Ctx<'a>, AppError> {
     Ok(Ctx::from_parts(
@@ -74,12 +74,12 @@ async fn system_ctx<'a>(
 }
 
 pub(crate) struct DuplicateCleanupHandler {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl DuplicateCleanupHandler {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 }

@@ -7,7 +7,7 @@ use crate::tracking::{NewTrackingObjection, TrackingObjection, TrackingSettings}
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -60,7 +60,7 @@ impl TrackingStore {
 
     pub(crate) async fn save_settings(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         settings: &TrackingSettings,
         updated_by: &UserId,
         now: DateTime<Utc>,
@@ -107,7 +107,7 @@ impl TrackingStore {
 
     pub(crate) async fn insert_objection(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         objection: &NewTrackingObjection,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -126,11 +126,7 @@ impl TrackingStore {
         Ok(result.rows_affected() == 1)
     }
 
-    pub(crate) async fn delete_objection(
-        &self,
-        tx: &mut MySqlTx,
-        id: Uuid,
-    ) -> Result<bool, AppError> {
+    pub(crate) async fn delete_objection(&self, tx: &mut Tx, id: Uuid) -> Result<bool, AppError> {
         let result = sqlx::query("DELETE FROM email_tracking_objections WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)

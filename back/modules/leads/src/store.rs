@@ -19,7 +19,7 @@ use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::organization_admin::ListWindow;
 use aphel_sdk::platform::application::query::{ArchivedFilter, QueryPlan};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_ids_subquery;
@@ -61,11 +61,7 @@ impl HistoryStore {
 }
 
 impl HistoryStore {
-    pub(crate) async fn record(
-        &self,
-        tx: &mut MySqlTx,
-        change: &StageChange,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn record(&self, tx: &mut Tx, change: &StageChange) -> Result<(), AppError> {
         let at = mapper::naive(change.at);
         sqlx::query(
             "UPDATE lifecycle_stage_history SET left_at = ? \
@@ -221,7 +217,7 @@ impl SettingsStore {
 
     pub(crate) async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         settings: &LifecycleSettings,
         updated_by: Option<&UserId>,
         at: DateTime<Utc>,
@@ -303,7 +299,7 @@ impl ReasonStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         reason: &DisqualificationReason,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -324,7 +320,7 @@ impl ReasonStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         reason: &DisqualificationReason,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -340,7 +336,7 @@ impl ReasonStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM lead_disqualification_reasons WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -350,7 +346,7 @@ impl ReasonStore {
 
     pub(crate) async fn reorder(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         ordered_ids: &[Uuid],
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -370,7 +366,7 @@ impl ReasonStore {
 
     pub(crate) async fn record_disqualification(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         disqualification: &LeadDisqualification,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -520,7 +516,7 @@ impl LeadRecords {
 
     pub async fn current_stage_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &RecordType,
         record_id: Uuid,
     ) -> Result<Option<Option<String>>, AppError> {

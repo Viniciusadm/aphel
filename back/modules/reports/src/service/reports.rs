@@ -23,7 +23,7 @@ use aphel_sdk::platform::application::query::{AggregateEngine, AggregateQuery, A
 use aphel_sdk::platform::application::shared::{
     FieldChange, RecordRef, RecordType, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::views::ViewVisibility;
 
@@ -384,7 +384,7 @@ async fn validate_definition(ctx: &Ctx<'_>, definition: &AggregateQuery) -> Resu
 
 async fn record(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     action: &'static str,
     report: &SavedReport,
     changes: Vec<FieldChange>,

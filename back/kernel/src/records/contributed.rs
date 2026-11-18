@@ -4,11 +4,12 @@ use rust_decimal::Decimal;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value, json};
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
 use crate::application::fields::{EntityDefinition, SystemField};
-use crate::database::transaction::MySqlTx;
+use crate::database::Db;
+use crate::database::transaction::Tx;
 use crate::domain::fields::FieldType;
 use crate::errors::{AppError, FieldViolation};
 use crate::infrastructure::query::computed::system_expression;
@@ -39,7 +40,7 @@ pub fn is_writable_contributed(definition: &EntityDefinition, key: &str) -> bool
 }
 
 pub async fn load_contributed(
-    pool: &MySqlPool,
+    pool: &Db,
     definition: &EntityDefinition,
     ids: &[Uuid],
 ) -> Result<HashMap<Uuid, Map<String, Value>>, AppError> {
@@ -180,7 +181,7 @@ fn normalize(field_type: FieldType, value: &Value) -> Result<Value, &'static str
 }
 
 pub async fn write_contributed(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     record_id: Uuid,
     values: &Map<String, Value>,

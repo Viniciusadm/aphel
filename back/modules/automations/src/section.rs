@@ -1,4 +1,5 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
@@ -25,9 +26,8 @@ use aphel_sdk::configuration::{
 };
 use aphel_sdk::configuration::{package_reference_keys, reference_keys};
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
-use sqlx::MySqlPool;
 
 pub(crate) const AUTOMATIONS_SECTION: &str = "automations";
 const AUTOMATION_KIND: &str = "automation";
@@ -180,7 +180,7 @@ struct AutomationPlan {
 pub(crate) struct AutomationsSection {
     registry: Arc<RecordTypeRegistry>,
     automations: AutomationStore,
-    pool: MySqlPool,
+    pool: Db,
     triggers: TriggerRegistry,
     actions: ActionRegistry,
 }
@@ -189,7 +189,7 @@ impl AutomationsSection {
     pub(crate) fn new(
         registry: Arc<RecordTypeRegistry>,
         automations: AutomationStore,
-        pool: MySqlPool,
+        pool: Db,
     ) -> Self {
         Self {
             registry,
@@ -882,7 +882,7 @@ fn package_available(package: &ConfigPackage) -> BTreeMap<ReferenceKind, BTreeSe
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for AutomationsSection {
+impl ConfigSection<Tx> for AutomationsSection {
     fn key(&self) -> &'static str {
         AUTOMATIONS_SECTION
     }
@@ -1002,7 +1002,7 @@ impl ConfigSection<MySqlTx> for AutomationsSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

@@ -1,11 +1,11 @@
 use serde::Serialize;
 use serde_json::json;
-use sqlx::MySqlPool;
 use utoipa::ToSchema;
 
 use crate::manifest::PluginManifest;
 use crate::store::{self, InstalledPlugin};
 use aphel_kernel::errors::{AppError, CodedKind};
+use aphel_sdk::platform::database::Db;
 
 pub const UNACKNOWLEDGED: &str = "plugin_conflicts_unacknowledged";
 
@@ -89,7 +89,7 @@ pub fn detect(candidate: &PluginManifest, others: &[InstalledPlugin]) -> Vec<Plu
 }
 
 pub async fn detect_for(
-    pool: &MySqlPool,
+    pool: &Db,
     candidate: &PluginManifest,
 ) -> Result<Vec<PluginConflict>, AppError> {
     let others = store::list(pool).await?;

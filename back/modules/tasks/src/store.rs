@@ -22,7 +22,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::calendar::BusyInterval;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
@@ -235,7 +235,7 @@ impl<'a> ActivityStore<'a> {
     }
 
     pub(crate) async fn write_links(
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         links: &[RecordRef],
         now: DateTime<Utc>,
@@ -264,7 +264,7 @@ impl<'a> ActivityStore<'a> {
 impl<'a> ActivityStore<'a> {
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         id: Uuid,
         data: &ActivityData,
@@ -307,7 +307,7 @@ impl<'a> ActivityStore<'a> {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         data: &ActivityData,
         now: DateTime<Utc>,
@@ -351,7 +351,7 @@ impl<'a> ActivityStore<'a> {
 
     pub(crate) async fn soft_delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -369,7 +369,7 @@ impl<'a> ActivityStore<'a> {
 
     pub(crate) async fn untouched_occurrence(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         series_id: Uuid,
         index: u32,
     ) -> Result<Option<Uuid>, AppError> {
@@ -387,7 +387,7 @@ impl<'a> ActivityStore<'a> {
 
     pub(crate) async fn discard_occurrence(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -703,7 +703,7 @@ impl RecurrenceStore {
 
     pub(crate) async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         series: &RecurrenceSeries,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -857,7 +857,7 @@ impl ActivityTypeStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         activity_type: &ActivityTypeView,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -882,7 +882,7 @@ impl ActivityTypeStore {
 
     pub async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         activity_type: &ActivityTypeView,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -900,11 +900,7 @@ impl ActivityTypeStore {
         Ok(())
     }
 
-    pub(crate) async fn reorder(
-        &self,
-        tx: &mut MySqlTx,
-        ordered_ids: &[Uuid],
-    ) -> Result<(), AppError> {
+    pub(crate) async fn reorder(&self, tx: &mut Tx, ordered_ids: &[Uuid]) -> Result<(), AppError> {
         for (position, id) in ordered_ids.iter().enumerate() {
             sqlx::query("UPDATE task_types SET position = ? WHERE id = ?")
                 .bind(position as i32)

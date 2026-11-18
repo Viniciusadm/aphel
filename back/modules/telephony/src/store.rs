@@ -15,7 +15,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -38,7 +38,7 @@ impl CallStore {
 impl CallStore {
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         activity_id: Uuid,
         details: &CallDetails,
         now: DateTime<Utc>,
@@ -66,7 +66,7 @@ impl CallStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         activity_id: Uuid,
         details: &CallDetails,
         now: DateTime<Utc>,
@@ -293,11 +293,7 @@ impl CallOutcomeStore {
         .transpose()
     }
 
-    pub(crate) async fn insert(
-        &self,
-        tx: &mut MySqlTx,
-        outcome: &CallOutcome,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, outcome: &CallOutcome) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO call_outcomes (id, `key`, name, is_connected, is_system, \
              is_active, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -316,11 +312,7 @@ impl CallOutcomeStore {
         Ok(())
     }
 
-    pub(crate) async fn update(
-        &self,
-        tx: &mut MySqlTx,
-        outcome: &CallOutcome,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, outcome: &CallOutcome) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE call_outcomes SET name = ?, is_connected = ?, is_active = ?, updated_at = ? \
              WHERE id = ?",
@@ -337,7 +329,7 @@ impl CallOutcomeStore {
 
     pub(crate) async fn reorder(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         ordered_ids: &[Uuid],
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -440,7 +432,7 @@ fn item_from_row(row: &MySqlRow) -> Result<CallSessionItem, AppError> {
 impl CallSessionStore {
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         session: &CallSession,
         contact_ids: &[Uuid],
     ) -> Result<(), AppError> {
@@ -593,7 +585,7 @@ impl CallSessionStore {
 
     pub(crate) async fn lock(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         session_id: Uuid,
     ) -> Result<Option<CallSession>, AppError> {
         sqlx::query(sqlx::AssertSqlSafe(format!(
@@ -609,7 +601,7 @@ impl CallSessionStore {
 
     pub(crate) async fn mark_item(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         session_id: Uuid,
         position: u32,
         status: SessionItemStatus,
@@ -640,7 +632,7 @@ impl CallSessionStore {
 
     pub(crate) async fn next_pending(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         session_id: Uuid,
         after: u32,
     ) -> Result<Option<u32>, AppError> {
@@ -655,11 +647,7 @@ impl CallSessionStore {
         .await?)
     }
 
-    pub(crate) async fn save(
-        &self,
-        tx: &mut MySqlTx,
-        session: &CallSession,
-    ) -> Result<(), AppError> {
+    pub(crate) async fn save(&self, tx: &mut Tx, session: &CallSession) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE call_sessions SET status = ?, position = ?, completed_at = ?, updated_at = ? \
              WHERE id = ?",

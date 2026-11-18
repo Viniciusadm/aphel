@@ -1,10 +1,10 @@
 use crate::{AppError, Ctx, fields::EntityTraits};
 pub use aphel_contract_money::*;
 pub use aphel_kernel::application::shared::normalize_currency_code;
+use aphel_kernel::database::Db;
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
-use sqlx::MySqlPool;
 pub const KEY: &str = "money";
 pub const READ_PERMISSION: crate::access::Permission =
     crate::access::Permission::from_static("money.read");
@@ -14,19 +14,19 @@ pub trait CurrencyConverter: Send + Sync {
 }
 #[async_trait]
 pub trait MoneyRates: Send + Sync {
-    async fn currency_enabled(&self, pool: &MySqlPool, currency: &str) -> Result<bool, AppError>;
-    async fn context(&self, pool: &MySqlPool) -> Result<Option<CurrencyContext>, AppError>;
+    async fn currency_enabled(&self, pool: &Db, currency: &str) -> Result<bool, AppError>;
+    async fn context(&self, pool: &Db) -> Result<Option<CurrencyContext>, AppError>;
     async fn rate_on(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         currency: &str,
         date: NaiveDate,
     ) -> Result<Option<Decimal>, AppError>;
 }
 #[async_trait]
 pub trait MoneyRecalculationSource: Send + Sync {
-    async fn recalculate(&self, pool: &MySqlPool, currency: Option<&str>) -> Result<u64, AppError>;
-    async fn rebase_completed(&self, _pool: &MySqlPool, _factor: Decimal) -> Result<u64, AppError> {
+    async fn recalculate(&self, pool: &Db, currency: Option<&str>) -> Result<u64, AppError>;
+    async fn rebase_completed(&self, _pool: &Db, _factor: Decimal) -> Result<u64, AppError> {
         Ok(0)
     }
 }

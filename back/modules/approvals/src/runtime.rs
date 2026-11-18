@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 
 use crate::domain::{
     APPROVAL_OVERDUE, APPROVALS_CLEANUP_CONSUMER, APPROVALS_OVERDUE_CRON, APPROVALS_OVERDUE_JOB,
@@ -18,6 +17,7 @@ use aphel_sdk::platform::application::jobs::ScheduledJobDefinition;
 use aphel_sdk::platform::application::shared::{
     DomainEvent, EventConsumer, FieldChange, JobContext, JobHandler,
 };
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::audit::MySqlAuditLog;
 use aphel_sdk::platform::infrastructure::events::MySqlEventPublisher;
@@ -38,12 +38,12 @@ fn is_record_deletion(event_type: &str) -> bool {
 
 #[derive(Clone)]
 pub(crate) struct ApprovalRuntime {
-    pool: MySqlPool,
+    pool: Db,
     catalog: Arc<RecordTypeCatalog>,
 }
 
 impl ApprovalRuntime {
-    pub(crate) fn new(pool: MySqlPool, catalog: Arc<RecordTypeCatalog>) -> Self {
+    pub(crate) fn new(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Self {
         Self { pool, catalog }
     }
 

@@ -1,17 +1,18 @@
 use std::sync::Arc;
 
+use crate::database::Db;
 use crate::modules::manifest::table_prefix;
 use async_trait::async_trait;
 use serde_json::{Map, Value, json};
 use sqlx::types::Json;
-use sqlx::{AssertSqlSafe, MySql, MySqlPool, QueryBuilder};
+use sqlx::{AssertSqlSafe, MySql, QueryBuilder};
 
 use crate::api::state::{AppState, SharedAuditLog, SharedEventPublisher, SharedSecretVault};
 use crate::application::fields::is_sql_identifier;
 use crate::application::module_admin::{
     ModuleDescriptor, ModuleLifecycle, ModulePorts, ModuleUseCases, module_not_found,
 };
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::{AppError, FieldViolation};
 use crate::infrastructure::auth::SystemClock;
@@ -24,12 +25,12 @@ use crate::modules::module::ModuleCtx;
 const MAX_PURGE_PASSES: usize = 8;
 
 pub struct ModuleRuntime {
-    pool: MySqlPool,
+    pool: Db,
     app: Arc<App>,
 }
 
 impl ModuleRuntime {
-    pub fn new(pool: MySqlPool, app: Arc<App>) -> Self {
+    pub fn new(pool: Db, app: Arc<App>) -> Self {
         Self { pool, app }
     }
 
@@ -115,7 +116,7 @@ impl ModuleRuntime {
 
 #[async_trait]
 impl ModuleLifecycle for ModuleRuntime {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     fn descriptors(&self) -> Vec<ModuleDescriptor> {
         self.app
@@ -183,7 +184,7 @@ impl ModuleLifecycle for ModuleRuntime {
 
     async fn purge_data(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         key: &str,
     ) -> Result<u64, AppError> {

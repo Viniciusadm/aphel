@@ -1,7 +1,8 @@
 use aphel_kernel::domain::UserId;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::{AppError, email::EmailAutomationReader};
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -18,7 +19,7 @@ fn opt_uuid(value: Option<String>, column: &str) -> Result<Option<Uuid>, AppErro
 impl EmailAutomationReader for Reader {
     async fn organization_template_keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
     ) -> Result<HashMap<Uuid, String>, AppError> {
         let rows =
             sqlx::query("SELECT id, `key` FROM email_templates WHERE scope = 'organization'")
@@ -33,7 +34,7 @@ impl EmailAutomationReader for Reader {
 
     async fn organization_template_ids_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
     ) -> Result<HashMap<String, Uuid>, AppError> {
         let rows =
             sqlx::query("SELECT id, `key` FROM email_templates WHERE scope = 'organization'")
@@ -48,7 +49,7 @@ impl EmailAutomationReader for Reader {
 
     async fn objection_hash(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         objection_id: Uuid,
     ) -> Result<Option<String>, AppError> {
         Ok(sqlx::query_scalar(
@@ -60,7 +61,7 @@ impl EmailAutomationReader for Reader {
         .await?)
     }
 
-    async fn has_objection(&self, pool: &MySqlPool, address_hash: &str) -> Result<bool, AppError> {
+    async fn has_objection(&self, pool: &Db, address_hash: &str) -> Result<bool, AppError> {
         let exists: bool = sqlx::query_scalar(
             "SELECT EXISTS(SELECT 1 FROM email_tracking_objections \
              WHERE address_hash = ?)",
@@ -73,7 +74,7 @@ impl EmailAutomationReader for Reader {
 
     async fn sendable_mailbox(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         owner: &UserId,
         mailbox_id: Option<Uuid>,
     ) -> Result<Option<Uuid>, AppError> {

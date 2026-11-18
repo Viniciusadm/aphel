@@ -1,7 +1,7 @@
 use aphel_sdk::AppError;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::points::{FileReferenceSource, GeneratedFileKind};
 use async_trait::async_trait;
-use sqlx::MySqlPool;
 
 pub(crate) struct EmailFiles;
 
@@ -9,7 +9,7 @@ pub(crate) struct EmailFiles;
 impl FileReferenceSource for EmailFiles {
     async fn reference_kind(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         file_id: &str,
     ) -> Result<Option<GeneratedFileKind>, AppError> {
         let found: Option<i32> = sqlx::query_scalar(

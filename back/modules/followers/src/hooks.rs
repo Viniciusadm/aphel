@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 
 use crate::domain::FollowOrigin;
 use crate::store::FollowerStore;
 use aphel_sdk::platform::application::custom_objects::{CatalogEventConsumer, RecordTypeCatalog};
+use aphel_sdk::platform::database::Db;
 
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
@@ -22,14 +22,14 @@ pub(crate) const FOLLOWERS_OWNERS_CONSUMER: &str = "followers.owners";
 const OWNER_ACTIONS: [&str; 3] = ["created", "updated", "owner_changed"];
 
 pub(crate) struct OwnerFollowConsumer {
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
     followers: FollowerStore,
     records: MySqlRecordDirectory,
 }
 
 impl OwnerFollowConsumer {
-    pub(crate) fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+    pub(crate) fn new(pool: Db, registry: Arc<RecordTypeRegistry>) -> Self {
         Self {
             registry,
             followers: FollowerStore::new(pool.clone()),
@@ -38,10 +38,7 @@ impl OwnerFollowConsumer {
         }
     }
 
-    pub(crate) fn shared(
-        pool: MySqlPool,
-        catalog: Arc<RecordTypeCatalog>,
-    ) -> Arc<dyn EventConsumer> {
+    pub(crate) fn shared(pool: Db, catalog: Arc<RecordTypeCatalog>) -> Arc<dyn EventConsumer> {
         CatalogEventConsumer::shared(
             catalog,
             Arc::new(move |registry| {

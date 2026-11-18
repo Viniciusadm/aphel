@@ -40,7 +40,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 const INVALID_DEAL_MEMBER: &str = "invalid deal member";
@@ -155,7 +155,7 @@ async fn resolve_role(
 
 async fn lock(
     members: &DealMemberStore,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     deal_id: Uuid,
 ) -> Result<Vec<DealMember>, AppError> {
     if !members.lock_deal(tx, deal_id).await? {
@@ -166,7 +166,7 @@ async fn lock(
 
 async fn record_member(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     member: &DealMember,
     event_type: &'static str,
     changes: Vec<FieldChange>,
@@ -633,7 +633,7 @@ async fn find_role(store: &DealMemberRoleStore, id: &str) -> Result<DealMemberRo
 
 async fn publish_role(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     role: &DealMemberRole,
     event_type: &'static str,
     changes: Vec<FieldChange>,

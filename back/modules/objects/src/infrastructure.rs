@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
-use sqlx::MySqlPool;
-
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::infrastructure::auth::SystemClock;
 use aphel_sdk::platform::infrastructure::custom_objects::{
     MySqlCustomObjectRepository, MySqlRelationshipRepository,
@@ -24,7 +23,7 @@ pub struct MySqlCustomObjectAdminPorts {
 
 impl MySqlCustomObjectAdminPorts {
     pub fn new(
-        pool: MySqlPool,
+        pool: Db,
         registry: Arc<RecordTypeRegistry>,
         events: SharedEventPublisher,
         audit: SharedAuditLog,

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::types::Json;
 
 use crate::application::shared::{DomainEvent, EventPublisher};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 use crate::infrastructure::repositories::mapper;
 
@@ -16,8 +16,8 @@ impl MySqlEventPublisher {
 }
 
 #[async_trait]
-impl EventPublisher<MySqlTx> for MySqlEventPublisher {
-    async fn publish(&self, tx: &mut MySqlTx, mut event: DomainEvent) -> Result<(), AppError> {
+impl EventPublisher<Tx> for MySqlEventPublisher {
+    async fn publish(&self, tx: &mut Tx, mut event: DomainEvent) -> Result<(), AppError> {
         if !tx.dispatch_requested {
             tx.dispatch_requested = true;
             tx.after_commit.push(Box::pin(async {

@@ -26,7 +26,7 @@ use aphel_sdk::platform::application::query::{
 };
 use aphel_sdk::platform::application::security::Clock;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, PermissionSet, RecordScopeFilter, RoleKey};
 use aphel_sdk::platform::domain::fields::{
     FieldConfig, FieldDefinition, FieldKey, FormulaResultType, FormulaSettings,
@@ -304,7 +304,7 @@ impl ApprovalStore {
 
     pub(crate) async fn insert_steps(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy: &ApprovalPolicy,
     ) -> Result<(), AppError> {
         for step in &policy.steps {
@@ -399,7 +399,7 @@ impl ApprovalStore {
 
     pub(crate) async fn active_policies(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         moment: &ApprovalMoment,
         target_id: Option<Uuid>,
@@ -440,7 +440,7 @@ impl ApprovalStore {
 
     pub(crate) async fn insert_policy(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy: &ApprovalPolicy,
     ) -> Result<(), AppError> {
         let (filter, formula) = condition_columns(&policy.condition);
@@ -474,7 +474,7 @@ impl ApprovalStore {
 
     pub(crate) async fn update_policy(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy: &ApprovalPolicy,
     ) -> Result<(), AppError> {
         let (filter, formula) = condition_columns(&policy.condition);
@@ -507,7 +507,7 @@ impl ApprovalStore {
         self.insert_steps(tx, policy).await
     }
 
-    pub(crate) async fn delete_policy(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete_policy(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM approval_policies WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -517,7 +517,7 @@ impl ApprovalStore {
 
     pub(crate) async fn set_positions(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         positions: &[(Uuid, i32)],
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -538,7 +538,7 @@ impl ApprovalStore {
 
     pub(crate) async fn open_requests(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         moment: &ApprovalMoment,
         target_id: Option<Uuid>,
@@ -563,7 +563,7 @@ impl ApprovalStore {
 
     pub(crate) async fn pending_for_record(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
     ) -> Result<Vec<ApprovalRequest>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
@@ -579,7 +579,7 @@ impl ApprovalStore {
 
     pub(crate) async fn pending_for_policy(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         policy_id: Uuid,
     ) -> Result<Vec<ApprovalRequest>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
@@ -593,7 +593,7 @@ impl ApprovalStore {
 
     pub(crate) async fn insert_request(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &ApprovalRequest,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -626,7 +626,7 @@ impl ApprovalStore {
 
     pub(crate) async fn insert_approvers(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request_id: Uuid,
         step: u32,
         users: &[UserId],
@@ -648,7 +648,7 @@ impl ApprovalStore {
 
     pub(crate) async fn lock_request(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
     ) -> Result<Option<ApprovalRequestRecord>, AppError> {
         let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
@@ -674,7 +674,7 @@ impl ApprovalStore {
 
     pub(crate) async fn record_decision(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         decision: &DecisionEntry<'_>,
     ) -> Result<bool, AppError> {
         let result = sqlx::query(
@@ -695,7 +695,7 @@ impl ApprovalStore {
 
     pub(crate) async fn save_request_state(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &ApprovalRequest,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -718,7 +718,7 @@ impl ApprovalStore {
 
     pub(crate) async fn mark_consumed(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         ids: &[Uuid],
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -809,7 +809,7 @@ impl ApprovalStore {
 
     pub(crate) async fn mark_overdue(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         at: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -1034,7 +1034,7 @@ impl ApprovalDirectory {
 impl ApprovalDirectory {
     pub(crate) async fn record_state_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         definition: &EntityDefinition,
         record_id: Uuid,
@@ -1059,7 +1059,7 @@ impl ApprovalDirectory {
 
     pub(crate) async fn condition_matches(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         definition: &EntityDefinition,
         record_id: Uuid,
@@ -1155,7 +1155,7 @@ impl ApprovalDirectory {
 
     pub(crate) async fn approvers(
         &self,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         step: &StepSnapshot,
         owner: Option<&UserId>,
     ) -> Result<Vec<UserId>, AppError> {
@@ -1192,7 +1192,7 @@ impl ApprovalDirectory {
         }
     }
 
-    pub(crate) async fn managers(&self, _tx: &mut MySqlTx) -> Result<Vec<UserId>, AppError> {
+    pub(crate) async fn managers(&self, _tx: &mut Tx) -> Result<Vec<UserId>, AppError> {
         self.users_where(
             "EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = m.role_id AND rp.permission = ?)",
             aphel_sdk::platform::domain::access::Permission::APPROVALS_MANAGE

@@ -11,7 +11,7 @@ use crate::application::fields::permissions::{
     FieldPermissionState, PermissionRole, StoredFieldPermission,
 };
 use crate::application::shared::{AuditLog, EventPublisher, RecordType};
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
@@ -115,7 +115,7 @@ impl MySqlFieldPermissionRepository {
 
 #[async_trait]
 impl FieldPermissionRepository for MySqlFieldPermissionRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn roles(&self) -> Result<Vec<PermissionRole>, AppError> {
         let rows = sqlx::query(
@@ -181,7 +181,7 @@ impl FieldPermissionRepository for MySqlFieldPermissionRepository {
 
     async fn replace(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record_type: &RecordType,
         entries: &[StoredFieldPermission],
@@ -224,16 +224,16 @@ pub struct MySqlFieldPermissionPorts {
     transactions: MySqlTransactionManager,
     definitions: MySqlFieldDefinitionRepository,
     permissions: MySqlFieldPermissionRepository,
-    events: Arc<dyn EventPublisher<MySqlTx>>,
-    audit: Arc<dyn AuditLog<MySqlTx>>,
+    events: Arc<dyn EventPublisher<Tx>>,
+    audit: Arc<dyn AuditLog<Tx>>,
 }
 
 impl MySqlFieldPermissionPorts {
     pub(crate) fn new(
         pool: MySqlPool,
         registry: Arc<RecordTypeRegistry>,
-        events: Arc<dyn EventPublisher<MySqlTx>>,
-        audit: Arc<dyn AuditLog<MySqlTx>>,
+        events: Arc<dyn EventPublisher<Tx>>,
+        audit: Arc<dyn AuditLog<Tx>>,
     ) -> Self {
         Self {
             registry,
@@ -250,8 +250,8 @@ impl FieldPermissionPorts for MySqlFieldPermissionPorts {
     type Transactions = MySqlTransactionManager;
     type Definitions = MySqlFieldDefinitionRepository;
     type Permissions = MySqlFieldPermissionRepository;
-    type Events = Arc<dyn EventPublisher<MySqlTx>>;
-    type Audit = Arc<dyn AuditLog<MySqlTx>>;
+    type Events = Arc<dyn EventPublisher<Tx>>;
+    type Audit = Arc<dyn AuditLog<Tx>>;
     type Clock = SystemClock;
 
     fn registry(&self) -> &RecordTypeRegistry {

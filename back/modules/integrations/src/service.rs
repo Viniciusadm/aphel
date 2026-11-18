@@ -17,7 +17,7 @@ use aphel_sdk::platform::application::audit::{DiffOptions, diff_changes};
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, RecordType, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::infrastructure::platform::SharedSecretVault;
 
@@ -555,7 +555,7 @@ pub(crate) async fn remove(
 #[allow(clippy::too_many_arguments)]
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     integration: &Integration,
     event_type: &'static str,
     extra: Value,

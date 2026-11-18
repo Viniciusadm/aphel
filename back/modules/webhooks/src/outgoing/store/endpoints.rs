@@ -8,7 +8,7 @@ use crate::outgoing::{DisabledReason, EventSubscription, WebhookEndpoint};
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -91,7 +91,7 @@ impl WebhookEndpointStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         endpoint: &WebhookEndpoint,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -117,7 +117,7 @@ impl WebhookEndpointStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         endpoint: &WebhookEndpoint,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -139,7 +139,7 @@ impl WebhookEndpointStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM webhook_endpoints WHERE id = ?")
             .bind(id.to_string())
             .execute(&mut **tx)
@@ -172,7 +172,7 @@ impl WebhookEndpointStore {
 
     pub(crate) async fn record_success(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -190,7 +190,7 @@ impl WebhookEndpointStore {
 
     pub(crate) async fn record_failure(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         at: DateTime<Utc>,
         counts: bool,
@@ -214,7 +214,7 @@ impl WebhookEndpointStore {
 
     pub(crate) async fn disable(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         reason: DisabledReason,
         at: DateTime<Utc>,

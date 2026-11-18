@@ -1,4 +1,5 @@
-use crate::database::transaction::MySqlTx;
+use crate::database::Db;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::domain::{SessionId, UserId};
 use crate::errors::AppError;
@@ -19,8 +20,8 @@ impl Hook for SessionRevoked {
     }
 }
 pub async fn session_revoked(
-    tx: &mut MySqlTx,
-    pool: &sqlx::MySqlPool,
+    tx: &mut Tx,
+    pool: &Db,
     session_id: Option<&SessionId>,
     user_id: Option<&UserId>,
     keep_session: Option<&SessionId>,

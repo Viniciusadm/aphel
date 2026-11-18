@@ -31,7 +31,7 @@ use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, DomainEvent, FieldChange, RecordRef, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, RecordScope};
 
 fn slug_taken() -> AppError {
@@ -125,7 +125,7 @@ pub(crate) async fn save_availability(
 
 async fn publish_availability(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: &Actor,
     target: &UserId,
     changes: Vec<FieldChange>,
@@ -408,7 +408,7 @@ pub(crate) async fn create_meeting_type(
 #[allow(clippy::too_many_arguments)]
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     actor: &Actor,
     event_type: &'static str,
     record: &RecordRef,

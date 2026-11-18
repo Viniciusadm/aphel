@@ -1,5 +1,5 @@
 use crate::{AppError, Ctx};
-use aphel_kernel::database::transaction::MySqlTx;
+use aphel_kernel::database::transaction::Tx;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
@@ -21,7 +21,7 @@ pub trait MergeOwner: Send + Sync {
     async fn retire(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         duplicate: Uuid,
         now: DateTime<Utc>,
     ) -> Result<(), AppError>;
@@ -34,14 +34,14 @@ pub trait PreparedMerge: Send + Sync {
     async fn apply(
         &mut self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         now: DateTime<Utc>,
         ip: Option<String>,
     ) -> Result<Value, AppError>;
     async fn persist(
         &mut self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         now: DateTime<Utc>,
     ) -> Result<(), AppError>;
 }
@@ -51,7 +51,7 @@ pub trait MergeReferences: Send + Sync {
     async fn move_references(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         from: Uuid,
         to: Uuid,

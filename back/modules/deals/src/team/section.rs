@@ -1,11 +1,11 @@
 use aphel_sdk::configuration::ConfigReferenceKind;
+use aphel_sdk::platform::database::Db;
 use std::collections::BTreeSet;
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::team::domain::{
@@ -18,7 +18,7 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const DEAL_MEMBER_ROLES_SECTION: &str = "deal_member_roles";
@@ -42,7 +42,7 @@ pub(crate) struct DealMemberRolesSection {
 }
 
 impl DealMemberRolesSection {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             roles: DealMemberRoleStore::new(pool),
         }
@@ -122,7 +122,7 @@ fn parse(content: &Value) -> Result<Vec<PackageDealMemberRole>, AppError> {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for DealMemberRolesSection {
+impl ConfigSection<Tx> for DealMemberRolesSection {
     fn key(&self) -> &'static str {
         DEAL_MEMBER_ROLES_SECTION
     }
@@ -192,7 +192,7 @@ impl ConfigSection<MySqlTx> for DealMemberRolesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

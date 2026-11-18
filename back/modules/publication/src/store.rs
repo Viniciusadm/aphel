@@ -9,7 +9,7 @@ use crate::domain::{PublicationRequest, Revision, Subject};
 use aphel_contract_publication::{RequestAction, RequestStatus};
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::{RecordRef, RecordType};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper::{invalid_column, naive, utc};
 
 const REVISION_COLUMNS: &str = "SELECT id, record_type, record_id, number, format, payload, \
@@ -93,10 +93,7 @@ fn request_from_row(row: &MySqlRow) -> Result<PublicationRequest, AppError> {
     })
 }
 
-pub(crate) async fn lock_subject(
-    tx: &mut MySqlTx,
-    record: &RecordRef,
-) -> Result<Subject, AppError> {
+pub(crate) async fn lock_subject(tx: &mut Tx, record: &RecordRef) -> Result<Subject, AppError> {
     sqlx::query("INSERT IGNORE INTO publication_subjects (record_type, record_id) VALUES (?, ?)")
         .bind(record.record_type.as_str())
         .bind(record.record_id.to_string())
@@ -140,7 +137,7 @@ pub(crate) async fn subject(
 }
 
 pub(crate) async fn bump_generation(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     at: DateTime<Utc>,
 ) -> Result<u64, AppError> {
@@ -163,7 +160,7 @@ pub(crate) async fn bump_generation(
 }
 
 pub(crate) async fn set_active(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     revision_id: Option<Uuid>,
     first_published_at: Option<DateTime<Utc>>,
@@ -184,10 +181,7 @@ pub(crate) async fn set_active(
     Ok(())
 }
 
-pub(crate) async fn next_revision_number(
-    tx: &mut MySqlTx,
-    record: &RecordRef,
-) -> Result<u32, AppError> {
+pub(crate) async fn next_revision_number(tx: &mut Tx, record: &RecordRef) -> Result<u32, AppError> {
     let current: Option<u32> = sqlx::query_scalar(
         "SELECT MAX(number) FROM publication_revisions WHERE record_type = ? AND record_id = ?",
     )
@@ -199,7 +193,7 @@ pub(crate) async fn next_revision_number(
 }
 
 pub(crate) async fn insert_revision(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     revision: &Revision,
     files: &[String],
 ) -> Result<(), AppError> {
@@ -242,7 +236,7 @@ pub(crate) async fn revision(pool: &MySqlPool, id: Uuid) -> Result<Option<Revisi
     row.as_ref().map(revision_from_row).transpose()
 }
 
-pub(crate) async fn revision_in(tx: &mut MySqlTx, id: Uuid) -> Result<Option<Revision>, AppError> {
+pub(crate) async fn revision_in(tx: &mut Tx, id: Uuid) -> Result<Option<Revision>, AppError> {
     let mut builder = QueryBuilder::<MySql>::new(REVISION_COLUMNS);
     builder.push(" AND id = ").push_bind(id.to_string());
     let row = builder.build().fetch_optional(&mut **tx).await?;
@@ -288,7 +282,7 @@ pub(crate) async fn revisions(
 }
 
 pub(crate) async fn insert_request(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &PublicationRequest,
 ) -> Result<(), AppError> {
     sqlx::query(
@@ -319,7 +313,7 @@ pub(crate) async fn insert_request(
 }
 
 pub(crate) async fn lock_request(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
 ) -> Result<Option<PublicationRequest>, AppError> {
     let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
@@ -342,7 +336,7 @@ pub(crate) async fn request(
 }
 
 pub(crate) async fn request_by_key(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     requested_by: &str,
     key: &str,
 ) -> Result<Option<PublicationRequest>, AppError> {
@@ -358,7 +352,7 @@ pub(crate) async fn request_by_key(
 }
 
 pub(crate) async fn open_requests(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
 ) -> Result<Vec<PublicationRequest>, AppError> {
     let mut builder = QueryBuilder::<MySql>::new(REQUEST_COLUMNS);
@@ -390,7 +384,7 @@ pub(crate) async fn latest_requests(
 }
 
 pub(crate) async fn awaiting_for_revision(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record: &RecordRef,
     revision_id: Uuid,
 ) -> Result<Vec<PublicationRequest>, AppError> {
@@ -408,7 +402,7 @@ pub(crate) async fn awaiting_for_revision(
 }
 
 pub(crate) async fn save_request(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     request: &PublicationRequest,
 ) -> Result<(), AppError> {
     sqlx::query(
@@ -451,7 +445,7 @@ pub(crate) async fn collectable_revisions(
         .collect()
 }
 
-pub(crate) async fn delete_revision(tx: &mut MySqlTx, id: Uuid) -> Result<(), AppError> {
+pub(crate) async fn delete_revision(tx: &mut Tx, id: Uuid) -> Result<(), AppError> {
     sqlx::query("DELETE FROM publication_revisions WHERE id = ?")
         .bind(id.to_string())
         .execute(&mut **tx)

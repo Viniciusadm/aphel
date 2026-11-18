@@ -1,4 +1,4 @@
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::{AppError, Ctx};
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -8,7 +8,7 @@ impl aphel_sdk::merges::MergeReferences for References {
     async fn move_references(
         &self,
         _ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &str,
         from: Uuid,
         to: Uuid,

@@ -32,7 +32,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 const INVALID_PRICE_LIST: &str = "invalid price list";
 const INVALID_ITEMS: &str = "invalid price list items";
@@ -723,7 +723,7 @@ async fn reload(ctx: &Ctx<'_>, id: Uuid) -> Result<PriceList, AppError> {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     list: &PriceList,
     event_type: &'static str,
     changes: Vec<FieldChange>,

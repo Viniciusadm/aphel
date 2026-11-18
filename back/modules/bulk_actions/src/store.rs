@@ -12,7 +12,7 @@ use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const OPERATION_COLUMNS: &str = "id, record_type, action, params, selection, status, total, \
@@ -119,7 +119,7 @@ impl BulkOperationStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         operation: &BulkOperation,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -158,7 +158,7 @@ impl BulkOperationStore {
 
     pub(crate) async fn save_in(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         operation: &BulkOperation,
     ) -> Result<(), AppError> {
         update_statement(operation)?
@@ -223,7 +223,7 @@ impl BulkOperationStore {
 
     pub(crate) async fn record_item(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         operation: &BulkOperation,
         item: &BulkItem,
     ) -> Result<(), AppError> {

@@ -6,7 +6,6 @@ use axum::response::{IntoResponse, Response};
 use chrono::Utc;
 use futures::StreamExt;
 use futures::stream;
-use sqlx::MySqlPool;
 use utoipa::openapi::path::{ParameterBuilder, ParameterIn};
 use utoipa::openapi::schema::{ObjectBuilder, Type};
 use utoipa::openapi::{ContentBuilder, Ref, RefOr, Required, ResponseBuilder};
@@ -21,6 +20,7 @@ use crate::application::idempotency::{
     StoredResponse,
 };
 use crate::application::security::SecureTokens;
+use crate::database::Db;
 use crate::errors::AppError;
 use crate::infrastructure::auth::Sha256SecureTokens;
 use crate::infrastructure::idempotency::MySqlIdempotencyStore;
@@ -195,13 +195,13 @@ fn replay(stored: StoredResponse) -> Response {
 }
 
 struct PendingKey {
-    pool: MySqlPool,
+    pool: Db,
     request: IdempotentRequest,
     armed: bool,
 }
 
 impl PendingKey {
-    fn new(pool: MySqlPool, request: IdempotentRequest) -> Self {
+    fn new(pool: Db, request: IdempotentRequest) -> Self {
         Self {
             pool,
             request,

@@ -23,7 +23,7 @@ use aphel_sdk::configuration::{
     PlanItem, parse_section,
 };
 use aphel_sdk::platform::application::fields::RecordTypeRegistry;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::domain::custom_objects::is_custom_record_type;
 
@@ -571,7 +571,7 @@ fn validate_rule(
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for LeadDistributionSection {
+impl ConfigSection<Tx> for LeadDistributionSection {
     fn key(&self) -> &'static str {
         LEAD_DISTRIBUTION_SECTION
     }
@@ -631,7 +631,7 @@ impl ConfigSection<MySqlTx> for LeadDistributionSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

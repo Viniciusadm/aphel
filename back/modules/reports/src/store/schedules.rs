@@ -15,7 +15,7 @@ use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::files::UserReference;
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::users::UserStatus;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -127,7 +127,7 @@ impl ScheduleStore {
 
     async fn write_recipients(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         schedule: &ReportSchedule,
     ) -> Result<(), AppError> {
         sqlx::query("DELETE FROM report_schedule_recipients WHERE schedule_id = ?")
@@ -185,7 +185,7 @@ impl ScheduleStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         schedule: &ReportSchedule,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -214,7 +214,7 @@ impl ScheduleStore {
 
     pub(crate) async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         schedule: &ReportSchedule,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -237,7 +237,7 @@ impl ScheduleStore {
         self.write_recipients(tx, schedule).await
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, schedule_id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, schedule_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM report_schedules WHERE id = ?")
             .bind(schedule_id.to_string())
             .execute(&mut **tx)
@@ -349,7 +349,7 @@ impl ScheduleStore {
 
     pub(crate) async fn claim_delivery(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         delivery: &ReportDelivery,
     ) -> Result<bool, AppError> {
         let current: Option<String> = sqlx::query_scalar(
@@ -392,7 +392,7 @@ impl ScheduleStore {
 
     pub(crate) async fn save_delivery(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         delivery: &ReportDelivery,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -446,7 +446,7 @@ impl ScheduleStore {
 
     pub(crate) async fn lock_due(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         schedule_id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<Option<ReportSchedule>, AppError> {
@@ -469,7 +469,7 @@ impl ScheduleStore {
 
     pub(crate) async fn advance(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         schedule_id: Uuid,
         next_run_at: DateTime<Utc>,
         last_run_at: DateTime<Utc>,

@@ -1,5 +1,6 @@
 use crate::{AppError, fields::EntityTraits};
 pub use aphel_contract_assignment::*;
+use aphel_kernel::database::Db;
 pub struct AssignedCreate<'a> {
     pub rule: &'a str,
     pub record_type: &'a str,
@@ -118,7 +119,7 @@ pub struct HostPool {
 pub trait HostAssignment: Send + Sync {
     async fn rule_names(
         &self,
-        pool: &sqlx::MySqlPool,
+        pool: &Db,
         ids: &[uuid::Uuid],
     ) -> Result<std::collections::HashMap<uuid::Uuid, String>, AppError>;
 
@@ -137,7 +138,7 @@ pub trait HostAssignment: Send + Sync {
     async fn pick_user(
         &self,
         ctx: &crate::Ctx<'_>,
-        tx: &mut aphel_kernel::database::transaction::MySqlTx,
+        tx: &mut aphel_kernel::database::transaction::Tx,
         id: uuid::Uuid,
         hosts: &[WeightedHost],
     ) -> Result<HostPick, AppError>;

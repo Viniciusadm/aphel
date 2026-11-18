@@ -1,4 +1,5 @@
 use crate::application::shared::RecordType;
+use crate::database::Db;
 use crate::domain::custom_objects::is_custom_record_type;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -222,10 +223,10 @@ pub fn is_public_event(event_type: &str) -> bool {
 #[async_trait::async_trait]
 pub trait RuntimePublicEventSource: Send + Sync {
     fn recognizes(&self, event_type: &str) -> bool;
-    async fn refresh(&self, pool: &sqlx::MySqlPool) -> Result<(), crate::errors::AppError>;
+    async fn refresh(&self, pool: &Db) -> Result<(), crate::errors::AppError>;
 }
 
-pub async fn refresh_public_events(pool: &sqlx::MySqlPool) -> Result<(), crate::errors::AppError> {
+pub async fn refresh_public_events(pool: &Db) -> Result<(), crate::errors::AppError> {
     for source in crate::modules::app().contributions::<dyn RuntimePublicEventSource>() {
         source.refresh(pool).await?;
     }

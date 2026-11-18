@@ -1,4 +1,5 @@
 use aphel_contract_crm::CrmRecordTypes;
+use aphel_sdk::platform::database::Db;
 use std::collections::BTreeSet;
 use std::sync::Arc;
 
@@ -6,7 +7,6 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::domain::{DEAL_CREATED, DEAL_STAGE_CHANGED, StageTransitionEntry};
@@ -27,7 +27,7 @@ pub(crate) const TRACKED_ACTIVITY_EVENTS: [&str; 4] = [
     "activity.reopened",
 ];
 
-fn store(pool: MySqlPool) -> DealStore {
+fn store(pool: Db) -> DealStore {
     DealStore::new(pool, Arc::new(RecordTypeRegistry::builtin()))
 }
 
@@ -66,7 +66,7 @@ pub(crate) struct DealLastActivityConsumer {
 }
 
 impl DealLastActivityConsumer {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self { deals: store(pool) }
     }
 }
@@ -111,7 +111,7 @@ pub(crate) struct DealStageHistoryConsumer {
 }
 
 impl DealStageHistoryConsumer {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self { deals: store(pool) }
     }
 }
@@ -156,11 +156,11 @@ impl EventConsumer for DealStageHistoryConsumer {
 }
 
 pub(crate) struct CurrencyRecalculateHandler {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl CurrencyRecalculateHandler {
-    pub(crate) fn new(pool: MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self { pool }
     }
 
@@ -191,7 +191,7 @@ impl CurrencyRecalculateHandler {
                 currencies.rate_on(&self.pool, &code, today).await?
             };
             let mut tx =
-                aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
+                aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
             updated += deals.apply_open_rate(&mut tx, &code, rate).await?;
             if let Some(items) = &items {
                 for id in financials.open_ids(&mut tx, &code).await? {
@@ -216,20 +216,19 @@ impl CurrencyRecalculateHandler {
 pub(crate) struct DealRecalculation;
 #[async_trait]
 impl aphel_sdk::money::MoneyRecalculationSource for DealRecalculation {
-    async fn recalculate(&self, pool: &MySqlPool, currency: Option<&str>) -> Result<u64, AppError> {
+    async fn recalculate(&self, pool: &Db, currency: Option<&str>) -> Result<u64, AppError> {
         CurrencyRecalculateHandler::new(pool.clone())
             .recalculate(currency)
             .await
     }
 
-    async fn rebase_completed(&self, pool: &MySqlPool, factor: Decimal) -> Result<u64, AppError> {
+    async fn rebase_completed(&self, pool: &Db, factor: Decimal) -> Result<u64, AppError> {
         let deals = store(pool.clone());
         if let Some(items) = aphel_sdk::platform::modules::app()
             .services()
             .get::<dyn aphel_sdk::line_items::LineItemsPort>()
         {
-            let mut tx =
-                aphel_sdk::platform::database::transaction::MySqlTx::from(pool.begin().await?);
+            let mut tx = aphel_sdk::platform::database::transaction::Tx::from(pool.begin().await?);
             for id in deals.completed_ids().await? {
                 items
                     .rebase_amounts(

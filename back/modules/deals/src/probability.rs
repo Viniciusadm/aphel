@@ -13,6 +13,7 @@ use aphel_sdk::platform::application::fields::permissions::{
 use aphel_sdk::platform::application::files::UserReference;
 use aphel_sdk::platform::application::organization_admin::Listing;
 use aphel_sdk::platform::application::query::{QueryPlan, RecordQuery};
+use aphel_sdk::platform::database::Db;
 use aphel_sdk::platform::domain::access::AccessScope;
 use aphel_sdk::platform::infrastructure::query::compiler::push_where;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
@@ -20,7 +21,7 @@ use aphel_sdk::workflow::{PipelineStage, WorkflowCatalog};
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use sqlx::mysql::MySqlRow;
-use sqlx::{MySql, MySqlPool, QueryBuilder, Row};
+use sqlx::{MySql, QueryBuilder, Row};
 use uuid::Uuid;
 
 fn probability(source: ProbabilitySource) -> &'static str {
@@ -72,7 +73,7 @@ fn deal_from_row(row: &MySqlRow) -> Result<ProbabilityDeal, AppError> {
 }
 
 struct ProbabilityStore {
-    pool: MySqlPool,
+    pool: Db,
     stages: Vec<PipelineStage>,
 }
 impl ProbabilityStore {

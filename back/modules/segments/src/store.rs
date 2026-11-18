@@ -14,7 +14,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::EntityDefinition;
 use aphel_sdk::platform::application::query::{Filter, FilterSource};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::query::compiler::quoted;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -133,7 +133,7 @@ impl SegmentStore {
         }))
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, segment: &Segment) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, segment: &Segment) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO segments (id, record_type, name, description, filter, created_by, created_at, updated_at) \
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -151,7 +151,7 @@ impl SegmentStore {
         Ok(())
     }
 
-    pub(crate) async fn update(&self, tx: &mut MySqlTx, segment: &Segment) -> Result<(), AppError> {
+    pub(crate) async fn update(&self, tx: &mut Tx, segment: &Segment) -> Result<(), AppError> {
         sqlx::query(
             "UPDATE segments SET name = ?, description = ?, filter = ?, updated_at = ? \
              WHERE id = ?",
@@ -166,7 +166,7 @@ impl SegmentStore {
         Ok(())
     }
 
-    pub(crate) async fn delete(&self, tx: &mut MySqlTx, segment_id: Uuid) -> Result<(), AppError> {
+    pub(crate) async fn delete(&self, tx: &mut Tx, segment_id: Uuid) -> Result<(), AppError> {
         sqlx::query("DELETE FROM segments WHERE id = ?")
             .bind(segment_id.to_string())
             .execute(&mut **tx)

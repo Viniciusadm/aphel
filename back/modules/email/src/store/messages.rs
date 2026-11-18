@@ -20,7 +20,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::files::{UserReference, sha256_hex};
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
@@ -254,7 +254,7 @@ impl MessageStore {
 impl MessageStore {
     pub(crate) async fn insert_thread(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         thread: &NewThread,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -299,7 +299,7 @@ impl MessageStore {
 
     pub(crate) async fn insert_message(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         message: &NewEmailMessage,
         now: DateTime<Utc>,
     ) -> Result<bool, AppError> {
@@ -390,7 +390,7 @@ impl MessageStore {
 
     pub(crate) async fn refresh_thread(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         thread_id: Uuid,
         now: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -425,7 +425,7 @@ impl MessageStore {
 
     pub(crate) async fn set_thread_visibility(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         thread_id: Uuid,
         visibility: Option<EmailVisibility>,
         now: DateTime<Utc>,
@@ -441,7 +441,7 @@ impl MessageStore {
 
     pub(crate) async fn update_message_status(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         change: &MessageStatusChange,
         now: DateTime<Utc>,
@@ -485,7 +485,7 @@ impl MessageStore {
 
     pub(crate) async fn record_engagement(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         kind: EngagementKind,
         at: DateTime<Utc>,
@@ -524,7 +524,7 @@ impl MessageStore {
 
     pub(crate) async fn set_participant_contact(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         thread_id: Uuid,
         address: &str,
         contact_id: Option<Uuid>,

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use serde_json::Value;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::application::custom_objects::RecordLinkRepository;
@@ -12,7 +11,8 @@ use crate::application::fields::{
 };
 use crate::application::query::{PlanNode, QueryPlan};
 use crate::application::shared::{RecordRef, RecordType};
-use crate::database::transaction::MySqlTx;
+use crate::database::Db;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::errors::AppError;
 use crate::infrastructure::custom_objects::MySqlRecordLinkRepository;
@@ -30,12 +30,12 @@ use crate::records::hooks::{
 #[derive(Clone)]
 pub struct MySqlRecordPipeline {
     app: Arc<App>,
-    pool: MySqlPool,
+    pool: Db,
     registry: Arc<RecordTypeRegistry>,
 }
 
 impl MySqlRecordPipeline {
-    pub fn new(pool: MySqlPool, registry: Arc<RecordTypeRegistry>) -> Self {
+    pub fn new(pool: Db, registry: Arc<RecordTypeRegistry>) -> Self {
         Self {
             app: crate::modules::app().clone(),
             pool,
@@ -46,7 +46,7 @@ impl MySqlRecordPipeline {
     async fn run<K: HookRef>(
         &self,
         hook: K,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         args: &K::Args,
     ) -> Result<(), AppError> {
@@ -73,11 +73,11 @@ impl MySqlRecordPipeline {
 
 #[async_trait]
 impl RecordPipeline for MySqlRecordPipeline {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn saving(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         draft: RecordDraft,
     ) -> Result<RecordDraft, AppError> {
@@ -118,7 +118,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn validate(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {
@@ -173,7 +173,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn saved(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         write: &RecordWrite<'_>,
     ) -> Result<(), AppError> {
@@ -200,7 +200,7 @@ impl RecordPipeline for MySqlRecordPipeline {
         }
         let args = self.changed(write);
         let outcome = async {
-            let mut tx = MySqlTx::from(self.pool.begin().await?);
+            let mut tx = Tx::from(self.pool.begin().await?);
             self.run(RecordCommitted, &mut tx, scope, &args).await?;
             tx.commit().await?;
             Ok::<(), AppError>(())
@@ -217,7 +217,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn deleting(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
@@ -238,7 +238,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn archiving(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
@@ -258,7 +258,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn deleted(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
@@ -269,7 +269,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn restored(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<(), AppError> {
@@ -294,7 +294,7 @@ impl RecordPipeline for MySqlRecordPipeline {
 
     async fn purged(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         scope: &AccessScope,
         record: &RecordRef,
     ) -> Result<PurgedRecord, AppError> {
@@ -332,7 +332,7 @@ impl RecordPipeline for MySqlRecordPipeline {
     }
 }
 
-async fn clear_record_references(tx: &mut MySqlTx, record: &RecordRef) -> Result<(), AppError> {
+async fn clear_record_references(tx: &mut Tx, record: &RecordRef) -> Result<(), AppError> {
     sqlx::query(
         "DELETE v FROM custom_field_values v JOIN field_definitions f ON f.id = v.field_id \
          WHERE f.field_type = 'record' \
@@ -346,7 +346,7 @@ async fn clear_record_references(tx: &mut MySqlTx, record: &RecordRef) -> Result
     Ok(())
 }
 
-async fn delete_record_rows(tx: &mut MySqlTx, record: &RecordRef) -> Result<Vec<Uuid>, AppError> {
+async fn delete_record_rows(tx: &mut Tx, record: &RecordRef) -> Result<Vec<Uuid>, AppError> {
     let kind = record.record_type.as_str();
     let id = record.record_id.to_string();
     let attached: Vec<String> = sqlx::query_scalar(
@@ -373,7 +373,7 @@ async fn delete_record_rows(tx: &mut MySqlTx, record: &RecordRef) -> Result<Vec<
 
 async fn read_only<K: HookRef>(
     hook: K,
-    pool: &MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
     value: K::Args,
 ) -> Result<K::Args, AppError> {
@@ -382,7 +382,7 @@ async fn read_only<K: HookRef>(
     if !hooks.has(hook) {
         return Ok(value);
     }
-    let mut tx = MySqlTx::from(pool.begin().await?);
+    let mut tx = Tx::from(pool.begin().await?);
     let value = {
         let mut ctx = HookCtx::new(&mut tx, pool, scope, app.services(), KERNEL_MODULE);
         hooks.apply(hook, &mut ctx, value).await?
@@ -392,7 +392,7 @@ async fn read_only<K: HookRef>(
 }
 
 pub async fn filter_search_plan(
-    pool: &MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
     plan: QueryPlan,
 ) -> Result<QueryPlan, AppError> {
@@ -400,7 +400,7 @@ pub async fn filter_search_plan(
 }
 
 pub async fn constrain_query(
-    pool: &MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
     plan: &QueryPlan,
 ) -> Result<Option<QueryPlan>, AppError> {
@@ -428,7 +428,7 @@ pub async fn constrain_query(
 }
 
 pub async fn serialize_records(
-    pool: &MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
     record_type: &RecordType,
     items: Vec<Value>,
@@ -443,7 +443,7 @@ pub async fn serialize_records(
 }
 
 pub async fn serialize_nested_records(
-    pool: &MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
     record_type: &RecordType,
     key: &str,
@@ -476,7 +476,7 @@ pub async fn serialize_nested_records(
 }
 
 pub async fn filter_schema(
-    pool: &MySqlPool,
+    pool: &Db,
     scope: &AccessScope,
     record_type: &RecordType,
     schema: FieldSchema,

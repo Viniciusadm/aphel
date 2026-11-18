@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
 use aphel_sdk::platform::application::shared::ExecutionContext;
+use aphel_sdk::platform::database::Db;
 use async_trait::async_trait;
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use serde_json::{Value, json};
-use sqlx::{MySqlPool, Row, types::Json};
+use sqlx::{Row, types::Json};
 use uuid::Uuid;
 
 use crate::registry::{self, LoadedPlugin};
@@ -69,12 +70,12 @@ fn run_job(plugin: &LoadedPlugin, name: &str, slot: DateTime<Utc>) -> Job {
 }
 
 pub(crate) struct Tick {
-    pool: MySqlPool,
+    pool: Db,
     queue: MySqlJobQueue,
 }
 
 impl Tick {
-    pub(crate) fn shared(pool: MySqlPool) -> Arc<dyn JobHandler> {
+    pub(crate) fn shared(pool: Db) -> Arc<dyn JobHandler> {
         Arc::new(Self {
             queue: MySqlJobQueue::new(pool.clone()),
             pool,
@@ -123,11 +124,11 @@ impl JobHandler for Tick {
 }
 
 pub(crate) struct Run {
-    pool: MySqlPool,
+    pool: Db,
 }
 
 impl Run {
-    pub(crate) fn shared(pool: MySqlPool) -> Arc<dyn JobHandler> {
+    pub(crate) fn shared(pool: Db) -> Arc<dyn JobHandler> {
         Arc::new(Self { pool })
     }
 }
@@ -162,14 +163,12 @@ impl JobHandler for Run {
         let source = format!("schedule:{name}:{slot}");
         let execution =
             ExecutionContext::plugin(&key, "schedule", None, None, None, Uuid::now_v7())?;
-        let mut tx =
-            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
         sqlx::query("INSERT IGNORE INTO plugins_executions (id, plugin_key, source_key, input, execution) VALUES (?, ?, ?, ?, ?)")
             .bind(execution.id.to_string()).bind(&key).bind(&source).bind(Json(json!({"name": name, "slot": slot})))
             .bind(Json(&execution)).execute(&mut *tx).await?;
         tx.commit().await?;
-        let mut tx =
-            aphel_sdk::platform::database::transaction::MySqlTx::from(self.pool.begin().await?);
+        let mut tx = aphel_sdk::platform::database::transaction::Tx::from(self.pool.begin().await?);
         let row = sqlx::query("SELECT id, execution, status FROM plugins_executions WHERE plugin_key = ? AND source_key = ? FOR UPDATE")
             .bind(&key).bind(&source).fetch_one(&mut *tx).await?;
         if row.try_get::<String, _>("status")? == "completed" {

@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::application::fields::{EntityDefinition, custom_field_path};
 use crate::application::shared::RecordRef;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::fields::{FieldDefinition, FieldValueError};
 use crate::errors::{AppError, FieldViolation};
 use crate::infrastructure::query::compiler::quoted;
@@ -28,7 +28,7 @@ fn not_unique(field: &FieldDefinition) -> AppError {
     )
 }
 
-async fn lock_field(tx: &mut MySqlTx, field_id: Uuid) -> Result<(), AppError> {
+async fn lock_field(tx: &mut Tx, field_id: Uuid) -> Result<(), AppError> {
     sqlx::query("SELECT id FROM field_definitions WHERE id = ? FOR UPDATE")
         .bind(field_id.to_string())
         .fetch_optional(&mut **tx)
@@ -37,7 +37,7 @@ async fn lock_field(tx: &mut MySqlTx, field_id: Uuid) -> Result<(), AppError> {
 }
 
 async fn is_live(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     record_id: &str,
 ) -> Result<bool, AppError> {
@@ -58,7 +58,7 @@ async fn is_live(
 }
 
 async fn holds_value(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     field_id: Uuid,
     record_type: &str,
     record_id: &str,
@@ -77,7 +77,7 @@ async fn holds_value(
     Ok(held.is_some())
 }
 
-pub async fn release(tx: &mut MySqlTx, record: &RecordRef, field_id: Uuid) -> Result<(), AppError> {
+pub async fn release(tx: &mut Tx, record: &RecordRef, field_id: Uuid) -> Result<(), AppError> {
     sqlx::query(
         "DELETE FROM custom_field_unique_values WHERE record_type = ? AND record_id = ? AND field_id = ?",
     )
@@ -89,7 +89,7 @@ pub async fn release(tx: &mut MySqlTx, record: &RecordRef, field_id: Uuid) -> Re
     Ok(())
 }
 
-pub async fn release_record(tx: &mut MySqlTx, record: &RecordRef) -> Result<(), AppError> {
+pub async fn release_record(tx: &mut Tx, record: &RecordRef) -> Result<(), AppError> {
     sqlx::query("DELETE FROM custom_field_unique_values WHERE record_type = ? AND record_id = ?")
         .bind(record.record_type.as_str())
         .bind(record.record_id.to_string())
@@ -99,7 +99,7 @@ pub async fn release_record(tx: &mut MySqlTx, record: &RecordRef) -> Result<(), 
 }
 
 pub async fn reserve(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     record: &RecordRef,
     field: &FieldDefinition,
@@ -163,7 +163,7 @@ pub async fn reserve(
 }
 
 pub async fn reserve_record(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     record: &RecordRef,
 ) -> Result<(), AppError> {
@@ -179,7 +179,7 @@ pub async fn reserve_record(
 }
 
 pub async fn rebuild(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     field: &FieldDefinition,
 ) -> Result<(), AppError> {

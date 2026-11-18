@@ -11,7 +11,7 @@ use aphel_contract_automation::domain::{RunStatus, SkipReason};
 use aphel_kernel::Ctx;
 use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::shared::RecordRef;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -149,7 +149,7 @@ impl AutomationTimeStore {
 
     pub(crate) async fn claim_due(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         now: DateTime<Utc>,
         limit: u32,
     ) -> Result<Vec<AutomationRun>, AppError> {
@@ -188,7 +188,7 @@ impl AutomationTimeStore {
 
     pub(crate) async fn cancel_waiting(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         target: &CancelTarget,
         reason: SkipReason,
         now: DateTime<Utc>,

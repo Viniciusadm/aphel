@@ -14,7 +14,7 @@ use aphel_kernel::Ctx;
 use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 use aphel_kernel::errors::AppError;
@@ -365,7 +365,7 @@ impl<'a> ScoringEngine<'a> {
 
     async fn publish_band_change(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         model: &ScoringModel,
         before: Option<&RecordScore>,
         score: &RecordScore,

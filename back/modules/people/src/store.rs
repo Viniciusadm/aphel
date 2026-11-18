@@ -17,7 +17,7 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::platform::application::fields::{EntityDefinition, RecordTypeRegistry};
 use aphel_sdk::platform::application::organization_admin::{ListWindow, Listing};
 use aphel_sdk::platform::application::shared::RecordType;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::fields::mysql_definitions::uuid_column;
 use aphel_sdk::platform::infrastructure::query::compiler::push_record_scope;
@@ -284,7 +284,7 @@ impl<'a> ContactStore<'a> {
         self.with_contributed(views).await
     }
 
-    pub(crate) async fn insert(&self, tx: &mut MySqlTx, contact: &Contact) -> Result<(), AppError> {
+    pub(crate) async fn insert(&self, tx: &mut Tx, contact: &Contact) -> Result<(), AppError> {
         let data = &contact.data;
         let address = &data.address;
         sqlx::query(
@@ -323,7 +323,7 @@ impl<'a> ContactStore<'a> {
 
     pub async fn update(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         contact_id: Uuid,
         data: &ContactData,
         updated_at: DateTime<Utc>,
@@ -363,7 +363,7 @@ impl<'a> ContactStore<'a> {
 
     pub(crate) async fn set_archived(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         contact_id: Uuid,
         archived_at: Option<DateTime<Utc>>,
     ) -> Result<(), AppError> {
@@ -380,7 +380,7 @@ impl<'a> ContactStore<'a> {
 
     pub async fn soft_delete(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         contact_id: Uuid,
         deleted_at: DateTime<Utc>,
     ) -> Result<(), AppError> {
@@ -466,7 +466,7 @@ impl<'a> ContactStore<'a> {
 
     pub async fn insert_link(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         link: &NewContactCompanyLink,
     ) -> Result<(), AppError> {
         sqlx::query(
@@ -485,7 +485,7 @@ impl<'a> ContactStore<'a> {
 
     pub(crate) async fn delete_link(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         contact_id: Uuid,
         company_id: Uuid,
     ) -> Result<bool, AppError> {

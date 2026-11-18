@@ -2,7 +2,8 @@ use aphel_kernel::errors::AppError;
 use aphel_sdk::configuration::{
     ConfigKeyClient, ConfigKeyRepository, ConfigReferenceKind, ConfigurationReferences, assign_keys,
 };
-use sqlx::{MySqlPool, Row};
+use aphel_sdk::platform::database::Db;
+use sqlx::Row;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -33,7 +34,7 @@ impl ConfigurationReferences for References {
     }
     async fn keys(
         &self,
-        pool: &MySqlPool,
+        pool: &Db,
         kind: ConfigReferenceKind,
     ) -> Result<HashMap<Uuid, String>, AppError> {
         let rows = sqlx::query("SELECT id, name FROM tags ORDER BY created_at, id")

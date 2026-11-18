@@ -36,7 +36,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 
@@ -648,7 +648,7 @@ struct SequenceMutation<'a> {
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     mutation: SequenceMutation<'_>,
 ) -> Result<(), AppError> {
     ctx.events()
@@ -1041,7 +1041,7 @@ pub(crate) struct EnrollmentMutation<'a> {
 
 pub(crate) async fn publish_enrollment_event(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     mutation: EnrollmentMutation<'_>,
 ) -> Result<(), AppError> {
     ctx.events()

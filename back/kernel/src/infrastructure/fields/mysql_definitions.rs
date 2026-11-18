@@ -17,7 +17,7 @@ use crate::application::fields::{
     config_from_json, config_to_json,
 };
 use crate::application::shared::RecordType;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::access::AccessScope;
 use crate::domain::fields::{FieldDefinition, FieldKey, FieldOption, resolve_declared_type};
 use crate::errors::AppError;
@@ -194,7 +194,7 @@ fn definition_from_row(row: &MySqlRow) -> Result<FieldDefinition, AppError> {
 }
 
 pub(crate) async fn unique_fields(
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     record_type: &str,
 ) -> Result<Vec<FieldDefinition>, AppError> {
     let rows = sqlx::query(
@@ -287,7 +287,7 @@ async fn reorder_rows(
 
 #[async_trait]
 impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn access_rules(
         &self,
@@ -314,7 +314,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         Ok(definitions)
     }
 
-    async fn insert(&self, tx: &mut MySqlTx, field: &FieldDefinition) -> Result<(), AppError> {
+    async fn insert(&self, tx: &mut Tx, field: &FieldDefinition) -> Result<(), AppError> {
         invalidate_definitions();
         sqlx::query(
             "INSERT INTO field_definitions (id, record_type, `key`, label, field_type, \
@@ -344,7 +344,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
         insert_options(tx, field.id, &field.options).await
     }
 
-    async fn update(&self, tx: &mut MySqlTx, field: &FieldDefinition) -> Result<(), AppError> {
+    async fn update(&self, tx: &mut Tx, field: &FieldDefinition) -> Result<(), AppError> {
         invalidate_definitions();
         sqlx::query(
             "UPDATE field_definitions SET label = ?, field_type = ?, is_required = ?, is_unique = ?, \
@@ -368,7 +368,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
 
     async fn reorder(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record_type: &RecordType,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {
@@ -385,7 +385,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
 
     async fn insert_option(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         field_id: Uuid,
         option: &FieldOption,
     ) -> Result<(), AppError> {
@@ -396,7 +396,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
 
     async fn update_option(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         field_id: Uuid,
         option: &FieldOption,
     ) -> Result<(), AppError> {
@@ -417,7 +417,7 @@ impl FieldDefinitionRepository for MySqlFieldDefinitionRepository {
 
     async fn reorder_options(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         field_id: Uuid,
         ordered_ids: &[Uuid],
     ) -> Result<(), AppError> {

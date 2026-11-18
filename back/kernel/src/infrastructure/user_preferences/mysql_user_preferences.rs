@@ -6,7 +6,7 @@ use crate::application::keybindings::{keybindings_from_json, keybindings_to_json
 use crate::application::user_preferences::{
     NavigationPreferences, UserPreferences, UserPreferencesPorts, UserPreferencesRepository,
 };
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::domain::UserId;
 use crate::errors::AppError;
 use crate::infrastructure::auth::SystemClock;
@@ -45,7 +45,7 @@ fn decode(row: MySqlRow) -> Result<UserPreferences, AppError> {
 
 #[async_trait]
 impl UserPreferencesRepository for MySqlUserPreferencesRepository {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn find(&self, user_id: &UserId) -> Result<Option<UserPreferences>, AppError> {
         sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.keybindings, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ?")
@@ -54,7 +54,7 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
 
     async fn lock(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
     ) -> Result<Option<UserPreferences>, AppError> {
         sqlx::query("SELECT u.locale, p.keyboard_shortcuts, p.keybindings, p.navigation, p.ui_plugin FROM users u LEFT JOIN user_preferences p ON p.user_id = u.id WHERE u.id = ? FOR UPDATE")
@@ -63,7 +63,7 @@ impl UserPreferencesRepository for MySqlUserPreferencesRepository {
 
     async fn save(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         user_id: &UserId,
         preferences: &UserPreferences,
         at: DateTime<Utc>,

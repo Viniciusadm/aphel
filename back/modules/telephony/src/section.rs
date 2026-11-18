@@ -15,7 +15,8 @@ use aphel_sdk::configuration::{
     ApplyContext, ConfigPackage, ConfigSection, Decisions, PackageIssue, PlanChange, PlanItem,
     parse_section,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const CALL_OUTCOMES_SECTION: &str = "call_outcomes";
@@ -44,7 +45,7 @@ pub(crate) struct CallOutcomesSection {
     outcomes: CallOutcomeStore,
 }
 
-pub(crate) fn call_outcomes_section(pool: sqlx::MySqlPool) -> CallOutcomesSection {
+pub(crate) fn call_outcomes_section(pool: Db) -> CallOutcomesSection {
     CallOutcomesSection {
         outcomes: CallOutcomeStore::new(pool),
     }
@@ -129,7 +130,7 @@ impl CallOutcomesSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for CallOutcomesSection {
+impl ConfigSection<Tx> for CallOutcomesSection {
     fn key(&self) -> &'static str {
         CALL_OUTCOMES_SECTION
     }
@@ -203,7 +204,7 @@ impl ConfigSection<MySqlTx> for CallOutcomesSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

@@ -9,7 +9,7 @@ use crate::outgoing::{
 use aphel_kernel::Ctx;
 use aphel_kernel::domain::UserId;
 use aphel_kernel::errors::AppError;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::infrastructure::repositories::mapper;
 
 const DELIVERY_COLUMNS: &str = "id, endpoint_id, event_id, event_type, trigger_kind, \
@@ -83,7 +83,7 @@ impl WebhookDeliveryStore {
 
     pub(crate) async fn insert(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         delivery: &WebhookDelivery,
     ) -> Result<bool, AppError> {
         let result = sqlx::query(
@@ -165,7 +165,7 @@ impl WebhookDeliveryStore {
 
     pub(crate) async fn record_attempt(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         id: Uuid,
         attempt: &DeliveryAttempt,
     ) -> Result<(), AppError> {

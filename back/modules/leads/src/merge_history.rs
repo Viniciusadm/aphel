@@ -1,4 +1,4 @@
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::{
     AppError, Ctx,
     leads::LeadMergeHistory,
@@ -11,7 +11,7 @@ impl LeadMergeHistory for History {
     async fn stage(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         entity: &RecordType,
         id: Uuid,
     ) -> Result<Option<Option<String>>, AppError> {
@@ -22,7 +22,7 @@ impl LeadMergeHistory for History {
     async fn changed(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         record: &RecordRef,
         before: Option<String>,
         after: Option<String>,

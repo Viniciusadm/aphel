@@ -20,7 +20,7 @@ use aphel_sdk::configuration::{
     PackageIssue, PlanAction, PlanChange, PlanItem, UnavailableFields, assign_keys,
 };
 use aphel_sdk::platform::application::fields::{FieldDefinitionRepository, RecordTypeRegistry};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub use aphel_sdk::workflow::configuration::{PIPELINES_SECTION, stage_item_key};
@@ -398,9 +398,9 @@ fn stage_snapshot(stage: &PipelineStage) -> Vec<(String, Value)> {
 }
 
 #[async_trait]
-impl<K, D> ConfigSection<MySqlTx> for PipelinesSection<K, D>
+impl<K, D> ConfigSection<Tx> for PipelinesSection<K, D>
 where
-    K: ConfigKeyRepository<Tx = MySqlTx>,
+    K: ConfigKeyRepository<Tx = Tx>,
     D: FieldDefinitionRepository,
 {
     fn key(&self) -> &'static str {
@@ -638,7 +638,7 @@ where
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

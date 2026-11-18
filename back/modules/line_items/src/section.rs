@@ -9,7 +9,8 @@ use aphel_sdk::configuration::{
     parse_section,
 };
 use aphel_sdk::line_items::AmountMode;
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::Db;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::AccessScope;
 
 pub(crate) const LINE_ITEMS_SECTION: &str = "line_items";
@@ -44,7 +45,7 @@ pub(crate) struct LineItemsSection {
 }
 
 impl LineItemsSection {
-    pub(crate) fn new(pool: sqlx::MySqlPool) -> Self {
+    pub(crate) fn new(pool: Db) -> Self {
         Self {
             store: LineItemStore::new(pool),
         }
@@ -65,7 +66,7 @@ impl LineItemsSection {
 }
 
 #[async_trait]
-impl ConfigSection<MySqlTx> for LineItemsSection {
+impl ConfigSection<Tx> for LineItemsSection {
     fn key(&self) -> &'static str {
         LINE_ITEMS_SECTION
     }
@@ -103,7 +104,7 @@ impl ConfigSection<MySqlTx> for LineItemsSection {
 
     async fn apply(
         &self,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         _scope: &AccessScope,
         _package: &ConfigPackage,
         content: &Value,

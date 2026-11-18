@@ -30,7 +30,7 @@ use aphel_sdk::platform::application::query::{RecordQuery, RecordQueryEngine};
 use aphel_sdk::platform::application::shared::{
     FieldChange, RecordRef, RecordType, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::platform::domain::fields::FieldValueError;
 fn company_not_found() -> AppError {
@@ -123,7 +123,7 @@ impl CreatedContact {
 
 pub async fn create_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     command: SaveContactCommand,
 ) -> Result<CreatedContact, AppError> {
     let scope = ctx.scope;
@@ -226,7 +226,7 @@ pub async fn create_in_tx(
 #[allow(clippy::too_many_arguments)]
 async fn saving(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     definition: &EntityDefinition,
     record: &RecordRef,
     mode: WriteMode,
@@ -276,7 +276,7 @@ pub async fn update(
 
 pub async fn update_in_tx(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     contact_id: &str,
     command: SaveContactCommand,
 ) -> Result<(Uuid, Option<PendingCommit>), AppError> {

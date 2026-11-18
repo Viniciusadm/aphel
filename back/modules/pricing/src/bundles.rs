@@ -22,7 +22,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 const INVALID_BUNDLE: &str = "invalid product bundle";
@@ -292,7 +292,7 @@ async fn existing_product(ctx: &Ctx<'_>, product_id: &str) -> Result<Uuid, AppEr
 
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     product_id: Uuid,
     mutation: BundleMutation,
 ) -> Result<(), AppError> {

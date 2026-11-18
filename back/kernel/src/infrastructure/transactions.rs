@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::MySqlPool;
 
 use crate::application::shared::TransactionManager;
-use crate::database::transaction::MySqlTx;
+use crate::database::transaction::Tx;
 use crate::errors::AppError;
 
 #[derive(Clone)]
@@ -18,7 +18,7 @@ impl MySqlTransactionManager {
 
 #[async_trait]
 impl TransactionManager for MySqlTransactionManager {
-    type Tx = MySqlTx;
+    type Tx = Tx;
 
     async fn begin(&self) -> Result<Self::Tx, AppError> {
         crate::database::receipt::begin(&self.pool).await

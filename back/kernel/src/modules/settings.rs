@@ -1,15 +1,15 @@
 use serde_json::{Map, Value};
-use sqlx::MySqlPool;
 
 use crate::application::module_admin::SECRET_OWNER_TYPE;
 use crate::application::secrets::SecretKey;
+use crate::database::Db;
 use crate::errors::AppError;
 
 pub fn module_secret_key(module: &str, name: &str) -> SecretKey {
     SecretKey::new(SECRET_OWNER_TYPE, module, name)
 }
 
-pub async fn module_settings(pool: &MySqlPool, module: &str) -> Result<Value, AppError> {
+pub async fn module_settings(pool: &Db, module: &str) -> Result<Value, AppError> {
     let stored: Option<sqlx::types::Json<Value>> =
         sqlx::query_scalar("SELECT settings FROM installed_modules WHERE module_key = ?")
             .bind(module)

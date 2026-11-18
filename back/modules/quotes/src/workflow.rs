@@ -28,7 +28,7 @@ use aphel_sdk::approvals::{
 use aphel_sdk::email::EmailAddress;
 use aphel_sdk::messaging::text::escape_html;
 use aphel_sdk::platform::application::shared::{Actor, DomainEvent, FieldChange, Job, JobQueue};
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{AccessScope, Permission};
 use aphel_sdk::platform::domain::fields::normalize_email;
 
@@ -634,7 +634,7 @@ pub(crate) async fn discount_flag(ctx: &Ctx<'_>, quote: &Quote) -> Result<Option
 
 pub(crate) async fn store_discount_flag(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     locked: &mut Quote,
     exceeds: bool,
 ) -> Result<(), AppError> {

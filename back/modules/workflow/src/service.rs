@@ -35,7 +35,7 @@ use aphel_sdk::platform::application::query::RecordQueryPorts;
 use aphel_sdk::platform::application::shared::{
     Actor, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType, ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::Permission;
 
 #[derive(Serialize)]
@@ -1213,7 +1213,7 @@ fn removal_target(
 
 async fn move_records(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     from: &PipelineStage,
     target: Option<&PipelineStage>,
     pipelines: Option<(&Pipeline, &Pipeline)>,
@@ -1254,7 +1254,7 @@ async fn move_records(
     Ok(count)
 }
 
-async fn record(ctx: &Ctx<'_>, tx: &mut MySqlTx, mutation: RecordMutation) -> Result<(), AppError> {
+async fn record(ctx: &Ctx<'_>, tx: &mut Tx, mutation: RecordMutation) -> Result<(), AppError> {
     publish_mutation(
         ctx.events(),
         ctx.audit(),

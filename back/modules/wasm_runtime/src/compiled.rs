@@ -1,9 +1,8 @@
-use sqlx::MySqlPool;
-
 use aphel_kernel::errors::AppError;
+use aphel_sdk::platform::database::Db;
 
 pub async fn find(
-    pool: &MySqlPool,
+    pool: &Db,
     backend_hash: &str,
     engine_key: &str,
 ) -> Result<Option<Vec<u8>>, AppError> {
@@ -17,7 +16,7 @@ pub async fn find(
 }
 
 pub async fn save(
-    pool: &MySqlPool,
+    pool: &Db,
     backend_hash: &str,
     engine_key: &str,
     artifact: &[u8],
@@ -34,7 +33,7 @@ pub async fn save(
     Ok(())
 }
 
-pub async fn prune(pool: &MySqlPool, keep: &[String]) -> Result<(), AppError> {
+pub async fn prune(pool: &Db, keep: &[String]) -> Result<(), AppError> {
     let stored: Vec<String> =
         sqlx::query_scalar("SELECT DISTINCT backend_hash FROM plugins_compiled")
             .fetch_all(pool)

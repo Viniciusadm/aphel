@@ -1,7 +1,7 @@
 use aphel_kernel::{
     Ctx,
     application::{fields::LocalizedLabels, shared::RecordRef},
-    database::transaction::MySqlTx,
+    database::transaction::Tx,
     domain::access::Permission,
     errors::AppError,
 };
@@ -141,7 +141,7 @@ impl PrivacySource for ImportPrivacy {
     async fn erase(
         &self,
         ctx: &Ctx<'_>,
-        tx: &mut MySqlTx,
+        tx: &mut Tx,
         request: &SourceRequest<'_>,
     ) -> Result<SourceOutcome, AppError> {
         ctx.scope.require(&Permission::PRIVACY_MANAGE)?;
@@ -251,7 +251,7 @@ impl PrivacySource for ImportPrivacy {
     async fn redact(
         &self,
         _ctx: &Ctx<'_>,
-        _tx: &mut MySqlTx,
+        _tx: &mut Tx,
         _redaction: &Redaction,
     ) -> Result<u64, AppError> {
         Ok(0)

@@ -21,7 +21,7 @@ use aphel_sdk::platform::application::shared::{
     Actor, AuditEntry, AuditLog, DomainEvent, EventPublisher, FieldChange, RecordRef, RecordType,
     ensure_version,
 };
-use aphel_sdk::platform::database::transaction::MySqlTx;
+use aphel_sdk::platform::database::transaction::Tx;
 use aphel_sdk::platform::domain::access::{Permission, RecordScopeFilter};
 use aphel_sdk::platform::infrastructure::records::MySqlRecordAccessChecker;
 const MAX_MENTIONS_PER_NOTE: usize = 50;
@@ -349,7 +349,7 @@ async fn write_update(
 #[allow(clippy::too_many_arguments)]
 async fn publish(
     ctx: &Ctx<'_>,
-    tx: &mut MySqlTx,
+    tx: &mut Tx,
     id: Uuid,
     record: &RecordRef,
     data: &NoteData,
