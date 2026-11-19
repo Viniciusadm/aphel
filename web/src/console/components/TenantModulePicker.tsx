@@ -23,7 +23,7 @@ export function TenantModulePicker({ catalog, selected, required, recommended, o
     .sort((a, b) => Number(effective.has(b.key)) - Number(effective.has(a.key)) || name(a.key).localeCompare(name(b.key)))
   return <div className="grid gap-4">
     <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{t('create.selectionCount', { count: effective.size })}</p>
-      <Input className="w-full sm:max-w-xs" aria-label={t('create.searchModules')} placeholder={t('create.searchModules')} value={search} onChange={(event) => setSearch(event.target.value)} /></div>
+      <Input type="search" onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault() }} className="w-full sm:max-w-xs" aria-label={t('create.searchModules')} placeholder={t('create.searchModules')} value={search} onChange={(event) => setSearch(event.target.value)} /></div>
     <p className="text-sm text-muted-foreground">{t('create.dependenciesHelp')}</p>
     {items.length === 0 && <p role="status" className="py-6 text-center text-muted-foreground">{t('create.noModules')}</p>}
     <div className="grid gap-4 md:grid-cols-2">{items.map((item) => {

@@ -113,8 +113,8 @@ export function NewTenantPage() {
       <form className="grid gap-6" onSubmit={onSubmit} noValidate>
         <FormError message={failure} />
         <Card><CardHeader><CardTitle>{t('create.startTitle')}</CardTitle><CardDescription>{t('create.startHelp')}</CardDescription></CardHeader>
-          <CardContent className="flex flex-wrap gap-3"><Button type="button" variant={!blank ? 'default' : 'outline'} onClick={() => setBlank(false)}>{t('create.customSetup')}</Button>
-            <Button type="button" variant={blank ? 'default' : 'outline'} onClick={() => { setBlank(true); setValue('blueprint', ''); setValue('modules', []); setFailure(null) }}>{t('create.blank')}</Button>
+          <CardContent className="flex flex-wrap gap-3"><Button type="button" aria-pressed={!blank} disabled={isSubmitting} variant={!blank ? 'default' : 'outline'} onClick={() => setBlank(false)}>{t('create.customSetup')}</Button>
+            <Button type="button" aria-pressed={blank} disabled={isSubmitting} variant={blank ? 'default' : 'outline'} onClick={() => { setBlank(true); setValue('blueprint', ''); setValue('modules', []); setFailure(null) }}>{t('create.blank')}</Button>
             {blank && <p className="w-full text-sm text-muted-foreground" role="status">{t('create.blankHelp')}</p>}
           </CardContent></Card>
         <Card>
