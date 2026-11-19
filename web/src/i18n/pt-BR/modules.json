@@ -353,128 +353,199 @@
     },
     "exports": {
       "description": "Exporta listas de registros em CSV e XLSX, respeitando o filtro, a busca e o que cada pessoa pode ver.",
-      "appears": "como ação de exportar nas listas de registros"
+      "appears": "como ação de exportar nas listas de registros",
+      "name": "Exportação de listas"
     },
     "dashboard": {
-      "description": "Tela inicial com painéis (widgets) de cada módulo, que cada pessoa pode organizar do seu jeito."
+      "description": "Tela inicial com painéis (widgets) de cada módulo, que cada pessoa pode organizar do seu jeito.",
+      "name": "Painel inicial"
     },
     "trash": {
       "description": "Registros excluídos ficam na lixeira até a limpeza definitiva e podem ser restaurados com seus vínculos.",
-      "appears": "como destino dos registros excluídos de todos os módulos"
+      "appears": "como destino dos registros excluídos de todos os módulos",
+      "name": "Lixeira"
     },
     "integrations": {
-      "description": "Central de integrações: conecte o Aphel a outros serviços, com configuração única para toda a organização."
+      "description": "Central de integrações: conecte o Aphel a outros serviços, com configuração única para toda a organização.",
+      "name": "Conexões"
     },
     "webhooks": {
-      "description": "Envia eventos do Aphel para outros sistemas (webhooks de saída, assinados) e recebe dados que criam ou atualizam registros (webhooks de entrada)."
+      "description": "Envia eventos do Aphel para outros sistemas (webhooks de saída, assinados) e recebe dados que criam ou atualizam registros (webhooks de entrada).",
+      "name": "Webhooks"
     },
     "reports": {
       "description": "Relatórios salvos sobre registros, com exportação e envio por e-mail agendado.",
-      "appears": "como indicador de relatório salvo no Início"
+      "appears": "como indicador de relatório salvo no Início",
+      "name": "Relatórios"
     },
     "money": {
-      "description": "Moedas da organização, taxas de câmbio por data e conversão dos valores para a moeda base."
+      "description": "Moedas da organização, taxas de câmbio por data e conversão dos valores para a moeda base.",
+      "name": "Moedas"
     },
     "scoring": {
       "description": "Modelos de pontuação de leads por perfil e comportamento, com classificação em frio, morno e quente e a explicação de cada nota.",
-      "appears": "como aba de pontuação nas fichas"
+      "appears": "como aba de pontuação nas fichas",
+      "name": "Pontuação de leads"
     },
     "ai": {
-      "appears": "como aba de assistente nas fichas, ferramenta de escrita no editor de e-mail e consulta em linguagem natural nas listas"
+      "appears": "como aba de assistente nas fichas, ferramenta de escrita no editor de e-mail e consulta em linguagem natural nas listas",
+      "name": "Assistente de IA",
+      "description": "Resumos, sugestões de próximas ações, assistente de redação e consulta em linguagem natural com um provedor de IA configurável"
     },
     "approvals": {
-      "appears": "como aba em Oportunidades e na lateral do editor de cotações"
+      "appears": "como aba em Oportunidades e na lateral do editor de cotações",
+      "name": "Aprovações",
+      "description": "Políticas de aprovação (tipo de registro, momento, condição e etapas em sequência), pedidos de aprovação com decisões e a trava de aprovação nas mudanças de registros."
     },
     "assignment": {
-      "appears": "como seletor da regra de distribuição nas telas que distribuem registros"
+      "appears": "como seletor da regra de distribuição nas telas que distribuem registros",
+      "name": "Atribuição de responsáveis",
+      "description": "Regras que escolhem o responsável de novos registros por rodízio, peso, menor carga ou pelo valor de um campo. Use-as em automações (ação \"Distribuir pela regra\"), webhooks de entrada e importações."
     },
     "bulk_actions": {
-      "appears": "como ações em massa nas listas de registros"
+      "appears": "como ações em massa nas listas de registros",
+      "name": "Ações em massa",
+      "description": "Ações sobre registros selecionados ou sobre todos os registros de um filtro, com progresso e relatório."
     },
     "catalog_items": {
-      "appears": "como seletor de produtos ao adicionar itens a um registro"
+      "appears": "como seletor de produtos ao adicionar itens a um registro",
+      "name": "Produtos",
+      "description": "Catálogo de produtos e serviços."
     },
     "deals": {
-      "appears": "no botão Criar (Oportunidade), com indicadores e pendências no Início e selo de oportunidade parada nas listas"
+      "appears": "no botão Criar (Oportunidade), com indicadores e pendências no Início e selo de oportunidade parada nas listas",
+      "name": "Negócios",
+      "description": "Negócios, mudanças de etapa, o quadro Kanban e a equipe de cada negócio."
     },
     "deals_revenue": {
-      "appears": "como aba de receita recorrente em Oportunidades e indicador no Início"
+      "appears": "como aba de receita recorrente em Oportunidades e indicador no Início",
+      "name": "Receita dos negócios",
+      "description": "Projeções de receita recorrente dos negócios."
     },
     "duplicates": {
-      "appears": "como ação de mesclar nas fichas dos registros"
+      "appears": "como ação de mesclar nas fichas dos registros",
+      "name": "Duplicados",
+      "description": "Regras de detecção de duplicados, a fila de duplicados e a mesclagem de registros."
     },
     "email": {
-      "appears": "como aba de e-mails nas fichas e na linha do tempo"
+      "appears": "como aba de e-mails nas fichas e na linha do tempo",
+      "name": "E-mail",
+      "description": "Caixas de e-mail pessoais, sincronização, conversas ligadas a registros, envio, modelos e rastreamento."
     },
     "enrichment": {
-      "appears": "como aba de dados públicos em Empresas e na linha do tempo"
+      "appears": "como aba de dados públicos em Empresas e na linha do tempo",
+      "name": "Enriquecimento por CNPJ",
+      "description": "Consulta dados públicos de empresas pelo CNPJ (BrasilAPI e ReceitaWS) e preenche os campos escolhidos, registrando a fonte de cada valor."
     },
     "esign": {
-      "appears": "como aba de assinaturas em Oportunidades e na linha do tempo"
+      "appears": "como aba de assinaturas em Oportunidades e na linha do tempo",
+      "name": "Assinatura eletrônica",
+      "description": "Envia PDFs anexados às oportunidades para assinatura eletrônica na Clicksign e acompanha o status por webhook. Sem validade jurídica própria: a validade é a do provedor."
     },
     "followers": {
-      "appears": "como botão de seguir nas fichas dos registros"
+      "appears": "como botão de seguir nas fichas dos registros",
+      "name": "Seguidores",
+      "description": "Seguir registros cadastrados e receber os eventos que os módulos oferecem."
     },
     "goals": {
-      "appears": "como indicador de progresso das metas no Início"
+      "appears": "como indicador de progresso das metas no Início",
+      "name": "Metas",
+      "description": "Metas de vendas por usuário, equipe ou organização (valor ganho, negócios ganhos, tarefas concluídas, novas pessoas) e seu andamento."
     },
     "imports": {
-      "appears": "como ação de importar nas listas de registros e quando a lista está vazia"
+      "appears": "como ação de importar nas listas de registros e quando a lista está vazia",
+      "name": "Importações",
+      "description": "Importação de CSV e XLSX com mapeamento de colunas, simulação, execução e nova tentativa das linhas com erro."
     },
     "leads": {
-      "appears": "como aba de ciclo de vida nas fichas, ações de lead e filtro nas listas"
+      "appears": "como aba de ciclo de vida nas fichas, ações de lead e filtro nas listas",
+      "name": "Leads",
+      "description": "Estágios de vida de pessoas e organizações, transições automáticas, a caixa de leads (qualificar, desqualificar, converter) e motivos de desqualificação."
     },
     "line_items": {
-      "appears": "como aba Itens nas oportunidades e na linha do tempo"
+      "appears": "como aba Itens nas oportunidades e na linha do tempo",
+      "name": "Itens e totais",
+      "description": "Quantidade, preço, desconto e totais ligados a registros."
     },
     "messaging": {
-      "appears": "como aba de conversas nas fichas de contatos e oportunidades"
+      "appears": "como aba de conversas nas fichas de contatos e oportunidades",
+      "name": "Canais de mensagem",
+      "description": "Caixa de entrada compartilhada com WhatsApp Cloud API e e-mail (IMAP/SMTP), com as conversas na timeline do contato"
     },
     "notes": {
-      "appears": "como aba de notas nas fichas, no cadastro rápido do botão + e na linha do tempo"
+      "appears": "como aba de notas nas fichas, no cadastro rápido do botão + e na linha do tempo",
+      "name": "Notas",
+      "description": "Notas ligadas a registros, com menções e notas privadas."
     },
     "organizations": {
-      "appears": "no botão Criar (Empresa)"
+      "appears": "no botão Criar (Empresa)",
+      "name": "Organizações",
+      "description": "Empresas, a hierarquia entre elas (grupos de empresas) e os totais do grupo."
     },
     "people": {
-      "appears": "no botão Criar (Contato) e no cadastro rápido"
+      "appears": "no botão Criar (Contato) e no cadastro rápido",
+      "name": "Pessoas",
+      "description": "Contatos e seus vínculos com organizações."
     },
     "pricing": {
-      "appears": "como link em Produtos e aba Kit nas fichas de produto"
+      "appears": "como link em Produtos e aba Kit nas fichas de produto",
+      "name": "Tabelas de preço",
+      "description": "Tabelas de preço por moeda, segmento ou empresa, com períodos de validade e faixas de quantidade, kits de produtos e o desconto máximo por papel."
     },
     "proposals": {
-      "appears": "como aba de propostas em Oportunidades"
+      "appears": "como aba de propostas em Oportunidades",
+      "name": "Propostas",
+      "description": "Modelos de documento e propostas em PDF geradas a partir das oportunidades"
     },
     "quotes": {
-      "appears": "como aba de cotações em Oportunidades"
+      "appears": "como aba de cotações em Oportunidades",
+      "name": "Cotações",
+      "description": "Cotações enviadas aos clientes, com versões, aprovação e aceite pelo link público."
     },
     "renewals": {
-      "appears": "como seção de renovação nas configurações dos funis e indicador de renovações no Início"
+      "appears": "como seção de renovação nas configurações dos funis e indicador de renovações no Início",
+      "name": "Renovações",
+      "description": "Renovação automática de negócios ganhos cujo contrato está terminando, configurada por funil."
     },
     "sequences": {
-      "appears": "como aba de sequências em Contatos"
+      "appears": "como aba de sequências em Contatos",
+      "name": "Sequências",
+      "description": "Sequências de vendas (cadências): etapas, inscrições, saídas automáticas, limites de envio e métricas por etapa."
     },
     "tagging": {
-      "appears": "como ação de etiquetas nas fichas e filtro nas listas"
+      "appears": "como ação de etiquetas nas fichas e filtro nas listas",
+      "name": "Etiquetas",
+      "description": "Etiquetas da organização e marcação dos registros que permitem etiquetas."
     },
     "tasks": {
-      "appears": "no botão Criar (Tarefa), no cadastro rápido (atividade e check-in) e no calendário"
+      "appears": "no botão Criar (Tarefa), no cadastro rápido (atividade e check-in) e no calendário",
+      "name": "Tarefas",
+      "description": "Tarefas, tarefas registradas, tipos de atividade, calendário e caixa de atividades."
     },
     "telephony": {
-      "appears": "no cadastro rápido (ligação), no telefone clicável e no painel de ligação das atividades"
+      "appears": "no cadastro rápido (ligação), no telefone clicável e no painel de ligação das atividades",
+      "name": "Ligações",
+      "description": "Registro de ligações como tarefas, resultados de ligação, sessões de chamada, provedores de telefonia e o relatório de ligações."
     },
     "timeline": {
-      "appears": "como linha do tempo nas fichas dos registros"
+      "appears": "como linha do tempo nas fichas dos registros",
+      "name": "Linha do tempo",
+      "description": "Linha do tempo dos registros, alimentada pelos módulos donos de cada tipo."
     },
     "workflow": {
-      "appears": "como aba de orientação por etapa nas fichas e filtro de oportunidades paradas nas listas"
+      "appears": "como aba de orientação por etapa nas fichas e filtro de oportunidades paradas nas listas",
+      "name": "Funis",
+      "description": "Etapas dos funis (probabilidade, tempo parado, campos obrigatórios, orientação e checklist) e motivos de perda."
     },
     "media": {
-      "appears": "como seletor de arquivos da biblioteca nos editores de conteúdo"
+      "appears": "como seletor de arquivos da biblioteca nos editores de conteúdo",
+      "name": "Biblioteca de mídia",
+      "description": "Biblioteca de imagens e arquivos com texto alternativo, legenda, crédito e ponto focal, reaproveitados por qualquer registro sem novo envio."
     },
     "favorites": {
       "name": "Favoritos",
-      "description": "Favoritos pessoais: registros fixados e visualizações salvas que aparecem no menu lateral."
+      "description": "Favoritos pessoais: registros fixados e visualizações salvas que aparecem no menu lateral.",
+      "appears": "no topo do menu lateral, na estrela das fichas e visualizações e na paleta de comandos"
     },
     "forms": {
       "name": "Formulários de captura",

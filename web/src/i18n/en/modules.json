@@ -353,128 +353,199 @@
     },
     "exports": {
       "description": "Exports record lists to CSV and XLSX, respecting the filter, the search and what each person can see.",
-      "appears": "as an export action in record lists"
+      "appears": "as an export action in record lists",
+      "name": "List export"
     },
     "dashboard": {
-      "description": "Home screen with panels (widgets) from each module, which each person can arrange their own way."
+      "description": "Home screen with panels (widgets) from each module, which each person can arrange their own way.",
+      "name": "Dashboard"
     },
     "trash": {
       "description": "Deleted records stay in the trash until permanent cleanup and can be restored with their links.",
-      "appears": "as the place where records deleted from every module go"
+      "appears": "as the place where records deleted from every module go",
+      "name": "Trash"
     },
     "integrations": {
-      "description": "Integration center: connect Aphel to other services, with a single setup for the whole organization."
+      "description": "Integration center: connect Aphel to other services, with a single setup for the whole organization.",
+      "name": "Connections"
     },
     "webhooks": {
-      "description": "Sends Aphel events to other systems (signed outgoing webhooks) and receives data that creates or updates records (incoming webhooks)."
+      "description": "Sends Aphel events to other systems (signed outgoing webhooks) and receives data that creates or updates records (incoming webhooks).",
+      "name": "Webhooks"
     },
     "reports": {
       "description": "Saved reports over records, with export and scheduled e-mail delivery.",
-      "appears": "as a saved report indicator on Home"
+      "appears": "as a saved report indicator on Home",
+      "name": "Reports"
     },
     "money": {
-      "description": "The organization's currencies, dated exchange rates and conversion of amounts to the base currency."
+      "description": "The organization's currencies, dated exchange rates and conversion of amounts to the base currency.",
+      "name": "Money"
     },
     "scoring": {
       "description": "Lead scoring models by profile and behavior, with cold, warm and hot bands and an explanation of each score.",
-      "appears": "as a score tab on records"
+      "appears": "as a score tab on records",
+      "name": "Scoring"
     },
     "ai": {
-      "appears": "as an assistant tab on records, a writing tool in the e-mail editor and natural-language queries in lists"
+      "appears": "as an assistant tab on records, a writing tool in the e-mail editor and natural-language queries in lists",
+      "name": "AI assistant",
+      "description": "Summaries, next-action suggestions, writing assistant and natural-language search with a configurable AI provider"
     },
     "approvals": {
-      "appears": "as a tab on Deals and in the quote editor sidebar"
+      "appears": "as a tab on Deals and in the quote editor sidebar",
+      "name": "Approvals",
+      "description": "Approval policies (record type, moment, condition, sequential steps), approval requests with decisions and the approval gate of record changes"
     },
     "assignment": {
-      "appears": "as the distribution rule picker where records are distributed"
+      "appears": "as the distribution rule picker where records are distributed",
+      "name": "Assignment",
+      "description": "Rules that pick the owner of new records by round robin, weight, least load or the value of a field. Use them in automations (\"Assign by rule\" action), incoming webhooks and imports."
     },
     "bulk_actions": {
-      "appears": "as bulk actions in record lists"
+      "appears": "as bulk actions in record lists",
+      "name": "Bulk actions",
+      "description": "Bulk actions over selected records or every record of a filter, with progress and report"
     },
     "catalog_items": {
-      "appears": "as a product picker when adding items to a record"
+      "appears": "as a product picker when adding items to a record",
+      "name": "Products",
+      "description": "Catalog of products and services"
     },
     "deals": {
-      "appears": "in the Create button (Deal), with indicators and pending items on Home and a stalled-deal badge in lists"
+      "appears": "in the Create button (Deal), with indicators and pending items on Home and a stalled-deal badge in lists",
+      "name": "Deals",
+      "description": "Deals, stage changes, the Kanban board and the team of each deal"
     },
     "deals_revenue": {
-      "appears": "as a recurring revenue tab on Deals and an indicator on Home"
+      "appears": "as a recurring revenue tab on Deals and an indicator on Home",
+      "name": "Deal revenue",
+      "description": "Recurring revenue projections for deals"
     },
     "duplicates": {
-      "appears": "as a merge action on record pages"
+      "appears": "as a merge action on record pages",
+      "name": "Duplicates",
+      "description": "Duplicate detection rules, the duplicate queue and record merging"
     },
     "email": {
-      "appears": "as an e-mails tab on records and in the timeline"
+      "appears": "as an e-mails tab on records and in the timeline",
+      "name": "Email",
+      "description": "Personal mailboxes, synchronization, conversations linked to records, sending, templates and tracking"
     },
     "enrichment": {
-      "appears": "as a public data tab on Companies and in the timeline"
+      "appears": "as a public data tab on Companies and in the timeline",
+      "name": "CNPJ enrichment",
+      "description": "Looks up public company data by CNPJ (BrasilAPI and ReceitaWS) and fills the chosen fields, recording the source of each value."
     },
     "esign": {
-      "appears": "as a signatures tab on Deals and in the timeline"
+      "appears": "as a signatures tab on Deals and in the timeline",
+      "name": "Electronic signature",
+      "description": "Sends PDFs attached to deals for electronic signature in Clicksign and tracks the status through webhooks. No legal validity of its own: the validity is the provider's."
     },
     "followers": {
-      "appears": "as a follow button on record pages"
+      "appears": "as a follow button on record pages",
+      "name": "Followers",
+      "description": "Following registered records and owner-provided events"
     },
     "goals": {
-      "appears": "as a goal progress indicator on Home"
+      "appears": "as a goal progress indicator on Home",
+      "name": "Goals",
+      "description": "Sales goals per user, team or organization (won amount, won deals, completed tasks, new people) and their progress"
     },
     "imports": {
-      "appears": "as an import action in record lists and when a list is empty"
+      "appears": "as an import action in record lists and when a list is empty",
+      "name": "Imports",
+      "description": "CSV and XLSX imports with mapping, dry run, execution and retry of failed rows over the record type handlers"
     },
     "leads": {
-      "appears": "as a lifecycle tab on records, lead actions and a filter in lists"
+      "appears": "as a lifecycle tab on records, lead actions and a filter in lists",
+      "name": "Leads",
+      "description": "Lifecycle stages of people and organizations, automatic transitions, the lead inbox (qualify, disqualify, convert) and disqualification reasons"
     },
     "line_items": {
-      "appears": "as an Items tab on deals and in the timeline"
+      "appears": "as an Items tab on deals and in the timeline",
+      "name": "Line items",
+      "description": "Quantity, pricing, discounts and totals attached to records."
     },
     "messaging": {
-      "appears": "as a conversations tab on contacts and deals"
+      "appears": "as a conversations tab on contacts and deals",
+      "name": "Messaging channels",
+      "description": "Shared inbox with WhatsApp Cloud API and e-mail (IMAP/SMTP), with conversations on the contact timeline"
     },
     "notes": {
-      "appears": "as a notes tab on records, in the quick add of the + button and in the timeline"
+      "appears": "as a notes tab on records, in the quick add of the + button and in the timeline",
+      "name": "Notes",
+      "description": "Notes attached to records, with mentions and private notes"
     },
     "organizations": {
-      "appears": "in the Create button (Company)"
+      "appears": "in the Create button (Company)",
+      "name": "Organizations",
+      "description": "Companies, their hierarchy (company groups) and group totals"
     },
     "people": {
-      "appears": "in the Create button (Contact) and quick add"
+      "appears": "in the Create button (Contact) and quick add",
+      "name": "People",
+      "description": "Contacts and their links to organizations"
     },
     "pricing": {
-      "appears": "as a link in Products and a Kit tab on product pages"
+      "appears": "as a link in Products and a Kit tab on product pages",
+      "name": "Price lists",
+      "description": "Price lists by currency, segment or company with validity periods and quantity tiers, product bundles and the maximum discount per role"
     },
     "proposals": {
-      "appears": "as a proposals tab on Deals"
+      "appears": "as a proposals tab on Deals",
+      "name": "Proposals",
+      "description": "Document templates and PDF proposals generated from deals"
     },
     "quotes": {
-      "appears": "as a quotes tab on Deals"
+      "appears": "as a quotes tab on Deals",
+      "name": "Quotes",
+      "description": "Quotes sent to customers, with versions, approval and acceptance through the public link."
     },
     "renewals": {
-      "appears": "as a renewal section in pipeline settings and a renewals indicator on Home"
+      "appears": "as a renewal section in pipeline settings and a renewals indicator on Home",
+      "name": "Renewals",
+      "description": "Automatic renewal of won deals whose contract is ending, configured per pipeline"
     },
     "sequences": {
-      "appears": "as a sequences tab on Contacts"
+      "appears": "as a sequences tab on Contacts",
+      "name": "Sequences",
+      "description": "Sales sequences (cadences): steps, enrollments, automatic exits, sending limits and per-step metrics"
     },
     "tagging": {
-      "appears": "as a tags action on records and a filter in lists"
+      "appears": "as a tags action on records and a filter in lists",
+      "name": "Tags",
+      "description": "Tags of the organization and tagging of opted-in records"
     },
     "tasks": {
-      "appears": "in the Create button (Task), in quick add (activity and check-in) and in the calendar"
+      "appears": "in the Create button (Task), in quick add (activity and check-in) and in the calendar",
+      "name": "Tasks",
+      "description": "Tasks, logged tasks, activity types, calendar and activity inbox"
     },
     "telephony": {
-      "appears": "in quick add (call), as a clickable phone and as a call panel on activities"
+      "appears": "in quick add (call), as a clickable phone and as a call panel on activities",
+      "name": "Calls",
+      "description": "Call logging as tasks, call outcomes, call sessions, telephony providers and the calls report"
     },
     "timeline": {
-      "appears": "as the timeline on record pages"
+      "appears": "as the timeline on record pages",
+      "name": "Timeline",
+      "description": "Owner-contributed record timeline"
     },
     "workflow": {
-      "appears": "as a stage guidance tab on records and a stalled-deals filter in lists"
+      "appears": "as a stage guidance tab on records and a stalled-deals filter in lists",
+      "name": "Workflow",
+      "description": "Workflow stages (probability, rotting, required fields, guidance and checklist) and lost reasons"
     },
     "media": {
-      "appears": "as a library file picker in content editors"
+      "appears": "as a library file picker in content editors",
+      "name": "Media library",
+      "description": "Library of images and files with alternative text, caption, credit and focal point, reused by any record without uploading again"
     },
     "favorites": {
       "name": "Favorites",
-      "description": "Personal favorites: pinned records and saved views shown in the sidebar"
+      "description": "Personal favorites: pinned records and saved views shown in the sidebar",
+      "appears": "at the top of the sidebar, as the star on records and views and in the command palette"
     },
     "forms": {
       "name": "Lead forms",
