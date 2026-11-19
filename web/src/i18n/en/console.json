@@ -93,10 +93,10 @@
     "cancel": "Cancel",
     "created": "Company registered. Preparation has started.",
     "startTitle": "How would you like to start?",
-    "startHelp": "Choose a template or start blank, then complete the company configuration below.",
+    "startHelp": "Choose whether to configure the company now or create a blank instance to configure on first access.",
     "customSetup": "Choose template and modules",
     "blank": "Create completely blank",
-    "blankHelp": "No template, optional modules or configuration packages will be applied. Complete the company and administrator details below. Essential platform capabilities remain available.",
+    "blankHelp": "Enter only the address. Company and administrator details will be completed in the normal installer when accessing that domain. No template, optional modules or company configuration will be applied now.",
     "searchModules": "Search modules or capabilities",
     "selectionCount": "{{count}} modules included, counting dependencies",
     "dependenciesHelp": "Dependencies are included automatically. Deselect their parent modules to remove them. Modules can be managed after creation.",
@@ -128,7 +128,8 @@
       "other": "Other"
     },
     "serverIpFallback": "the server public IP (ask the installation administrator)",
-    "configureLater": "Requires configuration. Configure and enable this capability after creating the company."
+    "configureLater": "Requires configuration. Configure and enable this capability after creating the company.",
+    "address": "Address"
   },
   "tenant": {
     "back": "Companies",

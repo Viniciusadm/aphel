@@ -128,7 +128,14 @@ pub struct TenantFeaturesRequest {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-pub struct CreateTenantRequest {
+#[serde(tag = "mode", rename_all = "snake_case")]
+pub enum CreateTenantRequest {
+    Blank { host: String },
+    Configured(Box<ConfiguredTenantRequest>),
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ConfiguredTenantRequest {
     #[schema(example = "acme")]
     pub slug: String,
     pub name: String,

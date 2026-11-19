@@ -136,6 +136,7 @@ export interface paths {
         };
         get: operations["console_list_tenants"];
         put?: never;
+        /** @description With mode blank, only host is required: an internal identifier and console label are generated, the isolated database is migrated and the normal installer stays available on that host. No organization, administrator, optional modules or blueprint are installed. With mode configured, the supplied organization, administrator and configuration are installed during provisioning. */
         post: operations["console_create_tenant"];
         delete?: never;
         options?: never;
@@ -603,7 +604,7 @@ export interface components {
             current_password: string;
             new_password: string;
         };
-        CreateTenantRequest: {
+        ConfiguredTenantRequest: {
             admin_email: string;
             admin_name: string;
             admin_password: string;
@@ -621,6 +622,14 @@ export interface components {
             /** @example America/Sao_Paulo */
             timezone: string;
         };
+        CreateTenantRequest: {
+            host: string;
+            /** @enum {string} */
+            mode: "blank";
+        } | (components["schemas"]["ConfiguredTenantRequest"] & {
+            /** @enum {string} */
+            mode: "configured";
+        });
         Data_CatalogResponse: {
             data: {
                 blueprints: components["schemas"]["InstallerProfile"][];

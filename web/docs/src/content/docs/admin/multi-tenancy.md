@@ -47,12 +47,16 @@ Host names are compared in lowercase, without port. A tenant can have several ho
 
 The console is served only on `CONSOLE_HOST`, with its own cookie (`aphel_console_session`); tenant sessions never reach it and console sessions never reach a tenant.
 
-- **Companies**: list with state, hosts, database size and last write; create (name, identifier, host, first administrator, template and modules); suspend and resume; add and remove hosts and choose the primary one; health (queued and failed jobs, workers, pending database updates, plugins with errors, recent failures); delete, optionally writing a full copy into `TENANT_EXPORT_DIR` first.
+- **Companies**: list with state, hosts, database size and last write; create a configured company (name, identifier, host, first administrator, template and modules) or a completely blank instance (host only, with an automatically generated internal identifier); suspend and resume; add and remove hosts and choose the primary one; health (queued and failed jobs, workers, pending database updates, plugins with errors, recent failures); delete, optionally writing a full copy into `TENANT_EXPORT_DIR` first.
 - **Plugins and modules**: on a company's page, the *Plugins and modules screens* switch turns the company's own plugin and module management on or off. When off, its administrators do not see the Plugins and Modules screens and the plugin and module install, enable, disable, settings, export and purge calls answer `403 plugin_management_disabled`; plugins already enabled keep running. Operators can always manage the company's plugins from the console (install an `.aphelplugin` after reviewing what it asks for, enable, disable, configure, remove with or without its data) and turn its modules on or off. Plugins installed from the console act on behalf of the company's first administrator.
 - **Operators**: invite with a link valid for 7 days (shown once, there is no email in the console), issue a new link, deactivate. Operators change their own password from the account menu.
 - **History**: every action of the console and of the tenant commands, with operator and IP.
 
 Sign-in uses Argon2 passwords, locks an operator for 15 minutes after 5 wrong passwords and accepts 10 attempts per minute per address.
+
+A completely blank instance creates only its isolated database and the platform schema required to serve the installer. The console uses its host as the initial label. No organization, administrator, optional modules or blueprint are installed. Open its host to complete the normal installer before using the company. Whoever completes that installer creates the first administrator, so share the address only with the person responsible for setup until installation is complete.
+
+The console creation API uses `mode: "blank"` with `host`, or `mode: "configured"` with all company and administrator fields.
 
 ## Command line
 

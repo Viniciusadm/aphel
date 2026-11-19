@@ -93,10 +93,10 @@
     "cancel": "Cancelar",
     "created": "Empresa registrada. A preparação começou.",
     "startTitle": "Como você quer começar?",
-    "startHelp": "Escolha uma base ou comece sem modelos. Depois, preencha os dados e conclua a configuração da empresa.",
+    "startHelp": "Escolha entre configurar a empresa agora ou criar uma instância em branco para configurar no primeiro acesso.",
     "customSetup": "Escolher modelo e módulos",
     "blank": "Criar totalmente em branco",
-    "blankHelp": "Nenhum modelo, módulo opcional ou pacote de configuração será aplicado. Preencha os dados da empresa e do administrador abaixo para concluir a criação. Os recursos essenciais da plataforma permanecem disponíveis.",
+    "blankHelp": "Informe apenas o endereço. Os dados da empresa e do administrador serão definidos no instalador normal ao acessar esse domínio. Nenhum modelo, módulo opcional ou configuração de empresa será aplicado agora.",
     "searchModules": "Buscar recursos ou módulos",
     "selectionCount": "{{count}} módulos incluídos, contando dependências",
     "dependenciesHelp": "As dependências são incluídas automaticamente. Para removê-las, desmarque os módulos que dependem delas. Você poderá gerenciar os módulos depois da criação.",
@@ -128,7 +128,8 @@
       "other": "Outro"
     },
     "serverIpFallback": "o IP público do servidor (consulte o responsável pela instalação)",
-    "configureLater": "Precisa de configuração. Você poderá configurar e habilitar este recurso após criar a empresa."
+    "configureLater": "Precisa de configuração. Você poderá configurar e habilitar este recurso após criar a empresa.",
+    "address": "Endereço"
   },
   "tenant": {
     "back": "Empresas",

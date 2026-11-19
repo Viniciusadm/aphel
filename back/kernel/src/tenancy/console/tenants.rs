@@ -100,6 +100,7 @@ async fn show(
     tag = TAG,
     operation_id = "console_create_tenant",
     request_body = CreateTenantRequest,
+    description = "With mode blank, only host is required: an internal identifier and console label are generated, the isolated database is migrated and the normal installer stays available on that host. No organization, administrator, optional modules or blueprint are installed. With mode configured, the supplied organization, administrator and configuration are installed during provisioning.",
     responses(
         (status = 202, description = "Tenant registered as `provisioning`; the database, migrations and installation run in the background and the tenant turns `active`, or keeps `last_error`", body = Data<TenantResponse>),
         (status = 401, description = "No console session", body = ErrorEnvelope),
@@ -113,46 +114,60 @@ async fn create(
     client: ClientInfo,
     JsonBody(request): JsonBody<CreateTenantRequest>,
 ) -> Result<(StatusCode, Json<Data<TenantResponse>>), ApiError> {
-    validate_password(&request.admin_password)?;
-    let business = request
-        .blueprint
-        .as_ref()
-        .filter(|key| !key.is_empty())
-        .map(|key| serde_json::json!({ "business_type": key }));
-    crate::application::installer::modules::prepare(
-        crate::modules::app(),
-        &request.modules,
-        &Default::default(),
-        business.as_ref(),
-    )?;
-    let tenant = register_tenant(
-        &state.control,
-        &actor(&session, &client),
-        TenantRegistration {
-            slug: request.slug.trim().to_owned(),
-            name: request.name.clone(),
-            hosts: vec![request.host.clone()],
-        },
-    )
-    .await?;
-    let install = InstallCommand {
-        organization_name: request.name,
-        timezone: request.timezone,
-        currency: request.currency,
-        locale: request.locale,
-        admin_name: request.admin_name,
-        admin_email: request.admin_email,
-        admin_password: Secret::new(request.admin_password),
-        public_base_url: crate::tenancy::normalize_host(&request.host)
-            .map(|host| format!("https://{host}")),
-        business: request
-            .blueprint
-            .filter(|blueprint| !blueprint.is_empty())
-            .map(|blueprint| serde_json::json!({ "business_type": blueprint })),
-        ip: client.0.ip.clone(),
-        modules: request.modules,
-        module_settings: Default::default(),
+    let (registration, install) = match request {
+        CreateTenantRequest::Blank { host } => {
+            let name = crate::tenancy::normalize_host(&host)
+                .ok_or_else(|| AppError::validation_code("tenant_host_invalid", "invalid host"))?
+                .chars()
+                .take(140)
+                .collect();
+            (
+                TenantRegistration {
+                    slug: uuid::Uuid::now_v7().simple().to_string(),
+                    name,
+                    hosts: vec![host],
+                },
+                None,
+            )
+        }
+        CreateTenantRequest::Configured(request) => {
+            validate_password(&request.admin_password)?;
+            let business = request
+                .blueprint
+                .filter(|key| !key.is_empty())
+                .map(|key| serde_json::json!({ "business_type": key }));
+            crate::application::installer::modules::prepare(
+                crate::modules::app(),
+                &request.modules,
+                &Default::default(),
+                business.as_ref(),
+            )?;
+            let install = InstallCommand {
+                organization_name: request.name.clone(),
+                timezone: request.timezone,
+                currency: request.currency,
+                locale: request.locale,
+                admin_name: request.admin_name,
+                admin_email: request.admin_email,
+                admin_password: Secret::new(request.admin_password),
+                public_base_url: crate::tenancy::normalize_host(&request.host)
+                    .map(|host| format!("https://{host}")),
+                business,
+                ip: client.0.ip.clone(),
+                modules: request.modules,
+                module_settings: Default::default(),
+            };
+            (
+                TenantRegistration {
+                    slug: request.slug.trim().to_owned(),
+                    name: request.name,
+                    hosts: vec![request.host],
+                },
+                Some(install),
+            )
+        }
     };
+    let tenant = register_tenant(&state.control, &actor(&session, &client), registration).await?;
     let background = state.clone();
     let provisioned = tenant.clone();
     tokio::spawn(async move {

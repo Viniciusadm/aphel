@@ -560,6 +560,7 @@
         "tags": [
           "console"
         ],
+        "description": "With mode blank, only host is required: an internal identifier and console label are generated, the isolated database is migrated and the normal installer stays available on that host. No organization, administrator, optional modules or blueprint are installed. With mode configured, the supplied organization, administrator and configuration are installed during provisioning.",
         "operationId": "console_create_tenant",
         "requestBody": {
           "content": {
@@ -2725,7 +2726,7 @@
           }
         }
       },
-      "CreateTenantRequest": {
+      "ConfiguredTenantRequest": {
         "type": "object",
         "required": [
           "slug",
@@ -2786,6 +2787,49 @@
             "example": "America/Sao_Paulo"
           }
         }
+      },
+      "CreateTenantRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "host",
+              "mode"
+            ],
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "blank"
+                ]
+              }
+            }
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConfiguredTenantRequest"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "mode"
+                ],
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "configured"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       },
       "Data_CatalogResponse": {
         "type": "object",

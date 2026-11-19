@@ -238,7 +238,7 @@ pub async fn create_tenant(
     install: InstallCommand,
 ) -> Result<Tenant, AppError> {
     let tenant = register_tenant(control, actor, registration).await?;
-    provision_tenant(control, config, &tenant, install).await
+    provision_tenant(control, config, &tenant, Some(install)).await
 }
 
 pub async fn register_tenant(
@@ -342,7 +342,7 @@ pub async fn provision_tenant(
     control: &ControlPlane,
     config: &AppConfig,
     tenant: &Tenant,
-    install: InstallCommand,
+    install: Option<InstallCommand>,
 ) -> Result<Tenant, AppError> {
     match provision(control, config, tenant, install).await {
         Ok(()) => {
@@ -363,7 +363,7 @@ async fn provision(
     control: &ControlPlane,
     config: &AppConfig,
     tenant: &Tenant,
-    install: InstallCommand,
+    install: Option<InstallCommand>,
 ) -> Result<(), AppError> {
     sqlx::query(sqlx::AssertSqlSafe(format!(
         "CREATE DATABASE `{}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
@@ -372,6 +372,9 @@ async fn provision(
     .execute(control.pool())
     .await?;
     migrate_tenant(control, tenant).await?;
+    let Some(install) = install else {
+        return Ok(());
+    };
     let runtime = TenantRuntime::open(control, config, tenant.clone()).await?;
     let result = scope(runtime.clone(), async {
         let state = runtime
