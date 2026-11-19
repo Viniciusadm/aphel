@@ -167,3 +167,5 @@ With no outgoing email configured, Aphel keeps working: invitation and password-
 ### System update service
 
 `APHEL_UPDATER_SOCKET` is the absolute Unix socket path of the external update service (for example `/run/aphel-updater/updater.sock`). If unset, the system update screen explains that server setup is required and does not offer execution. Enable it only on the application container; the worker does not need access. See [Upgrading](/_aphel/docs/admin/upgrading/#update-from-the-interface) for installation and recovery.
+
+`APHEL_PUBLIC_IP` optionally sets the server IPv4 or IPv6 address shown in the operator console's company-creation DNS instructions. Configure it for each deployment, especially when the server is behind NAT. Missing or invalid values show generic instructions instead of assuming an address. The console explains A/AAAA records and optional wildcard DNS; DNS alone does not configure the reverse proxy or its certificates.

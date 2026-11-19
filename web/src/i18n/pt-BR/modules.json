@@ -471,6 +471,58 @@
     },
     "media": {
       "appears": "como seletor de arquivos da biblioteca nos editores de conteúdo"
+    },
+    "favorites": {
+      "name": "Favoritos",
+      "description": "Favoritos pessoais: registros fixados e visualizações salvas que aparecem no menu lateral."
+    },
+    "forms": {
+      "name": "Formulários de captura",
+      "description": "Formulários públicos que criam contatos e oportunidades"
+    },
+    "site": {
+      "name": "Site público",
+      "description": "Páginas públicas declaradas por plugins (posts de blog, catálogos, páginas de captura), geradas no servidor a partir dos registros publicados."
+    },
+    "org_export": {
+      "name": "Exportação completa",
+      "description": "Exportação completa da organização (zip com registros, relacionamentos, arquivos, configuração e manifesto) e sua restauração."
+    },
+    "microsoft": {
+      "name": "Microsoft",
+      "description": "Login com conta Microsoft (Entra ID) e sincronização das reuniões com o Outlook"
+    },
+    "calendar": {
+      "name": "Calendário",
+      "description": "Eventos de calendário fornecidos pelos módulos que têm registros com data."
+    },
+    "sso": {
+      "name": "Login único (OIDC)",
+      "description": "Login único com qualquer provedor OpenID Connect corporativo (Okta, Keycloak, Auth0, Entra ID…)"
+    },
+    "segments": {
+      "name": "Segmentos",
+      "description": "Filtros dinâmicos nomeados de registros, que podem ser usados como condição \"em filtro salvo\"."
+    },
+    "automations": {
+      "name": "Automações",
+      "description": "Automações sem código: gatilhos, condições e ações sobre registros, com versões, testes sem efeito, gatilhos por tempo, esperas e histórico de execuções."
+    },
+    "forecast": {
+      "name": "Previsão de receita",
+      "description": "Previsão mensal de receita a partir dos negócios abertos, com o método da organização, categorias e horizonte."
+    },
+    "google": {
+      "name": "Google",
+      "description": "Login com Google e sincronização das reuniões com o Google Agenda"
+    },
+    "privacy": {
+      "name": "Privacidade",
+      "description": "Privacidade (LGPD): titulares de dados pessoais, solicitações dos titulares e políticas de retenção."
+    },
+    "booking": {
+      "name": "Agendamento",
+      "description": "Links de agendamento: disponibilidade, tipos de reunião, links por equipe e a página pública de agendamento."
     }
   }
 }

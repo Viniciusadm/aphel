@@ -2650,6 +2650,7 @@
       "CatalogModuleResponse": {
         "type": "object",
         "required": [
+          "requires_configuration",
           "key",
           "name",
           "description",
@@ -2670,6 +2671,9 @@
           },
           "name": {
             "type": "string"
+          },
+          "requires_configuration": {
+            "type": "boolean"
           }
         }
       },
@@ -2695,6 +2699,12 @@
             "items": {
               "$ref": "#/components/schemas/CatalogModuleResponse"
             }
+          },
+          "server_public_ip": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -2805,6 +2815,12 @@
                 "items": {
                   "$ref": "#/components/schemas/CatalogModuleResponse"
                 }
+              },
+              "server_public_ip": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }

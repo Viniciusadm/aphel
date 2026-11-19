@@ -114,6 +114,17 @@ async fn create(
     JsonBody(request): JsonBody<CreateTenantRequest>,
 ) -> Result<(StatusCode, Json<Data<TenantResponse>>), ApiError> {
     validate_password(&request.admin_password)?;
+    let business = request
+        .blueprint
+        .as_ref()
+        .filter(|key| !key.is_empty())
+        .map(|key| serde_json::json!({ "business_type": key }));
+    crate::application::installer::modules::prepare(
+        crate::modules::app(),
+        &request.modules,
+        &Default::default(),
+        business.as_ref(),
+    )?;
     let tenant = register_tenant(
         &state.control,
         &actor(&session, &client),
@@ -481,11 +492,20 @@ async fn collect_health(runtime: Arc<TenantRuntime>) -> Result<TenantHealthRespo
 async fn catalog(_session: OperatorSession) -> Json<Data<CatalogResponse>> {
     let app = crate::modules::app();
     Json(Data::new(CatalogResponse {
+        server_public_ip: std::env::var("APHEL_PUBLIC_IP")
+            .ok()
+            .and_then(|value| value.trim().parse::<std::net::IpAddr>().ok())
+            .map(|ip| ip.to_string()),
         modules: app
             .modules()
             .iter()
             .filter(|entry| !entry.manifest.required && entry.is_compatible())
             .map(|entry| CatalogModuleResponse {
+                requires_configuration: entry
+                    .manifest
+                    .settings
+                    .iter()
+                    .any(|field| field.required && field.default.is_none()),
                 key: entry.key().to_owned(),
                 name: entry.manifest.name.to_owned(),
                 description: entry.manifest.description.to_owned(),

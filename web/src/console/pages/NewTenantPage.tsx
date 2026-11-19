@@ -12,7 +12,10 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Page } from '@/components/ui/page'
 import { PageHeader } from '@/components/ui/page-header'
-import { ToggleField } from '@/components/ui/toggle-field'
+import { PasswordInput } from '@/components/ui/password-input'
+import { ErrorState } from '@/components/ui/error-state'
+import { currencyLabel, currencyOptions, timezoneOptions } from '@/features/settings/organization/lib/preferences'
+import { TenantModulePicker } from '../components/TenantModulePicker'
 import { consoleApi, consoleKeys } from '../api'
 import { FormError } from '../components/FormError'
 import { consoleErrorMessage, notifyConsoleSuccess } from '../errors'
@@ -37,7 +40,8 @@ const schema = z.object({
 type Values = z.infer<typeof schema>
 
 export function NewTenantPage() {
-  const { t } = useTranslation('console')
+  const { t, i18n } = useTranslation('console')
+  const [blank, setBlank] = useState(false)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [failure, setFailure] = useState<string | null>(null)
@@ -48,6 +52,7 @@ export function NewTenantPage() {
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<Values>({
     resolver: zodResolver(schema),
@@ -66,6 +71,8 @@ export function NewTenantPage() {
     },
   })
 
+  const blueprint = watch('blueprint')
+  const profile = catalog.data?.blueprints.find((item) => item.key === blueprint)
   const message = (key: string | undefined) => (key ? t(key as 'validation.required') : undefined)
 
   const onSubmit = handleSubmit(async (values) => {
@@ -78,8 +85,8 @@ export function NewTenantPage() {
         admin_name: values.adminName,
         admin_email: values.adminEmail,
         admin_password: values.adminPassword,
-        blueprint: values.blueprint || null,
-        modules: values.modules,
+        blueprint: blank ? null : values.blueprint || null,
+        modules: blank ? [] : values.modules,
         timezone: values.timezone,
         currency: values.currency.toUpperCase(),
         locale: values.locale,
@@ -101,10 +108,15 @@ export function NewTenantPage() {
   const slugField = register('slug', { onChange: () => setSlugEdited(true) })
 
   return (
-    <Page width="form">
+    <Page>
       <PageHeader title={t('create.title')} description={t('create.description')} back={{ to: TENANTS_PATH, label: t('tenant.back') }} />
       <form className="grid gap-6" onSubmit={onSubmit} noValidate>
         <FormError message={failure} />
+        <Card><CardHeader><CardTitle>{t('create.startTitle')}</CardTitle><CardDescription>{t('create.startHelp')}</CardDescription></CardHeader>
+          <CardContent className="flex flex-wrap gap-3"><Button type="button" variant={!blank ? 'default' : 'outline'} onClick={() => setBlank(false)}>{t('create.customSetup')}</Button>
+            <Button type="button" variant={blank ? 'default' : 'outline'} onClick={() => { setBlank(true); setValue('blueprint', ''); setValue('modules', []); setFailure(null) }}>{t('create.blank')}</Button>
+            {blank && <p className="w-full text-sm text-muted-foreground" role="status">{t('create.blankHelp')}</p>}
+          </CardContent></Card>
         <Card>
           <CardHeader>
             <CardTitle>{t('create.company')}</CardTitle>
@@ -116,9 +128,10 @@ export function NewTenantPage() {
             <Field label={t('create.slug')} required description={t('create.slugHelp')} error={message(errors.slug?.message)}>
               {(field) => <Input {...field} autoComplete="off" spellCheck={false} {...slugField} />}
             </Field>
-            <Field label={t('create.host')} required description={t('create.hostHelp')} error={message(errors.host?.message)}>
-              {(field) => <Input {...field} inputMode="url" autoComplete="off" spellCheck={false} placeholder="empresa.exemplo.com" {...register('host')} />}
+<Field label={t('create.host')} required description={t('create.hostHelp')} error={message(errors.host?.message)}>
+              {(field) => <Input {...field} inputMode="url" autoComplete="off" spellCheck={false} placeholder={t('create.hostPlaceholder')} {...register('host')} />}
             </Field>
+            <div className="rounded-md border border-border bg-muted/40 p-4 text-sm"><p className="font-medium">{t('create.dnsTitle')}</p><p className="mt-2 text-muted-foreground">{t('create.dnsHelp', { ip: catalog.data?.server_public_ip || t('create.serverIpFallback'), recordType: catalog.data?.server_public_ip?.includes(':') ? 'AAAA' : 'A' })}</p><details className="mt-3"><summary className="cursor-pointer font-medium">{t('create.wildcardTitle')}</summary><p className="mt-2 text-muted-foreground">{t('create.wildcardHelp', { ip: catalog.data?.server_public_ip || t('create.serverIpFallback'), recordType: catalog.data?.server_public_ip?.includes(':') ? 'AAAA' : 'A' })}</p></details></div>
           </CardContent>
         </Card>
         <Card>
@@ -138,78 +151,68 @@ export function NewTenantPage() {
               description={t('create.adminPasswordHelp')}
               error={message(errors.adminPassword?.message)}
             >
-              {(field) => <Input {...field} type="password" autoComplete="new-password" {...register('adminPassword')} />}
+              {(field) => <PasswordInput {...field} autoComplete="new-password" {...register('adminPassword')} />}
             </Field>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>{t('create.setup')}</CardTitle>
-            <CardDescription>{t('create.modulesHelp')}</CardDescription>
+            <CardDescription>{blank ? t('create.blankHelp') : t('create.modulesHelp')}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <Field label={t('create.blueprint')}>
+            {!blank && <Field label={t('create.blueprint')}>
               {(field) => (
-                <NativeSelect {...field} {...register('blueprint')}>
+                <NativeSelect {...field} {...register('blueprint', { onChange: (event: { target: { value: string } }) => {
+                    const chosen = catalog.data?.blueprints.find((item) => item.key === event.target.value)
+                    const ready = (key: string, seen = new Set<string>()): boolean => {
+                      if (seen.has(key)) return true
+                      seen.add(key)
+                      const item = catalog.data?.modules.find((candidate) => candidate.key === key)
+                      return Boolean(item && !item.requires_configuration && item.dependencies.every((dependency) => ready(dependency, seen)))
+                    }
+                    setValue('modules', (chosen?.modules ?? []).filter((key) => ready(key)))
+                  } })}>
                   <option value="">{t('create.blueprintNone')}</option>
                   {catalog.data?.blueprints.map((blueprint) => (
                     <option key={blueprint.key} value={blueprint.key}>
-                      {blueprint.key}
+                      {t(`create.profiles.${blueprint.key}` as 'create.blueprintNone', { defaultValue: t('create.blueprintNone') })}
                     </option>
                   ))}
                 </NativeSelect>
               )}
-            </Field>
+            </Field>}
             <div className="grid gap-4 sm:grid-cols-3">
               <Field label={t('create.timezone')} required error={message(errors.timezone?.message)}>
-                {(field) => <Input {...field} autoComplete="off" {...register('timezone')} />}
+                {(field) => <NativeSelect {...field} {...register('timezone')}>{timezoneOptions('America/Sao_Paulo').map((zone) => <option key={zone} value={zone}>{new Intl.DateTimeFormat(i18n.language, { timeZone: zone, timeZoneName: 'long' }).formatToParts(new Date()).find((part) => part.type === 'timeZoneName')?.value} — {zone.split('/').at(-1)?.replaceAll('_', ' ')}</option>)}</NativeSelect>}
               </Field>
               <Field label={t('create.currency')} required error={message(errors.currency?.message)}>
-                {(field) => <Input {...field} maxLength={3} autoComplete="off" className="uppercase" {...register('currency')} />}
+                {(field) => <NativeSelect {...field} {...register('currency')}>{currencyOptions('BRL').map((code) => <option key={code} value={code}>{currencyLabel(code, i18n.language)}</option>)}</NativeSelect>}
               </Field>
               <Field label={t('create.locale')}>
                 {(field) => (
                   <NativeSelect {...field} {...register('locale')}>
                     {LOCALES.map((locale) => (
                       <option key={locale} value={locale}>
-                        {locale}
+                        {locale === 'pt-BR' ? t('create.portuguese') : t('create.english')}
                       </option>
                     ))}
                   </NativeSelect>
                 )}
               </Field>
             </div>
-            {catalog.data && catalog.data.modules.length > 0 && (
-              <fieldset className="grid gap-2">
-                <legend className="mb-2 text-sm font-medium">{t('create.modules')}</legend>
-                <Controller
-                  control={control}
-                  name="modules"
-                  render={({ field }) => (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {catalog.data.modules.map((module) => (
-                        <ToggleField
-                          key={module.key}
-                          label={module.name}
-                          description={module.description}
-                          checked={field.value.includes(module.key)}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked ? [...field.value, module.key] : field.value.filter((key) => key !== module.key))
-                          }
-                        />
-                      ))}
-                    </div>
-                  )}
-                />
-              </fieldset>
-            )}
+            {!blank && <>
+              {catalog.isPending && <p role="status">{t('create.loadingCatalog')}</p>}
+              {catalog.isError && <ErrorState onRetry={() => void catalog.refetch()} />}
+              {catalog.data && <Controller control={control} name="modules" render={({ field }) => <TenantModulePicker catalog={catalog.data} selected={field.value} required={profile?.required ?? []} recommended={profile?.modules ?? []} onChange={field.onChange} />} />}
+            </>}
           </CardContent>
         </Card>
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => void navigate(TENANTS_PATH)}>
             {t('create.cancel')}
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || catalog.isPending || catalog.isError}>
             {t('create.submit')}
           </Button>
         </div>

@@ -591,11 +591,13 @@ export interface components {
             description: string;
             key: string;
             name: string;
+            requires_configuration: boolean;
         };
         CatalogResponse: {
             blueprints: components["schemas"]["InstallerProfile"][];
             export_available: boolean;
             modules: components["schemas"]["CatalogModuleResponse"][];
+            server_public_ip?: string | null;
         };
         ChangePasswordRequest: {
             current_password: string;
@@ -624,6 +626,7 @@ export interface components {
                 blueprints: components["schemas"]["InstallerProfile"][];
                 export_available: boolean;
                 modules: components["schemas"]["CatalogModuleResponse"][];
+                server_public_ip?: string | null;
             };
         };
         Data_InvitationDetailsResponse: {

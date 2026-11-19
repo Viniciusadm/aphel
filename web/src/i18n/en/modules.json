@@ -471,6 +471,58 @@
     },
     "media": {
       "appears": "as a library file picker in content editors"
+    },
+    "favorites": {
+      "name": "Favorites",
+      "description": "Personal favorites: pinned records and saved views shown in the sidebar"
+    },
+    "forms": {
+      "name": "Lead forms",
+      "description": "Public forms that create people and deals"
+    },
+    "site": {
+      "name": "Public site",
+      "description": "Public pages that plugins declare (blog posts, catalogs, landing pages), rendered on the server from their published records"
+    },
+    "org_export": {
+      "name": "Full export",
+      "description": "Full export of the organization (zip with records, relationships, files, configuration and manifest) and its restoration"
+    },
+    "microsoft": {
+      "name": "Microsoft",
+      "description": "Sign in with a Microsoft account (Entra ID) and sync meetings with Outlook"
+    },
+    "calendar": {
+      "name": "Calendar",
+      "description": "Calendar entries contributed by enabled record owners."
+    },
+    "sso": {
+      "name": "Single sign-on (OIDC)",
+      "description": "Single sign-on with any corporate OpenID Connect provider (Okta, Keycloak, Auth0, Entra ID…)"
+    },
+    "segments": {
+      "name": "Segments",
+      "description": "Named dynamic filters of records, usable as the in_saved_filter filter condition"
+    },
+    "automations": {
+      "name": "Automations",
+      "description": "No-code automations: triggers, conditions and actions over records, versions, dry runs, time triggers, waits and run history"
+    },
+    "forecast": {
+      "name": "Forecast",
+      "description": "Revenue forecast per month from open deals, with the organization method, categories and horizon"
+    },
+    "google": {
+      "name": "Google",
+      "description": "Sign in with Google and sync meetings with Google Calendar"
+    },
+    "privacy": {
+      "name": "Privacy",
+      "description": "Privacy (LGPD): personal data subjects, data subject requests and retention policies"
+    },
+    "booking": {
+      "name": "Booking",
+      "description": "Booking links: availability, meeting types, team links and the public booking page"
     }
   }
 }

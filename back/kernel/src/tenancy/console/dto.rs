@@ -192,6 +192,7 @@ pub struct TenantHealthResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CatalogModuleResponse {
+    pub requires_configuration: bool,
     pub key: String,
     pub name: String,
     pub description: String,
@@ -200,6 +201,7 @@ pub struct CatalogModuleResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CatalogResponse {
+    pub server_public_ip: Option<String>,
     pub modules: Vec<CatalogModuleResponse>,
     pub blueprints: Vec<InstallerProfile>,
     pub export_available: bool,
