@@ -1,4 +1,21 @@
 export interface paths {
+    "/_aphel/tenancy/tls/authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Reverse proxy callback for on-demand TLS in multi-tenant mode. Available before host dispatch without an operator session. Allows only exact registered hosts of active tenants, using the in-memory directory. Unknown, suspended and deleting hosts are denied. No certificate is issued by this endpoint. */
+        get: operations["tenancy_authorize_tls"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/v1/audit": {
         parameters: {
             query?: never;
@@ -1077,6 +1094,41 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    tenancy_authorize_tls: {
+        parameters: {
+            query: {
+                /** @description The TLS server name requested by the proxy */
+                domain: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The proxy may manage a certificate for this host */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing domain query parameter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Certificate management is not authorized for this host */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     console_audit: {
         parameters: {
             query?: {

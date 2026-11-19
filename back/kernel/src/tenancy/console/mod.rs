@@ -73,7 +73,9 @@ fn api() -> OpenApiRouter<Shared> {
 }
 
 pub fn openapi() -> utoipa::openapi::OpenApi {
-    api().into_openapi()
+    let mut document = api().into_openapi();
+    document.merge(super::tls::openapi());
+    document
 }
 
 pub fn openapi_json() -> Result<String, serde_json::Error> {

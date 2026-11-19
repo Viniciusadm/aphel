@@ -10,6 +10,37 @@
     "version": "0.1.1"
   },
   "paths": {
+    "/_aphel/tenancy/tls/authorize": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "description": "Reverse proxy callback for on-demand TLS in multi-tenant mode. Available before host dispatch without an operator session. Allows only exact registered hosts of active tenants, using the in-memory directory. Unknown, suspended and deleting hosts are denied. No certificate is issued by this endpoint.",
+        "operationId": "tenancy_authorize_tls",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "query",
+            "description": "The TLS server name requested by the proxy",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The proxy may manage a certificate for this host"
+          },
+          "400": {
+            "description": "Missing domain query parameter"
+          },
+          "403": {
+            "description": "Certificate management is not authorized for this host"
+          }
+        }
+      }
+    },
     "/api/console/v1/audit": {
       "get": {
         "tags": [

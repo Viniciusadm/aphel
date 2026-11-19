@@ -113,9 +113,9 @@
     "loadingCatalog": "Carregando modelos e módulos…",
     "hostPlaceholder": "empresa.seudominio.com.br",
     "dnsTitle": "Como configurar o endereço da empresa",
-    "dnsHelp": "No painel de DNS do seu domínio, crie um registro do tipo {{recordType}} para o subdomínio escolhido apontando para {{ip}}. Por exemplo, para empresa.seudominio.com.br, use o nome empresa. Informe aqui somente o endereço, sem https:// ou caminhos. Aguarde a propagação do DNS. O endereço também precisa estar configurado no proxy HTTPS do servidor; apontar o DNS sozinho não conclui a publicação.",
+    "dnsHelp": "No painel de DNS do seu domínio, crie um registro do tipo {{recordType}} para o subdomínio escolhido apontando para {{ip}}. Por exemplo, para empresa.seudominio.com.br, use o nome empresa. Informe aqui somente o endereço, sem https:// ou caminhos. Depois da propagação do DNS e da preparação da empresa, o HTTPS será emitido automaticamente no primeiro acesso. Isso pode levar alguns segundos; não é necessário configurar cada domínio na VPS.",
     "wildcardTitle": "Opcional: o que é um domínio wildcard?",
-    "wildcardHelp": "Um registro {{recordType}} com nome * apontando para {{ip}} permite que vários subdomínios do mesmo domínio cheguem ao servidor, como empresa1.seudominio.com.br e empresa2.seudominio.com.br. Isso evita criar um registro DNS para cada empresa. Cada endereço ainda precisa ser cadastrado na empresa correspondente e atendido pelo proxy com HTTPS válido. O wildcard não cria empresas automaticamente, não substitui registros específicos existentes e não cobre o domínio principal nem todos os níveis de subdomínio.",
+    "wildcardHelp": "Um registro {{recordType}} com nome * apontando para {{ip}} permite que vários subdomínios do mesmo domínio cheguem ao servidor, como empresa1.seudominio.com.br e empresa2.seudominio.com.br. Isso evita criar um registro DNS para cada empresa. Cadastre cada endereço na empresa correspondente: o HTTPS de cada um será emitido automaticamente no primeiro acesso. O wildcard não cria empresas automaticamente, não substitui registros específicos existentes e não cobre o domínio principal nem todos os níveis de subdomínio.",
     "profiles": {
       "crm": "CRM",
       "freelancer": "Profissional autônomo",

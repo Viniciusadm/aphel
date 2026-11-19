@@ -25,6 +25,35 @@ CONSOLE_HOST=console.example.com
 
 Point the DNS of every tenant host and of the console host to the server. The reverse proxy must keep the original `Host` header.
 
+### Automatic HTTPS for tenant domains
+
+Configure the proxy once for the installation, using `docker/Caddyfile.multi` as the Caddy template. Set `CONSOLE_HOST` in Caddy's service environment to the console domain. Keep Aphel bound to the loopback interface (`127.0.0.1:3001`), and expose ports 80 and 443 for certificate validation. If the VPS serves other applications, keep their existing explicit site blocks alongside the catch-all site.
+
+```caddyfile
+{
+    on_demand_tls {
+        ask http://127.0.0.1:3001/_aphel/tenancy/tls/authorize
+    }
+}
+
+console.example.com {
+    reverse_proxy 127.0.0.1:3001
+}
+
+https:// {
+    tls {
+        on_demand
+    }
+    reverse_proxy 127.0.0.1:3001
+}
+```
+
+After that one-time proxy setup, operators only register a host on a tenant and point its DNS to the VPS. Caddy obtains HTTPS automatically during the first connection and renews the certificate. That first connection may take a few seconds. A wildcard DNS record can route many subdomains to the VPS; each host must still be registered to a tenant. This uses individual certificates and does not require a wildcard certificate or DNS provider credentials.
+
+The authorization callback uses the same in-memory directory as host routing. Only exact hosts belonging to active tenants are allowed. Unknown hosts, suspended tenants and tenants being deleted are denied. Missing parameters return 400; authorization returns 204 or 403, with no tenant data. The callback works with a loopback Host header and never falls through to a tenant or the console login. Adding or removing hosts refreshes the directory; no proxy reload or privileged application access is needed. Certificates already cached by the proxy can remain valid after suspension or host removal, but Aphel still refuses application access according to its current directory.
+
+Without this proxy integration, merely pointing DNS at the VPS is insufficient. Do not enable unrestricted on-demand certificate issuance.
+
 ## First steps
 
 1. Start `aphel serve` and `aphel worker` (or `aphel serve --with-worker`) with `CONTROL_DATABASE_URL`. They create the control tables on boot when `RUN_MIGRATIONS` is on.

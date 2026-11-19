@@ -27,6 +27,7 @@ pub fn router(
     directory: Arc<TenantDirectory>,
     runtimes: Arc<TenantRuntimes>,
 ) -> Router {
+    let tls = super::tls::router(directory.clone());
     let console = config
         .console_host
         .as_deref()
@@ -46,7 +47,12 @@ pub fn router(
         runtimes,
         console,
     });
-    crate::api::with_process_layers(Router::new().fallback(dispatch).with_state(dispatcher))
+    crate::api::with_process_layers(
+        Router::new()
+            .fallback(dispatch)
+            .with_state(dispatcher)
+            .merge(tls),
+    )
 }
 
 pub fn spawn_directory_refresh(

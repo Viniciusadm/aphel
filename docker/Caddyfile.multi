@@ -1,0 +1,18 @@
+{
+    on_demand_tls {
+        ask http://127.0.0.1:3001/_aphel/tenancy/tls/authorize
+    }
+}
+
+{$CONSOLE_HOST} {
+    encode gzip
+    reverse_proxy 127.0.0.1:3001
+}
+
+https:// {
+    tls {
+        on_demand
+    }
+    encode gzip
+    reverse_proxy 127.0.0.1:3001
+}

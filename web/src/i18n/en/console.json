@@ -113,9 +113,9 @@
     "loadingCatalog": "Loading templates and modules…",
     "hostPlaceholder": "company.example.com",
     "dnsTitle": "Configure the company address",
-    "dnsHelp": "In your domain DNS panel, create a {{recordType}} record for the chosen subdomain pointing to {{ip}}. For company.example.com, use company as its name. Enter the hostname only, without https:// or a path. Wait for DNS propagation. The address must also be configured in the server HTTPS proxy; DNS alone does not publish the company.",
+    "dnsHelp": "In your domain DNS panel, create a {{recordType}} record for the chosen subdomain pointing to {{ip}}. For company.example.com, use company as its name. Enter the hostname only, without https:// or a path. After DNS propagation and instance preparation, HTTPS will be issued automatically on first access. This may take a few seconds; no per-domain VPS configuration is needed.",
     "wildcardTitle": "Optional: what is a wildcard domain?",
-    "wildcardHelp": "A {{recordType}} record named * pointing to {{ip}} routes multiple subdomains to the server, such as company1.example.com and company2.example.com. Each address must still be registered to its company and served by the proxy with valid HTTPS. This does not create companies, override explicit DNS records, or cover the root domain or every level of subdomain.",
+    "wildcardHelp": "A {{recordType}} record named * pointing to {{ip}} routes multiple subdomains to the server, such as company1.example.com and company2.example.com. Register each address to its corresponding company: HTTPS will be issued automatically on first access. The wildcard does not create companies, override explicit records, cover the base domain or cover every subdomain level.",
     "profiles": {
       "crm": "CRM",
       "freelancer": "Freelancer",

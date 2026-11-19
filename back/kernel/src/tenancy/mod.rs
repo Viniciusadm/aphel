@@ -10,6 +10,7 @@ mod runtime;
 mod scope;
 mod store;
 mod tenant;
+mod tls;
 mod worker;
 
 use std::sync::OnceLock;
